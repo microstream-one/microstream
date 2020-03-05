@@ -16,7 +16,7 @@ public interface StorageRequestTaskCreator
 		StorageOperationController operationController
 	);
 
-	public StorageRequestTaskStoreEntities createSaveTask(Binary medium);
+	public StorageRequestTaskStoreEntities createSaveTask(Binary data);
 
 	public StorageRequestTaskLoadByOids createLoadTaskByOids(PersistenceIdSet[] loadOids);
 
@@ -46,9 +46,8 @@ public interface StorageRequestTaskCreator
 	public StorageRequestTaskCreateStatistics createCreateRawFileStatisticsTask(int channelCount);
 
 	public StorageRequestTaskFileCheck createFullFileCheckTask(
-		int                                channelCount  ,
-		long                               nanoTimeBudget,
-		StorageDataFileDissolvingEvaluator fileDissolver
+		int  channelCount  ,
+		long nanoTimeBudget
 	);
 
 	public StorageRequestTaskCacheCheck createFullCacheCheckTask(
@@ -124,11 +123,11 @@ public interface StorageRequestTaskCreator
 		}
 
 		@Override
-		public StorageRequestTaskStoreEntities createSaveTask(final Binary medium)
+		public StorageRequestTaskStoreEntities createSaveTask(final Binary data)
 		{
 			return new StorageRequestTaskStoreEntities.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				medium
+				data
 			);
 		}
 
@@ -199,30 +198,28 @@ public interface StorageRequestTaskCreator
 
 		@Override
 		public StorageRequestTaskFileCheck createFullFileCheckTask(
-			final int                                channelCount       ,
-			final long                               nanoTimeBudgetBound,
-			final StorageDataFileDissolvingEvaluator fileDissolver
+			final int  channelCount       ,
+			final long nanoTimeBudget
 		)
 		{
 			return new StorageRequestTaskFileCheck.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount,
-				nanoTimeBudgetBound,
-				fileDissolver
+				nanoTimeBudget
 			);
 		}
 
 		@Override
 		public StorageRequestTaskCacheCheck createFullCacheCheckTask(
-			final int                         channelCount       ,
-			final long                        nanoTimeBudgetBound,
+			final int                         channelCount   ,
+			final long                        nanoTimeBudget ,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 		{
 			return new StorageRequestTaskCacheCheck.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount,
-				nanoTimeBudgetBound,
+				nanoTimeBudget,
 				entityEvaluator
 			);
 		}

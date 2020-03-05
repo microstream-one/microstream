@@ -1,9 +1,11 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceSourceSupplier<M> extends PersistenceObjectRetriever
+import one.microstream.reference.ObjectSwizzling;
+
+public interface PersistenceSourceSupplier<D> extends ObjectSwizzling
 {
 	@Override
 	public Object getObject(long objectId);
 
-	public PersistenceSource<M> source();
+	public PersistenceSource<D> source();
 }

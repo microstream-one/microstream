@@ -51,7 +51,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 		this.tdArchive = XIO.Path(this.directory, "TypeDictionaryArchive");
 		
 		final String fileName = XIO.getFileName(file);
-		final int dotIndex = fileName.lastIndexOf('.');
+		final int dotIndex = fileName.lastIndexOf(XIO.fileSuffixSeparator());
 		
 		if(dotIndex < 0)
 		{

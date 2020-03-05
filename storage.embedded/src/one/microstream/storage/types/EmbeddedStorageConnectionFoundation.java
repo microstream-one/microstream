@@ -13,13 +13,13 @@ public interface EmbeddedStorageConnectionFoundation<F extends EmbeddedStorageCo
 extends BinaryPersistenceFoundation<F>
 {
 	// intentionally no "get" prefix since this is a pure pseudo-property getter and not an action.
-	public Supplier<? extends StorageManager> storageManagerSupplier();
+	public Supplier<? extends StorageSystem> storageSystemSupplier();
 	
-	public StorageManager getStorageManager();
+	public StorageSystem getStorageSystem();
 
-	public F setStorageManager(StorageManager storageManager);
+	public F setStorageSystem(StorageSystem storageSystem);
 	
-	public F setStorageManagerSupplier(Supplier<? extends StorageManager> storageManagerSupplier);
+	public F setStorageSystemSupplier(Supplier<? extends StorageSystem> storageSystemSupplier);
 	
 	public StorageConnection createStorageConnection();
 
@@ -38,9 +38,9 @@ extends BinaryPersistenceFoundation<F>
 		// instance fields //
 		////////////////////
 
-		private StorageManager                     storageManager           ;
-		private Supplier<? extends StorageManager> storageManagerSupplier   ;
-		private transient StorageRequestAcceptor   connectionRequestAcceptor;
+		private StorageSystem                     storageSystem            ;
+		private Supplier<? extends StorageSystem> storageSystemSupplier    ;
+		private transient StorageRequestAcceptor  connectionRequestAcceptor;
 		
 		
 		
@@ -60,19 +60,19 @@ extends BinaryPersistenceFoundation<F>
 		////////////
 
 		@Override
-		public Supplier<? extends StorageManager> storageManagerSupplier()
+		public Supplier<? extends StorageSystem> storageSystemSupplier()
 		{
-			return this.storageManagerSupplier;
+			return this.storageSystemSupplier;
 		}
 		
 		@Override
-		public StorageManager getStorageManager()
+		public StorageSystem getStorageSystem()
 		{
-			if(this.storageManager == null)
+			if(this.storageSystem == null)
 			{
-				this.storageManager = this.dispatch(this.ensureStorageManager());
+				this.storageSystem = this.dispatch(this.ensureStorageSystem());
 			}
-			return this.storageManager;
+			return this.storageSystem;
 		}
 
 
@@ -82,18 +82,18 @@ extends BinaryPersistenceFoundation<F>
 		////////////
 
 		@Override
-		public F setStorageManager(
-			final StorageManager storageManager
+		public F setStorageSystem(
+			final StorageSystem storageSystem
 		)
 		{
-			this.storageManager = storageManager;
+			this.storageSystem = storageSystem;
 			return this.$();
 		}
 		
 		@Override
-		public F setStorageManagerSupplier(final Supplier<? extends StorageManager> storageManagerSupplier)
+		public F setStorageSystemSupplier(final Supplier<? extends StorageSystem> storageSystemSupplier)
 		{
-			this.storageManagerSupplier = storageManagerSupplier;
+			this.storageSystemSupplier = storageSystemSupplier;
 			return this.$();
 		}
 		
@@ -103,26 +103,26 @@ extends BinaryPersistenceFoundation<F>
 		// methods //
 		////////////
 		
-		protected final void internalSetStorageManager(final StorageManager storageManager)
+		protected final void internalSetStorageSystem(final StorageSystem storageSystem)
 		{
-			this.storageManager = storageManager;
+			this.storageSystem = storageSystem;
 		}
 
-		protected StorageManager ensureStorageManager()
+		protected StorageSystem ensureStorageSystem()
 		{
-			if(this.storageManagerSupplier != null)
+			if(this.storageSystemSupplier != null)
 			{
-				return notNull(this.storageManagerSupplier.get());
+				return notNull(this.storageSystemSupplier.get());
 			}
 			
-			throw new MissingFoundationPartException(StorageManager.class);
+			throw new MissingFoundationPartException(StorageSystem.class);
 		}
 
 		@Override
 		protected BinaryLoader.Creator ensureBuilderCreator()
 		{
 			return new BinaryLoader.CreatorChannelHashing(
-				this.getStorageManager().operationController().channelCountProvider(),
+				this.getStorageSystem().operationController().channelCountProvider(),
 				this.isByteOrderMismatch()
 			);
 		}
@@ -131,7 +131,7 @@ extends BinaryPersistenceFoundation<F>
 		protected BinaryStorer.Creator ensureStorerCreator()
 		{
 			return BinaryStorer.Creator(
-				this.getStorageManager().channelCountProvider(),
+				this.getStorageSystem().channelCountProvider(),
 				this.isByteOrderMismatch()
 			);
 		}
@@ -152,7 +152,7 @@ extends BinaryPersistenceFoundation<F>
 		{
 			if(this.connectionRequestAcceptor == null)
 			{
-				this.connectionRequestAcceptor = this.storageManager.createRequestAcceptor();
+				this.connectionRequestAcceptor = this.storageSystem.createRequestAcceptor();
 			}
 			return this.connectionRequestAcceptor;
 		}

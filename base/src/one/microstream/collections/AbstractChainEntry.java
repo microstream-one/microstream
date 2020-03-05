@@ -14,31 +14,6 @@ public abstract class AbstractChainEntry<E, K, V, EN extends AbstractChainEntry<
 implements ChainStorage.Entry<E, K, V, EN>, KeyValue<K, V>, java.util.Map.Entry<K, V>
 {
 	///////////////////////////////////////////////////////////////////////////
-	// constants //
-	//////////////
-
-	// (13.04.2016)TODO: test and delete or comment if that hopping is really faster than a tiny if-check
-	public static final Hopper HOP_NEXT = new Hopper()
-	{
-		@Override
-		public <E, K, V, EN extends AbstractChainEntry<E, K, V, EN>> EN hop(final EN e)
-		{
-			return e.next;
-		}
-	};
-
-	public static final Hopper HOP_PREV = new Hopper()
-	{
-		@Override
-		public <E, K, V, EN extends AbstractChainEntry<E, K, V, EN>> EN hop(final EN e)
-		{
-			return e.prev;
-		}
-	};
-
-
-
-	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 
@@ -250,8 +225,4 @@ implements ChainStorage.Entry<E, K, V, EN>, KeyValue<K, V>, java.util.Map.Entry<
 
 	}
 
-	public interface Hopper
-	{
-		public <E, K, V, EN extends AbstractChainEntry<E, K, V, EN>> EN hop(EN entry);
-	}
 }

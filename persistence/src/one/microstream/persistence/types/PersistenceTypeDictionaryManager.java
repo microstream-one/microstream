@@ -3,6 +3,7 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 
 import one.microstream.X;
+import one.microstream.persistence.exceptions.PersistenceException;
 
 public interface PersistenceTypeDictionaryManager extends PersistenceTypeDictionaryProvider
 {
@@ -35,7 +36,7 @@ public interface PersistenceTypeDictionaryManager extends PersistenceTypeDiction
 		if(registered != null && !PersistenceTypeDescription.equalStructure(registered, typeDefinition))
 		{
 			// (31.07.2014 TM)EXCP: proper exception
-			throw new RuntimeException("Type Definition mismatch: " + typeDefinition);
+			throw new PersistenceException("Type Definition mismatch: " + typeDefinition);
 		}
 	}
 

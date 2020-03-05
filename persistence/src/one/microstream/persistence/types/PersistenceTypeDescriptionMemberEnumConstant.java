@@ -4,6 +4,8 @@ import static one.microstream.X.notNull;
 
 import java.util.Objects;
 
+import one.microstream.persistence.exceptions.PersistenceException;
+
 public interface PersistenceTypeDescriptionMemberEnumConstant extends PersistenceTypeDescriptionMember
 {
 	@Override
@@ -175,8 +177,8 @@ public interface PersistenceTypeDescriptionMemberEnumConstant extends Persistenc
 			{
 				return;
 			}
-			// (02.05.2014)EXCP: proper exception
-			throw new RuntimeException(
+			// (02.05.2014 TM)EXCP: proper exception
+			throw new PersistenceException(
 				"Invalid persistent length: " + persistentLength
 				+ " != " + this.persistentMinimumLength() + "."
 			);

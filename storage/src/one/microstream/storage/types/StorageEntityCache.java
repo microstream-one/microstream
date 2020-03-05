@@ -17,18 +17,18 @@ import one.microstream.persistence.binary.types.ChunksBuffer;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageException;
-import one.microstream.typing.XTypes;
+import one.microstream.time.XTime;
 
 
-public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageHashChannelPart
+public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageChannelResetablePart
 {
 	public StorageTypeDictionary typeDictionary();
 
 	public StorageEntityType<I> lookupType(long typeId);
 
-	public boolean incrementalLiveCheck(long timeBudgetBound);
+	public boolean incrementalLiveCheck(long nanoTimeBudgetBound);
 
-	public boolean incrementalGarbageCollection(long timeBudgetBound, StorageChannel channel);
+	public boolean incrementalGarbageCollection(long nanoTimeBudgetBound, StorageChannel channel);
 
 	public boolean issuedGarbageCollection(long nanoTimeBudget, StorageChannel channel);
 
@@ -39,9 +39,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 	public long cacheSize();
 	
 	public long clearCache();
+	
+	@Override
+	public void reset();
 
 
-
+	
 	public final class Default
 	implements StorageEntityCache<StorageEntity.Default>, Unpersistable
 	{
@@ -58,46 +61,54 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// instance fields //
 		////////////////////
 
-		private final int                                channelIndex      ;
-		private final int                                channelHashModulo ;
-		private final int                                channelHashShift  ;
-		private final long                               rootTypeId        ;
-		private final long                               markingWaitTimeMs ;
+		// state 1.0: immutable or stateless (as far as this implementation is concerned)
+
+		private final int                                channelIndex        ;
+		private final int                                channelHashModulo   ;
+		private final int                                channelHashShift    ;
+		private final long                               rootTypeId          ;
+		private final long                               markingWaitTimeMs   ;
 		        final StorageEntityCacheEvaluator        entityCacheEvaluator;
-		private final StorageTypeDictionary              typeDictionary    ;
-		private final StorageEntityMarkMonitor           markMonitor       ;
-		private final StorageReferenceMarker             referenceMarker   ;
-		private final StorageobjectIdMarkQueue           oidMarkQueue      ;
-		private final long[]                             markingOidBuffer  ;
-		private final StorageGCZombieOidHandler          zombieOidHandler  ;
-		private final StorageRootOidSelector             rootOidSelector   ;
-		private final RootEntityRootOidSelectionIterator rootEntityIterator;
-		private final StorageEventLogger                 eventLogger       ;
+		private final StorageTypeDictionary              typeDictionary      ;
+		private final long[]                             markingOidBuffer    ;
+		private final StorageGCZombieOidHandler          zombieOidHandler    ;
+		private final StorageRootOidSelector             rootOidSelector     ;
+		private final RootEntityRootOidSelectionIterator rootEntityIterator  ;
+		private final StorageEventLogger                 eventLogger         ;
+		private       StorageFileManager.Default         fileManager         ; // pseudo-final
+		
+		
+		// state 2.0: final references to mutable instances, i.e. content must be cleared on reset
+		
+		private final StorageEntityMarkMonitor  markMonitor    ;
+		private final StorageObjectIdMarkQueue  oidMarkQueue   ; // resetting handled by markMonitor
+		private final StorageReferenceMarker    referenceMarker; // resetting must be handled here.
 
-		// currently only used for entity iteration
-		private       StorageFileManager.Default         fileManager       ; // pseudo-final
-
-		private       StorageEntity.Default[]            oidHashTable      ;
-		private       int                                oidModulo         ; // long modulo makes not difference
-		private       long                               oidSize           ;
-
-		private       StorageEntityType.Default[]        tidHashTable      ;
-		private       int                                tidModulo         ;
-		private       int                                tidSize           ;
-
-		private final StorageEntityType.Default          typeHead          ;
-		private       StorageEntityType.Default          typeTail          ;
-		private       StorageEntityType.Default          rootType          ;
-
-		private       StorageEntity.Default              liveCursor        ;
-
-		private       long                               usedCacheSize     ;
-		private       boolean                            hasUpdatePendingSweep;
-
+		
+		// state 3.0: mutable fields. Must be cleared on reset.
+		
+		private StorageEntity.Default liveCursor;
+                                            
+		private long    usedCacheSize;
+		private boolean hasUpdatePendingSweep;
+                                                  
 		// Statistics for debugging / monitoring / checking to compare with other channels and with the markmonitor
-		private       long                               sweepGeneration   ;
-		private       long                               lastSweepStart    ;
-		private       long                               lastSweepEnd      ;
+		private long sweepGeneration, lastSweepStart, lastSweepEnd;
+		
+
+		// state 3.1: variable length content
+        
+		private       StorageEntity.Default[]     oidHashTable ;
+		private       int                         oidModulo    ; // long modulo makes not difference
+		private       long                        oidSize      ;
+                                                  
+		private       StorageEntityType.Default[] tidHashTable ;
+		private       int                         tidModulo    ;
+		private       int                         tidSize      ;
+                                                  
+		private final StorageEntityType.Default   typeHead     ; // effective immutable, so no reset
+		private       StorageEntityType.Default   typeTail     ;
+		private       StorageEntityType.Default   rootType     ;
 
 
 
@@ -105,7 +116,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// constructors //
 		/////////////////
 
-		public Default(
+		Default(
 			final int                         channelIndex       ,
 			final int                         channelCount       ,
 			final StorageEntityCacheEvaluator cacheEvaluator     ,
@@ -114,30 +125,37 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageGCZombieOidHandler   zombieOidHandler   ,
 			final StorageRootOidSelector      rootOidSelector    ,
 			final long                        rootTypeId         ,
-			final StorageobjectIdMarkQueue    oidMarkQueue       ,
+			final StorageObjectIdMarkQueue    oidMarkQueue       ,
 			final StorageEventLogger          eventLogger        ,
-			final int                         markingBufferLength,
-			final long                        markingWaitTimeMs
+			final long                        markingWaitTimeMs  ,
+			final int                         markingBufferLength
 		)
 		{
 			super();
-			this.channelIndex         = notNegative(channelIndex)    ;
-			this.rootTypeId           =             rootTypeId       ;
-			this.entityCacheEvaluator = notNull    (cacheEvaluator)  ;
-			this.typeDictionary       = notNull    (typeDictionary)  ;
-			this.markMonitor          = notNull    (markMonitor)     ;
-			this.zombieOidHandler     = notNull    (zombieOidHandler);
-			this.rootOidSelector      = notNull    (rootOidSelector) ;
-			this.channelHashModulo    =             channelCount - 1 ;
-			this.channelHashShift     = log2pow2   (channelCount)    ;
-			this.oidMarkQueue         = notNull    (oidMarkQueue)    ;
-			this.markingWaitTimeMs    = positive  (markingWaitTimeMs);
-			this.markingOidBuffer     = new long[markingBufferLength];
-			this.rootEntityIterator   = new RootEntityRootOidSelectionIterator(rootOidSelector);
-			this.typeHead             = new StorageEntityType.Default(this.channelIndex);
-			this.eventLogger          = eventLogger;
-			this.initializeState();
-			this.referenceMarker      = markMonitor.provideReferenceMarker(this);
+			this.channelIndex         = notNegative(channelIndex)     ;
+			this.channelHashShift     = log2pow2   (channelCount)     ;
+			this.entityCacheEvaluator = notNull    (cacheEvaluator)   ;
+			this.typeDictionary       = notNull    (typeDictionary)   ;
+			this.markMonitor          = notNull    (markMonitor)      ;
+			this.zombieOidHandler     = notNull    (zombieOidHandler) ;
+			this.rootOidSelector      = notNull    (rootOidSelector)  ;
+			this.rootTypeId           =             rootTypeId        ;
+			this.oidMarkQueue         = notNull    (oidMarkQueue)     ;
+			this.eventLogger          =             eventLogger       ;
+			this.markingWaitTimeMs    = positive   (markingWaitTimeMs);
+			
+			// derived values
+			
+			this.channelHashModulo  = channelCount - 1;
+			this.markingOidBuffer   = new long[markingBufferLength];
+			this.rootEntityIterator = new RootEntityRootOidSelectionIterator(rootOidSelector);
+			this.typeHead           = new StorageEntityType.Default(this.channelIndex);
+			
+			// initializing mutable (operational) state.
+			this.reset();
+			
+			// create reference marker at the very end to have all state properly initialized beforehand.
+			this.referenceMarker = markMonitor.provideReferenceMarker(this);
 		}
 
 
@@ -165,7 +183,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		{
 			if(this.fileManager != null && this.fileManager != fileManager)
 			{
-				throw new RuntimeException();
+				// (09.12.2019 TM)EXCP: proper exception
+				throw new StorageException("File manager already initialized.");
 			}
 			this.fileManager = fileManager;
 		}
@@ -203,14 +222,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 //			DEBUGStorage.println(vs.toString());
 //		}
 
-		final void initializeState()
+		@Override
+		public final synchronized void reset()
 		{
-			// reset state without ruining gcPhaseMonitor initial state
-			this.resetState();
-		}
-
-		final synchronized void resetState()
-		{
+			this.clearCache();
+			
+			this.markMonitor.reset();
+			
 			this.oidHashTable   = new StorageEntity.Default[1];
 			this.oidModulo      = this.oidHashTable.length - 1;
 			this.oidSize        = 0;
@@ -221,22 +239,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			(this.typeTail      = this.typeHead).next = null;
 
-//			this.liveCursorType = this.typeHead;
-//			this.liveCursor     = this.typeHead.head;
 			this.resetLiveCursor();
 
 			this.usedCacheSize  = 0L;
 
 			// create a new root type instance on every clear. Everything else is not worth the reset&register-hassle.
 			this.rootType       = this.getType(this.rootTypeId);
-		}
 
-		final void clearState()
-		{
-			this.clearCache();
-			
-			// must lock independently of gcPhaseMonitor to avoid deadlock!
-			this.resetState();
 		}
 
 		private void resetLiveCursor()
@@ -361,7 +370,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		static final int hashNormalized(final long value, final int bitShiftCount, final int modulo)
 		{
-			// (09.08.2015)NOTE: included channel hash mod bit shifting to properly distribute in hash table
+			// (09.08.2015 TM)NOTE: included channel hash mod bit shifting to properly distribute in hash table
 			return (int)(value >>> bitShiftCount & modulo);
 		}
 
@@ -450,8 +459,6 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 		}
 
-
-
 		final long queryRootObjectId()
 		{
 			this.rootOidSelector.reset();
@@ -494,8 +501,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			// validate channel for object Id
 			if(this.oidChannelIndex(objectId) != this.channelIndex)
 			{
-				// (05.05.2014)EXCP: proper exception
-				throw new RuntimeException("Invalid objectId " + objectId + " for hash channel " + this.channelIndex);
+				// (05.05.2014 TM)EXCP: proper exception
+				throw new StorageException("Invalid objectId " + objectId + " for hash channel " + this.channelIndex);
 			}
 		}
 		
@@ -555,7 +562,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				if((type = entry.typeInFile.type).typeId != typeId)
 				{
 					// (29.07.2014 TM)EXCP: proper exception
-					throw new RuntimeException(
+					throw new StorageException(
 						"Object Id already assigned to an entity of another type. "
 						+ "Existing: " + objcId + ", type " + type.typeId + ". "
 						+ "Subject: " + objcId + ", type " + typeId + "."
@@ -855,13 +862,13 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * Returns {@code true} if there are no more oids to mark and {@code false} if time ran out.
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 *
-		 * @param timeBudgetBound
+		 * @param nanoTimeBudgetBound
 		 */
-		private boolean incrementalMark(final long timeBudgetBound)
+		private boolean incrementalMark(final long nanoTimeBudgetBound)
 		{
 			final long                     evalTime        = System.currentTimeMillis();
 			final StorageReferenceMarker   referenceMarker = this.referenceMarker      ;
-			final StorageobjectIdMarkQueue oidMarkQueue    = this.oidMarkQueue         ;
+			final StorageObjectIdMarkQueue oidMarkQueue    = this.oidMarkQueue         ;
 			final long[]                   oidsBuffer      = this.markingOidBuffer     ;
 
 			// total amount of oids to mark in the current batch. Range: [0; oids.length]
@@ -924,7 +931,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				// the entry has been fully processed (either has no references or got all its references gray-enqueued), so mark black.
 				entry.markBlack();
 			}
-			while(System.nanoTime() < timeBudgetBound);
+			while(System.nanoTime() < nanoTimeBudgetBound);
 
 			// important: if time ran out, the last batch of processed oids has to be accounted for in the gray queue
 			if(oidsMarkIndex > 0)
@@ -965,13 +972,46 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			this.sweepGeneration++;
 
 			// reset file cleanup cursor to first file in order to ensure the cleanup checks all files for the current state.
-			this.fileManager.resetFileCleanupCursor();
+			this.fileManager.restartFileCleanupCursor();
 
 			// signal mark monitor that the sweep is complete and provide this channel's valid rootOid
 			final long channelRootOid = this.queryRootObjectId();
 			this.markMonitor.completeSweep(this, this.rootOidSelector, channelRootOid);
 		}
 
+		private static final long MAX_INT_BOUND = 1L + Integer.MAX_VALUE;
+		
+		final static int validateStoragePosition(
+			final StorageEntity.Default entity       ,
+			final long                  storageOffset
+		)
+		{
+			if(storageOffset < MAX_INT_BOUND)
+			{
+				return (int)storageOffset;
+			}
+			
+			/* (06.02.2020 TM)EXCP: fix storage position limitation
+			 * This has, of course, to be removed/fixed.
+			 * The solution is to spread a single store's buffers over multiple files if needed.
+			 * However, this is not trivial to do:
+			 * A single store must be split into multiple stores,
+			 * each store must get its own transactions entry OR a kind of store continuation entry, etc.
+			 * 
+			 * This effort is not worth it with the transition of the much more advanced storage management 2.0
+			 * concept in mind. There, store chunks will be spread over multiple store files anyway and
+			 * archive files will be split according to oid range and entity length automatically.
+			 * 
+			 * For now, this is simply a technical limitation and one more good reason to implement the
+			 * improved storage concept sooner rather than later.
+			 */
+			throw new StorageException(
+				"Storage position for entity " + entity.objectId()
+				+ " exceeds the technical int value limit of " + Integer.MAX_VALUE + "."
+				+ " This happens when a single store grows too big."
+				+ " This limitation will be removed in a future version."
+			);
+		}
 
 		final void internalPutEntities(
 			final ByteBuffer              chunk               ,
@@ -993,7 +1033,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				this.markEntityForChangedData(entity);
 				entity.updateStorageInformation(
 					X.checkArrayRange(Binary.getEntityLengthRawValue(adr)),
-					XTypes.to_int(storageBackset + adr)
+					validateStoragePosition(entity, storageBackset + adr)
 				);
 				file.appendEntry(entity);
 			}
@@ -1032,7 +1072,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			
 			final long currentUsedCacheSize = this.usedCacheSize;
 			
-			this.internalLiveCheck(Long.MAX_VALUE, (s, t, e) -> true);
+			this.internalCacheCheck(Long.MAX_VALUE, (s, t, e) -> true);
 			
 			return currentUsedCacheSize;
 		}
@@ -1066,6 +1106,8 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 		final void clearPendingStoreUpdate()
 		{
+			// (21.02.2020 TM)NOTE: this potentially gets called after reset(), so it must be accordingly robust.
+			
 			this.hasUpdatePendingSweep = false;
 			this.markMonitor.clearPendingStoreUpdate(this);
 		}
@@ -1113,30 +1155,15 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		@Override
-		public final boolean incrementalLiveCheck(final long timeBudgetBound)
+		public final boolean incrementalLiveCheck(final long nanoTimeBudgetBound)
 		{
-			return this.internalLiveCheck(timeBudgetBound, this.entityCacheEvaluator);
-		}
-				
-		private static StorageEntity.Default getFirstReachableEntity(
-			final StorageDataFile.Default startingFile
-		)
-		{
-			StorageDataFile.Default file = startingFile;
-			do
-			{
-				if(file.head.fileNext != startingFile.tail)
-				{
-					return file.head.fileNext;
-				}
-			}
-			while((file = file.next) != startingFile);
-			
-			// no file contains any reachable (proper) entity. So return null.
-			return null;
+			return this.internalCacheCheck(nanoTimeBudgetBound, this.entityCacheEvaluator);
 		}
 
-		private boolean internalLiveCheck(final long timeBudgetBound, final StorageEntityCacheEvaluator evaluator)
+		private boolean internalCacheCheck(
+			final long                        nanoTimeBudgetBound,
+			final StorageEntityCacheEvaluator evaluator
+		)
 		{
 			// quick check before setting up the local stuff.
 			if(this.usedCacheSize == 0)
@@ -1144,8 +1171,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				return true;
 			}
 
-			final long evalTime = System.currentTimeMillis();
-
+			final long evaluationTime = System.currentTimeMillis();
 			final StorageEntity.Default   cursor;
 			      StorageEntity.Default   tail  ;
 			      StorageEntity.Default   entity;
@@ -1154,7 +1180,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			if(this.liveCursor == null || !this.liveCursor.isProper() || this.liveCursor.isDeleted())
 			{
 				// cursor special cases: not set, yet or a head/tail instance or meanwhile deleted (= unreachable)
-				cursor = getFirstReachableEntity(this.fileManager.currentStorageFile().next);
+				cursor = this.fileManager.getFirstEntity();
 				
 				// special special case: all files are (effectively) empty. Nothing to check. Prevent inifinite loop.
 				if(cursor == null)
@@ -1188,7 +1214,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				}
 
 				// check for clearing the current entity's cache
-				if(this.entityRequiresCacheClearing(entity, evaluator, evalTime))
+				if(this.entityRequiresCacheClearing(entity, evaluator, evaluationTime))
 				{
 					// entity has cached data but was deemed as having to be cleared, so clear it
 					// use ensure method for that for the purpose of uniformity / simplicity
@@ -1203,7 +1229,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				
 				entity = entity.fileNext;
 			}
-			while(entity != cursor && System.nanoTime() < timeBudgetBound);
+			while(entity != cursor && System.nanoTime() < nanoTimeBudgetBound);
 			// abort conditions for one housekeeping cycle: cursor is encountered again (full loop) or time is up.
 
 			return this.quitLiveCheck(entity);
@@ -1264,10 +1290,15 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		// CHECKSTYLE.ON: FinalParameters
 
 		@Override
-		public boolean issuedCacheCheck(final long nanoTimeBudget, final StorageEntityCacheEvaluator entityEvaluator)
+		public boolean issuedCacheCheck(
+			final long                        nanoTimeBudget ,
+			final StorageEntityCacheEvaluator entityEvaluator
+		)
 		{
-			return this.internalLiveCheck(
-				nanoTimeBudget,
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
+			
+			return this.internalCacheCheck(
+				nanoTimeBudgetBound,
 				X.coalesce(entityEvaluator, this.entityCacheEvaluator)
 			);
 		}
@@ -1277,12 +1308,17 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
 		 */
 		@Override
-		public final boolean issuedGarbageCollection(final long nanoTimeBudgetBound, final StorageChannel channel)
+		public final boolean issuedGarbageCollection(
+			final long           nanoTimeBudget,
+			final StorageChannel channel
+		)
 		{
 			if(!DEBUG_GC_ENABLED)
 			{
 				return true;
 			}
+
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 
 			// check time budget first for explicitly issued calls.
 			performGC:
@@ -1360,7 +1396,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		 */
 		@Override
 		public final boolean incrementalGarbageCollection(
-			final long           timeBudgetBound,
+			final long           nanoTimeBudgetBound,
 			final StorageChannel channel
 		)
 		{
@@ -1371,11 +1407,12 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 
 			try
 			{
-				return this.internalIncrementalGarbageCollection(timeBudgetBound, channel);
+				return this.internalIncrementalGarbageCollection(nanoTimeBudgetBound, channel);
 			}
 			catch(final Exception e)
 			{
-				throw new RuntimeException("Exception in channel #" + this.channelIndex(), e);
+				// (09.12.2019 TM)EXCP: proper exception
+				throw new StorageException("Exception in channel #" + this.channelIndex(), e);
 			}
 		}
 
@@ -1393,7 +1430,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		private final boolean internalIncrementalGarbageCollection(
-			final long           timeBudgetBound,
+			final long           nanoTimeBudgetBound,
 			final StorageChannel channel
 		)
 		{
@@ -1415,14 +1452,14 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 				}
 
 				// check if there is still time to proceed with the next (second) marking right away
-				if(System.nanoTime() >= timeBudgetBound)
+				if(System.nanoTime() >= nanoTimeBudgetBound)
 				{
 					return false;
 				}
 			}
 
 			// otherwise, mark incrementally until work or time runs out
-			if(this.incrementalMark(timeBudgetBound))
+			if(this.incrementalMark(nanoTimeBudgetBound))
 			{
 				/* note:
 				 * if the markingOidBuffer length is too low, this return is done countless times per millisecond.

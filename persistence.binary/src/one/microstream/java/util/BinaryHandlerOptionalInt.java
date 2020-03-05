@@ -5,10 +5,11 @@ import java.util.OptionalInt;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomValueFixedLength<OptionalInt>
+public final class BinaryHandlerOptionalInt
+extends AbstractBinaryHandlerCustomValueFixedLength<OptionalInt, Integer>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -20,6 +21,8 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 		BINARY_LENGTH            = BINARY_OFFSET_VALUE      + Integer.BYTES
 	;
 
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
@@ -57,17 +60,28 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static int instanceState(final OptionalInt instance)
+	{
+		// or ELSE!!!
+		return instance.orElse(0);
+	}
+	
+	private static int binaryState(final Binary data)
+	{
+		return data.read_int(0);
+	}
 
 	@Override
 	public void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final OptionalInt             instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
-		bytes.store_boolean(
+		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
+		data.store_boolean(
 			BINARY_OFFSET_IS_PRESENT,
 			instance.isPresent()
 		);
@@ -85,24 +99,62 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 		 * "Finish the implementation now, OR ELSE ...!"
 		 * Interns, interns everywhere.
 		 */
-		bytes.store_int(
+		data.store_int(
 			BINARY_OFFSET_VALUE,
-			instance.orElse(0)
+			instanceState(instance)
 		);
 	}
 
 	@Override
-	public OptionalInt create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public OptionalInt create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		final boolean isPresent = bytes.read_boolean(BINARY_OFFSET_IS_PRESENT);
+		final boolean isPresent = data.read_boolean(BINARY_OFFSET_IS_PRESENT);
 		
 		// luckily, an uninitialized instance (all-zeroes, meaning isPresent == false) is all that is required.
 		return isPresent
 			? OptionalInt.of(
-				bytes.read_int(BINARY_OFFSET_VALUE)
+				data.read_int(BINARY_OFFSET_VALUE)
 			)
 			: XMemory.instantiateBlank(OptionalInt.class)
 		;
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
+	// actually never called, just to satisfy the interface
+	@Override
+	public Integer getValidationStateFromInstance(final OptionalInt instance)
+	{
+		return instanceState(instance);
+	}
+
+	// actually never called, just to satisfy the interface
+	@Override
+	public Integer getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final OptionalInt            instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final int instanceState = instanceState(instance);
+		final int binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		this.throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 	
 }

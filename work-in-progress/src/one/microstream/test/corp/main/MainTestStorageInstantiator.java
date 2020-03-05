@@ -24,7 +24,7 @@ public class MainTestStorageInstantiator
 		.start()
 	;
 	
-	public static <T> T instantiate(final Class<T> type, final Binary bytes)
+	public static <T> T instantiate(final Class<T> type, final Binary data)
 		throws InstantiationRuntimeException
 	{
 		System.out.print("  Creating a blank " + type.getSimpleName() + " instance of ... ");
@@ -34,7 +34,7 @@ public class MainTestStorageInstantiator
 		return instance;
 	}
 	
-	public static Person instantiatePerson(final Binary bytes)
+	public static Person instantiatePerson(final Binary data)
 		throws InstantiationRuntimeException
 	{
 		System.out.print("* Creating a constructed " + Person.class.getSimpleName() + " instance ... ");
@@ -47,15 +47,15 @@ public class MainTestStorageInstantiator
 	public static void main(final String[] args)
 	{
 		// either loaded on startup from an existing DB or required to be generated.
-		if(STORAGE.defaultRoot().get() == null)
+		if(STORAGE.root() == null)
 		{
 			
 			// first execution enters here
 
 			Test.print("TEST: model data required." );
-			STORAGE.defaultRoot().set(Test.generateModelData(100));
+			STORAGE.setRoot(Test.generateModelData(100));
 			Test.print("STORAGE: storing ...");
-			STORAGE.storeDefaultRoot();
+			STORAGE.storeRoot();
 //			STORAGE.issueFullFileCheck();
 			Test.print("STORAGE: storing completed.");
 //			printObjectRegistryStatistics();
@@ -65,7 +65,7 @@ public class MainTestStorageInstantiator
 			// subsequent executions enter here
 
 			Test.print("TEST: model data loaded." );
-			Test.print(STORAGE.defaultRoot().get());
+			Test.print(STORAGE.root());
 			Test.print("TEST: exporting data ..." );
 //			printObjectRegistryStatistics();
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testCorpExport"));

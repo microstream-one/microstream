@@ -148,7 +148,7 @@ public final class LittleEndianStringToAddress
 
 	public static final long toHexDecString(final byte value, final long address)
 	{
-		// (25.02.2013)FIXME: fix negative offset
+		// (25.02.2013 TM)FIXME: fix negative offset
 		XMemory.set_int(address, LITTLE_ENDIAN_HEX_DEC[value >= 0 ? value : BYTE_NEGATIVE_RANGE + value]);
 		return address + BYTE_LENGTH_HEX_DEC_BYTE;
 	}

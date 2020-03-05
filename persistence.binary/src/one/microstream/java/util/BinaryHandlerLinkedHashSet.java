@@ -3,7 +3,7 @@ package one.microstream.java.util;
 import java.util.LinkedHashSet;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
 public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerSet<LinkedHashSet<?>>
@@ -43,7 +43,7 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerSet<L
 	////////////
 
 	@Override
-	public final LinkedHashSet<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final LinkedHashSet<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return new LinkedHashSet<>();
 	}

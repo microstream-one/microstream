@@ -5,8 +5,10 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import one.microstream.io.XIO;
+import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
 
@@ -26,7 +28,7 @@ public interface StorageFileWriter
 		}
 
 		// (28.06.2013 TM)EXCP: proper exception
-		throw new RuntimeException(
+		throw new StorageException(
 			"Inconsistent IO operation: actual byte count " + actualByteCount
 			+ " does not match the specified byte count if  " + specifiedByteCount + "."
 		);
@@ -40,8 +42,8 @@ public interface StorageFileWriter
 		}
 		catch(final IOException e)
 		{
-			// (01.10.2014)EXCP: proper exception
-			throw new RuntimeException(e);
+			// (01.10.2014 TM)EXCP: proper exception
+			throw new StorageException(e);
 		}
 	}
 
@@ -71,7 +73,7 @@ public interface StorageFileWriter
 		}
 		catch(final IOException e)
 		{
-			throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
+			throw new StorageException(e); // (01.10.2014 TM)EXCP: proper exception
 		}
 	}
 	
@@ -179,7 +181,7 @@ public interface StorageFileWriter
 		);
 		if(truncationTargetFile != null)
 		{
-			craeteFileFullCopy(file, truncationTargetFile);
+			createFileFullCopy(file, truncationTargetFile);
 		}
 
 		try
@@ -188,7 +190,7 @@ public interface StorageFileWriter
 		}
 		catch(final IOException e)
 		{
-			throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
+			throw new StorageException(e); // (01.10.2014 TM)EXCP: proper exception
 		}
 	}
 
@@ -217,11 +219,11 @@ public interface StorageFileWriter
 			return;
 		}
 		
-		throw new RuntimeException("Could not delete file " + file); // (02.10.2014 TM)EXCP: proper exception
+		throw new StorageException("Could not delete file " + file); // (02.10.2014 TM)EXCP: proper exception
 	}
 	
 
-	public static void craeteFileFullCopy(
+	public static void createFileFullCopy(
 		final StorageNumberedFile sourceFile,
 		final StorageNumberedFile targetFile
 	)
@@ -239,7 +241,10 @@ public interface StorageFileWriter
 				throw new IOException("Copying target already exist: " + targetFile.identifier());
 			}
 			
-			Files.copy(source, target);
+			XIO.copyFile(source, target, StandardOpenOption.CREATE_NEW);
+			
+			// (20.02.2020 TM)NOTE: Files#copy is bugged as it recognizes the process's file locks as foreign (rofl).
+//			Files.copy(source, target);
 		}
 		catch(final Exception e)
 		{
@@ -280,7 +285,7 @@ public interface StorageFileWriter
 		}
 		catch(final IOException e)
 		{
-			throw new RuntimeException(e); // (01.10.2014)EXCP: proper exception
+			throw new StorageException(e); // (01.10.2014 TM)EXCP: proper exception
 		}
 	}
 

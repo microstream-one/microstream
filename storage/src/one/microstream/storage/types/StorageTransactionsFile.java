@@ -13,6 +13,7 @@ import one.microstream.collections.types.XCollection;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.XIO;
+import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis.EntryIterator;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis.Logic;
 
@@ -183,8 +184,8 @@ public interface StorageTransactionsFile
 				case Logic.TYPE_FILE_DELETION  : return EntryType.FILE_DELETION  ;
 				default:
 				{
-					// (02.09.2014)EXCP: proper exception
-					throw new RuntimeException("Unknown transactions entry type: " + code);
+					// (02.09.2014 TM)EXCP: proper exception
+					throw new StorageException("Unknown transactions entry type: " + code);
 				}
 			}
 		}
@@ -382,8 +383,8 @@ public interface StorageTransactionsFile
 				case Logic.TYPE_FILE_DELETION  : return this.parseEntryFileDeletion  (address, availableEntryLength);
 				default:
 				{
-					// (02.09.2014)EXCP: proper exception
-					throw new RuntimeException("Unknown transactions entry type: " + Logic.getEntryType(address));
+					// (02.09.2014 TM)EXCP: proper exception
+					throw new StorageException("Unknown transactions entry type: " + Logic.getEntryType(address));
 				}
 			}
 		}

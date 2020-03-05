@@ -11,8 +11,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIt
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
@@ -80,14 +80,14 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final EqBulkList<?>           instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements as sized array, leave out space for equalator reference
-		bytes.storeSizedArray(
+		data.storeSizedArray(
 			this.typeId()            ,
 			objectId                 ,
 			BINARY_OFFSET_SIZED_ARRAY,
@@ -97,35 +97,35 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 		);
 
 		// persist equalator and set the resulting oid at its binary place
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_EQUALATOR,
 			handler.apply(instance.equalator)
 		);
 	}
 
 	@Override
-	public final EqBulkList<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final EqBulkList<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		// this method only creates shallow instances, so hashEqualator gets set during update like other references.
 		return new EqBulkList<>((Equalator<?>)null);
 	}
 
 	@Override
-	public final void update(
-		final Binary                      bytes     ,
-		final EqBulkList<?>               instance  ,
-		final PersistenceObjectIdResolver idResolver
+	public final void updateState(
+		final Binary                 data   ,
+		final EqBulkList<?>          instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// must clear to avoid memory leaks due to residual references beyond the new size in existing instances.
 		instance.clear();
 		
 		// length must be checked for consistency reasons
-		instance.ensureCapacity(this.determineArrayLength(bytes, BINARY_OFFSET_SIZED_ARRAY));
+		instance.ensureCapacity(this.determineArrayLength(data, BINARY_OFFSET_SIZED_ARRAY));
 
-		instance.size = bytes.updateSizedArrayObjectReferences(
+		instance.size = data.updateSizedArrayObjectReferences(
 			BINARY_OFFSET_SIZED_ARRAY,
-			idResolver,
+			handler,
 			instance.data
 		);
 
@@ -133,7 +133,7 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 		XMemory.setObject(
 			instance,
 			XMemory.objectFieldOffset(FIELD_EQULATOR),
-			idResolver.lookupObject(bytes.read_long(BINARY_OFFSET_EQUALATOR))
+			handler.lookupObject(data.read_long(BINARY_OFFSET_EQUALATOR))
 		);
 	}
 
@@ -145,10 +145,10 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		iterator.acceptObjectId(bytes.read_long(BINARY_OFFSET_EQUALATOR));
-		bytes.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
+		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_EQUALATOR));
+		data.iterateSizedArrayElementReferences(BINARY_OFFSET_SIZED_ARRAY, iterator);
 	}
 
 }

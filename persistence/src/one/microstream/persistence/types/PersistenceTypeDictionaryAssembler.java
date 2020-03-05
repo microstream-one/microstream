@@ -10,6 +10,13 @@ public interface PersistenceTypeDictionaryAssembler extends ObjectStringAssemble
 	@Override
 	public VarString assemble(VarString vc, PersistenceTypeDictionary typeDictionary);
 
+	@Override
+	public default String assemble(final PersistenceTypeDictionary typeDictionary)
+	{
+		return ObjectStringAssembler.super.assemble(typeDictionary);
+	}
+	
+
 	public VarString assembleTypeDescription(VarString vc, PersistenceTypeDescription typeDescription);
 
 

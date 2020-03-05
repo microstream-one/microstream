@@ -142,6 +142,19 @@ public final class XTime
 		 */
 		return Calendar.getInstance().get(Calendar.YEAR);
 	}
+	
+
+	
+	public static final long calculateNanoTimeBudgetBound(final long nanoTimeBudget)
+	{
+		final long timeBudgetBound = System.nanoTime() + nanoTimeBudget;
+
+		// giving a very high or MAX_VALUE (unlimited) time budget will cause negative values
+		return timeBudgetBound >= 0
+			? timeBudgetBound
+			: Long.MAX_VALUE
+		;
+	}
 
 	
 	

@@ -2,10 +2,10 @@ package one.microstream.java.lang;
 
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerLong extends AbstractBinaryHandlerCustomValueFixedLength<Long>
+public final class BinaryHandlerLong extends AbstractBinaryHandlerCustomValueFixedLength<Long, Long>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -32,17 +32,66 @@ public final class BinaryHandlerLong extends AbstractBinaryHandlerCustomValueFix
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
-	@Override
-	public void store(final Binary bytes, final Long instance, final long objectId, final PersistenceStoreHandler handler)
+	
+	private static long instanceState(final Long instance)
 	{
-		bytes.storeLong(this.typeId(), objectId, instance.longValue());
+		return instance.longValue();
+	}
+	
+	private static long binaryState(final Binary data)
+	{
+		return data.read_long(0);
 	}
 
 	@Override
-	public Long create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public void store(final Binary data, final Long instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		return bytes.buildLong();
+		data.storeLong(this.typeId(), objectId, instance.longValue());
+	}
+
+	@Override
+	public Long create(final Binary data, final PersistenceLoadHandler handler)
+	{
+		return data.buildLong();
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
+	// actually never called, just to satisfy the interface
+	@Override
+	public Long getValidationStateFromInstance(final Long instance)
+	{
+		// well, lol
+		return instance;
+	}
+
+	// actually never called, just to satisfy the interface
+	@Override
+	public Long getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final Long                   instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final long instanceState = instanceState(instance);
+		final long binaryState   = binaryState(data);
+		
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		this.throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

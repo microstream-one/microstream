@@ -20,7 +20,6 @@ import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
-import one.microstream.collections.LimitList;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.io.FileException;
@@ -35,7 +34,7 @@ import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGe
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.XTypes;
-import one.microstream.util.csv.CsvConfiguration;
+import one.microstream.util.xcsv.XCsvConfiguration;
 
 
 public interface StorageDataConverterTypeBinaryToCsv
@@ -67,7 +66,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				if(mappedTypeName == null)
 				{
 					// (27.01.2014 TM)EXCP: proper exception
-					throw new RuntimeException("Unmapped type: " + columnType.typeName());
+					throw new StorageException("Unmapped type: " + columnType.typeName());
 				}
 				return mappedTypeName;
 			}
@@ -170,10 +169,10 @@ public interface StorageDataConverterTypeBinaryToCsv
 		// caching fields for performance reasons (skipping repeated pointer indirection)
 		private final String                                  oidColumnName         ;
 		private final String                                  oidColumnType         ;
-		private final CsvConfiguration                        csvConfiguration      ;
+		private final XCsvConfiguration                       csvConfiguration      ;
 		private final byte                                    literalDelimiter      ;
 		private final byte                                    valueSeparator        ;
-		private final byte                                    recordSeparator       ;
+		private final byte                                    lineSeparator         ;
 		private final byte                                    escaper               ;
 		private final EscapeHandler                           escapeHandler         ;
 		private final char                                    controlCharsSeparator ;
@@ -209,7 +208,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		private final ValueWriter                             valueWriterRef  = this.createValueWriterReference();
 
 		private       long                                    typeId          =   -1;
-		private       PersistenceTypeDefinition           typeDescription;
+		private       PersistenceTypeDefinition               typeDescription;
 		private       ValueWriter[]                           valueWriters   ;
 		private       FileChannel                             fileChannel    ;
 
@@ -254,9 +253,9 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			super();
 
-			final CsvConfiguration csvConfig = configuration.csvConfiguration();
+			final XCsvConfiguration csvConfig = configuration.csvConfiguration();
 
-			// (26.01.2014)EXCP: proper exceptions
+			// (26.01.2014 TM)EXCP: proper exceptions
 			if(csvConfig.isControlCharacter(configuration.literalListStarter()))
 			{
 				throw new IllegalArgumentException("Conflicting list character: " + configuration.literalListStarter());
@@ -275,7 +274,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			this.csvConfiguration        = csvConfig                                          ;
 			this.literalDelimiter        = toSingleByte(csvConfig.literalDelimiter())         ;
 			this.valueSeparator          = toSingleByte(csvConfig.valueSeparator()  )         ;
-			this.recordSeparator         = toSingleByte(csvConfig.recordSeparator() )         ;
+			this.lineSeparator         = toSingleByte(csvConfig.lineSeparator() )         ;
 			this.escaper                 = toSingleByte(csvConfig.escaper()         )         ;
 			this.escapeHandler           = csvConfig.escapeHandler()                          ;
 			this.oidColumnName           = configuration.objectIdColumnName()                 ;
@@ -316,39 +315,18 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private ValueWriter[] createValueWriters(final XGettingSequence<? extends PersistenceTypeDescriptionMember> members)
 		{
-//			final LimitList<ValueWriter> simpleValueWriters = new LimitList<>(XTypes.to_int(members.size()));
-//			final LimitList<ValueWriter> otherValueWriters  = new LimitList<>(XTypes.to_int(members.size()));
+			final ValueWriter[] valueWriters = new ValueWriter[XTypes.to_int(members.size())];
+			int i = 0;
 
-			final int memberCount = XTypes.to_int(members.size());
-
-			final ValueWriter[] simpleValueWriters = new ValueWriter[memberCount];
-			final ValueWriter[] otherValueWriters = new ValueWriter[memberCount];
-
-			int s = 0;
-			int o = 0;
-
-			// must reproduce the simple reference ordering logic
-			for(final PersistenceTypeDescriptionMember field : members)
+			// members are in persistent order, so their order must be heeded exactely
+			for(final PersistenceTypeDescriptionMember member : members)
 			{
-				if(field.isReference())
-				{
-//					simpleValueWriters.add(this.valueWriterRef);
-					simpleValueWriters[s++] = this.valueWriterRef;
-				}
-				else
-				{
-//					otherValueWriters.add(this.deriveOtherValueWriter(field));
-					otherValueWriters[o++] = this.deriveOtherValueWriter(field);
-				}
+				valueWriters[i++] = member.isReference()
+					? this.valueWriterRef
+					: this.deriveOtherValueWriter(member)
+				;
 			}
 
-			// compile value writers in order (referencs are always arranged to come first for more memory-efficient GC)
-			final ValueWriter[] valueWriters = new ValueWriter[memberCount];
-			System.arraycopy(simpleValueWriters, 0, valueWriters, 0, s);
-			System.arraycopy(otherValueWriters , 0, valueWriters, s, o);
-
-//			simpleValueWriters.copyTo(valueWriters, 0);
-//			otherValueWriters.copyTo(valueWriters, XTypes.to_int(simpleValueWriters.size()));
 			return valueWriters;
 		}
 
@@ -372,8 +350,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 			final ValueWriter valueWriter = this.valueWriterMap.get(field.typeName());
 			if(valueWriter == null)
 			{
-				// (14.01.2014)EXCP: proper exception
-				throw new RuntimeException("Unrecognized type: " + field.typeName());
+				// (14.01.2014 TM)EXCP: proper exception
+				throw new StorageException("Unrecognized type: " + field.typeName());
 			}
 			return valueWriter;
 		}
@@ -427,7 +405,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			this.checkForFlush();
 
 			// write record separator not before it is required a by new record (this method call)
-			XMemory.set_byte(this.writeAddress, this.recordSeparator);
+			XMemory.set_byte(this.writeAddress, this.lineSeparator);
 			this.writeAddress = MemoryCharConversionIntegersUTF8.put_long(
 				Binary.getEntityObjectIdRawValue(entityAddress),
 				this.writeAddress + 1
@@ -452,8 +430,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 			{
 				if((this.typeDescription = this.typeDictionary.lookupTypeById(typeId)) == null)
 				{
-					// (12.01.2014)EXCP: proper exception
-					throw new RuntimeException("Unknown TypeId: " + typeId);
+					// (12.01.2014 TM)EXCP: proper exception
+					throw new StorageException("Unknown TypeId: " + typeId);
 				}
 				this.typeId = typeId;
 				this.valueWriters = this.createValueWriters(this.typeDescription.instanceMembers());
@@ -462,71 +440,18 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 			else if(typeId != this.typeId)
 			{
-				// (12.01.2014)EXCP: proper exception
-				throw new RuntimeException("Inconsistent TypeId: " + typeId + " != " + this.typeId);
+				// (12.01.2014 TM)EXCP: proper exception
+				throw new StorageException("Inconsistent TypeId: " + typeId + " != " + this.typeId);
 			}
 		}
 
 		private void writeCsvHeader() throws IOException
 		{
 			final VarString vs = VarString.New();
-
-			final char valueSeparator = (char)this.valueSeparator; // tiny detour due to byte type.
-
-			// write control characters definition
-			vs
-			.add(this.csvConfiguration.buildControlCharactersDefinition(this.controlCharsSeparator)).lf()
-			.add(this.oidColumnName).add(valueSeparator)
-			;
-
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> members =
-				this.typeDescription.instanceMembers()
-			;
-			final LimitList<String> refColumnNames = new LimitList<>(XTypes.to_int(members.size()));
-			final LimitList<String> prmColumnNames = new LimitList<>(XTypes.to_int(members.size()));
-			final LimitList<String> refColumnTypes = new LimitList<>(XTypes.to_int(members.size()));
-			final LimitList<String> prmColumnTypes = new LimitList<>(XTypes.to_int(members.size()));
-
-			// write column names (including oid column with custom name)
-			for(final PersistenceTypeDescriptionMember column : members)
-			{
-				if(column.isReference())
-				{
-					refColumnNames.add(column.name());
-					refColumnTypes.add(this.typeNameMapper.mapTypeName(column));
-				}
-				else
-				{
-					prmColumnNames.add(column.name());
-					prmColumnTypes.add(this.typeNameMapper.mapTypeName(column));
-				}
-			}
-			for(final String columnName : refColumnNames)
-			{
-				vs.add(columnName).add(valueSeparator);
-			}
-			for(final String columnName : prmColumnNames)
-			{
-				vs.add(columnName).add(valueSeparator);
-			}
-			vs.setLast((char)this.recordSeparator);
-
-			// write column types (including oid column with custom type name)
-			vs
-			.add(this.csvConfiguration.headerStarter())
-			.add(this.oidColumnType).add(valueSeparator);
-
-			for(final String columnType : refColumnTypes)
-			{
-				vs.add(columnType).add(valueSeparator);
-			}
-			for(final String columnType : prmColumnTypes)
-			{
-				vs.add(columnType).add(valueSeparator);
-			}
-
-			// do not write a record separator here as every record will prepend one when required
-			vs.setLast(this.csvConfiguration.headerTerminator());
+			boolean linePresent;
+			linePresent = this.writeCsvHeaderControlCharacterDefinition(vs);
+			linePresent = this.writeCsvHeaderColumnNames(vs, linePresent);
+			linePresent = this.writeCsvHeaderColumnTypes(vs, linePresent);
 
 			// copy header chars to writing memory. Copying redundancy is not an issue for a tiny one-time header.
 			if(this.writeAddress + vs.length() * MemoryCharConversionUTF8.maxCharacterLength() > this.writeBound)
@@ -534,6 +459,76 @@ public interface StorageDataConverterTypeBinaryToCsv
 				this.flushWriteBuffer();
 			}
 			this.writeAddress = MemoryCharConversionUTF8.writeUTF8(this.writeAddress, vs);
+		}
+		
+		private boolean writeCsvHeaderControlCharacterDefinition(final VarString vs)
+		{
+			// write control characters definition (if explicitely desired)
+			if(X.isNotTrue(this.csvConfiguration.hasControlCharacterDefinitionHeader()))
+			{
+				// abort if false or null (CSV standard as default behavior)
+				return false;
+			}
+			
+			// only if true
+			vs.add(this.csvConfiguration.buildControlCharactersDefinition(this.controlCharsSeparator));
+			
+			return true;
+		}
+
+		private boolean writeCsvHeaderColumnNames(final VarString vs, final boolean linePresent)
+		{
+			// column names must always be present. Also, allowing 0 header lines messes up prefixed record linebreaks.
+//			if(X.isFalse(this.csvConfiguration.hasColumnNamesHeader()))
+//			{
+//				// only abort if false (CSV standard as default behavior)
+//				return false;
+//			}
+			
+			if(linePresent)
+			{
+				vs.add((char)this.lineSeparator);
+			}
+			
+			// true or null
+			final char valueSeparator = (char)this.valueSeparator;
+
+			// write column names (including oid column with custom name)
+			vs.add(this.oidColumnName);
+			for(final PersistenceTypeDescriptionMember column : this.typeDescription.instanceMembers())
+			{
+				vs.add(valueSeparator).add(column.name());
+			}
+			
+			return true;
+		}
+		
+		private boolean writeCsvHeaderColumnTypes(final VarString vs, final boolean linePresent)
+		{
+			if(X.isFalse(this.csvConfiguration.hasColumnTypesHeader()))
+			{
+				// against CSV standard, but this is really important. But suppressible if desired.
+				return false;
+			}
+			
+			if(linePresent)
+			{
+				vs.add((char)this.lineSeparator);
+			}
+			
+			// write column types header line only if desired (Boolean is true)
+			final char valueSeparator = (char)this.valueSeparator;
+			vs
+			.add(this.csvConfiguration.headerStarter())
+			.add(this.oidColumnType)
+			;
+			for(final PersistenceTypeDescriptionMember column : this.typeDescription.instanceMembers())
+			{
+				vs.add(valueSeparator).add(this.typeNameMapper.mapTypeName(column));
+			}
+			vs.add(this.csvConfiguration.headerTerminator());
+			
+			return true;
 		}
 
 
@@ -562,7 +557,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 				catch(final WriteException e)
 				{
 					suppressed = e;
-					throw new RuntimeException(e.ioException);
+					// (09.12.2019 TM)EXCP: proper exception
+					throw new StorageException(e.ioException);
 				}
 				finally
 				{
@@ -572,8 +568,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 			catch(final IOException e)
 			{
 				// well, what to do if closing fails...
-				// (12.01.2014)EXCP: proper exception
-				throw new RuntimeException(e);
+				// (12.01.2014 TM)EXCP: proper exception
+				throw new StorageException(e);
 			}
 			finally
 			{

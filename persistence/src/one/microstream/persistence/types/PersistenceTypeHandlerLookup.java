@@ -1,11 +1,11 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceTypeHandlerLookup<M> extends PersistenceTypeLookup
+public interface PersistenceTypeHandlerLookup<D> extends PersistenceTypeLookup
 {
-	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(T instance);
+	public <T> PersistenceTypeHandler<D, T> lookupTypeHandler(T instance);
 
-	public <T> PersistenceTypeHandler<M, T> lookupTypeHandler(Class<T> type);
+	public <T> PersistenceTypeHandler<D, T> lookupTypeHandler(Class<T> type);
 
-	public PersistenceTypeHandler<M, ?> lookupTypeHandler(long typeId);
+	public PersistenceTypeHandler<D, ?> lookupTypeHandler(long typeId);
 
 }

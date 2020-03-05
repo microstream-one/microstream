@@ -74,7 +74,7 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 
 	public Object optionalRegisterObject(long objectId, Object object);
 	
-	public boolean registerConstant(final long objectId, final Object constant);
+	public boolean registerConstant(long objectId, Object constant);
 
 	/**
 	 * Consolidate internal data structures, e.g. by removing orphan entries and empty hash chains.
@@ -85,15 +85,23 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 	public boolean consolidate();
 
 	/**
-	 * Clears all entries except those that are essential for a correctly executed program (e.g. constants).
+	 * Clears all entries except those that are essential for a correctly executed program (e.g. constants). <br>
 	 * Clearing means to leave the current capacity as it is and just to actually clear its entries.
+	 * <p>
+	 * NOTE:<br>
+	 * This method is currently only intended to be used for testing since calling it can cause inconsistencies
+	 * if there still exist uncleared lazy references.
 	 */
 	public void clear();
 
 	/**
 	 * Clears all entries, including those that are essential for a correctly executed program (e.g. constants),
-	 * effectively leaving a completely empty registry.
+	 * effectively leaving a completely empty registry.<br>
 	 * Clearing means to leave the current capacity as it is and just to actually clear its entries.
+	 * <p>
+	 * NOTE:<br>
+	 * This method is currently only intended to be used for testing since calling it can cause inconsistencies
+	 * if there still exist uncleared lazy references.
 	 */
 	public void clearAll();
 	
@@ -101,14 +109,22 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 	 * Truncates all entries except those that are essential for a correctly executed program (e.g. constants).
 	 * Truncating means to quickly empty the registry by reinitializing the internal storage structures with a
 	 * new and minimal capacity.
+	 * <p>
+	 * NOTE:<br>
+	 * This method is currently only intended to be used for testing since calling it can cause inconsistencies
+	 * if there still exist uncleared lazy references.
 	 */
 	public void truncate();
 
 	/**
 	 * Truncates all entries, including those that are essential for a correctly executed program (e.g. constants),
-	 * effectively leaving a completely empty registry.
+	 * effectively leaving a completely empty registry.<br>
 	 * Truncating means to quickly empty the registry by reinitializing the internal storage structures with a
 	 * new and minimal capacity.
+	 * <p>
+	 * NOTE:<br>
+	 * This method is currently only intended to be used for testing since calling it can cause inconsistencies
+	 * if there still exist uncleared lazy references.
 	 */
 	public void truncateAll();
 	

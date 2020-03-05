@@ -6,10 +6,10 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.util.Substituter;
-import one.microstream.util.csv.CsvRowCollector;
+import one.microstream.util.xcsv.XCsvRowCollector;
 
 
-public final class ConfigEntryAggregator implements CsvRowCollector
+public final class ConfigEntryAggregator implements XCsvRowCollector
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //

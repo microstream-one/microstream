@@ -1176,7 +1176,7 @@ public final class XSort
 	}
 
 
-	/* (16.12.2012)FIXME: sort map
+	/* (16.12.2012 TM)FIXME: sort map
 	 * A logic is required that does not actually sort a sequence of values, but only creates
 	 * the indices how the sequence would have to be sorted (aka sort map).
 	 * Rationale:

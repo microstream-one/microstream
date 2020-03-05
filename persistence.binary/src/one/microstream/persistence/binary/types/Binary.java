@@ -1,5 +1,9 @@
 package one.microstream.persistence.binary.types;
 
+import static one.microstream.X.ConstList;
+import static one.microstream.X.mayNull;
+import static one.microstream.X.notNull;
+
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Map;
@@ -17,11 +21,32 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidList;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionInvalidListElements;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
+import one.microstream.persistence.binary.internal.CustomBinaryHandler;
 import one.microstream.persistence.exceptions.PersistenceException;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
 import one.microstream.persistence.types.PersistenceStoreHandler;
+import one.microstream.persistence.types.PersistenceTypeInstantiator;
+import one.microstream.reflect.Getter;
+import one.microstream.reflect.Getter_boolean;
+import one.microstream.reflect.Getter_byte;
+import one.microstream.reflect.Getter_char;
+import one.microstream.reflect.Getter_double;
+import one.microstream.reflect.Getter_float;
+import one.microstream.reflect.Getter_int;
+import one.microstream.reflect.Getter_long;
+import one.microstream.reflect.Getter_short;
+import one.microstream.reflect.Setter;
+import one.microstream.reflect.Setter_boolean;
+import one.microstream.reflect.Setter_byte;
+import one.microstream.reflect.Setter_char;
+import one.microstream.reflect.Setter_double;
+import one.microstream.reflect.Setter_float;
+import one.microstream.reflect.Setter_int;
+import one.microstream.reflect.Setter_long;
+import one.microstream.reflect.Setter_short;
 import one.microstream.typing.KeyValue;
 
 // CHECKSTYLE.OFF: AbstractClassName: this is kind of a hacky solution to improve readability on the use site
@@ -63,15 +88,6 @@ public abstract class Binary implements Chunk
 	
 	// header (currently) constists of only LEN, TID, OID. The extra constant has sementical reasons.
 	private static final int LENGTH_ENTITY_HEADER = (int)OFFSET_DAT;
-
-	/* (29.01.2019 TM)TODO: test and comment bit shifting multiplication performance
-	 * test and comment if this really makes a difference in performance.
-	 * The redundant length is ugly.
-	 */
-	/**
-	 * "<< 3" is a performance optimization for "* 8".
-	 */
-	private static final int LONG_BYTE_LENGTH_BITSHIFT_COUNT = 3;
 	
 	private static final int
 		LIST_OFFSET_BYTE_LENGTH   = 0                                     ,
@@ -95,13 +111,7 @@ public abstract class Binary implements Chunk
 	private static final long KEY_VALUE_REFERENCE_COUNT = 2;
 	
 	private static final long KEY_VALUE_BINARY_LENGTH = KEY_VALUE_REFERENCE_COUNT * LENGTH_OID;
-	
-	// special crazy sh*t negative offsets
-	private static final long
-		CONTENT_ADDRESS_NEGATIVE_OFFSET_TID = OFFSET_TID - LENGTH_ENTITY_HEADER,
-		CONTENT_ADDRESS_NEGATIVE_OFFSET_OID = OFFSET_OID - LENGTH_ENTITY_HEADER
-	;
-	
+		
 	static
 	{
 		/* (08.11.2019 TM)NOTE: the binary persistence layer
@@ -217,7 +227,8 @@ public abstract class Binary implements Chunk
 	
 	public static long referenceBinaryLength(final long referenceCount)
 	{
-		return referenceCount << Binary.LONG_BYTE_LENGTH_BITSHIFT_COUNT; // reference (ID) binary length is 8
+		// should be optimized by the compiler to "<< 3" instead of "* 8".
+		return referenceCount * Binary.LENGTH_OID;
 	}
 	
 	public static long calculateReferenceListTotalBinaryLength(final long count)
@@ -337,36 +348,42 @@ public abstract class Binary implements Chunk
 	{
 		return false;
 	}
-
-	public final long getEntityLength()
+	
+	public final long getBuildItemTotalLength()
 	{
-		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
-		return this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_LEN);
-	}
-
-	public final long getEntityTypeId()
-	{
-		return this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_TID);
-	}
-
-	public final long getEntityObjectId()
-	{
-		return this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_OID);
+		return this.isSkipItem()
+			? -1
+			: this.internalBuildItemTotalLength()
+		;
 	}
 
 	public final long getBuildItemContentLength()
 	{
-		return this.get_longFromAddress(this.loadItemEntityContentAddress() - LENGTH_ENTITY_HEADER)	- LENGTH_ENTITY_HEADER;
+		return this.isSkipItem()
+			? -1
+			: this.internalBuildItemTotalLength() - LENGTH_ENTITY_HEADER
+		;
+	}
+	
+	private long internalBuildItemTotalLength()
+	{
+		return this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_LEN);
 	}
 
 	public final long getBuildItemTypeId()
 	{
-		return this.get_longFromAddress(this.loadItemEntityContentAddress() + CONTENT_ADDRESS_NEGATIVE_OFFSET_TID);
+		return this.isSkipItem()
+			? Persistence.notFoundId()
+			: this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_TID)
+		;
 	}
 
 	public final long getBuildItemObjectId()
 	{
-		return this.get_longFromAddress(this.loadItemEntityContentAddress() + CONTENT_ADDRESS_NEGATIVE_OFFSET_OID);
+		return this.isSkipItem()
+			? -this.loadItemEntityContentAddress()
+			: this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_OID)
+		;
 	}
 			
 	public abstract void storeEntityHeader(
@@ -599,7 +616,7 @@ public abstract class Binary implements Chunk
 		if(objectIds.length != identifiers.length)
 		{
 			// just to be safe
-			throw new RuntimeException(); // (21.10.2013 TM)EXCP: proper exception
+			throw new PersistenceException(); // (21.10.2013 TM)EXCP: proper exception
 		}
 
 		// To really validate consistency completely
@@ -610,7 +627,7 @@ public abstract class Binary implements Chunk
 			if(!objectIdUniquenessChecker.add(objectIds[i]))
 			{
 				// (02.09.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Persisted root entries have a duplicate root objectId for entry ("
 					+ identifiers[i] + " -> " + objectIds[i] + ")"
 				);
@@ -619,7 +636,7 @@ public abstract class Binary implements Chunk
 			if(!mapping.add(identifiers[i], objectIds[i]))
 			{
 				// (02.09.2019 TM)EXCP: proper exception
-				throw new RuntimeException(
+				throw new PersistenceException(
 					"Persisted root entries have a duplicate root identifiers for entry ("
 					+ identifiers[i] + " -> " + objectIds[i] + ")"
 				);
@@ -716,9 +733,9 @@ public abstract class Binary implements Chunk
 		if(this.loadItemEntityContentAddress() + listOffset + listTotalByteLength > this.getEntityBoundAddress())
 		{
 			throw new BinaryPersistenceExceptionInvalidList(
-				this.getEntityLength(),
-				this.getEntityObjectId(),
-				this.getEntityTypeId(),
+				this.getBuildItemTotalLength(),
+				this.getBuildItemObjectId(),
+				this.getBuildItemTypeId(),
 				listOffset,
 				listTotalByteLength
 			);
@@ -729,7 +746,7 @@ public abstract class Binary implements Chunk
 			
 	public final long getLoadItemAvailableContentLength()
 	{
-		// (06.09.2014)TODO: test and comment if " + 0" (OFFSET_LEN) gets eliminated by JIT
+		// (06.09.2014 TM)TODO: test and comment if " + 0" (OFFSET_LEN) gets eliminated by JIT
 		return entityContentLength(this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_LEN));
 	}
 	
@@ -746,9 +763,9 @@ public abstract class Binary implements Chunk
 		)
 		{
 			throw new BinaryPersistenceExceptionInvalidListElements(
-				this.getEntityLength(),
-				this.getEntityObjectId(),
-				this.getEntityTypeId(),
+				this.getBuildItemTotalLength(),
+				this.getBuildItemObjectId(),
+				this.getBuildItemTypeId(),
 				listOffset,
 				listTotalByteLength,
 				listElementCount,
@@ -782,6 +799,7 @@ public abstract class Binary implements Chunk
 	 * 
 	 * @param listOffset the binary offset at which the binary list (actually: its header) starts
 	 * @param reader the reader logic to be used by the iteration.
+	 * 
 	 * @return the element count that has been iterated.
 	 */
 	public final long iterateListStructureElements(
@@ -789,14 +807,20 @@ public abstract class Binary implements Chunk
 		final BinaryElementReader reader
 	)
 	{
+		final long listElementCount = this.getBinaryListElementCountUnvalidating(listOffset);
+		if(listElementCount == 0)
+		{
+			// required to prevent divide-by-0 error.
+			return 0;
+		}
+		
 		final long listTotalByteLength = this.getBinaryListTotalByteLength(listOffset);
-		final long listElementCount    = this.getBinaryListElementCountUnvalidating(listOffset);
 		final long listContentLength   = toBinaryListContentByteLength(listTotalByteLength);
 		final long bytesPerElement     = listContentLength / listElementCount;
 		if(bytesPerElement * listElementCount != listContentLength)
 		{
 			// (18.11.2019 TM)EXCP: proper exception
-			throw new RuntimeException("Non-constant binary list element length.");
+			throw new PersistenceException("Non-constant binary list element length.");
 		}
 		
 		final long startAddress = this.binaryListElementsAddress(listOffset);
@@ -1016,26 +1040,26 @@ public abstract class Binary implements Chunk
 		this.storeEntityHeader(0L, typeId, objectId); // so funny :D
 	}
 	
-	public final void storeStringValue(
+	public final void storeStringSingleValue(
 		final long   typeId  ,
 		final long   objectId,
 		final String string
 	)
 	{
 		// since Java 9, there is no sane way to store the string's internal data directly
-		this.storeStringValue(typeId, objectId, XChars.readChars(string));
+		this.storeStringSingleValue(typeId, objectId, XChars.readChars(string));
 	}
 	
-	public final void storeStringValue(
+	public final void storeStringSingleValue(
 		final long   typeId  ,
 		final long   objectId,
 		final char[] chars
 	)
 	{
-		this.storeStringValue(typeId, objectId, chars, 0, chars.length);
+		this.storeStringSingleValue(typeId, objectId, chars, 0, chars.length);
 	}
 
-	public final void storeStringValue(
+	public final void storeStringSingleValue(
 		final long   typeId  ,
 		final long   objectId,
 		final char[] chars   ,
@@ -1050,6 +1074,33 @@ public abstract class Binary implements Chunk
 		);
 		this.storeCharsAsList(0, chars, offset, length);
 	}
+	
+	public final void storeStringValue(
+		final long   binaryOffset,
+		final String string
+	)
+	{
+		this.storeStringValue(binaryOffset, XChars.readChars(string));
+	}
+	
+	public final void storeStringValue(
+		final long   binaryOffset,
+		final char[] chars
+	)
+	{
+		this.storeCharsAsList(binaryOffset, chars, 0, chars.length);
+	}
+	
+	public final void storeStringValue(
+		final long   binaryOffset,
+		final char[] chars       ,
+		final int    offset      ,
+		final int    length
+	)
+	{
+		this.storeCharsAsList(binaryOffset, chars, offset, length);
+	}
+	
 	
 	public final void storeReferences(
 		final long                    typeId      ,
@@ -1274,8 +1325,13 @@ public abstract class Binary implements Chunk
 				
 	public final String buildString()
 	{
+		return this.buildString(0);
+	}
+	
+	public final String buildString(final long offset)
+	{
 		// since Java 9, there is no sane way to build a string without copying the loaded data multiple times.
-		return String.valueOf(this.build_chars());
+		return String.valueOf(this.build_chars(offset));
 	}
 
 	
@@ -1469,49 +1525,49 @@ public abstract class Binary implements Chunk
 	
 
 	public final void collectElementsIntoArray(
-		final long                        binaryOffset,
-		final PersistenceObjectIdResolver oidResolver ,
-		final Object[]                    target
+		final long                   binaryOffset,
+		final PersistenceLoadHandler handler     ,
+		final Object[]               target
 	)
 	{
 		final long binaryElementsStartAddress = this.binaryListElementsAddress(binaryOffset);
 		for(int i = 0; i < target.length; i++)
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
-			target[i] = oidResolver.lookupObject(
+			target[i] = handler.lookupObject(
 				this.get_longFromAddress(binaryElementsStartAddress + referenceBinaryLength(i))
 			);
 		}
 	}
 
 	public final int collectListObjectReferences(
-		final long                        binaryOffset,
-		final PersistenceObjectIdResolver oidResolver ,
-		final Consumer<Object>            collector
+		final long                   binaryOffset,
+		final PersistenceLoadHandler handler     ,
+		final Consumer<Object>       collector
 	)
 	{
 		final int size = X.checkArrayRange(this.getListElementCountReferences(binaryOffset));
 		this.collectObjectReferences(
 			binaryOffset,
 			size        ,
-			oidResolver ,
+			handler ,
 			collector
 		);
 		return size;
 	}
 
 	public final void collectObjectReferences(
-		final long                        binaryOffset,
-		final int                         length      ,
-		final PersistenceObjectIdResolver oidResolver ,
-		final Consumer<Object>            collector
+		final long                   binaryOffset,
+		final int                    length      ,
+		final PersistenceLoadHandler handler     ,
+		final Consumer<Object>       collector
 	)
 	{
 		final long binaryElementsStartAddress = this.binaryListElementsAddress(binaryOffset);
 		for(int i = 0; i < length; i++)
 		{
 			collector.accept(
-				oidResolver.lookupObject(
+				handler.lookupObject(
 					this.get_longFromAddress(binaryElementsStartAddress + referenceBinaryLength(i))
 				)
 			);
@@ -1519,10 +1575,10 @@ public abstract class Binary implements Chunk
 	}
 
 	public final int collectKeyValueReferences(
-		final long                        binaryOffset,
-		final int                         length      ,
-		final PersistenceObjectIdResolver oidResolver ,
-		final BiConsumer<Object, Object>  collector
+		final long                       binaryOffset,
+		final int                        length      ,
+		final PersistenceLoadHandler     handler     ,
+		final BiConsumer<Object, Object> collector
 	)
 	{
 		final long binaryElementsStartAddress = this.binaryListElementsAddress(binaryOffset);
@@ -1530,11 +1586,11 @@ public abstract class Binary implements Chunk
 		{
 			collector.accept(
 				// key (on every 2nth objectId position)
-				oidResolver.lookupObject(
+				handler.lookupObject(
 					this.get_longFromAddress(binaryElementsStartAddress + referenceBinaryLength(i << 1))
 				),
 				// value (on every (2n + 1)th objectId position)
-				oidResolver.lookupObject(
+				handler.lookupObject(
 					this.get_longFromAddress(binaryElementsStartAddress + referenceBinaryLength(i << 1) + LENGTH_OID)
 				)
 			);
@@ -1823,7 +1879,7 @@ public abstract class Binary implements Chunk
 	
 	final long getEntityBoundAddress()
 	{
-		// (06.09.2014)TODO: test and comment if " + 0" gets eliminated by JIT
+		// (06.09.2014 TM)TODO: test and comment if " + 0" gets eliminated by JIT
 		return this.loadItemEntityAddress() + this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_LEN);
 	}
 	
@@ -1844,6 +1900,21 @@ public abstract class Binary implements Chunk
 	}
 			
 	abstract long loadItemEntityContentAddress();
+	
+	private boolean isSkipItem()
+	{
+		return this.address < 0;
+	}
+	
+	protected final boolean isDummyItem()
+	{
+		return this.address == 0;
+	}
+	
+	protected final boolean isProper()
+	{
+		return this.address > 0;
+	}
 	
 	private long loadItemEntityAddress()
 	{
@@ -1893,7 +1964,7 @@ public abstract class Binary implements Chunk
 		if(address != elementsBinaryBound || iterator.hasNext())
 		{
 			// (22.04.2016 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Inconsistent element count: specified " + elementCount
 				+ " vs. iterated " + elementsBinaryBound / entryLength
 			);
@@ -1930,16 +2001,16 @@ public abstract class Binary implements Chunk
 	
 	
 	public final void updateFixedSize(
-		final Object                      instance     ,
-		final BinaryValueSetter[]         setters      ,
-		final long[]                      memoryOffsets,
-		final PersistenceObjectIdResolver idResolver
+		final Object                 instance     ,
+		final BinaryValueSetter[]    setters      ,
+		final long[]                 memoryOffsets,
+		final PersistenceLoadHandler handler
 	)
 	{
 		long address = this.loadItemEntityContentAddress();
 		for(int i = 0; i < setters.length; i++)
 		{
-			address = setters[i].setValueToMemory(address, instance, memoryOffsets[i], idResolver);
+			address = setters[i].setValueToMemory(address, instance, memoryOffsets[i], handler);
 		}
 	}
 
@@ -1948,9 +2019,9 @@ public abstract class Binary implements Chunk
 	 * Updates the passed array up to the size defined by the binary data, returns the size.
 	 */
 	public final int updateSizedArrayObjectReferences(
-		final long                        binaryOffset    ,
-		final PersistenceObjectIdResolver objectIdResolver,
-		final Object[]                    array
+		final long                   binaryOffset,
+		final PersistenceLoadHandler handler     ,
+		final Object[]               array
 	)
 	{
 		// (29.01.2019 TM)FIXME: priv#70: offset validation
@@ -1961,26 +2032,26 @@ public abstract class Binary implements Chunk
 			throw new IllegalArgumentException(); // (23.10.2013 TM)EXCP: proper exception
 		}
 		
-		this.updateArrayObjectReferences(binaryOffset+ SIZED_ARRAY_OFFSET_ELEMENTS, objectIdResolver, array, 0, size);
+		this.updateArrayObjectReferences(binaryOffset+ SIZED_ARRAY_OFFSET_ELEMENTS, handler, array, 0, size);
 		
 		return size;
 	}
 	
 	public final void updateArrayObjectReferences1(
-		final long                        binaryListStartOffset,
-		final PersistenceObjectIdResolver objectIdResolver     ,
-		final Object[]                    array
+		final long                   binaryListStartOffset,
+		final PersistenceLoadHandler handler              ,
+		final Object[]               array
 	)
 	{
-		this.updateArrayObjectReferences(binaryListStartOffset, objectIdResolver, array, 0, array.length);
+		this.updateArrayObjectReferences(binaryListStartOffset, handler, array, 0, array.length);
 	}
 
 	public final void updateArrayObjectReferences(
-		final long                        binaryListStartOffset,
-		final PersistenceObjectIdResolver objectIdResolver     ,
-		final Object[]                    array                ,
-		final int                         arrayOffset          ,
-		final int                         arrayLength
+		final long                   binaryListStartOffset,
+		final PersistenceLoadHandler handler              ,
+		final Object[]               array                ,
+		final int                    arrayOffset          ,
+		final int                    arrayLength
 	)
 	{
 		final long elementCount = this.getListElementCountReferences(binaryListStartOffset);
@@ -1996,7 +2067,7 @@ public abstract class Binary implements Chunk
 		for(int i = 0; i < arrayLength; i++)
 		{
 			// bounds-check eliminated array setting has about equal performance as manual unsafe putting
-			array[arrayOffset + i] = objectIdResolver.lookupObject(
+			array[arrayOffset + i] = handler.lookupObject(
 				this.get_longFromAddress(binaryElementsStartAddress + referenceBinaryLength(i))
 			);
 		}
@@ -2181,7 +2252,7 @@ public abstract class Binary implements Chunk
 		if(offset > byteBuffer.capacity())
 		{
 			// (10.10.2019 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Specified offset exceeds buffer capacity: " + offset + " > " + byteBuffer.capacity()
 			);
 		}
@@ -2441,6 +2512,231 @@ public abstract class Binary implements Chunk
 			this.next   = next  ;
 		}
 		
+	}
+
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Binary Fields //
+	//////////////////
+	
+	public static final <T> BinaryField<T> Field_byte(
+		final String         name  ,
+		final Getter_byte<T> getter
+	)
+	{
+		return Field_byte(name, getter, null);
+	}
+	
+	public static final <T> BinaryField<T> Field_byte(
+		final String         name  ,
+		final Getter_byte<T> getter,
+		final Setter_byte<T> setter
+	)
+	{
+		return new BinaryField.Default_byte<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_boolean(
+		final String            name  ,
+		final Getter_boolean<T> getter
+	)
+	{
+		return Field_boolean(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_boolean(
+		final String            name  ,
+		final Getter_boolean<T> getter,
+		final Setter_boolean<T> setter
+	)
+	{
+		return new BinaryField.Default_boolean<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_short(
+		final String          name  ,
+		final Getter_short<T> getter
+	)
+	{
+		return Field_short(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_short(
+		final String          name  ,
+		final Getter_short<T> getter,
+		final Setter_short<T> setter
+	)
+	{
+		return new BinaryField.Default_short<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_char(
+		final String         name  ,
+		final Getter_char<T> getter
+	)
+	{
+		return Field_char(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_char(
+		final String         name  ,
+		final Getter_char<T> getter,
+		final Setter_char<T> setter
+	)
+	{
+		return new BinaryField.Default_char<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_int(
+		final String        name  ,
+		final Getter_int<T> getter
+	)
+	{
+		return Field_int(name, getter, null);
+	}
+	
+	public static final <T> BinaryField<T> Field_int(
+		final String        name  ,
+		final Getter_int<T> getter,
+		final Setter_int<T> setter
+	)
+	{
+		return new BinaryField.Default_int<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_float(
+		final String          name  ,
+		final Getter_float<T> getter
+	)
+	{
+		return Field_float(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_float(
+		final String          name  ,
+		final Getter_float<T> getter,
+		final Setter_float<T> setter
+	)
+	{
+		return new BinaryField.Default_float<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_long(
+		final String         name  ,
+		final Getter_long<T> getter
+	)
+	{
+		return Field_long(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_long(
+		final String         name  ,
+		final Getter_long<T> getter,
+		final Setter_long<T> setter
+	)
+	{
+		return new BinaryField.Default_long<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T> BinaryField<T> Field_double(
+		final String           name  ,
+		final Getter_double<T> getter
+	)
+	{
+		return Field_double(name, getter, null);
+	}
+		
+	public static final <T> BinaryField<T> Field_double(
+		final String           name  ,
+		final Getter_double<T> getter,
+		final Setter_double<T> setter
+	)
+	{
+		return new BinaryField.Default_double<>(
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	public static final <T, R> BinaryField<T> Field(
+		final Class<R>     referenceType,
+		final String       name         ,
+		final Getter<T, R> getter
+	)
+	{
+		return Field(referenceType, name, getter, null);
+	}
+		
+	public static final <T, R> BinaryField<T> Field(
+		final Class<R>     referenceType,
+		final String       name         ,
+		final Getter<T, R> getter       ,
+		final Setter<T, R> setter
+	)
+	{
+		return new BinaryField.DefaultReference<>(
+			notNull(referenceType),
+			notNull(name),
+			notNull(getter),
+			mayNull(setter)
+		);
+	}
+	
+	@SafeVarargs
+	public static <T> BinaryTypeHandler<T> TypeHandler(
+		final Class<T>                  entityType  ,
+		final BinaryField<? super T>... binaryFields
+	)
+	{
+		return TypeHandler(
+			entityType,
+			PersistenceTypeInstantiator.New(entityType),
+			binaryFields
+		);
+	}
+	
+	@SafeVarargs
+	public static <T> BinaryTypeHandler<T> TypeHandler(
+		final Class<T>                               entityType  ,
+		final PersistenceTypeInstantiator<Binary, T> instantiator,
+		final BinaryField<? super T>...              binaryFields
+	)
+	{
+		return CustomBinaryHandler.New(
+			entityType,
+			instantiator,
+			ConstList(binaryFields)
+		);
 	}
 	
 }

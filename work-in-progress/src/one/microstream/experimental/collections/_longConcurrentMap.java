@@ -33,7 +33,7 @@ public final class _longConcurrentMap implements Clearable, Sized
 
 
 
-	// (18.02.2012)XXX: check all "return 0L;" if it is a problem
+	// (18.02.2012 TM)XXX: check all "return 0L;" if it is a problem
 
 
 	private static final Unsafe unsafe = JdkInternals.getMemoryAccess();
@@ -257,7 +257,7 @@ public final class _longConcurrentMap implements Clearable, Sized
 
 	private static int hash(final long value)
 	{
-		// (18.02.2012)TODO could this be replaced by value & Integer.MAX_VALUE or so ?
+		// (18.02.2012 TM)TODO could this be replaced by value & Integer.MAX_VALUE or so ?
 		return (int)(value ^ value >>> 32);
 	}
 

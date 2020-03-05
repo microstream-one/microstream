@@ -7,7 +7,7 @@ import one.microstream.collections.Singleton;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
@@ -82,18 +82,18 @@ public final class BinaryHandlerSingletonStatelessEnum<T> extends AbstractBinary
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final T                       instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeEntityHeader(0, this.typeId(), objectId);
+		data.storeEntityHeader(0, this.typeId(), objectId);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final T create(final Binary medium, final PersistenceObjectIdResolver idResolver)
+	public final T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return (T)XReflect.getDeclaredEnumClass(this.type()).getEnumConstants()[0];
 	}

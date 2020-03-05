@@ -2,31 +2,13 @@ package one.microstream.java.util;
 
 import java.util.Date;
 
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomNonReferentialFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFixedLength<Date>
+public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomNonReferentialFixedLength<Date>
 {
-	///////////////////////////////////////////////////////////////////////////
-	// constants //
-	//////////////
-
-	private static final long LENGTH_TIMESTAMP = Long.BYTES;
-
-	// (07.05.2019 TM)XXX: priv#88 work-in-progress test code. Complete feature and remove.
-//	private final BinaryField
-//		prim1   = Field(int.class),
-//		string1 = Field(String.class),
-//		string2 = Field(String.class),
-////		cmplx   = FieldBytes(),
-//		cmplx   = FieldComplex(
-//			Field(String.class, "key"),
-//			Field(String.class, "value")
-//		)
-//	;
-	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
@@ -36,6 +18,7 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 		return new BinaryHandlerDate();
 	}
 
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -49,13 +32,6 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 				CustomField(long.class, "timestamp")
 			)
 		);
-
-		// (07.05.2019 TM)XXX: priv#88 work-in-progress test code. Complete feature and remove.
-//		this.initializeBinaryFields();
-//		System.out.println(this.prim1.name() + "   = " + this.prim1.offset());
-//		System.out.println(this.string1.name() + " = " + this.string1.offset());
-//		System.out.println(this.string2.name() + " = " + this.string2.offset());
-//		System.out.println(this.cmplx.name() + "   = " + this.cmplx.offset());
 	}
 
 
@@ -63,26 +39,41 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomValueFix
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static long instanceState(final Date instance)
+	{
+		return instance.getTime();
+	}
+	
+	private static long binaryState(final Binary data)
+	{
+		return data.read_long(0);
+	}
 
 	@Override
-	public void store(final Binary bytes, final Date instance, final long objectId, final PersistenceStoreHandler handler)
+	public final void store(
+		final Binary                  data    ,
+		final Date                    instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
 	{
-		bytes.storeEntityHeader(LENGTH_TIMESTAMP, this.typeId(), objectId);
+		data.storeEntityHeader(Long.BYTES, this.typeId(), objectId);
 		
 		// the data content of a date is simple the timestamp long, nothing else
-		bytes.store_long(instance.getTime());
+		data.store_long(instanceState(instance));
 	}
 
 	@Override
-	public Date create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final Date create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return new Date(bytes.read_long(0));
+		return new Date(binaryState(data));
 	}
 
 	@Override
-	public void update(final Binary bytes, final Date instance, final PersistenceObjectIdResolver idResolver)
+	public final void updateState(final Binary data, final Date instance, final PersistenceLoadHandler handler)
 	{
-		instance.setTime(bytes.read_long(0));
+		instance.setTime(binaryState(data));
 	}
 
 }

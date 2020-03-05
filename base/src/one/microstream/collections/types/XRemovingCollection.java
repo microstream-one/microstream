@@ -67,8 +67,8 @@ Sized
 
 	public long nullRemove();
 
-	// (29.09.2012)XXX: rename to removeFirst (first occurance for non-sequence, first in order for sequence)
-	// (29.09.2012)XXX: add removeLast()? Would be more efficient for array storages to scan backwards.
+	// (29.09.2012 TM)XXX: rename to removeFirst (first occurance for non-sequence, first in order for sequence)
+	// (29.09.2012 TM)XXX: add removeLast()? Would be more efficient for array storages to scan backwards.
 	public boolean removeOne(E element);
 
 	public long remove(E element);

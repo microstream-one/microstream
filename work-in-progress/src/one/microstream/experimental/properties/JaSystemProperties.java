@@ -1,6 +1,6 @@
 package one.microstream.experimental.properties;
 
-@Deprecated // (28.08.2013)XXX: obsolete / experimental System Properties framework, delete
+@Deprecated // (28.08.2013 TM)XXX: obsolete / experimental System Properties framework, delete
 public class JaSystemProperties
 {
 	public static SystemProperty systemProperty(final String name)

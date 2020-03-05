@@ -2,16 +2,16 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
-public class PersistenceLegacyTypeHandlerWrapperEnum<M, T>
-extends PersistenceLegacyTypeHandlerWrapper<M, T>
+public class PersistenceLegacyTypeHandlerWrapperEnum<D, T>
+extends PersistenceLegacyTypeHandlerWrapper<D, T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static <M, T> PersistenceLegacyTypeHandlerWrapperEnum<M, T> New(
+	public static <D, T> PersistenceLegacyTypeHandlerWrapperEnum<D, T> New(
 		final PersistenceTypeDefinition    legacyTypeDefinition,
-		final PersistenceTypeHandler<M, T> currentTypeHandler  ,
+		final PersistenceTypeHandler<D, T> currentTypeHandler  ,
 		final Integer[]                    ordinalMapping
 	)
 	{
@@ -38,7 +38,7 @@ extends PersistenceLegacyTypeHandlerWrapper<M, T>
 
 	PersistenceLegacyTypeHandlerWrapperEnum(
 		final PersistenceTypeDefinition    legacyTypeDefinition,
-		final PersistenceTypeHandler<M, T> currentTypeHandler  ,
+		final PersistenceTypeHandler<D, T> currentTypeHandler  ,
 		final Integer[]                    ordinalMapping
 	)
 	{
@@ -53,10 +53,10 @@ extends PersistenceLegacyTypeHandlerWrapper<M, T>
 	////////////
 	
 	@Override
-	public T create(final M medium, final PersistenceObjectIdResolver idResolver)
+	public T create(final D data, final PersistenceLoadHandler handler)
 	{
 		// this is all there is on this level for this implementation / case.
-		return PersistenceLegacyTypeHandler.resolveEnumConstant(this, medium, this.ordinalMapping);
+		return PersistenceLegacyTypeHandler.resolveEnumConstant(this, data, this.ordinalMapping);
 	}
 	
 }

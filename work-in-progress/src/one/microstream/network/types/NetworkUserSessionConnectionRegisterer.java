@@ -103,7 +103,7 @@ extends NetworkConnectionProcessor
 		@Override
 		public void accept(final SocketChannel connection)
 		{
-			// (29.10.2012)XXX: this try-catch has to be replaced by something more proper (move blocking setter)
+			// (29.10.2012 TM)XXX: this try-catch has to be replaced by something more proper (move blocking setter)
 			try
 			{
 				connection.configureBlocking(false);
@@ -114,8 +114,8 @@ extends NetworkConnectionProcessor
 			}
 
 			// if authentication throws an exception, the method just aborts, no harm done
-			// (28.10.2012)XXX: but who exactely closes the connection in case of (any) error?
-			/* (29.10.2012)XXX: should a connection processor thread really be
+			// (28.10.2012 TM)XXX: but who exactely closes the connection in case of (any) error?
+			/* (29.10.2012 TM)XXX: should a connection processor thread really be
 			 *  bound to a single connection until it authenticates or times out
 			 *  for n connection processor threads, n lagging clients would slow down the whole connection
 			 *  establishing process.
@@ -128,7 +128,7 @@ extends NetworkConnectionProcessor
 			final S session = this.sessionManager.registerUserConnection(user, connection);
 
 			// if greeting fails, the greeter has to take appropriate actions (e.g. close session) internally
-			// (28.10.2012)XXX: really close internally? see closing concern above
+			// (28.10.2012 TM)XXX: really close internally? see closing concern above
 			this.clientGreeter.greetClient(session);
 		}
 

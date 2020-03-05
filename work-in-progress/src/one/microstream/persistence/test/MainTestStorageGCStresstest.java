@@ -4,7 +4,7 @@ import one.microstream.chars.XChars;
 import one.microstream.concurrency.XThreads;
 import one.microstream.math.XMath;
 import one.microstream.meta.XDebug;
-import one.microstream.persistence.lazy.Lazy;
+import one.microstream.reference.Lazy;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageDataFileEvaluator;
@@ -84,7 +84,7 @@ public class MainTestStorageGCStresstest extends TestStorage
 
 		XDebug.println("file check");
 		connection.issueFullFileCheck(
-			Storage.DataFileEvaluator(100, 10_000, 0.99999)
+//			Storage.DataFileEvaluator(100, 10_000, 0.99999)
 		);
 		XDebug.println("Done cleanup");
 	}
