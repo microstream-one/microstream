@@ -673,7 +673,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	public final boolean contains(final char c)
 	{
-		return XChars.uncheckedContains(this.data, this.size, 0, c);
+		return XChars.uncheckedContains(this.data, 0, this.size, c);
 	}
 
 	public final boolean contains(final char[] chars)

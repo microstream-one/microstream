@@ -3,6 +3,7 @@ package one.microstream.persistence.types;
 import one.microstream.X;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XImmutableEnum;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.typing.KeyValue;
 
 /**
@@ -131,6 +132,12 @@ public interface PersistenceTypeDescriptionResolver extends PersistenceTypeResol
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public ClassLoader getTypeResolvingClassLoader(final String typeName)
+		{
+			return this.typeResolver.getTypeResolvingClassLoader(typeName);
+		}
 				
 		@Override
 		public String resolveRuntimeTypeName(final PersistenceTypeDescription typeDescription)
@@ -230,7 +237,7 @@ public interface PersistenceTypeDescriptionResolver extends PersistenceTypeResol
 			
 			// if a target member mapping was found but cannot be resolved, something is wrong.
 			// (05.10.2018 TM)EXCP: proper exception
-			throw new RuntimeException(
+			throw new PersistenceException(
 				"Unresolvable type member refactoring mapping: "
 				+ sourceType.toTypeIdentifier() + '#' + sourceMember.identifier()
 				+ " -> \"" + targetMemberIdentifier + "\" in type "

@@ -624,6 +624,34 @@ public final class X
 	{
 		return elements;
 	}
+	
+	public static byte[] toBytes(final int value)
+	{
+        final byte[] bytes = {
+	        (byte)(value >>> 24 & 0xFF),
+	        (byte)(value >>> 16 & 0xFF),
+	        (byte)(value >>>  8 & 0xFF),
+	        (byte)(value        & 0xFF)
+        };
+        
+        return bytes;
+	}
+	
+	public static byte[] toBytes(final long value)
+	{
+        final byte[] bytes = {
+	        (byte)(value >>> 56 & 0xFF),
+	        (byte)(value >>> 48 & 0xFF),
+	        (byte)(value >>> 40 & 0xFF),
+	        (byte)(value >>> 32 & 0xFF),
+	        (byte)(value >>> 24 & 0xFF),
+	        (byte)(value >>> 16 & 0xFF),
+	        (byte)(value >>>  8 & 0xFF),
+	        (byte)(value        & 0xFF)
+        };
+        
+        return bytes;
+	}
 
 	public static short[] shorts(final short... elements)
 	{
@@ -755,7 +783,7 @@ public final class X
 
 	public static <E> Singleton<E> Singleton(final E element)
 	{
-		return new Singleton<>(element);
+		return Singleton.New(element);
 	}
 
 	public static <E> Constant<E> Constant(final E element)
@@ -808,7 +836,7 @@ public final class X
 
 	public static <T> XReference<T> Reference(final T object)
 	{
-		return new Singleton<>(object);
+		return Singleton.New(object);
 	}
 	
 	

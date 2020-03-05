@@ -1,7 +1,6 @@
 package one.microstream.storage.types;
 
 import one.microstream.chars.VarString;
-import one.microstream.math.XMath;
 
 
 /**
@@ -75,7 +74,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		return New(
 			Defaults.defaultFileMinimumSize(),
 			Defaults.defaultFileMaximumSize(),
-			minimumUseRatio                    ,
+			minimumUseRatio                  ,
 			Defaults.defaultResolveHeadfile()
 		);
 	}
@@ -160,6 +159,92 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			Defaults.defaultResolveHeadfile()
 		);
 	}
+	
+
+	
+	
+	public interface Validation
+	{
+		public static int minimumFileSize()
+		{
+			return 1024;
+		}
+		
+		public static int maximumFileSize()
+		{
+			return Integer.MAX_VALUE;
+		}
+		
+		/**
+		 * How much the maximum file size must be above the minimum file size.
+		 * 
+		 * @return the minimum file size range
+		 */
+		public static int minimumFileSizeRange()
+		{
+			return 1024;
+		}
+		
+		public static double useRatioLowerBound()
+		{
+			return 0.0;
+		}
+		
+		public static double useRatioMaximum()
+		{
+			return 1.0;
+		}
+		
+		public static void validateParameters(
+			final int    fileMinimumSize,
+			final int    fileMaximumSize,
+			final double minimumUseRatio
+		)
+		{
+			// > maximumFileSize() can technically never happen for now, but the max value might change.
+			if(fileMinimumSize < minimumFileSize() || fileMinimumSize > maximumFileSize())
+			{
+				 // (17.02.2020 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"Specified file minimum size of " + fileMinimumSize
+					+ " is not in the valid range of ["
+					+ minimumFileSize() + ", " + maximumFileSize() + "]."
+				);
+			}
+			
+			// > maximumFileSize() can technically never happen for now, but the max value might change.
+			if(fileMaximumSize < minimumFileSize() || fileMaximumSize > maximumFileSize())
+			{
+				 // (17.02.2020 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"Specified file maximum size of " + fileMaximumSize
+					+ " is not in the valid range of ["
+					+ minimumFileSize() + ", " + maximumFileSize() + "]."
+				);
+			}
+			
+			if(fileMaximumSize - minimumFileSizeRange() < fileMinimumSize)
+			{
+				 // (17.02.2020 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"For the specified file minimum size of " + fileMinimumSize
+					+ ", the specified file maximum size must at least be " + minimumFileSizeRange()
+					+ " higher (" +  (fileMinimumSize + minimumFileSizeRange()) + " in total), but it is only "
+					+ fileMaximumSize + "."
+				);
+			}
+			
+			if(minimumUseRatio <= useRatioLowerBound() || minimumUseRatio > useRatioMaximum())
+			{
+				 // (17.02.2020 TM)EXCP: proper exception
+				throw new IllegalArgumentException(
+					"Specified minimum usage ratio of "
+					+ minimumUseRatio + " is not in the valid range of ]"
+					+ useRatioLowerBound() + ", " + useRatioMaximum() + "]."
+				);
+			}
+		}
+	}
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
@@ -188,21 +273,9 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		final boolean cleanUpHeadFile
 	)
 	{
-		if(fileMaximumSize <= fileMinimumSize)
-		{
-			// (24.06.2014)EXCP: proper exception
-			throw new IllegalArgumentException(
-				"Nonsensical size limits: min file size = " + fileMinimumSize + ", max file size = " + fileMaximumSize
-			);
-		}
-		return new Default(
-			XMath.positive    (fileMinimumSize),
-			XMath.positive    (fileMaximumSize),
-			XMath.positiveMax1(minimumUseRatio),
-			                   cleanUpHeadFile
-		);
+		Validation.validateParameters(fileMinimumSize, fileMaximumSize, minimumUseRatio);
+		return new Default(fileMinimumSize, fileMaximumSize, minimumUseRatio, cleanUpHeadFile);
 	}
-	
 	
 	public interface Defaults
 	{

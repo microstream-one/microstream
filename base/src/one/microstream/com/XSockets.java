@@ -279,7 +279,7 @@ public final class XSockets
 		final IoOperation   operation,
 		final SocketChannel channel,
 		final int           responseTimeout
-		// (04.11.2012)XXX: performIoOperation: add a second timeout for the whole communication process?
+		// (04.11.2012 TM)XXX: performIoOperation: add a second timeout for the whole communication process?
 	)
 		throws ComException, ComExceptionTimeout
 	{

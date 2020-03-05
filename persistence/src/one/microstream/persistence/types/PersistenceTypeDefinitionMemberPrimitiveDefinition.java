@@ -3,6 +3,7 @@ package one.microstream.persistence.types;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.math.XMath;
+import one.microstream.persistence.exceptions.PersistenceException;
 
 
 
@@ -167,8 +168,8 @@ extends PersistenceTypeDescriptionMemberPrimitiveDefinition, PersistenceTypeDefi
 			{
 				return void.class;
 			}
-			// (02.05.2014)EXCP: proper exception
-			throw new RuntimeException("Unknown primitive definition: " + trimmed);
+			// (02.05.2014 TM)EXCP: proper exception
+			throw new PersistenceException("Unknown primitive definition: " + trimmed);
 		}
 		
 		

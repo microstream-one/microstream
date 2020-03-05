@@ -1,12 +1,12 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceLegacyTypeHandlingListener<M>
+public interface PersistenceLegacyTypeHandlingListener<D>
 {
 	public <T> void registerLegacyTypeHandlingCreation(
 		long                         objectId             ,
 		T                            instance             ,
 		PersistenceTypeDefinition    legacyTypeDescription,
-		PersistenceTypeHandler<M, T> currentTypeHandler
+		PersistenceTypeHandler<D, T> currentTypeHandler
 	);
 	
 	/* note:

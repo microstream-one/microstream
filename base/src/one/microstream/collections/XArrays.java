@@ -83,14 +83,23 @@ public final class XArrays
 		final Object[] array ,
 		final int      offset,
 		final int      length
-		)
+	)
+	{
+		return validateArrayRange(array.length, offset, length);
+	}
+	
+	public static final int validateArrayRange(
+		final int arrayLength,
+		final int offset     ,
+		final int length
+	)
 	{
 		// elements array range checking
 		if(length >= 0)
 		{
-			if(offset < 0 || offset + length > array.length)
+			if(offset < 0 || offset + length > arrayLength)
 			{
-				throw new IndexOutOfBoundsException(exceptionRange(array.length, offset, length));
+				throw new IndexOutOfBoundsException(exceptionRange(arrayLength, offset, length));
 			}
 			if(length == 0)
 			{
@@ -100,15 +109,15 @@ public final class XArrays
 		}
 		else if(length < 0)
 		{
-			if(offset + length < -1 || offset >= array.length)
+			if(offset + length < -1 || offset >= arrayLength)
 			{
-				throw new IndexOutOfBoundsException(exceptionRange(array.length, offset, length));
+				throw new IndexOutOfBoundsException(exceptionRange(arrayLength, offset, length));
 			}
 			return -1; // decrementing direction
 		}
-		else if(offset < 0 || offset >= array.length)
+		else if(offset < 0 || offset >= arrayLength)
 		{
-			throw new IndexOutOfBoundsException(exceptionIndexOutOfBounds(array.length, offset));
+			throw new IndexOutOfBoundsException(exceptionIndexOutOfBounds(arrayLength, offset));
 		}
 		else
 		{
@@ -119,13 +128,18 @@ public final class XArrays
 
 	public static final void checkBounds(final Object[] array, final int start, final int bound)
 	{
-		if(bound < 0 || bound > array.length)
+		checkBounds(array.length, start, bound);
+	}
+	
+	public static final void checkBounds(final int arrayLength, final int start, final int bound)
+	{
+		if(bound < 0 || bound > arrayLength)
 		{
-			throw new IndexExceededException(array.length, bound);
+			throw new IndexExceededException(arrayLength, bound);
 		}
 		if(start < 0 || start >= bound)
 		{
-			throw new IndexExceededException(array.length, start);
+			throw new IndexExceededException(arrayLength, start);
 		}
 	}
 
@@ -1655,15 +1669,17 @@ public final class XArrays
 		return false;
 	}
 
-	public static <E> void iterate(
-		final E[]                 elements,
-		final Consumer<? super E> iterator
+	public static <E, I extends Consumer<? super E>> I iterate(
+		final E[] elements,
+		final I   iterator
 	)
 	{
 		for(final E e : elements)
 		{
 			iterator.accept(e);
 		}
+		
+		return iterator;
 	}
 
 	public static <E> void iterate(

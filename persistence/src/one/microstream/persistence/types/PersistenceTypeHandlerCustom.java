@@ -6,12 +6,12 @@ package one.microstream.persistence.types;
  * their persistent form and back.
  *
  * @author Thomas Muenz
- * @param <M>
+ * @param <D>
  * @param <T>
  * 
  * @see PersistenceTypeHandlerGeneric
  */
-public interface PersistenceTypeHandlerCustom<M, T> extends PersistenceTypeHandler<M, T>
+public interface PersistenceTypeHandlerCustom<D, T> extends PersistenceTypeHandler<D, T>
 {
 	// typing interface only (so far)
 }

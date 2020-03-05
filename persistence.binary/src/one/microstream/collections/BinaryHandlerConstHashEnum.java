@@ -5,8 +5,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -37,14 +37,14 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 		return (Class)ConstHashEnum.class;
 	}
 
-	private static int getBuildItemElementCount(final Binary bytes)
+	private static int getBuildItemElementCount(final Binary data)
 	{
-		return X.checkArrayRange(bytes.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
+		return X.checkArrayRange(data.getListElementCountReferences(BINARY_OFFSET_ELEMENTS));
 	}
 
-	private static float getBuildItemHashDensity(final Binary bytes)
+	private static float getBuildItemHashDensity(final Binary data)
 	{
-		return bytes.read_float(BINARY_OFFSET_HASH_DENSITY);
+		return data.read_float(BINARY_OFFSET_HASH_DENSITY);
 	}
 	
 	public static BinaryHandlerConstHashEnum New()
@@ -75,14 +75,14 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final ConstHashEnum<?>        instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
 		// store elements simply as array binary form
-		bytes.storeIterableAsList(
+		data.storeIterableAsList(
 			this.typeId()         ,
 			objectId              ,
 			BINARY_OFFSET_ELEMENTS,
@@ -92,40 +92,40 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 		);
 
 		// store hash density as (sole) header value
-		bytes.store_float(
+		data.store_float(
 			BINARY_OFFSET_HASH_DENSITY,
 			instance.hashDensity
 		);
 	}
 
 	@Override
-	public final ConstHashEnum<?> create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final ConstHashEnum<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return ConstHashEnum.NewCustom(
-			getBuildItemElementCount(bytes),
-			getBuildItemHashDensity(bytes)
+			getBuildItemElementCount(data),
+			getBuildItemHashDensity(data)
 		);
 	}
 
 	@Override
-	public final void update(
-		final Binary                      bytes     ,
-		final ConstHashEnum<?>            instance  ,
-		final PersistenceObjectIdResolver idResolver
+	public final void updateState(
+		final Binary                 data    ,
+		final ConstHashEnum<?>       instance,
+		final PersistenceLoadHandler handler
 	)
 	{
 		// validate to the best of possibilities (or should an immutable instance be updatedable from outside?)
 		if(instance.size != 0)
 		{
-			throw new IllegalStateException(); // (26.10.2013)EXCP: proper exception
+			throw new IllegalStateException(); // (26.10.2013 TM)EXCP: proper exception
 		}
 		
 		@SuppressWarnings("unchecked") // necessary because this handler operates on a generic technical level
 		final ConstHashEnum<Object> casted = (ConstHashEnum<Object>)instance;
 
-		instance.size = bytes.collectListObjectReferences(
+		instance.size = data.collectListObjectReferences(
 			BINARY_OFFSET_ELEMENTS,
-			idResolver               ,
+			handler               ,
 			casted::internalAdd
 		);
 		// note: hashDensity has already been set at creation time (shallow primitive value)
@@ -138,9 +138,9 @@ extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 	}
 
 	@Override
-	public final void iterateLoadableReferences(final Binary bytes, final PersistenceObjectIdAcceptor iterator)
+	public final void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 	{
-		bytes.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
+		data.iterateListElementReferences(BINARY_OFFSET_ELEMENTS, iterator);
 	}
 
 }

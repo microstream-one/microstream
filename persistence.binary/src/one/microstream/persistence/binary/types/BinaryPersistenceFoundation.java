@@ -4,11 +4,13 @@ import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XEnum;
 import one.microstream.collections.types.XTable;
+import one.microstream.persistence.types.BinaryRootReferenceProvider;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistry;
 import one.microstream.persistence.types.PersistenceCustomTypeHandlerRegistryEnsurer;
 import one.microstream.persistence.types.PersistenceFoundation;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlerCreator;
 import one.microstream.persistence.types.PersistenceManager;
+import one.microstream.persistence.types.PersistenceRootReferenceProvider;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
 
@@ -82,7 +84,7 @@ extends PersistenceFoundation<Binary, F>
 		
 		protected Default()
 		{
-			super();
+			super(Binary.class);
 		}
 		
 		
@@ -253,8 +255,15 @@ extends PersistenceFoundation<Binary, F>
 		protected PersistenceRootsProvider<Binary> ensureRootsProviderInternal()
 		{
 			return BinaryPersistenceRootsProvider.New(
-				this.getRootResolverProvider()
+				this.getRootResolverProvider(),
+				this.getRootReferenceProvider()
 			);
+		}
+		
+		@Override
+		protected PersistenceRootReferenceProvider<Binary> ensureRootReferenceProvider()
+		{
+			return BinaryRootReferenceProvider.New();
 		}
 		
 		@Override

@@ -17,7 +17,7 @@ import javax.cache.integration.CacheWriterException;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XTable;
-import one.microstream.persistence.lazy.Lazy;
+import one.microstream.reference.Lazy;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 

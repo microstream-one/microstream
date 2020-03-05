@@ -3,8 +3,8 @@ package one.microstream.util;
 import one.microstream.collections.BinaryHandlerEqHashEnum;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -49,73 +49,8 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
-
-	@Override
-	public final void store(
-		final Binary                  bytes   ,
-		final Substituter.Default<?>  instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
-	)
-	{
-		synchronized(instance)
-		{
-			BinaryHandlerEqHashEnum.staticStore(bytes, instance.elements, this.typeId(), objectId, handler);
-		}
-	}
-
-	@Override
-	public final Substituter.Default<?> create(
-		final Binary                      bytes     ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		// hashEqualator gets set in update
-		return new Substituter.Default<>(BinaryHandlerEqHashEnum.staticCreate(bytes));
-	}
-
-	@Override
-	public final void update(
-		final Binary                      bytes     ,
-		final Substituter.Default<?>      instance  ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		synchronized(instance)
-		{
-			BinaryHandlerEqHashEnum.staticUpdate(bytes, instance.elements, idResolver);
-		}
-	}
-
-	@Override
-	public void complete(
-		final Binary                      medium    ,
-		final Substituter.Default<?>      instance  ,
-		final PersistenceObjectIdResolver idResolver
-	)
-	{
-		synchronized(instance)
-		{
-			BinaryHandlerEqHashEnum.staticComplete(medium, instance.elements);
-		}
-	}
-
-	@Override
-	public final void iterateLoadableReferences(
-		final Binary                      bytes   ,
-		final PersistenceObjectIdAcceptor iterator
-	)
-	{
-		BinaryHandlerEqHashEnum.staticIteratePersistedReferences(bytes, iterator);
-	}
-
-	@Override
-	public final boolean hasInstanceReferences()
-	{
-		return true;
-	}
+	// methods //
+	////////////
 	
 	@Override
 	public final boolean hasPersistedReferences()
@@ -133,6 +68,65 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 	public final boolean hasVaryingPersistedLengthInstances()
 	{
 		return true;
+	}
+
+	@Override
+	public final void store(
+		final Binary                  data    ,
+		final Substituter.Default<?>  instance,
+		final long                    objectId,
+		final PersistenceStoreHandler handler
+	)
+	{
+		synchronized(instance)
+		{
+			BinaryHandlerEqHashEnum.staticStore(data, instance.elements, this.typeId(), objectId, handler);
+		}
+	}
+
+	@Override
+	public final Substituter.Default<?> create(
+		final Binary                 data   ,
+		final PersistenceLoadHandler handler
+	)
+	{
+		// hashEqualator gets set in update
+		return new Substituter.Default<>(BinaryHandlerEqHashEnum.staticCreate(data));
+	}
+
+	@Override
+	public final void updateState(
+		final Binary                 data    ,
+		final Substituter.Default<?> instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		synchronized(instance)
+		{
+			BinaryHandlerEqHashEnum.staticUpdate(data, instance.elements, handler);
+		}
+	}
+
+	@Override
+	public void complete(
+		final Binary                 data    ,
+		final Substituter.Default<?> instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		synchronized(instance)
+		{
+			BinaryHandlerEqHashEnum.staticComplete(data, instance.elements);
+		}
+	}
+
+	@Override
+	public final void iterateLoadableReferences(
+		final Binary                     data    ,
+		final PersistenceReferenceLoader iterator
+	)
+	{
+		BinaryHandlerEqHashEnum.staticIteratePersistedReferences(data, iterator);
 	}
 
 }

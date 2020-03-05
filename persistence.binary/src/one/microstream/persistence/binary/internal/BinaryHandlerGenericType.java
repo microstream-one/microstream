@@ -8,7 +8,7 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceFieldLengthResolver;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceTypeInstantiator;
 
 public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerReflective<T>
@@ -17,6 +17,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 		final Class<T>                               type                      ,
 		final String                                 typeName                  ,
 		final XGettingEnum<Field>                    persistableFields         ,
+		final XGettingEnum<Field>                    persisterFields           ,
 		final PersistenceFieldLengthResolver         lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator  eagerStoringFieldEvaluator,
 		final PersistenceTypeInstantiator<Binary, T> instantiator              ,
@@ -27,6 +28,7 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 			type                      ,
 			typeName                  ,
 			persistableFields         ,
+			persisterFields           ,
 			lengthResolver            ,
 			eagerStoringFieldEvaluator,
 			instantiator              ,
@@ -49,16 +51,17 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	/////////////////
 
 	protected BinaryHandlerGenericType(
-		final Class<T>                              type                      ,
-		final String                                typeName                  ,
-		final XGettingEnum<Field>                   persistableFields         ,
-		final PersistenceFieldLengthResolver        lengthResolver            ,
-		final PersistenceEagerStoringFieldEvaluator eagerStoringFieldEvaluator,
+		final Class<T>                               type                      ,
+		final String                                 typeName                  ,
+		final XGettingEnum<Field>                    persistableFields         ,
+		final XGettingEnum<Field>                    persisterFields           ,
+		final PersistenceFieldLengthResolver         lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator  eagerStoringFieldEvaluator,
 		final PersistenceTypeInstantiator<Binary, T> instantiator              ,
 		final boolean                                switchByteOrder
 	)
 	{
-		super(type, typeName, persistableFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
+		super(type, typeName, persistableFields, persisterFields, lengthResolver, eagerStoringFieldEvaluator, switchByteOrder);
 		this.instantiator = notNull(instantiator);
 	}
 
@@ -69,9 +72,9 @@ public final class BinaryHandlerGenericType<T> extends AbstractBinaryHandlerRefl
 	////////////
 	
 	@Override
-	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final T create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return this.instantiator.instantiate(bytes);
+		return this.instantiator.instantiate(data);
 	}
 
 }

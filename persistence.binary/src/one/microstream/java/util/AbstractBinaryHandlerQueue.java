@@ -5,7 +5,7 @@ import java.util.Queue;
 import one.microstream.X;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomIterableSimpleListElements;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
 public abstract class AbstractBinaryHandlerQueue<T extends Queue<?>>
@@ -33,7 +33,7 @@ extends AbstractBinaryHandlerCustomIterableSimpleListElements<T>
 	}
 
 	@Override
-	public void update(final Binary bytes, final T instance, final PersistenceObjectIdResolver idResolver)
+	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
 		// instance must be cleared in case an existing one is updated
 		instance.clear();
@@ -41,10 +41,10 @@ extends AbstractBinaryHandlerCustomIterableSimpleListElements<T>
 		@SuppressWarnings("unchecked")
 		final Queue<Object> castedInstance = (Queue<Object>)instance;
 		
-		bytes.collectObjectReferences(
+		data.collectObjectReferences(
 			this.binaryOffsetElements(),
-			X.checkArrayRange(getElementCount(bytes)),
-			idResolver,
+			X.checkArrayRange(getElementCount(data)),
+			handler,
 			e ->
 				castedInstance.add(e)
 		);

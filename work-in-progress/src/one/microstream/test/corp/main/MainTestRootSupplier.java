@@ -25,7 +25,7 @@ public class MainTestRootSupplier
 	public static void main(final String[] args)
 	{
 		// root instance must be created after storage setup.
-		staticRoot = new Singleton<>(null);
+		staticRoot = Singleton.New(null);
 		
 		STORAGE.start();
 		

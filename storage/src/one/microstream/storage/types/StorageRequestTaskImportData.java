@@ -11,6 +11,7 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.concurrency.XThreads;
 import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.types.StorageDataFileItemIterator.ItemProcessor;
 
 
@@ -132,8 +133,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				}
 				catch(final Exception e)
 				{
-					// (16.07.2014)EXCP: proper exception
-					throw new RuntimeException("Exception while reading import file " + file, e);
+					// (16.07.2014 TM)EXCP: proper exception
+					throw new StorageException("Exception while reading import file " + file, e);
 				}
 			}
 //			DEBUGStorage.println("* completed reading source files");
@@ -378,7 +379,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				 * Shouldn't an import be properly interruptible in the first place?
 				 * Either change code or comment accordingly.
 				 */
-				throw new RuntimeException(e);
+				throw new StorageException(e);
 			}
 
 			return null;
@@ -430,7 +431,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			if(closer.hasDisruptions())
 			{
 				 // (02.12.2019 TM)EXCP: proper exception
-				throw new RuntimeException(closer.toMultiCauseException());
+				throw new StorageException(closer.toMultiCauseException());
 			}
 		}
 

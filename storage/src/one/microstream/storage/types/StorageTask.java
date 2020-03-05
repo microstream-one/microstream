@@ -1,5 +1,6 @@
 package one.microstream.storage.types;
 
+import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageTask
 {
@@ -83,8 +84,8 @@ public interface StorageTask
 		{
 			if(this.next != null)
 			{
-				// (09.03.2014)EXCP: proper exception
-				throw new RuntimeException("next task already assigned: " + this + " -> " + this.next);
+				// (09.03.2014 TM)EXCP: proper exception
+				throw new StorageException("next task already assigned: " + this + " -> " + this.next);
 			}
 			this.next = next;
 		}

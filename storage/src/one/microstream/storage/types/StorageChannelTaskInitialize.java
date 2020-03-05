@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.XSort;
 import one.microstream.persistence.types.Persistence;
+import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageChannelTaskInitialize extends StorageChannelTask
 {
@@ -112,24 +113,12 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 			{
 				if(this.result[i].transactionsFileAnalysis() == null != firstIsNull)
 				{
-					// (03.09.2014)EXCP: proper exception
-					throw new RuntimeException("Mixed (inconsistent) transactions file existances.");
+					// (03.09.2014 TM)EXCP: proper exception
+					throw new StorageException("Mixed (inconsistent) transactions file existances.");
 				}
 			}
 			return firstIsNull;
 		}
-
-//		private void checkAllChannelsEmpty()
-//		{
-//			for(int i = 0; i < this.result.length; i++)
-//			{
-//				if(!this.result[i].dataFiles().isEmpty())
-//				{
-//					// (12.06.2014)EXCP: proper exception
-//					throw new RuntimeException("Channel " + i + " is not empty while all before are.");
-//				}
-//			}
-//		}
 
 		private long determineConsistentStoreTimestamp()
 		{
@@ -158,8 +147,8 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 			{
 				if(!isCompatibleTimestamp(firstChannelLastTimestamp, inventory.transactionsFileAnalysis()))
 				{
-					// (10.06.2014)EXCP: proper exception
-					throw new RuntimeException("Inconsistent store timestamps between channels");
+					// (10.06.2014 TM)EXCP: proper exception
+					throw new StorageException("Inconsistent store timestamps between channels");
 				}
 			}
 			return firstChannelLastTimestamp;
@@ -210,7 +199,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		@Override
 		protected final void fail(final StorageChannel channel, final StorageInventory[] result)
 		{
-			// (09.06.2014)TODO: reset entity cache and file manager in here or comment why not here.
+			// (09.06.2014 TM)TODO: reset entity cache and file manager in here or comment why not here.
 			// channels won't get activated and thus will terminate automatically
 		}
 

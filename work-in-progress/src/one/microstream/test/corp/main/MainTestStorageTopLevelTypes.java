@@ -36,7 +36,7 @@ class TestPerson
 {
 	java.lang.String                        firstName;
 	java.lang.String                        lastName ;
-	one.microstream.persistence.lazy.Lazy<String> hugeText ;
+	one.microstream.reference.Lazy<String> hugeText ;
 }
 
 

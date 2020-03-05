@@ -5,10 +5,11 @@ import java.util.OptionalLong;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustomValueFixedLength<OptionalLong>
+public final class BinaryHandlerOptionalLong
+extends AbstractBinaryHandlerCustomValueFixedLength<OptionalLong, Long>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -19,6 +20,8 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 		BINARY_OFFSET_VALUE      = BINARY_OFFSET_IS_PRESENT + Byte.BYTES, // Boolean.BYTES does not exist
 		BINARY_LENGTH            = BINARY_OFFSET_VALUE      + Long.BYTES
 	;
+	
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -57,39 +60,88 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
+	
+	private static long instanceState(final OptionalLong instance)
+	{
+		// or ELSE!!!
+		return instance.orElse(0L);
+	}
+	
+	private static long binaryState(final Binary data)
+	{
+		return data.read_long(0);
+	}
 
 	@Override
 	public void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final OptionalLong            instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
-		bytes.store_boolean(
+		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
+		data.store_boolean(
 			BINARY_OFFSET_IS_PRESENT,
 			instance.isPresent()
 		);
 
-		bytes.store_long(
+		data.store_long(
 			BINARY_OFFSET_VALUE,
-			instance.orElse(0L)
+			instanceState(instance)
 		);
 	}
 
 	@Override
-	public OptionalLong create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public OptionalLong create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		final boolean isPresent = bytes.read_boolean(BINARY_OFFSET_IS_PRESENT);
+		final boolean isPresent = data.read_boolean(BINARY_OFFSET_IS_PRESENT);
 		
 		// luckily, an uninitialized instance (all-zeroes, meaning isPresent == false) is all that is required.
 		return isPresent
 			? OptionalLong.of(
-				bytes.read_long(BINARY_OFFSET_VALUE)
+				data.read_long(BINARY_OFFSET_VALUE)
 			)
 			: XMemory.instantiateBlank(OptionalLong.class)
 		;
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
+	// actually never called, just to satisfy the interface
+	@Override
+	public Long getValidationStateFromInstance(final OptionalLong instance)
+	{
+		return instanceState(instance);
+	}
+
+	// actually never called, just to satisfy the interface
+	@Override
+	public Long getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
+	}
+	
+	@Override
+	public void validateState(
+		final Binary                 data    ,
+		final OptionalLong           instance,
+		final PersistenceLoadHandler handler
+	)
+	{
+		final long instanceState = instanceState(instance);
+		final long binaryState   = binaryState(data);
+				
+		if(instanceState == binaryState)
+		{
+			return;
+		}
+		
+		this.throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 	
 }

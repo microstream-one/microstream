@@ -95,6 +95,4 @@ extends PersistenceExceptionTypeHandlerConsistencyProvider
 		;
 	}
 
-
-
 }

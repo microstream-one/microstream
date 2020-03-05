@@ -3,7 +3,7 @@ package one.microstream.persistence.binary.internal;
 import static one.microstream.X.notNull;
 
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.reflect.XReflect;
 
@@ -49,17 +49,17 @@ public final class BinaryHandlerStatelessConstant<T> extends AbstractBinaryHandl
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
+		final Binary                  data    ,
 		final T                       instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
 	{
-		bytes.storeStateless(this.typeId(), objectId);
+		data.storeStateless(this.typeId(), objectId);
 	}
 
 	@Override
-	public final T create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public final T create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		return this.constantInstance;
 	}

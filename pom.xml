@@ -6,7 +6,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream</artifactId>
-	<version>02.01.01-MS-GA-SNAPSHOT</version>
+	<version>02.03.00-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -37,6 +37,9 @@
 		<module>storage</module>
 		<module>storage.embedded</module>
 		<module>storage.embedded.configuration</module>
+		<module>storage.restadapter</module>		
+		<module>storage.restservice</module>
+		<module>storage.restservice.sparkjava</module>		
 	</modules>
 
 	<repositories>
@@ -135,7 +138,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 			</plugin>
-			<plugin>
+ 			<plugin>
 				<groupId>one.microstream</groupId>
 				<artifactId>sourcestub-maven-plugin</artifactId>
 			</plugin>
@@ -167,7 +170,7 @@
 						</archive>
 					</configuration>
 				</plugin>
-				<plugin>
+ 				<plugin>
 					<groupId>one.microstream</groupId>
 					<artifactId>sourcestub-maven-plugin</artifactId>
 					<version>2.1.1</version>
@@ -314,6 +317,39 @@
 	</build>
 
 	<profiles>
+		<profile>
+			<id>CI</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>one.microstream</groupId>
+						<artifactId>sourcestub-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<phase>none</phase>
+							</execution>    
+						</executions>
+					</plugin>
+				</plugins>
+			</build>			
+		</profile>
+		<profile>
+			<id>all</id>
+			<modules>
+				<module>base</module>
+				<module>communication</module>
+				<module>communication.binary</module>
+				<module>persistence</module>
+				<module>persistence.binary</module>
+				<module>persistence.binary.jdk8</module>
+				<module>storage</module>
+				<module>storage.embedded</module>
+				<module>storage.embedded.configuration</module>
+				<module>work-in-progress</module>
+				<module>all</module>
+			</modules>
+		</profile>
 		<profile>
 			<id>deploy</id>
 			<build>

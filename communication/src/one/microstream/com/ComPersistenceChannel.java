@@ -6,10 +6,10 @@ import one.microstream.persistence.types.PersistenceChannel;
 import one.microstream.persistence.types.PersistenceIdSet;
 
 
-public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
+public interface ComPersistenceChannel<C, D> extends PersistenceChannel<D>
 {
 	
-	public abstract class Abstract<C, M> implements ComPersistenceChannel<C, M>
+	public abstract class Abstract<C, D> implements ComPersistenceChannel<C, D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -40,20 +40,20 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 			return this.connection;
 		}
 		
-		protected abstract XGettingCollection<? extends M> internalRead(C connection)
+		protected abstract XGettingCollection<? extends D> internalRead(C connection)
 			 throws PersistenceExceptionTransfer;
 		
-		protected abstract void internalWrite(C channel, M data)
+		protected abstract void internalWrite(C channel, D data)
 			 throws PersistenceExceptionTransfer;
 
 		@Override
-		public XGettingCollection<? extends M> read() throws PersistenceExceptionTransfer
+		public XGettingCollection<? extends D> read() throws PersistenceExceptionTransfer
 		{
 			return this.internalRead(this.connection);
 		}
 
 		@Override
-		public void write(final M data) throws PersistenceExceptionTransfer
+		public void write(final D data) throws PersistenceExceptionTransfer
 		{
 			this.internalWrite(this.connection, data);
 		}
@@ -85,7 +85,7 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 		public abstract void closeTarget();
 		
 		@Override
-		public XGettingCollection<? extends M> readByObjectIds(final PersistenceIdSet[] objectIds)
+		public XGettingCollection<? extends D> readByObjectIds(final PersistenceIdSet[] objectIds)
 			throws PersistenceExceptionTransfer
 		{
 			/* (08.08.2018 TM)NOTE:
@@ -96,7 +96,7 @@ public interface ComPersistenceChannel<C, M> extends PersistenceChannel<M>
 			 * However, such a function is not supported for the current simple proof-of-concept.
 			 */
 			
-			// TODO NetworkPersistenceConnection<M>#readByObjectIds()
+			// TODO NetworkPersistenceConnection<D>#readByObjectIds()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		

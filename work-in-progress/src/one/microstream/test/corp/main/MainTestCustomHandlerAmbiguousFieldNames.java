@@ -3,7 +3,7 @@ package one.microstream.test.corp.main;
 import one.microstream.X;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceObjectIdResolver;
+import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public class MainTestCustomHandlerAmbiguousFieldNames
@@ -17,7 +17,7 @@ public class MainTestCustomHandlerAmbiguousFieldNames
 }
 
 
-final class MyTypeHandler extends AbstractBinaryHandlerCustomValueFixedLength<String>
+final class MyTypeHandler extends AbstractBinaryHandlerCustomValueFixedLength<String, String>
 {
 
 	protected MyTypeHandler()
@@ -29,15 +29,38 @@ final class MyTypeHandler extends AbstractBinaryHandlerCustomValueFixedLength<St
 	}
 
 	@Override
-	public void store(final Binary bytes, final String instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(final Binary data, final String instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME AbstractBinaryHandlerCustom<String>#store()
+		// FIXME AbstractBinaryHandlerCustom<String>#store()
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 	@Override
-	public String create(final Binary bytes, final PersistenceObjectIdResolver idResolver)
+	public String create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME AbstractBinaryHandlerCustom<String>#create()
+		// FIXME AbstractBinaryHandlerCustom<String>#create()
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+
+	@Override
+	public void validateState(final Binary data, final String instance, final PersistenceLoadHandler handler)
+	{
+		// FIXME AbstractBinaryHandlerCustomValue<String>#validateState()
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+	
+	@Override
+	public String getValidationStateFromInstance(final String instance)
+	{
+		// FIXME MyTypeHandler#getValidationStateFromInstance()
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+	
+	@Override
+	public String getValidationStateFromBinary(final Binary data)
+	{
+		// FIXME MyTypeHandler#getValidationStateFromBinary()
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 	
 }

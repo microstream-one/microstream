@@ -13,10 +13,9 @@ import one.microstream.collections.types.XEnum;
 import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.BinaryPersistence;
-import one.microstream.persistence.lazy.Lazy;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
+import one.microstream.reference.Lazy;
 import one.microstream.storage.types.StorageConnection;
-import one.microstream.storage.types.StorageDataFileEvaluator;
 import one.microstream.storage.types.StorageRawFileStatistics;
 import one.microstream.storage.types.StorageTransactionsFileAnalysis;
 import one.microstream.test.Person;
@@ -250,14 +249,17 @@ public class MainTestStorage extends TestStorage
 	static long parseStorageFileNumber(final Path file)
 	{
 		final String filename = XIO.getFileName(file);
-		return Long.valueOf(filename.substring(filename.lastIndexOf('_')+1, filename.lastIndexOf('.')));
+		return Long.valueOf(
+			filename.substring(
+				filename.lastIndexOf('_') + 1,
+				filename.lastIndexOf(XIO.fileSuffixSeparator())
+			)
+		);
 	}
 
 
 	static void testCleanUp() throws InterruptedException
 	{
-		final StorageDataFileEvaluator fileEvaluator = STORAGE.configuration().dataFileEvaluator();
-
 		STORAGE.createConnection().issueFullGarbageCollection();
 		STORAGE.createConnection().issueFullCacheCheck((a, b, e) -> {
 //			System.out.println(a+" Clearing "+e.objectId()+" "+e.type().typeHandler().typeName());
@@ -266,10 +268,10 @@ public class MainTestStorage extends TestStorage
 
 		STORAGE.createConnection().issueCacheCheck(System.nanoTime()+100_000_000);
 		STORAGE.createConnection().issueFullFileCheck(
-			f -> {
-//				System.out.println("evaluating file "+f);
-				return fileEvaluator.needsDissolving(f);
-			}
+//			f -> {
+////				System.out.println("evaluating file "+f);
+//				return fileEvaluator.needsDissolving(f);
+//			}
 		);
 
 		for(int i = 1; i --> 0;)

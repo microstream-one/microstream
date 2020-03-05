@@ -15,7 +15,6 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 	public long ensureObjectId(Object object, PersistenceAcceptor newObjectIdCallback);
 
 	public void consolidate();
-	
 
 	@Override
 	public long currentObjectId();
@@ -94,7 +93,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				);
 			}
 		}
-
+		
 		@Override
 		public void consolidate()
 		{

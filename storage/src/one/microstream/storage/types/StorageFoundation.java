@@ -13,12 +13,12 @@ import one.microstream.util.ProcessIdentityProvider;
 
 
 /**
- * A kind of factory type that holds and creates on demand all the parts that form a {@link StorageManager} instance,
+ * A kind of factory type that holds and creates on demand all the parts that form a {@link StorageSystem} instance,
  * i.e. a functional database handling logic.
  * <p>
  * Additionally to the services of a mere factory type, a foundation type also keeps references to all parts
- * after a {@link StorageManager} instance has been created. This is useful if some internal logic parts shall be
- * accessed while the {@link StorageManager} logic is already running. Therefore, this type can best be thought of
+ * after a {@link StorageSystem} instance has been created. This is useful if some internal logic parts shall be
+ * accessed while the {@link StorageSystem} logic is already running. Therefore, this type can best be thought of
  * as a {@literal foundation} on which the running database handling logic stands.
  * <p>
  * All {@literal set~} methods are simple setter methods without any additional logic worth mentioning.<br>
@@ -50,7 +50,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageConfiguration} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -64,7 +64,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageOperationController.Creator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -78,7 +78,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageInitialDataFileNumberProvider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -92,7 +92,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageRequestAcceptor.Creator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -106,7 +106,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageTaskBroker.Creator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -120,7 +120,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageDataChunkValidator.Provider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -134,7 +134,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageDataChunkValidator.Provider2} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -148,7 +148,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageChannelsCreator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -162,7 +162,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageThreadNameProvider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -176,7 +176,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageChannelThreadProvider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -190,7 +190,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageBackupThreadProvider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -204,7 +204,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageLockFileManagerThreadProvider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -218,7 +218,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageThreadProvider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -232,7 +232,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageRequestTaskCreator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -246,7 +246,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageTypeDictionary} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -260,7 +260,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageRootTypeIdProvider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -274,7 +274,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageTimestampProvider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -288,7 +288,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageObjectIdRangeEvaluator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -302,7 +302,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageFileReader.Provider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -316,7 +316,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageFileWriter.Provider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -330,7 +330,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageGCZombieOidHandler} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -344,7 +344,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageRootOidSelector.Provider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -355,10 +355,10 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public StorageRootOidSelector.Provider getRootOidSelectorProvider();
 	
 	/**
-	 * Returns the currently set {@link StorageobjectIdMarkQueue.Creator} instance.
+	 * Returns the currently set {@link StorageObjectIdMarkQueue.Creator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -366,13 +366,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
 	 */
-	public StorageobjectIdMarkQueue.Creator getOidMarkQueueCreator();
+	public StorageObjectIdMarkQueue.Creator getOidMarkQueueCreator();
 	
 	/**
 	 * Returns the currently set {@link StorageEntityMarkMonitor.Creator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -386,7 +386,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageDataFileValidator.Creator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -400,7 +400,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link BinaryEntityRawDataIterator.Provider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -414,7 +414,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageEntityDataValidator.Creator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -428,7 +428,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link ProcessIdentityProvider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -442,7 +442,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageLockFileSetup} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -456,7 +456,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageLockFileSetup.Provider} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -470,7 +470,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageLockFileManager.Creator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -484,7 +484,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * Returns the currently set {@link StorageExceptionHandler} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageManager()}, a suitable instance is created via an internal default
+	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
@@ -697,13 +697,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	public F setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
 	
 	/**
-	 * Sets the {@link StorageobjectIdMarkQueue.Creator} instance to be used for the assembly.
+	 * Sets the {@link StorageObjectIdMarkQueue.Creator} instance to be used for the assembly.
 	 * 
 	 * @param oidMarkQueueCreator the instance to be used.
 	 * 
 	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
-	public F setOidMarkQueueCreator(StorageobjectIdMarkQueue.Creator oidMarkQueueCreator);
+	public F setOidMarkQueueCreator(StorageObjectIdMarkQueue.Creator oidMarkQueueCreator);
 	
 	/**
 	 * Sets the {@link StorageEntityMarkMonitor.Creator} instance to be used for the assembly.
@@ -791,14 +791,14 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	
 	
 	/**
-	 * Creates and returns a new {@link StorageManager} instance by using the current state of all registered
+	 * Creates and returns a new {@link StorageSystem} instance by using the current state of all registered
 	 * logic part instances and by on-demand creating missing ones via a default logic.
 	 * <p>
-	 * The returned {@link StorageManager} instance will NOT yet be started.
+	 * The returned {@link StorageSystem} instance will NOT yet be started.
 	 * 
-	 * @return a new {@link StorageManager} instance.
+	 * @return a new {@link StorageSystem} instance.
 	 */
-	public StorageManager createStorageManager();
+	public StorageSystem createStorageSystem();
 
 
 
@@ -833,7 +833,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageFileWriter.Provider            writerProvider               ;
 		private StorageGCZombieOidHandler             gCZombieOidHandler           ;
 		private StorageRootOidSelector.Provider       rootOidSelectorProvider      ;
-		private StorageobjectIdMarkQueue.Creator      oidMarkQueueCreator          ;
+		private StorageObjectIdMarkQueue.Creator      oidMarkQueueCreator          ;
 		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
 		private StorageDataFileValidator.Creator      dataFileValidatorCreator     ;
 		private BinaryEntityRawDataIterator.Provider  entityDataIteratorProvider   ;
@@ -1003,14 +1003,14 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return new StorageRootOidSelector.Provider.Default();
 		}
 
-		protected StorageobjectIdMarkQueue.Creator ensureOidMarkQueueCreator()
+		protected StorageObjectIdMarkQueue.Creator ensureOidMarkQueueCreator()
 		{
-			return new StorageobjectIdMarkQueue.Creator.Default();
+			return new StorageObjectIdMarkQueue.Creator.Default();
 		}
 
 		protected StorageEntityMarkMonitor.Creator ensureEntityMarkMonitorCreator()
 		{
-			return new StorageEntityMarkMonitor.Creator.Default();
+			return StorageEntityMarkMonitor.Creator();
 		}
 
 		protected StorageDataFileValidator.Creator ensureDataFileValidatorCreator()
@@ -1300,7 +1300,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 
 		@Override
-		public StorageobjectIdMarkQueue.Creator getOidMarkQueueCreator()
+		public StorageObjectIdMarkQueue.Creator getOidMarkQueueCreator()
 		{
 			if(this.oidMarkQueueCreator == null)
 			{
@@ -1571,7 +1571,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 		@Override
 		public F setOidMarkQueueCreator(
-			final StorageobjectIdMarkQueue.Creator oidMarkQueueCreator)
+			final StorageObjectIdMarkQueue.Creator oidMarkQueueCreator)
 		{
 			this.oidMarkQueueCreator = oidMarkQueueCreator;
 			return this.$();
@@ -1675,7 +1675,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 		
 		@Override
-		public StorageManager createStorageManager()
+		public StorageSystem createStorageSystem()
 		{
 			/* (11.02.2019 TM)NOTE: On byte order switching:
 			 * Theoreticaly, the storage engine (OGS) could use the switchByteOrder mechanism implemented for
@@ -1685,7 +1685,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			 * See StorageEntityCache$Default#putEntity
 			 */
 						
-			return new StorageManager.Default(
+			return new StorageSystem.Default(
 				this.getConfiguration()                ,
 				this.getOperationControllerCreator()   ,
 				this.getDataFileValidatorCreator()     ,

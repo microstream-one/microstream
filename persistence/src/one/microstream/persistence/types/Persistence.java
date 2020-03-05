@@ -5,9 +5,12 @@ import static one.microstream.X.notNull;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.Reference;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -21,7 +24,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.chars.StringTable;
@@ -35,15 +38,17 @@ import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.collections.types.XIterable;
-import one.microstream.io.XIO;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyInvalidTypeId;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDefinitionResolveTypeName;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
-import one.microstream.persistence.lazy.Lazy;
+import one.microstream.reference.Lazy;
+import one.microstream.reference.Swizzling;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.Composition;
 import one.microstream.typing.KeyValue;
+import one.microstream.util.xcsv.XCSV;
 
 
 public class Persistence
@@ -86,9 +91,6 @@ public class Persistence
 
 	static final long START_CID_REAL = START_CID_BASE +    10_000L; // first 10K reserved for JLS constants
 	static final long START_TID_REAL = START_TID_BASE + 1_000_000L; // first new type gets 1M1 assigned.
-
-	static final long OID_NULL =  0L;
-	static final long TID_NULL = OID_NULL; // same as OID null because TIDs are actually OIDs.
 
 	// CHECKSTYLE.OFF: ConstantName: type names are intentionally unchanged
 
@@ -201,7 +203,10 @@ public class Persistence
 	
 	public static String engineName()
 	{
-		// kind of weird to put it here, but it has to be somewhere and the Persistence layer is the base for everything
+		/*
+		 * Kind of weird to put it here, but it has to be somewhere
+		 * and the Persistence layer is the base for everything.
+		 */
 		return "MicroStream";
 	}
 
@@ -227,7 +232,12 @@ public class Persistence
 
 	public static final long nullId()
 	{
-		return OID_NULL;
+		return Swizzling.nullId();
+	}
+	
+	public static final long notFoundId()
+	{
+		return -1L;
 	}
 
 	public static final PersistenceTypeIdLookup createDefaultTypeLookup()
@@ -351,7 +361,7 @@ public class Persistence
 
 		NATIVE_TYPES.add(java.util.Locale.class, TID_java_util_Locale);
 		
-		/* (27.03.2012)FIXME more native types
+		/* (27.03.2012 TM)FIXME more native types
 		 * java.nio.Path etc.
 		 * Also see class BinaryPersistence for TypeHandlers
 		 */
@@ -579,6 +589,7 @@ public class Persistence
 		OutputStream.class,
 		FileChannel.class,
 		Socket.class,
+		ServerSocket.class,
 
 		// unshared composition types (those are internal helper class instances, not entities)
 		Composition.class,
@@ -593,7 +604,13 @@ public class Persistence
 		new CopyOnWriteArrayList<>().subList(0, 0).getClass(), // java.util.concurrent.CopyOnWriteArrayList$COWSubList
 		
 		Enumeration.class,
-		Iterator.class
+		Iterator.class,
+		
+		// it makes no sense to support/allow these "magical" volatile references in a persistent context.
+		Reference.class,
+		
+		// for now, not supported because of JVM-managed fields etc.
+		Throwable.class
 		
 		// note: lambdas don't have a super class as such. See usages of "LambdaTypeRecognizer" instead
 	);
@@ -626,12 +643,12 @@ public class Persistence
 		return XReflect.isOfAnyType(type, unpersistableTypes());
 	}
 	
-	public static final <M> PersistenceTypeMismatchValidator<M> typeMismatchValidatorFailing()
+	public static final <D> PersistenceTypeMismatchValidator<D> typeMismatchValidatorFailing()
 	{
 		return PersistenceTypeMismatchValidator.Failing();
 	}
 	
-	public static final <M> PersistenceTypeMismatchValidator<M> typeMismatchValidatorNoOp()
+	public static final <D> PersistenceTypeMismatchValidator<D> typeMismatchValidatorNoOp()
 	{
 		return PersistenceTypeMismatchValidator.NoOp();
 	}
@@ -642,12 +659,29 @@ public class Persistence
 			isPersistable(type)
 		;
 	}
+	
+	public static final boolean isPersistableField(final Class<?> entityType, final Field field)
+	{
+		return !XReflect.isTransient(field);
+	}
 
 	public static final PersistenceFieldEvaluator defaultFieldEvaluatorPersistable()
 	{
+		return Persistence::isPersistableField;
+	}
+	
+	public static final PersistenceFieldEvaluator defaultFieldEvaluatorPersister()
+	{
+		// the type check is hardcoded to be unremovable. The evaluator only enables the feature and covers customizing.
 		return (entityType, field) ->
-			!XReflect.isTransient(field)
+			true
 		;
+	}
+	
+	public static final boolean isPersisterField(final Field field)
+	{
+		// the field's type must be Persister or "lower" / more specific, e.g. StorageManager.
+		return Persister.class.isAssignableFrom(field.getType());
 	}
 	
 	public static boolean isHandleableEnumField(final Class<?> enumClass, final Field field)
@@ -808,8 +842,9 @@ public class Persistence
 
 	@SuppressWarnings({ "unchecked", "rawtypes" }) // type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> resolveEnumeratedClassIdentifierSeparatedType(
-		final String typeName,
-		final String substituteClassIdentifierSeparator
+		final String      typeName   ,
+		final ClassLoader classLoader,
+		final String      substituteClassIdentifierSeparator
 	)
 	{
 		// there can only be one at the most, so a simple indexOf is sufficient.
@@ -820,7 +855,7 @@ public class Persistence
 		}
 		
 		final String properTypeName = typeName.substring(0, sepIndex);
-		final Class<?> type = resolveType(properTypeName, substituteClassIdentifierSeparator);
+		final Class<?> type = resolveType(properTypeName, classLoader, substituteClassIdentifierSeparator);
 		
 		if(!XReflect.isDeclaredEnum(type))
 		{
@@ -836,18 +871,23 @@ public class Persistence
 	}
 	
 	// type safety guaranteed by the passed typename. The typename String "is" the T.
-	public static <T> Class<T> resolveType(final String typeName)
+	public static <T> Class<T> resolveType(final String typeName, final ClassLoader classLoader)
 	{
-		return resolveType(typeName, substituteClassIdentifierSeparator());
+		return resolveType(typeName, classLoader, substituteClassIdentifierSeparator());
 	}
 
 	@SuppressWarnings("unchecked") // type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> resolveType(
-		final String typeName,
-		final String substituteClassIdentifierSeparator
+		final String      typeName   ,
+		final ClassLoader classLoader,
+		final String      substituteClassIdentifierSeparator
 	)
 	{
-		final Class<?> c = resolveEnumeratedClassIdentifierSeparatedType(typeName, substituteClassIdentifierSeparator);
+		final Class<?> c = resolveEnumeratedClassIdentifierSeparatedType(
+			typeName,
+			classLoader,
+			substituteClassIdentifierSeparator
+		);
 		if(c != null)
 		{
 			return (Class<T>)c;
@@ -855,7 +895,7 @@ public class Persistence
 		
 		try
 		{
-			return (Class<T>)XReflect.resolveType(typeName);
+			return (Class<T>)XReflect.resolveType(typeName, classLoader);
 		}
 		catch(final ClassNotFoundException e)
 		{
@@ -863,11 +903,11 @@ public class Persistence
 		}
 	}
 	
-	public static <T> Class<T> tryResolveType(final String typeName)
+	public static <T> Class<T> tryResolveType(final String typeName, final ClassLoader classLoader)
 	{
 		try
 		{
-			return Persistence.resolveType(typeName);
+			return Persistence.resolveType(typeName, classLoader);
 		}
 		catch(final PersistenceExceptionTypeConsistencyDefinitionResolveTypeName e)
 		{
@@ -883,7 +923,10 @@ public class Persistence
 		if(typeHandler.typeId() == Persistence.nullId())
 		{
 			// (07.08.2019 TM)EXCP: proper exception
-			throw new IllegalArgumentException("Type handler not initialized for type " + typeHandler.type());
+			throw new IllegalArgumentException(
+				"Type handler not initialized for type " + typeHandler.type()
+				+ ". This is probably caused by a missing type dictionary entry for that type."
+			);
 		}
 		
 		return XReflect.typename_enum() + " " + typeHandler.typeId();
@@ -946,63 +989,24 @@ public class Persistence
 		return enumRootIdentifier != null && enumRootIdentifier.startsWith(enumRootIdentifierStart());
 	}
 	
-	public static final PersistenceRootResolverProvider RootResolverProvider()
-	{
-		return RootResolverProvider(() ->
-			null // debuggability line break, do not remove!
-		);
-	}
-	
+	@Deprecated
 	public static final String defaultRootIdentifier()
 	{
-		// assumed to be the "special case", hence specifically named.
 		return "defaultRoot";
 	}
-	
+
+	@Deprecated
 	public static final String customRootIdentifier()
 	{
-		// assumed to be the "normal" case, hence generically named "root".
 		return "root";
 	}
 	
-	public static final PersistenceRootResolverProvider RootResolverProvider(
-		final Object rootInstance
-	)
+	public static final String rootIdentifier()
 	{
-		return PersistenceRootResolverProvider.New()
-			.registerCustomRoot(rootInstance)
-		;
+		// must be upper case to be distinct from old custom root concept for automatic version change detection.
+		return "ROOT";
 	}
-	
-	public static final PersistenceRootResolverProvider RootResolverProvider(
-		final String rootIdentifier,
-		final Object rootInstance
-	)
-	{
-		return PersistenceRootResolverProvider.New()
-			.registerCustomRoot(rootIdentifier, rootInstance)
-		;
-	}
-	
-	public static final PersistenceRootResolverProvider RootResolverProvider(
-		final Supplier<?> rootInstanceSupplier
-	)
-	{
-		return PersistenceRootResolverProvider.New()
-			.registerCustomRootSupplier(rootInstanceSupplier)
-		;
-	}
-	
-	public static final PersistenceRootResolverProvider RootResolverProvider(
-		final String      rootIdentifier      ,
-		final Supplier<?> rootInstanceSupplier
-	)
-	{
-		return PersistenceRootResolverProvider.New()
-			.registerCustomRootSupplier(rootIdentifier, rootInstanceSupplier)
-		;
-	}
-	
+		
 	@Deprecated
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final File refactoringsFile
@@ -1035,12 +1039,9 @@ public class Persistence
 	
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final Path file)
 	{
-		// (19.04.2018 TM)EXCP: proper exception
-		final String fileContent = XIO.unchecked(() ->
-			XIO.readString(file)
-		);
-		final StringTable                        stringTable = StringTable.Static.parse(fileContent);
-		final BulkList<KeyValue<String, String>> entries     = BulkList.New(stringTable.rows().size());
+		final StringTable stringTable = XCSV.readFromFile(file);
+		
+		final BulkList<KeyValue<String, String>> entries = BulkList.New(stringTable.rows().size());
 		
 		stringTable.mapTo(
 			(k, v) ->
@@ -1105,7 +1106,7 @@ public class Persistence
 		if(!XReflect.isSubEnum(type))
 		{
 			// (05.08.2019 TM)EXCP: proper exception
-			throw new RuntimeException("Not an Enum type: " + type.getName());
+			throw new PersistenceException("Not an Enum type: " + type.getName());
 		}
 		
 		notNull(substituteClassIdentifierSeparator);
@@ -1121,9 +1122,83 @@ public class Persistence
 		}
 		
 		// (02.08.2019 TM)EXCP: proper exception
-		throw new RuntimeException("Orphan sub enum type: " + type.getName());
+		throw new PersistenceException("Orphan sub enum type: " + type.getName());
 	}
 
+	
+	/**
+	 * Searches the methods of the passed entityType for a static method with arbitrary name and visibility,
+	 * no arguments and {@link PersistenceTypeHandler} or a sub type of it as its return type.<p>
+	 * Which method to select is also determined by testing the returned {@link PersistenceTypeHandler} instance
+	 * if it has the correct {@link PersistenceTypeHandler#dataType()} for the used persistence context
+	 * and the correct {@link PersistenceTypeHandler#type()} for the given entity class.
+	 * <p>
+	 * This mechanism is a convenience shortcut alternative to
+	 * {@link PersistenceFoundation#registerCustomTypeHandler(PersistenceTypeHandler)}.
+	 * 
+	 * @param <D>
+	 * @param <T>
+	 * @param dataType
+	 * @param entityType
+	 * @return
+	 * @throws ReflectiveOperationException
+	 */
+	public static <D, T> PersistenceTypeHandler<D, T> searchProvidedTypeHandler(
+		final Class<D>                  dataType  ,
+		final Class<T>                  entityType,
+		final Predicate<? super Method> selector
+	)
+		throws ReflectiveOperationException
+	{
+		// ONLY declared methods of the specific type, not of super classes, since every class needs a specific handler
+		for(final Method m : entityType.getDeclaredMethods())
+		{
+			// only static methods are admissible.
+			if(!XReflect.isStatic(m))
+			{
+				continue;
+			}
+
+			// only parameter-less methods are admissible.
+			if(m.getParameterCount() != 0)
+			{
+				continue;
+			}
+
+			// only methods returning an instance of PersistenceTypeHandler are admissible.
+			if(!PersistenceTypeHandler.class.isAssignableFrom(m.getReturnType()))
+			{
+				continue;
+			}
+			
+			m.setAccessible(true);
+			final PersistenceTypeHandler<?, ?> providedTypeHandler = (PersistenceTypeHandler<?, ?>)m.invoke(null);
+			
+			// context checks
+			if(providedTypeHandler.dataType() != dataType)
+			{
+				continue;
+			}
+			if(providedTypeHandler.type() != entityType)
+			{
+				continue;
+			}
+			
+			// hook for custom selector logic, e.g. filtering for a certain annotation or name.
+			if(selector != null && !selector.test(m))
+			{
+				continue;
+			}
+
+			@SuppressWarnings("unchecked")
+			final PersistenceTypeHandler<D, T> applicableTypeHandler = (PersistenceTypeHandler<D, T>)providedTypeHandler;
+			
+			return applicableTypeHandler;
+		}
+		
+		return null;
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -1149,7 +1224,7 @@ public class Persistence
 			@Override
 			public boolean isInRange(final long id)
 			{
-				return id == Persistence.OID_NULL;
+				return id == Persistence.nullId();
 			}
 		},
 		TID
@@ -1202,7 +1277,7 @@ public class Persistence
 					: OID
 				: id >= Persistence.FIRST_TID
 					? TID
-					: id == Persistence.OID_NULL
+					: id == Persistence.nullId()
 						? NULL
 						: UNDEFINED
 			;
