@@ -34,6 +34,11 @@ public interface EvictionPolicy
 		return (kv1, kv2) -> Long.compare(kv1.value().accessCount(), kv2.value().accessCount());
 	}
 	
+	public static Comparator<KeyValue<Object, CachedValue>> BiggestObjectsComparator()
+	{
+		return (kv1, kv2) -> Long.compare(kv2.value().byteSizeEstimate(), kv1.value().byteSizeEstimate());
+	}
+	
 	public static int DefaultElementCount()
 	{
 		return 4;
@@ -104,6 +109,32 @@ public interface EvictionPolicy
 			evictionNecessity,
 			evictionPermission,
 			LeastFrequentlyUsedComparator()
+		);
+	}
+	
+	public static EvictionPolicy BiggestObjects(
+		final int  elementCount,
+		final long maxCacheSize
+	)
+	{
+		return BiggestObjects(
+			() -> elementCount,
+			MaxCacheSizePredicate(maxCacheSize),
+			null
+		);
+	}
+	
+	public static EvictionPolicy BiggestObjects(
+		final _intReference                             elementCount,
+		final Predicate<CacheTable>                     evictionNecessity,
+		final Predicate<KeyValue<Object, CachedValue>>  evictionPermission
+	)
+	{
+		return Sampling(
+			elementCount,
+			evictionNecessity,
+			evictionPermission,
+			BiggestObjectsComparator()
 		);
 	}
 	
