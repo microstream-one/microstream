@@ -256,17 +256,6 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public <C extends Consumer<? super E>> C distinct(C target, Equalator<? super E> equalator);
 
-	// (04.03.2020 TM)FIXME: priv#239 remove
-	public <C extends Consumer<? super E>> C rngDistinct(long offset, long length, C target);
-
-	// (04.03.2020 TM)FIXME: priv#239 remove
-	public <C extends Consumer<? super E>> C rngDistinct(
-		long offset,
-		long length,
-		C target,
-		Equalator<? super E> equalator
-	);
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -333,24 +322,15 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public long remove(E element);
 
-	// (04.03.2020 TM)FIXME: priv#239 remove
-	public long rngRemove(long offset, long length, E element);
-
 	public long remove(E sample, Equalator<? super E> equalator);
 
 	// removing - multiple all array //
 
 	public long removeAll(E[] elements, int elementsOffset, int elementsLength);
 
-	// (04.03.2020 TM)FIXME: priv#239 remove
-	public long rngRemoveAll(long offset, long length, E[] elements, int elementsOffset, int elementsLength);
-
 	// removing - multiple all collection //
 
 	public long removeAll(XGettingCollection<? extends E> elements);
-
-	// (04.03.2020 TM)FIXME: priv#239 remove
-	public long rngRemoveAll(long offset, long length, XGettingCollection<? extends E> elements);
 
 	// removing - duplicates //
 
@@ -458,22 +438,13 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 
 	public long replace(E element, E replacement);
 
-	// (04.03.2020 TM)FIXME: priv#239 remove
-	public long rngReplace(long offset, long length, E element, E replacement);
-
 	// replacing - multiple all array //
 
 	public long replaceAll(E[] elements, int elementsOffset, int elementsLength, E replacement);
 
-	// (04.03.2020 TM)FIXME: priv#239 remove
-	public long rngReplaceAll(long offset, long length, E[] elements, int elementsOffset, int elementsLength, E replacement);
-
 	// replacing - multiple all collection //
 
 	public long replaceAll(XGettingCollection<? extends E> elements, E replacement);
-
-	// (04.03.2020 TM)FIXME: priv#239 remove
-	public long rngReplaceAll(long offset, long length, XGettingCollection<? extends E> elements, E replacement);
 
 	public long replaceOneBy(Predicate<? super E> predicate, E substitute);
 

@@ -281,50 +281,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		head.prev = last;                             // last entry now is new end entry (obviously)
 	}
 
-	private static <K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>> void keyMergesortRange(
-		final EN preFirst,
-		final EN postLast,
-		final EN head,
-		final Comparator<? super K> comparator
-	)
-	{
-		EN last, entry;
-		try
-		{
-			if(postLast == null)
-			{
-				entry = mergesort0(preFirst.next, comparator); // sort normally
-			}
-			else
-			{
-				entry = rngMergesort0(preFirst.next, postLast, comparator); // sort
-			}
-		}
-		catch(final Throwable e)
-		{
-			// rollback 8-)
-			for(entry = (postLast == null ? head : postLast).prev; (entry = (last = entry).prev) != preFirst;)
-			{
-				entry.next = last;
-			}
-			throw e;
-		}
-
-		// reattach sorted chain to head and rebuild prev direction
-		(preFirst.next = entry).prev = preFirst;      // entry is new start entry
-		while((entry = (last = entry).next) != null)
-		{
-			entry.prev = last;                        // rebuild prev references
-		}
-		if(postLast != null)
-		{
-			postLast.prev = last;                     // entry now is new end entry
-		}
-		else
-		{
-			head.prev = last;
-		}
-	}
 
 	private static <K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>> EN mergesort0(final EN chain, final Comparator<? super K> comparator)
 	{
@@ -343,29 +299,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 
 		// merging
 		return merge1(mergesort0(chain, comparator), mergesort0(chain2, comparator), comparator);
-	}
-
-	private static <K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>> EN rngMergesort0(
-		final EN chain,
-		final EN end,
-		final Comparator<? super K> cmp
-	)
-	{
-		// special case handling for empty or trivial chain
-		if(chain == null || chain.next == null)
-		{
-			return chain;
-		}
-
-		// inlined iterative splitting
-		EN chain2, t1, t2 = chain2 = (t1 = chain).next;
-		while(t2 != end && (t1 = t1.next = t2.next) != end)
-		{
-			t2 = t2.next = t1.next;
-		}
-
-		// merging
-		return rngMerge1(rngMergesort0(chain, end, cmp), rngMergesort0(chain2, end, cmp), end, cmp);
 	}
 
 	// merge iterative
@@ -415,56 +348,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return c;
 	}
 
-	// merge iterative
-	private static <K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>> EN rngMerge1(
-		      EN c1,
-		      EN c2,
-		final EN end,
-		final Comparator<? super K> cmp
-	)
-	{
-		if(c1 == end)
-		{
-			return c2;
-		}
-		if(c2 == end)
-		{
-			return c1;
-		}
-
-		final EN c;
-		if(cmp.compare(c1.key(), c2.key()) < 0)
-		{
-			c1 = (c = c1).next;
-		}
-		else
-		{
-			c2 = (c = c2).next;
-		}
-
-		for(EN t = c;;)
-		{
-			if(c1 == end)
-			{
-				t.next = c2;
-				break;
-			}
-			else if(c2 == end)
-			{
-				t.next = c1;
-				break;
-			}
-			else if(cmp.compare(c1.key(), c2.key()) < 0)
-			{
-				c1 = (t = t.next = c1).next;
-			}
-			else
-			{
-				c2 = (t = t.next = c2).next;
-			}
-		}
-		return c;
-	}
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -578,32 +461,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return false;
 	}
 
-	@Override
-	public final boolean keyRngContainsNull(final int offset, int length)
-	{
-		EN e = this.getRangeChainEntry(offset, length); // validate range and scroll to offset
-		if(length < 0)
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				if(e.hasNullKey())
-				{
-					return true;
-				}
-			}
-		}
-		else
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				if(e.hasNullKey())
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	}
 
 	// containing - identity //
 
@@ -615,33 +472,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			if(e.key() == element)
 			{
 				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public final boolean keyRngContainsId(final int offset, int length, final K element)
-	{
-		EN e = this.getRangeChainEntry(offset, length); // validate range and scroll to offset
-		if(length < 0)
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				if(e.key() == element)
-				{
-					return true;
-				}
-			}
-		}
-		else
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				if(e.key() == element)
-				{
-					return true;
-				}
 			}
 		}
 		return false;
@@ -670,33 +500,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			if(equalator.equal(e.key(), sample))
 			{
 				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public final boolean keyRngContains(final int offset, int length, final K element)
-	{
-		EN e = this.getRangeChainEntry(offset, length); // validate range and scroll to offset
-		if(length < 0)
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				if(e.key() == element)
-				{
-					return true;
-				}
-			}
-		}
-		else
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				if(e.key() == element)
-				{
-					return true;
-				}
 			}
 		}
 		return false;
@@ -735,55 +538,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return true; // all elements have been found, return true
 	}
 
-	@Override
-	public final boolean keyRngContainsAll(
-		final int offset,
-		      int length,
-		final K[] elements,
-		final int elementsOffset,
-		final int elementsLength
-	)
-	{
-		final EN first;
-		if((first = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return false; // size 0
-		}
-		final int d;
-		if((d = ChainStorageStrong.validateArrayIteration(elements, elementsOffset, elementsLength)) == 0)
-		{
-			return true;
-		}
-		final int elementsBound = elementsOffset + elementsLength;
-
-		// hopping direction
-		final AbstractChainEntry.Hopper hop;
-		if(length < 0)
-		{
-			hop = HOP_PREV;
-			length = -length;
-		}
-		else
-		{
-			hop = HOP_NEXT;
-		}
-
-		main:
-		for(int ei = elementsOffset; ei != elementsBound; ei += d)
-		{
-			final K element = elements[ei];
-			for(EN e = first; e != null; e = hop.hop(e))
-			{
-				if(e.key() == element)
-				{
-					continue main;
-				}
-			}
-			return false;  // one element was not found in this list, return false
-		}
-		return true;  // all elements have been found, return true
-	}
-
 	// containing - all collection //
 
 	@Override
@@ -806,55 +560,8 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		});
 	}
 
-	@Override
-	public final boolean keyRngContainsAll(final int offset, final int length, final XGettingCollection<? extends K> elements)
-	{
-		if(elements instanceof AbstractSimpleArrayCollection<?>)
-		{
-			return this.keyRngContainsAll(
-				offset, length,
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
-			);
-		}
-
-		// iterate by predicate function
-		final EN first; // validate range and scroll to offset
-		if((first = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return false;
-		}
-
-		// iterate by predicate function
-		if(length < 0)
-		{
-			return elements.applies(e->
-			{
-				int len = length;
-				for(EN entry = first; len++ < 0; entry = entry.prev)
-				{
-					if(entry.key() == e)
-					{
-						return true;
-					}
-				}
-				return false;
-			});
-		}
-		return elements.applies(e ->
-		{
-			int len = length;
-			for(EN entry = first; len-- > 0; entry = entry.next)
-			{
-				if(entry.key() == e)
-				{
-					return true;
-				}
-			}
-			return false;
-		});
-	}
-
-
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// applying //
 	/////////////
@@ -871,40 +578,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				if(predicate.test(e.key()))
 				{
 					return true;
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
-		}
-		return false;
-	}
-
-	@Override
-	public final boolean keyRngApplies(final int offset, int length, final Predicate<? super K> predicate)
-	{
-		EN e = this.getRangeChainEntry(offset, length); // validate range and scroll to offset
-		try
-		{
-			if(length < 0)
-			{
-				for(; length++ < 0; e = e.prev)
-				{
-					if(predicate.test(e.key()))
-					{
-						return true;
-					}
-				}
-			}
-			else
-			{
-				for(; length-- > 0; e = e.next)
-				{
-					if(predicate.test(e.key()))
-					{
-						return true;
-					}
 				}
 			}
 		}
@@ -945,47 +618,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return true;
 	}
 
-	@Override
-	public final boolean keyRngAppliesAll(final int offset, int length, final Predicate<? super K> predicate)
-	{
-		EN e = this.getRangeChainEntry(offset, length); // validate range and scroll to offset
-		
-		if(length == 0)
-		{
-			// must check for the special case of no entries (predicate cannot apply).
-			return false;
-		}
-		
-		try
-		{
-			if(length < 0)
-			{
-				for(; length++ < 0; e = e.prev)
-				{
-					if(!predicate.test(e.key()))
-					{
-						return false;
-					}
-				}
-			}
-			else
-			{
-				for(; length-- > 0; e = e.next)
-				{
-					if(!predicate.test(e.key()))
-					{
-						return false;
-					}
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
-		}
-		return true;
-	}
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -1022,34 +654,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return count;
 	}
 
-	@Override
-	public final int keyRngCount(final int offset, int length, final K element)
-	{
-		EN e = this.getRangeChainEntry(offset, length); // validate range and scroll to offset
-		int count = 0;
-		if(length < 0)
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				if(e.key() == element)
-				{
-					count++;
-				}
-			}
-		}
-		else
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				if(e.key() == element)
-				{
-					count++;
-				}
-			}
-		}
-		return count;
-	}
-
 	// counting - predicate //
 
 	@Override
@@ -1063,41 +667,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				if(predicate.test(e.key()))
 				{
 					count++;
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
-		}
-		return count;
-	}
-
-	@Override
-	public final int keyRngCount(final int offset, int length, final Predicate<? super K> predicate)
-	{
-		EN e = this.getRangeChainEntry(offset, length); // validate range and scroll to offset
-		int count = 0;
-		try
-		{
-			if(length < 0)
-			{
-				for(; length++ < 0; e = e.prev)
-				{
-					if(predicate.test(e.key()))
-					{
-						count++;
-					}
-				}
-			}
-			else
-			{
-				for(; length-- > 0; e = e.next)
-				{
-					if(predicate.test(e.key()))
-					{
-						count++;
-					}
 				}
 			}
 		}
@@ -1253,166 +822,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return target;
 	}
 
-	@Override
-	public final <C extends Consumer<? super K>> C keyRngIntersect(
-		final int offset,
-		      int length,
-		final XGettingCollection<? extends K> samples,
-		final Equalator<? super K> equalator,
-		final C target
-	)
-	{
-		final EN first = this.getRangeChainEntry(offset, length);
-		if(length < 0)
-		{
-			length = -length;
-		}
-		final AbstractChainEntry.Hopper ch = length < 0 ? AbstractChainEntry.HOP_PREV : AbstractChainEntry.HOP_NEXT;
-
-		if(samples instanceof AbstractSimpleArrayCollection<?>)
-		{
-			final K[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = XTypes.to_int(samples.size());
-			ch:
-			for(EN entry = first; length-- > 0; entry = ch.hop(entry))
-			{
-				final K element = entry.key();
-				for(int i = 0; i < size; i++)
-				{
-					if(equalator.equal(element, array[i]))
-					{
-						target.accept(element);
-						continue ch;
-					}
-				}
-			}
-			return target;
-		}
-
-		/* has to be the long way around because:
-		 * - can't directly pass an instance of type E to a collection of type ? extends E.
-		 * - chain's equal element instances must be added, not samples'.
-		 */
-		final CachedSampleEquality<K> equalCurrentElement = new CachedSampleEquality<>(equalator);
-		for(EN entry = first; length-- > 0; entry = ch.hop(entry))
-		{
-			equalCurrentElement.sample = entry.key();
-			if(samples.containsSearched(equalCurrentElement))
-			{
-				target.accept(equalCurrentElement.sample);
-			}
-		}
-		return target;
-	}
-
-	@Override
-	public final <C extends Consumer<? super K>> C keyRngExcept(
-		final int offset,
-		      int length,
-		final XGettingCollection<? extends K> samples,
-		final Equalator<? super K> equalator,
-		final C target
-	)
-	{
-
-		final EN first = this.getRangeChainEntry(offset, length);
-		if(length < 0)
-		{
-			length = -length;
-		}
-		final AbstractChainEntry.Hopper ch = length < 0 ? AbstractChainEntry.HOP_PREV : AbstractChainEntry.HOP_NEXT;
-
-		if(samples instanceof AbstractSimpleArrayCollection<?>)
-		{
-			final K[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = XTypes.to_int(samples.size());
-			ch:
-			for(EN entry = first; length-- > 0; entry = ch.hop(entry))
-			{
-				final K element = entry.key();
-				for(int i = 0; i < size; i++)
-				{
-					if(equalator.equal(element, array[i]))
-					{
-						continue ch;
-					}
-				}
-				target.accept(element);
-			}
-			return target;
-		}
-
-		/* has to be the long way around because:
-		 * - can't directly pass an instance of type E to a collection of type ? extends E.
-		 * - chain's equal element instances must be added, not samples'.
-		 */
-		final CachedSampleEquality<K> equalCurrentElement = new CachedSampleEquality<>(equalator);
-		ch:
-		for(EN entry = first; length-- > 0; entry = ch.hop(entry))
-		{
-			equalCurrentElement.sample = entry.key();
-			if(samples.containsSearched(equalCurrentElement))
-			{
-				continue ch;
-			}
-			target.accept(equalCurrentElement.sample);
-		}
-		return target;
-	}
-
-	@Override
-	public final <C extends Consumer<? super K>> C keyRngUnion(
-		final int offset,
-		final int length,
-		final XGettingCollection<? extends K> samples,
-		final Equalator<? super K> equalator,
-		final C target
-	)
-	{
-		final EN first = this.getRangeChainEntry(offset, length);
-		final AbstractChainEntry.Hopper ch = length < 0 ? AbstractChainEntry.HOP_PREV : AbstractChainEntry.HOP_NEXT;
-
-		this.keyRngCopyTo(offset, length, target);
-		if(samples instanceof AbstractSimpleArrayCollection<?>)
-		{
-			final K[] array = AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)samples);
-			final int size = XTypes.to_int(samples.size());
-			ar:
-			for(int i = 0; i < size; i++)
-			{
-				final K sample = array[i];
-				int len = length;
-				for(EN entry = first; len-- > 0; entry = ch.hop(entry))
-				{
-					if(equalator.equal(entry.key(), sample))
-					{
-						continue ar;
-					}
-				}
-				target.accept(sample);
-			}
-			return target;
-		}
-
-		final int normalizedLength = length >= 0 ? length : -length;
-		samples.iterate(e ->
-		{
-			// local reference to AIC field
-			final Equalator<? super K> equalator2 = equalator;
-
-			int len = normalizedLength;
-			for(EN entry = first; len-- > 0; entry = ch.hop(entry))
-			{
-				if(equalator2.equal(e, entry.key()))
-				{
-					return;
-				}
-			}
-			target.accept(e);
-		});
-		return target;
-	}
-
 	// data - copying //
 
 	@Override
@@ -1421,32 +830,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		for(EN e = this.head.next; e != null; e = e.next)
 		{
 			target.accept(e.key());
-		}
-		return target;
-	}
-
-	@Override
-	public final <C extends Consumer<? super K>> C keyRngCopyTo(final int offset, int length, final C target)
-	{
-		final EN first;
-		if((first = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return target;
-		}
-
-		if(length > 0)
-		{
-			for(EN e = first; length-- > 0; e = e.next)
-			{
-				target.accept(e.key());
-			}
-		}
-		else
-		{
-			for(EN e = first; length++ < 0; e = e.prev)
-			{
-				target.accept(e.key());
-			}
 		}
 		return target;
 	}
@@ -1496,50 +879,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return target;
 	}
 
-	@Override
-	public final <C extends Consumer<? super K>> C keyRngCopyTo(
-		final int offset,
-		      int length,
-		final C target,
-		final Predicate<? super K> predicate
-	)
-	{
-		final EN first;
-		if((first = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return target;
-		}
-
-		try
-		{
-			if(length > 0)
-			{
-				for(EN e = first; length-- > 0; e = e.next)
-				{
-					if(predicate.test(e.key()))
-					{
-						target.accept(e.key());
-					}
-				}
-			}
-			else
-			{
-				for(EN e = first; length++ < 0; e = e.prev)
-				{
-					if(predicate.test(e.key()))
-					{
-						target.accept(e.key());
-					}
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
-		}
-		return target;
-	}
-
 	// data - array transformation //
 
 	@Override
@@ -1558,23 +897,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return array;
 	}
 
-	@Override
-	public final Object[] keyRngToArray(final int offset, final int length)
-	{
-		final Object[] array;
-		this.keyCopyToArray(offset, length, array = new Object[length < 0 ? -length : length], 0);
-		return array;
-	}
-
-	@Override
-	public final      K[] keyRngToArray(final int offset, final int length, final Class<K> type)
-	{
-		final K[] array;
-		this.keyCopyToArray(offset, length, array = X.Array(type, length < 0 ? -length : length), 0);
-		return array;
-	}
-
-
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// querying //
@@ -1654,44 +977,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return null;
 	}
 
-	@Override
-	public final K keyRngSearch(final int offset, int length, final Predicate<? super K> predicate)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return null;
-		}
-		try
-		{
-			if(length > 0)
-			{
-				for(; length-- > 0; e = e.next)
-				{
-					if(predicate.test(e.key()))
-					{
-						return e.key();
-					}
-				}
-			}
-			else
-			{
-				for(; length++ < 0; e = e.prev)
-				{
-					if(predicate.test(e.key()))
-					{
-						return e.key();
-					}
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
-		}
-		return null;
-	}
-
 	// searching - min max //
 
 	@Override
@@ -1729,72 +1014,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			if(comparator.compare(loopMaxElement, element = e.key()) < 0)
 			{
 				loopMaxElement = element;
-			}
-		}
-		return loopMaxElement;
-	}
-
-	@Override
-	public final K keyRngMin(final int offset, int length, final Comparator<? super K> comparator)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return null;
-		}
-
-		K element, loopMinElement = e.key();
-		if(length > 0)
-		{
-			for(e = e.next, length--; length-- > 0; e = e.next)
-			{
-				if(comparator.compare(loopMinElement, element = e.key()) > 0)
-				{
-					loopMinElement = element;
-				}
-			}
-		}
-		else
-		{
-			for(e = e.prev, length++; length++ < 0; e = e.prev)
-			{
-				if(comparator.compare(loopMinElement, element = e.key()) > 0)
-				{
-					loopMinElement = element;
-				}
-			}
-		}
-		return loopMinElement;
-	}
-
-	@Override
-	public final K keyRngMax(final int offset, int length, final Comparator<? super K> comparator)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return null;
-		}
-
-		K element, loopMaxElement = e.key();
-		if(length > 0)
-		{
-			for(e = e.next, length--; length-- > 0; e = e.next)
-			{
-				if(comparator.compare(loopMaxElement, element = e.key()) < 0)
-				{
-					loopMaxElement = element;
-				}
-			}
-		}
-		else
-		{
-			for(e = e.prev, length++; length++ < 0; e = e.prev)
-			{
-				if(comparator.compare(loopMaxElement, element = e.key()) < 0)
-				{
-					loopMaxElement = element;
-				}
 			}
 		}
 		return loopMaxElement;
@@ -1840,37 +1059,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		}
 	}
 
-	@Override
-	public final void keyRngIterate(final int offset, int length, final Consumer<? super K> procedure)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return;
-		}
-
-		try
-		{
-			if(length > 0)
-			{
-				for(; length-- > 0; e = e.next)
-				{
-					procedure.accept(e.key());
-				}
-			}
-			else
-			{
-				for(; length++ < 0; e = e.prev)
-				{
-					procedure.accept(e.key());
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
-		}
-	}
 
 	// executing - indexed procedure //
 
@@ -1888,59 +1076,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		catch(final ThrowBreak b)
 		{
 			// abort iteration
-		}
-	}
-
-	private static <K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>> void rngIterateForward(
-		      EN           entry ,
-		      int                       offset,
-		final int                       bound ,
-		final IndexedAcceptor<? super K> procedure
-	)
-	{
-		try
-		{
-			while(offset < bound)
-			{
-				procedure.accept((entry = entry.next).key(), offset++);
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
-		}
-	}
-
-	private static <K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>> void rngIterateReverse(
-		      EN           entry ,
-		      int                       offset,
-		final int                       bound ,
-		final IndexedAcceptor<? super K> procedure
-	)
-	{
-		try
-		{
-			while(offset > bound)
-			{
-				procedure.accept((entry = entry.prev).key(), offset--);
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
-		}
-	}
-
-	@Override
-	public final void keyRngIterateIndexed(final int offset, final int length, final IndexedAcceptor<? super K> procedure)
-	{
-		if(length >= 0)
-		{
-			rngIterateForward(this.getRangeChainEntry(offset, length), offset, offset + length, procedure);
-		}
-		else
-		{
-			rngIterateReverse(this.getRangeChainEntry(offset, length), offset, offset + length, procedure);
 		}
 	}
 
@@ -2001,72 +1136,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return -1;
 	}
 
-	@Override
-	public final int keyRngIndexOf(int offset, final int length, final K element)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return -1;
-		}
-
-		final int bound = offset + length;
-		if(length > 0)
-		{
-			for(; offset != bound; e = e.next, offset++)
-			{
-				if(e.key() == element)
-				{
-					return offset;
-				}
-			}
-		}
-		else
-		{
-			for(; offset != bound; e = e.prev, offset--)
-			{
-				if(e.key() == element)
-				{
-					return offset;
-				}
-			}
-		}
-		return -1;
-	}
-
-	@Override
-	public final int keyRngIndexOf(int offset, final int length, final K sample, final Equalator<? super K> equalator)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return -1;
-		}
-
-		final int bound = offset + length;
-		if(length > 0)
-		{
-			for(; offset != bound; e = e.next, offset++)
-			{
-				if(equalator.equal(e.key(), sample))
-				{
-					return offset;
-				}
-			}
-		}
-		else
-		{
-			for(; offset != bound; e = e.prev, offset--)
-			{
-				if(equalator.equal(e.key(), sample))
-				{
-					return offset;
-				}
-			}
-		}
-		return -1;
-	}
-
 	// indexing - predicate //
 
 	@Override
@@ -2080,46 +1149,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				if(predicate.test(e.key()))
 				{
 					return i;
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
-		}
-		return -1;
-	}
-
-	@Override
-	public final int keyRngIndexOf(int offset, final int length, final Predicate<? super K> predicate)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return -1;
-		}
-
-		final int bound = offset + length;
-		try
-		{
-			if(length > 0)
-			{
-				for(; offset != bound; e = e.next, offset++)
-				{
-					if(predicate.test(e.key()))
-					{
-						return offset;
-					}
-				}
-			}
-			else
-			{
-				for(; offset != bound; e = e.prev, offset--)
-				{
-					if(predicate.test(e.key()))
-					{
-						return offset;
-					}
 				}
 			}
 		}
@@ -2180,80 +1209,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return loopMaxIndex;
 	}
 
-	@Override
-	public final int keyRngMinIndex(int offset, final int length, final Comparator<? super K> comparator)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return -1;
-		}
-
-		K loopMinElement = e.key();
-		int loopMinIndex = 0;
-		final int bound = offset + length;
-		if(length > 0)
-		{
-			for(K element; offset != bound; e = e.next, offset++)
-			{
-				if(comparator.compare(loopMinElement, element = e.key()) > 0)
-				{
-					loopMinElement = element;
-					loopMinIndex = offset;
-				}
-			}
-		}
-		else
-		{
-			for(K element; offset != bound; e = e.prev, offset--)
-			{
-				if(comparator.compare(loopMinElement, element = e.key()) > 0)
-				{
-					loopMinElement = element;
-					loopMinIndex = offset;
-				}
-			}
-		}
-		return loopMinIndex;
-	}
-
-	@Override
-	public final int keyRngMaxIndex(int offset, final int length, final Comparator<? super K> comparator)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return -1;
-		}
-
-		K loopMaxElement = e.key();
-		int loopMaxIndex = 0;
-		final int bound = offset + length;
-		if(length > 0)
-		{
-			for(K element; offset != bound; e = e.next, offset++)
-			{
-				if(comparator.compare(loopMaxElement, element = e.key()) < 0)
-				{
-					loopMaxElement = element;
-					loopMaxIndex = offset;
-				}
-			}
-		}
-		else
-		{
-			for(K element; offset != bound; e = e.prev, offset--)
-			{
-				if(comparator.compare(loopMaxElement, element = e.key()) < 0)
-				{
-					loopMaxElement = element;
-					loopMaxIndex = offset;
-				}
-			}
-		}
-		return loopMaxIndex;
-	}
-
 	// indexing - scan //
 
 	@Override
@@ -2266,40 +1221,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			if(predicate.test(e.key()))
 			{
 				foundIndex = i;
-			}
-		}
-		return foundIndex;
-	}
-
-	@Override
-	public final int keyRngScan(int offset, final int length, final Predicate<? super K> predicate)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return -1;
-		}
-
-		final int bound = offset + length;
-		int foundIndex = -1;
-		if(length > 0)
-		{
-			for(; offset != bound; e = e.next, offset++)
-			{
-				if(predicate.test(e.key()))
-				{
-					foundIndex = offset;
-				}
-			}
-		}
-		else
-		{
-			for(; offset != bound; e = e.prev, offset--)
-			{
-				if(predicate.test(e.key()))
-				{
-					foundIndex = offset;
-				}
 			}
 		}
 		return foundIndex;
@@ -2350,97 +1271,15 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	@Override
 	public final <C extends Consumer<? super K>> C keyDistinct(final C target)
 	{
-		return this.keyRngDistinct(XTypes.to_int(this.parent.size()) - 1, XTypes.to_int(this.parent.size()), target);
+		// (05.03.2020 TM)FIXME: priv#239: implement (copy)
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 	@Override
 	public final <C extends Consumer<? super K>> C keyDistinct(final C target, final Equalator<? super K> equalator)
 	{
-		return this.keyRngDistinct(XTypes.to_int(this.parent.size()) - 1, XTypes.to_int(this.parent.size()), target, equalator);
-	}
-
-	@Override
-	public final <C extends Consumer<? super K>> C keyRngDistinct(final int offset, int length, final C target)
-	{
-		if(length == 0)
-		{
-			// required for correctness of direction reversion
-			return target;
-		}
-
-		EN e;
-		if((e = this.getRangeChainEntry(offset + length - (length > 0 ? 1 : -1), -length)) == null)
-		{
-			return target;
-		}
-
-		// hopping direction (reversed for algorighm!)
-		final AbstractChainEntry.Hopper ch = length < 0 ? HOP_NEXT : HOP_PREV;
-		if(length < 0)
-		{
-			length = -length;
-		}
-
-		// find last distinct element in reverse order: means put first distinct element to target
-		mainLoop:
-		for(; length > 0; e = ch.hop(e), length--)
-		{
-			final K element = e.key();
-			for(EN lookAhead = ch.hop(e); lookAhead != null; lookAhead = ch.hop(lookAhead))
-			{
-				if(element == lookAhead.key())
-				{
-					continue mainLoop;
-				}
-			}
-			target.accept(element);
-		}
-
-		return target;
-	}
-
-	@Override
-	public final <C extends Consumer<? super K>> C keyRngDistinct(
-		final int                  offset   ,
-		      int                  length   ,
-		final C                    target   ,
-		final Equalator<? super K> equalator
-	)
-	{
-		if(length == 0)
-		{
-			// required for correctness of direction reversion
-			return target;
-		}
-
-		EN e;
-		if((e = this.getRangeChainEntry(offset + length - (length > 0 ? 1 : -1), -length)) == null)
-		{
-			return target;
-		}
-
-		// hopping direction (reversed for algorighm!)
-		final AbstractChainEntry.Hopper ch = length < 0 ? HOP_NEXT : HOP_PREV;
-		if(length < 0)
-		{
-			length = -length;
-		}
-
-		mainLoop: // find last distinct element in reverse order: means put first distinct element to target
-		for(; length > 0; e = ch.hop(e), length--)
-		{
-			final K element = e.key();
-			for(EN lookAhead = ch.hop(e); lookAhead != null; lookAhead = ch.hop(lookAhead))
-			{
-				if(equalator.equal(element, lookAhead.key()))
-				{
-					continue mainLoop;
-				}
-			}
-			target.accept(element);
-		}
-
-		return target;
+		// (05.03.2020 TM)FIXME: priv#239: implement (copy)
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 
@@ -2473,43 +1312,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			{
 				e.removeFrom(parent);
 				removeCount++;
-			}
-		}
-		return removeCount;
-	}
-
-	@Override
-	public final int keyRngRemoveNull(long offset, final long length)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		int removeCount = 0;
-		final long bound = offset + length;
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-		if(length > 0)
-		{
-			for(; offset != bound; e = e.next, offset++)
-			{
-				if(e.hasNullKey())
-				{
-					e.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		else
-		{
-			for(; offset != bound; e = e.prev, offset--)
-			{
-				if(e.hasNullKey())
-				{
-					e.removeFrom(parent);
-					removeCount++;
-				}
 			}
 		}
 		return removeCount;
@@ -2557,76 +1359,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			{
 				e.removeFrom(parent);
 				return e.key();
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public final K keyRngRetrieve(final long offset, long length, final K element)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return null;
-		}
-
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-		if(length > 0)
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				if(e.key() == element)
-				{
-					e.removeFrom(parent);
-					return e.key();
-				}
-			}
-		}
-		else
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				if(e.key() == element)
-				{
-					e.removeFrom(parent);
-					return e.key();
-				}
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public final K keyRngRetrieve(final long offset, long length, final K sample, final Equalator<? super K> equalator)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return null;
-		}
-
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-		if(length > 0)
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				if(equalator.equal(e.key(), sample))
-				{
-					e.removeFrom(parent);
-					return e.key();
-				}
-			}
-		}
-		else
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				if(equalator.equal(e.key(), sample))
-				{
-					e.removeFrom(parent);
-					return e.key();
-				}
 			}
 		}
 		return null;
@@ -2694,43 +1426,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return oldSize - XTypes.to_int(this.parent.size());
 	}
 
-	@Override
-	public final int keyRngRemove(int offset, final int length, final K element)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		int removeCount = 0;
-		final int bound = offset + length;
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-		if(length > 0)
-		{
-			for(; offset != bound; e = e.next, offset++)
-			{
-				if(e.key() == element)
-				{
-					e.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		else
-		{
-			for(; offset != bound; e = e.prev, offset--)
-			{
-				if(e.key() == element)
-				{
-					e.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		return removeCount;
-	}
-
 	// removing - multiple all array //
 
 	@Override
@@ -2762,64 +1457,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return removeCount;
 	}
 
-	@Override
-	public final int keyRngRemoveAll(
-		      int offset,
-		final int length,
-		final K[] elements,
-		final int elementsOffset,
-		final int elementsLength
-	)
-	{
-		final int d;
-		if((d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
-		{
-			return 0;
-		}
-
-		final EN first;
-		if((first = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		final int elementsBound = elementsOffset + elementsLength;
-		final int bound = offset + length;
-		int removeCount = 0;
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-		if(length > 0)
-		{
-			for(EN e = first; offset != bound; e = e.next, offset++)
-			{
-				for(int i = elementsOffset; i != elementsBound; i += d)
-				{
-					if(e.key() == elements[i])
-					{
-						e.removeFrom(parent);
-						removeCount++;
-						break;
-					}
-				}
-			}
-		}
-		else
-		{
-			for(EN e = first; offset != bound; e = e.prev, offset++)
-			{
-				for(int i = elementsOffset; i != elementsBound; i += d)
-				{
-					if(e.key() == elements[i])
-					{
-						e.removeFrom(parent);
-						removeCount++;
-						break;
-					}
-				}
-			}
-		}
-		return removeCount;
-	}
-
 	// removing - multiple all collection //
 
 	@Override
@@ -2827,9 +1464,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	{
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return this.keyRngRemoveAll(
-				0,
-				XTypes.to_int(this.parent.size()),
+			return this.keyRemoveAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
 				XTypes.to_int(elements.size())
@@ -2844,29 +1479,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			public void accept(final K e)
 			{
 				this.removeCount += ChainStrongStrongStorage.this.keyRemove(e);
-			}
-
-		}).removeCount;
-	}
-
-	@Override
-	public final int keyRngRemoveAll(final int offset, final int length, final XGettingCollection<? extends K> elements)
-	{
-		if(elements instanceof AbstractSimpleArrayCollection<?>)
-		{
-			return this.keyRngRemoveAll(offset, length,
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
-			);
-		}
-
-		return elements.iterate(new Consumer<K>()
-		{
-			int removeCount;
-
-			@Override
-			public void accept(final K e)
-			{
-				this.removeCount += ChainStrongStrongStorage.this.keyRngRemove(offset, length, e);
 			}
 
 		}).removeCount;
@@ -2916,74 +1528,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return removeCount;
 	}
 
-	@Override
-	public final int keyRngRemoveDuplicates(final int offset, int length)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-
-		// hopping direction
-		final AbstractChainEntry.Hopper ch = length < 0 ? HOP_PREV : HOP_NEXT;
-		if(length < 0)
-		{
-			length = -length;
-		}
-
-		int removeCount = 0;
-		for(; length > 0; e = ch.hop(e), length--)
-		{
-			final K element = e.key();
-			for(EN lookAhead = ch.hop(e); lookAhead != null; lookAhead = ch.hop(lookAhead))
-			{
-				if(element == lookAhead.key())
-				{
-					lookAhead.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		return removeCount;
-	}
-
-	@Override
-	public final int keyRngRemoveDuplicates(final int offset, int length, final Equalator<? super K> equalator)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-
-		// hopping direction
-		final AbstractChainEntry.Hopper ch = length < 0 ? HOP_PREV : HOP_NEXT;
-		if(length < 0)
-		{
-			length = -length;
-		}
-
-		int removeCount = 0;
-		for(; length > 0; e = ch.hop(e), length--)
-		{
-			final K element = e.key();
-			for(EN lookAhead = ch.hop(e); lookAhead != null; lookAhead = ch.hop(lookAhead))
-			{
-				if(equalator.equal(element, lookAhead.key()))
-				{
-					lookAhead.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		return removeCount;
-	}
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -3004,50 +1548,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				e.removeFrom(parent);
 				removeCount++;
 			}
-		}
-		return removeCount;
-	}
-
-	@Override
-	public final int keyRngReduce(int offset, final int length, final Predicate<? super K> predicate)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		int removeCount = 0;
-		final int bound = offset + length;
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-		try
-		{
-			if(length > 0)
-			{
-				for(; offset != bound; e = e.next, offset++)
-				{
-					if(predicate.test(e.key()))
-					{
-						e.removeFrom(parent);
-						removeCount++;
-					}
-				}
-			}
-			else
-			{
-				for(; offset != bound; e = e.prev, offset--)
-				{
-					if(predicate.test(e.key()))
-					{
-						e.removeFrom(parent);
-						removeCount++;
-					}
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
 		}
 		return removeCount;
 	}
@@ -3124,69 +1624,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return removeCount;
 	}
 
-	@Override
-	public final int keyRngRetainAll(
-		      int offset,
-		final int length,
-		final K[] elements,
-		final int elementsOffset,
-		final int elementsLength
-	)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		final int d;
-		if((d = ChainStorageStrong.validateArrayIteration(elements, elementsOffset, elementsLength)) == 0)
-		{
-			return 0;
-		}
-
-		final int bound = offset + length;
-		final int elementsBound = elementsOffset + elementsLength;
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-
-		int removeCount = 0;
-		if(length > 0)
-		{
-			main:
-			for(; offset != bound; e = e.next, offset++)
-			{
-				final K element = e.key();
-				for(int i = elementsOffset; i != elementsBound; i += d)
-				{
-					if(element == elements[i])
-					{
-						continue main;
-					}
-				}
-				e.removeFrom(parent);
-				removeCount++;
-			}
-		}
-		else
-		{
-			main:
-			for(; offset != bound; e = e.prev, offset--)
-			{
-				final K element = e.key();
-				for(int i = elementsOffset; i != elementsBound; i += d)
-				{
-					if(element == elements[i])
-					{
-						continue main;
-					}
-				}
-				e.removeFrom(parent);
-				removeCount++;
-			}
-		}
-		return removeCount;
-	}
-
 	// retaining - collection //
 
 	@Override
@@ -3246,55 +1683,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return removeCount;
 	}
 
-	@Override
-	public final int keyRngRetainAll(int offset, final int length, final XGettingCollection<? extends K> elements)
-	{
-		if(elements instanceof AbstractSimpleArrayCollection<?>)
-		{
-			// directly check array against array without predicate function or method calls
-			return this.keyRngRetainAll(offset, length,
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements), 0, XTypes.to_int(elements.size())
-			);
-		}
-
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		int removeCount = 0;
-		final int bound = offset + length;
-		final ElementIsContained<K> currentElement = new ElementIsContained<>();
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-		if(length > 0)
-		{
-			for(; offset != bound; e = e.next, offset++)
-			{
-				currentElement.element = e.key();
-				if(!elements.containsSearched(currentElement))
-				{
-					e.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		else
-		{
-			for(; offset != bound; e = e.prev, offset--)
-			{
-				currentElement.element = e.key();
-				if(!elements.containsSearched(currentElement))
-				{
-					e.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		return removeCount;
-	}
-
-
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// processing //
@@ -3321,48 +1710,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return removeCount;
 	}
 
-	@Override
-	public final int keyRngProcess(int offset, final int length, final Consumer<? super K> procedure)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		int removeCount = 0;
-		final int bound = offset + length;
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-		try
-		{
-			if(length > 0)
-			{
-				for(; offset != bound; e = e.next, offset++)
-				{
-					procedure.accept(e.key());
-					e.removeFrom(parent);
-					removeCount++;
-				}
-			}
-			else
-			{
-				for(; offset != bound; e = e.prev, offset--)
-				{
-					procedure.accept(e.key());
-					e.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			removeCount += parent.internalClear();
-		}
-		return removeCount;
-	}
-
-
-
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// moving //
@@ -3446,51 +1794,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return removeCount;
 	}
 
-	@Override
-	public final int keyRngMoveTo(
-		      int offset,
-		final int length,
-		final Consumer<? super K> target,
-		final Predicate<? super K> predicate
-	)
-	{
-		final int bound = offset + length;
-		int removeCount = 0;
-		final EN first;
-		if((first = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		final AbstractChainCollection<KeyValue<K, V>, K, V, EN> parent = this.parent;
-
-		if(length > 0)
-		{
-			for(EN e = first; offset != bound; e = e.next, offset++)
-			{
-				if(predicate.test(e.key()))
-				{
-					target.accept(e.key());
-					e.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		else
-		{
-			for(EN e = first; offset != bound; e = e.prev, offset--)
-			{
-				if(predicate.test(e.key()))
-				{
-					target.accept(e.key());
-					e.removeFrom(parent);
-					removeCount++;
-				}
-			}
-		}
-		return removeCount;
-	}
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -3513,39 +1816,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	}
 
 	@Override
-	public final void keyRngSort(final int offset, int length, final Comparator<? super K> comparator)
-	{
-		// validate comparator before the chain gets splitted
-		if(comparator == null)
-		{
-			throw new NullPointerException();
-		}
-
-		final EN preFirst;
-		if(length <= 1 && length >= -1)
-		{
-			return; // empty or trivial subchain is always sorted
-		}
-		else if(length > 0)
-		{
-			preFirst = this.getRangeChainEntry(offset -      1,  length + 1);
-		}
-		else
-		{
-			preFirst = this.getRangeChainEntry(offset - length, -length + 1);
-			length = -length;
-		}
-
-		EN postLast = preFirst.next;
-		while(length-- > 0)
-		{
-			postLast = postLast.next;
-		}
-
-		keyMergesortRange(preFirst, postLast, this.head, comparator);
-	}
-
-	@Override
 	public final boolean keyIsSorted(final Comparator<? super K> comparator)
 	{
 		EN e;
@@ -3563,38 +1833,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 				return false;
 			}
 			loopLastElement = element;
-		}
-		return true;
-	}
-
-	@Override
-	public final boolean keyRngIsSorted(final int offset, int length, final Comparator<? super K> comparator)
-	{
-		EN e = this.getRangeChainEntry(offset, length);
-		K loopLastElement = e.key();
-		if(length > 0)
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				final K element;
-				if(comparator.compare(loopLastElement, element = e.key()) > 0)
-				{
-					return false;
-				}
-				loopLastElement = element;
-			}
-		}
-		else
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				final K element;
-				if(comparator.compare(loopLastElement, element = e.key()) > 0)
-				{
-					return false;
-				}
-				loopLastElement = element;
-			}
 		}
 		return true;
 	}
@@ -3678,41 +1916,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return -1;
 	}
 
-	@Override
-	public final int keyRngReplaceOne(int offset, final int length, final K element, final K replacement)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return -1;
-		}
-
-		final int bound = offset + length;
-		if(length > 0)
-		{
-			for(; offset != bound; e = e.next, offset++)
-			{
-				if(e.key() == element)
-				{
-					e.setKey(replacement);
-					return offset;
-				}
-			}
-		}
-		else
-		{
-			for(; offset != bound; e = e.prev, offset--)
-			{
-				if(e.key() == element)
-				{
-					e.setKey(replacement);
-					return offset;
-				}
-			}
-		}
-		return -1;
-	}
-
 	// replacing - multiple single //
 
 	@Override
@@ -3725,82 +1928,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			{
 				e.setKey(replacement);
 				replaceCount++;
-			}
-		}
-		return replaceCount;
-	}
-
-	@Override
-	public final int keyRngReplace(final int offset, int length, final K element, final K replacement)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		int replaceCount = 0;
-		if(length > 0)
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				if(e.key() == element)
-				{
-					e.setKey(replacement);
-					replaceCount++;
-				}
-			}
-		}
-		else
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				if(e.key() == element)
-				{
-					e.setKey(replacement);
-					replaceCount++;
-				}
-			}
-		}
-		return replaceCount;
-	}
-
-	@Override
-	public final int keyRngReplace(
-		final int offset,
-		      int length,
-		final K sample,
-		final Equalator<? super K> equalator,
-		final K replacement
-	)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		int replaceCount = 0;
-		if(length > 0)
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				if(equalator.equal(e.key(), sample))
-				{
-					e.setKey(replacement);
-					replaceCount++;
-				}
-			}
-		}
-		else
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				if(equalator.equal(e.key(), sample))
-				{
-					e.setKey(replacement);
-					replaceCount++;
-				}
 			}
 		}
 		return replaceCount;
@@ -3836,64 +1963,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return replaceCount;
 	}
 
-	@Override
-	public final int keyRngReplaceAll(
-		      int offset,
-		final int length,
-		final K[] elements,
-		final int elementsOffset,
-		final int elementsLength,
-		final K replacement
-	)
-	{
-		final int d;
-		if((d = XArrays.validateArrayRange(elements, elementsOffset, elementsLength)) == 0)
-		{
-			return 0;
-		}
-
-		final EN first;
-		if((first = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		final int elementsBound = elementsOffset + elementsLength;
-		final int bound = offset + length;
-		int replaceCount = 0;
-		if(length > 0)
-		{
-			for(EN e = first; offset != bound; e = e.next, offset++)
-			{
-				for(int i = elementsOffset; i != elementsBound; i += d)
-				{
-					if(e.key() == elements[i])
-					{
-						e.setKey(replacement);
-						replaceCount++;
-						break;
-					}
-				}
-			}
-		}
-		else
-		{
-			for(EN e = first; offset != bound; e = e.prev, offset++)
-			{
-				for(int i = elementsOffset; i != elementsBound; i += d)
-				{
-					if(e.key() == elements[i])
-					{
-						e.setKey(replacement);
-						replaceCount++;
-						break;
-					}
-				}
-			}
-		}
-		return replaceCount;
-	}
-
 	// replacing - multiple all collection //
 
 	@Override
@@ -3901,9 +1970,7 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 	{
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
 		{
-			return this.keyRngReplaceAll(
-				0,
-				XTypes.to_int(this.parent.size()),
+			return this.keyReplaceAll(
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
 				0,
 				XTypes.to_int(elements.size()),
@@ -3919,39 +1986,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			public void accept(final K e)
 			{
 				this.replaceCount += ChainStrongStrongStorage.this.keyReplace(e, replacement);
-			}
-
-		}).replaceCount;
-	}
-
-	@Override
-	public final int keyRngReplaceAll(
-		final int offset,
-		final int length,
-		final XGettingCollection<? extends K> elements,
-		final K replacement
-	)
-	{
-		if(elements instanceof AbstractSimpleArrayCollection<?>)
-		{
-			return this.keyRngReplaceAll(
-				offset,
-				length,
-				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)elements),
-				0,
-				XTypes.to_int(elements.size()),
-				replacement
-			);
-		}
-
-		return elements.iterate(new Consumer<K>()
-		{
-			int replaceCount;
-
-			@Override
-			public void accept(final K e)
-			{
-				this.replaceCount += ChainStrongStrongStorage.this.keyRngReplace(offset, length, e, replacement);
 			}
 
 		}).replaceCount;
@@ -3986,54 +2020,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		return -1;
 	}
 
-
-	@Override
-	public final int keyRngSubstituteOne(
-		      int offset,
-		final int length,
-		final Predicate<? super K> predicate,
-		final K substitute
-	)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return -1;
-		}
-
-		try
-		{
-			final int bound = offset + length;
-			if(length > 0)
-			{
-				for(; offset != bound; e = e.next, offset++)
-				{
-					if(predicate.test(e.key()))
-					{
-						e.setKey(substitute);
-						return offset;
-					}
-				}
-			}
-			else
-			{
-				for(; offset != bound; e = e.prev, offset--)
-				{
-					if(predicate.test(e.key()))
-					{
-						e.setKey(substitute);
-						return offset;
-					}
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
-		}
-		return -1;
-	}
-
 	// substituting - multiple //
 
 	@Override
@@ -4046,41 +2032,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 			{
 				e.setKey(substitute);
 				replaceCount++;
-			}
-		}
-		return replaceCount;
-	}
-
-	@Override
-	public final int keyRngSubstitute(final int offset, int length, final Predicate<? super K> predicate, final K substitute)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		int replaceCount = 0;
-		if(length > 0)
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				if(predicate.test(e.key()))
-				{
-					e.setKey(substitute);
-					replaceCount++;
-				}
-			}
-		}
-		else
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				if(predicate.test(e.key()))
-				{
-					e.setKey(substitute);
-					replaceCount++;
-				}
 			}
 		}
 		return replaceCount;
@@ -4130,84 +2081,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		catch(final ThrowBreak b)
 		{
 			// abort iteration
-		}
-		return replaceCount;
-	}
-
-	@Override
-	public final int keyRngSubstitute(final int offset, int length, final Function<? super K, ? extends K> mapper)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		int replaceCount = 0;
-		try
-		{
-			K replacement;
-			if(length > 0)
-			{
-				for(; length-- > 0; e = e.next)
-				{
-					if((replacement = mapper.apply(e.key())) != e.key())
-					{
-						e.setKey(replacement);
-						replaceCount++;
-					}
-				}
-			}
-			else
-			{
-				for(; length++ < 0; e = e.prev)
-				{
-					if((replacement = mapper.apply(e.key())) != e.key())
-					{
-						e.setKey(replacement);
-						replaceCount++;
-					}
-				}
-			}
-		}
-		catch(final ThrowBreak b)
-		{
-			// abort iteration
-		}
-		return replaceCount;
-	}
-
-	@Override
-	public final int keyRngSubstitute(final int offset, int length, final Predicate<? super K> predicate, final Function<K, K> mapper)
-	{
-		EN e;
-		if((e = this.getRangeChainEntry(offset, length)) == null)
-		{
-			return 0;
-		}
-
-		int replaceCount = 0;
-		if(length > 0)
-		{
-			for(; length-- > 0; e = e.next)
-			{
-				if(predicate.test(e.key()))
-				{
-					e.setKey(mapper.apply(e.key()));
-					replaceCount++;
-				}
-			}
-		}
-		else
-		{
-			for(; length++ < 0; e = e.prev)
-			{
-				if(predicate.test(e.key()))
-				{
-					e.setKey(mapper.apply(e.key()));
-					replaceCount++;
-				}
-			}
 		}
 		return replaceCount;
 	}
@@ -4292,41 +2165,6 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyAppendTo()
 	}
 
-	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc)
-	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
-	}
-
-	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final char separator)
-	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
-	}
-
-	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final String separator)
-	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
-	}
-
-	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiConsumer<VarString, ? super K> keyAppender)
-	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
-	}
-
-	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiConsumer<VarString, ? super K> keyAppender, final char separator)
-	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
-	}
-
-	@Override
-	public final VarString keyRngAppendTo(final int offset, final int length, final VarString vc, final BiConsumer<VarString, ? super K> keyAppender, final String separator)
-	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#keyRngAppendTo()
-	}
 
 
 	///////////////////////////////////////////////////////////////////////////
