@@ -2802,7 +2802,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		@Override
 		public final long indexBy(final Predicate<? super K> predicate)
 		{
-			return HashTable.this.chain.keyIndexOf(predicate);
+			return HashTable.this.chain.keyIndexBy(predicate);
 		}
 
 		@Override
@@ -2814,13 +2814,13 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		@Override
 		public final long lastIndexOf(final K element)
 		{
-			return HashTable.this.chain.keyRngIndexOf(HashTable.this.size - 1, -HashTable.this.size, element);
+			return HashTable.this.chain.keyLastIndexOf(element);
 		}
 
 		@Override
 		public final long lastIndexBy(final Predicate<? super K> predicate)
 		{
-			return HashTable.this.chain.keyRngIndexOf(HashTable.this.size - 1, -HashTable.this.size, predicate);
+			return HashTable.this.chain.keyLastIndexBy(predicate);
 		}
 
 		@Override

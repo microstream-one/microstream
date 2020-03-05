@@ -359,7 +359,7 @@ extends AbstractChainStorage<E, K, V, EN>
 
 	private void swapEntries(final EN entryA, final EN entryB)
 	{
-		//  / A \-- - 1-->/ A \---3-->/ A \ ... / B \---5-->/ B \---7-->/ B \
+		//  / A \---1-->/ A \---3-->/ A \ ... / B \---5-->/ B \---7-->/ B \
 		//  \prv/<--2---\   /<--4---\nxt/     \prv/<--6---\   /<--8---\nxt/
 
 		EN temp;
@@ -1420,7 +1420,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	public final long lastIndexOf(final E element)
 	{
 		long i = this.size();
-		for(EN e = this.head.prev; e != null; e = e.prev, i--)
+		for(EN e = this.head.prev; e != this.head; e = e.prev, i--)
 		{
 			if(e.element() == element)
 			{
@@ -1435,7 +1435,7 @@ extends AbstractChainStorage<E, K, V, EN>
 	public final long lastIndexOf(final E sample, final Equalator<? super E> equalator)
 	{
 		long i = this.size();
-		for(EN e = this.head.prev; e != null; e = e.prev, i--)
+		for(EN e = this.head.prev; e != this.head; e = e.prev, i--)
 		{
 			if(equalator.equal(e.element(), sample))
 			{
@@ -1476,7 +1476,7 @@ extends AbstractChainStorage<E, K, V, EN>
 		long i = this.size();
 		try
 		{
-			for(EN e = this.head.prev; e != null; e = e.prev, i--)
+			for(EN e = this.head.prev; e != this.head; e = e.prev, i--)
 			{
 				if(predicate.test(e.element()))
 				{
