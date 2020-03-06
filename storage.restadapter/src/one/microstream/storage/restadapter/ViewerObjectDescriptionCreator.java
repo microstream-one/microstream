@@ -245,6 +245,8 @@ public class ViewerObjectDescriptionCreator
 		final String stringValue = description.getPrimitiveInstance().toString();
 		final String subString = limitsPrimitiveType(stringValue, valueLength);
 		objDesc.setData(new String[] { subString } );
+		objDesc.setLength("1");
+		objDesc.setVariableLength(new String[] {"0"});
 	}
 
 	/**
