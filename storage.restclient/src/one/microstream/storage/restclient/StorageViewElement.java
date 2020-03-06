@@ -20,12 +20,12 @@ public interface StorageViewElement
 	
 	public static abstract class Abstract implements StorageViewElement
 	{
-		private final StorageView        view;
-		private final String             name;
-		private final String             value;
+		private final StorageView.Default view;
+		private final String              name;
+		private final String              value;
 		
 		Abstract(
-			final StorageView view,
+			final StorageView.Default view,
 			final String name,
 			final String value
 		)
@@ -34,7 +34,7 @@ public interface StorageViewElement
 		}
 		
 		Abstract(
-			final StorageView view,
+			final StorageView.Default view,
 			final String name,
 			final String value,
 			final List<StorageViewElement> members
@@ -47,7 +47,7 @@ public interface StorageViewElement
 		}
 		
 		@Override
-		public StorageView view()
+		public StorageView.Default view()
 		{
 			return this.view;
 		}

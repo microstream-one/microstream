@@ -20,23 +20,23 @@ public interface StorageViewObject extends StorageViewElement
 	public static class Default extends StorageViewElement.Abstract implements StorageViewObject
 	{
 		private final long                       objectId;
+		private final long                       fixedLength;
 		private final PersistenceTypeDescription typeDescription;
-		private final long                       length;
 		private List<StorageViewElement>         members;
 		
 		Default(
-			final StorageView view,
+			final StorageView.Default view,
 			final String name,
 			final String value,
 			final long objectId,
-			final PersistenceTypeDescription typeDescription,
-			final long length
+			final long fixedLength,
+			final PersistenceTypeDescription typeDescription
 		)
 		{
 			super(view, name, value);
 			this.objectId        = objectId;
+			this.fixedLength     = fixedLength;
 			this.typeDescription = typeDescription;
-			this.length          = length;
 		}
 
 		@Override
@@ -78,7 +78,7 @@ public interface StorageViewObject extends StorageViewElement
 		{
 			if(this.members == null || forceRefresh)
 			{
-				this.members = this.view().members(this.objectId, 0, this.length);
+				this.members = this.view().members(this.objectId, this.fixedLength);
 			}
 			return this.members;
 		}

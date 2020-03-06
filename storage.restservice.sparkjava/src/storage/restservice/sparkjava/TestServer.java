@@ -2,6 +2,7 @@ package storage.restservice.sparkjava;
 
 import java.awt.Dimension;
 import java.io.File;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +39,8 @@ public class TestServer
 	
 	static class Root
 	{
+		String aString = "blub";
+		BigDecimal bigD = new BigDecimal("349858904375874.293874983");
 		XList<String> stringXList = X.List("a","b",null,"d");
 		int[] ints = new int[] {1,2,3,4,5};
 		int[][] ints2 = new int[][] {{1,2,3,4,5},{10,20,30,40,50}};

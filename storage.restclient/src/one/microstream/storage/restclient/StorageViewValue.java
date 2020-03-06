@@ -8,7 +8,7 @@ public interface StorageViewValue extends StorageViewElement
 	public static class Default extends StorageViewElement.Abstract implements StorageViewValue
 	{
 		Default(
-			final StorageView view,
+			final StorageView.Default view,
 			final String name,
 			final String value
 		)
