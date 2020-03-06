@@ -40,6 +40,11 @@ public interface ObjectRequest
 			Long valueLength
 		);
 		
+		public default Builder fixedRange(final long offset, final long length)
+		{
+			return this.fixedOffset(offset).fixedLength(length);
+		}
+		
 		public Builder fixedOffset(
 			Long fixedOffset
 		);
@@ -47,6 +52,11 @@ public interface ObjectRequest
 		public Builder fixedLength(
 			Long fixedLength
 		);
+		
+		public default Builder variableRange(final long offset, final long length)
+		{
+			return this.variableOffset(offset).variableLength(length);
+		}
 		
 		public Builder variableOffset(
 			Long variableOffset
@@ -56,9 +66,24 @@ public interface ObjectRequest
 			Long variableLength
 		);
 		
+		public default Builder withReferences()
+		{
+			return this.references(true);
+		}
+		
+		public default Builder withoutReferences()
+		{
+			return this.references(false);
+		}
+		
 		public Builder references(
 			Boolean references
 		);
+		
+		public default Builder referenceRange(final long offset, final long length)
+		{
+			return this.referenceOffset(offset).referenceLength(length);
+		}
 		
 		public Builder referenceOffset(
 			Long referenceOffset
