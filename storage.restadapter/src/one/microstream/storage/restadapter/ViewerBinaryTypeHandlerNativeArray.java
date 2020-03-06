@@ -38,8 +38,10 @@ public class ViewerBinaryTypeHandlerNativeArray<T> extends ViewerBinaryTypeHandl
 			objArray[i] = Array.get(value, i);
 		}
 
-		objectDescription.setValues(objArray);
-		objectDescription.setLength(length);
+		objectDescription.setValues(new Object[] {objArray});
+
+		objectDescription.setLength(0);
+		objectDescription.setVariableLength(new Long[] {(long) length});
 
 		return objectDescription;
 	}
