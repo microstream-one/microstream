@@ -2149,7 +2149,10 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		
 		protected ClassLoaderProvider ensureClassLoaderProvider()
 		{
-			return ClassLoaderProvider.New();
+			// must always resolve types using that ClassCloader with which the initialization happned (this class's).
+			return ClassLoaderProvider.New(
+				this.getClass().getClassLoader()
+			);
 		}
 
 		protected PersistenceTypeHandlerEnsurer<D> ensureTypeHandlerEnsurer()

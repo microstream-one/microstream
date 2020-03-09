@@ -38,10 +38,12 @@ public interface PersistenceTypeResolver
 	
 	
 	
-	public static PersistenceTypeResolver New()
-	{
-		return New(ClassLoaderProvider.New());
-	}
+//	public static PersistenceTypeResolver New()
+//	{
+//		return New(
+//			ClassLoaderProvider.New()
+//		);
+//	}
 	
 	public static PersistenceTypeResolver New(final ClassLoaderProvider classLoaderProvider)
 	{
