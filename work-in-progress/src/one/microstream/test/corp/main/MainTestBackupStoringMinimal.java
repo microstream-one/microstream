@@ -32,7 +32,7 @@ public class MainTestBackupStoringMinimal
 				StorageBackupSetup.New(XIO.Path("storageBackup"))
 			)
 		)
-		// priv#227 testing
+		// priv#227: Warning: doing this replaces the properly setup TypeDictionaryIoHandler and causes unwanted behavior.
 		.onConnectionFoundation(cf ->
 			cf.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.New(
 				XIO.Path("storage", "ExplicitTypeDictionary.ptd")
