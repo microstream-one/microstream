@@ -1,5 +1,6 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.nio.ByteOrder;
@@ -86,7 +87,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 			notNull(storerCreator)     ,
 			notNull(loaderCreator)     ,
 			notNull(registererCreator) ,
-			notNull(persister)         ,
+			mayNull(persister)         , // non-null reference ensured by getEffectivePersister
 			notNull(target)            ,
 			notNull(source)            ,
 			notNull(bufferSizeProvider),
