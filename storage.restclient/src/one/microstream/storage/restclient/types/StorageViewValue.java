@@ -1,4 +1,4 @@
-package one.microstream.storage.restclient;
+package one.microstream.storage.restclient.types;
 
 import java.util.Collections;
 import java.util.List;

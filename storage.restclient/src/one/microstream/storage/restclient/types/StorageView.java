@@ -1,7 +1,8 @@
-package one.microstream.storage.restclient;
+package one.microstream.storage.restclient.types;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGe
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericComplex;
 import one.microstream.storage.restadapter.ViewerObjectDescription;
 import one.microstream.storage.restadapter.ViewerRootDescription;
+import one.microstream.storage.restclient.exceptions.StorageViewExceptionMissingTypeDescription;
 
 public interface StorageView
 {
@@ -56,7 +58,7 @@ public interface StorageView
 			final ViewerObjectDescription    objectDesc = this.client.requestObject(
 				ObjectRequest.New(rootDesc.getObjectId())
 			);
-			return this.createStorageViewObject(
+			return this.createObjectElement(
 				rootDesc.getName(),
 				objectDesc,
 				null,
@@ -94,10 +96,10 @@ public interface StorageView
 			{
 				final PersistenceTypeDescriptionMember typeMember = typeMembers.at(index);
 				members.add(this.createElement(
-					typeMember,
 					typeMember.name(),
 					references,
-					data[index]
+					data[index],
+					typeMember
 				));
 			}
 			
@@ -166,10 +168,10 @@ public interface StorageView
 					for(final Object dataElem : dataList)
 					{
 						members.add(this.createElement(
-							elemMember,
 							"[" + index++ + "]",
 							references,
-							dataElem
+							dataElem,
+							elemMember
 						));
 					}
 				}
@@ -181,7 +183,7 @@ public interface StorageView
 						members.add(new StorageViewValue.Default(
 							this,
 							"[" + index++ + "]",
-							String.valueOf(dataElem)
+							this.value(String.valueOf(dataElem), elemMember.typeName())
 						));
 					}
 				}
@@ -201,10 +203,10 @@ public interface StorageView
 						if(elemMember.isReference())
 						{
 							memberMembers.add(this.createElement(
-								elemMember,
 								elemMember.name(),
 								references,
-								subDataElem
+								subDataElem,
+								elemMember
 							));
 						}
 						else
@@ -212,7 +214,7 @@ public interface StorageView
 							memberMembers.add(new StorageViewValue.Default(
 								this,
 								elemMember.name(),
-								String.valueOf(subDataElem)
+								this.value(String.valueOf(subDataElem), elemMember.typeName())
 							));
 						}
 					}
@@ -266,16 +268,16 @@ public interface StorageView
 		}
 		
 		private StorageViewElement createElement(
-			final PersistenceTypeDescriptionMember member,
 			final String name,
 			final Iterator<ViewerObjectDescription> references,
-			final Object data
+			final Object data,
+			final PersistenceTypeDescriptionMember member
 		)
 		{
 			ViewerObjectDescription reference;
 			if(references.hasNext() && (reference = references.next()) != null)
 			{
-				return this.createStorageViewObject(
+				return this.createObjectElement(
 					name,
 					reference,
 					data,
@@ -285,7 +287,7 @@ public interface StorageView
 			
 			final String dataString = member.isReference()
 				? "null"
-				: String.valueOf(data);
+				: this.value(String.valueOf(data), member.typeName());
 			return new StorageViewValue.Default(
 				this,
 				name,
@@ -293,21 +295,61 @@ public interface StorageView
 			);
 		}
 		
-		private StorageViewObject createStorageViewObject(
+		private StorageViewElement createObjectElement(
 			final String name,
 			final ViewerObjectDescription reference,
 			final Object data,
 			final PersistenceTypeDescriptionMember member
 		)
 		{
+			final PersistenceTypeDescription typeDescription = this.getTypeDescription(reference);
+			if(this.configuration.compactSingleValueTypes() &&
+				this.isSingleValueType(typeDescription, reference))
+			{
+				return new StorageViewObject.Simple(
+					this,
+					name,
+					this.value(String.valueOf(reference.getData()[0]), typeDescription.typeName()),
+					Long.parseLong(reference.getObjectId()),
+					typeDescription
+				);
+			}
+			
 			return new StorageViewObject.Complex(
 				this,
 				name,
 				null,
 				Long.parseLong(reference.getObjectId()),
-				this.getTypeDescription(reference)
+				typeDescription
 			);
 		}
+		
+		private boolean isSingleValueType(
+			final PersistenceTypeDescription typeDescription,
+			final ViewerObjectDescription reference
+		)
+		{
+			if(typeDescription.allMembers().size() == 1 &&
+				!typeDescription.allMembers().get().isReference())
+			{
+				final Object[] data = reference.getData();
+				if(data.length == 1)
+				{
+					final Object obj = data[0];
+					return !obj.getClass().isArray() && !(obj instanceof Collection);
+				}
+			}
+			return false;
+		}
+		
+		private String value(final String value, final String typeName)
+		{
+			final ValueRenderer valueRenderer = this.configuration.valueRenderer(typeName);
+			return valueRenderer != null
+				? valueRenderer.apply(value)
+				: value;
+		}
+		
 
 		private PersistenceTypeDescription getTypeDescription(
 			final ViewerObjectDescription obj
@@ -323,8 +365,7 @@ public interface StorageView
 			typeDescription = this.typeDictionary.get(typeId);
 			if(typeDescription == null)
 			{
-				// TODO proper exception
-				throw new RuntimeException("Missing type description, typeId=" + typeId);
+				throw new StorageViewExceptionMissingTypeDescription(typeId);
 			}
 			return typeDescription;
 		}
