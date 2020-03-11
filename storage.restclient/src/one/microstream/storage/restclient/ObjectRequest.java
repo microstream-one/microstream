@@ -17,14 +17,10 @@ public interface ObjectRequest
 	
 	public Boolean references();
 	
-	public Long referenceOffset();
-	
-	public Long referenceLength();
-	
 	
 	public static ObjectRequest New(final long objectId)
 	{
-		return new ObjectRequest.Default(objectId, null, null, null, null, null, null, null, null);
+		return new ObjectRequest.Default(objectId, null, null, null, null, null, null);
 	}
 	
 	
@@ -80,19 +76,6 @@ public interface ObjectRequest
 			Boolean references
 		);
 		
-		public default Builder referenceRange(final long offset, final long length)
-		{
-			return this.referenceOffset(offset).referenceLength(length);
-		}
-		
-		public Builder referenceOffset(
-			Long referenceOffset
-		);
-		
-		public Builder referenceLength(
-			Long referenceLength
-		);
-		
 		public ObjectRequest build();
 		
 		
@@ -105,8 +88,6 @@ public interface ObjectRequest
 			private Long       variableOffset;
 			private Long       variableLength;
 			private Boolean    references;
-			private Long       referenceOffset;
-			private Long       referenceLength;
 			
 			Default(
 				final long objectId
@@ -171,24 +152,6 @@ public interface ObjectRequest
 			}
 			
 			@Override
-			public Builder referenceOffset(
-				final Long referenceOffset
-			)
-			{
-				this.referenceOffset = referenceOffset;
-				return this;
-			}
-			
-			@Override
-			public Builder referenceLength(
-				final Long referenceLength
-			)
-			{
-				this.referenceLength = referenceLength;
-				return this;
-			}
-			
-			@Override
 			public ObjectRequest build()
 			{
 				return new ObjectRequest.Default(
@@ -198,9 +161,7 @@ public interface ObjectRequest
 					this.fixedLength,
 					this.variableOffset,
 					this.variableLength,
-					this.references,
-					this.referenceOffset,
-					this.referenceLength
+					this.references
 				);
 			}
 			
@@ -218,8 +179,6 @@ public interface ObjectRequest
 		private final Long    variableOffset;
 		private final Long    variableLength;
 		private final Boolean references;
-		private final Long    referenceOffset;
-		private final Long    referenceLength;
 		
 		Default(
 			final long objectId,
@@ -228,9 +187,7 @@ public interface ObjectRequest
 			final Long fixedLength,
 			final Long variableOffset,
 			final Long variableLength,
-			final Boolean references,
-			final Long referenceOffset,
-			final Long referenceLength
+			final Boolean references
 		)
 		{
 			super();
@@ -241,8 +198,6 @@ public interface ObjectRequest
 			this.variableOffset  = variableOffset;
 			this.variableLength  = variableLength;
 			this.references      = references;
-			this.referenceOffset = referenceOffset;
-			this.referenceLength = referenceLength;
 		}
 		
 		@Override
@@ -285,18 +240,6 @@ public interface ObjectRequest
 		public Boolean references()
 		{
 			return this.references;
-		}
-		
-		@Override
-		public Long referenceOffset()
-		{
-			return this.referenceOffset;
-		}
-		
-		@Override
-		public Long referenceLength()
-		{
-			return this.referenceLength;
 		}
 		
 	}

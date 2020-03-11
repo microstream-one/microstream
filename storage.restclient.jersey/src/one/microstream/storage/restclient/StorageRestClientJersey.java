@@ -90,8 +90,6 @@ public class StorageRestClientJersey implements StorageRestClient
 		target = this.optAddParam(target, "variableOffset",  objectRequest.variableOffset ());
 		target = this.optAddParam(target, "variableLength",  objectRequest.variableLength ());
 		target = this.optAddParam(target, "references",      objectRequest.references     ());
-		target = this.optAddParam(target, "referenceOffset", objectRequest.referenceOffset());
-		target = this.optAddParam(target, "referenceLength", objectRequest.referenceLength());
 						
 		return target
 			.request(MediaType.APPLICATION_JSON)
