@@ -1,5 +1,5 @@
 
-package one.microstream.storage.restclient;
+package one.microstream.storage.restclient.types;
 
 public interface ObjectRequest
 {

@@ -1,4 +1,4 @@
-package one.microstream.storage.restclient;
+package one.microstream.storage.restclient.types;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -10,6 +10,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
+
+import one.microstream.storage.restclient.types.StorageView;
+import one.microstream.storage.restclient.types.StorageViewConfiguration;
+import one.microstream.storage.restclient.types.StorageViewElement;
 
 public class MainTestStorageRestClient
 {
