@@ -105,10 +105,12 @@ public interface StorageViewTreeGridBuilder
 			final StorageViewElement element
 		)
 		{
-			final String value = element.value();
+			String value = element.value();
 			return value != null && value.length() > 0
 				? value
-				: "(" + element.simpleTypeName() + ")"
+				: (value = element.simpleTypeName()) != null && value.length() > 0
+					? "(" + value + ")"
+					: ""
 			;
 		}
 
