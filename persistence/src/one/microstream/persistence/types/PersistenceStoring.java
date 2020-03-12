@@ -49,7 +49,6 @@ public interface PersistenceStoring
 	 * needed.
 	 * If it should be needed, the desired behavior can be easily achieved with a tiny custom-made utility method.
 	 * 
-	 *
 	 * @param instances multiple root instances of the subgraphs of required instances to be stored.
 	 */
 	public void storeAll(Iterable<?> instances);
