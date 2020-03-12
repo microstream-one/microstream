@@ -35,9 +35,14 @@ public interface StorageManager extends StorageController, StorageConnection, Da
 	 */
 	public StorageConfiguration configuration();
 	
+	/**
+	 * Returns the {@link StorageTypeDictionary} that contains a completely list of types currently known to /
+	 * handled by the storage represented by this {@link StorageManager} instance. This list grows dynamically
+	 * as so far unknown types are discovered, analyzed, mapped and added on the fly by a store.
+	 * 
+	 * @return thr current {@link StorageTypeDictionary}.
+	 */
 	public StorageTypeDictionary typeDictionary();
-
-	public void initialize();
 
 	/**
 	 * {@inheritDoc}
@@ -51,6 +56,14 @@ public interface StorageManager extends StorageController, StorageConnection, Da
 	@Override
 	public boolean shutdown();
 
+	/**
+	 * Creates a new {@link StorageConnection} instance. See the type description for details.<br>
+	 * Not that while it makes sense on an architectural level to have a connecting mechanism between
+	 * application logic and storage level, there is currently no need to create additional connections beyond the
+	 * intrinsic one held inside a {@link StorageManager} instance. Just use it instead.
+	 * 
+	 * @return a new {@link StorageConnection} instance.
+	 */
 	public StorageConnection createConnection();
 	
 	/**
@@ -90,6 +103,12 @@ public interface StorageManager extends StorageController, StorageConnection, Da
 	 */
 	public long storeRoot();
 	
+	/**
+	 * Returns a read-only view on all technical root instance registered in this {@link StorageManager} instance.<br>
+	 * See the description in {@link PersistenceRootsView} for details.
+	 * 
+	 * @return a new {@link PersistenceRootsView} instance allowing to iterate all technical root instances.
+	 */
 	public PersistenceRootsView viewRoots();
 	
 	/**
@@ -131,8 +150,18 @@ public interface StorageManager extends StorageController, StorageConnection, Da
 		return this.storeRoot();
 	}
 	
+	/**
+	 * Returns the {@link Database} instance this {@link StorageManager} is associated with.
+	 * See its description for details.
+	 * 
+	 * @return the associated {@link Database} instance.
+	 */
 	public Database database();
 	
+	/**
+	 * Alias for {@code return this.database().databaseName();}
+	 * 
+	 */
 	@Override
 	public default String databaseName()
 	{
