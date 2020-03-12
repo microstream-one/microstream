@@ -1,7 +1,6 @@
-package storage.restservice.sparkjava;
+package one.microstream.storage.restservice.sparkjava;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
 import java.util.Set;
@@ -38,7 +37,7 @@ public class DocumentationManager extends RouteManager
 		super(sparkService);
 		this.documentations = new Hashtable<>();
 
-		this.buildLiveDocumentation("/resources/onlineDocu.json");
+		this.buildLiveDocumentation("doc.json");
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -132,42 +131,24 @@ public class DocumentationManager extends RouteManager
 	}
 
 	/**
-	 * Get a file resource content as String
-	 *
-	 * @param uri
-	 * @return content as String
-	 */
-	private String getResourceFileContentAsString(final String uri)
-	{
-		try(final InputStream in = this.getClass().getResourceAsStream(uri);
-			final BufferedReader reader = new BufferedReader(new InputStreamReader(in));)
-		{
-			final StringBuilder builder = new StringBuilder(in.available()*2);
-			String read = null;
-			while((read = reader.readLine()) != null)
-			{
-				builder.append(read);
-			}
-
-			return builder.toString();
-		}
-
-		catch(final Exception e )
-		{
-			throw new ViewerException(e.getMessage());
-		}
-	}
-
-	/**
 	 * Build the documentation from an provided embedded json resource file
 	 *
 	 */
-	private void buildLiveDocumentation(final String FileURI)
+	private void buildLiveDocumentation(final String filePath)
 	{
-		final String doc = this.getResourceFileContentAsString(FileURI);
-
-		final JsonObject docu = new Gson().fromJson(doc, JsonObject.class);
-		final JsonObject handlers = docu.getAsJsonObject("handler");
+		final JsonObject doc;
+		try(final BufferedReader reader = new BufferedReader(new InputStreamReader(
+			this.getClass().getResourceAsStream(filePath)
+		)))
+		{
+			doc = new Gson().fromJson(reader, JsonObject.class);
+		}
+		catch(final Exception e )
+		{
+			throw new ViewerException(e);
+		}
+		
+		final JsonObject handlers = doc.getAsJsonObject("handler");
 
 		handlers.entrySet().forEach( handler -> {
 

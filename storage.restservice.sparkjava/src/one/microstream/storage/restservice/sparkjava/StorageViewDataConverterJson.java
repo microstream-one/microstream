@@ -1,4 +1,4 @@
-package storage.restservice.sparkjava;
+package one.microstream.storage.restservice.sparkjava;
 
 import java.lang.reflect.Type;
 import java.util.Date;

@@ -2,9 +2,9 @@ package hg.restservice.starter;
 
 import one.microstream.storage.restservice.RestServiceResolver;
 import one.microstream.storage.restservice.StorageRestService;
+import one.microstream.storage.restservice.sparkjava.StorageRestServiceDefault;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
-import storage.restservice.sparkjava.StorageRestServiceDefault;
 
 public class RestServiceStarterExample
 {
