@@ -320,8 +320,7 @@ public interface EmbeddedStorageManager extends StorageManager
 			return this.rootsProvider.provideRoots();
 		}
 
-		@Override
-		public final void initialize()
+		private void initialize()
 		{
 			final StorageConnection initConnection = this.createConnection();
 

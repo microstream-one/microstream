@@ -3,6 +3,17 @@ package one.microstream.persistence.types;
 import java.util.function.BiConsumer;
 
 
+/**
+ * Instances of this type represent a read-only view on all technical root instances present in a persistence context.
+ * <p>
+ * Note that while there might only one application root instance, there must a lot of other instances registered
+ * as roots on a technical level, as well. Every instance that is publicly accessible through
+ * a static context ("constant instances") must technically considered to be a "root" for the persistent context.
+ * This includes all enum intances. The entirety of all technical root instances can be iterated or "viewed" via
+ * an instance of this type.
+ * 
+ * @author TM
+ */
 public interface PersistenceRootsView
 {
 	

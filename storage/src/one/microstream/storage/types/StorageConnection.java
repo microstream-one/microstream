@@ -14,8 +14,8 @@ import one.microstream.persistence.types.Unpersistable;
 
 
 /**
- * Ultra-thin delegatig type that connects a {@link PersistenceManager} instance (potentially exclusively created)
- * to a storage instance.
+ * Ultra-thin delegatig type that connects the application context to a storage instance via a Persistence layer
+ * (a {@link PersistenceManager} instance, potentially exclusively created).
  * <p>
  * Note that this is a rather "internal" type that users usually do not have to use or care about.
  * Since {@link StorageManager} implements this interface, is is normally sufficient to use just that.
