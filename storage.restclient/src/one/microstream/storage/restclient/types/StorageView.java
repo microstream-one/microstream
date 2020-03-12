@@ -58,11 +58,9 @@ public interface StorageView
 			final ViewerObjectDescription    objectDesc = this.client.requestObject(
 				ObjectRequest.New(rootDesc.getObjectId())
 			);
-			return this.createObjectElement(
+			return this.createElement(
 				rootDesc.getName(),
-				objectDesc,
-				null,
-				null
+				objectDesc
 			);
 		}
 		
@@ -98,8 +96,8 @@ public interface StorageView
 				members.add(this.createElement(
 					typeMember.name(),
 					references,
-					data[index],
-					typeMember
+					typeMember,
+					data[index]
 				));
 			}
 			
@@ -170,8 +168,8 @@ public interface StorageView
 						members.add(this.createElement(
 							"[" + index++ + "]",
 							references,
-							dataElem,
-							elemMember
+							elemMember,
+							dataElem
 						));
 					}
 				}
@@ -183,7 +181,8 @@ public interface StorageView
 						members.add(new StorageViewValue.Default(
 							this,
 							"[" + index++ + "]",
-							this.value(String.valueOf(dataElem), elemMember.typeName())
+							this.value(String.valueOf(dataElem), null, elemMember.typeName()),
+							elemMember.typeName()
 						));
 					}
 				}
@@ -205,8 +204,8 @@ public interface StorageView
 							memberMembers.add(this.createElement(
 								elemMember.name(),
 								references,
-								subDataElem,
-								elemMember
+								elemMember,
+								subDataElem
 							));
 						}
 						else
@@ -214,7 +213,8 @@ public interface StorageView
 							memberMembers.add(new StorageViewValue.Default(
 								this,
 								elemMember.name(),
-								this.value(String.valueOf(subDataElem), elemMember.typeName())
+								this.value(String.valueOf(subDataElem), null, elemMember.typeName()),
+								elemMember.typeName()
 							));
 						}
 					}
@@ -270,36 +270,33 @@ public interface StorageView
 		private StorageViewElement createElement(
 			final String name,
 			final Iterator<ViewerObjectDescription> references,
-			final Object data,
-			final PersistenceTypeDescriptionMember member
+			final PersistenceTypeDescriptionMember member,
+			final Object data
 		)
 		{
 			ViewerObjectDescription reference;
 			if(references.hasNext() && (reference = references.next()) != null)
 			{
-				return this.createObjectElement(
+				return this.createElement(
 					name,
-					reference,
-					data,
-					member
+					reference
 				);
 			}
 			
 			final String dataString = member.isReference()
 				? "null"
-				: this.value(String.valueOf(data), member.typeName());
+				: this.value(String.valueOf(data), null, member.typeName());
 			return new StorageViewValue.Default(
 				this,
 				name,
-				dataString
+				dataString,
+				member.typeName()
 			);
 		}
 		
-		private StorageViewElement createObjectElement(
+		private StorageViewElement createElement(
 			final String name,
-			final ViewerObjectDescription reference,
-			final Object data,
-			final PersistenceTypeDescriptionMember member
+			final ViewerObjectDescription reference
 		)
 		{
 			final PersistenceTypeDescription typeDescription = this.getTypeDescription(reference);
@@ -309,9 +306,9 @@ public interface StorageView
 				return new StorageViewObject.Simple(
 					this,
 					name,
-					this.value(String.valueOf(reference.getData()[0]), typeDescription.typeName()),
-					Long.parseLong(reference.getObjectId()),
-					typeDescription
+					this.value(String.valueOf(reference.getData()[0]), reference, typeDescription.typeName()),
+					typeDescription,
+					Long.parseLong(reference.getObjectId())
 				);
 			}
 			
@@ -319,8 +316,8 @@ public interface StorageView
 				this,
 				name,
 				null,
-				Long.parseLong(reference.getObjectId()),
-				typeDescription
+				typeDescription,
+				Long.parseLong(reference.getObjectId())
 			);
 		}
 		
@@ -342,11 +339,15 @@ public interface StorageView
 			return false;
 		}
 		
-		private String value(final String value, final String typeName)
+		private String value(
+			final String value,
+			final ViewerObjectDescription reference,
+			final String typeName
+		)
 		{
-			final ValueRenderer valueRenderer = this.configuration.valueRenderer(typeName);
+			final ValueRenderer valueRenderer = this.configuration.provideValueRenderer(typeName);
 			return valueRenderer != null
-				? valueRenderer.apply(value)
+				? valueRenderer.apply(value, reference)
 				: value;
 		}
 		
