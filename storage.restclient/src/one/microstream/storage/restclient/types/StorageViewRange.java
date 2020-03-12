@@ -24,7 +24,7 @@ public interface StorageViewRange extends StorageViewElement
 			final long length
 		)
 		{
-			super(view, name, null);
+			super(view, name, null, null);
 			this.objectId = objectId;
 			this.offset   = offset;
 			this.length   = length;

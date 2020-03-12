@@ -10,10 +10,11 @@ public interface StorageViewValue extends StorageViewElement
 		Default(
 			final StorageView.Default view,
 			final String name,
-			final String value
+			final String value,
+			final String typeName
 		)
 		{
-			super(view, name, value);
+			super(view, name, value, typeName);
 		}
 		
 		@Override
