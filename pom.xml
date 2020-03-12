@@ -38,10 +38,12 @@
 		<module>storage.embedded</module>
 		<module>storage.embedded.configuration</module>
 		<module>storage.restadapter</module>
+		<module>storage.restclient</module>
+		<module>storage.restclient.app</module>
+		<module>storage.restclient.jersey</module>
+		<module>storage.restclient.ui.vaadin</module>
 		<module>storage.restservice</module>
 		<module>storage.restservice.sparkjava</module>
-		<module>storage.restservice.ui</module>
-		<module>storage.restservice.ui.vaadin</module>
 	</modules>
 
 	<repositories>
