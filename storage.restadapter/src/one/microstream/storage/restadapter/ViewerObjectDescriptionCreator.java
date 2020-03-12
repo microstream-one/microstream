@@ -3,7 +3,6 @@ package one.microstream.storage.restadapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -160,7 +159,8 @@ public class ViewerObjectDescriptionCreator
 			}
 			else if(value.getClass().isArray())
 			{
-				data.add(this.traverseValues((Object[])value, 0, ((Object[])value).length));
+				final Object[] array = (Object[])value;
+				data.add(this.traverseValues(array, 0, array.length));
 			}
 			else
 			{
@@ -185,8 +185,8 @@ public class ViewerObjectDescriptionCreator
 			this.objDesc.setVariableLength(
 				Arrays.stream(this.description.getVariableLength())
 					.map( l -> l.toString())
-					.collect(Collectors.toList())
-					.toArray(new String[0]));
+					.toArray(String[]::new)
+			);
 		}
 	}
 
@@ -206,15 +206,14 @@ public class ViewerObjectDescriptionCreator
 				if(desc != null)
 				{
 					final ViewerObjectDescriptionCreator descriptionCreator = new ViewerObjectDescriptionCreator(
-							desc,
-							this.fixedOffset,
-							this.fixedLength,
-							this.variableOffset,
-							this.variableLength,
-							this.valueLength);
-
-					final ViewerObjectDescription resolvedReferences = descriptionCreator.create();
-					referencesList.add(resolvedReferences);
+						desc,
+						this.fixedOffset,
+						this.fixedLength,
+						this.variableOffset,
+						this.variableLength,
+						this.valueLength
+					);
+					referencesList.add(descriptionCreator.create());
 				}
 				else
 				{
@@ -261,8 +260,7 @@ public class ViewerObjectDescriptionCreator
 	private static int getClampedArrayIndex(final long arrayLength, final long startIndex, final long count)
 	{
 		final long realLength = Math.max(Math.min(arrayLength - startIndex, count), 0);
-		final long endIndex = Math.min(startIndex + realLength, Integer.MAX_VALUE);
-		return (int) endIndex;
+		return (int)Math.min(startIndex + realLength, Integer.MAX_VALUE);
 	}
 
 	/**

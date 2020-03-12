@@ -1,4 +1,4 @@
-package storage.restservice.sparkjava;
+package one.microstream.storage.restservice.sparkjava;
 
 import one.microstream.storage.restadapter.StorageRestAdapterTypeDictionary;
 import spark.Request;

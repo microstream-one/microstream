@@ -1,8 +1,11 @@
 package one.microstream.storage.restadapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 
 /**
@@ -128,41 +131,62 @@ public class ObjectDescription
 		return this.primitiveInstance != null;
 	}
 
-	public void resolveReferences(final long referenceOffset, final long referenceLength, final EmbeddedStorageRestAdapter storageRestAdapter)
+	public void resolveReferences(
+		final long fixedOffset,
+		final long fixedLength,
+		final long variableOffset,
+		final long variableLength,
+		final EmbeddedStorageRestAdapter storageRestAdapter
+	)
 	{
-		int referenceIndex = 0;
-		int referenceCount = 0;
-
 		final List<ObjectDescription> resolvedReferences = new ArrayList<>();
-
-		Object[] toBeResolved = this.values;
-
-		//If there is only one "value" that is an Object array resolve all references inside that array
-		if(toBeResolved.length == 1 && toBeResolved[0] instanceof Object[])
+		
+		Arrays.stream(this.values)
+			.skip(fixedOffset)
+			.limit(fixedLength)
+			.filter(ObjectReferenceWrapper.class::isInstance)
+			.map(ObjectReferenceWrapper.class::cast)
+			.map(wrapper -> this.resolveReference(wrapper, storageRestAdapter))
+			.forEach(resolvedReferences::add);
+			
+		int variableIndex;
+		if(variableLength > 0 && (variableIndex = (int)this.length) < this.values.length)
 		{
-				toBeResolved = (Object[]) toBeResolved[0];
+			Arrays.stream((Object[])this.values[variableIndex])
+				.skip(variableOffset)
+				.limit(variableLength)
+				.flatMap(this::flatMapToWrappers)
+				.map(wrapper -> this.resolveReference(wrapper, storageRestAdapter))
+				.forEach(resolvedReferences::add);
 		}
-
-		for(int i = 0; i < toBeResolved.length; i++)
-		{
-			if(toBeResolved[i] instanceof ObjectReferenceWrapper)
-			{
-				if(referenceIndex++ < referenceOffset) continue;
-				if(referenceCount++ >= referenceLength) break;
-
-				final long oid = ((ObjectReferenceWrapper) toBeResolved[i]).getObjectId();
-				if(oid > 0)
-				{
-					resolvedReferences.add(storageRestAdapter.getStorageObject(oid));
-				}
-				else
-				{
-					resolvedReferences.add(null);
-				}
-			}
-		}
-
-		this.references = resolvedReferences.toArray(new ObjectDescription[0]);
+		
+		this.references = resolvedReferences.toArray(new ObjectDescription[resolvedReferences.size()]);
 	}
-
+	
+	private Stream<ObjectReferenceWrapper> flatMapToWrappers(final Object data)
+	{
+		if(data instanceof ObjectReferenceWrapper)
+		{
+			return Stream.of((ObjectReferenceWrapper)data);
+		}
+		
+		if(data instanceof Object[])
+		{
+			return Arrays.stream((Object[])data)
+				.flatMap(this::flatMapToWrappers);
+		}
+		
+		return Stream.empty();
+	}
+	
+	private ObjectDescription resolveReference(
+		final ObjectReferenceWrapper wrapper,
+		final EmbeddedStorageRestAdapter storageRestAdapter
+	)
+	{
+		final long oid = wrapper.getObjectId();
+		return oid == Persistence.nullId()
+			? null
+			: storageRestAdapter.getStorageObject(oid);
+	}
 }

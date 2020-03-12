@@ -17,8 +17,8 @@ public interface StorageRestAdapter
 		////////////////////
 
 		private final StorageViewDataConverterProvider converterProvider;
-		private final EmbeddedStorageRestAdapter embeddedStorageRestAdapter;
-		private long defaultValueLength = Long.MAX_VALUE;
+		private final EmbeddedStorageRestAdapter       embeddedStorageRestAdapter;
+		private long                                   defaultValueLength = Long.MAX_VALUE;
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -28,7 +28,7 @@ public interface StorageRestAdapter
 		{
 			super();
 			this.embeddedStorageRestAdapter = new EmbeddedStorageRestAdapter(storage);
-			this.converterProvider = new StorageViewDataConverterProvider.Default();
+			this.converterProvider          = new StorageViewDataConverterProvider.Default();
 		}
 
 		///////////////////////////////////////////////////////////////////////////
@@ -42,25 +42,40 @@ public interface StorageRestAdapter
 			final long fixedLength,
 			final long variableOffset,
 			final long variableLength,
-			final long referenceOffset,
-			final long referenceLength,
 			final long valueLength,
 			final boolean resolveReferences)
 		{
-
-			if(fixedOffset < 0) throw new ViewerException("invalid parameter fixedOffset");
-			if(fixedLength < 0) throw new ViewerException("invalid parameter fixedLength");
-			if(variableOffset < 0) throw new ViewerException("invalid parameter variableOffset");
-			if(variableLength < 0) throw new ViewerException("invalid parameter variableLength");
-			if(referenceOffset < 0) throw new ViewerException("invalid parameter referenceOffset");
-			if(referenceLength < 0) throw new ViewerException("invalid parameter referenceLength");
-			if(valueLength < 0) throw new ViewerException("invalid parameter valueLength");
-
+			if(fixedOffset < 0)
+			{
+				throw new ViewerException("invalid parameter fixedOffset");
+			}
+			if(fixedLength < 0)
+			{
+				throw new ViewerException("invalid parameter fixedLength");
+			}
+			if(variableOffset < 0)
+			{
+				throw new ViewerException("invalid parameter variableOffset");
+			}
+			if(variableLength < 0)
+			{
+				throw new ViewerException("invalid parameter variableLength");
+			}
+			if(valueLength < 0)
+			{
+				throw new ViewerException("invalid parameter valueLength");
+			}
 
 			final ObjectDescription description = this.embeddedStorageRestAdapter.getStorageObject(objectId);
 			if(resolveReferences)
 			{
-				description.resolveReferences(referenceOffset, referenceLength, this.embeddedStorageRestAdapter);
+				description.resolveReferences(
+					fixedOffset,
+					fixedLength,
+					variableOffset,
+					variableLength,
+					this.embeddedStorageRestAdapter
+				);
 			}
 
 			return new ViewerObjectDescriptionCreator(
@@ -69,7 +84,8 @@ public interface StorageRestAdapter
 				fixedLength,
 				variableOffset,
 				variableLength,
-				valueLength).create();
+				valueLength
+			).create();
 		}
 
 		@Override

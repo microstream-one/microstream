@@ -7,6 +7,5 @@ public interface StorageRestAdapterObject extends StorageRestAdapterConverter
 	public void setDefaultValueLength(long defaultValueLength);
 
 	public ViewerObjectDescription getObject(long objectId, long fixedOffset, long fixedLength, long variableOffset,
-			long variableLength, long referenceOffset, long referenceLength, long valueLength,
-			boolean resolveReferences);
+			long variableLength, long valueLength, boolean resolveReferences);
 }

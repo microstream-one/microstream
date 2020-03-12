@@ -117,26 +117,6 @@
                         "schema": {
                             "type": "boolean"
                         }
-                    },
-                    {
-                        "name": "referenceOffset",
-                        "description": "index of the first reference to be resolved, requires the parameter references=true",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
-                    },
-                    {
-                        "name": "referenceLength ",
-                        "description": "number of references to be resolved, requires the parameter references=true",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        }
                     }
                 ],
                 "responses": {

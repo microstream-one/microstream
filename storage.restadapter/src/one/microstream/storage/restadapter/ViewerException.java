@@ -1,10 +1,46 @@
+
 package one.microstream.storage.restadapter;
 
-@SuppressWarnings("serial")
-public class ViewerException extends RuntimeException
+import one.microstream.exceptions.BaseException;
+
+
+public class ViewerException extends BaseException
 {
-	public ViewerException(final String message)
+	public ViewerException(
+		final String message
+	)
 	{
 		super(message);
 	}
+	
+	public ViewerException()
+	{
+		super();
+	}
+	
+	public ViewerException(
+		final String message,
+		final Throwable cause,
+		final boolean enableSuppression,
+		final boolean writableStackTrace
+	)
+	{
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
+	
+	public ViewerException(
+		final String message,
+		final Throwable cause
+	)
+	{
+		super(message, cause);
+	}
+	
+	public ViewerException(
+		final Throwable cause
+	)
+	{
+		super(cause);
+	}
+	
 }
