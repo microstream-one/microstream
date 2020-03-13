@@ -4,9 +4,9 @@ package one.microstream.cache;
 import javax.cache.configuration.CompleteConfiguration;
 
 
-public interface CacheMXBean extends javax.cache.management.CacheMXBean
+public interface CacheConfigurationMXBean extends javax.cache.management.CacheMXBean
 {
-	public static class Default implements CacheMXBean
+	public static class Default implements CacheConfigurationMXBean
 	{
 		private final CompleteConfiguration<?, ?> configuration;
 		

@@ -7,6 +7,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,10 +17,12 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import javax.cache.CacheException;
 import javax.cache.configuration.CacheEntryListenerConfiguration;
 import javax.cache.configuration.Configuration;
+import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryExpiredListener;
 import javax.cache.event.CacheEntryRemovedListener;
@@ -35,6 +38,7 @@ import javax.cache.integration.CompletionListener;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
 
+import one.microstream.cache.MBeanServerUtils.MBeanType;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XList;
 import one.microstream.exceptions.IORuntimeException;
@@ -107,7 +111,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private final CacheTable                                  cacheTable;
 		private final XList<CacheEntryListenerRegistration<K, V>> listenerRegistrations;
 		private final ExecutorService                             executorService;
-		private final CacheMXBean                                 cacheMXBean;
+		private final CacheConfigurationMXBean                    cacheConfigurationMXBean;
 		private final CacheStatisticsMXBean                       cacheStatisticsMXBean;
 		private volatile boolean                                  isStatisticsEnabled;
 		private volatile boolean                                  isClosed;
@@ -134,13 +138,14 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.expiryPolicy          = expiryPolicy;
 			this.evictionManager       = evictionManager;
 
-			this.cacheTable            = CacheTable.New();
-			this.listenerRegistrations = BulkList.New();
-			this.executorService       = Executors.newFixedThreadPool(1);
-			this.cacheMXBean           = new CacheMXBean.Default(this.configuration);
-			this.cacheStatisticsMXBean = new CacheStatisticsMXBean.Default(this::size);
+			this.cacheTable               = CacheTable.New();
+			this.listenerRegistrations    = BulkList.New();
+			this.executorService          = Executors.newFixedThreadPool(1);
+			this.cacheConfigurationMXBean = new CacheConfigurationMXBean.Default(this.configuration);
+			this.cacheStatisticsMXBean    = new CacheStatisticsMXBean.Default(this::size);
 			
-			configuration.getCacheEntryListenerConfigurations().forEach(this::registerCacheEntryListener);
+			configuration.getCacheEntryListenerConfigurations()
+				.forEach(this::createAndRegisterCacheEntryListener);
 			
 			if(configuration.isManagementEnabled())
 			{
@@ -186,12 +191,31 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			throw new IllegalArgumentException("Unsupported configuration type: " + clazz.getName());
 		}
 		
+		@SuppressWarnings("unchecked")
+		private void updateConfiguration(Consumer<MutableConfiguration<K, V>> c)
+		{
+			if(this.configuration instanceof MutableConfiguration)
+			{
+				c.accept((MutableConfiguration<K, V>)this.configuration);
+			}
+		}
+		
 		@Override
 		public void registerCacheEntryListener(
 			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
 		{
 			notNull(cacheEntryListenerConfiguration);
 			
+			this.updateConfiguration(c ->
+				c.addCacheEntryListenerConfiguration(cacheEntryListenerConfiguration)
+			);
+			
+			this.createAndRegisterCacheEntryListener(cacheEntryListenerConfiguration);
+		}
+		
+		private void createAndRegisterCacheEntryListener(
+			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
+		{
 			synchronized(this.listenerRegistrations)
 			{
 				this.listenerRegistrations.add(
@@ -205,6 +229,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
 		{
 			notNull(cacheEntryListenerConfiguration);
+
+			this.updateConfiguration(c ->
+				c.removeCacheEntryListenerConfiguration(cacheEntryListenerConfiguration)
+			);
 			
 			synchronized(this.listenerRegistrations)
 			{
@@ -230,12 +258,12 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			this.isClosed = true;
 			
+			this.manager.removeCache(this.name);
+			
 			if(this.evictionManager != null)
 			{
 				this.evictionManager.uninstall(this, this.cacheTable);
 			}
-			
-			this.manager.removeCache(this.name);
 			
 			this.setStatisticsEnabled(false);
 			this.setManagementEnabled(false);
@@ -243,7 +271,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.closeIfCloseable(this.cacheLoader);
 			this.closeIfCloseable(this.cacheWriter);
 			this.closeIfCloseable(this.expiryPolicy);
-			this.listenerRegistrations.forEach(this::closeIfCloseable);
+			this.listenerRegistrations.forEach(
+				reg -> this.closeIfCloseable(reg.getCacheEntryListener())
+			);
+			this.listenerRegistrations.clear();
 			
 			this.executorService.shutdown();
 			try
@@ -453,6 +484,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					}
 					else
 					{
+						// write before put, because if write fails, put mustn't happen
+						this.writeCacheEntry(entry);
 						this.putValue(
 							key,
 							value,
@@ -460,7 +493,6 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 							cachedValue,
 							eventDispatcher
 						);
-						this.writeCacheEntry(entry);
 						putCount++;
 					}
 				}
@@ -637,8 +669,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			synchronized(this.cacheTable)
 			{
-				final boolean                                           isWriteThrough =
-					this.cacheWriter != null && useWriteThrough;
+				final boolean isWriteThrough = this.cacheWriter != null
+					&& this.configuration.isWriteThrough() && useWriteThrough;
 				
 				final Collection<Cache.Entry<? extends K, ? extends V>> entriesToWrite = new ArrayList<>();
 				final HashSet<K>                                        keysToPut      = new HashSet<>();
@@ -1290,7 +1322,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			synchronized(this.cacheTable)
 			{
-				if(this.cacheWriter != null)
+				if(this.cacheWriter != null && this.configuration.isWriteThrough())
 				{
 					try
 					{
@@ -1402,22 +1434,32 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			{
 				final HashSet<K> keys = new HashSet<>();
 				this.cacheTable.keys().forEach(key -> keys.add(this.objectConverter.externalize(key)));
-				final HashSet<K> keysToDelete = new HashSet<>(keys);
 				
-				if(this.cacheWriter != null && keysToDelete.size() > 0)
+				final Set<K> keysToDelete;
+				
+				if(this.cacheWriter != null && this.configuration.isWriteThrough())
 				{
-					try
+					keysToDelete = new HashSet<>(keys);
+					
+					if(keysToDelete.size() > 0)
 					{
-						this.cacheWriter.deleteAll(keysToDelete);
+						try
+						{
+							this.cacheWriter.deleteAll(keysToDelete);
+						}
+						catch(final CacheWriterException e)
+						{
+							exception = e;
+						}
+						catch(final Exception e)
+						{
+							exception = new CacheWriterException(e);
+						}
 					}
-					catch(final CacheWriterException e)
-					{
-						exception = e;
-					}
-					catch(final Exception e)
-					{
-						exception = new CacheWriterException(e);
-					}
+				}
+				else
+				{
+					keysToDelete = Collections.emptySet();
 				}
 				
 				// remove the deleted keys that were successfully deleted from the set
@@ -1486,26 +1528,41 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		public void setStatisticsEnabled(final boolean enabled)
 		{
 			this.isStatisticsEnabled = enabled;
-			if(enabled)
-			{
-				MBeanServerUtils.registerCacheObject(this, this.cacheStatisticsMXBean);
-			}
-			else
-			{
-				MBeanServerUtils.unregisterCacheObject(this, this.cacheStatisticsMXBean);
-			}
+			
+			this.updateConfiguration(c -> c.setStatisticsEnabled(enabled));
+			
+			this.updateCacheObjectRegistration(
+				enabled, 
+				this.cacheStatisticsMXBean,
+				MBeanServerUtils.MBeanType.CacheStatistics
+			);
 		}
 		
 		@Override
 		public void setManagementEnabled(final boolean enabled)
 		{
+			this.updateConfiguration(c -> c.setManagementEnabled(enabled));
+			
+			this.updateCacheObjectRegistration(
+				enabled, 
+				this.cacheConfigurationMXBean,
+				MBeanServerUtils.MBeanType.CacheConfiguration
+			);
+		}
+		
+		private void updateCacheObjectRegistration(
+			final boolean enabled,
+			final Object bean,
+			final MBeanType beanType
+		)
+		{
 			if(enabled)
 			{
-				MBeanServerUtils.registerCacheObject(this, this.cacheMXBean);
+				MBeanServerUtils.registerCacheObject(this, bean, beanType);
 			}
 			else
 			{
-				MBeanServerUtils.unregisterCacheObject(this, this.cacheMXBean);
+				MBeanServerUtils.unregisterCacheObject(this, bean, beanType);
 			}
 		}
 		
@@ -1602,7 +1659,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					key,
 					cachedValue,
 					now,
-					this.cacheLoader
+					this.configuration.isReadThrough() ? this.cacheLoader : null
 				);
 				try
 				{
@@ -2051,28 +2108,28 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		private V loadCacheEntry(final K key, final V value)
 		{
-			if(this.cacheLoader == null)
+			if(this.cacheLoader != null && this.configuration.isReadThrough())
 			{
-				return value;
+				try
+				{
+					return this.cacheLoader.load(key);
+				}
+				catch(final CacheLoaderException e)
+				{
+					throw e;
+				}
+				catch(final Exception e)
+				{
+					throw new CacheLoaderException(e);
+				}
 			}
 
-			try
-			{
-				return this.cacheLoader.load(key);
-			}
-			catch(final CacheWriterException e)
-			{
-				throw e;
-			}
-			catch(final Exception e)
-			{
-				throw new CacheWriterException(e);
-			}
+			return value;
 		}
 		
 		private void writeCacheEntry(final CacheEntry<K, V> entry)
 		{
-			if(this.cacheWriter != null)
+			if(this.cacheWriter != null && this.configuration.isWriteThrough())
 			{
 				try
 				{
@@ -2091,7 +2148,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		private void deleteCacheEntry(final K key)
 		{
-			if(this.cacheWriter != null)
+			if(this.cacheWriter != null && this.configuration.isWriteThrough())
 			{
 				try
 				{

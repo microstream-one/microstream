@@ -11,11 +11,21 @@ import javax.management.ObjectName;
 
 class MBeanServerUtils
 {
+	public static enum MBeanType
+	{		
+		CacheConfiguration,		
+		CacheStatistics	
+	}
+	
 	private static MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 	
-	public static void registerCacheObject(final Cache<?, ?> cache, final Object bean)
+	public static void registerCacheObject(
+		final Cache<?, ?> cache, 
+		final Object bean,
+		final MBeanType beanType
+	)
 	{
-		final ObjectName objectName = createObjectName(cache, bean);
+		final ObjectName objectName = createObjectName(cache, bean, beanType);
 		
 		try
 		{
@@ -31,10 +41,14 @@ class MBeanServerUtils
 		}
 	}
 	
-	public static void unregisterCacheObject(final Cache<?, ?> cache, final Object bean)
+	public static void unregisterCacheObject(
+		final Cache<?, ?> cache, 
+		final Object bean,
+		final MBeanType beanType
+	)
 	{
 		mBeanServer.queryNames(
-			createObjectName(cache, bean),
+			createObjectName(cache, bean, beanType),
 			null
 		)
 		.forEach(MBeanServerUtils::unregisterCacheObject);
@@ -52,15 +66,19 @@ class MBeanServerUtils
 		}
 	}
 	
-	private static ObjectName createObjectName(final Cache<?, ?> cache, final Object bean)
+	private static ObjectName createObjectName(
+		final Cache<?, ?> cache,
+		final Object bean,
+		final MBeanType beanType
+	)
 	{
 		final String cacheManagerName = normalize(cache.getCacheManager().getURI().toString());
 		final String cacheName        = normalize(cache.getName());
-		
+		final String name             = "javax.cache:type=" + beanType.name()
+			+ ",CacheManager=" + cacheManagerName + ",Cache=" + cacheName;
 		try
 		{
-			return new ObjectName("javax.cache:type=" + bean.getClass().getSimpleName()
-				+ ",CacheManager=" + cacheManagerName + ",Cache=" + cacheName);
+			return new ObjectName(name);
 		}
 		catch(final MalformedObjectNameException e)
 		{
@@ -73,7 +91,7 @@ class MBeanServerUtils
 	{
 		return string == null
 			? ""
-			: string.replaceAll(",|:|=|\n", ".").replace("//", "");
+			: string.replaceAll(":|=|\n|,", ".");
 	}
 	
 	private MBeanServerUtils()

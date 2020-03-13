@@ -4,8 +4,10 @@ package one.microstream.cache;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 import java.util.WeakHashMap;
+import java.util.stream.Collectors;
 
 import javax.cache.configuration.OptionalFeature;
 
@@ -99,9 +101,13 @@ public class CachingProvider implements javax.cache.spi.CachingProvider
 	@Override
 	public synchronized void close()
 	{
-		this.cacheManagers.values().stream()
+		/*
+		 * Collect to list because CacheManager#close modifies this#cacheManagers
+		 */
+		final List<CacheManager> managers = this.cacheManagers.values().stream()
 			.flatMap(kv -> kv.values().stream())
-			.forEach(CacheManager::close);
+			.collect(Collectors.toList());
+		managers.forEach(CacheManager::close);
 		
 		this.cacheManagers.clear();
 	}

@@ -71,17 +71,18 @@ public interface CacheEventDispatcher<K, V>
 		@Override
 		public synchronized void dispatch(final Iterable<CacheEntryListenerRegistration<K, V>> registrations)
 		{
-			this.dispatch(registrations, CacheEntryExpiredListener.class, CacheEntryExpiredListener::onExpired);
-			this.dispatch(registrations, CacheEntryCreatedListener.class, CacheEntryCreatedListener::onCreated);
-			this.dispatch(registrations, CacheEntryUpdatedListener.class, CacheEntryUpdatedListener::onUpdated);
-			this.dispatch(registrations, CacheEntryRemovedListener.class, CacheEntryRemovedListener::onRemoved);
+			this.dispatch(registrations, CacheEntryExpiredListener.class, CacheEntryExpiredListener::onExpired, true);
+			this.dispatch(registrations, CacheEntryCreatedListener.class, CacheEntryCreatedListener::onCreated, false);
+			this.dispatch(registrations, CacheEntryUpdatedListener.class, CacheEntryUpdatedListener::onUpdated, true);
+			this.dispatch(registrations, CacheEntryRemovedListener.class, CacheEntryRemovedListener::onRemoved, true);
 		}
 		
 		@SuppressWarnings("unchecked")
 		private <L extends CacheEntryListener<? super K, ? super V>> void dispatch(
 			final Iterable<CacheEntryListenerRegistration<K, V>>                     registrations,
 			final Class<L>                                                           type,
-			final BiConsumer<L, Iterable<CacheEntryEvent<? extends K, ? extends V>>> logic
+			final BiConsumer<L, Iterable<CacheEntryEvent<? extends K, ? extends V>>> logic,
+			final boolean                                                            oldValueAvailable
 		)
 		{
 			final XList<CacheEvent<K, V>> events = this.eventMap.get(type);
@@ -94,7 +95,7 @@ public interface CacheEventDispatcher<K, V>
 					{
 						logic.accept(
 							type.cast(listener),
-							this.selectEvents(registration, events)
+							this.selectEvents(registration, events, oldValueAvailable)
 						);
 					}
 				}
@@ -104,7 +105,8 @@ public interface CacheEventDispatcher<K, V>
 		@SuppressWarnings("rawtypes")
 		private Iterable selectEvents(
 			final CacheEntryListenerRegistration<K, V> registration,
-			final XList<CacheEvent<K, V>>              events
+			final XList<CacheEvent<K, V>>              events,
+			final boolean                              oldValueAvailable
 		)
 		{
 			CqlSelection<CacheEvent<K, V>>                    selection = CQL.from(events);
@@ -114,17 +116,18 @@ public interface CacheEventDispatcher<K, V>
 				selection = selection.select(e -> filter.evaluate(e));
 			}
 			return selection
-				.project(e -> this.cloneEvent(registration, e))
+				.project(e -> this.cloneEvent(registration, e, oldValueAvailable))
 				.into(BulkList.New())
 				.execute();
 		}
 		
 		private CacheEvent<K, V> cloneEvent(
 			final CacheEntryListenerRegistration<K, V> registration,
-			final CacheEvent<K, V>                     event
+			final CacheEvent<K, V>                     event,
+			final boolean                              oldValueAvailable
 		)
 		{
-			if(registration.isOldValueRequired())
+			if(oldValueAvailable && registration.isOldValueRequired())
 			{
 				return new CacheEvent<>(
 					event.getCache(),
