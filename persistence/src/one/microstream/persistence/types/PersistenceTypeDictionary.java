@@ -12,6 +12,7 @@ import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyDictionary;
+import one.microstream.reference.Swizzling;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
 
@@ -152,7 +153,7 @@ public interface PersistenceTypeDictionary
 	
 	public static long determineHighestTypeId(final XGettingTable<Long, PersistenceTypeDefinition> allTypesPerTypeId)
 	{
-		long maxTypeId = Persistence.notFoundId();
+		long maxTypeId = Swizzling.notFoundId();
 
 		for(final Long typeId : allTypesPerTypeId.keys())
 		{

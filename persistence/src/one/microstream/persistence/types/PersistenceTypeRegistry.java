@@ -5,6 +5,7 @@ import one.microstream.collections.HashMapObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyWrongType;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyWrongTypeId;
+import one.microstream.reference.Swizzling;
 
 public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 {
@@ -71,7 +72,7 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 			
 			if(registeredType == null)
 			{
-				if(registeredTypeId == Persistence.nullId())
+				if(registeredTypeId == Swizzling.nullId())
 				{
 					return false;
 				}

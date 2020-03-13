@@ -23,12 +23,12 @@ import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionI
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import one.microstream.persistence.binary.internal.CustomBinaryHandler;
 import one.microstream.persistence.exceptions.PersistenceException;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeInstantiator;
+import one.microstream.reference.Swizzling;
 import one.microstream.reflect.Getter;
 import one.microstream.reflect.Getter_boolean;
 import one.microstream.reflect.Getter_byte;
@@ -373,7 +373,7 @@ public abstract class Binary implements Chunk
 	public final long getBuildItemTypeId()
 	{
 		return this.isSkipItem()
-			? Persistence.notFoundId()
+			? Swizzling.notFoundId()
 			: this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_TID)
 		;
 	}

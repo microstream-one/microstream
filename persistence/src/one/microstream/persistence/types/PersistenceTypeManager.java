@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyUnknownTid;
+import one.microstream.reference.Swizzling;
 
 
 public interface PersistenceTypeManager extends PersistenceTypeRegistry
@@ -71,7 +72,7 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 			synchronized(this.typeRegistry)
 			{
 				// if not found either assign new oid or return the meanwhile registered oid
-				if((tid = this.typeRegistry.lookupTypeId(type)) != Persistence.nullId())
+				if((tid = this.typeRegistry.lookupTypeId(type)) != Swizzling.nullId())
 				{
 					return tid;
 				}
@@ -128,7 +129,7 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 		public long ensureTypeId(final Class<?> type)
 		{
 			long tid; // quick read-only check for already registered tid
-			if((tid = this.typeRegistry.lookupTypeId(type)) != Persistence.nullId())
+			if((tid = this.typeRegistry.lookupTypeId(type)) != Swizzling.nullId())
 			{
 				return tid;
 			}

@@ -229,17 +229,7 @@ public class Persistence
 	{
 		return long.class;
 	}
-
-	public static final long nullId()
-	{
-		return Swizzling.nullId();
-	}
 	
-	public static final long notFoundId()
-	{
-		return -1L;
-	}
-
 	public static final PersistenceTypeIdLookup createDefaultTypeLookup()
 	{
 		return new PersistenceTypeIdLookup()
@@ -249,7 +239,7 @@ public class Persistence
 			{
 				final Long nativeTypeId = NATIVE_TYPES.get(type);
 				return nativeTypeId == null
-					? Persistence.nullId()
+					? Swizzling.nullId()
 					: nativeTypeId.longValue()
 				;
 			}
@@ -920,7 +910,7 @@ public class Persistence
 	{
 		XReflect.validateIsEnum(typeHandler.type());
 		
-		if(typeHandler.typeId() == Persistence.nullId())
+		if(typeHandler.typeId() == Swizzling.nullId())
 		{
 			// (07.08.2019 TM)EXCP: proper exception
 			throw new IllegalArgumentException(
@@ -1224,7 +1214,7 @@ public class Persistence
 			@Override
 			public boolean isInRange(final long id)
 			{
-				return id == Persistence.nullId();
+				return Swizzling.isNullId(id);
 			}
 		},
 		TID
@@ -1277,7 +1267,7 @@ public class Persistence
 					: OID
 				: id >= Persistence.FIRST_TID
 					? TID
-					: id == Persistence.nullId()
+					: id == Swizzling.nullId()
 						? NULL
 						: UNDEFINED
 			;

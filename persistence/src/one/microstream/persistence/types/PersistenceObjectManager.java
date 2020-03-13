@@ -2,6 +2,7 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import one.microstream.reference.Swizzling;
 import one.microstream.util.Cloneable;
 
 public interface PersistenceObjectManager
@@ -136,7 +137,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 			synchronized(this.objectRegistry)
 			{
 				long objectId;
-				if((objectId = this.objectRegistry.lookupObjectId(object)) == Persistence.nullId())
+				if((objectId = this.objectRegistry.lookupObjectId(object)) == Swizzling.nullId())
 				{
 					/* (19.07.2019 TM)NOTE:
 					 * The objectId is provided prior to ensuring the TypeHandler (which happens via the callback),
