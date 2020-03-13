@@ -1,0 +1,162 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red102\green102\blue102;\red255\green0\blue0;}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\cf1\lang7\f0\fs28 2019-12-04\par
+\par
+Erst mal Konzeptplanung notieren.\par
+\par
+Der aktuelle Stand ist:\par
+- Es gibt eine zentrale ObjectRegistry, in der object<->objectId Assoziationen registriert werden.\par
+- objectIds werden assoziiert bevor rausgeschrieben wird.\par
+- Wenn beim Rausgeschrieben was schief gehen sollte, bleiben die assoziierten Eintr\'e4ge stehen.\par
+- Der n\'e4chste store, der auf die Instanzen trifft, sieht die existierende objectId und speichert die Instanz nicht, weil sie als schon gespeichert angenommen wird.\par
+=> Instanz wurde nie gespeichert.\par
+\par
+L\'f6sung:\par
+W\'e4hrend einem Store neu vergebene objectIds m\'fcssen erst mal vorgehalten werden und erst nach erfolgreichem store gemerget werden.\par
+\par
+Nat\'fcrlich kann es mehrere gleichzeitig aktive Storer in mehreren Threads geben, darum muss das ganze multithreading-f\'e4hig ablaufen.\par
+Ungef\'e4hr so:\par
+\par
+- Jeder storer registriert sich bei der ObjectRegistry.\par
+- Neu vergebene ObjectIds werden NICHT in die ObjectRegistry eingetragen, sondern nur lokal im Storer.\par
+- Wenn ein Storer im zentralen Register f\'fcr ein Objekt keine ObjectId findet, schaut er erst mal in den lokalen der anderen, aktuell existierenden storer.\par
+- Wenn er f\'fcndig wird, kopiert er diesen Eintrag in sein eigenes Register. Es kann n\'e4mlich sein, dass der andere storer fehl schl\'e4gt, aber er nicht und dann muss sein Id-commit die Assoziation enthalten.\par
+- Wenn ein storer erfolgreich geschrieben hat, merget der commit am Ende die lokal vergebenen ObjectIds in das zentrale register.\par
+\par
+Concurrency:\par
+Lokale Lookups \par
+\par
+\par
+2019-12-05\par
+\par
+Okay, wieder mal was dazwischen gekommen. Weiter im Text.\par
+\par
+Concurrency:\par
+Lokale Lookups m\'fcssen nat\'fcrlich synchronized sein.\par
+Der Lookup insgesamt muss synchronizet sein.\par
+Hei\'dft:\par
+- Lock auf Registry\par
+- Wenn keine OID gefunden, dann storer f\'fcr storer locken und pr\'fcfen (synchronized lookupObjectId(object) ).\par
+\par
+Genauer gesagt so:\par
+- erst mal sich selbst locken und bei sich selbst nachschauen\par
+- Dann registry locken und dort nachschauen\par
+- Wenn darin nix gefunden, dann unter immer noch dem Lock auf die Registry die registrierten storer durchlaufen (und sich selber skippen).\par
+\par
+Klingt sehr aufwendig, aber im normalfall sollten die Storer allein sein oder es gibt vielleicht mal 1-2 gleichzeitige. Da spielt das keine Rolle.\par
+\par
+Als Typ reicht registry-intern PersistenceObjectIdLookup. Mehr soll so eine Storer den anderen nicht bereitstellen.\par
+\par
+\par
+Interessant ist jetzt aber noch folgender Fall:\par
+- Ein Storer registriert eine Instanz neu. Erst mal lokal bei sich.\par
+- Damit storet er sie auch voll.\par
+- Ein anderer storer storet dieselbe Instanz und holt sich die OID vom ersten storer.\par
+- Jetzt geht beim rausschreiben des ersten storers war schief.\par
+- Dann w\'fcrde wieder kein Datensatz f\'fcr das objekt gespeichert.\par
+Hei\'dft:\par
+Wenn ein storer von einem anderen die ID \'fcbernimmt anstatt aus der zentralen registry, muss er das objekt "vorsichtshalber" auch nochmal speichern.\par
+Dass das dann noch einen konsistenten Zustand hat ist die (Concurrency-)Verantwortung der Anwendung: Wann werden welche instanzen mit welchen Zustand serialisiert?\par
+\par
+\par
+Um sich selbst skippen und Registrierungen \'fcbernehmen zu k\'f6nnen, muss sich der storer beim ensureObjectId aber selbst mit \'fcbergeben.\par
+Ah, das gibts sogar schon, aber nur mit PersistenceAcceptor.\par
+Dann bohr ich das auf, l\'f6sch daf\'fcr die Einzel-Parameter-Methode und dann passt das.\par
+\par
+Ah, noch ein Sonderfall:\par
+Skip-Eintr\'e4ge d\'fcrfen nat\'fcrlich nicht am Ende mitgemerget werden.\par
+Hm. Eigentlich d\'fcrfen sie auch nicht von anderen Storern \'fcbernommen werden, sonst storen die einen geskippten Eintrag n\'e4mlich auf einmal doch.\par
+Hei\'dft: solche Skips m\'fcssen eigentlich in einer extra storer-lokalen registry sein.\par
+Aber das geht auch nicht, weil die ja in den normalen storer Items drin sein sollen, damit sie mit verarbeitet werden.\par
+Ne, stimmt nicht, die sind nicht in der item linked list drin, nur im hash lookup.\par
+Hm. Aber mich nervt das mit dem doppelten lookup.\par
+Wie w\'e4r es denn so:\par
+Der Lookup zwischen zwei Storern erfolgt \'fcber eine extra Methode und die pr\'fcft auf handler == null. Wenn null, dann nicht \'fcbergeben.\par
+Wobei auch das nicht so einfach ist. Dann speichert der eine Storer Instanz X mit ID so-und-so und der andere Storer mit einer ganz anderen.\par
+Hm. Oder ist das dann die Gefahr von dem skipMapped? Weil die anderen beiden Versionen w\'e4ren ja recht konsistent: null-out oder existierende Id.\par
+Hm.\par
+Aber das Problem ist:\par
+Es m\'fcsste dann auch \'fcbergeben werden, dass f\'fcr solche Eintr\'e4ge eben doch nur die Id gespeichert werden soll und nicht der Datensatz. Also braucht das auch eine zweite Methode beim Empf\'e4nger-Storer.\par
+Aber dann gehts.\par
+\par
+\par
+2019-12-06\par
+\par
+Aber Moment mal ... sollten Skip-Eintr\'e4ge \'fcberhaupt \'fcbernommen werden? Die wurden ja immerhin lokal beim Storer registriert und niemand sagt, dass alle zuf\'e4llig aktiven Storer die auch genauso verwenden sollen.\par
+Also sollten Skipeintr\'e4ge also eher ignoriert werden.\par
+Konsistentzprobleme sollte es nicht geben, denn:\par
+- beim default skip wird entweder die global g\'fcltige objectId verwendet oder 0/null.\par
+- bei skipNulled wird immer 0/null verwendet, also kein Problem.\par
+- bei skipMapped muss man schon wissen, was man tut. Etwa ein "ummappen" von objectIds f\'fcr eine Aufteilung der Storage oder irgendsowas. Das muss nicht konsistent zu anderen, gleichzeitigen Storern sein.\par
+\par
+Ah, und es muss auch gar keine accept methode f\'fcr den normalfall geben, weil das ist genau die accept des storers, die es schon gibt.\par
+\par
+Hm. Dabei muss ich jetzt mal das ganze Gewurschtel mit Persistence.nullId() mal als "not found" und mal als "null" konsolidieren.\par
+Am besten gleich mit gescheit zentralisierten Methoden inklusive Testmethoden, so dass die tats\'e4chlichen Werte letztendlich fast egal sind. Zumindest f\'fcr den unfound Fall.\par
+\par
+Oh, dabei aufgefallen:\par
+Wenn man das gescheit macht, kann man in Lazy ordentlich unterscheiden zwischen "null und noch nicht geladen" und "null, weil es wirklich null sein soll". Das erste hat null & properId, das zweite hat null & nullId.\par
+Hurra!\par
+Einfach mal sauber arbeiten, dann kriegt man Mehrwert gratis geschenkt ...\cf0\par
+\par
+\par
+2020-03-12\par
+\par
+Nach ... gerade mal 4 Monaten ... und unz\'e4hligen dazwischengeschobenen \'c4nderungen mach ich hier wieder weiter.\par
+Ich hab versucht, das Ding zu mergen, aber es gibt haufenweise konflikte in einem halben Dutzend Dateien. Die Lazy.java erkennt zumindest Sourcetree gar nicht mehr als Textdatei (was wirr ist), usw.\par
+Ich denke, es ist g\'fcnstiger, einen zweiten Branch f\'fcr dieses Issue aufzumachen, mich wieder in Konzept und Code einzulesen und dann die bisherigen \'c4nderungen manuell in den aktuellen Stand zu \'fcbernehmen.\par
+\par
+Beim Einlesen ist mir auch gleich ein Problem am bisherigen Konzept aufgefallen. Oben steht:\par
+---\par
+\i Interessant ist jetzt aber noch folgender Fall:\par
+- Ein Storer registriert eine Instanz neu. Erst mal lokal bei sich.\par
+- Damit storet er sie auch voll.\par
+- Ein anderer storer storet dieselbe Instanz und holt sich die OID vom ersten storer.\par
+- Jetzt geht beim rausschreiben des ersten storers war schief.\par
+- Dann w\'fcrde wieder kein Datensatz f\'fcr das objekt gespeichert.\par
+Hei\'dft:\par
+Wenn ein storer von einem anderen die ID \'fcbernimmt anstatt aus der zentralen registry, muss er das objekt "vorsichtshalber" auch nochmal speichern.\par
+Dass das dann noch einen konsistenten Zustand hat ist die (Concurrency-)\b Verantwortung der Anwendung\b0 : Wann werden welche instanzen mit welchen Zustand serialisiert?\i0\par
+---\par
+\par
+Ich bin mir nicht sicher, ob es wirklich korrekt bzw. nachvollziehbar und zumutbar w\'e4re, das so zu l\'f6sen.\par
+Dass man einen concurrency-m\'e4\'dfig korrekt koordiniert einen konsistenten Zustand in den Storer kriegt, ist die Verantwortung der Anwendungslogik. Das ist soweit richtig.\par
+Aber das Problem hier ist ja:\par
+NACHDEM man das korrekt gemacht hat, kann es sein, dass das "vorsichtshalber nochmal speichern" einen inkonsistenten Zustand speichert, weil die Locks der Anwendungslogik schon l\'e4ngst wieder aufgehoben sind und die Anwendung schon wieder rumge\'e4ndert hat.\par
+Hm. Oder m\'fcsste der zweite Speichervorgang mit dem zweiten Storer, der ja die betreffende Instanz nochmal speichern will, dann eben auch nochmal f\'fcr Sicherheit und konsistentes Speichern sorgen?\par
+Eigentlich schon. Wahrscheinlich hab ich oben das gemeint.\par
+Das k\'f6nnte dann sogar schon ein anderer Stand sein als der, der in den ersten Storer reinserialisiert worden ist.\par
+Hm. DAS wiederum wirft wieder ein neues Problem auf:\par
+- Storer 1 speichert Zustand zum Zeitpunkt t+0.\par
+- Storer 2 speichert Zustand zum Zeitpunkt t+1.\par
+- Storer 2 Inhalt wird rausgeschrieben.\par
+- Storer 1 Inhalt wird rausgeschrieben.\par
+Damit ist der "aktuellste" Stand der persistenten Daten der des Zeitpunkts t+0, obwohl in der Anwendung der Stand t+1 vorliegt.\par
+Das ist datenm\'e4\'dfig eine Inkonsistenz und concurrencym\'e4\'dfig eine Racecondition.\par
+\'c4h... Shit.\par
+\par
+Also muss irgendwie eine Reihenfolge sichergestellt werden oder es darf immer nur einen aktiven Storer gleichzeitig geben.\par
+Wobei das mit der Reihenfolge kaum l\'f6sbar w\'e4re. Es w\'fcrde ja nicht reichen, die Storer in der Reihenfolge ihrer Erstellung rauszuschreiben.\par
+Erstens w\'fcrde dann ein lange brauchender oder sogar nie committeter fr\'fcherer Storer alle anderen Storer blocken. "F\'fcr immer" oder zumindest bis zu einem Timeout, der aber auch erst mal zu implementieren w\'e4re. Und Timeouts sind immer schei\'dfe, weil sie in verschiedenen F\'e4llen immer zu kurz oder zu lang sind.\par
+Zweitens kann es ja sein, dass ein FR\'dcHER erstellter Storer den SP\'c4TEREN Zustand eines Datensatzes speichert.\par
+Puh...\par
+Also so:\par
+- Storer 1 wird erzeugt und eingereiht.\par
+- Storer 2 wird erzeugt und eingereiht.\par
+- Storer 1 speichert anderes Zeug ...\par
+- Storer 2 speichert Zustand von Object X zum Zeitpunkt t+0.\par
+- Storer 1 speichert Zustand von Object X zum Zeitpunkt t+1.\par
+- Storer 1 Inhalt wird rausgeschrieben.\par
+- Storer 2 Inhalt wird rausgeschrieben.\par
+\par
+Damit w\'fcrde halt WIEDER der alte Zustand den neuen \'fcberschreiben. Genauso inkonsistent. Genauso eine Race Condition, nur im Graph durchlaufen anstatt in der Rausschreibereihenfolge.\par
+\par
+Da kommt wirklich die Idee auf, ob es nicht einfach nur zu jedem Zeitpunkt nur einen Storer geben darf.\par
+Wobei der ja eben erstellt und einfach nie verwendet werden kann, wenn man keinen commit aufruft. Und Timeouts sind schei\'dfe.\par
+Das wird jetzt ganz sch\'f6n knifflig ...\par
+Da muss ich morgen mal genauer dr\'fcber nachdenken ...\par
+\par
+\par
+\cf2\ul\b /!\\\ulnone\b0  ACH, und das mit der Lazy Reference muss ich mal noch checken und ggf. \'fcbernehmen.\cf0\par
+}
+ 
