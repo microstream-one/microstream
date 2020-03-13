@@ -15,6 +15,7 @@ import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.reference.ObjectSwizzling;
+import one.microstream.reference.Swizzling;
 import one.microstream.util.BufferSizeProviderIncremental;
 
 
@@ -151,7 +152,7 @@ public interface BinaryStorer extends PersistenceStorer
 		{
 			if(instance == null)
 			{
-				return Persistence.nullId();
+				return Swizzling.nullId();
 			}
 
 			final long objectIdLocal;
@@ -175,7 +176,7 @@ public interface BinaryStorer extends PersistenceStorer
 		{
 			if(instance == null)
 			{
-				return Persistence.nullId();
+				return Swizzling.nullId();
 			}
 			
 			/*
@@ -398,7 +399,7 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 
 			// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
-			return Persistence.notFoundId();
+			return Swizzling.notFoundId();
 		}
 
 		public final void rebuildStoreItems()
@@ -528,7 +529,7 @@ public interface BinaryStorer extends PersistenceStorer
 		public final boolean skipNulled(final Object instance)
 		{
 			// lookup return -1 on failure, so 0 is a valid lookup result.
-			return this.internalSkip(instance, Persistence.nullId());
+			return this.internalSkip(instance, Swizzling.nullId());
 		}
 		
 		final boolean internalSkip(final Object instance, final long objectId)

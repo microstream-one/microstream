@@ -16,6 +16,7 @@ import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistency;
+import one.microstream.reference.Swizzling;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
 
@@ -254,7 +255,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		
 		private void validateTypeHandlerTypeId(final PersistenceTypeHandler<D, ?> typeHandler)
 		{
-			if(typeHandler.typeId() != Persistence.nullId())
+			if(typeHandler.typeId() != Swizzling.nullId())
 			{
 				return;
 			}

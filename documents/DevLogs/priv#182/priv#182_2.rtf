@@ -1,6 +1,7 @@
-{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red102\green102\blue102;\red255\green0\blue0;}
-{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\cf1\lang7\f0\fs28 2019-12-04\par
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sl276\slmult1\cf1\f0\fs28\lang7 2019-12-04\par
 \par
 Erst mal Konzeptplanung notieren.\par
 \par
@@ -158,5 +159,19 @@ Da muss ich morgen mal genauer dr\'fcber nachdenken ...\par
 \par
 \par
 \cf2\ul\b /!\\\ulnone\b0  ACH, und das mit der Lazy Reference muss ich mal noch checken und ggf. \'fcbernehmen.\cf0\par
+\par
+\par
+2020-03-13\par
+\par
+Das mit den Lazy References schau ich jetzt mal an.\par
+Ach, das war das mit dem notFoundId -1 anstatt null zur\'fcckgeben und paar querying-Methoden daf\'fcr.\par
+Das wird jetzt nicht so einfach zu mergen ...\par
+Mal wichtige Klassen manuell kopieren und dann mit dem aktuellen master bzw. priv#182_2 branch abgleichen.\par
+Hm. Das notFoundId gibts schon, aber anders benannt.\par
+Die Querying Methoden gibts noch nicht.\par
+Zusammenf\'fchren.\par
+Und am besten gleich mal alles von diesem grundlegenden ID-Zeug in die Swizzling Klasse verschieben.\par
+Erstens, damit nicht haufenweise redundante delegate-Methoden entstehen.\par
+Und zweitens, weil die ja eh alle dort sein m\'fcssen, wenn die in Lazy verwendbar sein sollen. Das liegt ja im base package und hat keinen Zugriff auf das Persistence Package.\par
 }
  

@@ -26,12 +26,12 @@ import one.microstream.io.FileException;
 import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericComplex;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
+import one.microstream.reference.Swizzling;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.XTypes;
 import one.microstream.util.xcsv.XCsvConfiguration;
@@ -696,7 +696,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			this.checkForFlush();
 
-			if(value == Persistence.nullId())
+			if(value == Swizzling.nullId())
 			{
 				// a reference is merely a primitive id long, so null is the numerical literal '0'
 				XMemory.set_byte(this.writeAddress++, (byte)'0');

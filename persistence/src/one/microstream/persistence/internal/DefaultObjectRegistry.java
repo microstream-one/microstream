@@ -16,9 +16,9 @@ import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyObj
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionInvalidObjectRegistryCapacity;
 import one.microstream.persistence.exceptions.PersistenceExceptionNullObjectId;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
+import one.microstream.reference.Swizzling;
 import one.microstream.typing.KeyValue;
 
 public final class DefaultObjectRegistry implements PersistenceObjectRegistry
@@ -368,7 +368,8 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			}
 		}
 		
-		return Persistence.nullId();
+		// (13.03.2020 TM)FIXME: priv#182: change to "not found". But in the calling context logic as well!
+		return Swizzling.nullId();
 	}
 
 	@Override
@@ -392,7 +393,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			throw new NullPointerException();
 		}
-		if(objectId == Persistence.nullId())
+		if(objectId == Swizzling.nullId())
 		{
 			throw new PersistenceExceptionNullObjectId();
 		}
@@ -407,7 +408,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			throw new NullPointerException();
 		}
-		if(objectId == Persistence.nullId())
+		if(objectId == Swizzling.nullId())
 		{
 			throw new PersistenceExceptionNullObjectId();
 		}

@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import one.microstream.chars.VarString;
 import one.microstream.math.XMath;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.reference.Swizzling;
 import one.microstream.storage.exceptions.StorageException;
 
 
@@ -255,7 +255,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		{
 			for(int i = 0; i < this.channelRootOids.length; i++)
 			{
-				this.channelRootOids[i] = Persistence.nullId();
+				this.channelRootOids[i] = Swizzling.nullId();
 			}
 		}
 		
@@ -562,7 +562,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			// at least one channel MUST have a non-null root oid, otherwise the whole database would be wiped.
 			final long currentMaxRootObjectId = rootObjectIdSelector.yieldGlobal();
 
-			if(currentMaxRootObjectId == Persistence.nullId())
+			if(currentMaxRootObjectId == Swizzling.nullId())
 			{
 				/*
 				 * no error here. Strictly seen, an empty or cleared database is valid.
@@ -585,7 +585,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		public final void acceptObjectId(final long objectId)
 		{
 			// do not enqueue null oids, not even get the lock
-			if(objectId == Persistence.nullId())
+			if(objectId == Swizzling.nullId())
 			{
 				return;
 			}
@@ -780,7 +780,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			public final void acceptObjectId(final long objectId)
 			{
 				// do not enqueue null oids
-				if(objectId == Persistence.nullId())
+				if(objectId == Swizzling.nullId())
 				{
 					return;
 				}

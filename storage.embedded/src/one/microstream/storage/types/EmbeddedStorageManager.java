@@ -21,6 +21,7 @@ import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.reference.LazyReferenceManager;
 import one.microstream.reference.Reference;
+import one.microstream.reference.Swizzling;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.KeyValue;
 
@@ -143,7 +144,7 @@ public interface EmbeddedStorageManager extends StorageManager
 			final Object root = rootReference.get();
 			final long rootObjectId = root != null
 				? storer.store(root)
-				: Persistence.nullId()
+				: Swizzling.nullId()
 			;
 				
 			storer.commit();
