@@ -20,6 +20,7 @@ import one.microstream.persistence.types.PersistenceSource;
 import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeDictionaryManager;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
+import one.microstream.storage.types.Database;
 import one.microstream.util.traversing.ObjectGraphTraverser;
 
 
@@ -114,6 +115,7 @@ public interface Serializer extends Closeable
 				final PersistenceTarget<Binary> target = data -> this.output = data;
 				
 				final BinaryPersistenceFoundation<?> foundation = BinaryPersistence.Foundation()
+					.setPersister(Database.New(Serializer.class.getName()))
 					.setPersistenceSource(source)
 					.setPersistenceTarget(target)
 					.setContextDispatcher(
@@ -145,7 +147,7 @@ public interface Serializer extends Closeable
 			}
 			else
 			{
-				this.persistenceManager.objectRegistry().clear();
+				this.persistenceManager.objectRegistry().clearAll();
 			}
 		}
 		

@@ -141,23 +141,17 @@ public interface CacheManager extends javax.cache.CacheManager
 				: ObjectConverter.ByReference();
 			
 			CacheLoader<K, V> cacheLoader = null;
-			if(configuration.isReadThrough())
+			final Factory<CacheLoader<K, V>> cacheLoaderFactory;
+			if((cacheLoaderFactory = configuration.getCacheLoaderFactory()) != null)
 			{
-				final Factory<CacheLoader<K, V>> cacheLoaderFactory;
-				if((cacheLoaderFactory = configuration.getCacheLoaderFactory()) != null)
-				{
-					cacheLoader = cacheLoaderFactory.create();
-				}
+				cacheLoader = cacheLoaderFactory.create();
 			}
 
 			CacheWriter<K, V> cacheWriter = null;
-			if(configuration.isWriteThrough())
+			final Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory;
+			if((cacheWriterFactory = configuration.getCacheWriterFactory()) != null)
 			{
-				final Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory;
-				if((cacheWriterFactory = configuration.getCacheWriterFactory()) != null)
-				{
-					cacheWriter = (CacheWriter<K, V>)cacheWriterFactory.create();
-				}
+				cacheWriter = (CacheWriter<K, V>)cacheWriterFactory.create();
 			}
 			
 			final Factory<ExpiryPolicy> expiryPolicyFactory = coalesce(
@@ -257,7 +251,10 @@ public interface CacheManager extends javax.cache.CacheManager
 			{
 				cache = this.caches.get(notNull(cacheName));
 			}
-			cache.close();
+			if(cache != null)
+			{
+				cache.close();
+			}
 		}
 		
 		@Override
@@ -304,7 +301,7 @@ public interface CacheManager extends javax.cache.CacheManager
 		{
 			if(this.isClosed)
 			{
-				// no-op
+				// no-op, according to spec
 				return;
 			}
 			
@@ -317,7 +314,17 @@ public interface CacheManager extends javax.cache.CacheManager
 			
 			try
 			{
-				this.caches.values().forEach(Cache::close);
+				for(Cache<?, ?> cache : this.caches.values())
+				{
+					try
+					{
+						cache.close();
+					}
+					catch(Exception e)
+					{
+						// ignore, according to spec
+					}
+				}
 			}
 			finally
 			{

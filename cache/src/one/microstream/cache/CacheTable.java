@@ -81,7 +81,33 @@ public interface CacheTable
 		@Override
 		public Iterator<KeyValue<Object, CachedValue>> iterator()
 		{
-			return this.table.iterator();
+			Iterator<KeyValue<Object, CachedValue>> it = this.table.iterator();
+			/*
+			 * Iterator#remove is used by Cache, so we have to implement it
+			 * since EqHashTable's iterators don't.
+			 */
+			return new Iterator<KeyValue<Object, CachedValue>>()
+			{
+				KeyValue<Object, CachedValue> next;
+				
+				@Override
+				public boolean hasNext()
+				{
+					return it.hasNext();
+				}
+
+				@Override
+				public KeyValue<Object, CachedValue> next()
+				{
+					return this.next = it.next();
+				}
+				
+				@Override
+				public void remove()
+				{
+					CacheTable.Default.this.table.remove(this.next);
+				}
+			};
 		}
 		
 		@Override

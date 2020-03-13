@@ -5,6 +5,7 @@ import static one.microstream.X.coalesce;
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.function.Predicate;
 
@@ -12,6 +13,7 @@ import javax.cache.configuration.CacheEntryListenerConfiguration;
 import javax.cache.configuration.CompleteConfiguration;
 import javax.cache.configuration.Configuration;
 import javax.cache.configuration.Factory;
+import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.EternalExpiryPolicy;
 import javax.cache.expiry.ExpiryPolicy;
 import javax.cache.integration.CacheLoader;
@@ -288,20 +290,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			DefaultSerializerFieldPredicate());
 	}
 	
-	public static class Default<K, V> implements CacheConfiguration<K, V>
+	public static class Default<K, V> extends MutableConfiguration<K, V> implements CacheConfiguration<K, V>
 	{
-		private final Class<K>                                       keyType;
-		private final Class<V>                                       valueType;
-		private final HashSet<CacheEntryListenerConfiguration<K, V>> listenerConfigurations;
-		private final Factory<CacheLoader<K, V>>                     cacheLoaderFactory;
-		private final Factory<CacheWriter<? super K, ? super V>>     cacheWriterFactory;
-		private final Factory<ExpiryPolicy>                          expiryPolicyFactory;
 		private final Factory<EvictionManager<K, V>>                 evictionManagerFactory;
-		private final boolean                                        isReadThrough;
-		private final boolean                                        isWriteThrough;
-		private final boolean                                        isStoreByValue;
-		private final boolean                                        isStatisticsEnabled;
-		private final boolean                                        isManagementEnabled;
 		private final Predicate<? super Field>                       serializerFieldPredicate;
 		
 		Default(
@@ -324,7 +315,10 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			
 			this.keyType                  = keyType;
 			this.valueType                = valueType;
-			this.listenerConfigurations   = listenerConfigurations;
+			if(listenerConfigurations != null)
+			{
+				this.listenerConfigurations.addAll(listenerConfigurations);
+			}
 			this.cacheLoaderFactory       = cacheLoaderFactory;
 			this.cacheWriterFactory       = cacheWriterFactory;
 			this.expiryPolicyFactory      = expiryPolicyFactory;
@@ -352,61 +346,15 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		@Override
 		public Iterable<CacheEntryListenerConfiguration<K, V>> getCacheEntryListenerConfigurations()
 		{
-			return this.listenerConfigurations;
-		}
-		
-		@Override
-		public Factory<CacheLoader<K, V>> getCacheLoaderFactory()
-		{
-			return this.cacheLoaderFactory;
-		}
-		
-		@Override
-		public Factory<CacheWriter<? super K, ? super V>> getCacheWriterFactory()
-		{
-			return this.cacheWriterFactory;
-		}
-		
-		@Override
-		public Factory<ExpiryPolicy> getExpiryPolicyFactory()
-		{
-			return this.expiryPolicyFactory;
+			return this.listenerConfigurations != null
+				? this.listenerConfigurations
+				: Collections.emptyList();
 		}
 		
 		@Override
 		public Factory<EvictionManager<K, V>> getEvictionManagerFactory()
 		{
 			return this.evictionManagerFactory;
-		}
-		
-		@Override
-		public boolean isReadThrough()
-		{
-			return this.isReadThrough;
-		}
-		
-		@Override
-		public boolean isWriteThrough()
-		{
-			return this.isWriteThrough;
-		}
-		
-		@Override
-		public boolean isStoreByValue()
-		{
-			return this.isStoreByValue;
-		}
-		
-		@Override
-		public boolean isStatisticsEnabled()
-		{
-			return this.isStatisticsEnabled;
-		}
-		
-		@Override
-		public boolean isManagementEnabled()
-		{
-			return this.isManagementEnabled;
 		}
 		
 		@Override
@@ -431,6 +379,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			result = prime * result + (this.keyType == null ? 0 : this.keyType.hashCode());
 			result = prime * result + (this.listenerConfigurations == null ? 0 : this.listenerConfigurations.hashCode());
 			result = prime * result + (this.valueType == null ? 0 : this.valueType.hashCode());
+			result = prime * result + (this.evictionManagerFactory == null ? 0 : this.evictionManagerFactory.hashCode());
 			result = prime * result + (this.serializerFieldPredicate == null ? 0 : this.serializerFieldPredicate.hashCode());
 			return result;
 		}
@@ -530,6 +479,17 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 				}
 			}
 			else if(!this.valueType.equals(other.getValueType()))
+			{
+				return false;
+			}
+			if(this.evictionManagerFactory == null)
+			{
+				if(other.getEvictionManagerFactory() != null)
+				{
+					return false;
+				}
+			}
+			else if(!this.evictionManagerFactory.equals(other.getEvictionManagerFactory()))
 			{
 				return false;
 			}
