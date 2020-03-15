@@ -26,6 +26,11 @@ public final class Swizzling
 		return objectId < nullId();
 	}
 	
+	public static final boolean isFoundId(final long objectId)
+	{
+		return objectId >= nullId();
+	}
+	
 	public static final boolean isProperId(final long objectId)
 	{
 		return objectId > nullId();

@@ -137,7 +137,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 			synchronized(this.objectRegistry)
 			{
 				long objectId;
-				if((objectId = this.objectRegistry.lookupObjectId(object)) == Swizzling.nullId())
+				if(Swizzling.isNotFoundId(objectId = this.objectRegistry.lookupObjectId(object)))
 				{
 					/* (19.07.2019 TM)NOTE:
 					 * The objectId is provided prior to ensuring the TypeHandler (which happens via the callback),

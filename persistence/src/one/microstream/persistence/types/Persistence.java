@@ -239,7 +239,7 @@ public class Persistence
 			{
 				final Long nativeTypeId = NATIVE_TYPES.get(type);
 				return nativeTypeId == null
-					? Swizzling.nullId()
+					? Swizzling.notFoundId()
 					: nativeTypeId.longValue()
 				;
 			}
@@ -910,7 +910,7 @@ public class Persistence
 	{
 		XReflect.validateIsEnum(typeHandler.type());
 		
-		if(typeHandler.typeId() == Swizzling.nullId())
+		if(Swizzling.isProperId(typeHandler.typeId()))
 		{
 			// (07.08.2019 TM)EXCP: proper exception
 			throw new IllegalArgumentException(
@@ -1267,7 +1267,7 @@ public class Persistence
 					: OID
 				: id >= Persistence.FIRST_TID
 					? TID
-					: id == Swizzling.nullId()
+					: Swizzling.isNullId(id)
 						? NULL
 						: UNDEFINED
 			;

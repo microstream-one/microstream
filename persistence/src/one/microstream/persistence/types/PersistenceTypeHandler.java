@@ -256,7 +256,7 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 		private final String typeName;
 		
 		// effectively final / immutable: gets only initialized once later on and is never mutated again. initially 0.
-		private long typeId = Swizzling.nullId();
+		private long typeId = Swizzling.notFoundId();
 
 
 		
@@ -328,7 +328,7 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 			 * As long as the same typeId (originating from the dictionary file) is passed for initialization,
 			 * everything is fine.
 			 */
-			if(this.typeId != Swizzling.nullId())
+			if(Swizzling.isFoundId(this.typeId))
 			{
 				if(this.typeId == typeId)
 				{

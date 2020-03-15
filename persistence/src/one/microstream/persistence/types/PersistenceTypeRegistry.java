@@ -67,12 +67,18 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 		)
 			throws PersistenceExceptionConsistency
 		{
+			if(!Swizzling.isProperId(typeId))
+			{
+				// (06.12.2019 TM)EXCP: proper exception
+				throw new RuntimeException("Not a proper TypeId: " + typeId + " for type " + type);
+			}
+			
 			final Class<?> registeredType   = this.typesPerIds.get(typeId);
 			final long     registeredTypeId = this.idsPerTypes.get(type);
 			
 			if(registeredType == null)
 			{
-				if(registeredTypeId == Swizzling.nullId())
+				if(Swizzling.isNotFoundId(registeredTypeId))
 				{
 					return false;
 				}
