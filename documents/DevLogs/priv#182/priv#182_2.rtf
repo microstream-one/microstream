@@ -1,7 +1,6 @@
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
 {\colortbl ;\red102\green102\blue102;\red255\green0\blue0;}
-{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
-\pard\sl276\slmult1\cf1\f0\fs28\lang7 2019-12-04\par
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\cf1\lang7\f0\fs28 2019-12-04\par
 \par
 Erst mal Konzeptplanung notieren.\par
 \par
@@ -173,5 +172,26 @@ Zusammenf\'fchren.\par
 Und am besten gleich mal alles von diesem grundlegenden ID-Zeug in die Swizzling Klasse verschieben.\par
 Erstens, damit nicht haufenweise redundante delegate-Methoden entstehen.\par
 Und zweitens, weil die ja eh alle dort sein m\'fcssen, wenn die in Lazy verwendbar sein sollen. Das liegt ja im base package und hat keinen Zugriff auf das Persistence Package.\par
+\par
+\par
+2020-03-15\par
+\par
+Diese Sache mit der Race Condition zwischen parallelen Storern hat mich ziemlich viel nachdenken lassen. Inklusive L\'f6sung, was ich jetzt mal alles aufschreibe.\par
+Man k\'f6nnte ja sagen, dass mehrere parallelle Storer managen in der Verantwortung der Anwendung liegt. ABER: Wenn man die Convenience API des StorageManager verwendet, sieht man von Storern gar nichts.\par
+Zwei parallele Aufrufe derselben Methode k\'f6nnen zwei parallel verwendete Storer Instanzen erzeugen, die dann je nach gr\'f6\'dfe des iterierten Objektgraphs, Thread-Unterbrechungen, usw. jede beliebige Kombination von inkonsistenten Zust\'e4nden sammeln und dann in einer Race Condition rausschreiben k\'f6nnen.\par
+Darum liegt die Idee nahe, den Weg \'fcber die Convenience-Schicht concurrency-m\'e4\'dfig zu vereinfachen. Und nur, wenn das wirklich ein Problem ist, kann man dann auf parallele Storer umsteigen, aber dann muss man auch selbst Verantwortung daf\'fcr \'fcbernehmen, dass die parallelen storer race-condition-frei verwendet werden. Das ist die optimale L\'f6sung f\'fcr jeden Anwendungsfall und jede Problembewusstseinstiefe.\par
+\par
+Erst dachte ich, ich mach in den StorageManager neben der singleton Connection auch einen singleton storer rein. Und der m\'fcsste dann irgendwie ein buffer-gr\'f6\'dfen-basiertes "AutoCommit" haben. Wobei dann knifflig w\'e4re, wann der letzte commit erfolgen sollte. Per extra gestartetem Thread nach einem Timeout? Viel zu kompliziert und ... "unverl\'e4sslich" (oder was ist das deutsche Wort f\'fcr unreliable?).\par
+Dann dachte ich: Einfach einen Singleton Storer und den immer locken.\par
+Inzwischen denk ich mir aber: Es reicht v\'f6llig, mit der Storer-Instanzierung alles so zu lassen, wie es ist. Es muss einfach nur die Methode, in der der storer erzeugt wird, synchronized sein.\par
+Dann stellen sich alle Threads, die den sorglos-simpel Weg nehmen, brav hintereinander an. Und wem das nicht reicht, der kann \'fcber explizit erzeugte storer Parallelit\'e4t haben, muss dann aber die Verantwortung daf\'fcr \'fcbernehmen.\par
+\par
+Also letztendlich reduziert sich die L\'f6sung nun auf ein "synchronized" und einen Kommentar dazu, anstatt mordsm\'e4\'dfig eine extra storer Implementierung oder einen Wrapper daf\'fcr zu bauen, aber macht ja nix.\par
+Ich wollt nur mal die wochenendlichen \'dcberlegungen zu Protokoll geben.\par
+\par
+Die Sache mit der Storer ObjectRegistry Robustness und dem Fix \'fcber lokale Registries bleibt nat\'fcrlich. Das kann nach wie vor passieren und muss abgedeckt werden.\par
+Nur die im Rahmen dieser Arbeiten entdeckte Race Condition Problematik l\'e4sst sich sehr leicht l\'f6sen.\par
+\par
+Code Stuff mach ich dann aber "morgen", bzw. heute nach bissl schlafen.\par
 }
  
