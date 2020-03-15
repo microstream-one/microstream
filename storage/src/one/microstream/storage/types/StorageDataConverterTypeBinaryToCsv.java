@@ -702,6 +702,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 				XMemory.set_byte(this.writeAddress++, (byte)'0');
 				return;
 			}
+			
 			this.writeAddress = MemoryCharConversionIntegersUTF8.put_long(value, this.writeAddress);
 		}
 

@@ -255,13 +255,13 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		
 		private void validateTypeHandlerTypeId(final PersistenceTypeHandler<D, ?> typeHandler)
 		{
-			if(typeHandler.typeId() != Swizzling.nullId())
+			if(Swizzling.isProperId(typeHandler.typeId()))
 			{
 				return;
 			}
 			
 			throw new PersistenceExceptionTypeHandlerConsistency(
-				"Invalid 0-TypeId " + PersistenceTypeHandler.class.getSimpleName()
+				"Unassigned TypeId " + PersistenceTypeHandler.class.getSimpleName()
 				+ " " + typeHandler.typeName()
 			);
 		}
@@ -745,11 +745,14 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			/* If the type handler is currently being created, its type<->tid mapping is created in advance
 			 * to be available here without calling the handler creation recurringly.
 			 */
-			final long tid;
-			if((tid = this.typeHandlerRegistry.lookupTypeId(type)) != 0L)
+			final long typeId;
+			if(Swizzling.isFoundId(typeId = this.typeHandlerRegistry.lookupTypeId(type)))
 			{
-				return tid;
+				// already present/found typeId is returned.
+				return typeId;
 			}
+			
+			// typeId not found, so a new handler is ensured and its typeId returned.
 			return this.ensureTypeHandler(type).typeId();
 		}
 
@@ -940,7 +943,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			final PersistenceTypeHandler<D, ?> typeHandler
 		)
 		{
-			if(typeHandler.typeId() != 0)
+			if(Swizzling.isProperId(typeHandler.typeId()))
 			{
 				return typeHandler;
 			}

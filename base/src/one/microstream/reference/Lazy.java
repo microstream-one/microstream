@@ -244,7 +244,7 @@ public interface Lazy<T> extends Referencing<T>
 		public final synchronized boolean isStored()
 		{
 			// A "not found" id (id < 0) here means not yet persisted (the id assigned via persisting is not yet present).
-			return !Swizzling.isNotFoundId(this.objectId);
+			return Swizzling.isFoundId(this.objectId);
 		}
 		
 		@Override
@@ -307,7 +307,7 @@ public interface Lazy<T> extends Referencing<T>
 
 		private void validateObjectIdToBeSet(final long objectId)
 		{
-			if(!Swizzling.isNotFoundId(this.objectId) && this.objectId != objectId)
+			if(Swizzling.isFoundId(this.objectId) && this.objectId != objectId)
 			{
 				// (22.10.2014 TM)TODO: proper exception
 				throw new RuntimeException("ObjectId already set: " + this.objectId);

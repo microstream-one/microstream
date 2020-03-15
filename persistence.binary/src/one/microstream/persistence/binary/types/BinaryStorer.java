@@ -5,7 +5,6 @@ import static one.microstream.X.notNull;
 
 import one.microstream.hashing.XHashing;
 import one.microstream.math.XMath;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceObjectManager;
@@ -528,7 +527,7 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public final boolean skipNulled(final Object instance)
 		{
-			// lookup return -1 on failure, so 0 is a valid lookup result.
+			// lookup returns -1 on failure, so 0 is a valid lookup result. Main reason for -1 vs. 0 distinction!
 			return this.internalSkip(instance, Swizzling.nullId());
 		}
 		
@@ -536,15 +535,15 @@ public interface BinaryStorer extends PersistenceStorer
 		{
 			this.ensureInitialized();
 			
-			// prevent redundant registrations, of course.
-			if(this.lookupOid(instance) >= 0)
+			if(Swizzling.isNotFoundId(this.lookupOid(instance)))
 			{
-				return false;
+				// only register if not found locally, of course
+				this.registerObjectId(instance, null, objectId);
+				return true;
 			}
 			
-			this.registerObjectId(instance, null, objectId);
-			
-			return true;
+			// already locally present (found), do nothing.
+			return false;
 		}
 		
 	}

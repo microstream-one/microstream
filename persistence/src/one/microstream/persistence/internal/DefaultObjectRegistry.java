@@ -14,8 +14,8 @@ import one.microstream.math.XMath;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyObject;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyObjectId;
+import one.microstream.persistence.exceptions.PersistenceExceptionImproperObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionInvalidObjectRegistryCapacity;
-import one.microstream.persistence.exceptions.PersistenceExceptionNullObjectId;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.reference.Swizzling;
@@ -368,8 +368,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			}
 		}
 		
-		// (13.03.2020 TM)FIXME: priv#182: change to "not found". But in the calling context logic as well!
-		return Swizzling.nullId();
+		return Swizzling.notFoundId();
 	}
 
 	@Override
@@ -393,9 +392,9 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			throw new NullPointerException();
 		}
-		if(objectId == Swizzling.nullId())
+		if(!Swizzling.isProperId(objectId))
 		{
-			throw new PersistenceExceptionNullObjectId();
+			throw new PersistenceExceptionImproperObjectId();
 		}
 
 		return this.internalAdd(objectId, object);
@@ -408,9 +407,9 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			throw new NullPointerException();
 		}
-		if(objectId == Swizzling.nullId())
+		if(!Swizzling.isProperId(objectId))
 		{
-			throw new PersistenceExceptionNullObjectId();
+			throw new PersistenceExceptionImproperObjectId();
 		}
 		
 		return this.internalAddGet(objectId, object);
