@@ -18,13 +18,14 @@ public interface StorageViewRange extends StorageViewElement
 		
 		Default(
 			final StorageView.Default view,
+			final StorageViewElement parent,
 			final String name,
 			final long objectId,
 			final long offset,
 			final long length
 		)
 		{
-			super(view, name, null, null);
+			super(view, parent, name, null, null);
 			this.objectId = objectId;
 			this.offset   = offset;
 			this.length   = length;
@@ -53,7 +54,12 @@ public interface StorageViewRange extends StorageViewElement
 		{
 			if(this.members == null || forceRefresh)
 			{
-				this.members = this.view().variableMembers(this.objectId, this.offset, this.length);
+				this.members = this.view().variableMembers(
+					this,
+					this.objectId,
+					this.offset,
+					this.length
+				);
 			}
 			return this.members;
 		}

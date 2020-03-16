@@ -20,13 +20,14 @@ public interface StorageViewObject extends StorageViewValue
 		
 		Simple(
 			final StorageView.Default view,
+			final StorageViewElement parent,
 			final String name,
 			final String value,
 			final PersistenceTypeDescription typeDescription,
 			final long objectId
 		)
 		{
-			super(view, name, value, typeDescription.typeName());
+			super(view, parent, name, value, typeDescription.typeName());
 			
 			this.typeDescription = typeDescription;
 			this.objectId        = objectId;
@@ -58,13 +59,14 @@ public interface StorageViewObject extends StorageViewValue
 		
 		Complex(
 			final StorageView.Default view,
+			final StorageViewElement parent,
 			final String name,
 			final String data,
 			final PersistenceTypeDescription typeDescription,
 			final long objectId
 		)
 		{
-			super(view, name, data, typeDescription, objectId);
+			super(view, parent, name, data, typeDescription, objectId);
 		}
 		
 		@Override
@@ -80,7 +82,7 @@ public interface StorageViewObject extends StorageViewValue
 		{
 			if(this.members == null || forceRefresh)
 			{
-				this.members = this.view().members(this.objectId);
+				this.members = this.view().members(this);
 			}
 			return this.members;
 		}

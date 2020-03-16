@@ -10,12 +10,13 @@ public interface StorageViewComplexRangeEntry extends StorageViewElement
 		
 		Default(
 			final StorageView.Default view,
+			final StorageViewElement parent,
 			final String name,
 			final String value,
 			final List<StorageViewElement> members
 		)
 		{
-			super(view, name, value, null);
+			super(view, parent, name, value, null);
 			
 			this.members = members;
 		}

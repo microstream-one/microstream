@@ -50,43 +50,38 @@ public interface StorageView
 			this.configuration = configuration;
 			this.client        = client;
 		}
-		
+				
 		@Override
 		public StorageViewElement root()
 		{
 			final ViewerRootDescription      rootDesc   = this.client.requestRoot();
 			final ViewerObjectDescription    objectDesc = this.client.requestObject(
-				ObjectRequest.New(rootDesc.getObjectId())
+				this.objectRequestBuilder(rootDesc.getObjectId()).build()
 			);
 			return this.createElement(
+				null,
 				rootDesc.getName(),
 				objectDesc
 			);
 		}
 		
 		List<StorageViewElement> members(
-			final long objectId
+			final StorageViewObject parent
 		)
 		{
-			final List<StorageViewElement>   members     = new ArrayList<>();
-			final ViewerObjectDescription    objectDesc  = this.client.requestObject(
-				ObjectRequest.Builder(objectId)
+			final long                     objectId   = parent.objectId();
+			final List<StorageViewElement> members    = new ArrayList<>();
+			final ViewerObjectDescription  objectDesc = this.client.requestObject(
+				this.objectRequestBuilder(objectId)
 					.withReferences()
 					.variableLength(0L)
 					.build()
 			);
 			
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember> typeMembers =
-				this.getTypeDescription(objectDesc)
-					.allMembers()
-					.filterTo(
-						BulkList.New(),
-						m -> !m.isEnumConstant()
-					)
-			;
-			
-			final Iterator<ViewerObjectDescription> references = Arrays.asList(objectDesc.getReferences()).iterator();
-			final Object[]                          data       = objectDesc.getData();
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember>
+                                                    typeMembers = this.getTypeMembers(objectDesc);
+			final Iterator<ViewerObjectDescription> references  = Arrays.asList(objectDesc.getReferences()).iterator();
+			final Object[]                          data        = objectDesc.getData();
 
 			final int length = Integer.parseInt(objectDesc.getLength());
 			      int index  = 0;
@@ -94,6 +89,7 @@ public interface StorageView
 			{
 				final PersistenceTypeDescriptionMember typeMember = typeMembers.at(index);
 				members.add(this.createElement(
+					parent,
 					typeMember.name(),
 					references,
 					typeMember,
@@ -109,13 +105,14 @@ public interface StorageView
 			{
 				if(members.isEmpty())
 				{
-					members.addAll(this.variableMembers(objectId, 0, varLength));
+					members.addAll(this.variableMembers(parent, objectId, 0, varLength));
 				}
 				else
 				{
 					final PersistenceTypeDescriptionMember typeMember = typeMembers.at(index);
 					members.add(new StorageViewRange.Default(
 						this,
+						parent,
 						typeMember.name(),
 						objectId,
 						0,
@@ -128,6 +125,7 @@ public interface StorageView
 		}
 		
 		List<StorageViewElement> variableMembers(
+			final StorageViewElement parent,
 			final long objectId,
 			final long offset,
 			final long length
@@ -136,22 +134,31 @@ public interface StorageView
 			final long range;
 			if(length > (range = this.configuration.elementRangeMaximumLength()))
 			{
-				return this.ranges(objectId, offset, length, range, range);
+				return this.ranges(
+					parent,
+					objectId,
+					offset,
+					length,
+					range,
+					range
+				);
 			}
 			
 			final List<StorageViewElement>   members      = new ArrayList<>();
 			final ViewerObjectDescription    objectDesc   = this.client.requestObject(
-				ObjectRequest.Builder(objectId)
+				this.objectRequestBuilder(objectId)
 					.withReferences()
 					.fixedLength(0L)
 					.variableRange(offset, length)
 					.build()
 			);
-			final PersistenceTypeDescription typeDesc     = this.getTypeDescription(objectDesc);
-			final long                       memberOffset = Long.parseLong(objectDesc.getLength());
+
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember>
+			           typeMembers  = this.getTypeMembers(objectDesc);
+			final long memberOffset = Long.parseLong(objectDesc.getLength());
 			
 			final PersistenceTypeDescriptionMemberFieldGenericComplex varMember =
-				(PersistenceTypeDescriptionMemberFieldGenericComplex)typeDesc.allMembers().at(memberOffset);
+				(PersistenceTypeDescriptionMemberFieldGenericComplex)typeMembers.at(memberOffset);
 
 			final Iterator<ViewerObjectDescription> references = Arrays.asList(objectDesc.getReferences()).iterator();
 			final List<Object>                      dataList   = asList(objectDesc.getData()[0]);
@@ -166,6 +173,7 @@ public interface StorageView
 					for(final Object dataElem : dataList)
 					{
 						members.add(this.createElement(
+							parent,
 							"[" + index++ + "]",
 							references,
 							elemMember,
@@ -180,6 +188,7 @@ public interface StorageView
 					{
 						members.add(new StorageViewValue.Default(
 							this,
+							parent,
 							"[" + index++ + "]",
 							this.value(String.valueOf(dataElem), null, elemMember.typeName()),
 							elemMember.typeName()
@@ -202,6 +211,7 @@ public interface StorageView
 						if(elemMember.isReference())
 						{
 							memberMembers.add(this.createElement(
+								parent,
 								elemMember.name(),
 								references,
 								elemMember,
@@ -212,6 +222,7 @@ public interface StorageView
 						{
 							memberMembers.add(new StorageViewValue.Default(
 								this,
+								parent,
 								elemMember.name(),
 								this.value(String.valueOf(subDataElem), null, elemMember.typeName()),
 								elemMember.typeName()
@@ -221,6 +232,7 @@ public interface StorageView
 					
 					members.add(new StorageViewComplexRangeEntry.Default(
 						this,
+						parent,
 						"[" + index++ + "]",
 						"",
 						memberMembers
@@ -242,6 +254,7 @@ public interface StorageView
 		}
 		
 		private List<StorageViewElement> ranges(
+			final StorageViewElement parent,
 			final long objectId,
 			final long offset,
 			final long length,
@@ -252,7 +265,14 @@ public interface StorageView
 			final long nextRange;
 			if(length > (nextRange = range * maxRange))
 			{
-				return this.ranges(objectId, offset, length, nextRange, maxRange);
+				return this.ranges(
+					parent,
+					objectId,
+					offset,
+					length,
+					nextRange,
+					maxRange
+				);
 			}
 			
 			final List<StorageViewElement> ranges = new ArrayList<>(X.checkArrayRange(length / range + 1));
@@ -262,12 +282,20 @@ public interface StorageView
 				final long   rangeLength = Math.min(range, length - i);
 				final long   rangeEnd    = rangeOffset + rangeLength - 1;
 				final String name        = "[" + rangeOffset + "..." + rangeEnd + "]";
-				ranges.add(new StorageViewRange.Default(this, name, objectId, rangeOffset, rangeLength));
+				ranges.add(new StorageViewRange.Default(
+					this,
+					parent,
+					name,
+					objectId,
+					rangeOffset,
+					rangeLength
+				));
 			}
 			return ranges;
 		}
 		
 		private StorageViewElement createElement(
+			final StorageViewElement parent,
 			final String name,
 			final Iterator<ViewerObjectDescription> references,
 			final PersistenceTypeDescriptionMember member,
@@ -278,6 +306,7 @@ public interface StorageView
 			if(references.hasNext() && (reference = references.next()) != null)
 			{
 				return this.createElement(
+					parent,
 					name,
 					reference
 				);
@@ -288,6 +317,7 @@ public interface StorageView
 				: this.value(String.valueOf(data), null, member.typeName());
 			return new StorageViewValue.Default(
 				this,
+				parent,
 				name,
 				dataString,
 				member.typeName()
@@ -295,6 +325,7 @@ public interface StorageView
 		}
 		
 		private StorageViewElement createElement(
+			final StorageViewElement parent,
 			final String name,
 			final ViewerObjectDescription reference
 		)
@@ -305,6 +336,7 @@ public interface StorageView
 			{
 				return new StorageViewObject.Simple(
 					this,
+					parent,
 					name,
 					this.value(String.valueOf(reference.getData()[0]), reference, typeDescription.typeName()),
 					typeDescription,
@@ -314,6 +346,7 @@ public interface StorageView
 			
 			return new StorageViewObject.Complex(
 				this,
+				parent,
 				name,
 				null,
 				typeDescription,
@@ -326,8 +359,9 @@ public interface StorageView
 			final ViewerObjectDescription reference
 		)
 		{
-			if(typeDescription.allMembers().size() == 1 &&
-				!typeDescription.allMembers().get().isReference())
+			final XGettingSequence<? extends PersistenceTypeDescriptionMember>
+				typeMembers = this.getTypeMembers(typeDescription);
+			if(typeMembers.size() == 1 && !typeMembers.get().isReference())
 			{
 				final Object[] data = reference.getData();
 				if(data.length == 1)
@@ -350,7 +384,28 @@ public interface StorageView
 				? valueRenderer.apply(value, reference)
 				: value;
 		}
-		
+
+		private XGettingSequence<? extends PersistenceTypeDescriptionMember> getTypeMembers(
+			final ViewerObjectDescription objectDesc
+		)
+		{
+			return this.getTypeMembers(
+				this.getTypeDescription(objectDesc)
+			);
+		}
+
+		private XGettingSequence<? extends PersistenceTypeDescriptionMember> getTypeMembers(
+			final PersistenceTypeDescription typeDesc
+		)
+		{
+			return typeDesc
+				.allMembers()
+				.filterTo(
+					BulkList.New(),
+					m -> !m.isEnumConstant()
+				)
+			;
+		}
 
 		private PersistenceTypeDescription getTypeDescription(
 			final ViewerObjectDescription obj
@@ -369,6 +424,13 @@ public interface StorageView
 				throw new StorageViewExceptionMissingTypeDescription(typeId);
 			}
 			return typeDescription;
+		}
+		
+		private ObjectRequest.Builder objectRequestBuilder(final long objectId)
+		{
+			return ObjectRequest.Builder(objectId)
+				.valueLength(this.configuration.maxValueLength())
+			;
 		}
 	}
 	

@@ -1,4 +1,4 @@
-package one.microstream.storage.restclient.app;
+package one.microstream.storage.restservice;
 
 import java.awt.Dimension;
 import java.io.File;
@@ -24,7 +24,7 @@ import one.microstream.storage.restservice.StorageRestService;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
-public class TestServer
+public class MainTestStorageRestServer
 {
 	public static void main(
 		final String[] args
@@ -112,7 +112,8 @@ public class TestServer
 		Color blue = Color.BLUE;
 		Color[] colors = Color.values();
 	}
-	
+
+	@SuppressWarnings("unused")
 	static enum Color
 	{
 		RED, GREEN, BLUE{

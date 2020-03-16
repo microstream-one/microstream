@@ -11,6 +11,21 @@ public interface StorageViewElement
 {
 	public StorageView view();
 	
+	public StorageViewElement parent();
+	
+	public default <T extends StorageViewElement> T parentOfType(final Class<T> parentType)
+	{
+		StorageViewElement parent = this;
+		while((parent = parent.parent()) != null)
+		{
+			if(parentType.isInstance(parent))
+			{
+				return parentType.cast(parent);
+			}
+		}
+		return null;
+	}
+	
 	public String name();
 	
 	public String value();
@@ -27,12 +42,14 @@ public interface StorageViewElement
 	public static abstract class Abstract implements StorageViewElement
 	{
 		private final StorageView.Default view;
+		private final StorageViewElement  parent;
 		private final String              name;
 		private final String              value;
 		private final String              typeName;
 		
 		Abstract(
 			final StorageView.Default view,
+			final StorageViewElement parent,
 			final String name,
 			final String value,
 			final String typeName
@@ -41,6 +58,7 @@ public interface StorageViewElement
 			super();
 			
 			this.view     = view;
+			this.parent   = parent;
 			this.name     = name;
 			this.value    = value;
 			this.typeName = typeName;
@@ -50,6 +68,12 @@ public interface StorageViewElement
 		public StorageView.Default view()
 		{
 			return this.view;
+		}
+		
+		@Override
+		public StorageViewElement parent()
+		{
+			return this.parent;
 		}
 		
 		@Override
