@@ -44,11 +44,6 @@
 			<version>02.03.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>one.microstream</groupId>
-			<artifactId>storage.restservice.sparkjava</artifactId>
-			<version>02.03.00-MS-GA-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-spring-boot-starter</artifactId>
 			<exclusions>

@@ -29,6 +29,7 @@ import one.microstream.storage.restclient.app.resources.Resources;
 public class RootLayout extends VerticalLayout implements RouterLayout, BeforeEnterObserver
 {
 	private Component toolBar;
+	private Label     headerLabel;
 	
 	public RootLayout()
 	{
@@ -41,10 +42,7 @@ public class RootLayout extends VerticalLayout implements RouterLayout, BeforeEn
 	
 	private Component createBanner()
 	{
-		final Label label = new Label("Client App");
-		label.getStyle()
-			.set("font-size", "150%")
-			.set("font-weight", "bold");
+		this.headerLabel = new Label();
 		
 		final Button cmdLogout = new Button("Logout", event -> {
 			this.getUI().ifPresent(ui -> {
@@ -61,7 +59,7 @@ public class RootLayout extends VerticalLayout implements RouterLayout, BeforeEn
 		
 		final HorizontalLayout banner = new HorizontalLayout(
 			new Image(Resources.streamResource("Logo", "images/logo.png"), "Logo"),
-			label,
+			this.headerLabel,
 			UIUtils.compact(toolBar));
 		banner.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 		banner.setFlexGrow(1, toolBar);
@@ -74,8 +72,14 @@ public class RootLayout extends VerticalLayout implements RouterLayout, BeforeEn
 		final BeforeEnterEvent event
 	)
 	{
+		final SessionData sessionData = event.getUI().getSession().getAttribute(SessionData.class);
+		this.headerLabel.setText(
+			sessionData != null
+				? sessionData.baseUrl()
+				: ""
+		);
 		this.toolBar.setVisible(
-			   event.getUI().getSession().getAttribute(SessionData.class) != null
+			   sessionData != null
 			&& !event.getNavigationTarget().equals(LoginView.class)
 		);
 	}

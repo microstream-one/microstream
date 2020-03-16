@@ -1,6 +1,9 @@
 
 package one.microstream.storage.restclient.ui;
 
+import static one.microstream.X.notNull;
+
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataProvider;
@@ -15,20 +18,27 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 {
 	public static <F> StorageViewDataProvider<F> New(final StorageView storageView)
 	{
-		return new Default<>(storageView);
+		notNull(storageView);
+		return new Default<>(() -> storageView.root());
 	}
+	
+	public static <F> StorageViewDataProvider<F> New(final StorageViewElement root)
+	{
+		notNull(root);
+		return new Default<>(() -> root);
+	}
+	
 	
 	public static class Default<F>
 		extends AbstractBackEndHierarchicalDataProvider<StorageViewElement, F>
 		implements StorageViewDataProvider<F>
 	{
-		private final StorageView storageView;
+		private final Supplier<StorageViewElement> rootSupplier;
 		
-		Default(final StorageView storageView)
+		Default(final Supplier<StorageViewElement> rootSupplier)
 		{
 			super();
-			
-			this.storageView = storageView;
+			this.rootSupplier = rootSupplier;
 		}
 		
 		@Override
@@ -46,7 +56,7 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 		{
 			final StorageViewElement parent = query.getParent();
 			return parent == null
-				? 1
+				? 1 // root
 				: parent.hasMembers()
 					? parent.members(false).size()
 					: 0;
@@ -59,8 +69,22 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 		{
 			final StorageViewElement parent = query.getParent();
 			return parent == null
-				? Stream.of(this.storageView.root())
+				? Stream.of(this.rootSupplier.get())
 				: query.getParent().members(false).stream();
+		}
+		
+		@Override
+		public void refreshItem(
+			final StorageViewElement item,
+			final boolean refreshChildren
+		)
+		{
+			if(refreshChildren)
+			{
+				item.members(true);
+			}
+			
+			super.refreshItem(item, refreshChildren);
 		}
 		
 	}
