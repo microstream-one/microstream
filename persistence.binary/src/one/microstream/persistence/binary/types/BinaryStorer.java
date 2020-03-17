@@ -444,6 +444,8 @@ public interface BinaryStorer extends PersistenceStorer
 			 * Note that this is NOT the same as apply, which does NOT store if the instance is already registry-known.
 			 */
 			long rootOid;
+			
+			// (17.03.2020 TM)FIXME: priv#281: replace all "!=" / "==" / ">=" / etc. "0"
 			if((rootOid = this.lookupOid(root)) >= 0)
 			{
 				return rootOid;

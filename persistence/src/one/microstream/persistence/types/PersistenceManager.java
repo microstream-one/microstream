@@ -121,6 +121,18 @@ ByteOrderTargeting<PersistenceManager<D>>
 		private final PersistenceTarget<D> target;
 		
 		private final ByteOrder targetByteOrder;
+		
+		/*
+		 * To avoid race conditions in the implicitely created storer instances,
+		 * their usage is serialized via mutex locking. If the suppressed parallelism
+		 * is needed, explicitely created storers can be used, but must then be
+		 * concurrency-managed by the using logic.
+		 * Iterating the object graph and committing (i.e. I/O-flushing the collected
+		 * bytes) is handled by different locks since the iteration is the concurrent-
+		 * critical part but committing takes the vast majority of time (costly I/O).
+		 */
+		private final Object storeMutexIteration  = new Object();
+		private final Object storeMutexCommitting = new Object();
 
 
 
@@ -254,27 +266,52 @@ ByteOrderTargeting<PersistenceManager<D>>
 		@Override
 		public final long store(final Object object)
 		{
-			final PersistenceStorer persister;
-			final long objectId = (persister = this.createStorer()).store(object);
-			persister.commit();
+			final long objectId;
+			final PersistenceStorer persister = this.createStorer();
+			
+			synchronized(this.storeMutexIteration)
+			{
+				objectId = persister.store(object);
+			}
+			synchronized(this.storeMutexCommitting)
+			{
+				persister.commit();
+			}
+			
 			return objectId;
 		}
 		
 		@Override
 		public final long[] storeAll(final Object... instances)
 		{
-			final PersistenceStorer persister;
-			final long[] objectIds = (persister = this.createStorer()).storeAll(instances);
-			persister.commit();
+			final long[] objectIds;
+			final PersistenceStorer persister = this.createStorer();
+			
+			synchronized(this.storeMutexIteration)
+			{
+				objectIds = persister.storeAll(instances);
+			}
+			synchronized(this.storeMutexCommitting)
+			{
+				persister.commit();
+			}
+			
 			return objectIds;
 		}
 		
 		@Override
 		public void storeAll(final Iterable<?> instances)
 		{
-			final PersistenceStorer persister;
-			(persister = this.createStorer()).storeAll(instances);
-			persister.commit();
+			final PersistenceStorer persister = this.createStorer();
+			
+			synchronized(this.storeMutexIteration)
+			{
+				persister.storeAll(instances);
+			}
+			synchronized(this.storeMutexCommitting)
+			{
+				persister.commit();
+			}
 		}
 		
 		@Override
