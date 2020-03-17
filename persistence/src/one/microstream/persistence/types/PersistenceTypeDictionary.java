@@ -109,7 +109,7 @@ public interface PersistenceTypeDictionary
 	
 	public static void validateTypeId(final PersistenceTypeDefinition typeDefinition)
 	{
-		if(typeDefinition.typeId() != 0)
+		if(Swizzling.isFoundId(typeDefinition.typeId()))
 		{
 			return;
 		}
