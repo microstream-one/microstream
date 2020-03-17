@@ -5,8 +5,8 @@ import static one.microstream.X.notNull;
 
 import one.microstream.hashing.XHashing;
 import one.microstream.math.XMath;
-import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
+import one.microstream.persistence.types.PersistenceObjectIdConsumer;
 import one.microstream.persistence.types.PersistenceObjectManager;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceStorer;
@@ -52,7 +52,7 @@ public interface BinaryStorer extends PersistenceStorer
 	 * 
 	 * @author TM
 	 */
-	public class Default implements BinaryStorer, PersistenceStoreHandler, PersistenceAcceptor
+	public class Default implements BinaryStorer, PersistenceStoreHandler, PersistenceObjectIdConsumer
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -387,17 +387,42 @@ public interface BinaryStorer extends PersistenceStorer
 			(this.tail = this.head).next = null;
 		}
 
-		public final long lookupOid(final Object instance)
+		public final synchronized long lookupOid(final Object object)
 		{
-			for(Item e = this.hashSlots[identityHashCode(instance) & this.hashRange]; e != null; e = e.link)
+			for(Item e = this.hashSlots[identityHashCode(object) & this.hashRange]; e != null; e = e.link)
 			{
-				if(e.instance == instance)
+				if(e.instance == object)
 				{
 					return e.oid;
 				}
 			}
 
 			// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
+			return Swizzling.notFoundId();
+		}
+		
+		@Override
+		public final synchronized long lookupObjectId(
+			final Object                      object  ,
+			final PersistenceObjectIdConsumer receiver
+		)
+		{
+			for(Item e = this.hashSlots[identityHashCode(object) & this.hashRange]; e != null; e = e.link)
+			{
+				if(e.instance == object)
+				{
+					if(e.typeHandler == null)
+					{
+						// skip-entry for this storer, so it can offer nothing to the receiver.
+						break;
+					}
+					
+					// found a local entry in the current storer, transfer object<->id association to the receiver.
+					receiver.accept(e.oid, object);
+					return e.oid;
+				}
+			}
+			
 			return Swizzling.notFoundId();
 		}
 
@@ -488,7 +513,7 @@ public interface BinaryStorer extends PersistenceStorer
 		
 		protected final long registerAdd(final Object instance)
 		{
-			final long objectId = this.objectManager.ensureObjectId(instance);
+			final long objectId = this.objectManager.ensureObjectId(instance, this);
 			this.accept(objectId, instance);
 
 			return objectId;

@@ -79,7 +79,7 @@ public interface PersistenceRegisterer extends PersistenceFunction
 
 			// ensure and register oid for that instance
 			this.registerLocal(instance);
-			this.objectManager.ensureObjectId(instance);
+			this.objectManager.ensureObjectId(instance, null);
 
 			// iterate references
 			handler.iterateInstanceReferences(instance, this);

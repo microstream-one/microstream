@@ -8,12 +8,7 @@ import one.microstream.util.Cloneable;
 public interface PersistenceObjectManager
 extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<PersistenceObjectManager>
 {
-	public default long ensureObjectId(final Object object)
-	{
-		return this.ensureObjectId(object, null);
-	}
-	
-	public long ensureObjectId(Object object, PersistenceAcceptor newObjectIdCallback);
+	public long ensureObjectId(Object object, PersistenceObjectIdConsumer objectIdConsumer);
 
 	public void consolidate();
 
@@ -55,6 +50,9 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 
 		private final PersistenceObjectRegistry   objectRegistry;
 		private final PersistenceObjectIdProvider oidProvider   ;
+		
+		// (17.03.2020 TM)FIXME: priv#182: register objectIdConsumers
+		private final PersistenceObjectIdConsumer[] consumers = new PersistenceObjectIdConsumer[1];
 
 
 
@@ -124,41 +122,68 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				return this.objectRegistry.lookupObject(objectId);
 			}
 		}
-
-		@Override
-		public long ensureObjectId(final Object object)
-		{
-			return this.ensureObjectId(object, null);
-		}
 		
 		@Override
-		public long ensureObjectId(final Object object, final PersistenceAcceptor newObjectIdCallback)
+		public long ensureObjectId(final Object object, final PersistenceObjectIdConsumer consumer)
 		{
 			synchronized(this.objectRegistry)
 			{
 				long objectId;
-				if(Swizzling.isNotFoundId(objectId = this.objectRegistry.lookupObjectId(object)))
+				if(Swizzling.isProperId(objectId = this.objectRegistry.lookupObjectId(object)))
 				{
-					/* (19.07.2019 TM)NOTE:
-					 * The objectId is provided prior to ensuring the TypeHandler (which happens via the callback),
-					 * meaning even instances of types that throw an exception upon type analysis will get
-					 * cause an objectId to be reserved/allocated.
-					 * However, if the type analysis throws an exception, the instance is not registered at the
-					 * object registry, hence not causing any inconsistent state.
-					 * The objectId is "lost", but that is not a problem since it is no different from a
-					 * deleted entity. And there's the type analysis exception, anyway which stops the whole process.
-					 * See PersistenceTypeHandler#guaranteeInstanceViablity.
-					 */
-					objectId = this.oidProvider.provideNextObjectId();
-					if(newObjectIdCallback != null)
-					{
-						newObjectIdCallback.accept(objectId, object);
-					}
-					this.objectRegistry.registerObject(objectId, object);
+					return objectId;
+				}
+				if(Swizzling.isProperId(objectId = this.synchCheckConsumers(consumer, object)))
+				{
+					return objectId;
+				}
+				
+				/* (06.12.2019 TM)NOTE:
+				 * The object<->id association may NOT be registered, yet, because the storing (writing) process
+				 * afterwards might fail, which would leave an inconsistency (unstored entry that the next storer
+				 * would assume to have already been stored) in the registry.
+				 * The associations are kept locally in the storers and are merged into the registry in the commit
+				 * upon success.
+				 * In the exception ases, the objectId is "lost", but that is not a problem since it is no different
+				 * from a deleted entity. Unused objectIds can be "recycled" by a objectId condensing util functionality.
+				 * And there's the type analysis exception, anyway which stops the whole process.
+				 * See PersistenceTypeHandler#guaranteeInstanceViablity.
+				 */
+				objectId = this.oidProvider.provideNextObjectId();
+				if(consumer != null)
+				{
+					consumer.accept(objectId, object);
 				}
 				
 				return objectId;
 			}
+		}
+		
+		private long synchCheckConsumers(
+			final PersistenceObjectIdConsumer requestingConsumer,
+			final Object                              instance
+		)
+		{
+			for(final PersistenceObjectIdConsumer consumer : this.consumers)
+			{
+				if(consumer == null)
+				{
+					// reached end of consumers (first null-entry).
+					break;
+				}
+				if(consumer == requestingConsumer)
+				{
+					continue;
+				}
+				
+				final long objectId;
+				if(Swizzling.isProperId(objectId = consumer.lookupObjectId(instance, requestingConsumer)))
+				{
+					return objectId;
+				}
+			}
+			
+			return Swizzling.notFoundId();
 		}
 
 		@Override
