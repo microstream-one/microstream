@@ -202,5 +202,33 @@ Soweit fertig.\par
 Jetzt noch offen:\par
 - PersistenceObjectManager#checkConsumers Zeug\par
 - Concurrency L\'f6sung f\'fcr convenience API: versteckter Storer instanzen mit synchronized aufrufen\par
+\par
+\par
+2020-03-16\par
+\par
+Bevor ichs vergess bau ich jetzt mal noch die Concurrency-Sicherheit f\'fcr die Storer ein.\par
+\par
+...Uuund es ist nat\'fcrlich wieder komplizierter als gedacht.\par
+Die "Convenience Storing" Implementierung sind ja im PersistenceManager, nicht im StorageManager.\par
+Allerdings ist im StorageManager EINE zus\'e4tzliche Methode, n\'e4mlich storeRoot. Die speichert aber zwei Instanzen, n\'e4mlich die RootReference und Root selbst. Das ist n\'f6tig, um die verschiedenen F\'e4lle von Root-Instanz-Handling abzudecken.\par
+Hm, aber mei, dann muss ich daf\'fcr halt an die array-speicher-Methode weiterleiten und die gew\'fcnschte OID aus dem R\'fcckgabe-Array rausholen.\par
+F\'fcr eine eher selten aufgerufene Methode sollten die zwei Array-Instanzierungen schon okay sein.\par
+Hm... oder wird sie selten aufgerufen? Vielleicht gibts manche Anwendungen, die st\'e4ndig den Root storen?\par
+Aber mal ehrlich: Das kann man machen, kein Problem, aber dann schleppt man halt den (insgesamt gesehen winzigen) Overhead st\'e4ndig mit. Egal.\par
+Also mach ich so, bevor ich da mit irgendeiner Spezialkonstruktion ewig rumbau.\par
+\par
+Eins ist allerdings noch interessant:\par
+Jede StorageConnection Instanz hat ihre eigene PersistenceManager Instanz.\par
+D.h. schon mehrere StorageConnections haben, wird die Race Condition B\'fcchse wieder \'f6ffnen.\par
+Aber eigentlich ist das okay: Wer explizit weitere Connections erstellt, muss schon eine gewisse fortgeschrittene Vorstellung von Parallit\'e4t usw. haben.\par
+Also das passt so. Mutexe in PersistenceManager rein und die storeRoot Methode auf Array storing umbauen.\par
+\par
+Ahhh... so einfach ist es wieder mal nicht.\par
+Die Array store Methode storet jeden Eintrag als Graph root (sonst br\'e4uchte man sie ja gleich nicht) und die d\'fcrfen nicht null sein.\par
+Der root kann aber sehr wohl null sein.\par
+Mann mann ...\par
+Also Fallunterscheidung bauen...\par
+\par
+Und ich hab noch eine Stelle gefunden, wo explizit auf 0 gepr\'fcft wird, anstatt die Swizzling ID-Methoden zu verwenden. Also TODO hinmachen. Muss ich morgen systematisch alle suchen und beheben.\par
 }
  
