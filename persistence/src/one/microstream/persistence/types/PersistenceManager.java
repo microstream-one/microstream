@@ -315,7 +315,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 		}
 		
 		@Override
-		public final long ensureObjectId(final Object object, final PersistenceObjectIdConsumer newObjectIdCallback)
+		public final long ensureObjectId(final Object object, final PersistenceLocalObjectIdRegistry newObjectIdCallback)
 		{
 			this.typeHandlerManager.ensureTypeHandler(object.getClass());
 			return this.objectManager.ensureObjectId(object, newObjectIdCallback);

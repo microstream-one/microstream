@@ -2,13 +2,15 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import one.microstream.chars.XChars;
+import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.reference.Swizzling;
 import one.microstream.util.Cloneable;
 
 public interface PersistenceObjectManager
 extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<PersistenceObjectManager>
 {
-	public long ensureObjectId(Object object, PersistenceObjectIdConsumer objectIdConsumer);
+	public long ensureObjectId(Object object, PersistenceLocalObjectIdRegistry objectIdConsumer);
 
 	public void consolidate();
 
@@ -27,6 +29,8 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 	{
 		return Cloneable.super.Clone();
 	}
+	
+	public void mergeEntries(PersistenceLocalObjectIdRegistry localRegistry);
 
 
 	
@@ -52,7 +56,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		private final PersistenceObjectIdProvider oidProvider   ;
 		
 		// (17.03.2020 TM)FIXME: priv#182: register objectIdConsumers - but weakly!
-		private final PersistenceObjectIdConsumer[] consumers = new PersistenceObjectIdConsumer[1];
+		private final PersistenceLocalObjectIdRegistry[] localRegistries = new PersistenceLocalObjectIdRegistry[1];
 
 
 
@@ -124,7 +128,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		}
 		
 		@Override
-		public long ensureObjectId(final Object object, final PersistenceObjectIdConsumer consumer)
+		public long ensureObjectId(final Object object, final PersistenceLocalObjectIdRegistry consumer)
 		{
 			synchronized(this.objectRegistry)
 			{
@@ -166,30 +170,64 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		}
 		
 		private long synchCheckConsumers(
-			final PersistenceObjectIdConsumer requestingConsumer,
-			final Object                              instance
+			final PersistenceLocalObjectIdRegistry requestingConsumer,
+			final Object                           instance
 		)
 		{
-			for(final PersistenceObjectIdConsumer consumer : this.consumers)
+			for(final PersistenceLocalObjectIdRegistry localRegistry : this.localRegistries)
 			{
-				if(consumer == null)
+				if(localRegistry == null)
 				{
 					// reached end of consumers (first null-entry).
 					break;
 				}
-				if(consumer == requestingConsumer)
+				if(localRegistry == requestingConsumer)
 				{
 					continue;
 				}
 				
 				final long objectId;
-				if(Swizzling.isProperId(objectId = consumer.lookupObjectId(instance, requestingConsumer)))
+				if(Swizzling.isProperId(objectId = localRegistry.lookupObjectId(instance, requestingConsumer)))
 				{
 					return objectId;
 				}
 			}
 			
 			return Swizzling.notFoundId();
+		}
+		
+		
+		private void internalMergeEntries(final PersistenceLocalObjectIdRegistry localRegistry)
+		{
+			// (17.03.2020 TM)FIXME: priv#182: iterate mergeable entries to validate against global registry
+			// (17.03.2020 TM)FIXME: priv#182: iterate mergeable entries to register at global registry
+		}
+
+		@Override
+		public void mergeEntries(final PersistenceLocalObjectIdRegistry localRegistry)
+		{
+			synchronized(this.objectRegistry)
+			{
+				for(final PersistenceLocalObjectIdRegistry e : this.localRegistries)
+				{
+					if(e == localRegistry)
+					{
+						internalMergeEntries(localRegistry);
+						
+						// local registry can not be removed here since it might be reused.
+						return;
+					}
+				}
+			}
+			
+			// (17.03.2020 TM)EXCP: proper exception
+			throw new PersistenceException(
+				PersistenceLocalObjectIdRegistry.class.getSimpleName()
+				+ " " + XChars.systemString(localRegistry)
+				+ " not registered at this "
+				+ PersistenceObjectManager.class.getSimpleName()
+				+ " " + XChars.systemString(this)
+			);
 		}
 
 		@Override

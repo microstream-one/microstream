@@ -273,5 +273,16 @@ Aber das zur\'fcckmergen der lokalen IDs in die globale Registry erfolgt ja auch
 \par
 Ne Moment! Das ist ja der ganze Sinn an dem Issue:\par
 Die IDs m\'fcssen lokal bleiben, BIS der commit (write) erfolgreich durchgegangen ist.\par
+\par
+\par
+Jetzt mal den merge bauen.\par
+Mal \'fcberlegen.\par
+Der muss auf jeden Fall in Storer#commit rein.\par
+Es sollte aber nicht eine register-Methode in den ObjectManager rein, sonst ist die in der public API.\par
+Besser w\'e4re: Die registrierten Consumer haben eine iterateEntries Methode, die der ObjectManager intern aufruf und an die er eine nur interne register-Methode \'fcbergibt.\par
+Wobei erst mal lock-gesch\'fctzt alle Eintr\'e4ge validiert werden m\'fcssen, bevor irgendein state ver\'e4ndert wird.\par
+Dann muss aber wieder mal das Interface erweitert werden. Bzw. das muss eh mal ein etwas aussagekr\'e4ftigerer Name werden als nur "ObjectIdConsumer".\par
+\par
+So, fast fertig.\par
 }
  
