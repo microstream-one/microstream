@@ -155,7 +155,7 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 
 			final long objectIdLocal;
-			if((objectIdLocal = this.lookupOid(instance)) >= 0)
+			if(Swizzling.isFoundId(objectIdLocal = this.lookupOid(instance)))
 			{
 				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
 				return objectIdLocal;
@@ -186,7 +186,7 @@ public interface BinaryStorer extends PersistenceStorer
 			 * the local registry.
 			 */
 			final long objectIdLocal;
-			if((objectIdLocal = this.lookupOid(instance)) >= 0)
+			if(Swizzling.isFoundId(objectIdLocal = this.lookupOid(instance)))
 			{
 				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
 				return objectIdLocal;
@@ -444,9 +444,7 @@ public interface BinaryStorer extends PersistenceStorer
 			 * Note that this is NOT the same as apply, which does NOT store if the instance is already registry-known.
 			 */
 			long rootOid;
-			
-			// (17.03.2020 TM)FIXME: priv#281: replace all "!=" / "==" / ">=" / etc. "0"
-			if((rootOid = this.lookupOid(root)) >= 0)
+			if(Swizzling.isFoundId(rootOid = this.lookupOid(root)))
 			{
 				return rootOid;
 			}
