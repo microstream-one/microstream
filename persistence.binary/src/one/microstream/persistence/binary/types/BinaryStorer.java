@@ -5,8 +5,9 @@ import static one.microstream.X.notNull;
 
 import one.microstream.hashing.XHashing;
 import one.microstream.math.XMath;
+import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
-import one.microstream.persistence.types.PersistenceObjectIdConsumer;
+import one.microstream.persistence.types.PersistenceLocalObjectIdRegistry;
 import one.microstream.persistence.types.PersistenceObjectManager;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceStorer;
@@ -52,7 +53,7 @@ public interface BinaryStorer extends PersistenceStorer
 	 * 
 	 * @author TM
 	 */
-	public class Default implements BinaryStorer, PersistenceStoreHandler, PersistenceObjectIdConsumer
+	public class Default implements BinaryStorer, PersistenceStoreHandler, PersistenceLocalObjectIdRegistry
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -64,7 +65,7 @@ public interface BinaryStorer extends PersistenceStorer
 			return 1024; // anthing below 1024 doesn't pay of
 		}
 
-
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -72,7 +73,7 @@ public interface BinaryStorer extends PersistenceStorer
 
 		private final boolean                               switchByteOrder;
 		private final PersistenceObjectManager              objectManager  ;
-		private final ObjectSwizzling            objectRetriever;
+		private final ObjectSwizzling                       objectRetriever;
 		private final PersistenceTypeHandlerManager<Binary> typeManager    ;
 		private final PersistenceTarget<Binary>             target         ;
 		
@@ -341,6 +342,22 @@ public interface BinaryStorer extends PersistenceStorer
 				this.storeGraph(instance);
 			}
 		}
+		
+		@Override
+		public void iterateMergeableEntries(final PersistenceAcceptor iterator)
+		{
+			for(Item e = this.head; (e = e.next) != null;)
+			{
+				// skip items are local only and not valid for being visible to (i.e. merged into) global context
+				if(isSkipItem(e))
+				{
+					continue;
+				}
+				
+				// mergeable entry
+				iterator.accept(e.oid, e.instance);
+			}
+		}
 
 		@Override
 		public final Object commit()
@@ -354,9 +371,10 @@ public interface BinaryStorer extends PersistenceStorer
 				
 				this.typeManager.clearStorePendingRoots();
 				
-				// (17.03.2020 TM)FIXME: priv#182: merge local oid registry
+				this.objectManager.mergeEntries(this);
 			}
 			this.clear();
+			
 			return null;
 		}
 
@@ -403,17 +421,22 @@ public interface BinaryStorer extends PersistenceStorer
 			return Swizzling.notFoundId();
 		}
 		
+		private static boolean isSkipItem(final Item item)
+		{
+			return item.typeHandler == null;
+		}
+		
 		@Override
 		public final synchronized long lookupObjectId(
-			final Object                      object  ,
-			final PersistenceObjectIdConsumer receiver
+			final Object              object  ,
+			final PersistenceAcceptor receiver
 		)
 		{
 			for(Item e = this.hashSlots[identityHashCode(object) & this.hashRange]; e != null; e = e.link)
 			{
 				if(e.instance == object)
 				{
-					if(e.typeHandler == null)
+					if(isSkipItem(e))
 					{
 						// skip-entry for this storer, so it can offer nothing to the receiver.
 						break;
