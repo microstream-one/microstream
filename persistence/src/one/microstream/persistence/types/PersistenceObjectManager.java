@@ -51,7 +51,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		private final PersistenceObjectRegistry   objectRegistry;
 		private final PersistenceObjectIdProvider oidProvider   ;
 		
-		// (17.03.2020 TM)FIXME: priv#182: register objectIdConsumers
+		// (17.03.2020 TM)FIXME: priv#182: register objectIdConsumers - but weakly!
 		private final PersistenceObjectIdConsumer[] consumers = new PersistenceObjectIdConsumer[1];
 
 
@@ -135,6 +135,12 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				}
 				if(Swizzling.isProperId(objectId = this.synchCheckConsumers(consumer, object)))
 				{
+					// must handle the object in this case since the locally keeping storer might fail its write!
+					if(consumer != null)
+					{
+						consumer.accept(objectId, object);
+					}
+					
 					return objectId;
 				}
 				

@@ -241,5 +241,37 @@ Die ganzen Magic Value "0"er Pr\'fcfungen suchen und durch ordentliche ID-Logik 
 Jetzt mal endlich die bisher neue Logik aus dem alten Branch in den neuen mergen.\par
 Alles nochmal durchpr\'fcfen.\par
 TODO f\'fcr offene Baustelle dazuschreiben.\par
+\par
+\par
+So, jetzt mal wieder eindenken in den n\'e4chsten Schritt. Bzw. erst mal oben nochmal durchlesen ...\par
+\par
+\par
+Aktueller Stand Konzept:\par
+- Die Storer m\'fcssen sich beim ObjectManager registrieren, nicht in der ObjectRegistry (ist schon so)\par
+- TOOD: Die Registrierung muss eine WeakReference sein, sonst wird man die Storer ja nicht mehr los bzw. muss aufwendig lifecycles managen.\par
+v Skip-Handling passt wie oben beschrieben.\par
+- Das mit dem Daten neu speichern, sonst wieder Inkonsistenten im Fehlerfall ist ein guter Punkt. D.h. ich muss den Lookup ganz anders bauen.\par
+\par
+Hm. Oder dank Callback-Pattern muss das gar nicht so viel anders werden.\par
+Es gibt f\'fcr PersistenceObjectManager#ensureObjectId praktisch drei F\'e4lle:\par
+1.) OID gefunden in globaler Registry:\par
+- kein Callbackaufruf\par
+- Nur gefundene OID zur\'fcckgeben\par
+2.) OID gefunden in lokaler Registry (anderer Storer):\par
+- Callbackaufruf auf storing\par
+- Gefundene OID zur\'fcckgeben\par
+3.) OID nicht gefunden, darum neue vergeben\par
+- Callbackaufruf auf storing\par
+- Neue OID zur\'fcckgeben\par
+\par
+\par
+Oooh, da f\'e4llt mir spontan was auf:\par
+Ich hab die mutexe zum storer synchen ja zweigeteilt:\par
+1.) Daten sammeln bzw. Graph itererieren.\par
+2.) Commit, also Daten rausschreiben.\par
+Aber das zur\'fcckmergen der lokalen IDs in die globale Registry erfolgt ja auch erst im Commit. Muss das dann nicht ins andere Lock r\'fcber?\par
+\par
+Ne Moment! Das ist ja der ganze Sinn an dem Issue:\par
+Die IDs m\'fcssen lokal bleiben, BIS der commit (write) erfolgreich durchgegangen ist.\par
 }
  
