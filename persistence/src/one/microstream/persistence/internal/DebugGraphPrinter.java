@@ -86,7 +86,7 @@ public class DebugGraphPrinter implements PersistenceFunction
 			return 0L;
 		}
 
-		final long objectId = this.objectManager.ensureObjectId(instance);
+		final long objectId = this.objectManager.ensureObjectId(instance, null);
 		this.vc.padLeft(Long.toString(objectId), MAX_LITERAL_LENGTH_LONG, '0').blank().add(XChars.systemString(instance));
 		if(!instance.getClass().isArray())
 		{
