@@ -353,6 +353,8 @@ public interface BinaryStorer extends PersistenceStorer
 				this.target.write(this.complete());
 				
 				this.typeManager.clearStorePendingRoots();
+				
+				// (17.03.2020 TM)FIXME: priv#182: merge local oid registry
 			}
 			this.clear();
 			return null;
