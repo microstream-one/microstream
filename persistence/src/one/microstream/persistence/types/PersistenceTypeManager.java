@@ -128,7 +128,7 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 		@Override
 		public long ensureTypeId(final Class<?> type)
 		{
-			long typeId; // quick read-only check for already registered tid
+			final long typeId; // quick read-only check for already registered tid
 			if(Swizzling.isFoundId(typeId = this.typeRegistry.lookupTypeId(type)))
 			{
 				// already present/found typeId is returned.

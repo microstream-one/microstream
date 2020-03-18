@@ -21,19 +21,24 @@ public final class Swizzling
 		return objectId == nullId();
 	}
 	
-	public static final boolean isNotFoundId(final long objectId)
-	{
-		return objectId < nullId();
-	}
-	
 	public static final boolean isFoundId(final long objectId)
 	{
 		return objectId >= nullId();
 	}
 	
+	public static final boolean isNotFoundId(final long objectId)
+	{
+		return objectId < nullId();
+	}
+	
 	public static final boolean isProperId(final long objectId)
 	{
 		return objectId > nullId();
+	}
+	
+	public static final boolean isNotProperId(final long objectId)
+	{
+		return objectId <= nullId();
 	}
 	
 	public static final long toUnmappedObjectId(final Object object)

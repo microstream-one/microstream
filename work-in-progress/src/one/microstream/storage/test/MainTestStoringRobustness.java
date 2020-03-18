@@ -21,7 +21,7 @@ public class MainTestStoringRobustness
 	public static void main(final String[] args)
 	{
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
-		if(STORAGE.root() == null)
+		if(ROOT.referent == null)
 		{
 			// first execution enters here (database creation)
 

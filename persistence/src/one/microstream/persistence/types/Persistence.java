@@ -910,7 +910,7 @@ public class Persistence
 	{
 		XReflect.validateIsEnum(typeHandler.type());
 		
-		if(Swizzling.isProperId(typeHandler.typeId()))
+		if(Swizzling.isNotProperId(typeHandler.typeId()))
 		{
 			// (07.08.2019 TM)EXCP: proper exception
 			throw new IllegalArgumentException(

@@ -459,7 +459,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			throw new NullPointerException();
 		}
-		if(!Swizzling.isProperId(objectId))
+		if(Swizzling.isNotProperId(objectId))
 		{
 			throw new PersistenceExceptionImproperObjectId();
 		}
@@ -474,7 +474,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			throw new NullPointerException();
 		}
-		if(!Swizzling.isProperId(objectId))
+		if(Swizzling.isNotProperId(objectId))
 		{
 			throw new PersistenceExceptionImproperObjectId();
 		}

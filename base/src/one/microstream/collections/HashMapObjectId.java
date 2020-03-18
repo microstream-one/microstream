@@ -179,7 +179,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 		return true;
 	}
 
-	public long putGet(final T object, final long id)
+	public long putGet(final T object, final long id, final long noOldIdValue)
 	{
 		final int index;
 		final Entry<T> head = this.hashSlots[index = identityHashCode(object) & this.hashRange];
@@ -192,7 +192,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 			{
 				this.rebuild(this.hashRange + 1 << 1);
 			}
-			return 0L;
+			return noOldIdValue;
 		}
 
 		// case 2: replace registered object
@@ -218,10 +218,10 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 		{
 			this.rebuild(this.hashRange + 1 << 1);
 		}
-		return 0L;
+		return noOldIdValue;
 	}
 
-	public long get(final T object)
+	public long get(final T object, final long notFoundId)
 	{
 		if(object == null)
 		{
@@ -234,7 +234,7 @@ public final class HashMapObjectId<T> implements Sized, OptimizableCollection, C
 				return entry.id;
 			}
 		}
-		return 0;
+		return notFoundId;
 	}
 
 	public XList<T> getObjects()

@@ -133,7 +133,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		}
 		
 		@Override
-		public long ensureObjectId(final Object object, final PersistenceLocalObjectIdRegistry consumer)
+		public long ensureObjectId(final Object object, final PersistenceLocalObjectIdRegistry localRegistry)
 		{
 			synchronized(this.objectRegistry)
 			{
@@ -142,12 +142,12 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				{
 					return objectId;
 				}
-				if(Swizzling.isProperId(objectId = this.synchCheckConsumers(consumer, object)))
+				if(Swizzling.isProperId(objectId = this.synchCheckLocalRegistries(localRegistry, object)))
 				{
 					// must handle the object in this case since the locally keeping storer might fail its write!
-					if(consumer != null)
+					if(localRegistry != null)
 					{
-						consumer.accept(objectId, object);
+						localRegistry.accept(objectId, object);
 					}
 					
 					return objectId;
@@ -165,16 +165,16 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				 * See PersistenceTypeHandler#guaranteeInstanceViablity.
 				 */
 				objectId = this.oidProvider.provideNextObjectId();
-				if(consumer != null)
+				if(localRegistry != null)
 				{
-					consumer.accept(objectId, object);
+					localRegistry.accept(objectId, object);
 				}
 				
 				return objectId;
 			}
 		}
 		
-		private long synchCheckConsumers(
+		private long synchCheckLocalRegistries(
 			final PersistenceLocalObjectIdRegistry requestingConsumer,
 			final Object                           instance
 		)
