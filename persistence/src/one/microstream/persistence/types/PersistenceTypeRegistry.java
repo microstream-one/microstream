@@ -78,7 +78,8 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 			
 			if(registeredType == null)
 			{
-				if(Swizzling.isNotFoundId(registeredTypeId))
+				// HashMapObjectId (idsPerTypes) return 0 to indicate not found!
+				if(registeredTypeId == 0)
 				{
 					return false;
 				}
