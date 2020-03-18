@@ -344,6 +344,12 @@ public interface BinaryStorer extends PersistenceStorer
 		}
 		
 		@Override
+		public final PersistenceObjectManager parentObjectManager()
+		{
+			return this.objectManager;
+		}
+		
+		@Override
 		public void iterateMergeableEntries(final PersistenceAcceptor iterator)
 		{
 			for(Item e = this.head; (e = e.next) != null;)
@@ -511,14 +517,6 @@ public interface BinaryStorer extends PersistenceStorer
 		
 		protected final void storeItem(final Item item)
 		{
-			/* (03.09.2019 TM)TODO: Generic SelfStoring handling?
-			 * What about special-casing for SelfStoring instances when encountering them
-			 * generically during recursing through the graph?
-			 * Currently, they get stored via their TypeHandler, ignoring their specialized method.
-			 * Or maybe the TypeHandlerCreator must create a special TypeHandler that calls that method?
-			 * Would be much more elegant than doing an 99.9% unnecessary special-casing check in here...
-			 */
-			
 //			XDebug.println("Storing     " + item.oid + ": " + XChars.systemString(item.instance) + " ("  + item.instance + ")");
 			item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
 		}

@@ -31,6 +31,10 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 
 	@Override
 	public Object lookupObject(long objectId);
+	
+	public boolean isValid(long objectId, Object object);
+	
+	public void validate(long objectId, Object object);
 
 	public boolean containsObjectId(long objectId);
 

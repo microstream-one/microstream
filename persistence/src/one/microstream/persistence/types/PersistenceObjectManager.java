@@ -2,7 +2,11 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import java.lang.ref.WeakReference;
+
+import one.microstream.X;
 import one.microstream.chars.XChars;
+import one.microstream.collections.XArrays;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.reference.Swizzling;
 import one.microstream.util.Cloneable;
@@ -30,6 +34,8 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		return Cloneable.super.Clone();
 	}
 	
+	public boolean registerLocalRegistry(PersistenceLocalObjectIdRegistry localRegistry);
+	
 	public void mergeEntries(PersistenceLocalObjectIdRegistry localRegistry);
 
 
@@ -55,10 +61,9 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		private final PersistenceObjectRegistry   objectRegistry;
 		private final PersistenceObjectIdProvider oidProvider   ;
 		
-		// (17.03.2020 TM)FIXME: priv#182: register objectIdConsumers - but weakly!
-		private final PersistenceLocalObjectIdRegistry[] localRegistries = new PersistenceLocalObjectIdRegistry[1];
+		private WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries = X.WeakReferences(1);
 
-
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -174,14 +179,17 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 			final Object                           instance
 		)
 		{
-			for(final PersistenceLocalObjectIdRegistry localRegistry : this.localRegistries)
+			for(final WeakReference<PersistenceLocalObjectIdRegistry> localRegistryEntry : this.localRegistries)
 			{
-				if(localRegistry == null)
+				// (18.03.2020 TM)FIXME: priv#182: null-terminated or null-ignoring? consolidate in all methods!
+				if(localRegistryEntry == null)
 				{
 					// reached end of consumers (first null-entry).
 					break;
 				}
-				if(localRegistry == requestingConsumer)
+				
+				final PersistenceLocalObjectIdRegistry localRegistry = localRegistryEntry.get();
+				if(localRegistry == null || localRegistry == requestingConsumer)
 				{
 					continue;
 				}
@@ -196,11 +204,81 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 			return Swizzling.notFoundId();
 		}
 		
-		
-		private void internalMergeEntries(final PersistenceLocalObjectIdRegistry localRegistry)
+		private void synchInternalMergeEntries(final PersistenceLocalObjectIdRegistry localRegistry)
 		{
-			// (17.03.2020 TM)FIXME: priv#182: iterate mergeable entries to validate against global registry
-			// (17.03.2020 TM)FIXME: priv#182: iterate mergeable entries to register at global registry
+			localRegistry.iterateMergeableEntries(this.objectRegistry::validate);
+			localRegistry.iterateMergeableEntries(this.objectRegistry::registerObject);
+		}
+		
+		@Override
+		public boolean registerLocalRegistry(final PersistenceLocalObjectIdRegistry localRegistry)
+		{
+			if(localRegistry.parentObjectManager() != this)
+			{
+				// (18.03.2020 TM)EXCP: proper exception
+				throw new PersistenceException(
+					PersistenceLocalObjectIdRegistry.class.getSimpleName()
+					+ " " + XChars.systemString(localRegistry)
+					+ " does not belong to this "
+					+ PersistenceObjectManager.class.getSimpleName()
+					+ " " + XChars.systemString(this)
+				);
+			}
+			
+			// (17.03.2020 TM)FIXME: priv#182: register objectIdConsumers
+			synchronized(this.objectRegistry)
+			{
+				final WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries = this.localRegistries;
+				if(isAlreadyRegistered(localRegistry, localRegistries))
+				{
+					return false;
+				}
+
+				for(int i = 0; i < localRegistries.length; i++)
+				{
+					if(localRegistries[i] == null || localRegistries[i].get() == null)
+					{
+						localRegistries[i] = X.WeakReference(localRegistry);
+						return true;
+					}
+				}
+				
+				// very conservative enlargement since there should never be many registered localRegistries at once.
+				this.localRegistries = XArrays.enlarge(localRegistries, localRegistries.length + 1);
+				this.localRegistries[localRegistries.length] = X.WeakReference(localRegistry);
+				
+				return true;
+			}
+		}
+		
+		private static boolean isAlreadyRegistered(
+			final PersistenceLocalObjectIdRegistry                  localRegistry ,
+			final WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries
+		)
+		{
+			// no hash set required since there should never be a lot of entries, anyway.
+			for(int i = 0; i < localRegistries.length; i++)
+			{
+				if(localRegistries[i] == null)
+				{
+					continue;
+				}
+				
+				final PersistenceLocalObjectIdRegistry registeredLocalRegistry = localRegistries[i].get();
+				if(registeredLocalRegistry == null)
+				{
+					// some cleanup along the way
+					localRegistries[i] = null;
+					continue;
+				}
+				
+				if(registeredLocalRegistry == localRegistry)
+				{
+					return true;
+				}
+			}
+			
+			return false;
 		}
 
 		@Override
@@ -208,13 +286,34 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		{
 			synchronized(this.objectRegistry)
 			{
-				for(final PersistenceLocalObjectIdRegistry e : this.localRegistries)
+				int emptySlotCount = 0;
+				for(int i = 0; i < this.localRegistries.length; i++)
 				{
-					if(e == localRegistry)
+					if(this.localRegistries[i] == null)
 					{
-						internalMergeEntries(localRegistry);
+						emptySlotCount++;
+						continue;
+					}
+					
+					final PersistenceLocalObjectIdRegistry registeredLocalRegistry = this.localRegistries[i].get();
+					if(registeredLocalRegistry == null)
+					{
+						// some cleanup along the way
+						this.localRegistries[i] = null;
+						emptySlotCount++;
+						continue;
+					}
+					
+					if(registeredLocalRegistry == localRegistry)
+					{
+						synchInternalMergeEntries(localRegistry);
 						
-						// local registry can not be removed here since it might be reused.
+						if(emptySlotCount > 2)
+						{
+							this.localRegistries = X.consolidateWeakReferences(this.localRegistries);
+						}
+						
+						// local registry cannot be removed here as it might be reused. Must be weakly-managed.
 						return;
 					}
 				}
@@ -229,7 +328,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				+ " " + XChars.systemString(this)
 			);
 		}
-
+		
 		@Override
 		public final long currentObjectId()
 		{
