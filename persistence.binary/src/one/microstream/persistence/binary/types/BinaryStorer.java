@@ -381,6 +381,7 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 			this.clear();
 			
+			// not used
 			return null;
 		}
 
@@ -611,7 +612,7 @@ public interface BinaryStorer extends PersistenceStorer
 		
 		Eager(
 			final PersistenceObjectManager              objectManager     ,
-			final ObjectSwizzling            objectRetriever   ,
+			final ObjectSwizzling                       objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider,
@@ -694,7 +695,7 @@ public interface BinaryStorer extends PersistenceStorer
 		public default BinaryStorer createStorer(
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceObjectManager              objectManager     ,
-			final ObjectSwizzling            objectRetriever   ,
+			final ObjectSwizzling                       objectRetriever   ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider
 		)
@@ -706,7 +707,7 @@ public interface BinaryStorer extends PersistenceStorer
 		public BinaryStorer createEagerStorer(
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
 			PersistenceObjectManager              objectManager     ,
-			ObjectSwizzling            objectRetriever   ,
+			ObjectSwizzling                       objectRetriever   ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
 		);
@@ -776,7 +777,7 @@ public interface BinaryStorer extends PersistenceStorer
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)
 			{
-				return new BinaryStorer.Default(
+				final BinaryStorer.Default storer = new BinaryStorer.Default(
 					objectManager         ,
 					objectRetriever       ,
 					typeManager           ,
@@ -785,17 +786,20 @@ public interface BinaryStorer extends PersistenceStorer
 					this.channelCount()   ,
 					this.switchByteOrder()
 				);
+				objectManager.registerLocalRegistry(storer);
+				
+				return storer;
 			}
 			@Override
 			public BinaryStorer createEagerStorer(
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
 				final PersistenceObjectManager              objectManager     ,
-				final ObjectSwizzling            objectRetriever   ,
+				final ObjectSwizzling                       objectRetriever   ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)
 			{
-				return new BinaryStorer.Eager(
+				final BinaryStorer.Eager storer = new BinaryStorer.Eager(
 					objectManager         ,
 					objectRetriever       ,
 					typeManager           ,
@@ -804,6 +808,9 @@ public interface BinaryStorer extends PersistenceStorer
 					this.channelCount()   ,
 					this.switchByteOrder()
 				);
+				objectManager.registerLocalRegistry(storer);
+				
+				return storer;
 			}
 
 		}

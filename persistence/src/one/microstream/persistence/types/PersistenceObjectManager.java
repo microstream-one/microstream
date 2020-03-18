@@ -181,11 +181,9 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		{
 			for(final WeakReference<PersistenceLocalObjectIdRegistry> localRegistryEntry : this.localRegistries)
 			{
-				// (18.03.2020 TM)FIXME: priv#182: null-terminated or null-ignoring? consolidate in all methods!
 				if(localRegistryEntry == null)
 				{
-					// reached end of consumers (first null-entry).
-					break;
+					continue;
 				}
 				
 				final PersistenceLocalObjectIdRegistry localRegistry = localRegistryEntry.get();
@@ -225,7 +223,6 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				);
 			}
 			
-			// (17.03.2020 TM)FIXME: priv#182: register objectIdConsumers
 			synchronized(this.objectRegistry)
 			{
 				final WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries = this.localRegistries;
