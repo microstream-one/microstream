@@ -6,7 +6,6 @@ import static one.microstream.chars.XChars.isEmpty;
 import java.nio.file.Path;
 
 import one.microstream.io.XIO;
-import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.Storage;
@@ -60,11 +59,6 @@ public interface EmbeddedStorageFoundationCreator
 			
 			return EmbeddedStorage.Foundation(
 				configBuilder.createConfiguration()
-			)
-			.onConnectionFoundation(cf ->
-				cf.setTypeDictionaryIoHandler(
-					this.createTypeDictionaryHandler(configuration, baseDirectory)
-				)
 			);
 		}
 		
@@ -116,16 +110,6 @@ public interface EmbeddedStorageFoundationCreator
 			return Storage.EntityCacheEvaluator(
 				configuration.getEntityCacheTimeoutMs(),
 				configuration.getEntityCacheThreshold()
-			);
-		}
-
-		protected PersistenceTypeDictionaryFileHandler createTypeDictionaryHandler(
-			final Configuration configuration,
-			final Path baseDirectory
-		)
-		{
-			return PersistenceTypeDictionaryFileHandler.New(
-				XIO.Path(baseDirectory, configuration.getTypeDictionaryFilename())
 			);
 		}
 		
