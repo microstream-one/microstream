@@ -50,7 +50,7 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 		@Override
 		public final synchronized long lookupTypeId(final Class<?> type)
 		{
-			return this.idsPerTypes.get(type);
+			return this.idsPerTypes.get(type, Swizzling.notFoundId());
 		}
 
 		@SuppressWarnings("unchecked") // cast safety ensured by registration logic
@@ -67,19 +67,18 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 		)
 			throws PersistenceExceptionConsistency
 		{
-			if(!Swizzling.isProperId(typeId))
+			if(Swizzling.isNotProperId(typeId))
 			{
 				// (06.12.2019 TM)EXCP: proper exception
 				throw new RuntimeException("Not a proper TypeId: " + typeId + " for type " + type);
 			}
 			
 			final Class<?> registeredType   = this.typesPerIds.get(typeId);
-			final long     registeredTypeId = this.idsPerTypes.get(type);
+			final long     registeredTypeId = this.idsPerTypes.get(type, Swizzling.notFoundId());
 			
 			if(registeredType == null)
 			{
-				// HashMapObjectId (idsPerTypes) return 0 to indicate not found!
-				if(registeredTypeId == 0)
+				if(Swizzling.isNotFoundId(registeredTypeId))
 				{
 					return false;
 				}

@@ -314,5 +314,30 @@ Das war nat\'fcrlich Quatsch, muss ich wieder zur\'fcck\'e4ndern und ordentliche
 \par
 Und noch so ein Fehler. Aber das kracht schon bei der zus\'e4tzlich eingef\'fchrten Pr\'fcfung auf valide TypeIds. Da wird eine 0 \'fcbergeben. Fragt sich jetzt, ob das ein Fehler ist, oder ob das aus Initialisierungsgr\'fcnden so sein muss.\par
 Muss ich untersuchen ...\par
+\par
+Durchdebuggt:\par
+Gleiches Problem mit von HashMapObjectId (idsPerTypes) zur\'fcckgegebener 0 aber Pr\'fcfung umgebaut auf < 0.\par
+Hm, das ist echt \'e4rgerlich. Eigentlich ist das -1 Konzept besser, weil 0 eine valide ObjectId f\'fcr null-Werte ist. Aber an solchen Stellen bei\'dfts dann nat\'fcrlich aus.\par
+Hm, oder ich w\'fcrde in der HashMapObjectId eine Gettermethode bauen, der man den not found Wert \'fcbergeben kann ...\par
+\par
+...\par
+\par
+Moment:\par
+ODER ... ich geb gleich -1 zur\'fcck, weil das ja eine ObjectId-spezifische Implementierung ist. Ich Dussel.\par
+\par
+Aach, ne Moment: die Klasse ist schon generisch. Das hei\'dft nicht "ObjectId", sondern "Object to Id". Und die andere hei\'dft "Id to Object".\par
+Also doch die Variante mit der \'dcbergabewert.\par
+Gefixt.\par
+Weitertesten.\par
+Weitere Fl\'fcchtigkeitsfehler...\par
+\par
+Ich mach jetzt doch analog zu der Swizzling#isProperId noch eine Swizzling#isNotProperId.\par
+\par
+Weiter testen.\par
+Ah, der lookup in BinaryStorer macht nat\'fcrlich kein ensureInitialized, also krachts da mit einem NPE.\par
+Wieso initialisier ich das eigentlich nicht einfach bei der Erstellung und im clear?\par
+Das muss ich sp\'e4ter mal anschauen und umbauen.\par
+Sch* doch auf die paar Instanzerzeugungen mehr. Bzw. die werden ja bei normaler Verwendung eh immer ben\'f6tigt und bei sinnloser Verwendung ist der (eh minimale) egal.\par
+Das muss ich umbauen ...\par
 }
  

@@ -253,9 +253,9 @@ public interface Lazy<T> extends Referencing<T>
 			/* Sounds trivial, but there are a lot of cases, here:
 			 * 1.) Not yet persisted cases (id < 0) are implicitely always "loaded".
 			 * 2.) A null-reference (id == 0) is always "loaded"
-			 * 3.) Otherwise, the subject must be presend (truly a state of having been "loaded")
+			 * 3.) Otherwise, the subject must be present (truly a state of having been "loaded")
 			 */
-			return !Swizzling.isProperId(this.objectId) || this.subject != null;
+			return Swizzling.isNotProperId(this.objectId) || this.subject != null;
 		}
 
 		/**

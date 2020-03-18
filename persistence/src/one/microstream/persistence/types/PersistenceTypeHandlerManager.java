@@ -954,7 +954,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		}
 				
 		private void filterRuntimeTypeLineages(
-			final PersistenceTypeDictionary           typeDictionary     ,
+			final PersistenceTypeDictionary        typeDictionary     ,
 			final HashEnum<PersistenceTypeLineage> runtimeTypeLineages
 		)
 		{
