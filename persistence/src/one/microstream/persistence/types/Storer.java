@@ -131,7 +131,7 @@ public interface Storer extends PersistenceStoring
 	/**
 	 * Returns whether this {@link Storer} instance has been initialized.
 	 * <p>
-	 * That being initialized means exactely depends on the implementation. The general contract means to bring the
+	 * What being initialized means exactely depends on the implementation. The general contract means to bring the
 	 * instance's internal data into a state with which the instance can be used to perform its actual tasks.
 	 * 
 	 * @return whether this {@link Storer} instance has been initialized.

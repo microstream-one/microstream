@@ -38,9 +38,9 @@ extends BinaryPersistenceFoundation<F>
 		// instance fields //
 		////////////////////
 
-		private StorageSystem                     storageSystem            ;
-		private Supplier<? extends StorageSystem> storageSystemSupplier    ;
-		private transient StorageRequestAcceptor  connectionRequestAcceptor;
+		private StorageSystem                     storageSystem         ;
+		private Supplier<? extends StorageSystem> storageSystemSupplier ;
+		private transient StorageRequestAcceptor  storageRequestAcceptor;
 		
 		
 		
@@ -150,18 +150,18 @@ extends BinaryPersistenceFoundation<F>
 
 		protected StorageRequestAcceptor internalGetStorageRequestAcceptor()
 		{
-			if(this.connectionRequestAcceptor == null)
+			if(this.storageRequestAcceptor == null)
 			{
-				this.connectionRequestAcceptor = this.storageSystem.createRequestAcceptor();
+				this.storageRequestAcceptor = this.storageSystem.createRequestAcceptor();
 			}
-			return this.connectionRequestAcceptor;
+			return this.storageRequestAcceptor;
 		}
 
 		@Override
 		public synchronized StorageConnection createStorageConnection()
 		{
 			// reset for new connection, gets set via method called in super method
-			this.connectionRequestAcceptor = null;
+			this.storageRequestAcceptor = null;
 
 			/*
 			 * even though super.create() always gets called prior to reading the connectionRequestAcceptor
@@ -174,10 +174,10 @@ extends BinaryPersistenceFoundation<F>
 			 */
 			this.internalGetStorageRequestAcceptor();
 
-			// wrap actual persistence manager in connection implementation (see comment inside)
-			return new StorageConnection.Default(
+			// persistence manager is "connected" to the storage's request acceptor (= the storage threads)
+			return StorageConnection.New(
 				super.createPersistenceManager(),
-				this.connectionRequestAcceptor
+				this.storageRequestAcceptor
 			);
 		}
 
