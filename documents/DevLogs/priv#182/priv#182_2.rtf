@@ -339,5 +339,29 @@ Wieso initialisier ich das eigentlich nicht einfach bei der Erstellung und im cl
 Das muss ich sp\'e4ter mal anschauen und umbauen.\par
 Sch* doch auf die paar Instanzerzeugungen mehr. Bzw. die werden ja bei normaler Verwendung eh immer ben\'f6tigt und bei sinnloser Verwendung ist der (eh minimale) egal.\par
 Das muss ich umbauen ...\par
+\par
+Umgebaut. Testen.\par
+Jetzt l\'e4ufts durch.\par
+\par
+Debuggen.\par
+Storer2 \'fcbernimmt die lokale ObjectId Assoziation von storer1.\par
+Passt.\par
+\par
+Jetzt noch schnell schauen, ob die Storer alle wieder sch\'f6n garbage-collectet werden.\par
+Erst mal den initialization storer wegmachen.\par
+Passt.\par
+Die anderen beiden.\par
+Seltsam. Da bleibt einer h\'e4ngen. Warum? VisualVM auspacken.\par
+Variablen ausnullen und nochmal testen.\par
+Jetzt sind sie weg.\par
+Wieso? Das d\'fcrfte nicht sein. Die Variablen sind aus dem Scope gelaufen und der gc Aufruf DANACH m\'fcsste beide wegmachen.\par
+Entweder w\'e4r das ein l\'e4cherlich krass Bug in der JVM oder ich versteh es nicht richtig. Ich hoff mal auf zweiteres.\par
+\par
+Jetzt noch testen, ob die Objekt-Assoziationen am Ende gemerget werden.\par
+Ja, passt auch.\par
+\par
+Nach offenen TODOs suchen.\par
+\par
+Also soweit geteste\par
 }
  

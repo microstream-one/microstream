@@ -24,24 +24,26 @@ public class MainTestStoringRobustness
 		if(ROOT.referent == null)
 		{
 			// first execution enters here (database creation)
+			System.gc(); // to clean up the initialization storer
 
 			Test.print("Model data required.");
-			final Storer storer1 = STORAGE.createStorer();
-			final Storer storer2 = STORAGE.createStorer();
+			Storer storer1 = STORAGE.createStorer();
+			Storer storer2 = STORAGE.createStorer();
 			
 			final String s = "Hello World";
 			ROOT.referent = s;
-			final long sOID = storer1.store(ROOT);
-			Test.print("Stored \"" + s + "\" with oid = " + sOID);
+			storer1.store(ROOT);
 			
 			storer2.store(s);
 			
 			storer1.commit();
 			storer2.commit();
 			
-			Test.print("Storing ...");
-			STORAGE.storeRoot();
-			Test.print("Storing completed.");
+			// otherwise, storer1 won't get cleared by the GC below and it's not understandable why as the scope is out.
+			storer1 = null;
+			storer2 = null;
+			
+			Test.print("Merged ObjectId of 's' is: " + STORAGE.persistenceManager().lookupObjectId(s));
 			
 			Test.print("Exporting data ...");
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
@@ -61,6 +63,8 @@ public class MainTestStoringRobustness
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
 			Test.print("Data export completed.");
 		}
+
+		System.gc(); // to clean up the two storers
 		
 		STORAGE.shutdown();
 		System.exit(0);

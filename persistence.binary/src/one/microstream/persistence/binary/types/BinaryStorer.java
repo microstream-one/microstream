@@ -120,6 +120,8 @@ public interface BinaryStorer extends PersistenceStorer
 			this.bufferSizeProvider = notNull(bufferSizeProvider);
 			this.chunksHashRange    =         channelCount - 1   ;
 			this.switchByteOrder    =         switchByteOrder    ;
+			
+			this.internalInitialize();
 		}
 
 
@@ -135,9 +137,6 @@ public interface BinaryStorer extends PersistenceStorer
 
 		protected Binary complete()
 		{
-			// required to prevent NPE
-			this.ensureInitialized();
-			
 			for(final ChunksBuffer chunk : this.chunks)
 			{
 				chunk.complete();
@@ -209,34 +208,40 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public BinaryStorer initialize()
 		{
-			this.ensureInitialized();
+			if(!this.isInitialized())
+			{
+				this.internalInitialize(defaultSlotSize());
+			}
+			
 			return this;
 		}
 
 		@Override
 		public BinaryStorer initialize(final long initialCapacity)
 		{
-			if(this.isInitialized())
+			if(!this.isInitialized())
 			{
-				return this;
+				this.internalInitialize(XHashing.padHashLength(initialCapacity));
 			}
-			this.internalInitialize(XHashing.padHashLength(initialCapacity));
+			
 			return this;
 		}
 
 		@Override
 		public PersistenceStorer reinitialize()
 		{
+			// clear does initialization as well, since the storer may never be in an uninitialized state.
 			this.clear();
-			this.internalInitialize();
+			
 			return this;
 		}
 
 		@Override
 		public PersistenceStorer reinitialize(final long initialCapacity)
 		{
-			this.clear();
+			this.internalClear();
 			this.internalInitialize(XHashing.padHashLength(initialCapacity));
+			
 			return this;
 		}
 
@@ -291,15 +296,6 @@ public interface BinaryStorer extends PersistenceStorer
 			return this;
 		}
 
-		private void ensureInitialized()
-		{
-			if(this.isInitialized())
-			{
-				return;
-			}
-			this.internalInitialize();
-		}
-
 		@Override
 		public final boolean isInitialized()
 		{
@@ -315,15 +311,12 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public final long store(final Object root)
 		{
-			this.ensureInitialized();
 			return this.storeGraph(root);
 		}
 
 		@Override
 		public final long[] storeAll(final Object... instances)
 		{
-			this.ensureInitialized();
-
 			final long[] oids = new long[instances.length];
 			for(int i = 0; i < instances.length; i++)
 			{
@@ -335,8 +328,6 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public void storeAll(final Iterable<?> instances)
 		{
-			this.ensureInitialized();
-
 			for(final Object instance : instances)
 			{
 				this.storeGraph(instance);
@@ -387,6 +378,12 @@ public interface BinaryStorer extends PersistenceStorer
 
 		@Override
 		public void clear()
+		{
+			this.internalClear();
+			this.internalInitialize();
+		}
+		
+		protected final void internalClear()
 		{
 			this.clearRegistered();
 			this.clearChunks();
@@ -582,8 +579,6 @@ public interface BinaryStorer extends PersistenceStorer
 		
 		final boolean internalSkip(final Object instance, final long objectId)
 		{
-			this.ensureInitialized();
-			
 			if(Swizzling.isNotFoundId(this.lookupOid(instance)))
 			{
 				// only register if not found locally, of course
