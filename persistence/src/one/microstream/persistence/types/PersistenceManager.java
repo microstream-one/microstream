@@ -338,6 +338,18 @@ ByteOrderTargeting<PersistenceManager<D>>
 		{
 			return this.objectRegistry.lookupObject(objectId);
 		}
+		
+		@Override
+		public final boolean registerLocalRegistry(final PersistenceLocalObjectIdRegistry localRegistry)
+		{
+			return this.objectManager.registerLocalRegistry(localRegistry);
+		}
+		
+		@Override
+		public final void mergeEntries(final PersistenceLocalObjectIdRegistry localRegistry)
+		{
+			this.objectManager.mergeEntries(localRegistry);
+		}
 
 		@Override
 		public final Object get()

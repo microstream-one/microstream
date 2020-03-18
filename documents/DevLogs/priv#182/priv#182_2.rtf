@@ -284,5 +284,21 @@ Wobei erst mal lock-gesch\'fctzt alle Eintr\'e4ge validiert werden m\'fcssen, be
 Dann muss aber wieder mal das Interface erweitert werden. Bzw. das muss eh mal ein etwas aussagekr\'e4ftigerer Name werden als nur "ObjectIdConsumer".\par
 \par
 So, fast fertig.\par
+\par
+\par
+2020-03-18\par
+\par
+Weitermachen mit TODOs.\par
+Entry-Validierung f\'fcr die ObjectRegistry bauen.\par
+Hm, eigentlich sollt es sowas schon geben. Mal schauen ...\par
+Achso: Das gibts nur verteilt auf Sonderf\'e4lle. Und ich glaub es gab mal eine validate Methode, die ich aber gel\'f6scht hab, weil sie nicht ben\'f6tigt wurde. Tja, jetzt wird sie ben\'f6tigt ...\par
+Ich glaub, dann bau ich das gleich da rein.\par
+\par
+Registrierungen der Storer im ObjectManager auf WeakReference umstellen.\par
+\par
+Hm. Das ganze WeakReference Array management mit Workaroundd f\'fcr type erasure Mist und Konsolidierung von Orphen-Entries mach ich gleich als zentrale Utility-Methoden.\par
+\par
+Ach und da werden durch die Interfacearchitektur die neuen Methoden bis zum PersistenceManager durchgeschleift.\par
+Dann noch bissl Validierung einbauen, dann kann da nix kaputtgemacht werden.\par
 }
  

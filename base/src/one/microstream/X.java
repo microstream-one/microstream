@@ -1,5 +1,6 @@
 package one.microstream;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -917,6 +918,76 @@ public final class X
 		}
 
 		return array;
+	}
+	
+	public static <T> WeakReference<T> WeakReference(final T referent)
+	{
+		return new WeakReference<>(referent);
+	}
+	
+	@SuppressWarnings("unchecked") // damn type erasure
+	public static <T> WeakReference<T>[] WeakReferences(final int length)
+	{
+		return new WeakReference[length];
+	}
+	
+	@SafeVarargs
+	public static <T> WeakReference<T>[] WeakReferences(final T... referents)
+	{
+		if(referents == null)
+		{
+			return null;
+		}
+		
+		final WeakReference<T>[] weakReferences = WeakReferences(referents.length);
+		for(int i = 0; i < referents.length; i++)
+		{
+			weakReferences[i] = WeakReference(referents[i]);
+		}
+		
+		return weakReferences;
+	}
+	
+	/**
+	 * Removes all <code>null</code> entries and entries with <code>null</code>-referents.
+	 * 
+	 * @param <T>
+	 * @param array
+	 * @return
+	 */
+	public static <T> WeakReference<T>[] consolidateWeakReferences(final WeakReference<T>[] array)
+	{
+		int liveEntryCount = 0;
+		for(int i = 0; i < array.length; i++)
+		{
+			if(array[i] == null)
+			{
+				continue;
+			}
+			if(array[i].get() == null)
+			{
+				array[i] = null;
+				continue;
+			}
+			liveEntryCount++;
+		}
+		
+		// check for no-op
+		if(liveEntryCount == array.length)
+		{
+			return array;
+		}
+		
+		final WeakReference<T>[] newArray = X.WeakReferences(liveEntryCount);
+		for(int i = 0, n = 0; i < array.length; i++)
+		{
+			if(array[i] != null)
+			{
+				newArray[n++] = array[i];
+			}
+		}
+		
+		return newArray;
 	}
 	
 	public static <E> XList<E> asX(final List<E> oldList)
