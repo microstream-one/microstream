@@ -1,16 +1,13 @@
 package one.microstream.storage.test;
 
-import java.lang.ref.WeakReference;
-import java.time.Instant;
-
 import one.microstream.chars.XChars;
+import one.microstream.persistence.types.Storer;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
-
-public class MainTestStoreWeakReference
+public class MainTestStoringRobustness
 {
 	static
 	{
@@ -18,7 +15,8 @@ public class MainTestStoreWeakReference
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
-	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
+	static final AppRoot                ROOT    = new AppRoot(null);
+	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start(ROOT);
 
 	public static void main(final String[] args)
 	{
@@ -28,7 +26,18 @@ public class MainTestStoreWeakReference
 			// first execution enters here (database creation)
 
 			Test.print("Model data required.");
-			STORAGE.setRoot(new WeakReference<>(Instant.now()));
+			final Storer storer1 = STORAGE.createStorer();
+			final Storer storer2 = STORAGE.createStorer();
+			
+			final String s = "Hello World";
+			ROOT.referent = s;
+			final long sOID = storer1.store(ROOT);
+			Test.print("Stored \"" + s + "\" with oid = " + sOID);
+			
+			storer2.store(s);
+			
+			storer1.commit();
+			storer2.commit();
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();
@@ -56,5 +65,17 @@ public class MainTestStoreWeakReference
 		STORAGE.shutdown();
 		System.exit(0);
 	}
-		
+	
+}
+
+class AppRoot
+{
+	Object referent;
+
+	AppRoot(final Object referent)
+	{
+		super();
+		this.referent = referent;
+	}
+	
 }
