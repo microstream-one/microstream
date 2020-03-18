@@ -5,22 +5,22 @@ import one.microstream.hashing.HashStatistics;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 
-/*
- * Implements a disabled PersistenceObjectRegistry
- *
- *
+/**
+ * Implements a disabled {@link PersistenceObjectRegistry}.
  */
 public class ViewerObjectRegistryDisabled implements PersistenceObjectRegistry
 {
-
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
+	
 	public ViewerObjectRegistryDisabled()
 	{
 		super();
 	}
 
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
@@ -142,31 +142,43 @@ public class ViewerObjectRegistryDisabled implements PersistenceObjectRegistry
 	@Override
 	public void clear()
 	{
-		//do nothing
+		// no-op
 	}
 
 	@Override
 	public void clearAll()
 	{
-		//do nothing
+		// no-op
 	}
 
 	@Override
 	public void truncate()
 	{
-		//do nothing
+		// no-op
 	}
 
 	@Override
 	public void truncateAll()
 	{
-		//do nothing
+		// no-op
 	}
 
 	@Override
 	public XGettingTable<String, ? extends HashStatistics> createHashStatistics()
 	{
 		return null;
+	}
+
+	@Override
+	public boolean isValid(final long objectId, final Object object)
+	{
+		return true;
+	}
+
+	@Override
+	public void validate(final long objectId, final Object object)
+	{
+		// no-op
 	}
 
 }
