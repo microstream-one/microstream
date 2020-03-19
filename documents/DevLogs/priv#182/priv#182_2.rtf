@@ -393,5 +393,23 @@ Das itearateMergeableEntries ist nicht auch nicht gelockt. Theoretisch d\'fcrfte
 \par
 Und eigentlich muss das ein intern-exklusives Mutex sein (z.B. das hashslots array), weil sonst anwendungslogik, die einen storer lockt, einen Deadlock erzeugen w\'fcrde.\par
 Hei\'dft:\line Alle Methoden, die state des storers lesen oder schreiben, m\'fcssen durch ein lock auf Hashslots gesichert werden.\par
+\par
+\par
+Ne, ich nehm lieber den head als mutex, weil das die einzige final Instanz ist.\par
+\par
+Hm. Der Loop in storeGraph darf nat\'fcrlich nicht komplett unter einem Lock ablaufen, sonst w\'fcrde kein anderer Thread auf die local registry zugreifen k\'f6nnen, bis der storer fertig w\'e4re.\par
+Aber ist es sicher, das Lock in jedem cycle neu zu holen und wieder freizugeben?\par
+Gut, sollte eigentlich schon, weil alle anderen ja nur lesen und nur der "Benutzer"-Thread des Storers \'c4nderungen macht. Es geht ja nur um eine Chance, dass die anderen zwischendrin mal lesen d\'fcrfen.\par
+\par
+Oh, bug:\par
+In skip wird ein lookup gemacht und davon ausgegangen, dass bei not found 0 zur\'fcckkommt. Fr\'fcher war das so, aber jetzt ist es -1.\par
+Muss ich fixen.\par
+... Warum macht skip nach dem Lookup nochmal einen lookup in der anderen Methode? Muss die \'fcberhaupt aufgerufen werden? ... muss ich anschauen.\line Achso, hehe. Das eine ist der globale lookup, das andere ist der lokale. Hm. Dann muss das aber die Lock-reihenfolge einhalten.\par
+\par
+Weitere Methoden durchschauen und lockschutz einbauen oder contract-en.\par
+\par
+Hm. Eigentlich machen die "initialize" Methoden keinen Sinn mehr, weil hashSlots nicht mehr null sein kann.\par
+Wenn, dann nur reinitialize. Muss ich morgen anschauen.\par
+\par
 }
  

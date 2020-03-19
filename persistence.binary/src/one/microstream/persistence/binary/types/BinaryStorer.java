@@ -91,7 +91,7 @@ public interface BinaryStorer extends PersistenceStorer
 		 * - clearing after committing can simply null the array reference, easing garbage collection.
 		 */
 		final   Item   head = new Item(null, 0L, null, null);
-		private Item   tail = this.head;
+		private Item   tail;
 		private Item[] hashSlots;
 		private int    hashRange;
 		private long   itemCount;
@@ -205,6 +205,8 @@ public interface BinaryStorer extends PersistenceStorer
 			return this.objectRetriever;
 		}
 
+		// (20.03.2020 TM)FIXME: priv#182: initialize can never have an effect since hashSlots won't ever be null
+		
 		@Override
 		public BinaryStorer initialize()
 		{
@@ -239,7 +241,6 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public PersistenceStorer reinitialize(final long initialCapacity)
 		{
-			this.internalClear();
 			this.internalInitialize(XHashing.padHashLength(initialCapacity));
 			
 			return this;
@@ -252,14 +253,28 @@ public interface BinaryStorer extends PersistenceStorer
 
 		protected void internalInitialize(final int hashLength)
 		{
-			this.hashSlots = new Item[hashLength];
-			this.hashRange = hashLength - 1;
-			
-			this.createStoringChunksBuffers();
+			synchronized(this.head)
+			{
+				this.hashSlots = new Item[hashLength];
+				this.hashRange = hashLength - 1;
+				
+				// initializing/clearing item chain
+				(this.tail = this.head).next = null;
+				
+				this.synchCreateStoringChunksBuffers();
+			}
 		}
 		
-		private void createStoringChunksBuffers()
+		private void synchCreateStoringChunksBuffers()
 		{
+			/* Note:
+			 * May explicitly NOT clear (deallocate) the current (old/previous) chunks
+			 * because in use with embedded (in-process) storage the chunks
+			 * might still be used by the storage worker threads to update their entity caches.
+			 * The released chunks must be handled by those threads if existing
+			 * or ultimately by the garbage collector (or by some tailored additional logic)
+			 */
+			
 			final ChunksBuffer[] chunks = this.chunks = new ChunksBuffer[this.chunksHashRange + 1];
 			for(int i = 0; i < chunks.length; i++)
 			{
@@ -273,10 +288,10 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public final long currentCapacity()
 		{
-			return this.hashSlots == null
-				? 0
-				: this.hashSlots.length
-			;
+			synchronized(this.head)
+			{
+				return this.hashSlots.length;
+			}
 		}
 
 		@Override
@@ -288,11 +303,15 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public PersistenceStorer ensureCapacity(final long desiredCapacity)
 		{
-			if(this.currentCapacity() >= desiredCapacity)
+			synchronized(this.head)
 			{
-				return this;
+				if(this.currentCapacity() >= desiredCapacity)
+				{
+					return this;
+				}
+				this.synchRebuildStoreItems(XHashing.padHashLength(desiredCapacity));
 			}
-			this.rebuildStoreItems(XHashing.padHashLength(desiredCapacity));
+			
 			return this;
 		}
 
@@ -305,7 +324,10 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public final long size()
 		{
-			return this.itemCount;
+			synchronized(this.head)
+			{
+				return this.itemCount;
+			}
 		}
 
 		@Override
@@ -343,16 +365,19 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public void iterateMergeableEntries(final PersistenceAcceptor iterator)
 		{
-			for(Item e = this.head; (e = e.next) != null;)
+			synchronized(this.head)
 			{
-				// skip items are local only and not valid for being visible to (i.e. merged into) global context
-				if(isSkipItem(e))
+				for(Item e = this.head; (e = e.next) != null;)
 				{
-					continue;
+					// skip items are local only and not valid for being visible to (i.e. merged into) global context
+					if(isSkipItem(e))
+					{
+						continue;
+					}
+					
+					// mergeable entry
+					iterator.accept(e.oid, e.instance);
 				}
-				
-				// mergeable entry
-				iterator.accept(e.oid, e.instance);
 			}
 		}
 
@@ -361,14 +386,22 @@ public interface BinaryStorer extends PersistenceStorer
 		{
 			if(!this.isEmpty())
 			{
-				this.typeManager.checkForPendingRootInstances();
-				this.typeManager.checkForPendingRootsStoring(this);
+				final Binary writeData;
+				synchronized(this.head)
+				{
+					this.typeManager.checkForPendingRootInstances();
+					this.typeManager.checkForPendingRootsStoring(this);
+					writeData = this.complete();
+				}
 				
-				this.target.write(this.complete());
+				// very costly IO-operation does not need to occupy the lock
+				this.target.write(writeData);
 				
-				this.typeManager.clearStorePendingRoots();
-				
-				this.objectManager.mergeEntries(this);
+				synchronized(this.head)
+				{
+					this.typeManager.clearStorePendingRoots();
+					this.objectManager.mergeEntries(this);
+				}
 			}
 			this.clear();
 			
@@ -379,50 +412,24 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public void clear()
 		{
-			this.internalClear();
 			this.internalInitialize();
 		}
 		
-		protected final void internalClear()
+		public final long lookupOid(final Object object)
 		{
-			this.clearRegistered();
-			this.clearChunks();
-		}
-		
-		protected void clearChunks()
-		{
-			/* Note:
-			 * may explicitly NOT clear (deallocate) the current chunks
-			 * because in use with embedded (in-process) storage the chunks
-			 * might still be used by the storage worker threads to update their entity caches.
-			 * The released chunks must be handled by those threads if existing
-			 * or ultimately by the garbage collector (or by some tailored additional logic)
-			 */
-			this.chunks = null;
-		}
-
-		protected void clearRegistered()
-		{
-			// clear hash table
-			this.hashSlots = null;
-			this.itemCount = 0;
-
-			// clear item chain
-			(this.tail = this.head).next = null;
-		}
-
-		public final synchronized long lookupOid(final Object object)
-		{
-			for(Item e = this.hashSlots[identityHashCode(object) & this.hashRange]; e != null; e = e.link)
+			synchronized(this.head)
 			{
-				if(e.instance == object)
+				for(Item e = this.hashSlots[identityHashCode(object) & this.hashRange]; e != null; e = e.link)
 				{
-					return e.oid;
+					if(e.instance == object)
+					{
+						return e.oid;
+					}
 				}
-			}
 
-			// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
-			return Swizzling.notFoundId();
+				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
+				return Swizzling.notFoundId();
+			}
 		}
 		
 		private static boolean isSkipItem(final Item item)
@@ -431,56 +438,31 @@ public interface BinaryStorer extends PersistenceStorer
 		}
 		
 		@Override
-		public final synchronized long lookupObjectId(
+		public final long lookupObjectId(
 			final Object              object  ,
 			final PersistenceAcceptor receiver
 		)
 		{
-			for(Item e = this.hashSlots[identityHashCode(object) & this.hashRange]; e != null; e = e.link)
+			synchronized(this.head)
 			{
-				if(e.instance == object)
+				for(Item e = this.hashSlots[identityHashCode(object) & this.hashRange]; e != null; e = e.link)
 				{
-					if(isSkipItem(e))
+					if(e.instance == object)
 					{
-						// skip-entry for this storer, so it can offer nothing to the receiver.
-						break;
+						if(isSkipItem(e))
+						{
+							// skip-entry for this storer, so it can offer nothing to the receiver.
+							break;
+						}
+						
+						// found a local entry in the current storer, transfer object<->id association to the receiver.
+						receiver.accept(e.oid, object);
+						return e.oid;
 					}
-					
-					// found a local entry in the current storer, transfer object<->id association to the receiver.
-					receiver.accept(e.oid, object);
-					return e.oid;
 				}
+				
+				return Swizzling.notFoundId();
 			}
-			
-			return Swizzling.notFoundId();
-		}
-
-		public final void rebuildStoreItems()
-		{
-			this.rebuildStoreItems(this.hashSlots.length * 2);
-		}
-
-		public final void rebuildStoreItems(final int newLength)
-		{
-			// moreless academic check for more than 1 billion entries
-			if(this.hashSlots.length >= XMath.highestPowerOf2_int())
-			{
-				return; // note that aborting rebuild does not ruin anything.
-			}
-
-			final int newRange;
-			final Item[] newSlots = new Item[(newRange = newLength - 1) + 1];
-			for(Item entry : this.hashSlots)
-			{
-				for(Item next; entry != null; entry = next)
-				{
-					next = entry.link;
-					entry.link = newSlots[identityHashCode(entry.instance) & newRange];
-					newSlots[identityHashCode(entry.instance) & newRange] = entry;
-				}
-			}
-			this.hashSlots = newSlots;
-			this.hashRange = newRange;
 		}
 		
 		/**
@@ -525,11 +507,14 @@ public interface BinaryStorer extends PersistenceStorer
 //			XDebug.println("Registering " + objectId + ": " + XChars.systemString(instance) + " ("  + instance + ")");
 			
 			// ensure handler (or fail if type is not persistable) before ensuring an OID.
-			this.tail = this.tail.next = this.registerObjectId(
-				instance,
-				this.typeManager.ensureTypeHandler(instance),
-				objectId
-			);
+			synchronized(this.head)
+			{
+				this.tail = this.tail.next = this.synchRegisterObjectId(
+					instance,
+					this.typeManager.ensureTypeHandler(instance),
+					objectId
+				);
+			}
 		}
 		
 		protected final long registerAdd(final Object instance)
@@ -538,22 +523,6 @@ public interface BinaryStorer extends PersistenceStorer
 			this.accept(objectId, instance);
 
 			return objectId;
-		}
-				
-		public final Item registerObjectId(
-			final Object                                 instance   ,
-			final PersistenceTypeHandler<Binary, Object> typeHandler,
-			final long                                   objectId
-		)
-		{
-			if(++this.itemCount >= this.hashRange)
-			{
-				this.rebuildStoreItems();
-			}
-
-			return this.hashSlots[identityHashCode(instance) & this.hashRange] =
-				new Item(instance, objectId, typeHandler, this.hashSlots[identityHashCode(instance) & this.hashRange])
-			;
 		}
 		
 		@Override
@@ -565,29 +534,82 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public final boolean skip(final Object instance)
 		{
-			// will be null-id if not found, so the reference will be stored as null.
 			final long foundObjectId = this.objectManager.lookupObjectId(instance);
+			
+			// not found means store as null. Lookup will never return 0
+			if(Swizzling.isNotFoundId(foundObjectId))
+			{
+				return this.skipNulled(instance);
+			}
+			
 			return this.internalSkip(instance, foundObjectId);
 		}
 		
 		@Override
 		public final boolean skipNulled(final Object instance)
 		{
-			// lookup returns -1 on failure, so 0 is a valid lookup result. Main reason for -1 vs. 0 distinction!
 			return this.internalSkip(instance, Swizzling.nullId());
 		}
 		
 		final boolean internalSkip(final Object instance, final long objectId)
 		{
-			if(Swizzling.isNotFoundId(this.lookupOid(instance)))
+			synchronized(this.head)
 			{
-				// only register if not found locally, of course
-				this.registerObjectId(instance, null, objectId);
-				return true;
+				// lookup returns -1 on failure, so 0 is a valid lookup result. Main reason for -1 vs. 0 distinction!
+				if(Swizzling.isNotFoundId(this.lookupOid(instance)))
+				{
+					// only register if not found locally, of course
+					this.synchRegisterObjectId(instance, null, objectId);
+					return true;
+				}
+				
+				// already locally present (found), do nothing.
+				return false;
 			}
-			
-			// already locally present (found), do nothing.
-			return false;
+		}
+		
+		public final Item synchRegisterObjectId(
+			final Object                                 instance   ,
+			final PersistenceTypeHandler<Binary, Object> typeHandler,
+			final long                                   objectId
+		)
+		{
+			if(++this.itemCount >= this.hashRange)
+			{
+				this.synchRebuildStoreItems();
+			}
+
+			return this.hashSlots[identityHashCode(instance) & this.hashRange] =
+				new Item(instance, objectId, typeHandler, this.hashSlots[identityHashCode(instance) & this.hashRange])
+			;
+		}
+
+		public final void synchRebuildStoreItems()
+		{
+			this.synchRebuildStoreItems(this.hashSlots.length * 2);
+		}
+
+		public final void synchRebuildStoreItems(final int newLength)
+		{
+			// moreless academic check for more than 1 billion entries
+			if(this.hashSlots.length >= XMath.highestPowerOf2_int())
+			{
+				return; // note that aborting rebuild does not ruin anything.
+			}
+
+			final int newRange;
+			final Item[] newSlots = new Item[(newRange = newLength - 1) + 1];
+			for(Item entry : this.hashSlots)
+			{
+				for(Item next; entry != null; entry = next)
+				{
+					next = entry.link;
+					entry.link = newSlots[identityHashCode(entry.instance) & newRange];
+					newSlots[identityHashCode(entry.instance) & newRange] = entry;
+				}
+			}
+			this.hashSlots = newSlots;
+			this.hashRange = newRange;
 		}
 		
 	}
