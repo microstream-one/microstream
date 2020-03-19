@@ -24,6 +24,15 @@ import one.microstream.reference.Reference;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.KeyValue;
 
+
+/**
+ * {@link StorageManager} sub type for usage as an embedded storage solution.<p>
+ * "Embedded" is meant in the context that a database is managed in the same process that uses this database,
+ * as opposed to the database being managed by a different process that the using process connects to via network
+ * communication. That would be a "remote" or "standalone" storage process.
+ * 
+ * @author TM
+ */
 public interface EmbeddedStorageManager extends StorageManager
 {
 	@Override
@@ -311,8 +320,7 @@ public interface EmbeddedStorageManager extends StorageManager
 			return this.rootsProvider.provideRoots();
 		}
 
-		@Override
-		public final void initialize()
+		private void initialize()
 		{
 			final StorageConnection initConnection = this.createConnection();
 
