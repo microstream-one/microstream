@@ -1,5 +1,7 @@
 package one.microstream.reflect;
 
+import static one.microstream.X.notNull;
+
 @FunctionalInterface
 public interface ClassLoaderProvider
 {
@@ -23,21 +25,46 @@ public interface ClassLoaderProvider
 	 * 
 	 * @return {@code ClassLoader.getSystemClassLoader()}
 	 */
-	public static ClassLoader defaultClassLoader()
+	public static ClassLoader systemClassLoader()
 	{
 		return ClassLoader.getSystemClassLoader();
 	}
 	
 	
 	
-	public static ClassLoaderProvider New()
+	public static ClassLoaderProvider New(final ClassLoader classLoader)
 	{
-		return new ClassLoaderProvider.Default();
+		return new ClassLoaderProvider.Default(
+			notNull(classLoader)
+		);
 	}
 	
 	public final class Default implements ClassLoaderProvider
 	{
-		Default()
+		private final ClassLoader subject;
+		
+		Default(final ClassLoader subject)
+		{
+			super();
+			this.subject = subject;
+		}
+		
+		@Override
+		public ClassLoader provideClassLoader(final String typeName)
+		{
+			return this.subject;
+		}
+		
+	}
+	
+	public static ClassLoaderProvider System()
+	{
+		return new ClassLoaderProvider.System();
+	}
+	
+	public final class System implements ClassLoaderProvider
+	{
+		System()
 		{
 			super();
 		}
@@ -45,8 +72,9 @@ public interface ClassLoaderProvider
 		@Override
 		public ClassLoader provideClassLoader(final String typeName)
 		{
-			return ClassLoaderProvider.defaultClassLoader();
+			return ClassLoaderProvider.systemClassLoader();
 		}
 		
 	}
+	
 }
