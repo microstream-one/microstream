@@ -8,12 +8,17 @@ import java.util.Map;
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.ehcache.ConfigSettings;
+import org.hibernate.cache.cfg.spi.DomainDataRegionBuildingContext;
+import org.hibernate.cache.cfg.spi.DomainDataRegionConfig;
 import org.hibernate.cache.internal.DefaultCacheKeysFactory;
 import org.hibernate.cache.spi.CacheKeysFactory;
+import org.hibernate.cache.spi.DomainDataRegion;
 import org.hibernate.cache.spi.SecondLevelCacheLogger;
+import org.hibernate.cache.spi.support.DomainDataRegionImpl;
+import org.hibernate.cache.spi.support.DomainDataStorageAccess;
 import org.hibernate.cache.spi.support.RegionFactoryTemplate;
 import org.hibernate.cache.spi.support.RegionNameQualifier;
+import org.hibernate.cache.spi.support.SimpleTimestamper;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 
 import one.microstream.cache.Cache;
@@ -31,6 +36,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	private volatile boolean                            isExplicitCacheManager;
 	private volatile CacheConfiguration<Object, Object> cacheConfiguration;
 	private volatile MissingCacheStrategy               missingCacheStrategy;
+	private volatile long                               cacheLockTimeout;
 	
 	public CacheRegionFactory()
 	{
@@ -69,8 +75,23 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		);
 		
 		this.missingCacheStrategy = MissingCacheStrategy.ofSetting(
-			properties.get(ConfigSettings.MISSING_CACHE_STRATEGY)
+			properties.get(ConfigurationPropertyNames.MISSING_CACHE_STRATEGY)
 		);
+		
+		final Object cacheLockTimeoutConfigValue = properties.get(
+			ConfigurationPropertyNames.CACHE_LOCK_TIMEOUT
+		);
+		if(cacheLockTimeoutConfigValue != null)
+		{
+			final Integer lockTimeoutInMillis = cacheLockTimeoutConfigValue instanceof String
+				? Integer.decode((String)cacheLockTimeoutConfigValue)
+				: ((Number)cacheLockTimeoutConfigValue).intValue();
+			;
+			this.cacheLockTimeout = lockTimeoutInMillis != null
+				? SimpleTimestamper.ONE_MS * lockTimeoutInMillis
+				: super.getTimeout()
+			;
+		}
 	}
 
 	@SuppressWarnings("rawtypes") 
@@ -192,22 +213,34 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	}
 
 	@Override
-	protected void releaseFromUse()
+	public long getTimeout() 
 	{
-		if(this.cacheManager != null)
-		{
-			try
-			{
-				if(!this.isExplicitCacheManager)
-				{
-					this.cacheManager.close();
-				}
-			}
-			finally
-			{
-				this.cacheManager = null;
-			}
-		}
+		return cacheLockTimeout;
+	}
+	
+	@Override
+	protected DomainDataStorageAccess createDomainDataStorageAccess(
+		DomainDataRegionConfig regionConfig,
+		DomainDataRegionBuildingContext buildingContext)
+	{
+		return StorageAccess.New(
+			this.getOrCreateCache(regionConfig.getRegionName(), buildingContext.getSessionFactory()) 
+		);
+	}
+
+	@Override
+	public DomainDataRegion buildDomainDataRegion(
+		final DomainDataRegionConfig regionConfig, 
+		final DomainDataRegionBuildingContext buildingContext
+	) 
+	{
+		return new DomainDataRegionImpl(
+			regionConfig,
+			this,
+			createDomainDataStorageAccess(regionConfig, buildingContext),
+			this.cacheKeysFactory,
+			buildingContext
+		);
 	}
 
 	@Override
@@ -325,6 +358,25 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 				
 			default:
 				throw new IllegalStateException("Unsupported missing cache strategy: " + missingCacheStrategy);
+		}
+	}
+
+	@Override
+	protected void releaseFromUse()
+	{
+		if(this.cacheManager != null)
+		{
+			try
+			{
+				if(!this.isExplicitCacheManager)
+				{
+					this.cacheManager.close();
+				}
+			}
+			finally
+			{
+				this.cacheManager = null;
+			}
 		}
 	}
 	
