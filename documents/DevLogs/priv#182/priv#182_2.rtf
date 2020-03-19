@@ -365,5 +365,33 @@ Nach offenen TODOs suchen. Gibts keine mehr.\par
 Also soweit getestet sollte das Issue fertig sein.\par
 \par
 Jetzt muss ich dann alles nochmal durchdenken, ob es doch noch F\'e4lle geben k\'f6nnte, wo trotz des Konzepts Daten verloren gehen oder inkonsistent werden k\'f6nnten ...\par
+\par
+\par
+2020-03-19\par
+\par
+Bissl durchdenken und Code durchschauen.\par
+Eins ist mir dabei gleich mal aufgefallen: Wie ist das, wenn ein Storer in einem Thread nebenl\'e4ufig die Entries eines anderen Storers iteriert und ein anderer Thread dessen Entries ver\'e4ndern (hinzuf\'fcgen, entfernen)?\par
+Das hab ich noch nicht abgedeckt...\par
+\par
+Das wird aber knifflig, denn die locks d\'fcrfen keinen Deadlock erzeugen:\par
+Erst lockt der storer sich selbst und lockt dann die objectregistry f\'fcr einen ID-lookup in einem anderen storer, um dann den wiederum zu locken.\par
+Wenn das zwei storer gleichzeitig machen, gibts eine deadlock race condition:\par
+A lockt sich selbst und die OR, wartet auf Lock f\'fcr B\par
+B lockt sich selbst und wartet auf Lock f\'fcr die OR.\par
+Ende.\par
+\par
+Hei\'dft: Lookup darf immer nur so laufen:\par
+- 1.) OR locken, 2.) sich selber locken\par
+- Nicht-Lookups d\'fcrfen sich selber locken, aber dann die OR nicht mehr.\par
+Mal im Code schauen, ob das so geht.\par
+\par
+Also vor dem OR Lock wird nix gelockt, das ist schon mal gut.\par
+Nach dem OR lock wird der storer selbst gelockt, dann aber nur die HashSlots gebraucht.\par
+Aber alle anderen Methoden, die die HashSlots lesen oder sogar ver\'e4ndern, sind nicht gelockt.\par
+\par
+Das itearateMergeableEntries ist nicht auch nicht gelockt. Theoretisch d\'fcrfte das kein Problem sein, weil das immer nur der storer selbst aufruft. Aber sicher w\'e4r sicher und einmal ein lock f\'fcr danach einen block an Iterierung w\'e4r auch nicht so dramatisch.\par
+\par
+Und eigentlich muss das ein intern-exklusives Mutex sein (z.B. das hashslots array), weil sonst anwendungslogik, die einen storer lockt, einen Deadlock erzeugen w\'fcrde.\par
+Hei\'dft:\line Alle Methoden, die state des storers lesen oder schreiben, m\'fcssen durch ein lock auf Hashslots gesichert werden.\par
 }
  
