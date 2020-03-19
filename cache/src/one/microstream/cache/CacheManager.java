@@ -22,6 +22,19 @@ import one.microstream.collections.EqHashTable;
 
 public interface CacheManager extends javax.cache.CacheManager
 {
+	@Override
+	public <K, V> Cache<K, V> getCache(String cacheName);
+	
+	@Override
+	public <K, V> Cache<K, V> getCache(String cacheName, Class<K> keyType, Class<V> valueType);
+	
+	@Override
+	public <K, V, C extends Configuration<K, V>> Cache<K, V> createCache(String cacheName, C configuration)
+		throws IllegalArgumentException;
+	
+	@Override
+	public CachingProvider getCachingProvider();
+	
 	public void removeCache(final String cacheName);
 	
 	@Override

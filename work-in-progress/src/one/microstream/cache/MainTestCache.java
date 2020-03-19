@@ -32,7 +32,7 @@ public class MainTestCache
 		final EmbeddedStorageManager               storageManager =
 			EmbeddedStorage.start(Paths.get(System.getProperty("user.home"), "cache-storage"));
 		final MutableConfiguration<String, Entity> configuration  =
-			CacheConfigurationFactory.createCacheConfiguration("test", storageManager);
+			CacheConfigurationFactory.Create("test", storageManager);
 		configuration.setStatisticsEnabled(true);
 		configuration.setStoreByValue(false);
 		
