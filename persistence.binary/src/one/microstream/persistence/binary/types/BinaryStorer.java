@@ -21,11 +21,11 @@ import one.microstream.util.BufferSizeProviderIncremental;
 
 public interface BinaryStorer extends PersistenceStorer
 {
-	@Override
-	public BinaryStorer initialize();
-
-	@Override
-	public BinaryStorer initialize(long initialCapacity);
+//	@Override
+//	public BinaryStorer initialize();
+//
+//	@Override
+//	public BinaryStorer initialize(long initialCapacity);
 
 	@Override
 	public PersistenceStorer reinitialize();
@@ -205,30 +205,6 @@ public interface BinaryStorer extends PersistenceStorer
 			return this.objectRetriever;
 		}
 
-		// (20.03.2020 TM)FIXME: priv#182: initialize can never have an effect since hashSlots won't ever be null
-		
-		@Override
-		public BinaryStorer initialize()
-		{
-			if(!this.isInitialized())
-			{
-				this.internalInitialize(defaultSlotSize());
-			}
-			
-			return this;
-		}
-
-		@Override
-		public BinaryStorer initialize(final long initialCapacity)
-		{
-			if(!this.isInitialized())
-			{
-				this.internalInitialize(XHashing.padHashLength(initialCapacity));
-			}
-			
-			return this;
-		}
-
 		@Override
 		public PersistenceStorer reinitialize()
 		{
@@ -313,12 +289,6 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 			
 			return this;
-		}
-
-		@Override
-		public final boolean isInitialized()
-		{
-			return this.hashSlots != null;
 		}
 
 		@Override
@@ -497,6 +467,7 @@ public interface BinaryStorer extends PersistenceStorer
 		
 		protected final void storeItem(final Item item)
 		{
+			// (20.03.2020 TM)FIXME: priv#182: where to put the lock for this method?
 //			XDebug.println("Storing     " + item.oid + ": " + XChars.systemString(item.instance) + " ("  + item.instance + ")");
 			item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
 		}
@@ -505,21 +476,20 @@ public interface BinaryStorer extends PersistenceStorer
 		public final void accept(final long objectId, final Object instance)
 		{
 //			XDebug.println("Registering " + objectId + ": " + XChars.systemString(instance) + " ("  + instance + ")");
-			
-			// ensure handler (or fail if type is not persistable) before ensuring an OID.
 			synchronized(this.head)
 			{
-				this.tail = this.tail.next = this.synchRegisterObjectId(
-					instance,
-					this.typeManager.ensureTypeHandler(instance),
-					objectId
-				);
+				// ensure handler (or fail if type is not persistable) before ensuring an OID.
+				final PersistenceTypeHandler<Binary, Object> typeHandler = this.typeManager.ensureTypeHandler(instance);
+				final Item item = this.synchRegisterObjectId(instance, typeHandler, objectId);
+				this.tail = this.tail.next = item;
 			}
 		}
 		
 		protected final long registerAdd(final Object instance)
 		{
 			final long objectId = this.objectManager.ensureObjectId(instance, this);
+			
+			// accept does locking internally
 			this.accept(objectId, instance);
 
 			return objectId;
@@ -611,6 +581,34 @@ public interface BinaryStorer extends PersistenceStorer
 			this.hashSlots = newSlots;
 			this.hashRange = newRange;
 		}
+
+//		@Override
+//		public final boolean isInitialized()
+//		{
+//			return this.hashSlots != null;
+//		}
+//
+//		@Override
+//		public BinaryStorer initialize()
+//		{
+//			if(!this.isInitialized())
+//			{
+//				this.internalInitialize(defaultSlotSize());
+//			}
+//
+//			return this;
+//		}
+//
+//		@Override
+//		public BinaryStorer initialize(final long initialCapacity)
+//		{
+//			if(!this.isInitialized())
+//			{
+//				this.internalInitialize(XHashing.padHashLength(initialCapacity));
+//			}
+//
+//			return this;
+//		}
 		
 	}
 	
