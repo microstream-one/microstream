@@ -1,6 +1,7 @@
 
 package one.microstream.cache;
 
+import static one.microstream.X.coalesce;
 import static one.microstream.X.notNull;
 
 import java.io.Closeable;
@@ -22,6 +23,7 @@ import java.util.function.Consumer;
 import javax.cache.CacheException;
 import javax.cache.configuration.CacheEntryListenerConfiguration;
 import javax.cache.configuration.Configuration;
+import javax.cache.configuration.Factory;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryExpiredListener;
@@ -38,6 +40,7 @@ import javax.cache.integration.CompletionListener;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
 
+import one.microstream.X;
 import one.microstream.cache.MBeanServerUtils.MBeanType;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XList;
@@ -78,23 +81,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	public static <K, V> Cache<K, V> New(
 		final String                   name,
 		final CacheManager             manager,
-		final CacheConfiguration<K, V> configuration,
-		final ObjectConverter          objectConverter,
-		final CacheLoader<K, V>        cacheLoader,
-		final CacheWriter<K, V>        cacheWriter,
-		final ExpiryPolicy             expiryPolicy,
-		final EvictionManager<K, V>    evictionManager
+		final CacheConfiguration<K, V> configuration
 	)
 	{
 		return new Default<>(
 			name,
 			manager,
-			configuration,
-			objectConverter,
-			cacheLoader,
-			cacheWriter,
-			expiryPolicy,
-			evictionManager
+			configuration
 		);
 	}
 	
@@ -103,6 +96,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private final String                                      name;
 		private final CacheManager                                manager;
 		private final CacheConfiguration<K, V>                    configuration;
+		private final CacheValueValidator                         keyValidator;
+		private final CacheValueValidator                         valueValidator;
 		private final ObjectConverter                             objectConverter;
 		private final CacheLoader<K, V>                           cacheLoader;
 		private final CacheWriter<K, V>                           cacheWriter;
@@ -116,15 +111,16 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private volatile boolean                                  isStatisticsEnabled;
 		private volatile boolean                                  isClosed;
 		
+		/*
+		 * According to spec cache and configuration, which may be mutable, 
+		 * are hard-wired and overlap partially, so the constructor has to 
+		 * execute logic and cannot just take predefined values.
+		 */
+		@SuppressWarnings("unchecked") // cache reader typing differs from cache writer typing (?)
 		Default(
 			final String                   name,
 			final CacheManager             manager,
-			final CacheConfiguration<K, V> configuration,
-			final ObjectConverter          objectConverter,
-			final CacheLoader<K, V>        cacheLoader,
-			final CacheWriter<K, V>        cacheWriter,
-			final ExpiryPolicy             expiryPolicy,
-			final EvictionManager<K, V>    evictionManager
+			final CacheConfiguration<K, V> configuration
 		)
 		{
 			super();
@@ -132,20 +128,59 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.name                  = name;
 			this.manager               = manager;
 			this.configuration         = configuration;
-			this.objectConverter       = objectConverter;
-			this.cacheLoader           = cacheLoader;
-			this.cacheWriter           = cacheWriter;
-			this.expiryPolicy          = expiryPolicy;
-			this.evictionManager       = evictionManager;
+			
+			this.objectConverter = configuration.isStoreByValue()
+				? ObjectConverter.ByValue(
+					Serializer.get(
+						Thread.currentThread().getContextClassLoader(),
+						configuration.getSerializerFieldPredicate()
+					)
+				)
+				: ObjectConverter.ByReference()
+			;
+						
+			final Factory<ExpiryPolicy> expiryPolicyFactory = coalesce(
+				configuration.getExpiryPolicyFactory(),
+				CacheConfiguration.DefaultExpiryPolicyFactory()
+			);
+			this.expiryPolicy = expiryPolicyFactory != null
+				? expiryPolicyFactory.create()
+				: null
+			;
+			
+			final Factory<EvictionManager<K, V>> evictionManagerFactory = coalesce(
+				configuration.getEvictionManagerFactory(),
+				CacheConfiguration.DefaultEvictionManagerFactory()
+			);
+			this.evictionManager = evictionManagerFactory != null
+				? evictionManagerFactory.create()
+				: null
+			;
+			
+			final Factory<CacheLoader<K, V>> cacheLoaderFactory;
+			this.cacheLoader = (cacheLoaderFactory = configuration.getCacheLoaderFactory()) != null
+				? cacheLoaderFactory.create()
+				: null
+			;
+			
+			final Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory;
+			this.cacheWriter = (cacheWriterFactory = configuration.getCacheWriterFactory()) != null
+				? (CacheWriter<K, V>)cacheWriterFactory.create()
+				: null
+			;
+			
+			this.keyValidator   = CacheValueValidator.New("key",   configuration.getKeyType()  );
+			this.valueValidator = CacheValueValidator.New("value", configuration.getValueType());
 
 			this.cacheTable               = CacheTable.New();
-			this.listenerRegistrations    = BulkList.New();
+			this.listenerRegistrations    = X.synchronize(BulkList.New());
 			this.executorService          = Executors.newFixedThreadPool(1);
 			this.cacheConfigurationMXBean = new CacheConfigurationMXBean.Default(this.configuration);
 			this.cacheStatisticsMXBean    = new CacheStatisticsMXBean.Default(this::size);
 			
-			configuration.getCacheEntryListenerConfigurations()
-				.forEach(this::createAndRegisterCacheEntryListener);
+			configuration.getCacheEntryListenerConfigurations().forEach(
+				this::createAndRegisterCacheEntryListener
+			);
 			
 			if(configuration.isManagementEnabled())
 			{
@@ -181,7 +216,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public <C extends Configuration<K, V>> C getConfiguration(final Class<C> clazz)
+		public <C extends Configuration<K, V>> C getConfiguration(
+			final Class<C> clazz
+		)
 		{
 			if(clazz.isInstance(this.configuration))
 			{
@@ -192,7 +229,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@SuppressWarnings("unchecked")
-		private void updateConfiguration(Consumer<MutableConfiguration<K, V>> c)
+		private void updateConfiguration(
+			Consumer<MutableConfiguration<K, V>> c
+		)
 		{
 			if(this.configuration instanceof MutableConfiguration)
 			{
@@ -202,7 +241,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		@Override
 		public void registerCacheEntryListener(
-			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
+			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration
+		)
 		{
 			notNull(cacheEntryListenerConfiguration);
 			
@@ -214,7 +254,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		private void createAndRegisterCacheEntryListener(
-			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
+			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration
+		)
 		{
 			synchronized(this.listenerRegistrations)
 			{
@@ -226,7 +267,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		@Override
 		public void deregisterCacheEntryListener(
-			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
+			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration
+		)
 		{
 			notNull(cacheEntryListenerConfiguration);
 
@@ -299,31 +341,40 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public V get(final K key)
+		public V get(
+			final K key
+		)
 		{
 			this.ensureOpen();
 			
-			this.validateKey(key);
+			this.keyValidator.validate(key);
 			
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
-			
+			final CacheEventDispatcher<K, V> eventDispatcher = this.listenerRegistrations.size() > 0L
+					? CacheEventDispatcher.New()
+					: null;
 			final V                          value           = this.getValue(key, eventDispatcher);
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			
 			return value;
 		}
 		
 		@Override
-		public Map<K, V> getAll(final Set<? extends K> keys)
+		public Map<K, V> getAll(
+			final Set<? extends K> keys
+		)
 		{
 			this.ensureOpen();
 			
-			keys.forEach(this::validateKey);
+			keys.forEach(this.keyValidator::validate);
 			
 			final HashMap<K, V>              result          = new HashMap<>(keys.size());
-			
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			
 			for(final K key : keys)
 			{
@@ -334,17 +385,22 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			
 			return result;
 		}
 		
 		@Override
-		public boolean containsKey(final K key)
+		public boolean containsKey(
+			final K key
+		)
 		{
 			this.ensureOpen();
 			
-			this.validateKey(key);
+			this.keyValidator.validate(key);
 			
 			final Object internalKey = this.objectConverter.internalize(key);
 			final long   now         = System.currentTimeMillis();
@@ -360,13 +416,14 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		public void loadAll(
 			final Set<? extends K> keys,
 			final boolean replaceExistingValues,
-			final CompletionListener completionListener)
+			final CompletionListener completionListener
+		)
 		{
 			this.ensureOpen();
 			
 			if(this.cacheLoader != null)
 			{
-				keys.forEach(this::validateKey);
+				keys.forEach(this.keyValidator::validate);
 				
 				this.submit(() -> this.loadAllInternal(keys, replaceExistingValues, completionListener));
 			}
@@ -379,7 +436,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private void loadAllInternal(
 			final Set<? extends K> keys,
 			final boolean replaceExistingValues,
-			final CompletionListener completionListener)
+			final CompletionListener completionListener
+		)
 		{
 			try
 			{
@@ -431,22 +489,29 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public void put(final K key, final V value)
+		public void put(
+			final K key, 
+			final V value
+		)
 		{
 			this.ensureOpen();
 			
-			this.validateKeyValue(key, value);
+			this.keyValidator.validate(key);
+			this.valueValidator.validate(value);
 			
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			final long                       start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
 			
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			int                              putCount            = 0;
 			final long                       now                 = System.currentTimeMillis();
-			final Object                     internalKey         = this.objectConverter.internalize(key);
-			final Object                     internalValue       = this.objectConverter.internalize(value);
+			final ObjectConverter            objectConverter     = this.objectConverter;
+			final Object                     internalKey         = objectConverter.internalize(key);
+			final Object                     internalValue       = objectConverter.internalize(value);
 			
 			synchronized(this.cacheTable)
 			{
@@ -459,7 +524,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						key,
 						internalKey,
 						eventDispatcher,
-						this.objectConverter.externalize(cachedValue.value())
+						objectConverter.externalize(cachedValue.value())
 					);
 				}
 				
@@ -479,7 +544,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 							key,
 							internalKey,
 							eventDispatcher,
-							this.objectConverter.externalize(cachedValue.value())
+							objectConverter.externalize(cachedValue.value())
 						);
 					}
 					else
@@ -498,7 +563,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 				else
 				{
-					final V oldValue = this.objectConverter.externalize(cachedValue.value(now));
+					final V oldValue = objectConverter.externalize(cachedValue.value(now));
 					
 					this.updateExpiryForUpdate(cachedValue, now);
 					
@@ -506,28 +571,38 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					this.writeCacheEntry(entry);
 					putCount++;
 					
-					eventDispatcher.addEvent(
-						CacheEntryUpdatedListener.class,
-						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
-					);
+					if(eventDispatcher != null)
+					{
+						eventDispatcher.addEvent(
+							CacheEntryUpdatedListener.class,
+							new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
+						);
+					}
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(isStatisticsEnabled && putCount > 0)
 			{
-				this.cacheStatisticsMXBean.increaseCachePuts(putCount);
-				this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
+				cacheStatisticsMXBean.increaseCachePuts(putCount);
+				cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
 			}
 		}
 		
 		@Override
-		public V getAndPut(final K key, final V value)
+		public V getAndPut(
+			final K key, 
+			final V value
+		)
 		{
 			this.ensureOpen();
 			
-			this.validateKeyValue(key, value);
+			this.keyValidator.validate(key);
+			this.valueValidator.validate(value);
 			
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			final long                       start               = isStatisticsEnabled
@@ -535,7 +610,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				: 0;
 			
 			V                                result;
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			int                              putCount            = 0;
 			final long                       now                 = System.currentTimeMillis();
 			final Object                     internalKey         = this.objectConverter.internalize(key);
@@ -600,32 +677,38 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					this.writeCacheEntry(entry);
 					putCount++;
 					
-					eventDispatcher.addEvent(
-						CacheEntryUpdatedListener.class,
-						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
-					);
+					if(eventDispatcher != null)
+					{
+						eventDispatcher.addEvent(
+							CacheEntryUpdatedListener.class,
+							new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
+						);
+					}
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(isStatisticsEnabled)
 			{
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
 				if(result == null)
 				{
-					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+					cacheStatisticsMXBean.increaseCacheMisses(1);
 				}
 				else
 				{
-					this.cacheStatisticsMXBean.increaseCacheHits(1);
+					cacheStatisticsMXBean.increaseCacheHits(1);
 				}
 				
-				this.cacheStatisticsMXBean.addGetTimeNano(System.nanoTime() - start);
+				cacheStatisticsMXBean.addGetTimeNano(System.nanoTime() - start);
 				
 				if(putCount > 0)
 				{
-					this.cacheStatisticsMXBean.increaseCachePuts(putCount);
-					this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
+					cacheStatisticsMXBean.increaseCachePuts(putCount);
+					cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
 				}
 			}
 			
@@ -633,7 +716,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public void putAll(final Map<? extends K, ? extends V> map)
+		public void putAll(
+			final Map<? extends K, ? extends V> map
+		)
 		{
 			this.putAll(map, true);
 		}
@@ -641,7 +726,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public void putAll(
 			final Map<? extends K, ? extends V> map,
-			final boolean replaceExistingValues)
+			final boolean replaceExistingValues
+		)
 		{
 			this.putAll(map, replaceExistingValues, true);
 		}
@@ -650,12 +736,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		public void putAll(
 			final Map<? extends K, ? extends V> map,
 			final boolean replaceExistingValues,
-			final boolean useWriteThrough)
+			final boolean useWriteThrough
+		)
 		{
 			this.ensureOpen();
 			
-			map.keySet().forEach(this::validateKey);
-			map.values().forEach(this::validateValue);
+			map.keySet().forEach(this.keyValidator::validate);
+			map.values().forEach(this.valueValidator::validate);
 			
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			final long                       start               = isStatisticsEnabled
@@ -664,7 +751,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			final long                       now                 = System.currentTimeMillis();
 			int                              putCount            = 0;
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			CacheWriterException             exception           = null;
 			
 			synchronized(this.cacheTable)
@@ -778,22 +867,27 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 							putCount++;
 						}
 						
-						eventDispatcher.addEvent(
-							CacheEntryUpdatedListener.class,
-							new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
-						);
+						if(eventDispatcher != null)
+						{
+							eventDispatcher.addEvent(
+								CacheEntryUpdatedListener.class,
+								new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
+							);
+						}
 					}
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(isStatisticsEnabled && putCount > 0)
 			{
-				this.cacheStatisticsMXBean.increaseCachePuts(putCount);
-				this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
-			}
-			
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
+				cacheStatisticsMXBean.increaseCachePuts(putCount);
+				cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
+			}			
 			if(exception != null)
 			{
 				throw exception;
@@ -801,11 +895,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public boolean putIfAbsent(final K key, final V value)
+		public boolean putIfAbsent(
+			final K key,
+			final V value
+		)
 		{
 			this.ensureOpen();
 			
-			this.validateKeyValue(key, value);
+			this.keyValidator.validate(key);
+			this.valueValidator.validate(value);
 			
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			final long                       start               = isStatisticsEnabled
@@ -813,7 +911,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				: 0;
 			
 			final long                       now                 = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			final Object                     internalKey         = this.objectConverter.internalize(key);
 			final Object                     internalValue       = this.objectConverter.internalize(value);
 			boolean                          result;
@@ -874,19 +974,22 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(isStatisticsEnabled)
 			{
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
 				if(result)
 				{
-					this.cacheStatisticsMXBean.increaseCachePuts(1);
-					this.cacheStatisticsMXBean.increaseCacheMisses(1);
-					this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
+					cacheStatisticsMXBean.increaseCachePuts(1);
+					cacheStatisticsMXBean.increaseCacheMisses(1);
+					cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
 				}
 				else
 				{
-					this.cacheStatisticsMXBean.increaseCacheHits(1);
+					cacheStatisticsMXBean.increaseCacheHits(1);
 				}
 			}
 			
@@ -894,11 +997,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public boolean remove(final K key)
+		public boolean remove(
+			final K key
+		)
 		{
 			this.ensureOpen();
 			
-			this.validateKey(key);
+			this.keyValidator.validate(key);
 			
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			final long                       start               = isStatisticsEnabled
@@ -906,7 +1011,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				: 0;
 			
 			final long                       now                 = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			final Object                     internalKey         = this.objectConverter.internalize(key);
 			boolean                          result;
 			
@@ -929,32 +1036,42 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					this.cacheTable.remove(internalKey);
 					final V value = this.objectConverter.externalize(cachedValue.value());
 					
-					eventDispatcher.addEvent(
-						CacheEntryRemovedListener.class,
-						new CacheEvent<>(this, EventType.REMOVED, key, value, value)
-					);
+					if(eventDispatcher != null)
+					{
+						eventDispatcher.addEvent(
+							CacheEntryRemovedListener.class,
+							new CacheEvent<>(this, EventType.REMOVED, key, value, value)
+						);
+					}
 					
 					result = true;
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(result && isStatisticsEnabled)
 			{
-				this.cacheStatisticsMXBean.increaseCacheRemovals(1);
-				this.cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
+				cacheStatisticsMXBean.increaseCacheRemovals(1);
+				cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
 			}
 			
 			return result;
 		}
 		
 		@Override
-		public boolean remove(final K key, final V oldValue)
+		public boolean remove(
+			final K key, 
+			final V oldValue
+		)
 		{
 			this.ensureOpen();
 			
-			this.validateKeyValue(key, oldValue);
+			this.keyValidator.validate(key);
+			this.valueValidator.validate(oldValue);
 			
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			final long                       start               = isStatisticsEnabled
@@ -962,7 +1079,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				: 0;
 			
 			final long                       now                 = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			final Object                     internalKey         = this.objectConverter.internalize(key);
 			boolean                          hit                 = false;
 			boolean                          result;
@@ -987,10 +1106,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						
 						this.cacheTable.remove(internalKey);
 						
-						eventDispatcher.addEvent(
-							CacheEntryRemovedListener.class,
-							new CacheEvent<>(this, EventType.REMOVED, key, oldValue, oldValue)
-						);
+						if(eventDispatcher != null)
+						{
+							eventDispatcher.addEvent(
+								CacheEntryRemovedListener.class,
+								new CacheEvent<>(this, EventType.REMOVED, key, oldValue, oldValue)
+							);
+						}
 						
 						result = true;
 					}
@@ -1003,24 +1125,27 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(isStatisticsEnabled)
 			{
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
 				final long duration = System.nanoTime() - start;
 				if(result)
 				{
-					this.cacheStatisticsMXBean.increaseCacheRemovals(1);
-					this.cacheStatisticsMXBean.addRemoveTimeNano(duration);
+					cacheStatisticsMXBean.increaseCacheRemovals(1);
+					cacheStatisticsMXBean.addRemoveTimeNano(duration);
 				}
-				this.cacheStatisticsMXBean.addGetTimeNano(duration);
+				cacheStatisticsMXBean.addGetTimeNano(duration);
 				if(hit)
 				{
-					this.cacheStatisticsMXBean.increaseCacheHits(1);
+					cacheStatisticsMXBean.increaseCacheHits(1);
 				}
 				else
 				{
-					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+					cacheStatisticsMXBean.increaseCacheMisses(1);
 				}
 			}
 			
@@ -1028,11 +1153,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public V getAndRemove(final K key)
+		public V getAndRemove(
+			final K key
+		)
 		{
 			this.ensureOpen();
 			
-			this.validateKey(key);
+			this.keyValidator.validate(key);
 			
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			final long                       start               = isStatisticsEnabled
@@ -1040,7 +1167,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				: 0;
 			
 			final long                       now                 = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			final Object                     internalKey         = this.objectConverter.internalize(key);
 			V                                result;
 			
@@ -1058,28 +1187,34 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					this.cacheTable.remove(internalKey);
 					result = this.objectConverter.externalize(cachedValue.value(now));
 					
-					eventDispatcher.addEvent(
-						CacheEntryRemovedListener.class,
-						new CacheEvent<>(this, EventType.REMOVED, key, result, result)
-					);
+					if(eventDispatcher != null)
+					{
+						eventDispatcher.addEvent(
+							CacheEntryRemovedListener.class,
+							new CacheEvent<>(this, EventType.REMOVED, key, result, result)
+						);
+					}
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(isStatisticsEnabled)
 			{
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
 				final long duration = System.nanoTime() - start;
-				this.cacheStatisticsMXBean.addGetTimeNano(duration);
+				cacheStatisticsMXBean.addGetTimeNano(duration);
 				if(result != null)
 				{
-					this.cacheStatisticsMXBean.increaseCacheHits(1);
-					this.cacheStatisticsMXBean.increaseCacheRemovals(1);
-					this.cacheStatisticsMXBean.addRemoveTimeNano(duration);
+					cacheStatisticsMXBean.increaseCacheHits(1);
+					cacheStatisticsMXBean.increaseCacheRemovals(1);
+					cacheStatisticsMXBean.addRemoveTimeNano(duration);
 				}
 				else
 				{
-					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+					cacheStatisticsMXBean.increaseCacheMisses(1);
 				}
 			}
 			
@@ -1087,13 +1222,17 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public boolean replace(final K key, final V oldValue, final V newValue)
+		public boolean replace(
+			final K key, 
+			final V oldValue, 
+			final V newValue
+		)
 		{
 			this.ensureOpen();
 			
-			this.validateKey(key);
-			this.validateValue(oldValue);
-			this.validateValue(newValue);
+			this.keyValidator.validate(key);
+			this.valueValidator.validate(newValue);
+			this.valueValidator.validate(oldValue);
 			
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			final long                       start               = isStatisticsEnabled
@@ -1101,7 +1240,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				: 0;
 			
 			final long                       now                 = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			final Object                     internalKey         = this.objectConverter.internalize(key);
 			long                             hitCount            = 0;
 			boolean                          result;
@@ -1131,10 +1272,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 							now
 						);
 						
-						eventDispatcher.addEvent(
-							CacheEntryUpdatedListener.class,
-							new CacheEvent<>(this, EventType.UPDATED, key, newValue, oldValue)
-						);
+						if(eventDispatcher != null)
+						{
+							eventDispatcher.addEvent(
+								CacheEntryUpdatedListener.class,
+								new CacheEvent<>(this, EventType.UPDATED, key, newValue, oldValue)
+							);
+						}
 						
 						result = true;
 					}
@@ -1147,24 +1291,27 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(isStatisticsEnabled)
 			{
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
 				final long duration = System.nanoTime() - start;
 				if(result)
 				{
-					this.cacheStatisticsMXBean.increaseCachePuts(1);
-					this.cacheStatisticsMXBean.addPutTimeNano(duration);
+					cacheStatisticsMXBean.increaseCachePuts(1);
+					cacheStatisticsMXBean.addPutTimeNano(duration);
 				}
-				this.cacheStatisticsMXBean.addGetTimeNano(duration);
+				cacheStatisticsMXBean.addGetTimeNano(duration);
 				if(hitCount == 1)
 				{
-					this.cacheStatisticsMXBean.increaseCacheHits(hitCount);
+					cacheStatisticsMXBean.increaseCacheHits(hitCount);
 				}
 				else
 				{
-					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+					cacheStatisticsMXBean.increaseCacheMisses(1);
 				}
 			}
 			
@@ -1172,11 +1319,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public boolean replace(final K key, final V value)
+		public boolean replace(
+			final K key, 
+			final V value
+		)
 		{
 			this.ensureOpen();
 			
-			this.validateKeyValue(key, value);
+			this.keyValidator.validate(key);
+			this.valueValidator.validate(value);
 			
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			final long                       start               = isStatisticsEnabled
@@ -1184,7 +1335,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				: 0;
 			
 			final long                       now                 = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			final Object                     internalKey         = this.objectConverter.internalize(key);
 			boolean                          result;
 			
@@ -1207,30 +1360,36 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					final Object newInternalValue = this.objectConverter.internalize(value);
 					cachedValue.value(newInternalValue, now);
 					
-					eventDispatcher.addEvent(
-						CacheEntryUpdatedListener.class,
-						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
-					);
+					if(eventDispatcher != null)
+					{
+						eventDispatcher.addEvent(
+							CacheEntryUpdatedListener.class,
+							new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
+						);
+					}
 					
 					result = true;
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(isStatisticsEnabled)
 			{
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
 				final long duration = System.nanoTime() - start;
-				this.cacheStatisticsMXBean.addGetTimeNano(duration);
+				cacheStatisticsMXBean.addGetTimeNano(duration);
 				if(result)
 				{
-					this.cacheStatisticsMXBean.increaseCachePuts(1);
-					this.cacheStatisticsMXBean.increaseCacheHits(1);
-					this.cacheStatisticsMXBean.addPutTimeNano(duration);
+					cacheStatisticsMXBean.increaseCachePuts(1);
+					cacheStatisticsMXBean.increaseCacheHits(1);
+					cacheStatisticsMXBean.addPutTimeNano(duration);
 				}
 				else
 				{
-					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+					cacheStatisticsMXBean.increaseCacheMisses(1);
 				}
 			}
 			
@@ -1238,11 +1397,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public V getAndReplace(final K key, final V value)
+		public V getAndReplace(
+			final K key, 
+			final V value
+		)
 		{
 			this.ensureOpen();
 			
-			this.validateKeyValue(key, value);
+			this.keyValidator.validate(key);
+			this.valueValidator.validate(value);
 			
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			final long                       start               = isStatisticsEnabled
@@ -1250,7 +1413,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				: 0;
 			
 			final long                       now                 = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			final Object                     internalKey         = this.objectConverter.internalize(key);
 			V                                result;
 			
@@ -1275,30 +1440,36 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						now
 					);
 					
-					eventDispatcher.addEvent(
-						CacheEntryUpdatedListener.class,
-						new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
-					);
+					if(eventDispatcher != null)
+					{
+						eventDispatcher.addEvent(
+							CacheEntryUpdatedListener.class,
+							new CacheEvent<>(this, EventType.UPDATED, key, value, oldValue)
+						);
+					}
 					
 					result = oldValue;
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(isStatisticsEnabled)
 			{
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
 				final long duration = System.nanoTime() - start;
-				this.cacheStatisticsMXBean.addGetTimeNano(duration);
+				cacheStatisticsMXBean.addGetTimeNano(duration);
 				if(result != null)
 				{
-					this.cacheStatisticsMXBean.increaseCachePuts(1);
-					this.cacheStatisticsMXBean.increaseCacheHits(1);
-					this.cacheStatisticsMXBean.addPutTimeNano(duration);
+					cacheStatisticsMXBean.increaseCachePuts(1);
+					cacheStatisticsMXBean.increaseCacheHits(1);
+					cacheStatisticsMXBean.addPutTimeNano(duration);
 				}
 				else
 				{
-					this.cacheStatisticsMXBean.increaseCacheMisses(1);
+					cacheStatisticsMXBean.increaseCacheMisses(1);
 				}
 			}
 			
@@ -1306,15 +1477,19 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public void removeAll(final Set<? extends K> keys)
+		public void removeAll(
+			final Set<? extends K> keys
+		)
 		{
 			this.ensureOpen();
 			
-			keys.forEach(this::validateKey);
+			keys.forEach(this.keyValidator::validate);
 			
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			final long                       now                 = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			final HashSet<K>                 cacheWriterKeys     = new HashSet<>();
 			final HashSet<Object>            deletedKeys         = new HashSet<>();
 			cacheWriterKeys.addAll(keys);
@@ -1361,7 +1536,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 										value
 									);
 								}
-								else
+								else if(eventDispatcher != null)
 								{
 									eventDispatcher.addEvent(
 										CacheEntryRemovedListener.class,
@@ -1394,7 +1569,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 									value
 								);
 							}
-							else
+							else if(eventDispatcher != null)
 							{
 								eventDispatcher.addEvent(
 									CacheEntryRemovedListener.class,
@@ -1406,8 +1581,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(isStatisticsEnabled)
 			{
 				this.cacheStatisticsMXBean.increaseCacheRemovals(deletedKeys.size());
@@ -1427,7 +1604,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
 			int                              removed             = 0;
 			final long                       now                 = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher     = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			CacheException                   exception           = null;
 			
 			synchronized(this.cacheTable)
@@ -1482,18 +1661,23 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						}
 						else
 						{
-							eventDispatcher.addEvent(
-								CacheEntryRemovedListener.class,
-								new CacheEvent<>(this, EventType.REMOVED, key, value, value)
-							);
+							if(eventDispatcher != null)
+							{
+								eventDispatcher.addEvent(
+									CacheEntryRemovedListener.class,
+									new CacheEvent<>(this, EventType.REMOVED, key, value, value)
+								);
+							}
 							removed++;
 						}
 					}
 				}
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			if(isStatisticsEnabled)
 			{
 				this.cacheStatisticsMXBean.increaseCacheRemovals(removed);
@@ -1525,7 +1709,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public void setStatisticsEnabled(final boolean enabled)
+		public void setStatisticsEnabled(
+			final boolean enabled
+		)
 		{
 			this.isStatisticsEnabled = enabled;
 			
@@ -1539,7 +1725,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public void setManagementEnabled(final boolean enabled)
+		public void setManagementEnabled(
+			final boolean enabled
+		)
 		{
 			this.updateConfiguration(c -> c.setManagementEnabled(enabled));
 			
@@ -1567,15 +1755,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public <T> Map<K, javax.cache.processor.EntryProcessorResult<T>>
-			invokeAll(
-				final Set<? extends K> keys,
-				final EntryProcessor<K, V, T> entryProcessor,
-				final Object... arguments)
+		public <T> Map<K, javax.cache.processor.EntryProcessorResult<T>> invokeAll(
+			final Set<? extends K> keys,
+			final EntryProcessor<K, V, T> entryProcessor,
+			final Object... arguments
+		)
 		{
 			this.ensureOpen();
 			
-			keys.forEach(this::validateKey);
+			keys.forEach(this.keyValidator::validate);
 			
 			notNull(entryProcessor);
 			
@@ -1604,12 +1792,16 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 		
 		@Override
-		public <T> T invoke(final K key, final EntryProcessor<K, V, T> entryProcessor, final Object... arguments)
+		public <T> T invoke(
+			final K key, 
+			final EntryProcessor<K, V, T> entryProcessor, 
+			final Object... arguments
+		)
 			throws EntryProcessorException
 		{
 			this.ensureOpen();
 			
-			this.validateKey(key);
+			this.keyValidator.validate(key);
 			
 			final boolean isStatisticsEnabled = this.isStatisticsEnabled;
 			long          start               = isStatisticsEnabled
@@ -1619,7 +1811,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			notNull(entryProcessor);
 			
 			final long                       now             = System.currentTimeMillis();
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			final Object                     internalKey     = this.objectConverter.internalize(key);
 			T                                result          = null;
 			
@@ -1640,16 +1834,17 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				
 				if(isStatisticsEnabled)
 				{
+					final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
 					if(cachedValue == null || isExpired)
 					{
-						this.cacheStatisticsMXBean.increaseCacheMisses(1);
+						cacheStatisticsMXBean.increaseCacheMisses(1);
 					}
 					else
 					{
-						this.cacheStatisticsMXBean.increaseCacheHits(1);
+						cacheStatisticsMXBean.increaseCacheHits(1);
 					}
 					final long nanoTime = System.nanoTime();
-					this.cacheStatisticsMXBean.addGetTimeNano(nanoTime - start);
+					cacheStatisticsMXBean.addGetTimeNano(nanoTime - start);
 					// restart
 					start = nanoTime;
 				}
@@ -1686,7 +1881,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				);
 			}
 			
-			eventDispatcher.dispatch(this.listenerRegistrations);
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.dispatch(this.listenerRegistrations);
+			}
 			
 			return result;
 		}
@@ -1700,7 +1898,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final long start,
 			final long now,
 			final CacheEventDispatcher<K, V> eventDispatcher,
-			final boolean isStatisticsEnabled)
+			final boolean isStatisticsEnabled
+		)
 		{
 			switch(entry.getOperation())
 			{
@@ -1761,7 +1960,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final long start,
 			final long now,
 			final CacheEventDispatcher<K, V> eventDispatcher,
-			final boolean isStatisticsEnabled)
+			final boolean isStatisticsEnabled
+		)
 		{
 			CachedValue            cachedValue;
 			final CacheEntry<K, V> e          = CacheEntry.New(key, entry.getValue());
@@ -1800,8 +2000,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				// do not count LOAD as a put for cache statistics.
 				if(isStatisticsEnabled && entry.getOperation() == MutableCacheEntry.Operation.CREATE)
 				{
-					this.cacheStatisticsMXBean.increaseCachePuts(1);
-					this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
+					final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
+					cacheStatisticsMXBean.increaseCachePuts(1);
+					cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
 				}
 			}
 		}
@@ -1813,7 +2014,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final long start,
 			final long now,
 			final CacheEventDispatcher<K, V> eventDispatcher,
-			final boolean isStatisticsEnabled)
+			final boolean isStatisticsEnabled
+		)
 		{
 			final V                oldValue = this.objectConverter.externalize(cachedValue.value());
 			
@@ -1827,15 +2029,18 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				now
 			);
 			
-			eventDispatcher.addEvent(
-				CacheEntryUpdatedListener.class,
-				new CacheEvent<>(this, EventType.UPDATED, key, entry.getValue(), oldValue)
-			);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.addEvent(
+					CacheEntryUpdatedListener.class,
+					new CacheEvent<>(this, EventType.UPDATED, key, entry.getValue(), oldValue)
+				);
+			}			
 			if(isStatisticsEnabled)
 			{
-				this.cacheStatisticsMXBean.increaseCachePuts(1);
-				this.cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
+				cacheStatisticsMXBean.increaseCachePuts(1);
+				cacheStatisticsMXBean.addPutTimeNano(System.nanoTime() - start);
 			}
 		}
 		
@@ -1845,7 +2050,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final CachedValue cachedValue,
 			final long start,
 			final CacheEventDispatcher<K, V> eventDispatcher,
-			final boolean isStatisticsEnabled)
+			final boolean isStatisticsEnabled
+		)
 		{
 			this.deleteCacheEntry(key);
 			
@@ -1854,15 +2060,18 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				: this.objectConverter.externalize(cachedValue.value());
 			this.cacheTable.remove(internalKey);
 			
-			eventDispatcher.addEvent(
-				CacheEntryRemovedListener.class,
-				new CacheEvent<>(this, EventType.REMOVED, key, oldValue, oldValue)
-			);
-			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.addEvent(
+					CacheEntryRemovedListener.class,
+					new CacheEvent<>(this, EventType.REMOVED, key, oldValue, oldValue)
+				);
+			}
 			if(isStatisticsEnabled)
 			{
-				this.cacheStatisticsMXBean.increaseCacheRemovals(1);
-				this.cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
+				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
+				cacheStatisticsMXBean.increaseCacheRemovals(1);
+				cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
 			}
 		}
 		
@@ -1874,41 +2083,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 		}
 		
-		private void validateKeyValue(final K key, final V value)
-		{
-			this.validateKey(key);
-			this.validateValue(value);
-		}
-		
-		private void validateKey(final K key)
-		{
-			if(key == null)
-			{
-				throw new NullPointerException("key cannot be null");
-			}
-			
-			final Class<?> keyType = this.configuration.getKeyType();
-			if(Object.class != keyType && !keyType.isAssignableFrom(key.getClass()))
-			{
-				throw new ClassCastException("Type mismatch for key: " + key + " <> " + keyType.getName());
-			}
-		}
-		
-		private void validateValue(final V value)
-		{
-			if(value == null)
-			{
-				throw new NullPointerException("value cannot be null");
-			}
-			
-			final Class<?> valueType = this.configuration.getValueType();
-			if(Object.class != valueType && !valueType.isAssignableFrom(value.getClass()))
-			{
-				throw new ClassCastException("Type mismatch for value: " + value + " <> " + valueType.getName());
-			}
-		}
-		
-		private V getValue(final K key, final CacheEventDispatcher<K, V> eventDispatcher)
+		private V getValue(
+			final K key, 
+			final CacheEventDispatcher<K, V> eventDispatcher
+		)
 		{
 			final boolean isStatisticsEnabled = this.isStatisticsEnabled;
 			final long    start               = isStatisticsEnabled
@@ -1997,18 +2175,25 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		{
 			this.cacheTable.put(internalKey, cachedValue);
 			
-			eventDispatcher.addEvent(
-				CacheEntryCreatedListener.class,
-				new CacheEvent<>(this, EventType.CREATED, key, value)
-			);
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.addEvent(
+					CacheEntryCreatedListener.class,
+					new CacheEvent<>(this, EventType.CREATED, key, value)
+				);
+			}
 		}
 		
 		
 		@Override
-		public void evict(final Iterable<KeyValue<Object, CachedValue>> entriesToEvict)
+		public void evict(
+			final Iterable<KeyValue<Object, CachedValue>> entriesToEvict
+		)
 		{
 			long evictionCount = 0;
-			final CacheEventDispatcher<K, V> eventDispatcher = CacheEventDispatcher.New();
+			final CacheEventDispatcher<K, V> eventDispatcher = this.listenerRegistrations.size() > 0L
+				? CacheEventDispatcher.New()
+				: null;
 			
 			synchronized(this.cacheTable)
 			{
@@ -2021,10 +2206,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					
 					this.deleteCacheEntry(evictedKey);
 					
-					eventDispatcher.addEvent(
-						CacheEntryRemovedListener.class,
-						new CacheEvent<>(this, EventType.REMOVED, evictedKey, evictedValue, evictedValue)
-					);
+					if(eventDispatcher != null)
+					{
+						eventDispatcher.addEvent(
+							CacheEntryRemovedListener.class,
+							new CacheEvent<>(this, EventType.REMOVED, evictedKey, evictedValue, evictedValue)
+						);
+					}
 					
 					evictionCount++;
 				}
@@ -2032,18 +2220,23 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			
 			if(this.isStatisticsEnabled && evictionCount > 0)
 			{
-				eventDispatcher.dispatch(this.listenerRegistrations);
-				
+				if(eventDispatcher != null)
+				{
+					eventDispatcher.dispatch(this.listenerRegistrations);
+				}
 				this.cacheStatisticsMXBean.increaseCacheEvictions(evictionCount);
 			}
 		}
 		
-		private void updateExpiryForAccess(final CachedValue cachedValue, final long now)
+		private void updateExpiryForAccess(
+			final CachedValue cachedValue, 
+			final long now
+		)
 		{
 			try
 			{
-				final Duration duration = this.expiryPolicy.getExpiryForAccess();
-				if(duration != null)
+				final Duration duration;
+				if((duration = this.expiryPolicy.getExpiryForAccess()) != null)
 				{
 					cachedValue.expiryTime(duration.getAdjustedTime(now));
 				}
@@ -2054,12 +2247,15 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 		}
 		
-		private void updateExpiryForUpdate(final CachedValue cachedValue, final long now)
+		private void updateExpiryForUpdate(
+			final CachedValue cachedValue, 
+			final long now
+		)
 		{
 			try
 			{
-				final Duration duration = this.expiryPolicy.getExpiryForUpdate();
-				if(duration != null)
+				final Duration duration;
+				if((duration = this.expiryPolicy.getExpiryForUpdate()) != null)
 				{
 					cachedValue.expiryTime(duration.getAdjustedTime(now));
 				}
@@ -2073,14 +2269,19 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private void processExpiries(
 			final K key,
 			final Object internalKey,
-			final CacheEventDispatcher<K, V> dispatcher,
-			final V expiredValue)
+			final CacheEventDispatcher<K, V> eventDispatcher,
+			final V expiredValue
+		)
 		{
 			this.cacheTable.remove(internalKey);
-			dispatcher.addEvent(
-				CacheEntryExpiredListener.class,
-				new CacheEvent<>(this, EventType.EXPIRED, key, expiredValue, expiredValue)
-			);
+			
+			if(eventDispatcher != null)
+			{
+				eventDispatcher.addEvent(
+					CacheEntryExpiredListener.class,
+					new CacheEvent<>(this, EventType.EXPIRED, key, expiredValue, expiredValue)
+				);
+			}
 		}
 		
 		private Duration expiryForCreation()
@@ -2092,21 +2293,21 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 			catch(final Throwable t)
 			{
-				return this.defaultDuration();
+				return Duration.ETERNAL;
 			}
 		}
 		
-		private Duration defaultDuration()
-		{
-			return Duration.ETERNAL;
-		}
-		
-		private void submit(final Runnable task)
+		private void submit(
+			final Runnable task
+		)
 		{
 			this.executorService.submit(task);
 		}
 		
-		private V loadCacheEntry(final K key, final V value)
+		private V loadCacheEntry(
+			final K key, 
+			final V value
+		)
 		{
 			if(this.cacheLoader != null && this.configuration.isReadThrough())
 			{
@@ -2127,7 +2328,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			return value;
 		}
 		
-		private void writeCacheEntry(final CacheEntry<K, V> entry)
+		private void writeCacheEntry(
+			final CacheEntry<K, V> entry
+		)
 		{
 			if(this.cacheWriter != null && this.configuration.isWriteThrough())
 			{
@@ -2146,7 +2349,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 		}
 		
-		private void deleteCacheEntry(final K key)
+		private void deleteCacheEntry(
+			final K key
+		)
 		{
 			if(this.cacheWriter != null && this.configuration.isWriteThrough())
 			{
@@ -2165,7 +2370,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 		}
 		
-		private void closeIfCloseable(final Object obj)
+		private void closeIfCloseable(
+			final Object obj
+		)
 		{
 			if(obj instanceof Closeable)
 			{
@@ -2188,8 +2395,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			private final long                                    now;
 			private final boolean                                 isStatisticsEnabled;
 			
-			EntryIterator(final Iterator<KeyValue<Object, CachedValue>> iterator)
+			EntryIterator(
+				final Iterator<KeyValue<Object, CachedValue>> iterator
+			)
 			{
+				super();
 				this.iterator            = iterator;
 				this.nextEntry           = null;
 				this.lastEntry           = null;
@@ -2231,8 +2441,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					{
 						if(this.isStatisticsEnabled && this.nextEntry != null)
 						{
-							Cache.Default.this.cacheStatisticsMXBean.increaseCacheHits(1);
-							Cache.Default.this.cacheStatisticsMXBean.addGetTimeNano(System.nanoTime() - start);
+							final CacheStatisticsMXBean cacheStatisticsMXBean = Cache.Default.this.cacheStatisticsMXBean;
+							cacheStatisticsMXBean.increaseCacheHits(1);
+							cacheStatisticsMXBean.addGetTimeNano(System.nanoTime() - start);
 						}
 					}
 				}
@@ -2292,14 +2503,21 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					cacheRemovals++;
 					
 					// raise "remove" event
-					final CacheEventDispatcher<K, V> dispatcher = CacheEventDispatcher.New();
-					dispatcher.addEvent(
-						CacheEntryRemovedListener.class,
-						new CacheEvent<>(Cache.Default.this, EventType.REMOVED, this.lastEntry.getKey(),
-							this.lastEntry.getValue(), this.lastEntry.getValue()
+					if(Cache.Default.this.listenerRegistrations.size() > 0L)
+					{
+						CacheEventDispatcher.<K, V>New()
+						.addEvent(
+							CacheEntryRemovedListener.class,
+							new CacheEvent<>(
+								Cache.Default.this, 
+								EventType.REMOVED, 
+								this.lastEntry.getKey(),
+								this.lastEntry.getValue(), 
+								this.lastEntry.getValue()
+							)
 						)
-					);
-					dispatcher.dispatch(Cache.Default.this.listenerRegistrations);
+						.dispatch(Cache.Default.this.listenerRegistrations);
+					}
 				}
 				finally
 				{
@@ -2307,8 +2525,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 					this.lastEntry = null;
 					if(this.isStatisticsEnabled && cacheRemovals > 0)
 					{
-						Cache.Default.this.cacheStatisticsMXBean.increaseCacheRemovals(cacheRemovals);
-						Cache.Default.this.cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
+						final CacheStatisticsMXBean cacheStatisticsMXBean = Cache.Default.this.cacheStatisticsMXBean;
+						cacheStatisticsMXBean.increaseCacheRemovals(cacheRemovals);
+						cacheStatisticsMXBean.addRemoveTimeNano(System.nanoTime() - start);
 					}
 				}
 			}

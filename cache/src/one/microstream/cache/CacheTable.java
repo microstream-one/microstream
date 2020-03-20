@@ -14,29 +14,45 @@ import one.microstream.typing.KeyValue;
 
 public interface CacheTable
 {
-	public CachedValue get(Object key);
+	public CachedValue get(
+		Object key
+	);
 	
-	public boolean put(Object key, CachedValue value);
+	public boolean put(
+		Object key, 
+		CachedValue value
+	);
 	
-	public CachedValue remove(Object key);
+	public CachedValue remove(
+		Object key
+	);
 	
 	public Iterable<Object> keys();
 	
 	public Iterator<KeyValue<Object, CachedValue>> iterator();
 	
-	public void iterate(Consumer<KeyValue<Object, CachedValue>> procedure);
+	public void iterate(
+		Consumer<KeyValue<Object, CachedValue>> procedure
+	);
 	
-	public KeyValue<Object, CachedValue> search(Predicate<? super KeyValue<Object, CachedValue>> predicate);
+	public KeyValue<Object, CachedValue> search(
+		Predicate<? super KeyValue<Object, CachedValue>> predicate
+	);
 	
 	public long size();
 	
 	public void clear();
 	
-	public KeyValue<Object, CachedValue> min(Comparator<? super KeyValue<Object, CachedValue>> comparator);
+	public KeyValue<Object, CachedValue> min(
+		Comparator<? super KeyValue<Object, CachedValue>> comparator
+	);
 	
-	public KeyValue<Object, CachedValue> rangeMin(long offset, long length, Comparator<? super KeyValue<Object, CachedValue>> comparator);
-	
-		
+	public KeyValue<Object, CachedValue> rangeMin(
+		long offset, 
+		long length, 
+		Comparator<? super KeyValue<Object, CachedValue>> comparator
+	);
+			
 	
 	public static CacheTable New()
 	{
