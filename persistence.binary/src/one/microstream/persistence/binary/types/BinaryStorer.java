@@ -222,6 +222,12 @@ public interface BinaryStorer extends PersistenceStorer
 			return this;
 		}
 
+		@Override
+		public void clear()
+		{
+			this.internalInitialize();
+		}
+
 		private void internalInitialize()
 		{
 			this.internalInitialize(defaultSlotSize());
@@ -378,12 +384,6 @@ public interface BinaryStorer extends PersistenceStorer
 			// not used
 			return null;
 		}
-
-		@Override
-		public void clear()
-		{
-			this.internalInitialize();
-		}
 		
 		public final long lookupOid(final Object object)
 		{
@@ -454,6 +454,7 @@ public interface BinaryStorer extends PersistenceStorer
 			{
 				return rootOid;
 			}
+			
 			rootOid = this.registerAdd(notNull(root));
 
 			// process and collect required instances uniquely in item chain (graph recursion transformed to iteration)
@@ -467,9 +468,11 @@ public interface BinaryStorer extends PersistenceStorer
 		
 		protected final void storeItem(final Item item)
 		{
-			// (20.03.2020 TM)FIXME: priv#182: where to put the lock for this method?
 //			XDebug.println("Storing     " + item.oid + ": " + XChars.systemString(item.instance) + " ("  + item.instance + ")");
-			item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
+			synchronized(this.head)
+			{
+				item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
+			}
 		}
 		
 		@Override
@@ -487,6 +490,7 @@ public interface BinaryStorer extends PersistenceStorer
 		
 		protected final long registerAdd(final Object instance)
 		{
+			// ensureObjectId may never be called under a storer lock or a deadlock might happen!
 			final long objectId = this.objectManager.ensureObjectId(instance, this);
 			
 			// accept does locking internally
