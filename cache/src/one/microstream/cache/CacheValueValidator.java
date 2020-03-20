@@ -38,7 +38,7 @@ public interface CacheValueValidator
 		{
 			if(value == null)
 			{
-				throw new IllegalArgumentException(
+				throw new NullPointerException(
 					this.slot + " cannot be null"
 				);
 			}
@@ -68,7 +68,7 @@ public interface CacheValueValidator
 			
 			if(!this.expectedType.isInstance(value))
 			{
-				throw new IllegalArgumentException(
+				throw new ClassCastException(
 					"Type mismatch for " + this.slot + ": " + 
 					value + " <> " + this.expectedType.getName()
 				);
