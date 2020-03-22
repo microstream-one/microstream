@@ -6,7 +6,6 @@ import java.util.Random;
 
 import javax.cache.Cache;
 import javax.cache.Caching;
-import javax.cache.configuration.MutableConfiguration;
 
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
@@ -31,10 +30,11 @@ public class MainTestCache
 	{
 		final EmbeddedStorageManager               storageManager =
 			EmbeddedStorage.start(Paths.get(System.getProperty("user.home"), "cache-storage"));
-		final MutableConfiguration<String, Entity> configuration  =
-			CacheConfigurationFactory.Create("test", storageManager);
-		configuration.setStatisticsEnabled(true);
-		configuration.setStoreByValue(false);
+		final CacheConfiguration<String, Entity> configuration  =
+			CacheConfiguration.Builder(String.class, Entity.class, "test", storageManager)
+				.enableStatistics()
+				.storeByReference()
+				.build();
 		
 		final Cache<String, Entity> cache  =
 			Caching.getCachingProvider().getCacheManager().createCache("test", configuration);

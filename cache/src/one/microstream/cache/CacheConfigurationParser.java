@@ -1,36 +1,58 @@
 package one.microstream.cache;
 
+import static one.microstream.X.notNull;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.cache.CacheException;
-import javax.cache.configuration.Factory;
 
 import one.microstream.chars.XChars;
-import one.microstream.collections.EqHashTable;
-import one.microstream.collections.types.XTable;
 
 public interface CacheConfigurationParser
 {
-	public CacheConfiguration<?, ?> parse(String data);
+	public CacheConfiguration<?, ?> parse(
+		String data
+	);
 	
-	public <K, V> CacheConfiguration<K, V> parse(String data, Class<K> keyType, Class<V> valueType);
+	public <K, V> CacheConfiguration<K, V> parse(
+		String data, 
+		Class<K> keyType, 
+		Class<V> valueType
+	);
 	
 	
-	public static CacheConfigurationParser Default()
+	public static CacheConfigurationParser New()
 	{
-		return new Default();
+		return New(CacheConfigurationPropertyParser.New());
+	}	
+	
+	public static CacheConfigurationParser New(
+		final CacheConfigurationPropertyParser propertyParser
+	)
+	{
+		return new Default(notNull(propertyParser));
 	}
 	
 	
 	public static class Default implements CacheConfigurationParser, CacheConfigurationPropertyNames
 	{
-		Default()
+		private final CacheConfigurationPropertyParser propertyParser;
+
+		Default(
+			final CacheConfigurationPropertyParser propertyParser
+		)
 		{
 			super();
+			this.propertyParser = propertyParser;
 		}		
 		
 		@Override
-		public CacheConfiguration<?, ?> parse(String data)
+		public CacheConfiguration<?, ?> parse(
+			final String data
+		)
 		{
-			final XTable<String, String> properties = EqHashTable.New();			
+			final Map<String, String> properties = new HashMap<>();			
 			this.parseProperties(data, properties);
 
 			final Class<?> keyType   = this.valueAsClass(properties.get(KEY_TYPE),   Object.class);
@@ -41,15 +63,19 @@ public interface CacheConfigurationParser
 				valueType
 			);
 						
-			this.populateBuilder(properties, builder);
+			this.propertyParser.parseProperties(properties, builder);
 						
 			return builder.build();
 		}
 		
 		@Override
-		public <K, V> CacheConfiguration<K, V> parse(String data, Class<K> keyType, Class<V> valueType)
+		public <K, V> CacheConfiguration<K, V> parse(
+			final String data, 
+			final Class<K> keyType, 
+			final Class<V> valueType
+		)
 		{
-			final XTable<String, String> properties = EqHashTable.New();			
+			final Map<String, String> properties = new HashMap<>();		
 			this.parseProperties(data, properties);
 
 			final CacheConfiguration.Builder<K, V> builder = CacheConfiguration.Builder(
@@ -57,79 +83,15 @@ public interface CacheConfigurationParser
 				valueType
 			);
 						
-			this.populateBuilder(properties, builder);
+			this.propertyParser.parseProperties(properties, builder);
 						
 			return builder.build();
 		}
-
-		private void populateBuilder(
-			final XTable<String, String> properties, 
-			final CacheConfiguration.Builder<?, ?> builder
+		
+		protected Class<?> valueAsClass(
+			final String value, 
+			final Class<?> defaultValue
 		)
-		{
-			properties.iterate(kv -> 
-			{
-				switch(kv.key())
-				{
-					case CACHE_LOADER_FACTORY:
-						builder.cacheLoaderFactory(this.valueAsFactory(kv.value()));
-					break;
-					
-					case CACHE_WRITER_FACTORY:
-						builder.cacheWriterFactory(this.valueAsFactory(kv.value()));
-					break;
-					
-					case EXPIRY_POLICY_FACTORY:
-						builder.expiryPolicyFactory(this.valueAsFactory(kv.value()));
-					break;
-					
-					case EVICTION_MANAGER_FACTORY:
-						builder.evictionManagerFactory(this.valueAsFactory(kv.value()));
-					break;
-					
-					case READ_THROUGH:
-						if(Boolean.valueOf(kv.value()))
-						{
-							builder.readThrough();
-						}
-					break;
-					
-					case WRITE_THROUGH:
-						if(Boolean.valueOf(kv.value()))
-						{
-							builder.writeThrough();
-						}
-					break;
-					
-					case STORE_BY_VALUE:
-						if(Boolean.valueOf(kv.value()))
-						{
-							builder.storeByValue();
-						}
-						else
-						{
-							builder.storeByReference();
-						}
-					break;
-					
-					case STATISTICS_ENABLED:
-						if(Boolean.valueOf(kv.value()))
-						{
-							builder.enableStatistics();
-						}
-					break;
-					
-					case MANAGEMENT_ENABLED:
-						if(Boolean.valueOf(kv.value()))
-						{
-							builder.enableManagement();
-						}
-					break;
-				}
-			});
-		}
-				
-		protected Class<?> valueAsClass(String value, Class<?> defaultValue)
 		{
 			try
 			{
@@ -143,25 +105,10 @@ public interface CacheConfigurationParser
 				throw new CacheException(e);
 			}
 		}
-		
-		@SuppressWarnings("unchecked")
-		protected <T> Factory<T> valueAsFactory(String value)
-		{
-			try
-			{
-				return Factory.class.cast(Class.forName(value).newInstance());
-			}
-			catch(ClassNotFoundException | ClassCastException | 
-				  InstantiationException | IllegalAccessException e
-			)
-			{
-				throw new CacheException(e);
-			}
-		}
 
 		protected void parseProperties(
 			final String data, 
-			final XTable<String, String> properties
+			final Map<String, String> properties
 		)
 		{
 			nextLine:

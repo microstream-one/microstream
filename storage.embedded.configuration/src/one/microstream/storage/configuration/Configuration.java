@@ -6,11 +6,13 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.time.Duration;
 
+import one.microstream.chars.XChars;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.StorageChannelCountProvider;
 import one.microstream.storage.types.StorageDataFileEvaluator;
@@ -21,112 +23,268 @@ import one.microstream.storage.types.StorageHousekeepingController;
 
 public interface Configuration
 {
-	public static Configuration LoadIni(final Path path)
+	public static String PathProperty()
+	{
+		return "microstream.storage.configuration.path";
+	}
+	
+	public static String DefaultResourceName()
+	{
+		return "microstream-storage.properties";
+	}
+	
+	public static Configuration Load()
+	{		
+		final String path = System.getProperty(PathProperty());
+		if(!XChars.isEmpty(path))
+		{
+			final Configuration configuration = Load(path);
+			if(configuration != null)
+			{
+				return configuration;
+			}
+		}
+
+		final String      defaultName        = DefaultResourceName();
+		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
+		final URL         url                = contextClassloader != null
+			? contextClassloader.getResource(defaultName)
+			: Configuration.class.getResource("/" + defaultName);
+		if(url != null)
+		{
+			return LoadIni(url);
+		}
+		
+		File file = new File(defaultName);
+		if(file.exists())
+		{
+			return LoadIni(file);
+		}
+		file = new File(System.getProperty("user.home"), defaultName);
+		if(file.exists())
+		{
+			return LoadIni(file);
+		}
+		
+		return null;
+	}
+	
+	public static Configuration Load(
+		final String path
+	)
+	{
+		return path.toLowerCase().endsWith(".xml")
+			? LoadXml(path)
+			: LoadIni(path)
+		;
+	}
+	
+	public static Configuration LoadIni(
+		final String path
+	)
+	{
+		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
+	          URL         url                = contextClassloader != null
+			? contextClassloader.getResource(path)
+			: Configuration.class.getResource(path);
+		if(url != null)
+		{
+			return LoadIni(url);
+		}
+			
+		try
+		{
+			url = new URL(path);
+			return LoadIni(url);
+		}
+		catch(MalformedURLException e)
+		{
+			final File file = new File(path);
+			if(file.exists())
+			{
+				return LoadIni(file);
+			}
+		}
+		
+		return null;
+	}
+	
+	public static Configuration LoadIni(
+		final Path path
+	)
 	{
 		return ConfigurationParser.Ini().parse(
 			ConfigurationLoader.loadFromPath(path)
 		);
 	}
 	
-	public static Configuration LoadIni(final Path path, final Charset charset)
+	public static Configuration LoadIni(
+		final Path path, 
+		final Charset charset
+	)
 	{
 		return ConfigurationParser.Ini().parse(
 			ConfigurationLoader.loadFromPath(path, charset)
 		);
 	}
 	
-	public static Configuration LoadIni(final File file)
+	public static Configuration LoadIni(
+		final File file
+	)
 	{
 		return ConfigurationParser.Ini().parse(
 			ConfigurationLoader.loadFromFile(file)
 		);
 	}
 	
-	public static Configuration LoadIni(final File file, final Charset charset)
+	public static Configuration LoadIni(
+		final File file, 
+		final Charset charset
+	)
 	{
 		return ConfigurationParser.Ini().parse(
 			ConfigurationLoader.loadFromFile(file, charset)
 		);
 	}
 	
-	public static Configuration LoadIni(final URL url)
+	public static Configuration LoadIni(
+		final URL url
+	)
 	{
 		return ConfigurationParser.Ini().parse(
 			ConfigurationLoader.loadFromUrl(url)
 		);
 	}
 	
-	public static Configuration LoadIni(final URL url, final Charset charset)
+	public static Configuration LoadIni(
+		final URL url, 
+		final Charset charset
+	)
 	{
 		return ConfigurationParser.Ini().parse(
 			ConfigurationLoader.loadFromUrl(url, charset)
 		);
 	}
 	
-	public static Configuration LoadIni(final InputStream inputStream)
+	public static Configuration LoadIni(
+		final InputStream inputStream
+	)
 	{
 		return ConfigurationParser.Ini().parse(
 			ConfigurationLoader.FromInputStream(inputStream).loadConfiguration()
 		);
 	}
 	
-	public static Configuration LoadIni(final InputStream inputStream, final Charset charset)
+	public static Configuration LoadIni(
+		final InputStream inputStream, 
+		final Charset charset
+	)
 	{
 		return ConfigurationParser.Ini().parse(
 			ConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
 		);
 	}
 	
-	public static Configuration LoadXml(final Path path)
+	public static Configuration LoadXml(
+		final String path
+	)
+	{
+		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
+	          URL         url                = contextClassloader != null
+			? contextClassloader.getResource(path)
+			: Configuration.class.getResource(path);
+		if(url != null)
+		{
+			return LoadXml(url);
+		}
+			
+		try
+		{
+			url = new URL(path);
+			return LoadXml(url);
+		}
+		catch(MalformedURLException e)
+		{
+			final File file = new File(path);
+			if(file.exists())
+			{
+				return LoadXml(file);
+			}
+		}
+		
+		return null;
+	}
+	
+	public static Configuration LoadXml(
+		final Path path
+	)
 	{
 		return ConfigurationParser.Xml().parse(
 			ConfigurationLoader.loadFromPath(path)
 		);
 	}
 	
-	public static Configuration LoadXml(final Path path, final Charset charset)
+	public static Configuration LoadXml(
+		final Path path,
+		final Charset charset
+	)
 	{
 		return ConfigurationParser.Xml().parse(
 			ConfigurationLoader.loadFromPath(path, charset)
 		);
 	}
 	
-	public static Configuration LoadXml(final File file)
+	public static Configuration LoadXml(
+		final File file
+	)
 	{
 		return ConfigurationParser.Xml().parse(
 			ConfigurationLoader.loadFromFile(file)
 		);
 	}
 	
-	public static Configuration LoadXml(final File file, final Charset charset)
+	public static Configuration LoadXml(
+		final File file, 
+		final Charset charset
+	)
 	{
 		return ConfigurationParser.Xml().parse(
 			ConfigurationLoader.loadFromFile(file, charset)
 		);
 	}
 	
-	public static Configuration LoadXml(final URL url)
+	public static Configuration LoadXml(
+		final URL url
+	)
 	{
 		return ConfigurationParser.Xml().parse(
 			ConfigurationLoader.loadFromUrl(url)
 		);
 	}
 	
-	public static Configuration LoadXml(final URL url, final Charset charset)
+	public static Configuration LoadXml(
+		final URL url, 
+		final Charset charset
+	)
 	{
 		return ConfigurationParser.Xml().parse(
 			ConfigurationLoader.loadFromUrl(url, charset)
 		);
 	}
 	
-	public static Configuration LoadXml(final InputStream inputStream)
+	public static Configuration LoadXml(
+		final InputStream inputStream
+	)
 	{
 		return ConfigurationParser.Xml().parse(
 			ConfigurationLoader.FromInputStream(inputStream).loadConfiguration()
 		);
 	}
 	
-	public static Configuration LoadXml(final InputStream inputStream, final Charset charset)
+	public static Configuration LoadXml(
+		final InputStream inputStream, 
+		final Charset charset
+	)
 	{
 		return ConfigurationParser.Xml().parse(
 			ConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()

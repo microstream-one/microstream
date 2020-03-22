@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
 import org.hibernate.boot.spi.SessionFactoryOptions;
@@ -23,7 +24,7 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 
 import one.microstream.cache.Cache;
 import one.microstream.cache.CacheConfiguration;
-import one.microstream.cache.CacheConfigurationFactory;
+import one.microstream.cache.CacheConfigurationPropertyParser;
 import one.microstream.cache.CacheManager;
 import one.microstream.cache.CachingProvider;
 import one.microstream.chars.XChars;
@@ -144,27 +145,55 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		return new CachingProvider().getCacheManager();
 	}
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	protected CacheConfiguration<Object, Object> resolveCacheConfiguration(
 		final SessionFactoryOptions settings, 
 		final Map properties
 	)
 	{
+		// 1. Check for configured external resource
 		final String configurationResourceName = properties != null
 			? (String)properties.get(ConfigurationPropertyNames.CONFIGURATION_RESOURCE_NAME)
 			: null;
 		if(!XChars.isEmpty(configurationResourceName))
 		{
 			final URL url = this.loadResource(configurationResourceName, settings);
-			if(url != null)
+			if(url == null)
 			{
-				return CacheConfigurationFactory.Load(url, Object.class, Object.class);
+				throw new CacheException("Storage configuration not found: " + configurationResourceName);
 			}
+			return CacheConfiguration.Load(url, Object.class, Object.class);
 		}
+		
+		// 2. Check for properties in context config
+		final String                 prefix            = "hibernate.cache.microstream.";
+		final Map<String, String> msCacheProperties = ((Map<Object, Object>)properties).entrySet().stream()
+			.filter(kv -> kv.getKey().toString().startsWith(prefix))
+			.collect(Collectors.toMap(
+				kv -> kv.getKey().toString().substring(prefix.length()), 
+				kv -> kv.getValue().toString()
+			))
+		;
+		if(msCacheProperties.size() > 0L)
+		{
+			final CacheConfiguration.Builder<Object, Object> builder =
+				CacheConfiguration.Builder(Object.class, Object.class);
+			CacheConfigurationPropertyParser.New(
+				className -> this.loadClass(className, settings)
+			)
+			.parseProperties(
+				msCacheProperties,
+				builder
+			);
+			return builder.build();
+		}
+		
+		// 3. Check for default property resource
 		CacheConfiguration<Object, Object> configuration = 
-			CacheConfigurationFactory.Load(Object.class, Object.class);
+			CacheConfiguration.Load(Object.class, Object.class);
 		return configuration != null
 			? configuration
+		// 4. Otherwise use simple default configuration
 			: CacheConfiguration.Builder(Object.class, Object.class)
 				.storeByReference()
 				.build();
@@ -182,7 +211,8 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		
 		URL url = settings.getServiceRegistry()
 			.getService(ClassLoaderService.class)
-			.locateResource(configurationResourceName);
+			.locateResource(configurationResourceName)
+		;
 
 		if(url == null) 
 		{
@@ -210,6 +240,37 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		}
 		
 		return url;
+	}
+	
+	protected Class<?> loadClass(
+		final String configurationClassName,
+		final SessionFactoryOptions settings
+	) throws ClassNotFoundException 
+	{
+		if(!super.isStarted()) 
+		{
+			throw new IllegalStateException("Cannot load class through a non-started CacheRegionFactory");
+		}
+		
+		Class<?> clazz = settings.getServiceRegistry()
+			.getService(ClassLoaderService.class)
+			.classForName(configurationClassName)
+		;
+
+		if(clazz == null) 
+		{
+			final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
+			if(contextClassloader != null) 
+			{
+				clazz = contextClassloader.loadClass(configurationClassName);
+			}
+			if(clazz == null) 
+			{
+				clazz = Class.forName(configurationClassName);
+			}
+		}
+		
+		return clazz;
 	}
 
 	@Override
