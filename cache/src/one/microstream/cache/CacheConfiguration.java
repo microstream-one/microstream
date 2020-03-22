@@ -3,8 +3,16 @@ package one.microstream.cache;
 
 import static one.microstream.X.coalesce;
 import static one.microstream.X.notNull;
+import static one.microstream.chars.XChars.notEmpty;
 
+import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.function.Predicate;
@@ -19,19 +27,395 @@ import javax.cache.expiry.ExpiryPolicy;
 import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheWriter;
 
+import one.microstream.chars.XChars;
 import one.microstream.reflect.XReflect;
+import one.microstream.storage.types.EmbeddedStorageManager;
 
 
 public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
-{
+{	
+	public static String PathProperty()
+	{
+		return "microstream.cache.configuration.path";
+	}
+	
+	public static String DefaultResourceName()
+	{
+		return "microstream-cache.properties";
+	}
+	
+	
+	public static CacheConfiguration<?, ?> Load()
+	{
+		final String path = System.getProperty(PathProperty());
+		if(!XChars.isEmpty(path))
+		{
+			final CacheConfiguration<?, ?> configuration = Load(path);
+			if(configuration != null)
+			{
+				return configuration;
+			}
+		}
+
+		final String      defaultName        = DefaultResourceName();
+		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
+		final URL         url                = contextClassloader != null
+			? contextClassloader.getResource(defaultName)
+			: Configuration.class.getResource("/" + defaultName);
+		if(url != null)
+		{
+			return Load(url);
+		}
+		
+		File file = new File(defaultName);
+		if(file.exists())
+		{
+			return Load(file);
+		}
+		file = new File(System.getProperty("user.home"), defaultName);
+		if(file.exists())
+		{
+			return Load(file);
+		}
+		
+		return null;
+	}
+	
+	public static CacheConfiguration<?, ?> Load(
+		final String path
+	)
+	{
+		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
+		      URL         url                = contextClassloader != null
+			? contextClassloader.getResource(path)
+			: Configuration.class.getResource(path);
+		if(url != null)
+		{
+			return Load(url);
+		}
+			
+		try
+		{
+			url = new URL(path);
+			return Load(url);
+		}
+		catch(MalformedURLException e)
+		{
+			final File file = new File(path);
+			if(file.exists())
+			{
+				return Load(file);
+			}
+		}
+		
+		return null;
+	}
+	
+	public static <K, V> CacheConfiguration<K, V> Load(
+		final Class<K> keyType,
+		final Class<V> valueType
+	)
+	{
+		final String path = System.getProperty(PathProperty());
+		if(!XChars.isEmpty(path))
+		{
+			final CacheConfiguration<K, V> configuration = Load(path, keyType, valueType);
+			if(configuration != null)
+			{
+				return configuration;
+			}
+		}
+
+		final String      defaultName        = DefaultResourceName();
+		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
+		final URL         url                = contextClassloader != null
+			? contextClassloader.getResource(defaultName)
+			: Configuration.class.getResource("/" + defaultName);
+		if(url != null)
+		{
+			return Load(url, keyType, valueType);
+		}
+		
+		File file = new File(defaultName);
+		if(file.exists())
+		{
+			return Load(file, keyType, valueType);
+		}
+		file = new File(System.getProperty("user.home"), defaultName);
+		if(file.exists())
+		{
+			return Load(file, keyType, valueType);
+		}
+		
+		return null;
+	}
+	
+	public static <K, V> CacheConfiguration<K, V> Load(
+		final String path,
+		final Class<K> keyType,
+		final Class<V> valueType
+	)
+	{
+		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
+	          URL         url                = contextClassloader != null
+			? contextClassloader.getResource(path)
+			: Configuration.class.getResource(path);
+		if(url != null)
+		{
+			return Load(url, keyType, valueType);
+		}
+			
+		try
+		{
+			url = new URL(path);
+			return Load(url, keyType, valueType);
+		}
+		catch(MalformedURLException e)
+		{
+			final File file = new File(path);
+			if(file.exists())
+			{
+				return Load(file, keyType, valueType);
+			}
+		}
+		
+		return null;
+	}
+	
+	public static CacheConfiguration<?, ?> Load(
+		final Path path
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromPath(path)
+		);
+	}
+	
+	public static CacheConfiguration<?, ?> Load(
+		final Path path, 
+		final Charset charset
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromPath(path, charset)
+		);
+	}
+	
+	public static CacheConfiguration<?, ?> Load(
+		final File file
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromFile(file)
+		);
+	}
+	
+	public static CacheConfiguration<?, ?> Load(
+		final File file, 
+		final Charset charset
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromFile(file, charset)
+		);
+	}
+	
+	public static CacheConfiguration<?, ?> Load(
+		final URL url
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromUrl(url)
+		);
+	}
+	
+	public static CacheConfiguration<?, ?> Load(
+		final URL url, 
+		final Charset charset
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromUrl(url, charset)
+		);
+	}
+	
+	public static CacheConfiguration<?, ?> Load(
+		final InputStream inputStream
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.FromInputStream(inputStream).loadConfiguration()
+		);
+	}
+	
+	public static CacheConfiguration<?, ?> Load(
+		final InputStream inputStream, 
+		final Charset charset
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
+		);
+	}
+	
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final Path path,
+		final Class<K> keyType,
+		final Class<V> valueType
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromPath(path),
+			keyType,
+			valueType
+		);
+	}
+	
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final Path path, 
+		final Charset charset,
+		final Class<K> keyType,
+		final Class<V> valueType
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromPath(path, charset),
+			keyType,
+			valueType
+		);
+	}
+	
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final File file,
+		final Class<K> keyType,
+		final Class<V> valueType
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromFile(file),
+			keyType,
+			valueType
+		);
+	}
+	
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final File file, 
+		final Charset charset,
+		final Class<K> keyType,
+		final Class<V> valueType
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromFile(file, charset),
+			keyType,
+			valueType
+		);
+	}
+	
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final URL url,
+		final Class<K> keyType,
+		final Class<V> valueType
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromUrl(url),
+			keyType,
+			valueType
+		);
+	}
+	
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final URL url, 
+		final Charset charset,
+		final Class<K> keyType,
+		final Class<V> valueType
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.loadFromUrl(url, charset),
+			keyType,
+			valueType
+		);
+	}
+	
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final InputStream inputStream,
+		final Class<K> keyType,
+		final Class<V> valueType
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.FromInputStream(inputStream).loadConfiguration(),
+			keyType,
+			valueType
+		);
+	}
+	
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final InputStream inputStream, 
+		final Charset charset,
+		final Class<K> keyType,
+		final Class<V> valueType
+	)
+	{
+		return CacheConfigurationParser.New().parse(
+			CacheConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration(),
+			keyType,
+			valueType
+		);
+	}
+		
+	
 	public Factory<EvictionManager<K, V>> getEvictionManagerFactory();
 	
 	public Predicate<? super Field> getSerializerFieldPredicate();
 	
 	
-	public static <K, V> Builder<K, V> Builder(final Class<K> keyType, final Class<V> valueType)
+	public static <K, V> Builder<K, V> Builder(
+		final Class<K> keyType, 
+		final Class<V> valueType
+	)
 	{
 		return new Builder.Default<>(keyType, valueType);
+	}
+	
+	public static <K, V> Builder<K, V> Builder(
+		final Class<K> keyType, 
+		final Class<V> valueType,
+		final String cacheName,
+		final EmbeddedStorageManager storageManager
+	)
+	{
+		return Builder(
+			keyType,
+			valueType,
+			CachingProvider.defaultURI(),
+			cacheName,
+			storageManager
+		);
+	}
+	
+	public static <K, V> Builder<K, V> Builder(
+		final Class<K> keyType, 
+		final Class<V> valueType,
+		final URI uri,
+		final String cacheName,
+		final EmbeddedStorageManager storageManager
+	)
+	{
+		notNull(uri);
+		notEmpty(cacheName);
+		notNull(storageManager);
+		
+		final String           cacheKey   = uri.toString() + "::" + cacheName;
+		final CacheStore<K, V> cacheStore = CacheStore.New(cacheKey, storageManager);
+		
+		return Builder(keyType, valueType)
+			.cacheLoaderFactory(() -> cacheStore)
+			.cacheWriterFactory(() -> cacheStore)
+			.readThrough()
+			.writeThrough();
 	}
 	
 	public static interface Builder<K, V>
@@ -46,9 +430,19 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		
 		public Builder<K, V> evictionManagerFactory(Factory<EvictionManager<K, V>> evictionManagerFactory);
 		
-		public Builder<K, V> readThrough();
+		public default Builder<K, V> readThrough()
+		{
+			return readThrough(true);
+		}
 		
-		public Builder<K, V> writeThrough();
+		public Builder<K, V> readThrough(boolean readThrough);
+		
+		public default Builder<K, V> writeThrough()
+		{
+			return writeThrough(true);
+		}
+		
+		public Builder<K, V> writeThrough(boolean writeThrough);
 		
 		public Builder<K, V> storeByValue();
 		
@@ -71,11 +465,11 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			private Factory<CacheWriter<? super K, ? super V>>     cacheWriterFactory;
 			private Factory<ExpiryPolicy>                          expiryPolicyFactory;
 			private Factory<EvictionManager<K, V>>                 evictionManagerFactory;
-			private boolean                                        isReadThrough;
-			private boolean                                        isWriteThrough;
-			private boolean                                        isStoreByValue;
-			private boolean                                        isStatisticsEnabled;
-			private boolean                                        isManagementEnabled;
+			private boolean                                        readThrough;
+			private boolean                                        writeThrough;
+			private boolean                                        storeByValue;
+			private boolean                                        statisticsEnabled;
+			private boolean                                        managementEnabled;
 			private Predicate<? super Field>                       serializerFieldPredicate;
 			
 			Default(final Class<K> keyType, final Class<V> valueType)
@@ -123,44 +517,44 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			}
 			
 			@Override
-			public Builder<K, V> readThrough()
+			public Builder<K, V> readThrough(final boolean readThrough)
 			{
-				this.isReadThrough = true;
+				this.readThrough = readThrough;
 				return this;
 			}
 			
 			@Override
-			public Builder<K, V> writeThrough()
+			public Builder<K, V> writeThrough(final boolean writeThrough)
 			{
-				this.isWriteThrough = true;
+				this.writeThrough = writeThrough;
 				return this;
 			}
 			
 			@Override
 			public Builder<K, V> storeByValue()
 			{
-				this.isStoreByValue = true;
+				this.storeByValue = true;
 				return this;
 			}
 			
 			@Override
 			public Builder<K, V> storeByReference()
 			{
-				this.isStoreByValue = false;
+				this.storeByValue = false;
 				return this;
 			}
 			
 			@Override
 			public Builder<K, V> enableStatistics()
 			{
-				this.isStatisticsEnabled = true;
+				this.statisticsEnabled = true;
 				return this;
 			}
 			
 			@Override
 			public Builder<K, V> enableManagement()
 			{
-				this.isManagementEnabled = true;
+				this.managementEnabled = true;
 				return this;
 			}
 			
@@ -196,11 +590,11 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 					this.cacheWriterFactory,
 					expiryPolicyFactory,
 					evictionManagerFactory,
-					this.isReadThrough,
-					this.isWriteThrough,
-					this.isStoreByValue,
-					this.isStatisticsEnabled,
-					this.isManagementEnabled,
+					this.readThrough,
+					this.writeThrough,
+					this.storeByValue,
+					this.statisticsEnabled,
+					this.managementEnabled,
 					serializerFieldPredicate
 				);
 			}
