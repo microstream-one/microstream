@@ -21,12 +21,6 @@ import one.microstream.util.BufferSizeProviderIncremental;
 
 public interface BinaryStorer extends PersistenceStorer
 {
-//	@Override
-//	public BinaryStorer initialize();
-//
-//	@Override
-//	public BinaryStorer initialize(long initialCapacity);
-
 	@Override
 	public PersistenceStorer reinitialize();
 
@@ -41,6 +35,12 @@ public interface BinaryStorer extends PersistenceStorer
 
 	@Override
 	public long maximumCapacity();
+	
+//	@Override
+//	public BinaryStorer initialize();
+//
+//	@Override
+//	public BinaryStorer initialize(long initialCapacity);
 
 
 	
@@ -62,7 +62,7 @@ public interface BinaryStorer extends PersistenceStorer
 		protected static int defaultSlotSize()
 		{
 			// why permanently occupy additional memory with fields and instances for constant values?
-			return 1024; // anthing below 1024 doesn't pay of
+			return 1024; // anything below 1024 doesn't pay of
 		}
 
 		
@@ -81,20 +81,34 @@ public interface BinaryStorer extends PersistenceStorer
 		private final BufferSizeProviderIncremental bufferSizeProvider;
 		private final int                           chunksHashRange   ;
 		
-		// cannot be final since every commit needs to pass an independant instance, anyway
+		// cannot be final since every commit needs to pass an independant instance.
 		private ChunksBuffer[] chunks;
-
+		
 		/*
-		 * item hashing structures get initialized lazily for the following reasons:
-		 * - the storer instance can commit (be cleared) and be reinitialized multiple times.
-		 * - the storer instance can be explicitly initialized to a certain capacity.
-		 * - clearing after committing can simply null the array reference, easing garbage collection.
+		 * Concurrency / thread-safety concept:
+		 * - head is the internal mutex instance since it hints to the mutable state but is final and immutable itself.
+		 * - lock order/hierarchy must always be:
+		 *   1.) if applicable: in ObjectManager instance lock on objectRegistry
+		 *   2.) lock on this.head
+		 *   Should this order ever reverse anywhere, it will be a deadlock race condition!
+		 *   This is also the reason for the internal mutex instead of using this directly:
+		 *   Outside logic could lock the storer first, reversing the lock order.
+		 * - A storer instance is never meant to be used in a mutating fashion by more than one thread
+		 *   at any given moment. The concurrency logic is only meant to synchronize reading accesses
+		 *   from other storer instances of other threads for doing the
 		 */
 		final   Item   head = new Item(null, 0L, null, null);
 		private Item   tail;
 		private Item[] hashSlots;
 		private int    hashRange;
 		private long   itemCount;
+
+		/*
+		 * item hashing structures get initialized lazily for the following reasons:
+		 * - the storer instance can commit (be cleared) and be reinitialized multiple times.
+		 * - the storer instance can be explicitly initialized to a certain capacity.
+		 * - clearing after committing can simply replace the array, easing garbage collection.
+		 */
 
 		
 		
@@ -121,7 +135,7 @@ public interface BinaryStorer extends PersistenceStorer
 			this.chunksHashRange    =         channelCount - 1   ;
 			this.switchByteOrder    =         switchByteOrder    ;
 			
-			this.internalInitialize();
+			this.defaultInitialize();
 		}
 
 
@@ -129,13 +143,49 @@ public interface BinaryStorer extends PersistenceStorer
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final PersistenceObjectManager parentObjectManager()
+		{
+			return this.objectManager;
+		}
 
-		protected ChunksBuffer chunk(final long objectId)
+		@Override
+		public final ObjectSwizzling getObjectRetriever()
+		{
+			return this.objectRetriever;
+		}
+
+		@Override
+		public final long maximumCapacity()
+		{
+			return Long.MAX_VALUE;
+		}
+
+		@Override
+		public final long currentCapacity()
+		{
+			synchronized(this.head)
+			{
+				return this.hashSlots.length;
+			}
+		}
+
+		@Override
+		public final long size()
+		{
+			synchronized(this.head)
+			{
+				return this.itemCount;
+			}
+		}
+
+		protected ChunksBuffer synchLookupChunk(final long objectId)
 		{
 			return this.chunks[(int)(objectId & this.chunksHashRange)];
 		}
 
-		protected Binary complete()
+		protected Binary synchComplete()
 		{
 			for(final ChunksBuffer chunk : this.chunks)
 			{
@@ -147,69 +197,10 @@ public interface BinaryStorer extends PersistenceStorer
 		}
 
 		@Override
-		public <T> long apply(final T instance)
-		{
-			if(instance == null)
-			{
-				return Swizzling.nullId();
-			}
-
-			final long objectIdLocal;
-			if(Swizzling.isFoundId(objectIdLocal = this.lookupOid(instance)))
-			{
-				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
-				return objectIdLocal;
-			}
-			
-			/*
-			 * Lazy storing logic:
-			 * If the instance already has an OID registered with it (= already known / handled globally),
-			 * it is assumed to be already stored and therefore not stored here ("again").
-			 * Only if a new OID has to be assigned, the instance is registered (via registerAdd)
-			 */
-			return this.objectManager.ensureObjectId(instance, this);
-		}
-		
-		@Override
-		public final <T> long applyEager(final T instance)
-		{
-			if(instance == null)
-			{
-				return Swizzling.nullId();
-			}
-			
-			/*
-			 * "Eager" must still mean that if this storer has already stored the passed instance,
-			 * it may not store it again. That would not only be data-wise redundant and unnecessary,
-			 * but would also create infinite storing loops and overflows.
-			 * So "eager" can only mean to not check the global registry, but it must still mean to check
-			 * the local registry.
-			 */
-			final long objectIdLocal;
-			if(Swizzling.isFoundId(objectIdLocal = this.lookupOid(instance)))
-			{
-				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
-				return objectIdLocal;
-			}
-
-			/*
-			 * Eager storing logic:
-			 * If the instance is not already handled locally (already stored by this storer), it is now stored.
-			 */
-			return this.registerAdd(instance);
-		}
-
-		@Override
-		public final ObjectSwizzling getObjectRetriever()
-		{
-			return this.objectRetriever;
-		}
-
-		@Override
 		public PersistenceStorer reinitialize()
 		{
-			// clear does initialization as well, since the storer may never be in an uninitialized state.
-			this.clear();
+			// does locking internally
+			this.defaultInitialize();
 			
 			return this;
 		}
@@ -217,6 +208,7 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public PersistenceStorer reinitialize(final long initialCapacity)
 		{
+			// does locking internally
 			this.internalInitialize(XHashing.padHashLength(initialCapacity));
 			
 			return this;
@@ -225,11 +217,13 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public void clear()
 		{
-			this.internalInitialize();
+			// clearing means just to reinitialize (with default values).
+			this.reinitialize();
 		}
 
-		private void internalInitialize()
+		private void defaultInitialize()
 		{
+			// does locking internally
 			this.internalInitialize(defaultSlotSize());
 		}
 
@@ -268,21 +262,6 @@ public interface BinaryStorer extends PersistenceStorer
 		}
 
 		@Override
-		public final long currentCapacity()
-		{
-			synchronized(this.head)
-			{
-				return this.hashSlots.length;
-			}
-		}
-
-		@Override
-		public final long maximumCapacity()
-		{
-			return Long.MAX_VALUE;
-		}
-
-		@Override
 		public PersistenceStorer ensureCapacity(final long desiredCapacity)
 		{
 			synchronized(this.head)
@@ -296,13 +275,109 @@ public interface BinaryStorer extends PersistenceStorer
 			
 			return this;
 		}
-
+		
 		@Override
-		public final long size()
+		public <T> long apply(final T instance)
 		{
+			// concurrency: lookupOid() and ensureObjectId() lock internally, the rest is thread-local
+			
+			if(instance == null)
+			{
+				return Swizzling.nullId();
+			}
+			
+			final long objectIdLocal;
+			if(Swizzling.isFoundId(objectIdLocal = this.lookupOid(instance)))
+			{
+				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
+				return objectIdLocal;
+			}
+			
+			/*
+			 * Lazy storing logic:
+			 * If the instance already has an OID registered with it (= already known / handled globally),
+			 * it is assumed to be already stored and therefore not stored here ("again").
+			 * Only if a new OID has to be assigned, the instance is registered (via registerAdd)
+			 */
+			return this.registerAdd(instance);
+		}
+		
+		// (23.03.2020 TM)FIXME: priv#182 checked
+		
+		@Override
+		public final <T> long applyEager(final T instance)
+		{
+			// (23.03.2020 TM)FIXME: priv#182: what is the difference between this and apply anymore? WTF?
+			
+			
+			if(instance == null)
+			{
+				return Swizzling.nullId();
+			}
+			
+			/*
+			 * "Eager" must still mean that if this storer has already stored the passed instance,
+			 * it may not store it again. That would not only be data-wise redundant and unnecessary,
+			 * but would also create infinite storing loops and overflows.
+			 * So "eager" can only mean to not check the global registry, but it must still mean to check
+			 * the local registry.
+			 */
+			final long objectIdLocal;
+			if(Swizzling.isFoundId(objectIdLocal = this.lookupOid(instance)))
+			{
+				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
+				return objectIdLocal;
+			}
+
+			/*
+			 * Eager storing logic:
+			 * If the instance is not already handled locally (already stored by this storer), it is now stored.
+			 */
+			return this.registerAdd(instance);
+		}
+		
+		// (23.03.2020 TM)TODO: priv#182: check to consolidate apply, applyEager and storeGraph if/where applicable
+		
+		/**
+		 * Stores the passed instance (always) and interprets it as the root of a graph to be traversed and
+		 * have its instances stored recursively if deemed necessary by the logic until all instance
+		 * that can be reached by that logic have been handled.
+		 */
+		protected final long storeGraph(final Object root)
+		{
+			/* (03.12.2019 TM)NOTE:
+			 * Special case logic to handle explicitely passed instances:
+			 * - if already handled by this storer, don't handle again.
+			 * Apart from that:
+			 * - register to be handled in any case, even if already registered in the object registry.
+			 * - handle all registered graph objects recursively (but transformed to an iteration).
+			 * Note that this is NOT the same as apply, which does NOT store if the instance is already registry-known.
+			 */
+			long rootOid;
+			if(Swizzling.isFoundId(rootOid = this.lookupOid(root)))
+			{
+				return rootOid;
+			}
+			
+			// initial registration. After that, storing adds via recursing the graph and processing items iteratively.
+			rootOid = this.registerAdd(notNull(root));
+
+			// process and collect required instances uniquely in item chain (graph recursion transformed to iteration)
+			for(Item item = this.tail; item != null; item = item.next)
+			{
+				// locks internally. May not lock the whole loop or other storers can't lookup concurrently
+				this.storeItem(item);
+			}
+
+			return rootOid;
+		}
+		
+		protected final void storeItem(final Item item)
+		{
+//			XDebug.println("Storing     " + item.oid + ": " + XChars.systemString(item.instance) + " ("  + item.instance + ")");
 			synchronized(this.head)
 			{
-				return this.itemCount;
+				item.typeHandler.store(this.synchLookupChunk(item.oid), item.instance, item.oid, this);
 			}
 		}
 
@@ -330,12 +405,6 @@ public interface BinaryStorer extends PersistenceStorer
 			{
 				this.storeGraph(instance);
 			}
-		}
-		
-		@Override
-		public final PersistenceObjectManager parentObjectManager()
-		{
-			return this.objectManager;
 		}
 		
 		@Override
@@ -367,7 +436,7 @@ public interface BinaryStorer extends PersistenceStorer
 				{
 					this.typeManager.checkForPendingRootInstances();
 					this.typeManager.checkForPendingRootsStoring(this);
-					writeData = this.complete();
+					writeData = this.synchComplete();
 				}
 				
 				// very costly IO-operation does not need to occupy the lock
@@ -434,47 +503,7 @@ public interface BinaryStorer extends PersistenceStorer
 				return Swizzling.notFoundId();
 			}
 		}
-		
-		/**
-		 * Stores the passed instance (always) and interprets it as the root of a graph to be traversed and
-		 * have its instances stored recursively if deemed necessary by the logic until all instance
-		 * that can be reached by that logic have been handled.
-		 */
-		protected final long storeGraph(final Object root)
-		{
-			/* (03.12.2019 TM)NOTE:
-			 * Special case logic to handle explicitely passed instances:
-			 * - if already handled by this storer, don't handle again.
-			 * - register to be handled in any case, even if already registered in the object registry.
-			 * - handle all registered items recursively (but transformed to an iteration).
-			 * Note that this is NOT the same as apply, which does NOT store if the instance is already registry-known.
-			 */
-			long rootOid;
-			if(Swizzling.isFoundId(rootOid = this.lookupOid(root)))
-			{
-				return rootOid;
-			}
-			
-			rootOid = this.registerAdd(notNull(root));
-
-			// process and collect required instances uniquely in item chain (graph recursion transformed to iteration)
-			for(Item item = this.tail; item != null; item = item.next)
-			{
-				this.storeItem(item);
-			}
-
-			return rootOid;
-		}
-		
-		protected final void storeItem(final Item item)
-		{
-//			XDebug.println("Storing     " + item.oid + ": " + XChars.systemString(item.instance) + " ("  + item.instance + ")");
-			synchronized(this.head)
-			{
-				item.typeHandler.store(this.chunk(item.oid), item.instance, item.oid, this);
-			}
-		}
-		
+				
 		@Override
 		public final void accept(final long objectId, final Object instance)
 		{
@@ -488,15 +517,15 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 		}
 		
+		// (23.03.2020 TM)FIXME: priv#182 checked
+		
 		protected final long registerAdd(final Object instance)
 		{
-			// ensureObjectId may never be called under a storer lock or a deadlock might happen!
-			final long objectId = this.objectManager.ensureObjectId(instance, this);
-			
-			// accept does locking internally
-			this.accept(objectId, instance);
-
-			return objectId;
+			/* Note:
+			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
+			 * - this.accept gets called internally as a callback
+			 */
+			return this.objectManager.ensureObjectId(instance, this);
 		}
 		
 		@Override
