@@ -417,5 +417,25 @@ Jo. Werden nie aufgerufen. Braucht keiner. Machen keinen Sinn. Raus.\par
 \par
 Noch TODO von gestern machen. Einige Methoden aufr\'e4umen, Locking hinzuf\'fcgen wo n\'f6tig.\par
 Sollte jetzt fertig sein. Muss ich aber nochmal komplett durchschauen.\par
+\par
+\par
+2020-03-23\par
+\par
+Also jetzt schau ich das nochmal komplett durch und dann sollte es fertig sein.\par
+\par
+Methoden aufr\'e4umen, konsistenter benennen, mehr Kommentare schreiben. Z.B. zum Concurrency-Konzept. Mutex, Lock-Hierarchie, usw.\par
+Oh, sogar noch einen Bug gefunden:\par
+#registerAdd ruft erst this.objectManager.ensureObjectId() auf mit callback this, wof\'fcr dann intern, unter dem objectregistry lock, #accept aufgerufen wird. Danach ruft es nochmal accept auf.\par
+Naja gut, es d\'fcrfte kein Bug sein, weil der redundante #accept Aufruf ja immer wirkungslos ist, aber es ist \'fcberfl\'fcssiger Aufwand.\par
+Entfernt und kommentiert.\par
+Gleich nochmal alle anderen Aufrufe von this.objectManager.ensureObjectId() checken ...\par
+Da ist ein direkter this.objectManager.ensureObjectId() Aufruf, der zu #registerAdd konsolidiert werden kann.\par
+Die drei \'e4hnlichen Methoden storeGraph, apply und applyEager zusammenziehen.\par
+Mal schauen, wo an denen drei eigentlich genau der Unterschied ist. Evtl. kann man da Teile zusammenmodularisieren.\par
+...\'e4hh... jetzt ist apply (= lazy) und applyEager identisch.\par
+Da kann was nicht stimmen.\par
+\par
+*seufz*\par
+Muss ich dann anschauen ...\par
 }
  
