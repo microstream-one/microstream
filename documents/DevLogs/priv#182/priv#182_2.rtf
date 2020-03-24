@@ -437,5 +437,80 @@ Da kann was nicht stimmen.\par
 \par
 *seufz*\par
 Muss ich dann anschauen ...\par
+\par
+\par
+Also: #apply (lazy) und #applyEager nachschauen im alten Stand (master branch):\par
+\par
+#apply (lazy):\par
+- lokales this.lookupOid(instance)\par
+- bei Miss globales this.objectManager.ensureObjectId(instance, this)\par
+\par
+Der lokale Lookup ist daf\'fcr da, dass ein Storer Instanzen nicht mehrfach serialisiert. Das ist immer sinnvoll bzw. n\'f6tig.\par
+Wenn nicht, wird global gecheckt: Gibt es schon eine assoziierte OID daf\'fcr?\par
+NUR, wenn es noch keine gibt, wird f\'fcr die neu vergebene der mit\'fcbergebene Storer als Callback aufgerufen, wodurch er die neu assoziierte Instanz serialisert.\par
+\par
+#applyEager:\par
+- lokales this.lookupOid(instance)\par
+- this.registerAdd(instance) mit intern:\par
+\tab > this.objectManager.ensureObjectId(instance) [OHNE this als callback!]\par
+\tab > this.accept(oid, instance)\par
+\par
+Also der Unterschied ist:\par
+lazy \'fcbergibt den storer als callback f\'fcr bedingte Registrierung\par
+eager \'fcbergibt den storer nicht und macht die Registrierung IMMER.\par
+\par
+Genau diese Unterscheidung hab ich im Branch weg-optimiert. Muss ich wieder einbauen.\par
+Wieder branch wechseln ...\par
+\par
+\par
+Hm. Jetzt ist in ensureObjectId() nat\'fcrlich noch ein dritter Aspekt dazugekommen:\par
+1.) Lookup nach global existierender OID-Assoziation (wie bisher)\par
+2.) Bei neu vergebener OID callback-Aufruf (wie bisher)\par
+3.) im Ablauf ZWISCHEN #1 und #2 nun noch lookup in anderen storern und bei einem Fund callback-Aufruf.\par
+\par
+Wie spielt #3 in den Unterschied von lazy storing und eager storing rein? Passt das so...?\par
+Muss ich \'fcberlegen ...\par
+\'c4h ... das ist irgendwie gar nicht so einfach...\par
+\par
+Also der lazy storer \'fcbergibt sich als callback mit, um im Fall #2 informiert zu werden.\par
+Der eager storer \'fcbergibt sich NICHT mit, weil er nachtr\'e4glich die registrierung eh IMMER macht.\par
+\par
+Damit kriegt aber auch nur der lazy Storer den Fall #3 mit und der eager storer nicht.\par
+Wobei das kein Problem ist, weil die ObjectId ja im Fall #3 auch zur\'fcckgegeben wird und der Eager storer eben de zur\'fcckgegebene OID IMMER registriert.\par
+Also passt das? Sind #2 und #3 vom Callback her gesehen derselbe Fall?\par
+*kopfkratz*\par
+Ich glaub schon.\par
+\par
+Nochmal durchdenken ...\par
+Das knifflige ist, dass die lazy Logik, die eigentlich "weniger" macht, IMMER \'fcbergeben wird und die eager Logik, die IMMER was macht, nie \'fcbergeben wird (weil sie es selber au\'dferhalb macht).\par
+\par
+Uff!\par
+Da muss ich entsprechende Kommentare dazuschreiben, sonst wird das immer wieder Verwirrung erzeugen\par
+\par
+Codem\'e4\'dfig muss ich nur wieder den weg-/kaputt-optimierten Aufruf mit callback null wiederherstellen, dann sollt es passen, auch mit der Erweiterung.\par
+\par
+Ne, besser:\par
+Anstatt ...\par
+- Aufruf von objectManager.ensureObjectId() blank f\'fcr lazy Logik.\par
+- Aufruf von objectManager.ensureObjectId() gewrappt in #registerAdd f\'fcr eager Logik.\par
+\par
+... mach ich ...\par
+- Aufruf von objectManager.ensureObjectId() gewrappt in #registerLazy\par
+- Aufruf von objectManager.ensureObjectId() gewrappt in #registerEager\par
+\par
+\par
+\par
+Ahhhh!!!\par
+Aber damit ist das Problem, dass das eager-logic accept au\'dferhalb des object-registry locks aufgerufen wird, \'fcber das sich alle storer synchronisieren.\par
+D.h. der f\'fcr die storing robustness entscheidende Lookup kann gelegentlich schiefgehen.\par
+Super.\par
+Mist.\par
+Also muss ich objectManager.ensureObjectId() DOCH erweitern um zwei Acceptor Parameter:\par
+Einer f\'fcr on-demand callback, einer f\'fcr immer callback.\par
+Und dann ist je nach Fall nur einer der beiden non-null.\par
+\par
+Und eigentlich reicht f\'fcr beides das PersistenceAcceptor interface aus...\par
+\par
+Aber das muss ich morgen machen, weil jetzt schon wieder die Zeit aus ist...\par
 }
  
