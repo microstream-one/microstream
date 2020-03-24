@@ -6,6 +6,8 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,13 +26,18 @@ import one.microstream.storage.exceptions.StorageExceptionIo;
 @FunctionalInterface
 public interface ConfigurationParser
 {
-	public default Configuration parse(final String data)
+	public default Configuration parse(
+		final String data
+	)
 	{
 		return this.parse(Configuration.Default(), data);
 	}
 	
 	
-	public Configuration parse(Configuration configuration, String data);
+	public Configuration parse(
+		Configuration configuration, 
+		String data
+	);
 	
 	
 	public static ConfigurationParser Ini()
@@ -38,7 +45,9 @@ public interface ConfigurationParser
 		return Ini(ConfigurationPropertyParser.New());
 	}
 	
-	public static ConfigurationParser Ini(final ConfigurationPropertyParser propertyParser)
+	public static ConfigurationParser Ini(
+		final ConfigurationPropertyParser propertyParser
+	)
 	{
 		return new IniConfigurationParser(notNull(propertyParser));
 	}
@@ -48,7 +57,9 @@ public interface ConfigurationParser
 		return Xml(ConfigurationPropertyParser.New());
 	}
 	
-	public static ConfigurationParser Xml(final ConfigurationPropertyParser propertyParser)
+	public static ConfigurationParser Xml(
+		final ConfigurationPropertyParser propertyParser
+	)
 	{
 		return new XmlConfigurationParser(notNull(propertyParser));
 	}
@@ -58,15 +69,22 @@ public interface ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
 		
-		IniConfigurationParser(final ConfigurationPropertyParser propertyParser)
+		IniConfigurationParser(
+			final ConfigurationPropertyParser propertyParser
+		)
 		{
 			super();
 			this.propertyParser = propertyParser;
 		}
 		
 		@Override
-		public Configuration parse(final Configuration configuration, final String data)
+		public Configuration parse(
+			final Configuration configuration,
+			final String data
+		)
 		{
+			final Map<String, String> properties = new HashMap<>();
+			
 			nextLine:
 			for(String line : data.split("\\r?\\n"))
 			{
@@ -92,8 +110,10 @@ public interface ConfigurationParser
 				
 				final String name  = line.substring(0, separatorIndex).trim();
 				final String value = line.substring(separatorIndex + 1).trim();
-				this.propertyParser.parseProperty(name, value, configuration);
+				properties.put(name, value);
 			}
+			
+			this.propertyParser.parseProperties(properties, configuration);
 			
 			return configuration;
 		}
@@ -104,17 +124,24 @@ public interface ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
 		
-		XmlConfigurationParser(final ConfigurationPropertyParser propertyParser)
+		XmlConfigurationParser(
+			final ConfigurationPropertyParser propertyParser
+		)
 		{
 			super();
 			this.propertyParser = propertyParser;
 		}
 		
 		@Override
-		public Configuration parse(final Configuration configuration, final String data)
+		public Configuration parse(
+			final Configuration configuration, 
+			final String data
+		)
 		{
 			try
 			{
+				final Map<String, String> properties = new HashMap<>();
+				
 				final DocumentBuilder builder  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 				final Document        document = builder.parse(new InputSource(new StringReader(data)));
 				final Element         documentElement;
@@ -126,9 +153,11 @@ public interface ConfigurationParser
 						final Element propertyElement = (Element)propertyNodes.item(i);
 						final String  name            = notEmpty(propertyElement.getAttribute("name").trim());
 						final String  value           = notEmpty(propertyElement.getAttribute("value").trim());
-						this.propertyParser.parseProperty(name, value, configuration);
+						properties.put(name, value);
 					}
 				}
+				
+				this.propertyParser.parseProperties(properties, configuration);
 			}
 			catch(ParserConfigurationException | SAXException e)
 			{

@@ -4,6 +4,7 @@ package one.microstream.storage.configuration;
 import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.notEmpty;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 import one.microstream.bytes.ByteMultiple;
@@ -13,10 +14,9 @@ import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
 @FunctionalInterface
 public interface ConfigurationPropertyParser
 {
-	public void parseProperty(
-		String name,
-		String value,
-		Configuration configuration
+	public void parseProperties(
+		Map<String, String> properties,
+		Configuration       configuration
 	);
 	
 	
@@ -56,9 +56,19 @@ public interface ConfigurationPropertyParser
 			this.fileSizeParser = fileSizeParser;
 		}
 		
-		@SuppressWarnings("deprecation") // keeps parsing deprecated properties
 		@Override
-		public void parseProperty(
+		public void parseProperties(
+			final Map<String, String> properties, 
+			final Configuration       configuration
+		)
+		{
+			properties.entrySet().forEach(kv ->
+				this.parseProperty(kv.getKey(), kv.getValue(), configuration)
+			);
+		}
+		
+		@SuppressWarnings("deprecation") // keeps parsing deprecated properties
+		protected void parseProperty(
 			final String name                ,
 			final String value               ,
 			final Configuration configuration
@@ -233,7 +243,7 @@ public interface ConfigurationPropertyParser
 					break;
 				
 					default:
-						throw new StorageExceptionInvalidConfiguration("Unknown property: " + name);
+						throw new StorageExceptionInvalidConfiguration("Unsupported property: " + name);
 				}
 			}
 			catch(final NumberFormatException nfe)
