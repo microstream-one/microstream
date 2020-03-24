@@ -1,5 +1,6 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.coalesce;
 import static one.microstream.X.notNull;
 
 import java.lang.ref.WeakReference;
@@ -14,9 +15,12 @@ import one.microstream.util.Cloneable;
 public interface PersistenceObjectManager
 extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<PersistenceObjectManager>
 {
+	public long ensureObjectId(Object object);
+	
 	public long ensureObjectId(
-		Object                           object           ,
-		PersistenceLocalObjectIdRegistry objectIdRequestor
+		Object              object                ,
+		PersistenceAcceptor lazyObjectIdRequestor ,
+		PersistenceAcceptor eagerObjectIdRequestor
 	);
 
 	public void consolidate();
@@ -65,6 +69,8 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		private final PersistenceObjectIdProvider oidProvider   ;
 		
 		private WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries = X.WeakReferences(1);
+		
+		private final PersistenceAcceptor noOp = PersistenceAcceptor::noOp;
 
 		
 
@@ -134,63 +140,76 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				return this.objectRegistry.lookupObject(objectId);
 			}
 		}
+
+		@Override
+		public final long ensureObjectId(final Object object)
+		{
+			return this.ensureObjectId(object, this.noOp, null);
+		}
 		
 		@Override
 		public long ensureObjectId(
-			final Object                           object           ,
-			final PersistenceLocalObjectIdRegistry objectIdRequestor
+			final Object              object                ,
+			final PersistenceAcceptor lazyObjectIdRequestor ,
+			final PersistenceAcceptor eagerObjectIdRequestor
 		)
 		{
+			final PersistenceAcceptor requestor = notNull(
+				coalesce(lazyObjectIdRequestor, eagerObjectIdRequestor)
+			);
+			
+			/*
+			 * Three steps to determine an object's objectId which must be executed in exactely that order
+			 * and under the protection of a lock on the global registry to enqueue all concurrent storers.
+			 * 
+			 * 1.) check if already globally known.
+			 * 2.) check if already locally known in on of the other storers (= "local registries)"
+			 * 3.) otherwise, provide and assign a new ObjectId.
+			 */
 			synchronized(this.objectRegistry)
 			{
 				long objectId;
-				if(Swizzling.isProperId(objectId = this.objectRegistry.lookupObjectId(object)))
+				if(Swizzling.isNotProperId(objectId = this.objectRegistry.lookupObjectId(object)))
 				{
-					return objectId;
-				}
-				if(Swizzling.isProperId(objectId = this.synchCheckLocalRegistries(objectIdRequestor, object)))
-				{
-					// must handle the object in this case since the locally keeping storer might fail its write!
-					if(objectIdRequestor != null)
+					if(Swizzling.isNotProperId(objectId = this.synchCheckLocalRegistries(requestor, object)))
 					{
-						/*
-						 * non-null for lazy logic (only accept globally not yet known instances),
-						 * null for eager logic (ALWAYS accept, but via returned objectId in calling context)
-						 */
-						objectIdRequestor.accept(objectId, object);
+						// see below about not globally registering the newly assigned objectId
+						objectId = this.oidProvider.provideNextObjectId();
 					}
-					
-					return objectId;
+
+					// lazy logic means only apply if not yet globally known (= something new / "store required").
+					if(lazyObjectIdRequestor != null)
+					{
+						lazyObjectIdRequestor.accept(objectId, object);
+					}
 				}
-								
+				
+				// eager logic means ALWAYS apply, even if already globally known (= "store full").
+				if(eagerObjectIdRequestor != null)
+				{
+					eagerObjectIdRequestor.accept(objectId, object);
+				}
+
 				/* (06.12.2019 TM)NOTE:
-				 * The object<->id association may NOT be registered, yet, because the storing (writing) process
+				 * A new object<->id association may NOT be registered right away, since the storing (writing) logic
 				 * afterwards might fail, which would leave an inconsistency (unstored entry that the next storer
 				 * would assume to have already been stored) in the registry.
 				 * The associations are kept locally in the storers and are merged into the registry in the commit
 				 * upon success.
-				 * In the exception ases, the objectId is "lost", but that is not a problem since it is no different
-				 * from a deleted entity. Unused objectIds can be "recycled" by a objectId condensing util functionality.
+				 * In the exception case, the objectId is "lost", but that is not a problem since it is no different
+				 * from a deleted entity. Unused objectIds can be "recycled" by a (future) objectId condensing utility
+				 * functionality.
 				 * And there's the type analysis exception, anyway which stops the whole process.
 				 * See PersistenceTypeHandler#guaranteeInstanceViablity.
 				 */
-				objectId = this.oidProvider.provideNextObjectId();
-				if(objectIdRequestor != null)
-				{
-					/*
-					 * non-null for lazy logic (only accept globally not yet known instances),
-					 * null for eager logic (ALWAYS accept, but via returned objectId in calling context)
-					 */
-					objectIdRequestor.accept(objectId, object);
-				}
 				
 				return objectId;
 			}
 		}
 		
 		private long synchCheckLocalRegistries(
-			final PersistenceLocalObjectIdRegistry objectIdRequestor,
-			final Object                           instance
+			final PersistenceAcceptor objectIdRequestor,
+			final Object              instance
 		)
 		{
 			for(final WeakReference<PersistenceLocalObjectIdRegistry> localRegistryEntry : this.localRegistries)

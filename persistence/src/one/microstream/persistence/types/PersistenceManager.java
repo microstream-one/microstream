@@ -315,10 +315,21 @@ ByteOrderTargeting<PersistenceManager<D>>
 		}
 		
 		@Override
-		public final long ensureObjectId(final Object object, final PersistenceLocalObjectIdRegistry newObjectIdCallback)
+		public final long ensureObjectId(final Object object)
 		{
 			this.typeHandlerManager.ensureTypeHandler(object.getClass());
-			return this.objectManager.ensureObjectId(object, newObjectIdCallback);
+			return this.objectManager.ensureObjectId(object);
+		}
+		
+		@Override
+		public final long ensureObjectId(
+			final Object              object                ,
+			final PersistenceAcceptor lazyObjectIdRequestor ,
+			final PersistenceAcceptor eagerObjectIdRequestor
+		)
+		{
+			this.typeHandlerManager.ensureTypeHandler(object.getClass());
+			return this.objectManager.ensureObjectId(object, lazyObjectIdRequestor, eagerObjectIdRequestor);
 		}
 
 		@Override

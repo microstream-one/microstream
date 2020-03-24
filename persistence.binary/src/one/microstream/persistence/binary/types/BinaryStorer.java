@@ -302,8 +302,6 @@ public interface BinaryStorer extends PersistenceStorer
 			return this.registerLazy(instance);
 		}
 		
-		// (23.03.2020 TM)FIXME: priv#182 checked
-		
 		@Override
 		public final <T> long applyEager(final T instance)
 		{
@@ -362,7 +360,7 @@ public interface BinaryStorer extends PersistenceStorer
 			// process and collect required instances uniquely in item chain (graph recursion transformed to iteration)
 			for(Item item = this.tail; item != null; item = item.next)
 			{
-				// locks internally. May not lock the whole loop or other storers can't lookup concurrently
+				// locks internally. May not lock the whole loop or other storers can't lookup concurrently.
 				this.storeItem(item);
 			}
 
@@ -426,6 +424,7 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public final Object commit()
 		{
+			// isEmpty locks internally
 			if(!this.isEmpty())
 			{
 				final Binary writeData;
@@ -447,7 +446,7 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 			this.clear();
 			
-			// not used
+			// not used (yet?)
 			return null;
 		}
 		
@@ -514,30 +513,22 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 		}
 		
-		// (23.03.2020 TM)FIXME: priv#182 checked
-		
 		protected final long registerLazy(final Object instance)
 		{
 			/* Note:
 			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
-			 * - callback this to only accept globale not yet known instances (lazy logic)
+			 * - lazy, non-eager callback, obviously.
 			 */
-			return this.objectManager.ensureObjectId(instance, this);
+			return this.objectManager.ensureObjectId(instance, this, null);
 		}
 		
 		protected final long registerEager(final Object instance)
 		{
 			/* Note:
 			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
-			 * - callback null since this method ALWAYS accepts the instance (eager logic)
+			 * - non-lazy, eager callback, obviously.
 			 */
-			final long objectId = this.objectManager.ensureObjectId(instance, null);
-			
-			// (24.03.2020 TM)FIXME: priv#182: this accept must now happen under protection of the object registry lock!
-			// (24.03.2020 TM)FIXME: priv#182: also: both times only PersistenceAcceptor interface!
-			this.accept(objectId, instance);
-			
-			return objectId;
+			return this.objectManager.ensureObjectId(instance, null, this);
 		}
 		
 		@Override
@@ -626,34 +617,6 @@ public interface BinaryStorer extends PersistenceStorer
 			this.hashSlots = newSlots;
 			this.hashRange = newRange;
 		}
-
-//		@Override
-//		public final boolean isInitialized()
-//		{
-//			return this.hashSlots != null;
-//		}
-//
-//		@Override
-//		public BinaryStorer initialize()
-//		{
-//			if(!this.isInitialized())
-//			{
-//				this.internalInitialize(defaultSlotSize());
-//			}
-//
-//			return this;
-//		}
-//
-//		@Override
-//		public BinaryStorer initialize(final long initialCapacity)
-//		{
-//			if(!this.isInitialized())
-//			{
-//				this.internalInitialize(XHashing.padHashLength(initialCapacity));
-//			}
-//
-//			return this;
-//		}
 		
 	}
 	

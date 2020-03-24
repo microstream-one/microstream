@@ -34,12 +34,13 @@ public class MainTestStoringRobustness
 			ROOT.referent = s;
 			storer1.store(ROOT);
 			
+			// TEST: must internally lookup s' objectId in storer1 instead of assigning another one!
 			storer2.store(s);
 			
 			storer1.commit();
 			storer2.commit();
 			
-			// otherwise, storer1 won't get cleared by the GC below and it's not understandable why as the scope is out.
+			// otherwise, storer1 won't get cleared by the GC below and it's not understandable why as scope runs out.
 			storer1 = null;
 			storer2 = null;
 			
