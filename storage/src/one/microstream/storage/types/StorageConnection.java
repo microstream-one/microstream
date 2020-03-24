@@ -361,6 +361,18 @@ public interface StorageConnection extends Persister
 	}
 
 
+	
+	public static StorageConnection New(
+		final PersistenceManager<Binary> persistenceManager       ,
+		final StorageRequestAcceptor     connectionRequestAcceptor
+	)
+	{
+		return new StorageConnection.Default(
+			notNull(persistenceManager)       ,
+			notNull(connectionRequestAcceptor)
+		);
+	}
+	
 
 	public final class Default implements StorageConnection, Unpersistable
 	{
@@ -368,11 +380,7 @@ public interface StorageConnection extends Persister
 		// instance fields //
 		////////////////////
 
-		/* The performance penalty of this indirection is negligible as a persistence manager instance
-		 * is only (properly) used for non-performance-relevant uses and otherwise spawns dedicated
-		 * storer/loader instances.
-		 */
-		private final PersistenceManager<Binary> delegate                 ;
+		private final PersistenceManager<Binary> persistenceManager       ;
 		private final StorageRequestAcceptor     connectionRequestAcceptor;
 
 
@@ -381,14 +389,14 @@ public interface StorageConnection extends Persister
 		// constructors //
 		/////////////////
 
-		public Default(
-			final PersistenceManager<Binary> delegate                 ,
+		Default(
+			final PersistenceManager<Binary> persistenceManager       ,
 			final StorageRequestAcceptor     connectionRequestAcceptor
 		)
 		{
 			super();
-			this.delegate                  = notNull(delegate)                 ;
-			this.connectionRequestAcceptor = notNull(connectionRequestAcceptor);
+			this.persistenceManager        = persistenceManager       ;
+			this.connectionRequestAcceptor = connectionRequestAcceptor;
 		}
 
 
@@ -397,128 +405,10 @@ public interface StorageConnection extends Persister
 		// methods //
 		////////////
 
-//		@Override
-//		public final void cleanUp()
-//		{
-//			this.delegate.cleanUp();
-//		}
-//
-//		@Override
-//		public final Object lookupObject(final long objectId)
-//		{
-//			return this.delegate.lookupObject(objectId);
-//		}
-//
-//		@Override
-//		public final long lookupObjectId(final Object object)
-//		{
-//			return this.delegate.lookupObjectId(object);
-//		}
-//
-//		@Override
-//		public final long ensureObjectId(final Object object)
-//		{
-//			return this.delegate.ensureObjectId(object);
-//		}
-//
-//		@Override
-//		public long currentObjectId()
-//		{
-//			return this.delegate.currentObjectId();
-//		}
-//
-//		@Override
-//		public final PersistenceLoader<Binary> createLoader()
-//		{
-//			return this.delegate.createLoader();
-//		}
-//
-//		@Override
-//		public final PersistenceStorer<Binary> createStorer()
-//		{
-//			return this.delegate.createStorer();
-//		}
-//
-//		@Override
-//		public final PersistenceStorer<Binary> createStorer(final BufferSizeProvider bufferSizeProvider)
-//		{
-//			return this.delegate.createStorer(bufferSizeProvider);
-//		}
-//
-//		@Override
-//		public final PersistenceRegisterer createRegisterer()
-//		{
-//			return this.delegate.createRegisterer();
-//		}
-//
-//		@Override
-//		public final Object initialGet()
-//		{
-//			return this.delegate.initialGet();
-//		}
-//
-//		@Override
-//		public final Object get(final long objectId)
-//		{
-//			return this.delegate.get(objectId);
-//		}
-//
-//		@Override
-//		public final <C extends Procedure<Object>> C collect(final C collector, final long... oids)
-//		{
-//			return this.delegate.collect(collector, oids);
-//		}
-//
-//		@Override
-//		public final long storeFull(final Object instance)
-//		{
-//			return this.delegate.storeFull(instance);
-//		}
-//
-//		@Override
-//		public long storeRequired(final Object instance)
-//		{
-//			return this.delegate.store(instance);
-//		}
-//
-//		@Override
-//		public final long[] storeAllFull(final Object... instances)
-//		{
-//			return this.delegate.storeAllFull(instances);
-//		}
-//
-//		@Override
-//		public long[] storeAllRequired(final Object... instances)
-//		{
-//			return this.delegate.storeAll(instances);
-//		}
-//
-//		@Override
-//		public final PersistenceSource<Binary> source()
-//		{
-//			return this.delegate.source();
-//		}
-//
-//		@Override
-//		public void updateMetadata(
-//			final PersistenceTypeDictionary typeDictionary ,
-//			final long                      highestTypeId  ,
-//			final long                      highestObjectId
-//		)
-//		{
-//			this.delegate.updateMetadata(typeDictionary, highestTypeId, highestObjectId);
-//		}
-//
-//		@Override
-//		public void updateCurrentObjectId(final long currentObjectId)
-//		{
-//			this.delegate.updateCurrentObjectId(currentObjectId);
-//		}
-
 		@Override
 		public PersistenceManager<Binary> persistenceManager()
 		{
-			return this.delegate;
+			return this.persistenceManager;
 		}
 
 		@Override

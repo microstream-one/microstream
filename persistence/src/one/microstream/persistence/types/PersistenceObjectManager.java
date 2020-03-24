@@ -1,18 +1,27 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.coalesce;
 import static one.microstream.X.notNull;
 
+import java.lang.ref.WeakReference;
+
+import one.microstream.X;
+import one.microstream.chars.XChars;
+import one.microstream.collections.XArrays;
+import one.microstream.persistence.exceptions.PersistenceException;
+import one.microstream.reference.Swizzling;
 import one.microstream.util.Cloneable;
 
 public interface PersistenceObjectManager
 extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<PersistenceObjectManager>
 {
-	public default long ensureObjectId(final Object object)
-	{
-		return this.ensureObjectId(object, null);
-	}
+	public long ensureObjectId(Object object);
 	
-	public long ensureObjectId(Object object, PersistenceAcceptor newObjectIdCallback);
+	public long ensureObjectId(
+		Object              object                ,
+		PersistenceAcceptor lazyObjectIdRequestor ,
+		PersistenceAcceptor eagerObjectIdRequestor
+	);
 
 	public void consolidate();
 
@@ -31,6 +40,10 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 	{
 		return Cloneable.super.Clone();
 	}
+	
+	public boolean registerLocalRegistry(PersistenceLocalObjectIdRegistry localRegistry);
+	
+	public void mergeEntries(PersistenceLocalObjectIdRegistry localRegistry);
 
 
 	
@@ -54,8 +67,12 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 
 		private final PersistenceObjectRegistry   objectRegistry;
 		private final PersistenceObjectIdProvider oidProvider   ;
+		
+		private WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries = X.WeakReferences(1);
+		
+		private final PersistenceAcceptor noOp = PersistenceAcceptor::noOp;
 
-
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -125,41 +142,223 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		}
 
 		@Override
-		public long ensureObjectId(final Object object)
+		public final long ensureObjectId(final Object object)
 		{
-			return this.ensureObjectId(object, null);
+			return this.ensureObjectId(object, this.noOp, null);
 		}
 		
 		@Override
-		public long ensureObjectId(final Object object, final PersistenceAcceptor newObjectIdCallback)
+		public long ensureObjectId(
+			final Object              object                ,
+			final PersistenceAcceptor lazyObjectIdRequestor ,
+			final PersistenceAcceptor eagerObjectIdRequestor
+		)
 		{
+			final PersistenceAcceptor requestor = notNull(
+				coalesce(lazyObjectIdRequestor, eagerObjectIdRequestor)
+			);
+			
+			/*
+			 * Three steps to determine an object's objectId which must be executed in exactely that order
+			 * and under the protection of a lock on the global registry to enqueue all concurrent storers.
+			 * 
+			 * 1.) check if already globally known.
+			 * 2.) check if already locally known in on of the other storers (= "local registries)"
+			 * 3.) otherwise, provide and assign a new ObjectId.
+			 */
 			synchronized(this.objectRegistry)
 			{
 				long objectId;
-				if((objectId = this.objectRegistry.lookupObjectId(object)) == Persistence.nullId())
+				if(Swizzling.isNotProperId(objectId = this.objectRegistry.lookupObjectId(object)))
 				{
-					/* (19.07.2019 TM)NOTE:
-					 * The objectId is provided prior to ensuring the TypeHandler (which happens via the callback),
-					 * meaning even instances of types that throw an exception upon type analysis will get
-					 * cause an objectId to be reserved/allocated.
-					 * However, if the type analysis throws an exception, the instance is not registered at the
-					 * object registry, hence not causing any inconsistent state.
-					 * The objectId is "lost", but that is not a problem since it is no different from a
-					 * deleted entity. And there's the type analysis exception, anyway which stops the whole process.
-					 * See PersistenceTypeHandler#guaranteeInstanceViablity.
-					 */
-					objectId = this.oidProvider.provideNextObjectId();
-					if(newObjectIdCallback != null)
+					if(Swizzling.isNotProperId(objectId = this.synchCheckLocalRegistries(requestor, object)))
 					{
-						newObjectIdCallback.accept(objectId, object);
+						// see below about not globally registering the newly assigned objectId
+						objectId = this.oidProvider.provideNextObjectId();
 					}
-					this.objectRegistry.registerObject(objectId, object);
+
+					// lazy logic means only apply if not yet globally known (= something new / "store required").
+					if(lazyObjectIdRequestor != null)
+					{
+						lazyObjectIdRequestor.accept(objectId, object);
+					}
 				}
+				
+				// eager logic means ALWAYS apply, even if already globally known (= "store full").
+				if(eagerObjectIdRequestor != null)
+				{
+					eagerObjectIdRequestor.accept(objectId, object);
+				}
+
+				/* (06.12.2019 TM)NOTE:
+				 * A new object<->id association may NOT be registered right away, since the storing (writing) logic
+				 * afterwards might fail, which would leave an inconsistency (unstored entry that the next storer
+				 * would assume to have already been stored) in the registry.
+				 * The associations are kept locally in the storers and are merged into the registry in the commit
+				 * upon success.
+				 * In the exception case, the objectId is "lost", but that is not a problem since it is no different
+				 * from a deleted entity. Unused objectIds can be "recycled" by a (future) objectId condensing utility
+				 * functionality.
+				 * And there's the type analysis exception, anyway which stops the whole process.
+				 * See PersistenceTypeHandler#guaranteeInstanceViablity.
+				 */
 				
 				return objectId;
 			}
 		}
+		
+		private long synchCheckLocalRegistries(
+			final PersistenceAcceptor objectIdRequestor,
+			final Object              instance
+		)
+		{
+			for(final WeakReference<PersistenceLocalObjectIdRegistry> localRegistryEntry : this.localRegistries)
+			{
+				if(localRegistryEntry == null)
+				{
+					continue;
+				}
+				
+				final PersistenceLocalObjectIdRegistry localRegistry = localRegistryEntry.get();
+				if(localRegistry == null || localRegistry == objectIdRequestor)
+				{
+					continue;
+				}
+				
+				final long objectId;
+				if(Swizzling.isProperId(objectId = localRegistry.lookupObjectId(instance, objectIdRequestor)))
+				{
+					return objectId;
+				}
+			}
+			
+			return Swizzling.notFoundId();
+		}
+		
+		private void synchInternalMergeEntries(final PersistenceLocalObjectIdRegistry localRegistry)
+		{
+			localRegistry.iterateMergeableEntries(this.objectRegistry::validate);
+			localRegistry.iterateMergeableEntries(this.objectRegistry::registerObject);
+		}
+		
+		@Override
+		public boolean registerLocalRegistry(final PersistenceLocalObjectIdRegistry localRegistry)
+		{
+			if(localRegistry.parentObjectManager() != this)
+			{
+				// (18.03.2020 TM)EXCP: proper exception
+				throw new PersistenceException(
+					PersistenceLocalObjectIdRegistry.class.getSimpleName()
+					+ " " + XChars.systemString(localRegistry)
+					+ " does not belong to this "
+					+ PersistenceObjectManager.class.getSimpleName()
+					+ " " + XChars.systemString(this)
+				);
+			}
+			
+			synchronized(this.objectRegistry)
+			{
+				final WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries = this.localRegistries;
+				if(isAlreadyRegistered(localRegistry, localRegistries))
+				{
+					return false;
+				}
 
+				for(int i = 0; i < localRegistries.length; i++)
+				{
+					if(localRegistries[i] == null || localRegistries[i].get() == null)
+					{
+						localRegistries[i] = X.WeakReference(localRegistry);
+						return true;
+					}
+				}
+				
+				// very conservative enlargement since there should never be many registered localRegistries at once.
+				this.localRegistries = XArrays.enlarge(localRegistries, localRegistries.length + 1);
+				this.localRegistries[localRegistries.length] = X.WeakReference(localRegistry);
+				
+				return true;
+			}
+		}
+		
+		private static boolean isAlreadyRegistered(
+			final PersistenceLocalObjectIdRegistry                  localRegistry ,
+			final WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries
+		)
+		{
+			// no hash set required since there should never be a lot of entries, anyway.
+			for(int i = 0; i < localRegistries.length; i++)
+			{
+				if(localRegistries[i] == null)
+				{
+					continue;
+				}
+				
+				final PersistenceLocalObjectIdRegistry registeredLocalRegistry = localRegistries[i].get();
+				if(registeredLocalRegistry == null)
+				{
+					// some cleanup along the way
+					localRegistries[i] = null;
+					continue;
+				}
+				
+				if(registeredLocalRegistry == localRegistry)
+				{
+					return true;
+				}
+			}
+			
+			return false;
+		}
+
+		@Override
+		public void mergeEntries(final PersistenceLocalObjectIdRegistry localRegistry)
+		{
+			synchronized(this.objectRegistry)
+			{
+				int emptySlotCount = 0;
+				for(int i = 0; i < this.localRegistries.length; i++)
+				{
+					if(this.localRegistries[i] == null)
+					{
+						emptySlotCount++;
+						continue;
+					}
+					
+					final PersistenceLocalObjectIdRegistry registeredLocalRegistry = this.localRegistries[i].get();
+					if(registeredLocalRegistry == null)
+					{
+						// some cleanup along the way
+						this.localRegistries[i] = null;
+						emptySlotCount++;
+						continue;
+					}
+					
+					if(registeredLocalRegistry == localRegistry)
+					{
+						synchInternalMergeEntries(localRegistry);
+						
+						if(emptySlotCount > 2)
+						{
+							this.localRegistries = X.consolidateWeakReferences(this.localRegistries);
+						}
+						
+						// local registry cannot be removed here as it might be reused. Must be weakly-managed.
+						return;
+					}
+				}
+			}
+			
+			// (17.03.2020 TM)EXCP: proper exception
+			throw new PersistenceException(
+				PersistenceLocalObjectIdRegistry.class.getSimpleName()
+				+ " " + XChars.systemString(localRegistry)
+				+ " not registered at this "
+				+ PersistenceObjectManager.class.getSimpleName()
+				+ " " + XChars.systemString(this)
+			);
+		}
+		
 		@Override
 		public final long currentObjectId()
 		{
