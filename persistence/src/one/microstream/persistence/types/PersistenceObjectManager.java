@@ -14,7 +14,10 @@ import one.microstream.util.Cloneable;
 public interface PersistenceObjectManager
 extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<PersistenceObjectManager>
 {
-	public long ensureObjectId(Object object, PersistenceLocalObjectIdRegistry objectIdConsumer);
+	public long ensureObjectId(
+		Object                           object           ,
+		PersistenceLocalObjectIdRegistry objectIdRequestor
+	);
 
 	public void consolidate();
 
@@ -133,7 +136,10 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		}
 		
 		@Override
-		public long ensureObjectId(final Object object, final PersistenceLocalObjectIdRegistry localRegistry)
+		public long ensureObjectId(
+			final Object                           object           ,
+			final PersistenceLocalObjectIdRegistry objectIdRequestor
+		)
 		{
 			synchronized(this.objectRegistry)
 			{
@@ -142,17 +148,21 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				{
 					return objectId;
 				}
-				if(Swizzling.isProperId(objectId = this.synchCheckLocalRegistries(localRegistry, object)))
+				if(Swizzling.isProperId(objectId = this.synchCheckLocalRegistries(objectIdRequestor, object)))
 				{
 					// must handle the object in this case since the locally keeping storer might fail its write!
-					if(localRegistry != null)
+					if(objectIdRequestor != null)
 					{
-						localRegistry.accept(objectId, object);
+						/*
+						 * non-null for lazy logic (only accept globally not yet known instances),
+						 * null for eager logic (ALWAYS accept, but via returned objectId in calling context)
+						 */
+						objectIdRequestor.accept(objectId, object);
 					}
 					
 					return objectId;
 				}
-				
+								
 				/* (06.12.2019 TM)NOTE:
 				 * The object<->id association may NOT be registered, yet, because the storing (writing) process
 				 * afterwards might fail, which would leave an inconsistency (unstored entry that the next storer
@@ -165,9 +175,13 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				 * See PersistenceTypeHandler#guaranteeInstanceViablity.
 				 */
 				objectId = this.oidProvider.provideNextObjectId();
-				if(localRegistry != null)
+				if(objectIdRequestor != null)
 				{
-					localRegistry.accept(objectId, object);
+					/*
+					 * non-null for lazy logic (only accept globally not yet known instances),
+					 * null for eager logic (ALWAYS accept, but via returned objectId in calling context)
+					 */
+					objectIdRequestor.accept(objectId, object);
 				}
 				
 				return objectId;
@@ -175,7 +189,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		}
 		
 		private long synchCheckLocalRegistries(
-			final PersistenceLocalObjectIdRegistry requestingConsumer,
+			final PersistenceLocalObjectIdRegistry objectIdRequestor,
 			final Object                           instance
 		)
 		{
@@ -187,13 +201,13 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				}
 				
 				final PersistenceLocalObjectIdRegistry localRegistry = localRegistryEntry.get();
-				if(localRegistry == null || localRegistry == requestingConsumer)
+				if(localRegistry == null || localRegistry == objectIdRequestor)
 				{
 					continue;
 				}
 				
 				final long objectId;
-				if(Swizzling.isProperId(objectId = localRegistry.lookupObjectId(instance, requestingConsumer)))
+				if(Swizzling.isProperId(objectId = localRegistry.lookupObjectId(instance, objectIdRequestor)))
 				{
 					return objectId;
 				}

@@ -299,7 +299,7 @@ public interface BinaryStorer extends PersistenceStorer
 			 * it is assumed to be already stored and therefore not stored here ("again").
 			 * Only if a new OID has to be assigned, the instance is registered (via registerAdd)
 			 */
-			return this.registerAdd(instance);
+			return this.registerLazy(instance);
 		}
 		
 		// (23.03.2020 TM)FIXME: priv#182 checked
@@ -307,8 +307,7 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public final <T> long applyEager(final T instance)
 		{
-			// (23.03.2020 TM)FIXME: priv#182: what is the difference between this and apply anymore? WTF?
-			
+			// concurrency: lookupOid() and ensureObjectId() lock internally, the rest is thread-local
 			
 			if(instance == null)
 			{
@@ -333,10 +332,8 @@ public interface BinaryStorer extends PersistenceStorer
 			 * Eager storing logic:
 			 * If the instance is not already handled locally (already stored by this storer), it is now stored.
 			 */
-			return this.registerAdd(instance);
+			return this.registerEager(instance);
 		}
-		
-		// (23.03.2020 TM)TODO: priv#182: check to consolidate apply, applyEager and storeGraph if/where applicable
 		
 		/**
 		 * Stores the passed instance (always) and interprets it as the root of a graph to be traversed and
@@ -360,7 +357,7 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 			
 			// initial registration. After that, storing adds via recursing the graph and processing items iteratively.
-			rootOid = this.registerAdd(notNull(root));
+			rootOid = this.registerEager(notNull(root));
 
 			// process and collect required instances uniquely in item chain (graph recursion transformed to iteration)
 			for(Item item = this.tail; item != null; item = item.next)
@@ -519,13 +516,28 @@ public interface BinaryStorer extends PersistenceStorer
 		
 		// (23.03.2020 TM)FIXME: priv#182 checked
 		
-		protected final long registerAdd(final Object instance)
+		protected final long registerLazy(final Object instance)
 		{
 			/* Note:
 			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
-			 * - this.accept gets called internally as a callback
+			 * - callback this to only accept globale not yet known instances (lazy logic)
 			 */
 			return this.objectManager.ensureObjectId(instance, this);
+		}
+		
+		protected final long registerEager(final Object instance)
+		{
+			/* Note:
+			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
+			 * - callback null since this method ALWAYS accepts the instance (eager logic)
+			 */
+			final long objectId = this.objectManager.ensureObjectId(instance, null);
+			
+			// (24.03.2020 TM)FIXME: priv#182: this accept must now happen under protection of the object registry lock!
+			// (24.03.2020 TM)FIXME: priv#182: also: both times only PersistenceAcceptor interface!
+			this.accept(objectId, instance);
+			
+			return objectId;
 		}
 		
 		@Override
