@@ -21,6 +21,7 @@ import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.reference.LazyReferenceManager;
 import one.microstream.reference.Reference;
+import one.microstream.reference.Swizzling;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.KeyValue;
 
@@ -67,7 +68,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		private final StorageSystem                          storageSystem       ;
 		private final EmbeddedStorageConnectionFoundation<?> connectionFoundation;
 		private final PersistenceRootsProvider<?>            rootsProvider       ;
-		
+				
 		private StorageConnection singletonConnection;
 
 
@@ -135,20 +136,17 @@ public interface EmbeddedStorageManager extends StorageManager
 		@Override
 		public long storeRoot()
 		{
-			final Storer storer = this.createStorer();
-			
 			final PersistenceRootReference rootReference = this.rootReference();
-			storer.store(rootReference);
+			final Object                   root            = rootReference.get();
 			
-			final Object root = rootReference.get();
-			final long rootObjectId = root != null
-				? storer.store(root)
-				: Persistence.nullId()
-			;
-				
-			storer.commit();
+			// this construction is necessary to use the locking mechanism of the called storing methods
+			if(root == null)
+			{
+				this.store(rootReference);
+				return Swizzling.nullId();
+			}
 			
-			return rootObjectId;
+			return this.storeAll(rootReference, root)[1];
 		}
 		
 		@Override

@@ -105,6 +105,7 @@ import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeIdLookup;
 import one.microstream.reference.BinaryHandlerLazyDefault;
 import one.microstream.reference.Referencing;
+import one.microstream.reference.Swizzling;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BinaryHandlerSubstituterDefault;
 
@@ -159,7 +160,7 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		final long nativeTypeId = nativeTypeIdLookup.lookupTypeId(typeHandler.type());
-		if(nativeTypeId == 0)
+		if(Swizzling.isNotFoundId(nativeTypeId))
 		{
 			// (07.11.2018 TM)EXCP: proper exception
 			throw new PersistenceException("No native TypeId found for type " + typeHandler.type());
