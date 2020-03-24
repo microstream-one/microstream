@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryLoader.CreatorChannelHashing;
 import one.microstream.persistence.types.Persistence;
+import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceContextDispatcher;
 import one.microstream.persistence.types.PersistenceLoader;
 import one.microstream.persistence.types.PersistenceLocalObjectIdRegistry;
@@ -62,11 +63,21 @@ public class ViewerBinaryPersistenceManager implements PersistenceManager<Binary
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
+	
 	@Override
-	public long ensureObjectId(final Object object, final PersistenceLocalObjectIdRegistry newObjectIdCallback)
+	public final long ensureObjectId(final Object object)
 	{
-		return this.persistenceManager.ensureObjectId(object, newObjectIdCallback);
+		return this.persistenceManager.ensureObjectId(object);
+	}
+	
+	@Override
+	public final long ensureObjectId(
+		final Object              object                ,
+		final PersistenceAcceptor lazyObjectIdRequestor ,
+		final PersistenceAcceptor eagerObjectIdRequestor
+	)
+	{
+		return this.persistenceManager.ensureObjectId(object, lazyObjectIdRequestor, eagerObjectIdRequestor);
 	}
 	
 	@Override

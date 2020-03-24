@@ -512,5 +512,54 @@ Und dann ist je nach Fall nur einer der beiden non-null.\par
 Und eigentlich reicht f\'fcr beides das PersistenceAcceptor interface aus...\par
 \par
 Aber das muss ich morgen machen, weil jetzt schon wieder die Zeit aus ist...\par
+\par
+\par
+2020-03-24\par
+\par
+Entsprechend umbauen.\par
+Dann muss f\'fcr den localregistry check aber noch ein non-null coalescing gemacht werden, weil der lookup ja auf quasi "this" pr\'fcft.\par
+\par
+Und dann muss nat\'fcrlich die Logik in der Methode leicht anders werden: F\'fcr den eager Callback darf es nur einen R\'fcckgabewert geben, wo dann einmalig der eager Callback aufgerufen wird.\par
+So umbauen.\par
+\par
+Jetzt ist das aber eine ganz sch\'f6n wirre und lange Tapete mit einem leeren Block als fall-through.\par
+Das muss doch besser gehen ...\par
+Ha! Jetzt sinds gerade mal noch 10 LoC und den redundanten Aufruf im Lazy Fall hab ich auch konsolidiert.\par
+Kommentare schreiben.\par
+\par
+Restliche Aufrufe anpassen.\par
+Und schon wieder ein neues Problem:\par
+Es gibt Aufrufer, die immer null \'fcbergeben, weil es einfach nur debugging oder iterierung ist.\par
+Also f\'fcr die doch wieder null erlauben...\par
+\par
+Ne, Moment mal:\par
+Wieso soll ich f\'fcr solche Randverwendungszwecke den Normalfall komplizierter und (wenn auch winzigst) langsamer machen?\par
+Stattdessen sollen die Randverwendungszwecke einfach eine No-Op Funktion mitgeben.\par
+So mach ich das.\par
+\par
+Ah, dann muss ich aber doch auf PersistenceAcceptor umstellen, sonst geht keine Method reference.\par
+Und eine komplette Dummy-Implementierung von PersistenceLocalObjectIdRegistry machen w\'fcrde mehr Verwirrung stiften, als die klarere Typisierung wert ist.\par
+Also umbauen.\par
+\par
+Aber eigentlich k\'f6nnt ich dann doch wieder eine zweite Variante ensureObjectId(Object) bauen, damit man nicht immer redundant diese zwei Dummyargumente \'fcbergeben muss bzw. es gar nicht erst falsch machen kann.\par
+\par
+So! Nachdem ich das jetzt alles umgebaut hab, kann ich ja mit meinem concurrency review weitermachen.\par
+Sollt aber bald durch sein.\par
+Au\'dfer ich find wieder sowas ... :-[.\par
+\par
+Woohoo, review fertig.\par
+Alle Locks und synch~ Methoden sollten so passen.\par
+\par
+Jetzt nochmal Test laufen lassen, ob ich nicht irgendwo einen groben Denkfehler drin hab ...\par
+\par
+Ach! Restadapter Projekt muss ich noch anpassen ...\par
+\par
+So, jetzt testen.\par
+ObjectId passt.\par
+Der String wird auch nochmal persistiert (gecheckt mit HxD), was ja richtig ist, weil ja der erste Storer fehlschlagen k\'f6nnte und dann w\'e4ren die Daten wieder weg.\par
+Also das passt auch.\par
+\par
+Puh also ich sag jetzt mal: Damit ist das Issue fertig.\par
+Die Logik funktioniert wie gedacht. Concurrency-m\'e4\'dfig sollt alles passen. Erkl\'e4rende Kommentare hab ich dazugeschrieben. Fertig.\par
 }
  
