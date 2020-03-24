@@ -119,21 +119,18 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		{
 			return (CacheManager)setting;
 		}
-
-		final Class<? extends CacheManager> cacheManagerClass = setting instanceof Class
-			? (Class<? extends CacheManager>)setting
-			: settings.getServiceRegistry()
-				.getService(ClassLoaderService.class)
-				.classForName(setting.toString())
-		;
 		
 		try
 		{
+			final Class<? extends CacheManager> cacheManagerClass = setting instanceof Class
+				? (Class<? extends CacheManager>)setting
+				: this.loadClass(setting.toString(), settings)
+			;			
 			return cacheManagerClass.newInstance();
 		}
-		catch(InstantiationException | IllegalAccessException e) 
+		catch(ClassNotFoundException | InstantiationException | IllegalAccessException e) 
 		{
-			throw new CacheException("Could not use explicit CacheManager : " + setting);
+			throw new CacheException("Could not use explicit CacheManager : " + setting, e);
 		}
 	}
 
@@ -242,7 +239,8 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		return url;
 	}
 	
-	protected Class<?> loadClass(
+	@SuppressWarnings("unchecked")
+	protected <T> Class<T> loadClass(
 		final String configurationClassName,
 		final SessionFactoryOptions settings
 	) throws ClassNotFoundException 
@@ -252,7 +250,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 			throw new IllegalStateException("Cannot load class through a non-started CacheRegionFactory");
 		}
 		
-		Class<?> clazz = settings.getServiceRegistry()
+		Class<T> clazz = settings.getServiceRegistry()
 			.getService(ClassLoaderService.class)
 			.classForName(configurationClassName)
 		;
@@ -262,11 +260,11 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 			final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
 			if(contextClassloader != null) 
 			{
-				clazz = contextClassloader.loadClass(configurationClassName);
+				clazz = (Class<T>)contextClassloader.loadClass(configurationClassName);
 			}
 			if(clazz == null) 
 			{
-				clazz = Class.forName(configurationClassName);
+				clazz = (Class<T>)Class.forName(configurationClassName);
 			}
 		}
 		
