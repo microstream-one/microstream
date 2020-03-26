@@ -6,13 +6,13 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.time.Duration;
 
 import one.microstream.chars.XChars;
+import one.microstream.storage.exceptions.StorageConfigurationException;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.StorageChannelCountProvider;
 import one.microstream.storage.types.StorageDataFileEvaluator;
@@ -20,19 +20,89 @@ import one.microstream.storage.types.StorageEntityCacheEvaluator;
 import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.storage.types.StorageHousekeepingController;
 
-
+/**
+ * <p>
+ * Mutable configuration type, which serves as a template for an {@link EmbeddedStorageFoundation}.
+ * </p>
+ * <p>
+ * Its purposes are:<br>
+ * - To offer all possible settings of the MicroStream Storage in one place.<br>
+ * - And to enable external configuration.
+ * </p>
+ * <p>
+ * Code example:
+ * <pre>
+ * EmbeddedStorageManager storageManager = Configuration.Default()
+ *     .setBaseDirectoryInUserHome("data-dir")
+ *     .setBackupDirectory("backup-dir")
+ *     .setChannelCount(4)
+ *     .createEmbeddedStorageFoundation()
+ *     .createEmbeddedStorageManager();
+ * </pre>
+ * </p>
+ * <p>
+ * External configuration example with properties file<br>
+ * <pre>
+ * baseDirectory = ~/data-dir
+ * backupDirectory = backup-dir
+ * channelCount = 4
+ * 
+ * Configuration configuration = Configuration.LoadIni(
+ *     "path-to-properties-file"
+ * );
+ * </pre>
+ * </p>
+ * 
+ * @see ConfigurationLoader
+ * @see ConfigurationParser
+ * @see ConfigurationPropertyNames
+ * @see <a href="https://manual.docs.microstream.one/data-store/configuration#external-configuration">MicroStream Reference Manual</a>
+ */
 public interface Configuration
 {
+	/**
+	 * The property name which is used to hand the external configuration file path to the application.
+	 * <p>
+	 * Either as system property or in the context's configuration, e.g. Spring's application.properties.
+	 * 
+	 * @return "microstream.storage.configuration.path"
+	 */
 	public static String PathProperty()
 	{
 		return "microstream.storage.configuration.path";
 	}
 	
+	/**
+	 * The default name of the storage configuration resource.
+	 * 
+	 * @see #Load()
+	 * 
+	 * @return "microstream-storage.properties"
+	 */
 	public static String DefaultResourceName()
 	{
 		return "microstream-storage.properties";
 	}
 	
+	/**
+	 * Tries to load the default configuration properties file.
+	 * <p>
+	 * The search order is as follows:
+	 * <ul>
+	 * <li>The path set in the system property "microstream.storage.configuration.path"</li>
+	 * <li>The file named "microstream-storage.properties" in
+	 * <ul>
+	 * <li>The classpath</li>
+	 * <li>The application's directory</li>
+	 * <li>The user home directory</li>
+	 * </ul></li>
+	 * </ul>
+	 * 
+	 * @see #PathProperty()
+	 * @see #DefaultResourceName()
+	 * 
+	 * @return the loaded configuration or <code>null</code> if none was found
+	 */
 	public static Configuration Load()
 	{		
 		final String path = System.getProperty(PathProperty());
@@ -69,6 +139,20 @@ public interface Configuration
 		return null;
 	}
 	
+	/**
+	 * Tries to load the configuration file from <code>path</code>.
+	 * Depending on the file suffix either the XML or the INI loader is used.
+	 * <p>
+	 * The load order is as follows:
+	 * <ul>
+	 * <li>The classpath</li>
+	 * <li>As an URL</li>
+	 * <li>As a file</li>
+	 * </ul>
+	 * 
+	 * @param path a classpath resource, a file path or an URL 
+	 * @return the configuration or <code>null</code> if none was found
+	 */
 	public static Configuration Load(
 		final String path
 	)
@@ -79,36 +163,59 @@ public interface Configuration
 		;
 	}
 	
+	/**
+	 * Tries to load the configuration INI file from <code>path</code>.
+	 * <p>
+	 * The load order is as follows:
+	 * <ul>
+	 * <li>The classpath</li>
+	 * <li>As an URL</li>
+	 * <li>As a file</li>
+	 * </ul>
+	 * 
+	 * @param path a classpath resource, a file path or an URL 
+	 * @return the configuration or <code>null</code> if none was found
+	 */
 	public static Configuration LoadIni(
 		final String path
 	)
 	{
-		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
-	          URL         url                = contextClassloader != null
-			? contextClassloader.getResource(path)
-			: Configuration.class.getResource(path);
-		if(url != null)
-		{
-			return LoadIni(url);
-		}
-			
-		try
-		{
-			url = new URL(path);
-			return LoadIni(url);
-		}
-		catch(MalformedURLException e)
-		{
-			final File file = new File(path);
-			if(file.exists())
-			{
-				return LoadIni(file);
-			}
-		}
-		
-		return null;
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.load(path)
+		);
 	}
 	
+	/**
+	 * Tries to load the configuration INI file from <code>path</code>.
+	 * <p>
+	 * The load order is as follows:
+	 * <ul>
+	 * <li>The classpath</li>
+	 * <li>As an URL</li>
+	 * <li>As a file</li>
+	 * </ul>
+	 * 
+	 * @param path a classpath resource, a file path or an URL 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration or <code>null</code> if none was found
+	 */
+	public static Configuration LoadIni(
+		final String path, 
+		final Charset charset
+	)
+	{
+		return ConfigurationParser.Ini().parse(
+			ConfigurationLoader.load(path, charset)
+		);
+	}
+	
+	/**
+	 * Tries to load the configuration INI file from <code>path</code>.
+	 * 
+	 * @param path file system path 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadIni(
 		final Path path
 	)
@@ -118,6 +225,14 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration INI file from <code>path</code>.
+	 * 
+	 * @param path file system path 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadIni(
 		final Path path, 
 		final Charset charset
@@ -128,6 +243,13 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration INI from the file <code>file</code>.
+	 * 
+	 * @param file file path 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadIni(
 		final File file
 	)
@@ -137,6 +259,14 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration INI from the file <code>file</code>.
+	 * 
+	 * @param file file path 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadIni(
 		final File file, 
 		final Charset charset
@@ -147,6 +277,13 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration INI from the URL <code>url</code>.
+	 * 
+	 * @param url URL path 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadIni(
 		final URL url
 	)
@@ -156,6 +293,14 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration INI from the URL <code>url</code>.
+	 * 
+	 * @param url URL path 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadIni(
 		final URL url, 
 		final Charset charset
@@ -166,6 +311,13 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration INI from the {@link InputStream} <code>inputStream</code>.
+	 * 
+	 * @param inputStream the stream to read from 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadIni(
 		final InputStream inputStream
 	)
@@ -175,6 +327,14 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration INI from the {@link InputStream} <code>inputStream</code>.
+	 * 
+	 * @param inputStream the stream to read from 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadIni(
 		final InputStream inputStream, 
 		final Charset charset
@@ -185,36 +345,59 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration XML file from <code>path</code>.
+	 * <p>
+	 * The load order is as follows:
+	 * <ul>
+	 * <li>The classpath</li>
+	 * <li>As an URL</li>
+	 * <li>As a file</li>
+	 * </ul>
+	 * 
+	 * @param path a classpath resource, a file path or an URL 
+	 * @return the configuration or <code>null</code> if none was found
+	 */
 	public static Configuration LoadXml(
 		final String path
 	)
 	{
-		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
-	          URL         url                = contextClassloader != null
-			? contextClassloader.getResource(path)
-			: Configuration.class.getResource(path);
-		if(url != null)
-		{
-			return LoadXml(url);
-		}
-			
-		try
-		{
-			url = new URL(path);
-			return LoadXml(url);
-		}
-		catch(MalformedURLException e)
-		{
-			final File file = new File(path);
-			if(file.exists())
-			{
-				return LoadXml(file);
-			}
-		}
-		
-		return null;
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.load(path)
+		);
 	}
 	
+	/**
+	 * Tries to load the configuration XML file from <code>path</code>.
+	 * <p>
+	 * The load order is as follows:
+	 * <ul>
+	 * <li>The classpath</li>
+	 * <li>As an URL</li>
+	 * <li>As a file</li>
+	 * </ul>
+	 * 
+	 * @param path a classpath resource, a file path or an URL 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration or <code>null</code> if none was found
+	 */
+	public static Configuration LoadXml(
+		final String path, 
+		final Charset charset
+	)
+	{
+		return ConfigurationParser.Xml().parse(
+			ConfigurationLoader.load(path, charset)
+		);
+	}
+	
+	/**
+	 * Tries to load the configuration XML file from <code>path</code>.
+	 * 
+	 * @param path file system path 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadXml(
 		final Path path
 	)
@@ -224,6 +407,14 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration XML file from <code>path</code>.
+	 * 
+	 * @param path file system path 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadXml(
 		final Path path,
 		final Charset charset
@@ -234,6 +425,13 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration XML from the file <code>file</code>.
+	 * 
+	 * @param file file path 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadXml(
 		final File file
 	)
@@ -242,7 +440,15 @@ public interface Configuration
 			ConfigurationLoader.loadFromFile(file)
 		);
 	}
-	
+
+	/**
+	 * Tries to load the configuration XML from the file <code>file</code>.
+	 * 
+	 * @param file file path 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadXml(
 		final File file, 
 		final Charset charset
@@ -253,6 +459,13 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration XML from the URL <code>url</code>.
+	 * 
+	 * @param url URL path 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadXml(
 		final URL url
 	)
@@ -261,7 +474,15 @@ public interface Configuration
 			ConfigurationLoader.loadFromUrl(url)
 		);
 	}
-	
+
+	/**
+	 * Tries to load the configuration XML from the URL <code>url</code>.
+	 * 
+	 * @param url URL path 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadXml(
 		final URL url, 
 		final Charset charset
@@ -272,6 +493,13 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration XML from the {@link InputStream} <code>inputStream</code>.
+	 * 
+	 * @param inputStream the stream to read from 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadXml(
 		final InputStream inputStream
 	)
@@ -281,6 +509,14 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Tries to load the configuration XML from the {@link InputStream} <code>inputStream</code>.
+	 * 
+	 * @param inputStream the stream to read from 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
 	public static Configuration LoadXml(
 		final InputStream inputStream, 
 		final Charset charset
@@ -291,6 +527,13 @@ public interface Configuration
 		);
 	}
 	
+	/**
+	 * Creates an {@link EmbeddedStorageFoundation} based on the settings of this {@link Configuration}.
+	 * 
+	 * @return an {@link EmbeddedStorageFoundation}
+	 * 
+	 * @see EmbeddedStorageFoundationCreator
+	 */
 	public default EmbeddedStorageFoundation<?> createEmbeddedStorageFoundation()
 	{
 		return EmbeddedStorageFoundationCreator.New().createFoundation(this);
@@ -717,6 +960,17 @@ public interface Configuration
 	public boolean getDataFileCleanupHeadFile();
 	
 	
+	/**
+	 * Creates a new {@link Configuration} with the default settings.
+	 * 
+	 * @return a new {@link Configuration}
+	 * 
+	 * @see StorageFileProvider.Defaults
+	 * @see StorageChannelCountProvider.Defaults
+	 * @see StorageHousekeepingController.Defaults
+	 * @see StorageEntityCacheEvaluator.Defaults
+	 * @see StorageDataFileEvaluator.Defaults
+	 */
 	public static Configuration Default()
 	{
 		return new Configuration.Default();

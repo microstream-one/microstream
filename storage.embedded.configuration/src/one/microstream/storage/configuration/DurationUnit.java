@@ -6,11 +6,34 @@ import java.util.function.Function;
 
 public enum DurationUnit
 {
+	/**
+	 * Nanoseconds
+	 */
 	NS (Duration::ofNanos  ),
+	
+	/**
+	 * Milliseconds
+	 */
 	MS (Duration::ofMillis ),
+	
+	/**
+	 * Seconds
+	 */
 	S  (Duration::ofSeconds),
+	
+	/**
+	 * Minutes
+	 */
 	M  (Duration::ofMinutes),
+	
+	/**
+	 * Hours
+	 */
 	H  (Duration::ofHours  ),
+	
+	/**
+	 * Days
+	 */
 	D  (Duration::ofDays   );
 	
 	
