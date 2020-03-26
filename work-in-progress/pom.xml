@@ -31,13 +31,17 @@
 			<artifactId>persistence.binary.jdk8</artifactId>
 			<version>02.03.00-MS-GA-SNAPSHOT</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>storage.restservice.sparkjava</artifactId>
 			<version>02.03.00-MS-GA-SNAPSHOT</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>cache</artifactId>
+			<version>02.03.00-MS-GA-SNAPSHOT</version>
+		</dependency>
+				
 	</dependencies>
 
 	<build>
