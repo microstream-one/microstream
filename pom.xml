@@ -29,6 +29,8 @@
 
 	<modules>
 		<module>base</module>
+		<module>cache</module>
+		<module>cache.hibernate</module>
 		<module>communication</module>
 		<module>communication.binary</module>
 		<module>persistence</module>
@@ -338,6 +340,8 @@
 			<id>all</id>
 			<modules>
 				<module>base</module>
+				<module>cache</module>
+				<module>cache.hibernate</module>
 				<module>communication</module>
 				<module>communication.binary</module>
 				<module>persistence</module>
