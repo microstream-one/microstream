@@ -47,29 +47,83 @@ import one.microstream.collections.types.XList;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.typing.KeyValue;
 
-
+/**
+ * JSR-107 compliant {@link javax.cache.Cache}.
+ *
+ * @param <K> the key type
+ * @param <V> the value type
+ */
 public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 {
 	@Override
 	public CacheManager getCacheManager();
 	
+	/**
+	 * Returns the {@link CacheConfiguration} which was used to create this cache.
+	 */
 	public CacheConfiguration<K, V> getConfiguration();
 	
+	/**
+	 * Returns the amount of entries in this cache.
+	 * 
+	 * @return this cache's size
+	 */
 	public long size();
 	
-	public void putAll(
-		Map<? extends K, ? extends V> map,
-		boolean replaceExistingValues);
+	/**
+	 * Adds all entries to this cache.
+	 * <p>
+	 * Short for <code>putAll(map, true)</code>
+	 * 
+	 * @see #putAll(Map, boolean)
+	 */
+	public default void putAll(
+		final Map<? extends K, ? extends V> map
+	)
+	{
+		this.putAll(map, true);
+	}
 	
+	/**
+	 * Adds all entries to this cache.
+	 * <p>
+	 * Short for <code>putAll(map, replaceExistingValues, true)</code>
+	 * 
+	 * @see #putAll(Map, boolean, boolean)
+	 */
+	public default void putAll(
+		final Map<? extends K, ? extends V> map,
+		final boolean replaceExistingValues
+	)
+	{
+		this.putAll(map, replaceExistingValues, true);
+	}
+	
+	/**
+	 * Adds all entries to this cache.
+	 * 
+	 * @param map entries to add
+	 * @param replaceExistingValues if values with same keys should be replaces
+	 * @param useWriteThrough enable write through mode for this operation
+	 */
 	public void putAll(
 		Map<? extends K, ? extends V> map,
 		boolean replaceExistingValues,
 		boolean useWriteThrough);
 	
+	/**
+	 * Enables or disables the management bean of this cache.
+	 */
 	public void setManagementEnabled(boolean enabled);
 	
+	/**
+	 * Enables or disables statistics gathering. 
+	 */
 	public void setStatisticsEnabled(boolean enabled);
 		
+	/**
+	 * Evicts given entries from this cache.
+	 */
 	public void evict(Iterable<KeyValue<Object, CachedValue>> entriesToEvict);
 	
 	@Override
@@ -713,23 +767,6 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 			
 			return result;
-		}
-		
-		@Override
-		public void putAll(
-			final Map<? extends K, ? extends V> map
-		)
-		{
-			this.putAll(map, true);
-		}
-		
-		@Override
-		public void putAll(
-			final Map<? extends K, ? extends V> map,
-			final boolean replaceExistingValues
-		)
-		{
-			this.putAll(map, replaceExistingValues, true);
 		}
 		
 		@Override

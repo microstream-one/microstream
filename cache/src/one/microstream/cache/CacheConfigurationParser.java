@@ -5,28 +5,49 @@ import static one.microstream.X.notNull;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.cache.CacheException;
-
 import one.microstream.chars.XChars;
 
 public interface CacheConfigurationParser
 {
+	/**
+	 * Parses the configuration from the given input.
+	 * 
+	 * @param data the input to parse
+	 * @return the parsed configuration
+	 * @throws CacheConfigurationException if an error occurs while parsing
+	 */
 	public CacheConfiguration<?, ?> parse(
 		String data
 	);
 	
+	/**
+	 * Parses the configuration from the given input.
+	 * 
+	 * @param data the input to parse
+	 * @param keyType the key type
+	 * @param valueType the value type
+	 * @return the parsed configuration
+	 * @throws CacheConfigurationException if an error occurs while parsing
+	 */
 	public <K, V> CacheConfiguration<K, V> parse(
 		String data, 
 		Class<K> keyType, 
 		Class<V> valueType
 	);
 	
-	
+	/**
+	 * Creates a new {@link CacheConfigurationParser}.
+	 */
 	public static CacheConfigurationParser New()
 	{
 		return New(CacheConfigurationPropertyParser.New());
 	}	
 	
+	/**
+	 * Creates a new {@link CacheConfigurationParser}.
+	 * 
+	 * @param propertyParser a custom property parser
+	 */
 	public static CacheConfigurationParser New(
 		final CacheConfigurationPropertyParser propertyParser
 	)
@@ -102,7 +123,7 @@ public interface CacheConfigurationParser
 			}
 			catch(ClassNotFoundException e)
 			{
-				throw new CacheException(e);
+				throw new CacheConfigurationException(e);
 			}
 		}
 

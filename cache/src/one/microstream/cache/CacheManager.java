@@ -15,6 +15,10 @@ import javax.cache.configuration.Configuration;
 import one.microstream.collections.EqHashTable;
 
 
+/**
+ * JSR-107 compliant {@link javax.cache.CacheManager}.
+ *
+ */
 public interface CacheManager extends javax.cache.CacheManager
 {
 	@Override

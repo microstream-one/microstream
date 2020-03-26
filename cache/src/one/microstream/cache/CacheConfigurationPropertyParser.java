@@ -12,6 +12,10 @@ import one.microstream.cache.CacheConfiguration.Builder;
 import one.microstream.storage.configuration.Configuration;
 import one.microstream.storage.configuration.ConfigurationPropertyParser;
 
+/**
+ * Property parser used by {@link CacheConfigurationParser}.
+ *
+ */
 public interface CacheConfigurationPropertyParser
 {
 	@FunctionalInterface
