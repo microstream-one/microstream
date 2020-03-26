@@ -13,9 +13,16 @@ import one.microstream.collections.types.XEnum;
 import one.microstream.reference._intReference;
 import one.microstream.typing.KeyValue;
 
+/**
+ * Function to pick the entries which should be evicted.
+ *
+ */
 @FunctionalInterface
 public interface EvictionPolicy
 {
+	/**
+	 * Select the entries which should be evicted.
+	 */
 	public Iterable<KeyValue<Object, CachedValue>> pickEntriesToEvict(CacheTable cacheTable);
 	
 	

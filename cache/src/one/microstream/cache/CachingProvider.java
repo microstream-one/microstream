@@ -12,6 +12,10 @@ import java.util.stream.Collectors;
 import javax.cache.configuration.OptionalFeature;
 
 
+/**
+ * JSR-107 compliant {@link javax.cache.spi.CachingProvider}.
+ *
+ */
 public class CachingProvider implements javax.cache.spi.CachingProvider
 {
 	public static URI defaultURI()

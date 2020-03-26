@@ -104,11 +104,38 @@ public interface Configuration
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
 	public static Configuration Load()
-	{		
+	{
+		return Load(ConfigurationLoader.Defaults.defaultCharset());
+	}
+	
+	/**
+	 * Tries to load the default configuration properties file.
+	 * <p>
+	 * The search order is as follows:
+	 * <ul>
+	 * <li>The path set in the system property "microstream.storage.configuration.path"</li>
+	 * <li>The file named "microstream-storage.properties" in
+	 * <ul>
+	 * <li>The classpath</li>
+	 * <li>The application's directory</li>
+	 * <li>The user home directory</li>
+	 * </ul></li>
+	 * </ul>
+	 * 
+	 * @see #PathProperty()
+	 * @see #DefaultResourceName()
+	 * 
+	 * @param charset the charset used to load the configuration
+	 * @return the loaded configuration or <code>null</code> if none was found
+	 */
+	public static Configuration Load(
+		final Charset charset
+	)
+	{
 		final String path = System.getProperty(PathProperty());
 		if(!XChars.isEmpty(path))
 		{
-			final Configuration configuration = Load(path);
+			final Configuration configuration = Load(path, charset);
 			if(configuration != null)
 			{
 				return configuration;
@@ -122,18 +149,18 @@ public interface Configuration
 			: Configuration.class.getResource("/" + defaultName);
 		if(url != null)
 		{
-			return LoadIni(url);
+			return LoadIni(url, charset);
 		}
 		
 		File file = new File(defaultName);
 		if(file.exists())
 		{
-			return LoadIni(file);
+			return LoadIni(file, charset);
 		}
 		file = new File(System.getProperty("user.home"), defaultName);
 		if(file.exists())
 		{
-			return LoadIni(file);
+			return LoadIni(file, charset);
 		}
 		
 		return null;
@@ -157,9 +184,32 @@ public interface Configuration
 		final String path
 	)
 	{
+		return Load(path, ConfigurationLoader.Defaults.defaultCharset());
+	}
+	
+	/**
+	 * Tries to load the configuration file from <code>path</code>.
+	 * Depending on the file suffix either the XML or the INI loader is used.
+	 * <p>
+	 * The load order is as follows:
+	 * <ul>
+	 * <li>The classpath</li>
+	 * <li>As an URL</li>
+	 * <li>As a file</li>
+	 * </ul>
+	 * 
+	 * @param path a classpath resource, a file path or an URL 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration or <code>null</code> if none was found
+	 */
+	public static Configuration Load(
+		final String path,
+		final Charset charset
+	)
+	{
 		return path.toLowerCase().endsWith(".xml")
-			? LoadXml(path)
-			: LoadIni(path)
+			? LoadXml(path, charset)
+			: LoadIni(path, charset)
 		;
 	}
 	
