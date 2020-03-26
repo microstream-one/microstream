@@ -19,13 +19,29 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
-import one.microstream.storage.exceptions.StorageExceptionIo;
+import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
+import one.microstream.storage.exceptions.StorageConfigurationException;
+import one.microstream.storage.exceptions.StorageConfigurationIoException;
 
-
+/**
+ * Parser for various configuration formats.
+ * <p>
+ * Supported formats:
+ * <ul>
+ * <li>XML</li>
+ * <li>INI / Properties</li>
+ * </ul>
+ */
 @FunctionalInterface
 public interface ConfigurationParser
 {
+	/**
+	 * Parses the configuration from the given input.
+	 * 
+	 * @param data the input to parse
+	 * @return the parsed configuration
+	 * @throws StorageConfigurationException if an error occurs while parsing
+	 */
 	public default Configuration parse(
 		final String data
 	)
@@ -33,18 +49,33 @@ public interface ConfigurationParser
 		return this.parse(Configuration.Default(), data);
 	}
 	
-	
+	/**
+	 * Parses the configuration from the given input.
+	 * 
+	 * @param configuration the configuration to populate
+	 * @param data the input to parse
+	 * @return the given configuration
+	 * @throws StorageConfigurationException if an error occurs while parsing
+	 */
 	public Configuration parse(
 		Configuration configuration, 
 		String data
 	);
 	
-	
+	/**
+	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
+	 */
 	public static ConfigurationParser Ini()
 	{
 		return Ini(ConfigurationPropertyParser.New());
 	}
 	
+	/**
+	 * 
+	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
+	 * 
+	 * @param propertyParser a custom property parser
+	 */
 	public static ConfigurationParser Ini(
 		final ConfigurationPropertyParser propertyParser
 	)
@@ -52,11 +83,19 @@ public interface ConfigurationParser
 		return new IniConfigurationParser(notNull(propertyParser));
 	}
 	
+	/**
+	 * Creates a new {@link ConfigurationParser} which reads xml files.
+	 */
 	public static ConfigurationParser Xml()
 	{
 		return Xml(ConfigurationPropertyParser.New());
 	}
-	
+
+	/**
+	 * Creates a new {@link ConfigurationParser} which reads xml files.
+	 * 
+	 * @param propertyParser a custom property parser
+	 */
 	public static ConfigurationParser Xml(
 		final ConfigurationPropertyParser propertyParser
 	)
@@ -161,11 +200,11 @@ public interface ConfigurationParser
 			}
 			catch(ParserConfigurationException | SAXException e)
 			{
-				throw new StorageExceptionInvalidConfiguration(e);
+				throw new InvalidStorageConfigurationException(e);
 			}
 			catch(final IOException e)
 			{
-				throw new StorageExceptionIo(e);
+				throw new StorageConfigurationIoException(e);
 			}
 			
 			return configuration;

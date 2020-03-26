@@ -8,9 +8,13 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import one.microstream.bytes.ByteMultiple;
-import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
+import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 
 
+/**
+ * Property parser used by {@link ConfigurationParser}.
+ *
+ */
 @FunctionalInterface
 public interface ConfigurationPropertyParser
 {
@@ -243,12 +247,12 @@ public interface ConfigurationPropertyParser
 					break;
 				
 					default:
-						throw new StorageExceptionInvalidConfiguration("Unsupported property: " + name);
+						throw new InvalidStorageConfigurationException("Unsupported property: " + name);
 				}
 			}
 			catch(final NumberFormatException nfe)
 			{
-				throw new StorageExceptionInvalidConfiguration(
+				throw new InvalidStorageConfigurationException(
 						"Invalid value for property " + name + ": " + value,nfe);
 			}
 		}
@@ -275,7 +279,7 @@ public interface ConfigurationPropertyParser
 			final long fileSize = this.fileSizeParser.parseFileSize(value, defaultByteMultiple);
 			if(fileSize > Integer.MAX_VALUE)
 			{
-				throw new StorageExceptionInvalidConfiguration("Invalid file size: " + value);
+				throw new InvalidStorageConfigurationException("Invalid file size: " + value);
 			}
 			
 			return (int)fileSize;

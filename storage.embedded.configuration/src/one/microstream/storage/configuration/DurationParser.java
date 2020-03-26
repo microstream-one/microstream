@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
+import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 
 @FunctionalInterface
 public interface DurationParser
@@ -61,7 +61,7 @@ public interface DurationParser
 			}
 			catch(final NumberFormatException nfe)
 			{
-				throw new StorageExceptionInvalidConfiguration(
+				throw new InvalidStorageConfigurationException(
 					"Invalid duration: " + text,
 					nfe
 				);
@@ -80,7 +80,7 @@ public interface DurationParser
 			}
 			catch(final NumberFormatException nfe)
 			{
-				throw new StorageExceptionInvalidConfiguration(
+				throw new InvalidStorageConfigurationException(
 					"Invalid duration: " + amountText + unitText,
 					nfe
 				);
@@ -92,7 +92,7 @@ public interface DurationParser
 			}
 			catch(final IllegalArgumentException e)
 			{
-				throw new StorageExceptionInvalidConfiguration(
+				throw new InvalidStorageConfigurationException(
 					"Invalid duration: " + amountText + unitText +
 					", unknown unit: " + unitText
 				);

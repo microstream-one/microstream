@@ -16,7 +16,9 @@ import one.microstream.storage.types.StorageEntityCacheEvaluator;
 import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.storage.types.StorageHousekeepingController;
 
-
+/**
+ * Function to create an {@link EmbeddedStorageFoundation} based on a {@link Configuration}.
+ */
 @FunctionalInterface
 public interface EmbeddedStorageFoundationCreator
 {

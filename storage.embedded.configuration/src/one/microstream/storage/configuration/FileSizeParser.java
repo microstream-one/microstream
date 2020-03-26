@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import one.microstream.bytes.ByteMultiple;
-import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
+import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 
 @FunctionalInterface
 public interface FileSizeParser
@@ -48,7 +48,7 @@ public interface FileSizeParser
 			}
 			catch(final NumberFormatException nfe)
 			{
-				throw new StorageExceptionInvalidConfiguration(
+				throw new InvalidStorageConfigurationException(
 					"Invalid file size: " + text,
 					nfe
 				);
@@ -67,7 +67,7 @@ public interface FileSizeParser
 			}
 			catch(final NumberFormatException nfe)
 			{
-				throw new StorageExceptionInvalidConfiguration(
+				throw new InvalidStorageConfigurationException(
 					"Invalid file size: " + amountText + unitText,
 					nfe
 				);
@@ -76,7 +76,7 @@ public interface FileSizeParser
 			final ByteMultiple byteMultiple = ByteMultiple.ofName(unitText);
 			if(byteMultiple == null)
 			{
-				throw new StorageExceptionInvalidConfiguration(
+				throw new InvalidStorageConfigurationException(
 					"Invalid file size: " + amountText + unitText +
 					", unknown unit: " + unitText
 				);
