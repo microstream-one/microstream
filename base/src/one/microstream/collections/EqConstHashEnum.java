@@ -867,13 +867,13 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition
 	@Override
 	public final long lastIndexOf(final E entry)
 	{
-		return this.chain.rngIndexOf(this.size - 1, -this.size, entry);
+		return this.chain.lastIndexOf(entry);
 	}
 
 	@Override
 	public final long lastIndexBy(final Predicate<? super E> predicate)
 	{
-		return this.chain.rngIndexOf(this.size - 1, -this.size, predicate);
+		return this.chain.lastIndexBy(predicate);
 	}
 
 	@Override

@@ -50,6 +50,10 @@ import one.microstream.java.lang.BinaryHandlerStringBuilder;
 import one.microstream.java.lang.BinaryHandlerVoid;
 import one.microstream.java.math.BinaryHandlerBigDecimal;
 import one.microstream.java.math.BinaryHandlerBigInteger;
+import one.microstream.java.net.BinaryHandlerInet4Address;
+import one.microstream.java.net.BinaryHandlerInet6Address;
+import one.microstream.java.net.BinaryHandlerInetAddress;
+import one.microstream.java.net.BinaryHandlerInetSocketAddress;
 import one.microstream.java.net.BinaryHandlerURI;
 import one.microstream.java.net.BinaryHandlerURL;
 import one.microstream.java.sql.BinaryHandlerSqlDate;
@@ -101,6 +105,7 @@ import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeIdLookup;
 import one.microstream.reference.BinaryHandlerLazyDefault;
 import one.microstream.reference.Referencing;
+import one.microstream.reference.Swizzling;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BinaryHandlerSubstituterDefault;
 
@@ -155,7 +160,7 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		final long nativeTypeId = nativeTypeIdLookup.lookupTypeId(typeHandler.type());
-		if(nativeTypeId == 0)
+		if(Swizzling.isNotFoundId(nativeTypeId))
 		{
 			// (07.11.2018 TM)EXCP: proper exception
 			throw new PersistenceException("No native TypeId found for type " + typeHandler.type());
@@ -208,13 +213,21 @@ public final class BinaryPersistence extends Persistence
 			
 			BinaryHandlerBigInteger.New(),
 			BinaryHandlerBigDecimal.New(),
-			BinaryHandlerFile.New()      ,
-			BinaryHandlerDate.New()      ,
-			BinaryHandlerLocale.New()    ,
-			BinaryHandlerCurrency.New()  ,
-			BinaryHandlerPattern.New()   ,
-			BinaryHandlerURI.New()       ,
-			BinaryHandlerURL.New()       ,
+			
+			BinaryHandlerFile.New()    ,
+			BinaryHandlerDate.New()    ,
+			BinaryHandlerLocale.New()  ,
+			BinaryHandlerCurrency.New(),
+			BinaryHandlerPattern.New() ,
+			
+			BinaryHandlerInetAddress.New() ,
+			BinaryHandlerInet4Address.New(),
+			BinaryHandlerInet6Address.New(),
+			
+			BinaryHandlerInetSocketAddress.New(),
+			
+			BinaryHandlerURI.New(),
+			BinaryHandlerURL.New(),
 
 			// non-sensical handlers required for confused developers
 			BinaryHandlerSqlDate.New()     ,

@@ -4,18 +4,23 @@ package one.microstream.storage.configuration;
 import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.notEmpty;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
-import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
+import one.microstream.bytes.ByteMultiple;
+import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 
 
+/**
+ * Property parser used by {@link ConfigurationParser}.
+ *
+ */
 @FunctionalInterface
 public interface ConfigurationPropertyParser
 {
-	public void parseProperty(
-		String name,
-		String value,
-		Configuration configuration
+	public void parseProperties(
+		Map<String, String> properties,
+		Configuration       configuration
 	);
 	
 	
@@ -55,9 +60,19 @@ public interface ConfigurationPropertyParser
 			this.fileSizeParser = fileSizeParser;
 		}
 		
-		@SuppressWarnings("deprecation") // keeps parsing deprecated properties
 		@Override
-		public void parseProperty(
+		public void parseProperties(
+			final Map<String, String> properties, 
+			final Configuration       configuration
+		)
+		{
+			properties.entrySet().forEach(kv ->
+				this.parseProperty(kv.getKey(), kv.getValue(), configuration)
+			);
+		}
+		
+		@SuppressWarnings("deprecation") // keeps parsing deprecated properties
+		protected void parseProperty(
 			final String name                ,
 			final String value               ,
 			final Configuration configuration
@@ -165,7 +180,7 @@ public interface ConfigurationPropertyParser
 					case HOUSEKEEPING_INTERVAL_MS:
 					{
 						configuration.setHousekeepingIntervalMs(
-							this.durationParser.parse(value).toMillis()
+							this.durationParser.parse(value, DurationUnit.MS).toMillis()
 						);
 					}
 					break;
@@ -174,7 +189,7 @@ public interface ConfigurationPropertyParser
 					case HOUSEKEEPING_TIME_BUDGET_NS:
 					{
 						configuration.setHousekeepingTimeBudgetNs(
-							this.durationParser.parse(value).toNanos()
+							this.durationParser.parse(value, DurationUnit.NS).toNanos()
 						);
 					}
 					break;
@@ -182,7 +197,7 @@ public interface ConfigurationPropertyParser
 					case ENTITY_CACHE_THRESHOLD:
 					{
 						configuration.setEntityCacheThreshold(
-							this.fileSizeParser.parseFileSize(value)
+							this.fileSizeParser.parseFileSize(value, ByteMultiple.B)
 						);
 					}
 					break;
@@ -191,7 +206,7 @@ public interface ConfigurationPropertyParser
 					case ENTITY_CACHE_TIMEOUT_MS:
 					{
 						configuration.setEntityCacheTimeoutMs(
-							this.durationParser.parse(value).toMillis()
+							this.durationParser.parse(value, DurationUnit.MS).toMillis()
 						);
 					}
 					break;
@@ -200,7 +215,7 @@ public interface ConfigurationPropertyParser
 					case DATA_FILE_MINIMUM_SIZE:
 					{
 						configuration.setDataFileMinimumSize(
-							this.parseFileSize_int(value)
+							this.parseFileSize_int(value, ByteMultiple.B)
 						);
 					}
 					break;
@@ -209,7 +224,7 @@ public interface ConfigurationPropertyParser
 					case DATA_FILE_MAXIMUM_SIZE:
 					{
 						configuration.setDataFileMaximumSize(
-							this.parseFileSize_int(value)
+							this.parseFileSize_int(value, ByteMultiple.B)
 						);
 					}
 					break;
@@ -232,12 +247,12 @@ public interface ConfigurationPropertyParser
 					break;
 				
 					default:
-						throw new StorageExceptionInvalidConfiguration("Unknown property: " + name);
+						throw new InvalidStorageConfigurationException("Unsupported property: " + name);
 				}
 			}
 			catch(final NumberFormatException nfe)
 			{
-				throw new StorageExceptionInvalidConfiguration(
+				throw new InvalidStorageConfigurationException(
 						"Invalid value for property " + name + ": " + value,nfe);
 			}
 		}
@@ -259,12 +274,12 @@ public interface ConfigurationPropertyParser
 			}
 		}
 
-		protected int parseFileSize_int(final String value)
+		protected int parseFileSize_int(final String value, final ByteMultiple defaultByteMultiple)
 		{
-			final long fileSize = this.fileSizeParser.parseFileSize(value);
+			final long fileSize = this.fileSizeParser.parseFileSize(value, defaultByteMultiple);
 			if(fileSize > Integer.MAX_VALUE)
 			{
-				throw new StorageExceptionInvalidConfiguration("Invalid file size: " + value);
+				throw new InvalidStorageConfigurationException("Invalid file size: " + value);
 			}
 			
 			return (int)fileSize;

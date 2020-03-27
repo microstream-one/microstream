@@ -175,6 +175,8 @@ public interface Lazy<T> extends Referencing<T>
 		 * The cached object id of the not loaded actual instance to later load it lazily.
 		 * Although this value never changes logically during the lifetime of an instance,
 		 * it might be delayed initialized. See {@link #link(long, ObjectSwizzling)} and its use site(s).
+		 * 
+		 * A "not found" id (id < 0) here means not yet persisted (the id assigned via persisting is not yet present).
 		 */
 		// CHECKSTYLE.OFF: VisibilityModifier CheckStyle false positive for same package in another project
 		transient long objectId;
@@ -201,7 +203,7 @@ public interface Lazy<T> extends Referencing<T>
 		 */
 		Default(final T subject)
 		{
-			this(subject, Swizzling.nullId(), null);
+			this(subject, Swizzling.toUnmappedObjectId(subject), null);
 		}
 
 		/**
@@ -241,15 +243,19 @@ public interface Lazy<T> extends Referencing<T>
 		@Override
 		public final synchronized boolean isStored()
 		{
-			// checking objectId rather than loader as loader might be initially non-null in a future enhancement
-			return this.objectId != Swizzling.nullId();
+			// A "not found" id (id < 0) here means not yet persisted (the id assigned via persisting is not yet present).
+			return Swizzling.isFoundId(this.objectId);
 		}
 		
 		@Override
 		public final synchronized boolean isLoaded()
 		{
-			// the funny thing here is: even if the lazy reference has been initialized with null, the result ist correct.
-			return this.subject != null;
+			/* Sounds trivial, but there are a lot of cases, here:
+			 * 1.) Not yet persisted cases (id < 0) are implicitely always "loaded".
+			 * 2.) A null-reference (id == 0) is always "loaded"
+			 * 3.) Otherwise, the subject must be present (truly a state of having been "loaded")
+			 */
+			return Swizzling.isNotProperId(this.objectId) || this.subject != null;
 		}
 
 		/**
@@ -301,7 +307,7 @@ public interface Lazy<T> extends Referencing<T>
 
 		private void validateObjectIdToBeSet(final long objectId)
 		{
-			if(this.objectId != Swizzling.nullId() && this.objectId != objectId)
+			if(Swizzling.isFoundId(this.objectId) && this.objectId != objectId)
 			{
 				// (22.10.2014 TM)TODO: proper exception
 				throw new RuntimeException("ObjectId already set: " + this.objectId);
@@ -364,7 +370,8 @@ public interface Lazy<T> extends Referencing<T>
 		@Override
 		public final synchronized T get()
 		{
-			if(this.subject == null && this.objectId != Swizzling.nullId())
+			// no need to "load" a persisted null value (id == 0) or a not yet persisted null value (id < 0)
+			if(this.subject == null && Swizzling.isProperId(this.objectId))
 			{
 				this.load();
 			}

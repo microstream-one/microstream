@@ -7,7 +7,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerCurrency extends AbstractBinaryHandlerCustomValueVariableLength<Currency>
+public final class BinaryHandlerCurrency extends AbstractBinaryHandlerCustomValueVariableLength<Currency, String>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -70,14 +70,22 @@ public final class BinaryHandlerCurrency extends AbstractBinaryHandlerCustomValu
 		return Currency.getInstance(binaryState(data));
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
 	@Override
-	public void validateState(
-		final Binary                 data    ,
-		final Currency                 instance,
-		final PersistenceLoadHandler handler
-	)
+	public String getValidationStateFromInstance(final Currency instance)
 	{
-		compareSimpleState(instance, instanceState(instance), binaryState(data));
+		return instanceState(instance);
+	}
+	
+	@Override
+	public String getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
 	}
 
 }

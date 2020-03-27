@@ -4,12 +4,12 @@ import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
+import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 
 @FunctionalInterface
 public interface DurationParser
 {
-	public Duration parse(String text);
+	public Duration parse(String text, DurationUnit defaultUnit);
 	
 	
 	/**
@@ -19,19 +19,11 @@ public interface DurationParser
 	 */
 	public static DurationParser IsoParser()
 	{
-		return Duration::parse;
+		return (text, defaultUnit) -> Duration.parse(text);
 	}
 	
 	/**
-	 * Case insensitive, suffix based parser, supported units:
-	 * <ul>
-	 * <li>ns</li>
-	 * <li>ms</li>
-	 * <li>s</li>
-	 * <li>m</li>
-	 * <li>h</li>
-	 * <li>d</li>
-	 * </ul>
+	 * Case insensitive, suffix based parser, for supported units see {@link DurationUnit}.
 	 */
 	public static DurationParser Default()
 	{
@@ -41,7 +33,10 @@ public interface DurationParser
 	
 	public static class Default implements DurationParser
 	{
-		private final Pattern pattern = Pattern.compile("([\\d]+)\\s*(\\w+)",Pattern.CASE_INSENSITIVE);
+		private final Pattern pattern = Pattern.compile(
+			"(?<amount>[0-9]*)(?:\\s*)(?<unit>[a-z]+)",
+			Pattern.CASE_INSENSITIVE
+		);
 		
 		Default()
 		{
@@ -49,43 +44,59 @@ public interface DurationParser
 		}
 		
 		@Override
-		public Duration parse(final String text)
+		public Duration parse(final String text, final DurationUnit defaultUnit)
 		{
 			final Matcher matcher = this.pattern.matcher(text);
-			if(matcher.find())
+			if(matcher.matches())
 			{
-				final String amountGroup = matcher.group(1);
-				final String unitGroup   = matcher.group(2);
-				
-				long amount;
-				try
-				{
-					amount = Long.parseLong(amountGroup);
-				}
-				catch(final NumberFormatException nfe)
-				{
-					throw new StorageExceptionInvalidConfiguration(
-						"Invalid Duration: " + text,
-						nfe
-					);
-				}
-				
-				switch(unitGroup.toLowerCase())
-				{
-					case "ns": return Duration.ofNanos(amount);
-					case "ms": return Duration.ofMillis(amount);
-					case "s" : return Duration.ofSeconds(amount);
-					case "m" : return Duration.ofMinutes(amount);
-					case "h" : return Duration.ofHours(amount);
-					case "d" : return Duration.ofDays(amount);
-					default  : break; // fall through to exception
-				}
+				return this.parseDurationWithUnit(
+					matcher.group("amount"),
+					matcher.group("unit")
+				);
+			}
+
+			try
+			{
+				return defaultUnit.create(Long.parseLong(text));
+			}
+			catch(final NumberFormatException nfe)
+			{
+				throw new InvalidStorageConfigurationException(
+					"Invalid duration: " + text,
+					nfe
+				);
+			}
+		}
+		
+		private Duration parseDurationWithUnit(
+			final String amountText,
+			final String unitText
+		)
+		{
+			long amount;
+			try
+			{
+				amount = Long.parseLong(amountText);
+			}
+			catch(final NumberFormatException nfe)
+			{
+				throw new InvalidStorageConfigurationException(
+					"Invalid duration: " + amountText + unitText,
+					nfe
+				);
 			}
 			
-			throw new StorageExceptionInvalidConfiguration(
-				"Invalid Duration: " +
-				text
-			);
+			try
+			{
+				return DurationUnit.valueOf(unitText.toUpperCase()).create(amount);
+			}
+			catch(final IllegalArgumentException e)
+			{
+				throw new InvalidStorageConfigurationException(
+					"Invalid duration: " + amountText + unitText +
+					", unknown unit: " + unitText
+				);
+			}
 		}
 		
 	}

@@ -2504,6 +2504,12 @@ public final class XChars
 
 		return false;
 	}
+	
+	// it's hilarious how much basic methods are missing in the JDK
+	public static final boolean contains(final String s, final char c)
+	{
+		return s.indexOf(c) >= 0;
+	}
 
 	public static final boolean contains(
 		final char[] subject      ,

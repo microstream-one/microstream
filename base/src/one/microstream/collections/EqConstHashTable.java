@@ -682,7 +682,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	}
 
 	@Override
-	public one.microstream.collections.types.XImmutableTable.Bridge<K, V> oldMap()
+	public XImmutableTable.Bridge<K, V> oldMap()
 	{
 		return new OldVarMap();
 	}
@@ -1132,13 +1132,15 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final long lastIndexOf(final KeyValue<K, V> entry)
 	{
-		return EqConstHashTable.this.chain.rngIndexOf(EqConstHashTable.this.size - 1, -EqConstHashTable.this.size, entry);
+		return this.chain.lastIndexBy(kv ->
+			this.hashEqualator.equal(kv.key(), entry.key())
+		);
 	}
 
 	@Override
 	public final long lastIndexBy(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		return EqConstHashTable.this.chain.rngIndexOf(EqConstHashTable.this.size - 1, -EqConstHashTable.this.size, predicate);
+		return EqConstHashTable.this.chain.lastIndexBy(predicate);
 	}
 
 	@Override
@@ -1613,7 +1615,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long indexBy(final Predicate<? super K> predicate)
 		{
-			return EqConstHashTable.this.chain.keyIndexOf(predicate);
+			return EqConstHashTable.this.chain.keyIndexBy(predicate);
 		}
 
 		@Override
@@ -1625,13 +1627,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long lastIndexOf(final K element)
 		{
-			return EqConstHashTable.this.chain.keyRngIndexOf(EqConstHashTable.this.size - 1, -EqConstHashTable.this.size, element);
+			return EqConstHashTable.this.chain.keyLastIndexOf(element);
 		}
 
 		@Override
 		public final long lastIndexBy(final Predicate<? super K> predicate)
 		{
-			return EqConstHashTable.this.chain.keyRngIndexOf(EqConstHashTable.this.size - 1, -EqConstHashTable.this.size, predicate);
+			return EqConstHashTable.this.chain.keyLastIndexBy(predicate);
 		}
 
 		@Override
@@ -2090,7 +2092,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long indexBy(final Predicate<? super V> predicate)
 		{
-			return EqConstHashTable.this.chain.valuesIndexOf(predicate);
+			return EqConstHashTable.this.chain.valuesIndexBy(predicate);
 		}
 
 		@Override
@@ -2102,13 +2104,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long lastIndexOf(final V value)
 		{
-			return EqConstHashTable.this.chain.valuesRngIndexOf(EqConstHashTable.this.size - 1, EqConstHashTable.this.size, value);
+			return EqConstHashTable.this.chain.valuesLastIndexOf(value);
 		}
 
 		@Override
 		public final long lastIndexBy(final Predicate<? super V> predicate)
 		{
-			return EqConstHashTable.this.chain.valuesRngIndexOf(EqConstHashTable.this.size - 1, EqConstHashTable.this.size, predicate);
+			return EqConstHashTable.this.chain.valuesLastIndexBy(predicate);
 		}
 
 		@Override
