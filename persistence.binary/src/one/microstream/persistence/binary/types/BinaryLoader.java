@@ -71,7 +71,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 		// may be a relay lookup that provides special handlers providing logic
 		private final PersistenceTypeHandlerLookup<Binary> typeHandlerLookup;
-		private final PersistenceObjectRegistry            registry         ;
+		private final PersistenceObjectRegistry            objectRegistry   ;
 		private final Persister                            persister        ;
 		private final PersistenceSourceSupplier<Binary>    sourceSupplier   ;
 		private final LoadItemsChain                       loadItems        ;
@@ -102,7 +102,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 		Default(
 			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
-			final PersistenceObjectRegistry            registry       ,
+			final PersistenceObjectRegistry            objectRegistry ,
 			final Persister                            persister      ,
 			final PersistenceSourceSupplier<Binary>    sourceSupplier ,
 			final LoadItemsChain                       loadItems      ,
@@ -111,7 +111,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		{
 			super();
 			this.typeHandlerLookup = typeLookup     ;
-			this.registry          = registry       ;
+			this.objectRegistry    = objectRegistry ;
 			this.persister         = persister      ;
 			this.sourceSupplier    = sourceSupplier ;
 			this.loadItems         = loadItems      ;
@@ -123,6 +123,12 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+
+		@Override
+		public final Persister getPersister()
+		{
+			return this.persister;
+		}
 		
 		@Override
 		public void readBinaryEntities(final ByteBuffer entitiesData)
@@ -173,25 +179,24 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		{
 			return (PersistenceTypeHandler<Binary, Object>)typeHandler;
 		}
+
+		protected PersistenceTypeHandler<Binary, Object> lookupTypeHandler(final long tid)
+		{
+			final PersistenceTypeHandler<Binary, Object> handler;
+
+			// proper type must have a typeHandler
+			if((handler = damnTypeErasure(this.typeHandlerLookup.lookupTypeHandler(tid))) == null)
+			{
+				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(tid);
+			}
+			
+			return handler;
+		}
 		
 		private void createBuildItem(final BinaryLoadItem loadItem)
 		{
-			final PersistenceTypeHandler<Binary, Object> typeHandler = damnTypeErasure(
-				this.typeHandlerLookup.lookupTypeHandler(
-					loadItem.getBuildItemTypeId()
-				)
-			);
-			
-			// proper build items must have a typeHandler
-			if(typeHandler == null)
-			{
-				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(
-					loadItem.getBuildItemTypeId()
-				);
-			}
-			
-			loadItem.handler = typeHandler;
-			if((loadItem.existingInstance = this.registry.lookupObject(loadItem.getBuildItemObjectId())) == null)
+			loadItem.handler = this.lookupTypeHandler(loadItem.getBuildItemTypeId());
+			if((loadItem.existingInstance = this.objectRegistry.lookupObject(loadItem.getBuildItemObjectId())) == null)
 			{
 				loadItem.createdInstance = loadItem.handler.create(loadItem, this);
 			}
@@ -293,22 +298,10 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			}
 			
 			// this makes the locally created instance the "officially existing" instance for the registry's context.
-			return entry.existingInstance = this.registry.optionalRegisterObject(
+			return entry.existingInstance = this.objectRegistry.optionalRegisterObject(
 				entry.getBuildItemObjectId(),
 				entry.createdInstance
 			);
-		}
-
-		protected PersistenceTypeHandler<Binary, ?> lookupTypeHandler(final long tid)
-		{
-			final PersistenceTypeHandler<Binary, ?> handler;
-			
-			if((handler = this.typeHandlerLookup.lookupTypeHandler(tid)) == null)
-			{
-				throw new PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId(tid);
-			}
-			
-			return handler;
 		}
 
 		protected void loadReferences(final BinaryLoadItem entry)
@@ -336,14 +329,15 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			this.requireReferenceEager(rootObjectId);
 		}
 
+		@Deprecated
 		@Override
 		public final void registerCustomRootRefactoring(final Object rootInstance, final long customRootObjectId)
 		{
 			this.registerRoot(rootInstance, customRootObjectId);
 		}
-		
-		@Override
+
 		@Deprecated
+		@Override
 		public final void registerDefaultRootRefactoring(final Object rootInstance, final long defaultRootObjectId)
 		{
 			final Binary defaultRootLoadItem = this.lookupLoadItem(defaultRootObjectId);
@@ -355,7 +349,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		private void registerRoot(final Object rootInstance, final long rootObjectId)
 		{
 			// root instances are global, so it is apropirate and required to register it globally right away
-			this.registry.registerObject(rootObjectId, rootInstance);
+			this.objectRegistry.registerObject(rootObjectId, rootInstance);
 		}
 		
 		@Override
@@ -583,7 +577,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 			// if a reference is lazy unrequired (e.g. constant), simply register it as a skipping build item right away
 			final Object instance;
-			if((instance = this.registry.lookupObject(objectId)) != null)
+			if((instance = this.objectRegistry.lookupObject(objectId)) != null)
 			{
 				this.putSkipItem(objectId, instance);
 				return true;
@@ -649,15 +643,18 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 		private void registerSkipOid(final long objectId)
 		{
-			for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(objectId & this.buildItemsHashRange)]; e != null; e = e.link)
+			synchronized(this.objectRegistry)
 			{
-				if(e.getBuildItemObjectId() == objectId)
+				for(BinaryLoadItem e = this.buildItemsHashSlots[(int)(objectId & this.buildItemsHashRange)]; e != null; e = e.link)
 				{
-					return;
+					if(e.getBuildItemObjectId() == objectId)
+					{
+						return;
+					}
 				}
+				
+				this.putSkipItem(objectId, null);
 			}
-			
-			this.putSkipItem(objectId, null);
 		}
 		
 		private BinaryLoadItem createLoadItemDummy()
@@ -805,42 +802,52 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
 		@Override
-		public final synchronized Object get()
+		public final Object get()
 		{
-			this.readLoadOnce();
-			this.build();
-			final Object instance = this.internalGetFirst();
-			this.clearBuildItems();
-
-			return instance;
-		}
-
-		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
-		@Override
-		public final synchronized Object getObject(final long objectId)
-		{
-			this.requireReference(objectId);
-			this.readLoadOidData();
-			this.build();
-			final Object instance = this.getBuildInstance(objectId);
-			this.clearBuildItems();
-			
-			return instance;
-		}
-
-		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
-		@Override
-		public final synchronized <C extends Consumer<Object>> C collect(final C collector, final long... objectIds)
-		{
-			for(int i = 0; i < objectIds.length; i++)
+			synchronized(this.objectRegistry)
 			{
-				this.requireReference(objectIds[i]);
+				this.readLoadOnce();
+				this.build();
+				final Object instance = this.internalGetFirst();
+				this.clearBuildItems();
+
+				return instance;
 			}
-			this.readLoadOidData();
-			this.build();
-			this.populate(collector, objectIds);
-			this.clearBuildItems();
-			return collector;
+		}
+
+		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
+		@Override
+		public final Object getObject(final long objectId)
+		{
+			synchronized(this.objectRegistry)
+			{
+				this.requireReference(objectId);
+				this.readLoadOidData();
+				this.build();
+				final Object instance = this.getBuildInstance(objectId);
+				this.clearBuildItems();
+				
+				return instance;
+			}
+		}
+
+		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
+		@Override
+		public final <C extends Consumer<Object>> C collect(final C collector, final long... objectIds)
+		{
+			synchronized(this.objectRegistry)
+			{
+				for(int i = 0; i < objectIds.length; i++)
+				{
+					this.requireReference(objectIds[i]);
+				}
+				this.readLoadOidData();
+				this.build();
+				this.populate(collector, objectIds);
+				this.clearBuildItems();
+				
+				return collector;
+			}
 		}
 
 		@Override
@@ -879,12 +886,6 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		{
 			// add-logic: only put if not contained yet (single lookup)
 			this.loadItems.addLoadItem(objectId);
-		}
-
-		@Override
-		public final Persister getPersister()
-		{
-			return this.persister;
 		}
 		
 	}
