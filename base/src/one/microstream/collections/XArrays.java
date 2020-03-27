@@ -1669,15 +1669,17 @@ public final class XArrays
 		return false;
 	}
 
-	public static <E> void iterate(
-		final E[]                 elements,
-		final Consumer<? super E> iterator
+	public static <E, I extends Consumer<? super E>> I iterate(
+		final E[] elements,
+		final I   iterator
 	)
 	{
 		for(final E e : elements)
 		{
 			iterator.accept(e);
 		}
+		
+		return iterator;
 	}
 
 	public static <E> void iterate(

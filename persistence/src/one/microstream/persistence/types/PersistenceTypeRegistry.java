@@ -5,6 +5,7 @@ import one.microstream.collections.HashMapObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyWrongType;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyWrongTypeId;
+import one.microstream.reference.Swizzling;
 
 public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 {
@@ -49,7 +50,7 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 		@Override
 		public final synchronized long lookupTypeId(final Class<?> type)
 		{
-			return this.idsPerTypes.get(type);
+			return this.idsPerTypes.get(type, Swizzling.notFoundId());
 		}
 
 		@SuppressWarnings("unchecked") // cast safety ensured by registration logic
@@ -66,12 +67,18 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 		)
 			throws PersistenceExceptionConsistency
 		{
+			if(Swizzling.isNotProperId(typeId))
+			{
+				// (06.12.2019 TM)EXCP: proper exception
+				throw new RuntimeException("Not a proper TypeId: " + typeId + " for type " + type);
+			}
+			
 			final Class<?> registeredType   = this.typesPerIds.get(typeId);
-			final long     registeredTypeId = this.idsPerTypes.get(type);
+			final long     registeredTypeId = this.idsPerTypes.get(type, Swizzling.notFoundId());
 			
 			if(registeredType == null)
 			{
-				if(registeredTypeId == Persistence.nullId())
+				if(Swizzling.isNotFoundId(registeredTypeId))
 				{
 					return false;
 				}

@@ -8,7 +8,8 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustomValueFixedLength<OptionalLong>
+public final class BinaryHandlerOptionalLong
+extends AbstractBinaryHandlerCustomValueFixedLength<OptionalLong, Long>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -19,6 +20,8 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 		BINARY_OFFSET_VALUE      = BINARY_OFFSET_IS_PRESENT + Byte.BYTES, // Boolean.BYTES does not exist
 		BINARY_LENGTH            = BINARY_OFFSET_VALUE      + Long.BYTES
 	;
+	
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -103,6 +106,26 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 		;
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
+	// actually never called, just to satisfy the interface
+	@Override
+	public Long getValidationStateFromInstance(final OptionalLong instance)
+	{
+		return instanceState(instance);
+	}
+
+	// actually never called, just to satisfy the interface
+	@Override
+	public Long getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
+	}
+	
 	@Override
 	public void validateState(
 		final Binary                 data    ,
@@ -118,7 +141,7 @@ public final class BinaryHandlerOptionalLong extends AbstractBinaryHandlerCustom
 			return;
 		}
 		
-		throwInconsistentStateException(instance, instanceState, binaryState);
+		this.throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 	
 }

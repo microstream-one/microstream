@@ -10,7 +10,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.reference.Referencing;
 
-public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFixedLength<Class<?>>
+public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFixedLength<Class<?>, Long>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -102,6 +102,26 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 		return resolvedInstance;
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
+	// actually never called, just to satisfy the interface
+	@Override
+	public Long getValidationStateFromInstance(final Class<?> instance)
+	{
+		return this.instanceState(instance);
+	}
+
+	// actually never called, just to satisfy the interface
+	@Override
+	public Long getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
+	}
+	
 	@Override
 	public void validateState(
 		final Binary                 data    ,
@@ -117,7 +137,7 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 			return;
 		}
 		
-		throwInconsistentStateException(instance, instanceState, binaryState);
+		this.throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

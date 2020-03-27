@@ -15,7 +15,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
  * See priv#185, priv#186, priv#187.
  * Until further notice, Path remains unhandled.
  */
-public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVariableLength<Path>
+public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVariableLength<Path, String>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -77,14 +77,22 @@ public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVar
 		return Paths.get(URI.create(binaryState(data)));
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
 	@Override
-	public void validateState(
-		final Binary                 data    ,
-		final Path                   instance,
-		final PersistenceLoadHandler handler
-	)
+	public String getValidationStateFromInstance(final Path instance)
 	{
-		compareSimpleState(instance, instanceState(instance), binaryState(data));
+		return instanceState(instance);
+	}
+
+	@Override
+	public String getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
 	}
 
 }

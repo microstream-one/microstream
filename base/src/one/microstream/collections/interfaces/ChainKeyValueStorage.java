@@ -89,31 +89,15 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public boolean keyContainsNull();
 
-	public boolean keyRngContainsNull(final int offset, int length);
-
 	public boolean keyContainsId(K element);
-
-	public boolean keyRngContainsId(int offset, int length, K element);
 
 	public boolean keyContains(K element);
 
 	public boolean keyContains(K sample, Equalator<? super K> equalator);
 
-	public boolean keyRngContains(int offset, int length, K element);
-
 	public boolean keyContainsAll(K[] elements, int elementsOffset, int elementsLength);
 
-	public boolean keyRngContainsAll(
-		int offset,
-		int length,
-		K[] elements,
-		int elementsOffset,
-		int elementsLength
-	);
-
 	public boolean keyContainsAll(XGettingCollection<? extends K> elements);
-
-	public boolean keyRngContainsAll(int offset, int length, XGettingCollection<? extends K> elements);
 
 
 
@@ -124,11 +108,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public boolean keyApplies(Predicate<? super K> predicate);
 
-	public boolean keyRngApplies(int offset, int length, Predicate<? super K> predicate);
-
 	public boolean keyAppliesAll(Predicate<? super K> predicate);
-
-	public boolean keyRngAppliesAll(int offset, int length, Predicate<? super K> predicate);
 
 
 
@@ -140,11 +120,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int keyCount(K sample, Equalator<? super K> equalator);
 
-	public int keyRngCount(int offset, int length, K element);
-
 	public int keyCount(Predicate<? super K> predicate);
-
-	public int keyRngCount(int offset, int length, Predicate<? super K> predicate);
 
 
 
@@ -170,33 +146,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 		C target
 	);
 
-	public <C extends Consumer<? super K>> C keyRngIntersect(
-		int offset,
-		int length,
-		XGettingCollection<? extends K> collection,
-		Equalator<? super K> equalator,
-		C target
-	);
-
-	public <C extends Consumer<? super K>> C keyRngExcept(
-		int offset,
-		int length,
-		XGettingCollection<? extends K> collection,
-		Equalator<? super K> equalator,
-		C target
-	);
-
-	public <C extends Consumer<? super K>> C keyRngUnion(
-		int offset,
-		int length,
-		XGettingCollection<? extends K> collection,
-		Equalator<? super K> equalator,
-		C target
-	);
-
 	public <C extends Consumer<? super K>> C keyCopyTo(C target);
-
-	public <C extends Consumer<? super K>> C keyRngCopyTo(int offset, int length, C target);
 
 	public <C extends Consumer<? super K>> C keyCopySelection(C target, long... indices);
 
@@ -204,21 +154,9 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public <C extends Consumer<? super K>> C keyCopyTo(C target, Predicate<? super K> predicate);
 
-	public <C extends Consumer<? super K>> C keyRngCopyTo(
-		int offset,
-		int length,
-		C target,
-		Predicate<? super K> predicate
-	);
-
 	public Object[] keyToArray();
 
 	public      K[] keyToArray(Class<K> type);
-
-	public Object[] keyRngToArray(int offset, int length);
-
-	public      K[] keyRngToArray(int offset, int length, Class<K> type);
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -243,15 +181,9 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public K keySearch(Predicate<? super K> predicate);
 
-	public K keyRngSearch(int offset, int length, Predicate<? super K> predicate);
-
 	public K keyMin(Comparator<? super K> keyComparator);
 
 	public K keyMax(Comparator<? super K> keyComparator);
-
-	public K keyRngMin(int offset, int length, Comparator<? super K> keyComparator);
-
-	public K keyRngMax(int offset, int length, Comparator<? super K> keyComparator);
 
 
 
@@ -263,11 +195,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public <A> void keyJoin(BiConsumer<? super K, A> joiner, A keyAggregate);
 
-	public void keyRngIterate(int offset, int length, Consumer<? super K> procedure);
-
 	public void keyIterateIndexed(IndexedAcceptor<? super K> procedure);
-
-	public void keyRngIterateIndexed(int offset, int length, IndexedAcceptor<? super K> procedure);
 
 	public void keyIterate(Predicate<? super K> predicate, Consumer<? super K> procedure);
 
@@ -281,25 +209,19 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int keyIndexOf(K sample, Equalator<? super K> equalator);
 
-	public int keyRngIndexOf(int offset, int length, K element);
+	public int keyIndexBy(Predicate<? super K> predicate);
 
-	public int keyRngIndexOf(int offset, int length, K sample, Equalator<? super K> equalator);
+	public int keyLastIndexOf(K element);
 
-	public int keyIndexOf(Predicate<? super K> predicate);
+	public int keyLastIndexOf(K sample, Equalator<? super K> equalator);
 
-	public int keyRngIndexOf(int offset, int length, Predicate<? super K> predicate);
+	public int keyLastIndexBy(Predicate<? super K> predicate);
 
 	public int keyMinIndex(Comparator<? super K> keyComparator);
 
 	public int keyMaxIndex(Comparator<? super K> keyComparator);
 
-	public int keyRngMinIndex(int offset, int length, Comparator<? super K> keyComparator);
-
-	public int keyRngMaxIndex(int offset, int length, Comparator<? super K> keyComparator);
-
 	public int keyScan(Predicate<? super K> predicate);
-
-	public int keyRngScan(int offset, int length, Predicate<? super K> predicate);
 
 
 
@@ -314,16 +236,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	public <C extends Consumer<? super K>> C keyDistinct(C target);
 
 	public <C extends Consumer<? super K>> C keyDistinct(C target, Equalator<? super K> equalator);
-
-	public <C extends Consumer<? super K>> C keyRngDistinct(int offset, int length, C target);
-
-	public <C extends Consumer<? super K>> C keyRngDistinct(
-		int offset,
-		int length,
-		C target,
-		Equalator<? super K> equalator
-	);
-
+	
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -341,19 +254,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	public VarString keyAppendTo(VarString vc, BiConsumer<VarString, ? super K> keyAppender, char separator);
 
 	public VarString keyAppendTo(VarString vc, BiConsumer<VarString, ? super K> keyAppender, String separator);
-
-	public VarString keyRngAppendTo(int offset, int length, VarString vc);
-
-	public VarString keyRngAppendTo(int offset, int length, VarString vc, char separator);
-
-	public VarString keyRngAppendTo(int offset, int length, VarString vc, String separator);
-
-	public VarString keyRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super K> keyAppender);
-
-	public VarString keyRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super K> keyAppender, char separator);
-
-	public VarString keyRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super K> keyAppender, String separator);
-
+	
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -364,17 +265,11 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int keyRemoveNull();
 
-	public int keyRngRemoveNull(long offset, long length);
-
 	public K keyRetrieve(K element);
 
 	public K keyRetrieve(K sample, Equalator<? super K> equalator);
 
 	public K keyRetrieve(Predicate<? super K> predicate);
-
-	public K keyRngRetrieve(long offset, long length, K element);
-
-	public K keyRngRetrieve(long offset, long length, K sample, Equalator<? super K> equalator);
 
 	public boolean keyRemoveOne(K element);
 
@@ -384,23 +279,13 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int keyRemove(K sample, Equalator<? super K> equalator);
 
-	public int keyRngRemove(int offset, int length, K element);
-
 	public int keyRemoveAll(K[] elements, int elementsOffset, int elementsLength);
 
-	public int keyRngRemoveAll(int offset, int length, K[] elements, int elementsOffset, int elementsLength);
-
 	public int keyRemoveAll(XGettingCollection<? extends K> elements);
-
-	public int keyRngRemoveAll(int offset, int length, XGettingCollection<? extends K> elements);
 
 	public int keyRemoveDuplicates();
 
 	public int keyRemoveDuplicates(Equalator<? super K> equalator);
-
-	public int keyRngRemoveDuplicates(int offset, int length);
-
-	public int keyRngRemoveDuplicates(int offset, int length, Equalator<? super K> equalator);
 
 
 
@@ -410,8 +295,6 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int keyReduce(Predicate<? super K> predicate);
 
-	public int keyRngReduce(int offset, int length, Predicate<? super K> predicate);
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -420,13 +303,9 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int keyRetainAll(K[] elements, int elementsOffset, int elementsLength);
 
-	public int keyRngRetainAll(int offset, int length, K[] elements, int elementsOffset, int elementsLength);
-
 	public int keyRetainAll(XGettingCollection<? extends K> elements);
 
 	public int keyRetainAll(XGettingCollection<? extends K> samples, Equalator<? super K> equalator);
-
-	public int keyRngRetainAll(int offset, int length, XGettingCollection<? extends K> elements);
 
 
 
@@ -435,8 +314,6 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	///////////////
 
 	public int keyProcess(Consumer<? super K> procedure);
-
-	public int keyRngProcess(int offset, int length, Consumer<? super K> procedure);
 
 
 
@@ -450,8 +327,6 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int keyMoveTo(Consumer<? super K> target, Predicate<? super K> predicate);
 
-	public int keyRngMoveTo(int offset, int length, Consumer<? super K> target, Predicate<? super K> predicate);
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -460,11 +335,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public void keySort(Comparator<? super K> keyComparator);
 
-	public void keyRngSort(int offset, int length, Comparator<? super K> keyComparator);
-
 	public boolean keyIsSorted(Comparator<? super K> keyComparator);
-
-	public boolean keyRngIsSorted(int offset, int length, Comparator<? super K> keyComparator);
 
 
 
@@ -487,37 +358,19 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int keyReplaceOne(K element, K replacement);
 
-	public int keyRngReplaceOne(int offset, int length, K element, K replacement);
-
 	public int keyReplace(K element, K replacement);
-
-	public int keyRngReplace(int offset, int length, K element, K replacement);
-
-	public int keyRngReplace(int offset, int length, K sample, Equalator<? super K> equalator, K replacement);
 
 	public int keyReplaceAll(K[] elements, int elementsOffset, int elementsLength, K replacement);
 
-	public int keyRngReplaceAll(int offset, int length, K[] elements, int elementsOffset, int elementsLength, K replacement);
-
 	public int keyReplaceAll(XGettingCollection<? extends K> elements, K replacement);
-
-	public int keyRngReplaceAll(int offset, int length, XGettingCollection<? extends K> elements, K replacement);
 
 	public long keySubstitute(Function<? super K, ? extends K> mapper, BiConsumer<EN, K> callback);
 
 	public int keySubstitute(Predicate<? super K> predicate, Function<? super K, ? extends K> mapper);
 
-	public int keyRngSubstitute(int offset, int length, Function<? super K, ? extends K> mapper);
-
-	public int keyRngSubstitute(int offset, int length, Predicate<? super K> predicate, Function<K, K> mapper);
-
 	public int keySubstituteOne(Predicate<? super K> predicate, K keySubstitute);
 
-	public int keyRngSubstituteOne(int offset, int length, Predicate<? super K> predicate, K keySubstitute);
-
 	public int keySubstitute(Predicate<? super K> predicate, K keySubstitute);
-
-	public int keyRngSubstitute(int offset, int length, Predicate<? super K> predicate, K keySubstitute);
 
 	
 	
@@ -548,23 +401,15 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public boolean valuesContainsNull();
 
-	public boolean valuesRngContainsNull(final int offset, int length);
-
 	// containing - identity //
 
 	public boolean valuesContainsId(V element);
-
-	public boolean valuesRngContainsId(int offset, int length, V value);
 
 	// containing - logical //
 
 	public boolean valuesContains(V element);
 
 	public boolean valuesContains(V sample, Equalator<? super V> equalator);
-
-	public boolean valuesRngContains(int offset, int length, V value);
-
-	public boolean valuesRngContains(int offset, int length, V sample, Equalator<? super V> equalator);
 	
 	// containing - all array //
 
@@ -572,37 +417,11 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public boolean valuesContainsAll(V[] values, int elementsOffset, int elementsLength, Equalator<? super V> equalator);
 
-	public boolean valuesRngContainsAll(
-		int offset,
-		int length,
-		V[] values,
-		int elementsOffset,
-		int elementsLength
-	);
-
-	public boolean valuesRngContainsAll(
-		int offset,
-		int length,
-		V[] values,
-		int elementsOffset,
-		int elementsLength,
-		Equalator<? super V> equalator
-	);
-
 	// containing - all collection //
 
 	public boolean valuesContainsAll(XGettingCollection<? extends V> elements);
 
 	public boolean valuesContainsAll(XGettingCollection<? extends V> elements, Equalator<? super V> equalator);
-
-	public boolean valuesRngContainsAll(int offset, int length, XGettingCollection<? extends V> elements);
-
-	public boolean valuesRngContainsAll(
-		int offset,
-		int length,
-		XGettingCollection<? extends V> samples,
-		Equalator<? super V> equalator
-	);
 
 
 
@@ -610,17 +429,9 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	// applying //
 	/////////////
 
-	// applying - single //
-
 	public boolean valuesApplies(Predicate<? super V> predicate);
 
-	public boolean valuesRngApplies(int offset, int length, Predicate<? super V> predicate);
-
-	// applying - all //
-
 	public boolean valuesAppliesAll(Predicate<? super V> predicate);
-
-	public boolean valuesRngAppliesAll(int offset, int length, Predicate<? super V> predicate);
 
 
 
@@ -628,21 +439,11 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	// counting //
 	/////////////
 
-	// counting - element //
-
 	public int valuesCount(V element);
 
 	public int valuesCount(V sample, Equalator<? super V> equalator);
 
-	public int valuesRngCount(int offset, int length, V value);
-
-	public int valuesRngCount(int offset, int length, V sample, Equalator<? super V> equalator);
-
-	// counting - predicate //
-
 	public int valuesCount(Predicate<? super V> predicate);
-
-	public int valuesRngCount(int offset, int length, Predicate<? super V> predicate);
 
 
 
@@ -670,35 +471,9 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 		C target
 	);
 
-	public <C extends Consumer<? super V>> C valuesRngIntersect(
-		int offset,
-		int length,
-		XGettingCollection<? extends V> collection,
-		Equalator<? super V> equalator,
-		C target
-	);
-
-	public <C extends Consumer<? super V>> C valuesRngExcept(
-		int offset,
-		int length,
-		XGettingCollection<? extends V> collection,
-		Equalator<? super V> equalator,
-		C target
-	);
-
-	public <C extends Consumer<? super V>> C valuesRngUnion(
-		int offset,
-		int length,
-		XGettingCollection<? extends V> collection,
-		Equalator<? super V> equalator,
-		C target
-	);
-
 	// data - copying //
 
 	public <C extends Consumer<? super V>> C valuesCopyTo(C target);
-
-	public <C extends Consumer<? super V>> C valuesRngCopyTo(int offset, int length, C target);
 
 	public <C extends Consumer<? super V>> C valuesCopySelection(C target, long... indices);
 
@@ -708,22 +483,11 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public <C extends Consumer<? super V>> C valuesCopyTo(C target, Predicate<? super V> predicate);
 
-	public <C extends Consumer<? super V>> C valuesRngCopyTo(
-		int offset,
-		int length,
-		C target,
-		Predicate<? super V> predicate
-	);
-
 	// data - array transformation //
 
 	public Object[] valuesToArray();
 
 	public      V[] valuesToArray(Class<V> type);
-
-	public Object[] valuesRngToArray(int offset, int length);
-
-	public      V[] valuesRngToArray(int offset, int length, Class<V> type);
 
 
 
@@ -747,17 +511,11 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public V valuesSeek(V sample);
 
-	public V valuesRngSeek(int offset, int length, V sample);
-
 	public V valuesSearch(V sample, Equalator<? super V> equalator);
-
-	public V valuesRngSearch(int offset, int length, V sample, Equalator<? super V> equalator);
 
 	// searching - predicate //
 
 	public V valuesSearch(Predicate<? super V> predicate);
-
-	public V valuesRngSearch(int offset, int length, Predicate<? super V> predicate);
 
 	// searching - min max //
 
@@ -765,31 +523,17 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public V valuesMax(Comparator<? super V> comparator);
 
-	public V valuesRngMin(int offset, int length, Comparator<? super V> comparator);
-
-	public V valuesRngMax(int offset, int length, Comparator<? super V> comparator);
-
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// executing //
+	// iterating //
 	//////////////
-
-	// executing - procedure //
 
 	public void valuesIterate(Consumer<? super V> procedure);
 
-	public void valuesRngIterate(int offset, int length, Consumer<? super V> procedure);
-
-	// executing - indexed procedure //
-
 	public void valuesIterateIndexed(IndexedAcceptor<? super V> procedure);
 
-	public void valuesRngIterateIndexed(int offset, int length, IndexedAcceptor<? super V> procedure);
-
 	public <A> void valuesJoin(BiConsumer<? super V, A> joiner, A aggregate);
-
-	// executing - conditional //
 
 	public void valuesIterate(Predicate<? super V> predicate, Consumer<? super V> procedure);
 
@@ -805,15 +549,13 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int valuesIndexOf(V sample, Equalator<? super V> equalator);
 
-	public int valuesRngIndexOf(int offset, int length, V value);
+	public int valuesIndexBy(Predicate<? super V> predicate);
 
-	public int valuesRngIndexOf(int offset, int length, V sample, Equalator<? super V> equalator);
+	public int valuesLastIndexOf(V element);
 
-	// indexing - predicate //
+	public int valuesLastIndexOf(V sample, Equalator<? super V> equalator);
 
-	public int valuesIndexOf(Predicate<? super V> predicate);
-
-	public int valuesRngIndexOf(int offset, int length, Predicate<? super V> predicate);
+	public int valuesLastIndexBy(Predicate<? super V> predicate);
 
 	// indexing - min max //
 
@@ -821,15 +563,9 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int valuesMaxIndex(Comparator<? super V> comparator);
 
-	public int valuesRngMinIndex(int offset, int length, Comparator<? super V> comparator);
-
-	public int valuesRngMaxIndex(int offset, int length, Comparator<? super V> comparator);
-
 	// indexing - scan //
 
 	public int valuesScan(Predicate<? super V> predicate);
-
-	public int valuesRngScan(int offset, int length, Predicate<? super V> predicate);
 
 
 
@@ -849,15 +585,6 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public <C extends Consumer<? super V>> C valuesDistinct(C target, Equalator<? super V> equalator);
 
-	public <C extends Consumer<? super V>> C valuesRngDistinct(int offset, int length, C target);
-
-	public <C extends Consumer<? super V>> C valuesRngDistinct(
-		int offset,
-		int length,
-		C target,
-		Equalator<? super V> equalator
-	);
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -876,18 +603,6 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public VarString valuesAppendTo(VarString vc, BiConsumer<VarString, ? super V> appender, String separator);
 
-	public VarString valuesRngAppendTo(int offset, int length, VarString vc);
-
-	public VarString valuesRngAppendTo(int offset, int length, VarString vc, char separator);
-
-	public VarString valuesRngAppendTo(int offset, int length, VarString vc, String separator);
-
-	public VarString valuesRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super V> appender);
-
-	public VarString valuesRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super V> appender, char separator);
-
-	public VarString valuesRngAppendTo(int offset, int length, VarString vc, BiConsumer<VarString, ? super V> appender, String separator);
-
 	public String valuesToString();
 
 
@@ -904,25 +619,15 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int valuesRemoveNull();
 
-	public int valuesRngRemoveNull(int offset, int length);
-
 	// removing - one single //
 
 	public V valuesRetrieve(V element);
 
 	public V valuesRetrieve(Predicate<? super V> predicate);
 
-	public V valuesRngRetrieve(int offset, int length, V value);
-
-	public V valuesRngRetrieve(int offset, int length, V sample, Equalator<? super V> equalator);
-
 	public boolean valuesRemoveOne(V element);
 
 	public boolean valuesRemoveOne(V sample, Equalator<? super V> equalator);
-
-	public boolean valuesRngRemoveOne(int offset, int length, V value);
-
-	public boolean valuesRngRemoveOne(int offset, int length, V sample, Equalator<? super V> equalator);
 
 	// removing - multiple single //
 
@@ -930,19 +635,11 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int valuesRemove(V sample, Equalator<? super V> equalator);
 
-	public int valuesRngRemove(int offset, int length, V value);
-
-	public int valuesRngRemove(int offset, int length, V sample, Equalator<? super V> equalator);
-
 	// removing - multiple all array //
 
 	public int valuesRemoveAll(V[] values, int elementsOffset, int elementsLength);
 
 	public int valuesRemoveAll(V[] samples, int samplesOffset, int samplesLength, Equalator<? super V> equalator);
-
-	public int valuesRngRemoveAll(int offset, int length, V[] values, int elementsOffset, int elementsLength);
-
-	public int valuesRngRemoveAll(int offset, int length, V[] samples, int samplesOffset, int samplesLength, Equalator<? super V> equalator);
 
 	// removing - multiple all collection //
 
@@ -950,19 +647,11 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int valuesRemoveAll(XGettingCollection<? extends V> samples, Equalator<? super V> equalator);
 
-	public int valuesRngRemoveAll(int offset, int length, XGettingCollection<? extends V> elements);
-
-	public int valuesRngRemoveAll(int offset, int length, XGettingCollection<? extends V> samples, Equalator<? super V> equalator);
-
 	// removing - duplicates //
 
 	public int valuesRemoveDuplicates();
 
 	public int valuesRemoveDuplicates(Equalator<? super V> equalator);
-
-	public int valuesRngRemoveDuplicates(int offset, int length);
-
-	public int valuesRngRemoveDuplicates(int offset, int length, Equalator<? super V> equalator);
 
 
 
@@ -970,11 +659,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	// reducing //
 	/////////////
 
-	// reducing - predicate //
-
 	public int valuesReduce(Predicate<? super V> predicate);
-
-	public int valuesRngReduce(int offset, int length, Predicate<? super V> predicate);
 
 
 
@@ -982,33 +667,13 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	// retaining //
 	//////////////
 
-	// retaining - array //
-
 	public int valuesRetainAll(V[] values, int elementsOffset, int elementsLength);
 
 	public int valuesRetainAll(V[] samples, int elementsOffset, int elementsLength, Equalator<? super V> equalator);
 
-	public int valuesRngRetainAll(int offset, int length, V[] values, int elementsOffset, int elementsLength);
-
-	public int valuesRngRetainAll(
-		int offset,
-		int length,
-		V[] samples,
-		int elementsOffset,
-		int elementsLength,
-		Equalator<? super V> equalator
-	);
-
-	// retaining - collection //
-
 	public int valuesRetainAll(XGettingCollection<? extends V> elements);
 
 	public int valuesRetainAll(XGettingCollection<? extends V> samples, Equalator<? super V> equalator);
-
-	public int valuesRngRetainAll(int offset, int length, XGettingCollection<? extends V> elements);
-
-	public int valuesRngRetainAll(int offset, int length, XGettingCollection<? extends V> samples, Equalator<? super V> equalator);
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -1016,8 +681,6 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	///////////////
 
 	public int valuesProcess(Consumer<? super V> procedure);
-
-	public int valuesRngProcess(int offset, int length, Consumer<? super V> procedure);
 
 
 
@@ -1029,11 +692,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public int valuesMoveSelection(Consumer<? super V> target, long... indices);
 
-	// moving - conditional //
-
 	public int valuesMoveTo(Consumer<? super V> target, Predicate<? super V> predicate);
-
-	public int valuesRngMoveTo(int offset, int length, Consumer<? super V> target, Predicate<? super V> predicate);
 
 
 
@@ -1043,11 +702,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 
 	public void valuesSort(Comparator<? super V> comparator);
 
-	public void valuesRngSort(int offset, int length, Comparator<? super V> comparator);
-
 	public boolean valuesIsSorted(Comparator<? super V> comparator);
-
-	public boolean valuesRngIsSorted(int offset, int length, Comparator<? super V> comparator);
 
 
 
@@ -1069,27 +724,13 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	// replacing //
 	//////////////
 
-	// replacing - one single //
-
 	public boolean valuesReplaceOne(V element, V replacement);
 
 	public boolean valuesReplaceOne(V sample, Equalator<? super V> equalator, V replacement);
 
-	public int valuesRngReplaceOne(int offset, int length, V value, V replacement);
-
-	public int valuesRngReplaceOne(int offset, int length, V sample, Equalator<? super V> equalator, V replacement);
-
-	// replacing - multiple single //
-
 	public int valuesReplace(V element, V replacement);
 
 	public int valuesReplace(V sample, Equalator<? super V> equalator, V replacement);
-
-	public int valuesRngReplace(int offset, int length, V value, V replacement);
-
-	public int valuesRngReplace(int offset, int length, V sample, Equalator<? super V> equalator, V replacement);
-
-	// replacing - multiple all array //
 
 	public int valuesReplaceAll(V[] values, int valuesOffset, int valuesLength, V replacement);
 
@@ -1101,61 +742,23 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 		V replacement
 	);
 
-	public int valuesRngReplaceAll(int offset, int length, V[] values, int valuesOffset, int valuesLength, V replacement);
-
-	public int valuesRngReplaceAll(
-		int offset,
-		int length,
-		V[] samples,
-		int samplesOffset,
-		int samplesLength,
-		Equalator<? super V> equalator,
-		V replacement
-	);
-
-	// replacing - multiple all collection //
-
 	public int valuesReplaceAll(XGettingCollection<? extends V> elements, V replacement);
 
 	public int valuesReplaceAll(XGettingCollection<? extends V> samples, Equalator<? super V> equalator, V replacement);
-
-	public int valuesRngReplaceAll(int offset, int length, XGettingCollection<? extends V> elements, V replacement);
-
-	public int valuesRngReplaceAll(
-		int offset,
-		int length,
-		XGettingCollection<? extends V> samples,
-		Equalator<? super V> equalator,
-		V replacement
-	);
-
-	// replacing - mapped //
 
 	public int valuesSubstitute(Function<? super V, ? extends V> mapper);
 
 	public int valuesSubstitute(Predicate<? super V> predicate, Function<V, V> mapper);
 
-	public int valuesRngSubstitute(int offset, int length, Function<V, V> mapper);
-
-	public int valuesRngSubstitute(int offset, int length, Predicate<? super V> predicate, Function<V, V> mapper);
-
-
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// substituting //
 	/////////////////
 
-	// substituting - one //
-
 	public boolean valuesSubstituteOne(Predicate<? super V> predicate, V substitute);
 
-	public int valuesRngSubstituteOne(int offset, int length, Predicate<? super V> predicate, V substitute);
-
-	// substituting - multiple //
-
 	public int valuesSubstitute(Predicate<? super V> predicate, V substitute);
-
-	public int valuesRngSubstitute(int offset, int length, Predicate<? super V> predicate, V substitute);
 
 
 
@@ -1185,12 +788,6 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	public void reverse();
 
 	@Override
-	public void rngReverse(long offset, long length);
-
-	@Override
 	public void shuffle();
-
-	@Override
-	public void rngShuffle(long offset, long length);
 
 }

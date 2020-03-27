@@ -13,6 +13,7 @@ import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.collections.types.XImmutableSequence;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import one.microstream.reference.Swizzling;
 import one.microstream.reflect.XReflect;
 
 public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition, PersistenceDataTypeHolder<D>
@@ -255,7 +256,7 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 		private final String typeName;
 		
 		// effectively final / immutable: gets only initialized once later on and is never mutated again. initially 0.
-		private long typeId = Persistence.nullId();
+		private long typeId = Swizzling.notFoundId();
 
 
 		
@@ -327,7 +328,7 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 			 * As long as the same typeId (originating from the dictionary file) is passed for initialization,
 			 * everything is fine.
 			 */
-			if(this.typeId != Persistence.nullId())
+			if(Swizzling.isFoundId(this.typeId))
 			{
 				if(this.typeId == typeId)
 				{

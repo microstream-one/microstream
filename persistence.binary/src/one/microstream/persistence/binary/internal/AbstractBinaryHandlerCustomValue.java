@@ -1,16 +1,16 @@
 package one.microstream.persistence.binary.internal;
 
-import one.microstream.chars.XChars;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.exceptions.PersistenceException;
+import one.microstream.persistence.binary.types.ValidatingBinaryHandler;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 
 
-public abstract class AbstractBinaryHandlerCustomValue<T>
+public abstract class AbstractBinaryHandlerCustomValue<T, S>
 extends AbstractBinaryHandlerCustom<T>
+implements ValidatingBinaryHandler<T, S>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -50,36 +50,7 @@ extends AbstractBinaryHandlerCustom<T>
 		 * which normally get initialized directly at instance creation time..
 		 */
 	}
-	
-	public abstract void validateState(Binary data, T instance, PersistenceLoadHandler handler);
-	
-	protected static <S> void compareSimpleState(
-		final Object instance,
-		final S instanceState,
-		final S binaryState
-	)
-	{
-		if(instanceState.equals(binaryState))
-		{
-			return;
-		}
 		
-		throwInconsistentStateException(instance, instanceState, binaryState);
-	}
-	
-	protected static void throwInconsistentStateException(
-		final Object instance     ,
-		final Object instanceState,
-		final Object binaryState
-	)
-	{
-		// (30.12.2019 TM)EXCP: proper exception
-		throw new PersistenceException(
-			"Inconsistent state for instance " + XChars.systemString(instance) + ": \""
-			+ instanceState + "\" not equal to \"" + binaryState + "\""
-		);
-	}
-	
 	@Override
 	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{

@@ -4,6 +4,7 @@ import one.microstream.X;
 import one.microstream.concurrency.XThreads;
 import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
+import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.Storage;
@@ -22,14 +23,26 @@ public class MainTestBackupStoringMinimal
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation(
 			Storage.ConfigurationBuilder()
+			// just to make testing more convenient. Not necessary for the backup itself.
 			.setDataFileEvaluator(
-				// just to make testing more convenient. Not necessary for the backup itself.
 				Storage.DataFileEvaluator(1024, 2048, 0.7)
+			)
+			// priv#227: proper way to set the type dictionary file name
+			.setStorageFileProvider(
+				Storage.FileProviderBuilder()
+				.setTypeDictionaryFileName("ExplicitTypeDictionary.ptd")
+				.createFileProvider()
 			)
 			.setBackupSetup(
 				// the only necessary part to activate and configure backupping.
 				StorageBackupSetup.New(XIO.Path("storageBackup"))
 			)
+		)
+		// priv#227: Warning: doing this replaces the properly setup TypeDictionaryIoHandler and causes unwanted behavior.
+		.onConnectionFoundation(cf ->
+			cf.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.New(
+				XIO.Path("storage", "ExplicitTypeDictionary.ptd")
+			))
 		)
 		.start()
 	;

@@ -17,7 +17,7 @@ public class MainTestCustomHandlerAmbiguousFieldNames
 }
 
 
-final class MyTypeHandler extends AbstractBinaryHandlerCustomValueFixedLength<String>
+final class MyTypeHandler extends AbstractBinaryHandlerCustomValueFixedLength<String, String>
 {
 
 	protected MyTypeHandler()
@@ -46,6 +46,20 @@ final class MyTypeHandler extends AbstractBinaryHandlerCustomValueFixedLength<St
 	public void validateState(final Binary data, final String instance, final PersistenceLoadHandler handler)
 	{
 		// FIXME AbstractBinaryHandlerCustomValue<String>#validateState()
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+	
+	@Override
+	public String getValidationStateFromInstance(final String instance)
+	{
+		// FIXME MyTypeHandler#getValidationStateFromInstance()
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+	
+	@Override
+	public String getValidationStateFromBinary(final Binary data)
+	{
+		// FIXME MyTypeHandler#getValidationStateFromBinary()
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 	

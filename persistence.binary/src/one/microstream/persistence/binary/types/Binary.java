@@ -23,12 +23,12 @@ import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionI
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionStateArrayLength;
 import one.microstream.persistence.binary.internal.CustomBinaryHandler;
 import one.microstream.persistence.exceptions.PersistenceException;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeInstantiator;
+import one.microstream.reference.Swizzling;
 import one.microstream.reflect.Getter;
 import one.microstream.reflect.Getter_boolean;
 import one.microstream.reflect.Getter_byte;
@@ -373,7 +373,7 @@ public abstract class Binary implements Chunk
 	public final long getBuildItemTypeId()
 	{
 		return this.isSkipItem()
-			? Persistence.notFoundId()
+			? Swizzling.notFoundId()
 			: this.get_longFromAddress(this.loadItemEntityAddress() + OFFSET_TID)
 		;
 	}
@@ -1928,21 +1928,7 @@ public abstract class Binary implements Chunk
 		long       entityTypeId     ,
 		long       entityObjectId
 	);
-	
-	private void validateLoadItemContentLength(final long contentLength)
-	{
-		if(this.isValidLoadItemContentLength(XMath.positive(contentLength)))
-		{
-			return;
-		}
 		
-		// (08.02.2019 TM)EXCP: proper exception
-		throw new PersistenceException(
-			"Binary load item bounds violation: " + contentLength
-			+ " > " + this.getLoadItemAvailableContentLength()
-		);
-	}
-	
 	private boolean isValidLoadItemContentLength(final long contentLength)
 	{
 		return contentLength <= this.getLoadItemAvailableContentLength();
@@ -2073,106 +2059,134 @@ public abstract class Binary implements Chunk
 		}
 	}
 	
+	private void validateLoadItemRequiredContentLength(final long requiredContentLength)
+	{
+		XMath.notNegative(requiredContentLength);
+		if(this.isValidLoadItemContentLength(requiredContentLength))
+		{
+			return;
+		}
+		
+		// (08.02.2019 TM)EXCP: proper exception
+		throw new PersistenceException(
+			"Binary load item bounds violation: " + requiredContentLength
+			+ " > " + this.getLoadItemAvailableContentLength()
+		);
+	}
+
+	private void validateLoadItemRequiredContentLengthArray(
+		final long entityContentOffset,
+		final long arrayLength        ,
+		final int  arrayElementLength
+	)
+	{
+		XMath.notNegative(entityContentOffset);
+		XMath.notNegative(arrayLength);
+		XMath.positive(arrayElementLength);
+		
+		// must at least be the size of the list header, so testing for a value > 0 later on is correct
+		final long totalEntityContentLength = toBinaryListTotalByteLength(
+			entityContentOffset + arrayLength * arrayElementLength
+		);
+		
+		this.validateLoadItemRequiredContentLength(totalEntityContentLength);
+	}
+
 	public final void update_bytes(final byte[] array)
 	{
-		this.validateLoadItemContentLength(array.length * Byte.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(0, array.length, Byte.BYTES);
 		this.unvalidatingUpdate_bytes(0, array);
 	}
 
 	public final void update_bytes(final long offset, final byte[] array)
 	{
-		this.validateLoadItemContentLength(offset + array.length * Byte.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(offset, array.length, Byte.BYTES);
 		this.unvalidatingUpdate_bytes(offset, array);
 	}
-	
+
 	public final void update_booleans(final boolean[] array)
 	{
-		this.validateLoadItemContentLength(array.length * Byte.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(0, array.length, Byte.BYTES); // because lol
 		this.unvalidatingUpdate_booleans(0, array);
 	}
-	
+
 	public final void update_booleans(final long offset, final boolean[] array)
 	{
-		this.validateLoadItemContentLength(offset + array.length * Byte.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(offset, array.length, Byte.BYTES); // because lol
 		this.unvalidatingUpdate_booleans(offset, array);
 	}
-	
+
 	public final void update_shorts(final short[] array)
 	{
-		this.validateLoadItemContentLength(array.length * Short.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(0, array.length, Short.BYTES);
 		this.unvalidatingUpdate_shorts(0, array);
 	}
-	
+
 	public final void update_shorts(final long offset, final short[] array)
 	{
-		this.validateLoadItemContentLength(offset + array.length * Short.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(offset, array.length, Short.BYTES);
 		this.unvalidatingUpdate_shorts(offset, array);
 	}
-	
+
 	public final void update_chars(final char[] array)
 	{
-		this.validateLoadItemContentLength(array.length * Character.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(0, array.length, Character.BYTES);
 		this.unvalidatingUpdate_chars(0, array);
 	}
-	
+
 	public final void update_chars(final long offset, final char[] array)
 	{
-		this.validateLoadItemContentLength(offset + array.length * Character.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(offset, array.length, Character.BYTES);
 		this.unvalidatingUpdate_chars(offset, array);
 	}
-	
+
 	public final void update_ints(final int[] array)
 	{
-		this.validateLoadItemContentLength(array.length * Integer.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(0, array.length, Integer.BYTES);
 		this.unvalidatingUpdate_ints(0, array);
 	}
-	
+
 	public final void update_ints(final long offset, final int[] array)
 	{
-		this.validateLoadItemContentLength(offset + array.length * Integer.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(offset, array.length, Integer.BYTES);
 		this.unvalidatingUpdate_ints(offset, array);
 	}
-	
+
 	public final void update_floats(final float[] array)
 	{
-		this.validateLoadItemContentLength(array.length * Float.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(0, array.length, Float.BYTES);
 		this.unvalidatingUpdate_floats(0, array);
 	}
-	
+
 	public final void update_floats(final long offset, final float[] array)
 	{
-		this.validateLoadItemContentLength(offset + array.length * Float.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(offset, array.length, Float.BYTES);
 		this.unvalidatingUpdate_floats(offset, array);
 	}
-	
+
 	public final void update_longs(final long[] array)
 	{
-		this.validateLoadItemContentLength(array.length * Long.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(0, array.length, Long.BYTES);
 		this.unvalidatingUpdate_longs(0, array);
 	}
-	
+
 	public final void update_longs(final long offset, final long[] array)
 	{
-		this.validateLoadItemContentLength(offset + array.length * Long.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(offset, array.length, Long.BYTES);
 		this.unvalidatingUpdate_longs(offset, array);
 	}
-	
+
 	public final void update_doubles(final double[] array)
 	{
-		this.validateLoadItemContentLength(array.length * Double.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(0, array.length, Double.BYTES);
 		this.unvalidatingUpdate_doubles(0, array);
 	}
-	
+
 	public final void update_doubles(final long offset, final double[] array)
 	{
-		this.validateLoadItemContentLength(offset + array.length * Double.BYTES);
+		this.validateLoadItemRequiredContentLengthArray(offset, array.length, Double.BYTES);
 		this.unvalidatingUpdate_doubles(offset, array);
 	}
-	
-	
-	
-		
-
 	
 	
 	

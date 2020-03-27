@@ -1,6 +1,10 @@
 
 package one.microstream.storage.configuration;
 
+/**
+ * All supported properties for external configuration files.
+ * 
+ */
 public interface ConfigurationPropertyNames
 {
 	/**

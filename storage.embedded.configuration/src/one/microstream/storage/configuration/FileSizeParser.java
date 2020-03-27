@@ -4,12 +4,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import one.microstream.bytes.ByteMultiple;
-import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
+import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 
 @FunctionalInterface
 public interface FileSizeParser
 {
-	public long parseFileSize(String text);
+	public long parseFileSize(String text, ByteMultiple defaultByteMultiple);
 
 	
 	public static FileSizeParser Default()
@@ -21,7 +21,7 @@ public interface FileSizeParser
 	public static class Default implements FileSizeParser
 	{
 		private final Pattern pattern = Pattern.compile(
-			"([\\d.,]+)\\s*(\\w+)",
+			"(?<amount>[0-9]*\\.?[0-9]*([eE][-+]?[0-9]+)?)(?:\\s*)(?<unit>[a-z]+)",
 			Pattern.CASE_INSENSITIVE
 		);
 		
@@ -31,25 +31,24 @@ public interface FileSizeParser
 		}
 		
 		@Override
-		public long parseFileSize(final String text)
+		public long parseFileSize(final String text, final ByteMultiple defaultByteMultiple)
 		{
 			final Matcher matcher = this.pattern.matcher(text);
 			if(matcher.find())
 			{
 				return this.parseFileSizeWithUnit(
-					matcher.group(1),
-					matcher.group(2)
+					matcher.group("amount"),
+					matcher.group("unit")
 				);
 			}
 			
-			// missing unit is interpreted as size in bytes
 			try
 			{
-				return Long.parseLong(text);
+				return defaultByteMultiple.toBytes(Double.parseDouble(text));
 			}
 			catch(final NumberFormatException nfe)
 			{
-				throw new StorageExceptionInvalidConfiguration(
+				throw new InvalidStorageConfigurationException(
 					"Invalid file size: " + text,
 					nfe
 				);
@@ -68,7 +67,7 @@ public interface FileSizeParser
 			}
 			catch(final NumberFormatException nfe)
 			{
-				throw new StorageExceptionInvalidConfiguration(
+				throw new InvalidStorageConfigurationException(
 					"Invalid file size: " + amountText + unitText,
 					nfe
 				);
@@ -77,7 +76,7 @@ public interface FileSizeParser
 			final ByteMultiple byteMultiple = ByteMultiple.ofName(unitText);
 			if(byteMultiple == null)
 			{
-				throw new StorageExceptionInvalidConfiguration(
+				throw new InvalidStorageConfigurationException(
 					"Invalid file size: " + amountText + unitText +
 					", unknown unit: " + unitText
 				);

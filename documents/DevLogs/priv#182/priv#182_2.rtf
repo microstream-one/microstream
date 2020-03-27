@@ -1,0 +1,565 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\colortbl ;\red102\green102\blue102;\red255\green0\blue0;}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sl276\slmult1\cf1\lang7\f0\fs28 2019-12-04\par
+\par
+Erst mal Konzeptplanung notieren.\par
+\par
+Der aktuelle Stand ist:\par
+- Es gibt eine zentrale ObjectRegistry, in der object<->objectId Assoziationen registriert werden.\par
+- objectIds werden assoziiert bevor rausgeschrieben wird.\par
+- Wenn beim Rausgeschrieben was schief gehen sollte, bleiben die assoziierten Eintr\'e4ge stehen.\par
+- Der n\'e4chste store, der auf die Instanzen trifft, sieht die existierende objectId und speichert die Instanz nicht, weil sie als schon gespeichert angenommen wird.\par
+=> Instanz wurde nie gespeichert.\par
+\par
+L\'f6sung:\par
+W\'e4hrend einem Store neu vergebene objectIds m\'fcssen erst mal vorgehalten werden und erst nach erfolgreichem store gemerget werden.\par
+\par
+Nat\'fcrlich kann es mehrere gleichzeitig aktive Storer in mehreren Threads geben, darum muss das ganze multithreading-f\'e4hig ablaufen.\par
+Ungef\'e4hr so:\par
+\par
+- Jeder storer registriert sich bei der ObjectRegistry.\par
+- Neu vergebene ObjectIds werden NICHT in die ObjectRegistry eingetragen, sondern nur lokal im Storer.\par
+- Wenn ein Storer im zentralen Register f\'fcr ein Objekt keine ObjectId findet, schaut er erst mal in den lokalen der anderen, aktuell existierenden storer.\par
+- Wenn er f\'fcndig wird, kopiert er diesen Eintrag in sein eigenes Register. Es kann n\'e4mlich sein, dass der andere storer fehl schl\'e4gt, aber er nicht und dann muss sein Id-commit die Assoziation enthalten.\par
+- Wenn ein storer erfolgreich geschrieben hat, merget der commit am Ende die lokal vergebenen ObjectIds in das zentrale register.\par
+\par
+Concurrency:\par
+Lokale Lookups \par
+\par
+\par
+2019-12-05\par
+\par
+Okay, wieder mal was dazwischen gekommen. Weiter im Text.\par
+\par
+Concurrency:\par
+Lokale Lookups m\'fcssen nat\'fcrlich synchronized sein.\par
+Der Lookup insgesamt muss synchronizet sein.\par
+Hei\'dft:\par
+- Lock auf Registry\par
+- Wenn keine OID gefunden, dann storer f\'fcr storer locken und pr\'fcfen (synchronized lookupObjectId(object) ).\par
+\par
+Genauer gesagt so:\par
+- erst mal sich selbst locken und bei sich selbst nachschauen\par
+- Dann registry locken und dort nachschauen\par
+- Wenn darin nix gefunden, dann unter immer noch dem Lock auf die Registry die registrierten storer durchlaufen (und sich selber skippen).\par
+\par
+Klingt sehr aufwendig, aber im normalfall sollten die Storer allein sein oder es gibt vielleicht mal 1-2 gleichzeitige. Da spielt das keine Rolle.\par
+\par
+Als Typ reicht registry-intern PersistenceObjectIdLookup. Mehr soll so eine Storer den anderen nicht bereitstellen.\par
+\par
+\par
+Interessant ist jetzt aber noch folgender Fall:\par
+- Ein Storer registriert eine Instanz neu. Erst mal lokal bei sich.\par
+- Damit storet er sie auch voll.\par
+- Ein anderer storer storet dieselbe Instanz und holt sich die OID vom ersten storer.\par
+- Jetzt geht beim rausschreiben des ersten storers war schief.\par
+- Dann w\'fcrde wieder kein Datensatz f\'fcr das objekt gespeichert.\par
+Hei\'dft:\par
+Wenn ein storer von einem anderen die ID \'fcbernimmt anstatt aus der zentralen registry, muss er das objekt "vorsichtshalber" auch nochmal speichern.\par
+Dass das dann noch einen konsistenten Zustand hat ist die (Concurrency-)Verantwortung der Anwendung: Wann werden welche instanzen mit welchen Zustand serialisiert?\par
+\par
+\par
+Um sich selbst skippen und Registrierungen \'fcbernehmen zu k\'f6nnen, muss sich der storer beim ensureObjectId aber selbst mit \'fcbergeben.\par
+Ah, das gibts sogar schon, aber nur mit PersistenceAcceptor.\par
+Dann bohr ich das auf, l\'f6sch daf\'fcr die Einzel-Parameter-Methode und dann passt das.\par
+\par
+Ah, noch ein Sonderfall:\par
+Skip-Eintr\'e4ge d\'fcrfen nat\'fcrlich nicht am Ende mitgemerget werden.\par
+Hm. Eigentlich d\'fcrfen sie auch nicht von anderen Storern \'fcbernommen werden, sonst storen die einen geskippten Eintrag n\'e4mlich auf einmal doch.\par
+Hei\'dft: solche Skips m\'fcssen eigentlich in einer extra storer-lokalen registry sein.\par
+Aber das geht auch nicht, weil die ja in den normalen storer Items drin sein sollen, damit sie mit verarbeitet werden.\par
+Ne, stimmt nicht, die sind nicht in der item linked list drin, nur im hash lookup.\par
+Hm. Aber mich nervt das mit dem doppelten lookup.\par
+Wie w\'e4r es denn so:\par
+Der Lookup zwischen zwei Storern erfolgt \'fcber eine extra Methode und die pr\'fcft auf handler == null. Wenn null, dann nicht \'fcbergeben.\par
+Wobei auch das nicht so einfach ist. Dann speichert der eine Storer Instanz X mit ID so-und-so und der andere Storer mit einer ganz anderen.\par
+Hm. Oder ist das dann die Gefahr von dem skipMapped? Weil die anderen beiden Versionen w\'e4ren ja recht konsistent: null-out oder existierende Id.\par
+Hm.\par
+Aber das Problem ist:\par
+Es m\'fcsste dann auch \'fcbergeben werden, dass f\'fcr solche Eintr\'e4ge eben doch nur die Id gespeichert werden soll und nicht der Datensatz. Also braucht das auch eine zweite Methode beim Empf\'e4nger-Storer.\par
+Aber dann gehts.\par
+\par
+\par
+2019-12-06\par
+\par
+Aber Moment mal ... sollten Skip-Eintr\'e4ge \'fcberhaupt \'fcbernommen werden? Die wurden ja immerhin lokal beim Storer registriert und niemand sagt, dass alle zuf\'e4llig aktiven Storer die auch genauso verwenden sollen.\par
+Also sollten Skipeintr\'e4ge also eher ignoriert werden.\par
+Konsistentzprobleme sollte es nicht geben, denn:\par
+- beim default skip wird entweder die global g\'fcltige objectId verwendet oder 0/null.\par
+- bei skipNulled wird immer 0/null verwendet, also kein Problem.\par
+- bei skipMapped muss man schon wissen, was man tut. Etwa ein "ummappen" von objectIds f\'fcr eine Aufteilung der Storage oder irgendsowas. Das muss nicht konsistent zu anderen, gleichzeitigen Storern sein.\par
+\par
+Ah, und es muss auch gar keine accept methode f\'fcr den normalfall geben, weil das ist genau die accept des storers, die es schon gibt.\par
+\par
+Hm. Dabei muss ich jetzt mal das ganze Gewurschtel mit Persistence.nullId() mal als "not found" und mal als "null" konsolidieren.\par
+Am besten gleich mit gescheit zentralisierten Methoden inklusive Testmethoden, so dass die tats\'e4chlichen Werte letztendlich fast egal sind. Zumindest f\'fcr den unfound Fall.\par
+\par
+Oh, dabei aufgefallen:\par
+Wenn man das gescheit macht, kann man in Lazy ordentlich unterscheiden zwischen "null und noch nicht geladen" und "null, weil es wirklich null sein soll". Das erste hat null & properId, das zweite hat null & nullId.\par
+Hurra!\par
+Einfach mal sauber arbeiten, dann kriegt man Mehrwert gratis geschenkt ...\cf0\par
+\par
+\par
+2020-03-12\par
+\par
+Nach ... gerade mal 4 Monaten ... und unz\'e4hligen dazwischengeschobenen \'c4nderungen mach ich hier wieder weiter.\par
+Ich hab versucht, das Ding zu mergen, aber es gibt haufenweise konflikte in einem halben Dutzend Dateien. Die Lazy.java erkennt zumindest Sourcetree gar nicht mehr als Textdatei (was wirr ist), usw.\par
+Ich denke, es ist g\'fcnstiger, einen zweiten Branch f\'fcr dieses Issue aufzumachen, mich wieder in Konzept und Code einzulesen und dann die bisherigen \'c4nderungen manuell in den aktuellen Stand zu \'fcbernehmen.\par
+\par
+Beim Einlesen ist mir auch gleich ein Problem am bisherigen Konzept aufgefallen. Oben steht:\par
+---\par
+\i Interessant ist jetzt aber noch folgender Fall:\par
+- Ein Storer registriert eine Instanz neu. Erst mal lokal bei sich.\par
+- Damit storet er sie auch voll.\par
+- Ein anderer storer storet dieselbe Instanz und holt sich die OID vom ersten storer.\par
+- Jetzt geht beim rausschreiben des ersten storers war schief.\par
+- Dann w\'fcrde wieder kein Datensatz f\'fcr das objekt gespeichert.\par
+Hei\'dft:\par
+Wenn ein storer von einem anderen die ID \'fcbernimmt anstatt aus der zentralen registry, muss er das objekt "vorsichtshalber" auch nochmal speichern.\par
+Dass das dann noch einen konsistenten Zustand hat ist die (Concurrency-)\b Verantwortung der Anwendung\b0 : Wann werden welche instanzen mit welchen Zustand serialisiert?\i0\par
+---\par
+\par
+Ich bin mir nicht sicher, ob es wirklich korrekt bzw. nachvollziehbar und zumutbar w\'e4re, das so zu l\'f6sen.\par
+Dass man einen concurrency-m\'e4\'dfig korrekt koordiniert einen konsistenten Zustand in den Storer kriegt, ist die Verantwortung der Anwendungslogik. Das ist soweit richtig.\par
+Aber das Problem hier ist ja:\par
+NACHDEM man das korrekt gemacht hat, kann es sein, dass das "vorsichtshalber nochmal speichern" einen inkonsistenten Zustand speichert, weil die Locks der Anwendungslogik schon l\'e4ngst wieder aufgehoben sind und die Anwendung schon wieder rumge\'e4ndert hat.\par
+Hm. Oder m\'fcsste der zweite Speichervorgang mit dem zweiten Storer, der ja die betreffende Instanz nochmal speichern will, dann eben auch nochmal f\'fcr Sicherheit und konsistentes Speichern sorgen?\par
+Eigentlich schon. Wahrscheinlich hab ich oben das gemeint.\par
+Das k\'f6nnte dann sogar schon ein anderer Stand sein als der, der in den ersten Storer reinserialisiert worden ist.\par
+Hm. DAS wiederum wirft wieder ein neues Problem auf:\par
+- Storer 1 speichert Zustand zum Zeitpunkt t+0.\par
+- Storer 2 speichert Zustand zum Zeitpunkt t+1.\par
+- Storer 2 Inhalt wird rausgeschrieben.\par
+- Storer 1 Inhalt wird rausgeschrieben.\par
+Damit ist der "aktuellste" Stand der persistenten Daten der des Zeitpunkts t+0, obwohl in der Anwendung der Stand t+1 vorliegt.\par
+Das ist datenm\'e4\'dfig eine Inkonsistenz und concurrencym\'e4\'dfig eine Racecondition.\par
+\'c4h... Shit.\par
+\par
+Also muss irgendwie eine Reihenfolge sichergestellt werden oder es darf immer nur einen aktiven Storer gleichzeitig geben.\par
+Wobei das mit der Reihenfolge kaum l\'f6sbar w\'e4re. Es w\'fcrde ja nicht reichen, die Storer in der Reihenfolge ihrer Erstellung rauszuschreiben.\par
+Erstens w\'fcrde dann ein lange brauchender oder sogar nie committeter fr\'fcherer Storer alle anderen Storer blocken. "F\'fcr immer" oder zumindest bis zu einem Timeout, der aber auch erst mal zu implementieren w\'e4re. Und Timeouts sind immer schei\'dfe, weil sie in verschiedenen F\'e4llen immer zu kurz oder zu lang sind.\par
+Zweitens kann es ja sein, dass ein FR\'dcHER erstellter Storer den SP\'c4TEREN Zustand eines Datensatzes speichert.\par
+Puh...\par
+Also so:\par
+- Storer 1 wird erzeugt und eingereiht.\par
+- Storer 2 wird erzeugt und eingereiht.\par
+- Storer 1 speichert anderes Zeug ...\par
+- Storer 2 speichert Zustand von Object X zum Zeitpunkt t+0.\par
+- Storer 1 speichert Zustand von Object X zum Zeitpunkt t+1.\par
+- Storer 1 Inhalt wird rausgeschrieben.\par
+- Storer 2 Inhalt wird rausgeschrieben.\par
+\par
+Damit w\'fcrde halt WIEDER der alte Zustand den neuen \'fcberschreiben. Genauso inkonsistent. Genauso eine Race Condition, nur im Graph durchlaufen anstatt in der Rausschreibereihenfolge.\par
+\par
+Da kommt wirklich die Idee auf, ob es nicht einfach nur zu jedem Zeitpunkt nur einen Storer geben darf.\par
+Wobei der ja eben erstellt und einfach nie verwendet werden kann, wenn man keinen commit aufruft. Und Timeouts sind schei\'dfe.\par
+Das wird jetzt ganz sch\'f6n knifflig ...\par
+Da muss ich morgen mal genauer dr\'fcber nachdenken ...\par
+\par
+\par
+\cf2\ul\b /!\\\ulnone\b0  ACH, und das mit der Lazy Reference muss ich mal noch checken und ggf. \'fcbernehmen.\cf0\par
+\par
+\par
+2020-03-13\par
+\par
+Das mit den Lazy References schau ich jetzt mal an.\par
+Ach, das war das mit dem notFoundId -1 anstatt null zur\'fcckgeben und paar querying-Methoden daf\'fcr.\par
+Das wird jetzt nicht so einfach zu mergen ...\par
+Mal wichtige Klassen manuell kopieren und dann mit dem aktuellen master bzw. priv#182_2 branch abgleichen.\par
+Hm. Das notFoundId gibts schon, aber anders benannt.\par
+Die Querying Methoden gibts noch nicht.\par
+Zusammenf\'fchren.\par
+Und am besten gleich mal alles von diesem grundlegenden ID-Zeug in die Swizzling Klasse verschieben.\par
+Erstens, damit nicht haufenweise redundante delegate-Methoden entstehen.\par
+Und zweitens, weil die ja eh alle dort sein m\'fcssen, wenn die in Lazy verwendbar sein sollen. Das liegt ja im base package und hat keinen Zugriff auf das Persistence Package.\par
+\par
+\par
+2020-03-15\par
+\par
+Diese Sache mit der Race Condition zwischen parallelen Storern hat mich ziemlich viel nachdenken lassen. Inklusive L\'f6sung, was ich jetzt mal alles aufschreibe.\par
+Man k\'f6nnte ja sagen, dass mehrere parallelle Storer managen in der Verantwortung der Anwendung liegt. ABER: Wenn man die Convenience API des StorageManager verwendet, sieht man von Storern gar nichts.\par
+Zwei parallele Aufrufe derselben Methode k\'f6nnen zwei parallel verwendete Storer Instanzen erzeugen, die dann je nach gr\'f6\'dfe des iterierten Objektgraphs, Thread-Unterbrechungen, usw. jede beliebige Kombination von inkonsistenten Zust\'e4nden sammeln und dann in einer Race Condition rausschreiben k\'f6nnen.\par
+Darum liegt die Idee nahe, den Weg \'fcber die Convenience-Schicht concurrency-m\'e4\'dfig zu vereinfachen. Und nur, wenn das wirklich ein Problem ist, kann man dann auf parallele Storer umsteigen, aber dann muss man auch selbst Verantwortung daf\'fcr \'fcbernehmen, dass die parallelen storer race-condition-frei verwendet werden. Das ist die optimale L\'f6sung f\'fcr jeden Anwendungsfall und jede Problembewusstseinstiefe.\par
+\par
+Erst dachte ich, ich mach in den StorageManager neben der singleton Connection auch einen singleton storer rein. Und der m\'fcsste dann irgendwie ein buffer-gr\'f6\'dfen-basiertes "AutoCommit" haben. Wobei dann knifflig w\'e4re, wann der letzte commit erfolgen sollte. Per extra gestartetem Thread nach einem Timeout? Viel zu kompliziert und ... "unverl\'e4sslich" (oder was ist das deutsche Wort f\'fcr unreliable?).\par
+Dann dachte ich: Einfach einen Singleton Storer und den immer locken.\par
+Inzwischen denk ich mir aber: Es reicht v\'f6llig, mit der Storer-Instanzierung alles so zu lassen, wie es ist. Es muss einfach nur die Methode, in der der storer erzeugt wird, synchronized sein.\par
+Dann stellen sich alle Threads, die den sorglos-simpel Weg nehmen, brav hintereinander an. Und wem das nicht reicht, der kann \'fcber explizit erzeugte storer Parallelit\'e4t haben, muss dann aber die Verantwortung daf\'fcr \'fcbernehmen.\par
+\par
+Also letztendlich reduziert sich die L\'f6sung nun auf ein "synchronized" und einen Kommentar dazu, anstatt mordsm\'e4\'dfig eine extra storer Implementierung oder einen Wrapper daf\'fcr zu bauen, aber macht ja nix.\par
+Ich wollt nur mal die wochenendlichen \'dcberlegungen zu Protokoll geben.\par
+\par
+Die Sache mit der Storer ObjectRegistry Robustness und dem Fix \'fcber lokale Registries bleibt nat\'fcrlich. Das kann nach wie vor passieren und muss abgedeckt werden.\par
+Nur die im Rahmen dieser Arbeiten entdeckte Race Condition Problematik l\'e4sst sich sehr leicht l\'f6sen.\par
+\par
+Code Stuff mach ich dann aber "morgen", bzw. heute nach bissl schlafen.\par
+\par
+\par
+So, sp\'e4ter:\par
+Weiter ID-Zeug umziehen.\par
+\par
+Soweit fertig.\par
+Jetzt noch offen:\par
+- PersistenceObjectManager#checkConsumers Zeug\par
+- Concurrency L\'f6sung f\'fcr convenience API: versteckter Storer instanzen mit synchronized aufrufen\par
+\par
+\par
+2020-03-16\par
+\par
+Bevor ichs vergess bau ich jetzt mal noch die Concurrency-Sicherheit f\'fcr die Storer ein.\par
+\par
+...Uuund es ist nat\'fcrlich wieder komplizierter als gedacht.\par
+Die "Convenience Storing" Implementierung sind ja im PersistenceManager, nicht im StorageManager.\par
+Allerdings ist im StorageManager EINE zus\'e4tzliche Methode, n\'e4mlich storeRoot. Die speichert aber zwei Instanzen, n\'e4mlich die RootReference und Root selbst. Das ist n\'f6tig, um die verschiedenen F\'e4lle von Root-Instanz-Handling abzudecken.\par
+Hm, aber mei, dann muss ich daf\'fcr halt an die array-speicher-Methode weiterleiten und die gew\'fcnschte OID aus dem R\'fcckgabe-Array rausholen.\par
+F\'fcr eine eher selten aufgerufene Methode sollten die zwei Array-Instanzierungen schon okay sein.\par
+Hm... oder wird sie selten aufgerufen? Vielleicht gibts manche Anwendungen, die st\'e4ndig den Root storen?\par
+Aber mal ehrlich: Das kann man machen, kein Problem, aber dann schleppt man halt den (insgesamt gesehen winzigen) Overhead st\'e4ndig mit. Egal.\par
+Also mach ich so, bevor ich da mit irgendeiner Spezialkonstruktion ewig rumbau.\par
+\par
+Eins ist allerdings noch interessant:\par
+Jede StorageConnection Instanz hat ihre eigene PersistenceManager Instanz.\par
+D.h. schon mehrere StorageConnections haben, wird die Race Condition B\'fcchse wieder \'f6ffnen.\par
+Aber eigentlich ist das okay: Wer explizit weitere Connections erstellt, muss schon eine gewisse fortgeschrittene Vorstellung von Parallit\'e4t usw. haben.\par
+Also das passt so. Mutexe in PersistenceManager rein und die storeRoot Methode auf Array storing umbauen.\par
+\par
+Ahhh... so einfach ist es wieder mal nicht.\par
+Die Array store Methode storet jeden Eintrag als Graph root (sonst br\'e4uchte man sie ja gleich nicht) und die d\'fcrfen nicht null sein.\par
+Der root kann aber sehr wohl null sein.\par
+Mann mann ...\par
+Also Fallunterscheidung bauen...\par
+\par
+Und ich hab noch eine Stelle gefunden, wo explizit auf 0 gepr\'fcft wird, anstatt die Swizzling ID-Methoden zu verwenden. Also TODO hinmachen. Muss ich morgen systematisch alle suchen und beheben.\par
+\par
+\par
+2020-03-17\par
+\par
+So. Nach 2 Stunden mehr oder weniger sinnlosem Online Gelaber-Overhead und 2 Stunden Tochterbetreuung fand ich jetzt mal mit meiner Arbeit an...\par
+\par
+Die ganzen Magic Value "0"er Pr\'fcfungen suchen und durch ordentliche ID-Logik ersetzen.\par
+\par
+Jetzt mal endlich die bisher neue Logik aus dem alten Branch in den neuen mergen.\par
+Alles nochmal durchpr\'fcfen.\par
+TODO f\'fcr offene Baustelle dazuschreiben.\par
+\par
+\par
+So, jetzt mal wieder eindenken in den n\'e4chsten Schritt. Bzw. erst mal oben nochmal durchlesen ...\par
+\par
+\par
+Aktueller Stand Konzept:\par
+- Die Storer m\'fcssen sich beim ObjectManager registrieren, nicht in der ObjectRegistry (ist schon so)\par
+- TOOD: Die Registrierung muss eine WeakReference sein, sonst wird man die Storer ja nicht mehr los bzw. muss aufwendig lifecycles managen.\par
+v Skip-Handling passt wie oben beschrieben.\par
+- Das mit dem Daten neu speichern, sonst wieder Inkonsistenten im Fehlerfall ist ein guter Punkt. D.h. ich muss den Lookup ganz anders bauen.\par
+\par
+Hm. Oder dank Callback-Pattern muss das gar nicht so viel anders werden.\par
+Es gibt f\'fcr PersistenceObjectManager#ensureObjectId praktisch drei F\'e4lle:\par
+1.) OID gefunden in globaler Registry:\par
+- kein Callbackaufruf\par
+- Nur gefundene OID zur\'fcckgeben\par
+2.) OID gefunden in lokaler Registry (anderer Storer):\par
+- Callbackaufruf auf storing\par
+- Gefundene OID zur\'fcckgeben\par
+3.) OID nicht gefunden, darum neue vergeben\par
+- Callbackaufruf auf storing\par
+- Neue OID zur\'fcckgeben\par
+\par
+\par
+Oooh, da f\'e4llt mir spontan was auf:\par
+Ich hab die mutexe zum storer synchen ja zweigeteilt:\par
+1.) Daten sammeln bzw. Graph itererieren.\par
+2.) Commit, also Daten rausschreiben.\par
+Aber das zur\'fcckmergen der lokalen IDs in die globale Registry erfolgt ja auch erst im Commit. Muss das dann nicht ins andere Lock r\'fcber?\par
+\par
+Ne Moment! Das ist ja der ganze Sinn an dem Issue:\par
+Die IDs m\'fcssen lokal bleiben, BIS der commit (write) erfolgreich durchgegangen ist.\par
+\par
+\par
+Jetzt mal den merge bauen.\par
+Mal \'fcberlegen.\par
+Der muss auf jeden Fall in Storer#commit rein.\par
+Es sollte aber nicht eine register-Methode in den ObjectManager rein, sonst ist die in der public API.\par
+Besser w\'e4re: Die registrierten Consumer haben eine iterateEntries Methode, die der ObjectManager intern aufruf und an die er eine nur interne register-Methode \'fcbergibt.\par
+Wobei erst mal lock-gesch\'fctzt alle Eintr\'e4ge validiert werden m\'fcssen, bevor irgendein state ver\'e4ndert wird.\par
+Dann muss aber wieder mal das Interface erweitert werden. Bzw. das muss eh mal ein etwas aussagekr\'e4ftigerer Name werden als nur "ObjectIdConsumer".\par
+\par
+So, fast fertig.\par
+\par
+\par
+2020-03-18\par
+\par
+Weitermachen mit TODOs.\par
+Entry-Validierung f\'fcr die ObjectRegistry bauen.\par
+Hm, eigentlich sollt es sowas schon geben. Mal schauen ...\par
+Achso: Das gibts nur verteilt auf Sonderf\'e4lle. Und ich glaub es gab mal eine validate Methode, die ich aber gel\'f6scht hab, weil sie nicht ben\'f6tigt wurde. Tja, jetzt wird sie ben\'f6tigt ...\par
+Ich glaub, dann bau ich das gleich da rein.\par
+\par
+Registrierungen der Storer im ObjectManager auf WeakReference umstellen.\par
+\par
+Hm. Das ganze WeakReference Array management mit Workaroundd f\'fcr type erasure Mist und Konsolidierung von Orphen-Entries mach ich gleich als zentrale Utility-Methoden.\par
+\par
+Ach und da werden durch die Interfacearchitektur die neuen Methoden bis zum PersistenceManager durchgeschleift.\par
+Dann noch bissl Validierung einbauen, dann kann da nix kaputtgemacht werden.\par
+\par
+Zum Schluss noch die Registrierung eines neu erzeugten Storers beim ObjectManager.\par
+\par
+Bissl aufr\'e4umen.\par
+\par
+So, fertig zum testen.\par
+\par
+Testklasse bauen.\par
+\par
+Haha, Exception beim Type Validieren, weil mit den neuen Utils auf < 0 gepr\'fcft wird, aber die generischen long-Hashmaps 0 als not found state zur\'fcckgeben.\par
+Das war nat\'fcrlich Quatsch, muss ich wieder zur\'fcck\'e4ndern und ordentlichen kommentieren.\par
+\par
+Und noch so ein Fehler. Aber das kracht schon bei der zus\'e4tzlich eingef\'fchrten Pr\'fcfung auf valide TypeIds. Da wird eine 0 \'fcbergeben. Fragt sich jetzt, ob das ein Fehler ist, oder ob das aus Initialisierungsgr\'fcnden so sein muss.\par
+Muss ich untersuchen ...\par
+\par
+Durchdebuggt:\par
+Gleiches Problem mit von HashMapObjectId (idsPerTypes) zur\'fcckgegebener 0 aber Pr\'fcfung umgebaut auf < 0.\par
+Hm, das ist echt \'e4rgerlich. Eigentlich ist das -1 Konzept besser, weil 0 eine valide ObjectId f\'fcr null-Werte ist. Aber an solchen Stellen bei\'dfts dann nat\'fcrlich aus.\par
+Hm, oder ich w\'fcrde in der HashMapObjectId eine Gettermethode bauen, der man den not found Wert \'fcbergeben kann ...\par
+\par
+...\par
+\par
+Moment:\par
+ODER ... ich geb gleich -1 zur\'fcck, weil das ja eine ObjectId-spezifische Implementierung ist. Ich Dussel.\par
+\par
+Aach, ne Moment: die Klasse ist schon generisch. Das hei\'dft nicht "ObjectId", sondern "Object to Id". Und die andere hei\'dft "Id to Object".\par
+Also doch die Variante mit der \'dcbergabewert.\par
+Gefixt.\par
+Weitertesten.\par
+Weitere Fl\'fcchtigkeitsfehler...\par
+\par
+Ich mach jetzt doch analog zu der Swizzling#isProperId noch eine Swizzling#isNotProperId.\par
+\par
+Weiter testen.\par
+Ah, der lookup in BinaryStorer macht nat\'fcrlich kein ensureInitialized, also krachts da mit einem NPE.\par
+Wieso initialisier ich das eigentlich nicht einfach bei der Erstellung und im clear?\par
+Das muss ich sp\'e4ter mal anschauen und umbauen.\par
+Sch* doch auf die paar Instanzerzeugungen mehr. Bzw. die werden ja bei normaler Verwendung eh immer ben\'f6tigt und bei sinnloser Verwendung ist der (eh minimale) egal.\par
+Das muss ich umbauen ...\par
+\par
+Umgebaut. Testen.\par
+Jetzt l\'e4ufts durch.\par
+\par
+Debuggen.\par
+Storer2 \'fcbernimmt die lokale ObjectId Assoziation von storer1.\par
+Passt.\par
+\par
+Jetzt noch schnell schauen, ob die Storer alle wieder sch\'f6n garbage-collectet werden.\par
+Erst mal den initialization storer wegmachen.\par
+Passt.\par
+Die anderen beiden.\par
+Seltsam. Da bleibt einer h\'e4ngen. Warum? VisualVM auspacken.\par
+Variablen ausnullen und nochmal testen.\par
+Jetzt sind sie weg.\par
+Wieso? Das d\'fcrfte nicht sein. Die Variablen sind aus dem Scope gelaufen und der gc Aufruf DANACH m\'fcsste beide wegmachen.\par
+Entweder w\'e4r das ein l\'e4cherlich krass Bug in der JVM oder ich versteh es nicht richtig. Ich hoff mal auf zweiteres.\par
+\par
+Jetzt noch testen, ob die Objekt-Assoziationen am Ende gemerget werden.\par
+Ja, passt auch.\par
+\par
+Nach offenen TODOs suchen. Gibts keine mehr.\par
+\par
+Also soweit getestet sollte das Issue fertig sein.\par
+\par
+Jetzt muss ich dann alles nochmal durchdenken, ob es doch noch F\'e4lle geben k\'f6nnte, wo trotz des Konzepts Daten verloren gehen oder inkonsistent werden k\'f6nnten ...\par
+\par
+\par
+2020-03-19\par
+\par
+Bissl durchdenken und Code durchschauen.\par
+Eins ist mir dabei gleich mal aufgefallen: Wie ist das, wenn ein Storer in einem Thread nebenl\'e4ufig die Entries eines anderen Storers iteriert und ein anderer Thread dessen Entries ver\'e4ndern (hinzuf\'fcgen, entfernen)?\par
+Das hab ich noch nicht abgedeckt...\par
+\par
+Das wird aber knifflig, denn die locks d\'fcrfen keinen Deadlock erzeugen:\par
+Erst lockt der storer sich selbst und lockt dann die objectregistry f\'fcr einen ID-lookup in einem anderen storer, um dann den wiederum zu locken.\par
+Wenn das zwei storer gleichzeitig machen, gibts eine deadlock race condition:\par
+A lockt sich selbst und die OR, wartet auf Lock f\'fcr B\par
+B lockt sich selbst und wartet auf Lock f\'fcr die OR.\par
+Ende.\par
+\par
+Hei\'dft: Lookup darf immer nur so laufen:\par
+- 1.) OR locken, 2.) sich selber locken\par
+- Nicht-Lookups d\'fcrfen sich selber locken, aber dann die OR nicht mehr.\par
+Mal im Code schauen, ob das so geht.\par
+\par
+Also vor dem OR Lock wird nix gelockt, das ist schon mal gut.\par
+Nach dem OR lock wird der storer selbst gelockt, dann aber nur die HashSlots gebraucht.\par
+Aber alle anderen Methoden, die die HashSlots lesen oder sogar ver\'e4ndern, sind nicht gelockt.\par
+\par
+Das itearateMergeableEntries ist nicht auch nicht gelockt. Theoretisch d\'fcrfte das kein Problem sein, weil das immer nur der storer selbst aufruft. Aber sicher w\'e4r sicher und einmal ein lock f\'fcr danach einen block an Iterierung w\'e4r auch nicht so dramatisch.\par
+\par
+Und eigentlich muss das ein intern-exklusives Mutex sein (z.B. das hashslots array), weil sonst anwendungslogik, die einen storer lockt, einen Deadlock erzeugen w\'fcrde.\par
+Hei\'dft:\line Alle Methoden, die state des storers lesen oder schreiben, m\'fcssen durch ein lock auf Hashslots gesichert werden.\par
+\par
+\par
+Ne, ich nehm lieber den head als mutex, weil das die einzige final Instanz ist.\par
+\par
+Hm. Der Loop in storeGraph darf nat\'fcrlich nicht komplett unter einem Lock ablaufen, sonst w\'fcrde kein anderer Thread auf die local registry zugreifen k\'f6nnen, bis der storer fertig w\'e4re.\par
+Aber ist es sicher, das Lock in jedem cycle neu zu holen und wieder freizugeben?\par
+Gut, sollte eigentlich schon, weil alle anderen ja nur lesen und nur der "Benutzer"-Thread des Storers \'c4nderungen macht. Es geht ja nur um eine Chance, dass die anderen zwischendrin mal lesen d\'fcrfen.\par
+\par
+Oh, bug:\par
+In skip wird ein lookup gemacht und davon ausgegangen, dass bei not found 0 zur\'fcckkommt. Fr\'fcher war das so, aber jetzt ist es -1.\par
+Muss ich fixen.\par
+... Warum macht skip nach dem Lookup nochmal einen lookup in der anderen Methode? Muss die \'fcberhaupt aufgerufen werden? ... muss ich anschauen.\line Achso, hehe. Das eine ist der globale lookup, das andere ist der lokale. Hm. Dann muss das aber die Lock-reihenfolge einhalten.\par
+\par
+Weitere Methoden durchschauen und lockschutz einbauen oder contract-en.\par
+\par
+Hm. Eigentlich machen die "initialize" Methoden keinen Sinn mehr, weil hashSlots nicht mehr null sein kann.\par
+Wenn, dann nur reinitialize. Muss ich morgen anschauen.\par
+\par
+2020-03-20\par
+\par
+Jo. Werden nie aufgerufen. Braucht keiner. Machen keinen Sinn. Raus.\par
+\par
+Noch TODO von gestern machen. Einige Methoden aufr\'e4umen, Locking hinzuf\'fcgen wo n\'f6tig.\par
+Sollte jetzt fertig sein. Muss ich aber nochmal komplett durchschauen.\par
+\par
+\par
+2020-03-23\par
+\par
+Also jetzt schau ich das nochmal komplett durch und dann sollte es fertig sein.\par
+\par
+Methoden aufr\'e4umen, konsistenter benennen, mehr Kommentare schreiben. Z.B. zum Concurrency-Konzept. Mutex, Lock-Hierarchie, usw.\par
+Oh, sogar noch einen Bug gefunden:\par
+#registerAdd ruft erst this.objectManager.ensureObjectId() auf mit callback this, wof\'fcr dann intern, unter dem objectregistry lock, #accept aufgerufen wird. Danach ruft es nochmal accept auf.\par
+Naja gut, es d\'fcrfte kein Bug sein, weil der redundante #accept Aufruf ja immer wirkungslos ist, aber es ist \'fcberfl\'fcssiger Aufwand.\par
+Entfernt und kommentiert.\par
+Gleich nochmal alle anderen Aufrufe von this.objectManager.ensureObjectId() checken ...\par
+Da ist ein direkter this.objectManager.ensureObjectId() Aufruf, der zu #registerAdd konsolidiert werden kann.\par
+Die drei \'e4hnlichen Methoden storeGraph, apply und applyEager zusammenziehen.\par
+Mal schauen, wo an denen drei eigentlich genau der Unterschied ist. Evtl. kann man da Teile zusammenmodularisieren.\par
+...\'e4hh... jetzt ist apply (= lazy) und applyEager identisch.\par
+Da kann was nicht stimmen.\par
+\par
+*seufz*\par
+Muss ich dann anschauen ...\par
+\par
+\par
+Also: #apply (lazy) und #applyEager nachschauen im alten Stand (master branch):\par
+\par
+#apply (lazy):\par
+- lokales this.lookupOid(instance)\par
+- bei Miss globales this.objectManager.ensureObjectId(instance, this)\par
+\par
+Der lokale Lookup ist daf\'fcr da, dass ein Storer Instanzen nicht mehrfach serialisiert. Das ist immer sinnvoll bzw. n\'f6tig.\par
+Wenn nicht, wird global gecheckt: Gibt es schon eine assoziierte OID daf\'fcr?\par
+NUR, wenn es noch keine gibt, wird f\'fcr die neu vergebene der mit\'fcbergebene Storer als Callback aufgerufen, wodurch er die neu assoziierte Instanz serialisert.\par
+\par
+#applyEager:\par
+- lokales this.lookupOid(instance)\par
+- this.registerAdd(instance) mit intern:\par
+\tab > this.objectManager.ensureObjectId(instance) [OHNE this als callback!]\par
+\tab > this.accept(oid, instance)\par
+\par
+Also der Unterschied ist:\par
+lazy \'fcbergibt den storer als callback f\'fcr bedingte Registrierung\par
+eager \'fcbergibt den storer nicht und macht die Registrierung IMMER.\par
+\par
+Genau diese Unterscheidung hab ich im Branch weg-optimiert. Muss ich wieder einbauen.\par
+Wieder branch wechseln ...\par
+\par
+\par
+Hm. Jetzt ist in ensureObjectId() nat\'fcrlich noch ein dritter Aspekt dazugekommen:\par
+1.) Lookup nach global existierender OID-Assoziation (wie bisher)\par
+2.) Bei neu vergebener OID callback-Aufruf (wie bisher)\par
+3.) im Ablauf ZWISCHEN #1 und #2 nun noch lookup in anderen storern und bei einem Fund callback-Aufruf.\par
+\par
+Wie spielt #3 in den Unterschied von lazy storing und eager storing rein? Passt das so...?\par
+Muss ich \'fcberlegen ...\par
+\'c4h ... das ist irgendwie gar nicht so einfach...\par
+\par
+Also der lazy storer \'fcbergibt sich als callback mit, um im Fall #2 informiert zu werden.\par
+Der eager storer \'fcbergibt sich NICHT mit, weil er nachtr\'e4glich die registrierung eh IMMER macht.\par
+\par
+Damit kriegt aber auch nur der lazy Storer den Fall #3 mit und der eager storer nicht.\par
+Wobei das kein Problem ist, weil die ObjectId ja im Fall #3 auch zur\'fcckgegeben wird und der Eager storer eben de zur\'fcckgegebene OID IMMER registriert.\par
+Also passt das? Sind #2 und #3 vom Callback her gesehen derselbe Fall?\par
+*kopfkratz*\par
+Ich glaub schon.\par
+\par
+Nochmal durchdenken ...\par
+Das knifflige ist, dass die lazy Logik, die eigentlich "weniger" macht, IMMER \'fcbergeben wird und die eager Logik, die IMMER was macht, nie \'fcbergeben wird (weil sie es selber au\'dferhalb macht).\par
+\par
+Uff!\par
+Da muss ich entsprechende Kommentare dazuschreiben, sonst wird das immer wieder Verwirrung erzeugen\par
+\par
+Codem\'e4\'dfig muss ich nur wieder den weg-/kaputt-optimierten Aufruf mit callback null wiederherstellen, dann sollt es passen, auch mit der Erweiterung.\par
+\par
+Ne, besser:\par
+Anstatt ...\par
+- Aufruf von objectManager.ensureObjectId() blank f\'fcr lazy Logik.\par
+- Aufruf von objectManager.ensureObjectId() gewrappt in #registerAdd f\'fcr eager Logik.\par
+\par
+... mach ich ...\par
+- Aufruf von objectManager.ensureObjectId() gewrappt in #registerLazy\par
+- Aufruf von objectManager.ensureObjectId() gewrappt in #registerEager\par
+\par
+\par
+\par
+Ahhhh!!!\par
+Aber damit ist das Problem, dass das eager-logic accept au\'dferhalb des object-registry locks aufgerufen wird, \'fcber das sich alle storer synchronisieren.\par
+D.h. der f\'fcr die storing robustness entscheidende Lookup kann gelegentlich schiefgehen.\par
+Super.\par
+Mist.\par
+Also muss ich objectManager.ensureObjectId() DOCH erweitern um zwei Acceptor Parameter:\par
+Einer f\'fcr on-demand callback, einer f\'fcr immer callback.\par
+Und dann ist je nach Fall nur einer der beiden non-null.\par
+\par
+Und eigentlich reicht f\'fcr beides das PersistenceAcceptor interface aus...\par
+\par
+Aber das muss ich morgen machen, weil jetzt schon wieder die Zeit aus ist...\par
+\par
+\par
+2020-03-24\par
+\par
+Entsprechend umbauen.\par
+Dann muss f\'fcr den localregistry check aber noch ein non-null coalescing gemacht werden, weil der lookup ja auf quasi "this" pr\'fcft.\par
+\par
+Und dann muss nat\'fcrlich die Logik in der Methode leicht anders werden: F\'fcr den eager Callback darf es nur einen R\'fcckgabewert geben, wo dann einmalig der eager Callback aufgerufen wird.\par
+So umbauen.\par
+\par
+Jetzt ist das aber eine ganz sch\'f6n wirre und lange Tapete mit einem leeren Block als fall-through.\par
+Das muss doch besser gehen ...\par
+Ha! Jetzt sinds gerade mal noch 10 LoC und den redundanten Aufruf im Lazy Fall hab ich auch konsolidiert.\par
+Kommentare schreiben.\par
+\par
+Restliche Aufrufe anpassen.\par
+Und schon wieder ein neues Problem:\par
+Es gibt Aufrufer, die immer null \'fcbergeben, weil es einfach nur debugging oder iterierung ist.\par
+Also f\'fcr die doch wieder null erlauben...\par
+\par
+Ne, Moment mal:\par
+Wieso soll ich f\'fcr solche Randverwendungszwecke den Normalfall komplizierter und (wenn auch winzigst) langsamer machen?\par
+Stattdessen sollen die Randverwendungszwecke einfach eine No-Op Funktion mitgeben.\par
+So mach ich das.\par
+\par
+Ah, dann muss ich aber doch auf PersistenceAcceptor umstellen, sonst geht keine Method reference.\par
+Und eine komplette Dummy-Implementierung von PersistenceLocalObjectIdRegistry machen w\'fcrde mehr Verwirrung stiften, als die klarere Typisierung wert ist.\par
+Also umbauen.\par
+\par
+Aber eigentlich k\'f6nnt ich dann doch wieder eine zweite Variante ensureObjectId(Object) bauen, damit man nicht immer redundant diese zwei Dummyargumente \'fcbergeben muss bzw. es gar nicht erst falsch machen kann.\par
+\par
+So! Nachdem ich das jetzt alles umgebaut hab, kann ich ja mit meinem concurrency review weitermachen.\par
+Sollt aber bald durch sein.\par
+Au\'dfer ich find wieder sowas ... :-[.\par
+\par
+Woohoo, review fertig.\par
+Alle Locks und synch~ Methoden sollten so passen.\par
+\par
+Jetzt nochmal Test laufen lassen, ob ich nicht irgendwo einen groben Denkfehler drin hab ...\par
+\par
+Ach! Restadapter Projekt muss ich noch anpassen ...\par
+\par
+So, jetzt testen.\par
+ObjectId passt.\par
+Der String wird auch nochmal persistiert (gecheckt mit HxD), was ja richtig ist, weil ja der erste Storer fehlschlagen k\'f6nnte und dann w\'e4ren die Daten wieder weg.\par
+Also das passt auch.\par
+\par
+Puh also ich sag jetzt mal: Damit ist das Issue fertig.\par
+Die Logik funktioniert wie gedacht. Concurrency-m\'e4\'dfig sollt alles passen. Erkl\'e4rende Kommentare hab ich dazugeschrieben. Fertig.\par
+}
+ 

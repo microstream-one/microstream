@@ -9,7 +9,7 @@ import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerURL extends AbstractBinaryHandlerCustomValueVariableLength<URL>
+public final class BinaryHandlerURL extends AbstractBinaryHandlerCustomValueVariableLength<URL, String>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -85,14 +85,22 @@ public final class BinaryHandlerURL extends AbstractBinaryHandlerCustomValueVari
 		}
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
 	@Override
-	public void validateState(
-		final Binary                 data    ,
-		final URL                    instance,
-		final PersistenceLoadHandler handler
-	)
+	public String getValidationStateFromInstance(final URL instance)
 	{
-		compareSimpleState(instance, instanceState(instance), binaryState(data));
+		return instanceState(instance);
+	}
+	
+	@Override
+	public String getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
 	}
 
 }

@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyUnknownTid;
+import one.microstream.reference.Swizzling;
 
 
 public interface PersistenceTypeManager extends PersistenceTypeRegistry
@@ -67,23 +68,23 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 
 		protected long internalEnsureTypeId(final Class<?> type)
 		{
-			long tid;
+			long typeId;
 			synchronized(this.typeRegistry)
 			{
 				// if not found either assign new oid or return the meanwhile registered oid
-				if((tid = this.typeRegistry.lookupTypeId(type)) != Persistence.nullId())
+				if(Swizzling.isFoundId(typeId = this.typeRegistry.lookupTypeId(type)))
 				{
-					return tid;
+					return typeId;
 				}
-				tid = this.createNewTypeId();
+				typeId = this.createNewTypeId();
 
-				this.typeRegistry.registerType(tid, type);
+				this.typeRegistry.registerType(typeId, type);
 				if(type.getSuperclass() != null)
 				{
 					this.ensureTypeId(type.getSuperclass());
 				}
 			}
-			return tid;
+			return typeId;
 		}
 
 		@Override
@@ -127,12 +128,14 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 		@Override
 		public long ensureTypeId(final Class<?> type)
 		{
-			long tid; // quick read-only check for already registered tid
-			if((tid = this.typeRegistry.lookupTypeId(type)) != Persistence.nullId())
+			final long typeId; // quick read-only check for already registered tid
+			if(Swizzling.isFoundId(typeId = this.typeRegistry.lookupTypeId(type)))
 			{
-				return tid;
+				// already present/found typeId is returned.
+				return typeId;
 			}
-
+			
+			// typeId not found, so a new typeId is ensured returned.
 			return this.internalEnsureTypeId(type);
 		}
 
