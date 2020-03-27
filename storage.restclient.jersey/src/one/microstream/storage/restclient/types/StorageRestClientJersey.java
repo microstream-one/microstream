@@ -1,5 +1,7 @@
 package one.microstream.storage.restclient.types;
 
+import static one.microstream.X.notNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,22 +18,43 @@ import one.microstream.storage.restadapter.ViewerObjectDescription;
 import one.microstream.storage.restadapter.ViewerRootDescription;
 import one.microstream.storage.restadapter.ViewerStorageFileStatistics;
 
-// TODO externalize routes
 public class StorageRestClientJersey implements StorageRestClient
 {
-	public static StorageRestClientJersey New(final String baseUrl)
+	public static StorageRestClientJersey New(
+		final String baseUrl
+	)
 	{
-		return new StorageRestClientJersey(baseUrl);
+		return New(
+			baseUrl, 
+			Routes.Default()
+		);
+	}
+	
+	public static StorageRestClientJersey New(
+		final String baseUrl,
+		final Routes routes
+	)
+	{
+		return new StorageRestClientJersey(
+			notNull(baseUrl), 
+			notNull(routes)
+		);
 	}
 	
 	
 	private final String baseUrl;
+	private final Routes routes;
 	private Client       client;
 	private WebTarget    storageRestService;
 	
-	StorageRestClientJersey(final String baseUrl)
+	StorageRestClientJersey(
+		final String baseUrl,
+		final Routes routes
+	)
 	{
+		super();
 		this.baseUrl = baseUrl;
+		this.routes  = routes;
 	}
 	
 	private WebTarget storageRestService()
@@ -52,7 +75,7 @@ public class StorageRestClientJersey implements StorageRestClient
 	public Map<Long, PersistenceTypeDescription> requestTypeDictionary()
 	{
 		final String data = this.storageRestService()
-			.path("dictionary")
+			.path(this.routes.dictionary())
 			.request(MediaType.APPLICATION_JSON)
 			.get(String.class);
 		
@@ -70,7 +93,7 @@ public class StorageRestClientJersey implements StorageRestClient
 	public ViewerRootDescription requestRoot()
 	{
 		return this.storageRestService()
-			.path("root")
+			.path(this.routes.root())
 			.request(MediaType.APPLICATION_JSON)
 			.get(ViewerRootDescription.class);
 	}
@@ -81,7 +104,7 @@ public class StorageRestClientJersey implements StorageRestClient
 	)
 	{
 		WebTarget target = this.storageRestService()
-			.path("object")
+			.path(this.routes.object())
 			.path(Long.toString(objectRequest.objectId()));
 		
 		target = this.optAddParam(target, "valueLength",     objectRequest.valueLength    ());
@@ -107,7 +130,7 @@ public class StorageRestClientJersey implements StorageRestClient
 	public ViewerStorageFileStatistics requestFileStatistics()
 	{
 		return this.storageRestService()
-			.path("maintenance/filesStatistics")
+			.path(this.routes.filesStatistics())
 			.request(MediaType.APPLICATION_JSON)
 			.get(ViewerStorageFileStatistics.class);
 	}
