@@ -15,8 +15,6 @@ import one.microstream.persistence.types.PersistenceTypeNameMapper;
 import one.microstream.storage.restadapter.ViewerObjectDescription;
 import one.microstream.storage.restadapter.ViewerRootDescription;
 import one.microstream.storage.restadapter.ViewerStorageFileStatistics;
-import one.microstream.storage.restclient.types.ObjectRequest;
-import one.microstream.storage.restclient.types.StorageRestClient;
 
 // TODO externalize routes
 public class StorageRestClientJersey implements StorageRestClient

@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
+import one.microstream.reference.Swizzling;
 
 /**
  * This class encapsulates the type definition and all field values retrieved
@@ -185,7 +185,7 @@ public class ObjectDescription
 	)
 	{
 		final long oid = wrapper.getObjectId();
-		return oid == Persistence.nullId()
+		return oid == Swizzling.nullId()
 			? null
 			: storageRestAdapter.getStorageObject(oid);
 	}
