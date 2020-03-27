@@ -800,7 +800,6 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			}
 		}
 
-		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
 		@Override
 		public final Object get()
 		{
@@ -815,7 +814,6 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			}
 		}
 
-		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
 		@Override
 		public final Object getObject(final long objectId)
 		{
@@ -831,7 +829,6 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			}
 		}
 
-		// synchronized to force byte code execution order (prevent chunk collection) and for just-in-case thread-safety
 		@Override
 		public final <C extends Consumer<Object>> C collect(final C collector, final long... objectIds)
 		{
@@ -920,9 +917,9 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 		@Override
 		public BinaryLoader createLoader(
-			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
-			final PersistenceObjectRegistry            registry       ,
-			final Persister                            persister      ,
+			final PersistenceTypeHandlerLookup<Binary> typeLookup,
+			final PersistenceObjectRegistry            registry  ,
+			final Persister                            persister ,
 			final PersistenceSourceSupplier<Binary>    source
 		)
 		{
@@ -973,9 +970,9 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 		@Override
 		public BinaryLoader createLoader(
-			final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
-			final PersistenceObjectRegistry            registry       ,
-			final Persister                            persister      ,
+			final PersistenceTypeHandlerLookup<Binary> typeLookup    ,
+			final PersistenceObjectRegistry            registry      ,
+			final Persister                            persister     ,
 			final PersistenceSourceSupplier<Binary>    sourceSupplier
 		)
 		{
