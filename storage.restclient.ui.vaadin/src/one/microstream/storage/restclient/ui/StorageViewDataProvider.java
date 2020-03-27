@@ -70,7 +70,9 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 			final StorageViewElement parent = query.getParent();
 			return parent == null
 				? Stream.of(this.rootSupplier.get())
-				: query.getParent().members(false).stream();
+				: query.getParent().members(false).stream()
+					.skip(query.getOffset())
+					.limit(query.getLimit());
 		}
 		
 		@Override
