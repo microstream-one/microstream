@@ -1,5 +1,7 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.notNull;
+
 import java.util.function.Consumer;
 
 import one.microstream.collections.HashEnum;
@@ -76,15 +78,15 @@ public interface PersistenceCustomTypeHandlerRegistry<D> extends PersistenceType
 		}
 
 		@Override
-		public final synchronized <T> boolean registerTypeHandler(
+		public final <T> boolean registerTypeHandler(
 			final Class<T>                             type                  ,
 			final PersistenceTypeHandler<D, ? super T> typeHandlerInitializer
 		)
 		{
-			// (31.03.2020 Paigan)FIXME: priv#187: validate type (Class#isAssignableFrom!)
+			// validate before mutating internal state by public API
+			typeHandlerInitializer.validateEntityType(type);
 			
-			// put instead of add to allow custom-tailed replacments for native handlers (e.g. divergent TID or logic)
-			return this.liveTypeHandlers.put(type, typeHandlerInitializer);
+			return this.internalRegisterTypeHandler(type, typeHandlerInitializer);
 		}
 
 		@Override
@@ -92,9 +94,22 @@ public interface PersistenceCustomTypeHandlerRegistry<D> extends PersistenceType
 			final PersistenceTypeHandler<D, T> typeHandlerInitializer
 		)
 		{
-			return this.registerTypeHandler(
+			// no need to validate a type handler's own type reference.
+			return this.internalRegisterTypeHandler(
 				typeHandlerInitializer.type(),
 				typeHandlerInitializer
+			);
+		}
+		
+		final synchronized <T> boolean internalRegisterTypeHandler(
+			final Class<T>                             type                  ,
+			final PersistenceTypeHandler<D, ? super T> typeHandlerInitializer
+		)
+		{
+			// put instead of add to allow custom-tailored replacments for native handlers (e.g. divergent TID or logic)
+			return this.liveTypeHandlers.put(
+				notNull(type),
+				notNull(typeHandlerInitializer)
 			);
 		}
 
