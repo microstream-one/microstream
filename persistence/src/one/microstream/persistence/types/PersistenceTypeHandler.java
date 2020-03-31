@@ -24,6 +24,29 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 	@Override
 	public Class<T> type();
 	
+	public default boolean isValidEntityType(final Class<? extends T> type)
+	{
+		/*
+		 * Note that type() is validated to never be null prior to type handler instance creation.
+		 * Must be super type check instead of simple identity check as some classes must be handleable
+		 * as their super types (e.g. local implementation of java.nio.file.Path)
+		 */
+		return this.type().isAssignableFrom(type);
+	}
+	
+	public default void validateEntityType(final Class<? extends T> type)
+	{
+		if(this.isValidEntityType(type))
+		{
+			return;
+		}
+		
+		// (31.03.2020 Paigan)EXCP: proper exception
+		throw new PersistenceExceptionTypeConsistency(
+			"Invalid entity type "+ type  +" for type handler " + this.toTypeIdentifier()
+		);
+	}
+	
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers();
 	
