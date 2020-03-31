@@ -18,6 +18,7 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeLink;
 import one.microstream.reference.Referencing;
+import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
 
 public class ViewerBinaryTypeHandlerManager implements PersistenceTypeHandlerManager<Binary>, Referencing<PersistenceTypeHandlerManager<Binary>>
@@ -166,13 +167,16 @@ public class ViewerBinaryTypeHandlerManager implements PersistenceTypeHandlerMan
 	@Override
 	public <T> PersistenceTypeHandler<Binary, T> lookupTypeHandler(final T instance)
 	{
-		throw new UnsupportedOperationException();
+		return this.lookupTypeHandler(XReflect.getClass(instance));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> PersistenceTypeHandler<Binary, T> lookupTypeHandler(final Class<T> type)
 	{
-		throw new UnsupportedOperationException();
+		return (PersistenceTypeHandler<Binary, T>)this.viewerTypeHandlers.values().search(
+			v -> v.typeName().equals(type.getName())
+		);
 	}
 
 	@Override
@@ -184,13 +188,13 @@ public class ViewerBinaryTypeHandlerManager implements PersistenceTypeHandlerMan
 	@Override
 	public <T> PersistenceTypeHandler<Binary, T> ensureTypeHandler(final T instance)
 	{
-		throw new UnsupportedOperationException();
+		return this.lookupTypeHandler(instance);
 	}
 
 	@Override
 	public <T> PersistenceTypeHandler<Binary, T> ensureTypeHandler(final Class<T> type)
 	{
-		throw new UnsupportedOperationException();
+		return this.lookupTypeHandler(type);
 	}
 
 	@Override
@@ -226,7 +230,7 @@ public class ViewerBinaryTypeHandlerManager implements PersistenceTypeHandlerMan
 	@Override
 	public PersistenceTypeDictionary typeDictionary()
 	{
-		throw new UnsupportedOperationException();
+		return this.typeDictionary;
 	}
 
 	@Override
@@ -268,7 +272,7 @@ public class ViewerBinaryTypeHandlerManager implements PersistenceTypeHandlerMan
 	@Override
 	public PersistenceTypeHandlerManager<Binary> get()
 	{
-		return null;
+		return this;
 	}
 
 }
