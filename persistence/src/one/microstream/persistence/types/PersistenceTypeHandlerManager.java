@@ -24,19 +24,19 @@ import one.microstream.typing.KeyValue;
 public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager, PersistenceTypeHandlerRegistry<D>
 {
 	@Override
-	public <T> PersistenceTypeHandler<D, T> lookupTypeHandler(T instance);
+	public <T> PersistenceTypeHandler<D, ? super T> lookupTypeHandler(T instance);
 
 	@Override
-	public <T> PersistenceTypeHandler<D, T> lookupTypeHandler(Class<T> type);
+	public <T> PersistenceTypeHandler<D, ? super T> lookupTypeHandler(Class<T> type);
 
 	@Override
 	public PersistenceTypeHandler<D, ?> lookupTypeHandler(long typeId);
 
-	public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(T instance);
+	public <T> PersistenceTypeHandler<D, ? super T> ensureTypeHandler(T instance);
 
-	public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(Class<T> type);
+	public <T> PersistenceTypeHandler<D, ? super T> ensureTypeHandler(Class<T> type);
 	
-	public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(PersistenceTypeDefinition typeDefinition);
+	public <T> PersistenceTypeHandler<D, ? super T> ensureTypeHandler(PersistenceTypeDefinition typeDefinition);
 	
 	public void ensureTypeHandlers(XGettingEnum<PersistenceTypeDefinition> typeDefinitions);
 
@@ -321,11 +321,11 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final T instance)
+		public final <T> PersistenceTypeHandler<D, ? super T> ensureTypeHandler(final T instance)
 		{
 			// standard implementation does not consider actual objects, only their types
 			
-			final PersistenceTypeHandler<D, T> typeHandler = this.ensureTypeHandler(
+			final PersistenceTypeHandler<D, ? super T> typeHandler = this.ensureTypeHandler(
 				XReflect.getClass(instance)
 			);
 			typeHandler.guaranteeSpecificInstanceViablity();
@@ -340,10 +340,10 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final Class<T> type)
+		public final <T> PersistenceTypeHandler<D, ? super T> ensureTypeHandler(final Class<T> type)
 		{
 //			XDebug.debugln("ensureTypeHandler(" + type + ")");
-			final PersistenceTypeHandler<D, T> handler; // quick read-only check for already registered type
+			final PersistenceTypeHandler<D, ? super T> handler; // quick read-only check for already registered type
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) != null)
 			{
 				return handler;
@@ -396,7 +396,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		}
 		
 		@Override
-		public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final PersistenceTypeDefinition typeDefinition)
+		public <T> PersistenceTypeHandler<D, ? super T> ensureTypeHandler(final PersistenceTypeDefinition typeDefinition)
 		{
 			/*
 			 * This method must make sure that the passed typeDefinition gets a functional type handler,
@@ -413,8 +413,8 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			}
 			
 			// for all types not explicitly marked as unreachable, the runtime type is essential.
-			final Class<T>                     runtimeType        = this.validateExistingType(typeDefinition);
-			final PersistenceTypeHandler<D, T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
+			final Class<T>                             runtimeType        = this.validateExistingType(typeDefinition);
+			final PersistenceTypeHandler<D, ? super T> runtimeTypeHandler = this.ensureTypeHandler(runtimeType);
 			
 			// check if the type definition is up to date or if a legacy type handler is needed
 			if(runtimeTypeHandler.typeId() == typeDefinition.typeId())
@@ -464,7 +464,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<D, T> lookupTypeHandler(final Class<T> type)
+		public final <T> PersistenceTypeHandler<D, ? super T> lookupTypeHandler(final Class<T> type)
 		{
 			return this.typeHandlerRegistry.lookupTypeHandler(type);
 		}
@@ -476,7 +476,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		}
 
 		@Override
-		public final <T> PersistenceTypeHandler<D, T> lookupTypeHandler(final T instance)
+		public final <T> PersistenceTypeHandler<D, ? super T> lookupTypeHandler(final T instance)
 		{
 			// standard implementation does not consider actual objects
 			return this.typeHandlerRegistry.lookupTypeHandler(XReflect.getClass(instance));
@@ -514,7 +514,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			return this.typeHandlerRegistry.registerTypes(types);
 		}
 		
-		private <T> PersistenceTypeHandler<D, T> internalEnsureTypeHandler(final Class<T> type)
+		private <T> PersistenceTypeHandler<D, ? super T> internalEnsureTypeHandler(final Class<T> type)
 		{
 			/*
 			 * Note on super classes and the hiararchy of implemented interface:
@@ -535,7 +535,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 					this.ensureTypeHandler(XReflect.getDeclaredEnumClass(type));
 				}
 				
-				PersistenceTypeHandler<D, T> typeHandler;
+				PersistenceTypeHandler<D, ? super T> typeHandler;
 				if((typeHandler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
 				{
 					// (27.11.2019 TM)TODO: priv#187 concrete -> abstract type mapping here?
@@ -1007,9 +1007,9 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			unmatchableTypeHandlers.add(handler);
 		}
 		
-		private <T> PersistenceTypeHandler<D, T> advanceEnsureTypeHandler(final Class<T> type)
+		private <T> PersistenceTypeHandler<D, ? super T> advanceEnsureTypeHandler(final Class<T> type)
 		{
-			PersistenceTypeHandler<D, T> handler;
+			PersistenceTypeHandler<D, ? super T> handler;
 			if((handler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
 			{
 				handler = this.typeHandlerProvider.ensureTypeHandler(type);
