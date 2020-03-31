@@ -10,7 +10,7 @@
 	<artifactId>storage.restclient.app</artifactId>
 	
 	<properties>
-		<vaadin.version>14.1.19</vaadin.version>
+		<vaadin.version>14.1.21</vaadin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -35,13 +35,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
-			<artifactId>storage.restclient.ui.vaadin</artifactId>
+			<artifactId>storage.restclient.jersey</artifactId>
 			<version>02.03.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>one.microstream</groupId>
-			<artifactId>storage.restclient.jersey</artifactId>
-			<version>02.03.00-MS-GA-SNAPSHOT</version>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>

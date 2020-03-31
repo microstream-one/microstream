@@ -1,5 +1,5 @@
 
-package one.microstream.storage.restclient.ui;
+package one.microstream.storage.restclient.app.ui;
 
 import static one.microstream.X.notNull;
 
@@ -10,6 +10,7 @@ import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataPr
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 
+import one.microstream.storage.restclient.app.ApplicationErrorHandler;
 import one.microstream.storage.restclient.types.StorageView;
 import one.microstream.storage.restclient.types.StorageViewElement;
 
@@ -46,7 +47,15 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 			final StorageViewElement item
 		)
 		{
-			return item.hasMembers();
+			try
+			{
+				return item.hasMembers();
+			}
+			catch(Exception e)
+			{
+				ApplicationErrorHandler.handle(e);
+				return false;
+			}
 		}
 		
 		@Override
@@ -54,12 +63,20 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 			final HierarchicalQuery<StorageViewElement, F> query
 		)
 		{
-			final StorageViewElement parent = query.getParent();
-			return parent == null
-				? 1 // root
-				: parent.hasMembers()
-					? parent.members(false).size()
-					: 0;
+			try
+			{
+				final StorageViewElement parent = query.getParent();
+				return parent == null
+					? 1 // root
+					: parent.hasMembers()
+						? parent.members(false).size()
+						: 0;
+			}
+			catch(Exception e)
+			{
+				ApplicationErrorHandler.handle(e);
+				return 0;
+			}
 		}
 		
 		@Override
@@ -67,12 +84,20 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 			final HierarchicalQuery<StorageViewElement, F> query
 		)
 		{
-			final StorageViewElement parent = query.getParent();
-			return parent == null
-				? Stream.of(this.rootSupplier.get())
-				: query.getParent().members(false).stream()
-					.skip(query.getOffset())
-					.limit(query.getLimit());
+			try
+			{
+				final StorageViewElement parent = query.getParent();
+				return parent == null
+					? Stream.of(this.rootSupplier.get())
+					: query.getParent().members(false).stream()
+						.skip(query.getOffset())
+						.limit(query.getLimit());
+			}
+			catch(Exception e)
+			{
+				ApplicationErrorHandler.handle(e);
+				return Stream.empty();
+			}
 		}
 		
 		@Override
@@ -81,12 +106,19 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 			final boolean refreshChildren
 		)
 		{
-			if(refreshChildren)
+			try
 			{
-				item.members(true);
+				if(refreshChildren)
+				{
+					item.members(true);
+				}
+				
+				super.refreshItem(item, refreshChildren);
 			}
-			
-			super.refreshItem(item, refreshChildren);
+			catch(Exception e)
+			{
+				ApplicationErrorHandler.handle(e);
+			}
 		}
 		
 	}
