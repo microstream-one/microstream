@@ -16,7 +16,7 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersist
 public interface PersistenceTypeHandlerEnsurer<D>
 extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 {
-	public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(Class<T> type)
+	public <T> PersistenceTypeHandler<D, ? super T> ensureTypeHandler(Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable;
 	
 	
@@ -67,7 +67,7 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 		/////////////////////
 
 		@Override
-		public <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final Class<T> type)
+		public <T> PersistenceTypeHandler<D, ? super T> ensureTypeHandler(final Class<T> type)
 			throws PersistenceExceptionTypeNotPersistable
 		{
 			final PersistenceTypeHandler<D, T> providedHandler;
@@ -85,7 +85,7 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 			}
 			
 			// lookup predefined handler first to cover primitives and to give custom handlers precedence
-			final PersistenceTypeHandler<D, T> customHandler = this.customTypeHandlerRegistry.lookupTypeHandler(type);
+			final PersistenceTypeHandler<D, ? super T> customHandler = this.customTypeHandlerRegistry.lookupTypeHandler(type);
 			if(customHandler != null)
 			{
 				return customHandler;

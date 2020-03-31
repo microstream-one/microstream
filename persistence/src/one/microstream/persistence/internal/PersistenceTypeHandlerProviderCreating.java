@@ -67,20 +67,20 @@ implements PersistenceTypeHandlerProvider<D>
 	// methods //
 	////////////
 
-	protected final <T> PersistenceTypeHandler<D, T> provideTypeHandler(
+	protected final <T> PersistenceTypeHandler<D, ? super T> provideTypeHandler(
 		final Class<T> type  ,
 		final long     typeId
 	)
 		throws PersistenceExceptionTypeNotPersistable
 	{
-		final PersistenceTypeHandler<D, T> protoTypeHandler = this.ensureTypeHandler(type);
-		final PersistenceTypeHandler<D, T> typeHandler      = protoTypeHandler.initialize(typeId);
+		final PersistenceTypeHandler<D, ? super T> protoTypeHandler = this.ensureTypeHandler(type);
+		final PersistenceTypeHandler<D, ? super T> typeHandler      = protoTypeHandler.initialize(typeId);
 
 		return typeHandler;
 	}
 
 	@Override
-	public final <T> PersistenceTypeHandler<D, T> provideTypeHandler(final Class<T> type)
+	public final <T> PersistenceTypeHandler<D, ? super T> provideTypeHandler(final Class<T> type)
 	{
 		// type<->tid mapping is created in advance.
 		final long typeId = this.typeManager.ensureTypeId(type);
@@ -151,7 +151,7 @@ implements PersistenceTypeHandlerProvider<D>
 	}
 	
 	@Override
-	public final <T> PersistenceTypeHandler<D, T> ensureTypeHandler(final Class<T> type)
+	public final <T> PersistenceTypeHandler<D, ? super T> ensureTypeHandler(final Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable
 	{
 		return this.typeHandlerEnsurer.ensureTypeHandler(type);
