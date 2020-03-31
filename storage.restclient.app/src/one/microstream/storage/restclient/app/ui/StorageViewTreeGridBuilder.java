@@ -1,5 +1,5 @@
 
-package one.microstream.storage.restclient.ui;
+package one.microstream.storage.restclient.app.ui;
 
 import com.vaadin.flow.component.treegrid.TreeGrid;
 
