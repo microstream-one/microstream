@@ -5,12 +5,13 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.DefaultErrorHandler;
 import com.vaadin.flow.server.ErrorEvent;
+import com.vaadin.flow.server.ErrorHandler;
 import com.vaadin.flow.server.VaadinSession;
 
 import one.microstream.storage.restclient.app.ui.InternalErrorView;
 
 
-public class ApplicationErrorHandler extends DefaultErrorHandler
+public class ApplicationErrorHandler implements ErrorHandler
 {
 	public static final String THROWABLE_ATTRIBUTE = ApplicationErrorHandler.class.getName() + "#THROWABLE";
 	
@@ -32,7 +33,7 @@ public class ApplicationErrorHandler extends DefaultErrorHandler
 	@Override
 	public void error(ErrorEvent event)
 	{
-		handle(event.getThrowable());
+		handle(DefaultErrorHandler.findRelevantThrowable(event.getThrowable()));
 	}
 	
 }
