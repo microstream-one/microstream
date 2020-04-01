@@ -126,10 +126,23 @@ extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTyp
 			final PersistenceTypeHandler<D, ? super T> typeHandler
 		)
 		{
-			
+			synchronized(this.handlersByType)
+			{
+				if(this.synchValidateAlreadyRegisteredTypeHandler(type, typeHandler))
+				{
+					return true;
+				}
+				
+				this.registerTypeHandler(typeHandler);
+				
+				this.synchPutTypeMapping(type, typeHandler);
+				
+				// when does this method ever return false? Not registerable case is handled via exception
+				return true;
+			}
 		}
 		
-		private <T> boolean validateAlreadyRegisteredTypeHandler(
+		private <T> boolean synchValidateAlreadyRegisteredTypeHandler(
 			final Class<T>                             type       ,
 			final PersistenceTypeHandler<D, ? super T> typeHandler
 		)
@@ -159,7 +172,7 @@ extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTyp
 				this.typeRegistry.registerType(tid, type); // first ensure consistency of tid<->type combination
 
 				// check if handler is already registered for type
-				this.validateAlreadyRegisteredTypeHandler(type, typeHandler);
+				this.synchValidateAlreadyRegisteredTypeHandler(type, typeHandler);
 
 				// else: handler is not registered yet, proceed with tid check
 
