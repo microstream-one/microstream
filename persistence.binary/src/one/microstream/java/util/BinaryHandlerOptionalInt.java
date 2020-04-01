@@ -69,7 +69,7 @@ extends AbstractBinaryHandlerCustomValueFixedLength<OptionalInt, Integer>
 	
 	private static int binaryState(final Binary data)
 	{
-		return data.read_int(0);
+		return data.read_int(BINARY_OFFSET_VALUE);
 	}
 
 	@Override
