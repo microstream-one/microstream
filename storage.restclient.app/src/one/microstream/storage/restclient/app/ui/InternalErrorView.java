@@ -33,7 +33,7 @@ public class InternalErrorView extends VerticalLayout implements BeforeEnterObse
 	public InternalErrorView()
 	{
 		super();
-		
+
 		this.setSizeFull();
 	}
 
@@ -41,7 +41,7 @@ public class InternalErrorView extends VerticalLayout implements BeforeEnterObse
 	public void beforeEnter(BeforeEnterEvent event)
 	{					
 		final H3 header = new H3("An internal error occured.");
-		header.addClassName(UIUtils.addErrorStyle(event.getUI()));
+		header.addClassName("error");
 		this.add(header);
 
 		final VaadinSession session = event.getUI().getSession();
