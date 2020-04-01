@@ -2114,6 +2114,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		{
 			final PersistenceTypeDictionaryParser newTypeDictionaryParser =
 				PersistenceTypeDictionaryParser.New(
+					this.getTypeResolver()            ,
 					this.getFieldFixedLengthResolver(),
 					this.getTypeNameMapper()
 				)
