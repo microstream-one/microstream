@@ -4,10 +4,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
@@ -24,7 +22,7 @@ import one.microstream.storage.restclient.app.SessionData;
 
 @Push
 @Theme(value = Lumo.class, variant = Lumo.DARK)
-@JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
+@JsModule("./styles/shared-styles.js")
 public class RootLayout extends VerticalLayout 
 	implements RouterLayout, BeforeEnterObserver, PageConfigurator
 {
@@ -37,8 +35,10 @@ public class RootLayout extends VerticalLayout
 	{
 		super();
 
-		this.add(this.createBanner(), new Hr());
+		this.add(this.createBanner());
 		this.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+		this.setMargin(false);
+		this.setPadding(false);
 		this.setSizeFull();
 	}
 	
@@ -46,13 +46,13 @@ public class RootLayout extends VerticalLayout
 	{
 		this.headerLabel = new Label();
 		
-		final Button cmdLogout = new Button("Logout", event -> {
+		final Button cmdLogout = new Button("Disconnect", event -> {
 			this.getUI().ifPresent(ui -> {
 				ui.getSession().setAttribute(SessionData.class, null);
 				ui.navigate(LoginView.class);
 			});
 		});
-		cmdLogout.setIcon(VaadinIcon.EXIT.create());
+		cmdLogout.setIcon(new Image("images/logout.svg", ""));
 		cmdLogout.addThemeVariants(ButtonVariant.LUMO_SMALL);
 		
 		final HorizontalLayout toolBar = new HorizontalLayout(cmdLogout);
@@ -66,6 +66,8 @@ public class RootLayout extends VerticalLayout
 		banner.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 		banner.setFlexGrow(1, toolBar);
 		
+		banner.addClassName("banner");
+		
 		return UIUtils.compact(banner);
 	}
 	
@@ -77,8 +79,8 @@ public class RootLayout extends VerticalLayout
 		final SessionData sessionData = event.getUI().getSession().getAttribute(SessionData.class);
 		this.headerLabel.setText(
 			sessionData != null
-				? sessionData.baseUrl()
-				: ""
+				? "Client - " + sessionData.baseUrl()
+				: "Client"
 		);
 		this.toolBar.setVisible(
 			   sessionData != null
