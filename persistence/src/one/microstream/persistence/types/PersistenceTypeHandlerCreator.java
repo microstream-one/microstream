@@ -179,7 +179,7 @@ public interface PersistenceTypeHandlerCreator<D>
 				return this.createTypeHandlerAbstractType(type);
 			}
 			
-			/* (27.11.2019 TM)TODO: priv#186: interface type handling abstraction
+			/* (27.11.2019 TM)TODO: priv#187: interface type handling abstraction
 			 * Hardcoding every interface that needs special treatment here is not a good solution.
 			 * Instead, a "interface -> SpecialTypeCreator" registry has to be implemented here,
 			 * with the current two cases as default entries and potentially more to come.

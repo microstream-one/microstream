@@ -41,7 +41,7 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 			return;
 		}
 		
-		// (31.03.2020 Paigan)EXCP: proper exception
+		// (31.03.2020 TM)EXCP: proper exception
 		throw new PersistenceExceptionTypeConsistency(
 			"Invalid entity type "+ type  +" for type handler " + this.toTypeIdentifier()
 		);
