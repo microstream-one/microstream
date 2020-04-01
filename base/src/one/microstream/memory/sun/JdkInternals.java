@@ -145,7 +145,8 @@ public final class JdkInternals
 
 	static final Class<?> tryIterativeResolveType(final String... typeNames)
 	{
-		final Class<?> type = XReflect.tryIterativeResolveType(typeNames);
+		// intentionally SystemClassLoader since all the types are system types.
+		final Class<?> type = XReflect.tryIterativeResolveType(ClassLoader.getSystemClassLoader(), typeNames);
 		if(type != null)
 		{
 			return type;
