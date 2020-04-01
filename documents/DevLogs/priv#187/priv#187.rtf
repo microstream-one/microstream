@@ -121,5 +121,22 @@ Uiuiui. hoffentlich macht das wirklich nirgens ein Problem.\par
 Achja und vorher noch eine Validierung, ob es f\'fcr den \'fcbergebenen Typ nicht schon eine Registrierung gibt.\par
 \par
 Jup, das m\'fcsste dann passen.\par
+\par
+\par
+2020-04-01\par
+\par
+Also schnell die zweite Methoden implementieren, dann ist das fertig.\par
+April april!\par
+Oder vielleicht auch nicht. Na gut: Den Algorithmus zum durchlaufen der Supertyp-Hierarchien brauch ich noch, aber das wird nicht so der gro\'dfe Akt. Das ist eine triviale Methode ohne Design-Auswirkungen.\par
+\par
+Paar Umstrukturierungen:\par
+- #putMapping -> #synchPutFullMapping & #synchPutTypeMapping\par
+- Validierungslogik auslagern in #validateAlreadyRegisteredTypeHandler und in beiden Methoden verwenden.\par
+\par
+Oh ... in PersistenceTypeHandlerManager fehlt in #unvalidatedRegisterTypeHandler das lock ...\par
+\'c4h ... nachtragen. Ganze Klasse durchchecken, ob/wo es noch fehlt.\par
+\par
+\par
+\par
 }
  

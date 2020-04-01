@@ -14,7 +14,9 @@ import one.microstream.reflect.XReflect;
 public interface PersistenceTypeHandlerRegistry<D>
 extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTypeHandlerIterable<D>
 {
-	public boolean registerTypeHandler(PersistenceTypeHandler<D, ?> typeHandler);
+	public <T> boolean registerTypeHandler(PersistenceTypeHandler<D, T> typeHandler);
+	
+	public <T> boolean registerTypeHandler(Class<T> type, PersistenceTypeHandler<D, ? super T> typeHandler);
 	
 	public boolean registerLegacyTypeHandler(PersistenceLegacyTypeHandler<D, ?> legacyTypeHandler);
 	
@@ -116,27 +118,49 @@ extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTyp
 		{
 			return this.typeRegistry.registerTypes(types);
 		}
+		
 
 		@Override
-		public boolean registerTypeHandler(final PersistenceTypeHandler<D, ?> typeHandler)
+		public <T> boolean registerTypeHandler(
+			final Class<T>                             type       ,
+			final PersistenceTypeHandler<D, ? super T> typeHandler
+		)
 		{
-			// (01.04.2020 Paigan)FIXME: priv#187: additional variant with Class parameter serving as a mapping key.
+			
+		}
+		
+		private <T> boolean validateAlreadyRegisteredTypeHandler(
+			final Class<T>                             type       ,
+			final PersistenceTypeHandler<D, ? super T> typeHandler
+		)
+		{
+			PersistenceTypeHandler<D, ?> actualHandler;
+			if((actualHandler = this.handlersByType.get(type)) == null)
+			{
+				return false;
+			}
+			
+			if(actualHandler == typeHandler)
+			{
+				return true;
+			}
+
+			throw new PersistenceExceptionTypeHandlerConsistencyConflictedType(type, actualHandler, typeHandler);
+		}
+
+		@Override
+		public <T> boolean registerTypeHandler(final PersistenceTypeHandler<D, T> typeHandler)
+		{
+			// (01.04.2020 TM)FIXME: priv#187: additional variant with Class parameter serving as a mapping key.
 			synchronized(this.handlersByType)
 			{
-				final Class<?> type = typeHandler.type();
+				final Class<T> type = typeHandler.type();
 				final long     tid  = typeHandler.typeId();
 				this.typeRegistry.registerType(tid, type); // first ensure consistency of tid<->type combination
 
 				// check if handler is already registered for type
-				PersistenceTypeHandler<D, ?> actualHandler;
-				if((actualHandler = this.handlersByType.get(type)) != null)
-				{
-					if(actualHandler != typeHandler)
-					{
-						throw new PersistenceExceptionTypeHandlerConsistencyConflictedType(type, actualHandler, typeHandler);
-					}
-					// else: fall through to tid check
-				}
+				this.validateAlreadyRegisteredTypeHandler(type, typeHandler);
+
 				// else: handler is not registered yet, proceed with tid check
 
 				// check if a handler is already registered for the same tid
@@ -149,10 +173,24 @@ extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTyp
 
 				// register new bidirectional assignment
 				// note: basic type<->tid registration already happened above if necessary
-				this.putMapping(typeHandler);
+				this.synchPutFullMapping(typeHandler);
 				
 				return true;
 			}
+		}
+
+		private <T> void synchPutTypeMapping(
+			final Class<T>                             type       ,
+			final PersistenceTypeHandler<D, ? super T> typeHandler
+		)
+		{
+			this.handlersByType.put(type, typeHandler);
+		}
+
+		private <T> void synchPutFullMapping(final PersistenceTypeHandler<D, T> typeHandler)
+		{
+			this.synchPutTypeMapping(typeHandler.type(), typeHandler);
+			this.handlersByTypeId.put(typeHandler.typeId(), typeHandler);
 		}
 		
 		private boolean synchCheckByTypeId(final PersistenceTypeHandler<D, ?> typeHandler)
@@ -193,12 +231,6 @@ extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTyp
 				
 				return true;
 			}
-		}
-
-		private void putMapping(final PersistenceTypeHandler<D, ?> typeHandler)
-		{
-			this.handlersByType.put(typeHandler.type(), typeHandler);
-			this.handlersByTypeId.put(typeHandler.typeId(), typeHandler);
 		}
 
 		public void clear()

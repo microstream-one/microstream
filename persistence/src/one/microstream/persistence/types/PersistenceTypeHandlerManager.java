@@ -271,9 +271,14 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		{
 			this.validateTypeHandlerTypeId(typeHandler);
 			
-			final PersistenceTypeDefinition registeredTd =
-				this.typeDictionaryManager.provideTypeDictionary().lookupTypeByName(typeHandler.typeName())
-			;
+			final PersistenceTypeDefinition registeredTd;
+			synchronized(this.typeHandlerRegistry)
+			{
+				registeredTd = this.typeDictionaryManager
+					.provideTypeDictionary()
+					.lookupTypeByName(typeHandler.typeName())
+				;
+			}
 			if(registeredTd == null)
 			{
 				return; // type not yet registered, hence it can't be invalid
@@ -392,7 +397,6 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 				
 				return newHandler;
 			}
-			
 		}
 		
 		@Override
@@ -466,56 +470,89 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		@Override
 		public final <T> PersistenceTypeHandler<D, ? super T> lookupTypeHandler(final Class<T> type)
 		{
-			return this.typeHandlerRegistry.lookupTypeHandler(type);
+			// may not rely on typeHandlerRegistry implementation to be self-synchronized
+			synchronized(this.typeHandlerRegistry)
+			{
+				return this.typeHandlerRegistry.lookupTypeHandler(type);
+			}
 		}
 
 		@Override
 		public final PersistenceTypeHandler<D, ?> lookupTypeHandler(final long typeId)
 		{
-			return this.typeHandlerRegistry.lookupTypeHandler(typeId);
+			// may not rely on typeHandlerRegistry implementation to be self-synchronized
+			synchronized(this.typeHandlerRegistry)
+			{
+				return this.typeHandlerRegistry.lookupTypeHandler(typeId);
+			}
 		}
 
 		@Override
 		public final <T> PersistenceTypeHandler<D, ? super T> lookupTypeHandler(final T instance)
 		{
-			// standard implementation does not consider actual objects
-			return this.typeHandlerRegistry.lookupTypeHandler(XReflect.getClass(instance));
+			// may not rely on typeHandlerRegistry implementation to be self-synchronized
+			synchronized(this.typeHandlerRegistry)
+			{
+				// standard implementation does not consider actual objects
+				return this.typeHandlerRegistry.lookupTypeHandler(XReflect.getClass(instance));
+			}
 		}
 
 		@Override
 		public final long lookupTypeId(final Class<?> type)
 		{
-			return this.typeHandlerRegistry.lookupTypeId(type);
+			// may not rely on typeHandlerRegistry implementation to be self-synchronized
+			synchronized(this.typeHandlerRegistry)
+			{
+				return this.typeHandlerRegistry.lookupTypeId(type);
+			}
 		}
 
 		@Override
 		public final <T> Class<T> lookupType(final long typeId)
 		{
-			return this.typeHandlerRegistry.lookupType(typeId);
+			// may not rely on typeHandlerRegistry implementation to be self-synchronized
+			synchronized(this.typeHandlerRegistry)
+			{
+				return this.typeHandlerRegistry.lookupType(typeId);
+			}
 		}
 		
 		@Override
 		public boolean validateTypeMapping(final long typeId, final Class<?> type) throws PersistenceExceptionConsistency
 		{
-			return this.typeHandlerRegistry.validateTypeMapping(typeId, type);
+			// may not rely on typeHandlerRegistry implementation to be self-synchronized
+			synchronized(this.typeHandlerRegistry)
+			{
+				return this.typeHandlerRegistry.validateTypeMapping(typeId, type);
+			}
 		}
 		
 		@Override
 		public boolean validateTypeMappings(final Iterable<? extends PersistenceTypeLink> mappings)
 			throws PersistenceExceptionConsistency
 		{
-			return this.typeHandlerRegistry.validateTypeMappings(mappings);
+			// may not rely on typeHandlerRegistry implementation to be self-synchronized
+			synchronized(this.typeHandlerRegistry)
+			{
+				return this.typeHandlerRegistry.validateTypeMappings(mappings);
+			}
 		}
 				
 		@Override
 		public boolean registerTypes(final Iterable<? extends PersistenceTypeLink> types)
 			throws PersistenceExceptionConsistency
 		{
-			return this.typeHandlerRegistry.registerTypes(types);
+			// may not rely on typeHandlerRegistry implementation to be self-synchronized
+			synchronized(this.typeHandlerRegistry)
+			{
+				return this.typeHandlerRegistry.registerTypes(types);
+			}
 		}
 		
 		private <T> PersistenceTypeHandler<D, ? super T> internalEnsureTypeHandler(final Class<T> type)
 		{
+			// (01.04.2020 TM)FIXME: priv#187: update rationale
 			/*
 			 * Note on super classes and the hiararchy of implemented interface:
 			 * Since every class is handled isolated from its super class, it is not necessary to
@@ -549,16 +586,28 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 				return typeHandler;
 			}
 		}
-
+		
 		@Override
-		public final boolean registerTypeHandler(final PersistenceTypeHandler<D, ?> typeHandler)
+		public <T> boolean registerTypeHandler(
+			final Class<T>                             type       ,
+			final PersistenceTypeHandler<D, ? super T> typeHandler
+		)
 		{
 			this.validateTypeHandler(typeHandler);
+		}
 
-			return this.unvalidatedRegisterTypeHandler(typeHandler);
+		@Override
+		public final <T> boolean registerTypeHandler(final PersistenceTypeHandler<D, T> typeHandler)
+		{
+			synchronized(this.typeHandlerRegistry)
+			{
+				this.validateTypeHandler(typeHandler);
+
+				return this.synchUnvalidatedRegisterTypeHandler(typeHandler);
+			}
 		}
 		
-		private final boolean unvalidatedRegisterTypeHandler(final PersistenceTypeHandler<D, ?> typeHandler)
+		private final boolean synchUnvalidatedRegisterTypeHandler(final PersistenceTypeHandler<D, ?> typeHandler)
 		{
 			if(this.typeHandlerRegistry.registerTypeHandler(typeHandler))
 			{
@@ -579,7 +628,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			// First, pure registration without recursive type analysis calls to maintain the type handler order
 			for(final PersistenceTypeHandler<D, ?> typeHandler : initializedTypeHandlers)
 			{
-				this.unvalidatedRegisterTypeHandler(typeHandler);
+				this.synchUnvalidatedRegisterTypeHandler(typeHandler);
 			}
 			
 			// AFTERWARDS additional management logic like resursive ensuring and enum root registration
