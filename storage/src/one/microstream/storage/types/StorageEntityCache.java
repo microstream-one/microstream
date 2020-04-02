@@ -53,7 +53,25 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		//////////////
 		
 		// (24.11.2017 TM)TODO: there seems to still be a GC race condition bug, albeit only very rarely.
-		private static final boolean DEBUG_GC_ENABLED = false;
+		private static boolean debugGcEnabled = false;
+		
+		/**
+		 * <b><u>/!\</u></b> Storage-level garbage collection is an unfinished feature with a still tiny race condition problem
+		 * that can cause the database to be ruined occasionally.
+		 * <p>
+		 * <b>Enable at your own risk!</b>
+		 * <p>
+		 * Also note that this method is a temporary experimental function for debugging purposes
+		 * and can disappear at any release.<br>
+		 * <b>Do not use this is production mode.</b>
+		 * 
+		 * @param enabled
+		 */
+		@Deprecated
+		public static void DEBUG_setGarbageCollectionEnabled(final boolean enabled)
+		{
+			debugGcEnabled = enabled;
+		}
 		
 		
 		
@@ -1313,7 +1331,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageChannel channel
 		)
 		{
-			if(!DEBUG_GC_ENABLED)
+			if(!debugGcEnabled)
 			{
 				return true;
 			}
@@ -1400,7 +1418,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageChannel channel
 		)
 		{
-			if(!DEBUG_GC_ENABLED)
+			if(!debugGcEnabled)
 			{
 				return true;
 			}
