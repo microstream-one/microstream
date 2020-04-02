@@ -246,6 +246,7 @@ public class ViewerObjectDescriptionCreator
 		objDesc.setData(new String[] { subString } );
 		objDesc.setLength("1");
 		objDesc.setVariableLength(new String[] {"0"});
+		objDesc.setSimplified(true);
 	}
 
 	/**

@@ -10,8 +10,10 @@ public class ViewerObjectDescription
 	private String typeId;
 	private String length;
 	private String[] variableLength;
+	private boolean simplified;
 	private Object[] data;
 	private ViewerObjectDescription[] references;
+
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -88,6 +90,15 @@ public class ViewerObjectDescription
 		this.variableLength = variableLength;
 	}
 
+	public void setSimplified(final boolean simplified)
+	{
+		this.simplified = simplified;
+	}
+
+	public boolean getSimplified()
+	{
+		return this.simplified;
+	}
 
 
 }
