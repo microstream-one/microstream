@@ -50,8 +50,8 @@ public class LoginView extends VerticalLayout
 		
 		final Button cmdLogin = new Button("Connect", 
 			event -> {
-				final String url = urlChooser.getValue().trim();
-				if(url.length() > 0)
+				String url = urlChooser.getValue();
+				if(url != null && (url = url.trim()).length() > 0)
 				{
 					this.tryLogin(url);
 				}
