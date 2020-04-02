@@ -13,7 +13,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
-			<artifactId>storage.restservice</artifactId>
+			<artifactId>storage.restadapter</artifactId>
 			<version>02.03.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>

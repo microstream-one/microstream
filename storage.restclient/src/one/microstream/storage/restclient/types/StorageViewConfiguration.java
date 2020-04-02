@@ -5,8 +5,6 @@ public interface StorageViewConfiguration extends ValueRenderer.Provider
 {
 	public long elementRangeMaximumLength();
 	
-	public boolean compactSingleValueTypes();
-	
 	public long maxValueLength();
 	
 	
@@ -14,7 +12,6 @@ public interface StorageViewConfiguration extends ValueRenderer.Provider
 	{
 		return new StorageViewConfiguration.Default(
 			100,
-			true,
 			10_000,
 			ValueRenderer.DefaultProvider()
 		);
@@ -22,14 +19,12 @@ public interface StorageViewConfiguration extends ValueRenderer.Provider
 	
 	public static StorageViewConfiguration New(
 		final long elementRangeMaximumLength,
-		final boolean compactSingleValueTypes,
 		final long maxValueLength,
 		final ValueRenderer.Provider valueRendererProvider
 	)
 	{
 		return new StorageViewConfiguration.Default(
 			elementRangeMaximumLength,
-			compactSingleValueTypes,
 			maxValueLength,
 			valueRendererProvider
 		);
@@ -39,20 +34,17 @@ public interface StorageViewConfiguration extends ValueRenderer.Provider
 	public static class Default implements StorageViewConfiguration
 	{
 		private final long                   elementRangeMaximumLength;
-		private final boolean                compactSingleValueTypes;
 		private final long                   maxValueLength;
 		private final ValueRenderer.Provider valueRendererProvider;
 		
 		Default(
 			final long elementRangeMaximumLength,
-			final boolean compactSingleValueTypes,
 			final long maxValueLength,
 			final ValueRenderer.Provider valueRendererProvider
 		)
 		{
 			super();
 			this.elementRangeMaximumLength = elementRangeMaximumLength;
-			this.compactSingleValueTypes   = compactSingleValueTypes;
 			this.maxValueLength            = maxValueLength;
 			this.valueRendererProvider     = valueRendererProvider;
 		}
@@ -61,12 +53,6 @@ public interface StorageViewConfiguration extends ValueRenderer.Provider
 		public long elementRangeMaximumLength()
 		{
 			return this.elementRangeMaximumLength;
-		}
-		
-		@Override
-		public boolean compactSingleValueTypes()
-		{
-			return this.compactSingleValueTypes;
 		}
 
 		@Override

@@ -2,7 +2,6 @@ package one.microstream.storage.restclient.types;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -302,7 +301,7 @@ public interface StorageView
 			final Object data
 		)
 		{
-			ViewerObjectDescription reference;
+			final ViewerObjectDescription reference;
 			if(references.hasNext() && (reference = references.next()) != null)
 			{
 				return this.createElement(
@@ -331,14 +330,18 @@ public interface StorageView
 		)
 		{
 			final PersistenceTypeDescription typeDescription = this.getTypeDescription(reference);
-			if(this.configuration.compactSingleValueTypes() &&
-				this.isSingleValueType(typeDescription, reference))
+			if(reference.getSimplified())
 			{
+				final String value = this.value(
+					String.valueOf(reference.getData()[0]), 
+					reference, 
+					typeDescription.typeName()
+				);
 				return new StorageViewObject.Simple(
 					this,
 					parent,
 					name,
-					this.value(String.valueOf(reference.getData()[0]), reference, typeDescription.typeName()),
+					value,
 					typeDescription,
 					Long.parseLong(reference.getObjectId())
 				);
@@ -354,24 +357,24 @@ public interface StorageView
 			);
 		}
 		
-		private boolean isSingleValueType(
-			final PersistenceTypeDescription typeDescription,
-			final ViewerObjectDescription reference
-		)
-		{
-			final XGettingSequence<? extends PersistenceTypeDescriptionMember>
-				typeMembers = this.getTypeMembers(typeDescription);
-			if(typeMembers.size() == 1 && !typeMembers.get().isReference())
-			{
-				final Object[] data = reference.getData();
-				if(data.length == 1)
-				{
-					final Object obj = data[0];
-					return !obj.getClass().isArray() && !(obj instanceof Collection);
-				}
-			}
-			return false;
-		}
+//		private boolean isSingleValueType(
+//			final PersistenceTypeDescription typeDescription,
+//			final ViewerObjectDescription reference
+//		)
+//		{
+//			final XGettingSequence<? extends PersistenceTypeDescriptionMember>
+//				typeMembers = this.getTypeMembers(typeDescription);
+//			if(typeMembers.size() == 1 && !typeMembers.get().isReference())
+//			{
+//				final Object[] data = reference.getData();
+//				if(data.length == 1)
+//				{
+//					final Object obj = data[0];
+//					return !obj.getClass().isArray() && !(obj instanceof Collection);
+//				}
+//			}
+//			return false;
+//		}
 		
 		private String value(
 			final String value,
