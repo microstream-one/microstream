@@ -29,28 +29,33 @@ public class InstanceView extends SplitLayout implements HasDynamicTitle
 		this.setSizeFull();
 		
 		final TreeGrid<StorageViewElement> treeGrid = StorageViewTreeGridBuilder.New().build();
-		this.addToPrimary(treeGrid);		
+		this.addToPrimary(treeGrid);	
+		
+		final Div secondaryDiv = new Div();
+		this.addToSecondary(secondaryDiv);
+		
 		treeGrid.addSelectionListener(event -> {
-			StorageViewElement element = event.getFirstSelectedItem().orElse(null);
-			if(element == null)
+			final StorageViewElement element = event.getFirstSelectedItem().orElse(null);
+			secondaryDiv.removeAll();
+			if(element != null)
 			{
-				this.addToSecondary(new Div());
-			}
-			else if(element.hasMembers())
-			{
-				final TreeGrid<StorageViewElement> detailTreeGrid = StorageViewTreeGridBuilder.New().build();
-				detailTreeGrid.setDataProvider(StorageViewDataProvider.New(element));
-				detailTreeGrid.expand(element);
-				this.addToSecondary(detailTreeGrid);
-			}
-			else
-			{
-				final String   value    = element.value();
-				final TextArea textArea = new TextArea();
-				textArea.setValue(value != null ? value : "");
-				textArea.setReadOnly(true);
-				textArea.setWidth("100%");
-				this.addToSecondary(textArea);
+				if(element.hasMembers())
+				{
+					final TreeGrid<StorageViewElement> detailTreeGrid = StorageViewTreeGridBuilder.New().build();
+					detailTreeGrid.setDataProvider(StorageViewDataProvider.New(element));
+					detailTreeGrid.expand(element);
+					detailTreeGrid.setSizeFull();
+					secondaryDiv.add(detailTreeGrid);
+				}
+				else
+				{
+					final String   value    = element.value();
+					final TextArea textArea = new TextArea();
+					textArea.setValue(value != null ? value : "");
+					textArea.setReadOnly(true);
+					textArea.setWidth("100%");
+					secondaryDiv.add(textArea);
+				}
 			}
 		});
 		
