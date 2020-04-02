@@ -328,7 +328,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerLazyDefault.New(),
 			
 			// the way Optional is implemented, only a generically (low-level) working handler can handle it correctly
-			typeHandlerCreator.createTypeHandler(Optional.class)
+			typeHandlerCreator.createTypeHandlerGeneric(Optional.class)
 		);
 		
 		return nativeHandlers;

@@ -140,6 +140,65 @@ Paar Stellen nachgetragen.\par
 Zur\'fcck zu TypeHandlerRegistry: Zweite Methode bauen.\par
 \par
 Dann w\'e4r das grunds\'e4tzliche soweit fertig.\par
+Morgen eigentlich nur noch die Hierarchie-Methode bauen und \'fcberlegen, wie und wo ich die abstrakten typen \par
+\par
+\par
+2020-04-02\par
+\par
+\par
+Also, wo muss es rein?\par
+TODOs durchsuchen.\par
+Im TypeHandlerCreator schon mal nicht. Denn der hat keine Referenz auf die bestehenden TypeHandlers. Denn es werden f\'fcr diesen Fall ja keine neuen TypeHandlers erzeugt, sondern nur bestehende assoziiert.\par
+Also dort rausschmeissen bzw. TODO ab\'e4ndern.\par
+Hm, Moment:\par
+F\'fcr Collections m\'fcssen schon neue TypeHandler erzeugt werden. Aber nur vorgefertigte Allgemeine mit vorgefertigtem Type und TypeId.\par
+Soll das f\'fcr F\'e4lle wie WindowsPath auch zutreffen? Nein. "WindowsPath" soll niemald im TypeDictionary erscheinen. Instanzen davon sollen wirklich in abstrakter Form gehandelt werden.\par
+Hm. Das sind dann doch zwei unterschiedliche F\'e4lle:\par
+F\'e4lle wie Collections kriegen eine spezifische Handler Instanz und TypeDict Eintrag, nur mit allgemeiner Struktur.\par
+F\'e4lle wie Path kriegen nur ein Mapping auf einen komplett allgemeinen/abstrakten Handler. Ohne eigenen Eintrag.\par
+\par
+Trotzdem kann man das alles nicht so einfach aus dem TypeHandlerCreator rausziehen:\par
+Da ist z.B. der unpersistable check drin.\par
+Oder der Check auf Enums.\par
+Oder Proxies.\par
+Die m\'fcssen alle weiterhin VOR dem check auf einen passenden gehandelten abstrakten Typ sein.\par
+Hm...\par
+\par
+Vielleicht m\'fcssten die ganzen Checks in den nachtr\'e4glich eingef\'fchrten TypeHandlerEnsurer gehen. Der h\'e4tte sogar die CustomTypeHandlerRegistry, die man braucht.\par
+Der k\'f6nnte dann auch die Fallunterscheidungen machen f\'fcr Arrays usw.\par
+Der Creator w\'e4re dann rein "stur" ein Creator. Der darf nur noch f\'fcr valide Typen aufgerufen werden.\par
+Mal schauen, ob das so ginge...\par
+\par
+Wenn ich das aber zerleg, dann muss der Creator trotzdem wieder alle m\'f6glichen Checks machen, ob der \'fcbergebene Typ valide ist.\par
+Hm. Bissl doof und redundant, aber im Sinne saubererer Struktur vielleicht den Aufwand wert.\par
+\par
+Also der TypeAnalyzer ist bisher halt nur im Creator und wird dort mehrfach verwendet. Aber der unpersistable Check m\'fcsste halt vor dem abstrakten handler lookup kommen.\par
+Also m\'fcsste der ensurer den jetzt auch kennen. Das ist dann aber schon wieder so eine verkomplizierung, die sich wirr anf\'fchlt ...\par
+\par
+Mal von der anderen Seite her gedacht:\par
+Der einzige Nutzen des dazwischengeschobenen "TypeHandlerEnsurer"s ist, dass der vor dem create noch einen Lookup in der custom registry macht.\par
+\'c4h ... den ... \'e4h ... k\'f6nnte der creator am Anfang auch einfach machen. Dann w\'fcrde der ensurer komplett entfallen.\par
+Na gut, es gibt auch einen strukturellen Grund: Auch wenn jemand einen eigenen creator macht, sollte die lookup logik trotzdem gemacht werden. Das macht Sinn.\par
+\par
+Dann w\'e4re eine M\'f6glichkeit, dass der Ensurer dem Creator einen Callback \'fcbergibt, um an geeigneter Stelle sp\'e4ter nach einem passenden abstrakten TypeHandler zu suchen.\par
+Auch irgendwie bl\'f6d, weil so umst\'e4ndlich.\par
+\par
+Vielleicht ist es doch folgenderma\'dfen am besten:\par
+- Creator interface aufbohren auf die verschiedenen Basistypen, ohne irgendwelche Pr\'fcfungen (wer welche will, kann sich ja einen custom handler schreiben)\par
+- Pr\'fcfungen alle im ensurer machen, inklusive redundanter Referenz auf den TypeAnalyzer. So redundant ist die n\'e4mlich gar nicht: Hier gehts erst mal um den Type insgesamt, sp\'e4ter im Creator um seine Feldtypen.\par
+- Dann kann man in dieser Reihenfolge ganz einfach den abstract-handling-check reinmachen. Und die custom type handler registry daf\'fcr ist auch schon da.\par
+\par
+So mach ich das jetzt, sonst philosophier ich nur den ganzen Tag lang \'fcber die Softwarearchitektur f\'fcr eine einzelne Methode ... *h\'fcstel*.\par
+\par
+Noch eine Idee zwischendurch:\par
+Das rausfinden eines anwendbaren abstrakten Supertyps kapsel ich als eigenen Typen.\par
+So kann man mit relativ wenig aufwand Sonderfallbehandlungen realisieren.\par
+Abgesehen davon, dass man sich f\'fcr bestimmte Typen einfach einen CustomTypeHandler registriert (oder so ein derivable Type dings), um der Analyse zuvor zu kommen.\par
+Aber trotzdem, dieser Weg mag evtl. nicht dynamisch/flexibel genug sein, darum die Kapselung.\par
+\par
+\par
+\par
+\par
 \par
 }
  

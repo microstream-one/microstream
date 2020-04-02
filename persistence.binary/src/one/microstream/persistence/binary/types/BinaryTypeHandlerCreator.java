@@ -31,13 +31,35 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
 import one.microstream.persistence.types.PersistenceTypeInstantiatorProvider;
 import one.microstream.persistence.types.PersistenceTypeResolver;
-import one.microstream.typing.LambdaTypeRecognizer;
 
 
 public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<Binary>
 {
 	@Override
-	public <T> PersistenceTypeHandler<Binary, T> createTypeHandler(Class<T> type)
+	public <T> PersistenceTypeHandler<Binary, T> createTypeHandlerArray(Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable;
+	
+	@Override
+	public <T> PersistenceTypeHandler<Binary, T> createTypeHandlerProxy(Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable;
+	
+	@Override
+	public <T> PersistenceTypeHandler<Binary, T> createTypeHandlerLambda(Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable;
+	
+	@Override
+	public <T> PersistenceTypeHandler<Binary, T> createTypeHandlerEnum(Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable;
+	
+	@Override
+	public <T> PersistenceTypeHandler<Binary, T> createTypeHandlerAbstract(Class<T> type)
+		throws PersistenceExceptionTypeNotPersistable;
+
+	@Override
+	public <T> PersistenceTypeHandler<Binary, T> createTypeHandlerUnpersistable(Class<T> type);
+
+	@Override
+	public <T> PersistenceTypeHandler<Binary, T> createTypeHandlerGeneric(Class<T> type)
 		throws PersistenceExceptionTypeNotPersistable;
 
 
@@ -47,7 +69,6 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		final PersistenceTypeResolver                     typeResolver              ,
 		final PersistenceFieldLengthResolver              lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator       eagerStoringFieldEvaluator,
-		final LambdaTypeRecognizer                        lambdaTypeRecognizer      ,
 		final PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider      ,
 		final boolean                                     switchByteOrder
 	)
@@ -57,7 +78,6 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			notNull(typeResolver)              ,
 			notNull(lengthResolver)            ,
 			notNull(eagerStoringFieldEvaluator),
-			notNull(lambdaTypeRecognizer)      ,
 			notNull(instantiatorProvider)      ,
 			switchByteOrder
 		);
@@ -85,12 +105,11 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			final PersistenceTypeResolver                     typeResolver              ,
 			final PersistenceFieldLengthResolver              lengthResolver            ,
 			final PersistenceEagerStoringFieldEvaluator       eagerStoringFieldEvaluator,
-			final LambdaTypeRecognizer                        lambdaTypeRecognizer      ,
 			final PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider      ,
 			final boolean                                     switchByteOrder
 		)
 		{
-			super(typeAnalyzer, typeResolver, lengthResolver, eagerStoringFieldEvaluator, lambdaTypeRecognizer);
+			super(typeAnalyzer, typeResolver, lengthResolver, eagerStoringFieldEvaluator);
 			this.instantiatorProvider = instantiatorProvider;
 			this.switchByteOrder      = switchByteOrder     ;
 		}
@@ -102,14 +121,14 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		////////////
 		
 		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerAbstractType(final Class<T> type)
+		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerAbstractType(final Class<T> type)
 		{
 			// type gets a type id assigned and an empty type description, but its instances cannot be persisted.
 			return BinaryHandlerAbstractType.New(type);
 		}
 		
 		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerUnpersistable(
+		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerUnpersistable(
 			final Class<T> type
 		)
 		{
@@ -118,7 +137,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		}
 		
 		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerArray(
+		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerArray(
 			final Class<T> type
 		)
 		{
@@ -127,7 +146,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		}
 		
 		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerGenericStateless(
+		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerGenericStateless(
 			final Class<T> type
 		)
 		{
@@ -135,7 +154,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		}
 		
 		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerGeneric(
+		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerGeneric(
 			final Class<T>            type             ,
 			final XGettingEnum<Field> persistableFields,
 			final XGettingEnum<Field> persisterFields
@@ -197,7 +216,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			
 			if(persistableFields.isEmpty())
 			{
-				return this.createTypeHandlerGenericStateless(type);
+				return this.internalCreateTypeHandlerGenericStateless(type);
 			}
 
 			// default implementation simply always uses a blank memory instantiator
@@ -212,26 +231,11 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				this.switchByteOrder
 			);
 		}
-
-		// all casts are type checked dynamically, but the compiler doesn't understand that
-//		@SuppressWarnings("unchecked")
-		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> deriveTypeHandlerGenericPath(
-			final Class<T> type
-		)
-		{
-			/* (27.11.2019 TM)FIXME: BinaryHandlerPath
-			 * See comment there.
-			 */
-			throw new one.microstream.meta.NotImplementedYetError();
-			
-//			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerPath.New();
-		}
 		
 		// all casts are type checked dynamically, but the compiler doesn't understand that
 		@SuppressWarnings("unchecked")
 		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerGenericJavaUtilCollection(
+		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerGenericJavaUtilCollection(
 			final Class<T> type
 		)
 		{
@@ -282,7 +286,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		}
 		
 		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> createTypeHandlerEnum(
+		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerEnum(
 			final Class<T>            type             ,
 			final XGettingEnum<Field> persistableFields,
 			final XGettingEnum<Field> persisterFields
