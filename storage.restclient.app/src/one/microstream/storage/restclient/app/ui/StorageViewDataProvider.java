@@ -3,6 +3,7 @@ package one.microstream.storage.restclient.app.ui;
 
 import static one.microstream.X.notNull;
 
+import java.util.Comparator;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -87,11 +88,17 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 			try
 			{
 				final StorageViewElement parent = query.getParent();
-				return parent == null
+				Stream<StorageViewElement> stream = parent == null
 					? Stream.of(this.rootSupplier.get())
-					: query.getParent().members(false).stream()
-						.skip(query.getOffset())
-						.limit(query.getLimit());
+					: query.getParent().members(false).stream();
+				final Comparator<StorageViewElement> comparator = query.getInMemorySorting();
+				if(comparator != null)
+				{
+					stream = stream.sorted(comparator);
+				}
+				return stream
+					.skip(query.getOffset())
+					.limit(query.getLimit());
 			}
 			catch(Exception e)
 			{
