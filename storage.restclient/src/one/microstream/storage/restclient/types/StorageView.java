@@ -280,7 +280,7 @@ public interface StorageView
 				final long   rangeOffset = i + offset;
 				final long   rangeLength = Math.min(range, length - i);
 				final long   rangeEnd    = rangeOffset + rangeLength - 1;
-				final String name        = "[" + rangeOffset + "..." + rangeEnd + "]";
+				final String name        = "[" + rangeOffset + ".." + rangeEnd + "]";
 				ranges.add(new StorageViewRange.Default(
 					this,
 					parent,
