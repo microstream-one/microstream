@@ -12,16 +12,28 @@ public interface ValueRenderer extends BiFunction<String, ViewerObjectDescriptio
 {
 	public static Provider DefaultProvider()
 	{
+		final ValueRenderer stringLiteralRenderer    = ValueRenderer.StringLiteral   ();
+		final ValueRenderer characterLiteralRenderer = ValueRenderer.CharacterLiteral();
+		
 		final XTable<String, ValueRenderer> valueRenderers = EqHashTable.New();
-		valueRenderers.put("java.lang.String", ValueRenderer.StringLiteral   ());
-		valueRenderers.put("char"            , ValueRenderer.CharacterLiteral());
-		return new Provider.Default(valueRenderers.immure(), ValueRenderer.Default());
+		valueRenderers.put(String.class.getName()       , stringLiteralRenderer   );
+		valueRenderers.put(StringBuffer.class.getName() , stringLiteralRenderer   );
+		valueRenderers.put(StringBuilder.class.getName(), stringLiteralRenderer   );
+		valueRenderers.put(VarString.class.getName()    , stringLiteralRenderer   );
+		valueRenderers.put(char.class.getName()         , characterLiteralRenderer);
+		
+		return new Provider.Default(
+			valueRenderers.immure(), 
+			ValueRenderer.Default()
+		);
 	}
 	
 	
 	public static interface Provider
 	{
-		public ValueRenderer provideValueRenderer(String typeName);
+		public ValueRenderer provideValueRenderer(
+			String typeName
+		);
 		
 		
 		public static class Default implements Provider
