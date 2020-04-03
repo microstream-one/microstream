@@ -197,8 +197,32 @@ Abgesehen davon, dass man sich f\'fcr bestimmte Typen einfach einen CustomTypeHa
 Aber trotzdem, dieser Weg mag evtl. nicht dynamisch/flexibel genug sein, darum die Kapselung.\par
 \par
 \par
+In der "Abendpause" ist mir eingefallen: Ne, das geht nicht, weil man ja Typ f\'fcr Typ in der Hierarchie pr\'fcfen muss, ob ein Handler vorhanden ist und wenn ja abbrechen und den nehmen.\par
+Man kann eben nicht einfach nur "riechen", welcher abstrakte Supertyp "der richtige" ist und dann f\'fcr den einmal einen Lookup machen.\par
+Also die Methode muss in den ensurer rein.\par
 \par
+Jetzt ist noch die Frage ob vor den Collection check oder danach.\par
+Ich denk danach, denn Collections sind so fundamental, die sollte nicht durch irgendwas anderes overridet werden.\par
 \par
+Jetzt ist nur DARAN wieder das Problem, dass der collection check nach wie vor im creator ist, also bin ich wieder genauso weit wie vorhin:\par
+Muss es eine extra collection-handling methode in der public API geben?\par
+Hmpfl.\par
+\par
+Oh, das mit dem extra sucher-Typ geht doch, weil man ja die customhandler registry \'fcbergeben kann.\par
+Also wieder mal Foundation Erweiterung Schema-F Strafarbeit...\par
+\par
+Cool. Dann brauch ich jetzt nur noch die Hierarchie-Durchsuch-Methode bauen, dann sollte es fertig zum testen sein.\par
+\par
+Oh Mann, das ist gar nicht so einfach:\par
+Es gibt:\par
+- Aktuelle Klasse (entlang der Klassenvererbung). Easy.\par
+- Von der aktuellen Klasse direkt implementierte Interfaces. Auch Easy.\par
+Aber dann:\par
+- Superinterfaces der implementierten Interfaces. Das ist eine zweite Hierarchieebene "neben" den interfaces der n\'e4chsten Superklasse.\par
+- Und die haben ja dann AUCH wieder superinterfaces.\par
+\par
+Das alles einfach rekursiv durchlaufen ist relativ einfach.\par
+Aber Hierarchieebene f\'fcr Hierarchieebene rekursiv durchlaufen ... das sprengt gerade irgendwie die Algorithmus-Vorstellungskraft.\par
 \par
 }
  
