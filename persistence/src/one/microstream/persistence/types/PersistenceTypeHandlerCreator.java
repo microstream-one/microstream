@@ -141,10 +141,9 @@ public interface PersistenceTypeHandlerCreator<D>
 		}
 		
 		@Override
-		public <T> PersistenceTypeHandler<D, T> createTypeHandlerGeneric(final Class<T> type) throws PersistenceExceptionTypeNotPersistable
+		public <T> PersistenceTypeHandler<D, T> createTypeHandlerGeneric(final Class<T> type)
+			throws PersistenceExceptionTypeNotPersistable
 		{
-			// (02.04.2020 TM)FIXME: priv#187: check for compatible abstract type handler somewhere here.
-			
 			// collections need special handling to avoid dramatically inefficient generic structures
 			if(XReflect.isJavaUtilCollectionType(type))
 			{

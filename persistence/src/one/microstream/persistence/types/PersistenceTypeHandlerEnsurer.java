@@ -24,18 +24,20 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 	
 	
 	public static <D> PersistenceTypeHandlerEnsurer.Default<D> New(
-		final Class<D>                                dataType                 ,
-		final PersistenceCustomTypeHandlerRegistry<D> customTypeHandlerRegistry,
-		final PersistenceTypeAnalyzer                 typeAnalyzer             ,
-		final LambdaTypeRecognizer                    lambdaTypeRecognizer     ,
-		final PersistenceTypeHandlerCreator<D>        typeHandlerCreator
+		final Class<D>                                  dataType                   ,
+		final PersistenceCustomTypeHandlerRegistry<D>   customTypeHandlerRegistry  ,
+		final PersistenceTypeAnalyzer                   typeAnalyzer               ,
+		final LambdaTypeRecognizer                      lambdaTypeRecognizer       ,
+		final PersistenceAbstractTypeHandlerSearcher<D> abstractTypeHandlerSearcher,
+		final PersistenceTypeHandlerCreator<D>          typeHandlerCreator
 	)
 	{
 		return new PersistenceTypeHandlerEnsurer.Default<>(
-			notNull(dataType)                 ,
-			notNull(customTypeHandlerRegistry),
-			notNull(typeAnalyzer)             ,
-			notNull(lambdaTypeRecognizer)     ,
+			notNull(dataType)                   ,
+			notNull(customTypeHandlerRegistry)  ,
+			notNull(typeAnalyzer)               ,
+			notNull(lambdaTypeRecognizer)       ,
+			notNull(abstractTypeHandlerSearcher),
 			notNull(typeHandlerCreator)
 		);
 	}
@@ -46,10 +48,11 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 		// instance fields //
 		////////////////////
 
-		final PersistenceCustomTypeHandlerRegistry<D> customTypeHandlerRegistry;
-		final PersistenceTypeAnalyzer                 typeAnalyzer             ;
-		final LambdaTypeRecognizer                    lambdaTypeRecognizer     ;
-		final PersistenceTypeHandlerCreator<D>        typeHandlerCreator       ;
+		final PersistenceCustomTypeHandlerRegistry<D>   customTypeHandlerRegistry  ;
+		final PersistenceTypeAnalyzer                   typeAnalyzer               ;
+		final LambdaTypeRecognizer                      lambdaTypeRecognizer       ;
+		final PersistenceAbstractTypeHandlerSearcher<D> abstractTypeHandlerSearcher;
+		final PersistenceTypeHandlerCreator<D>          typeHandlerCreator         ;
 
 
 
@@ -58,18 +61,20 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 		/////////////////
 
 		Default(
-			final Class<D>                                dataType                 ,
-			final PersistenceCustomTypeHandlerRegistry<D> customTypeHandlerRegistry,
-			final PersistenceTypeAnalyzer                 typeAnalyzer             ,
-			final LambdaTypeRecognizer                    lambdaTypeRecognizer     ,
-			final PersistenceTypeHandlerCreator<D>        typeHandlerCreator
+			final Class<D>                                  dataType                   ,
+			final PersistenceCustomTypeHandlerRegistry<D>   customTypeHandlerRegistry  ,
+			final PersistenceTypeAnalyzer                   typeAnalyzer               ,
+			final LambdaTypeRecognizer                      lambdaTypeRecognizer       ,
+			final PersistenceAbstractTypeHandlerSearcher<D> abstractTypeHandlerSearcher,
+			final PersistenceTypeHandlerCreator<D>          typeHandlerCreator
 		)
 		{
 			super(dataType);
-			this.customTypeHandlerRegistry = customTypeHandlerRegistry;
-			this.typeAnalyzer              = typeAnalyzer             ;
-			this.lambdaTypeRecognizer      = lambdaTypeRecognizer     ;
-			this.typeHandlerCreator        = typeHandlerCreator       ;
+			this.customTypeHandlerRegistry   = customTypeHandlerRegistry  ;
+			this.typeAnalyzer                = typeAnalyzer               ;
+			this.lambdaTypeRecognizer        = lambdaTypeRecognizer       ;
+			this.abstractTypeHandlerSearcher = abstractTypeHandlerSearcher;
+			this.typeHandlerCreator          = typeHandlerCreator         ;
 		}
 
 
@@ -176,9 +181,21 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 			{
 				return this.typeHandlerCreator.createTypeHandlerAbstract(type);
 			}
+			
+			// check for types to be handled in an abstract way, e.g. java.io.files.Path
+			final PersistenceTypeHandler<D, ? super T> abstractHandler = this.lookupAbstractTypeHandler(type);
+			if(abstractHandler != null)
+			{
+				return abstractHandler;
+			}
 
 			// create generic handler for all other cases ("normal" classes without predefined handler)
 			return this.typeHandlerCreator.createTypeHandlerGeneric(type);
+		}
+		
+		protected <T> PersistenceTypeHandler<D, ? super T> lookupAbstractTypeHandler(final Class<T> type)
+		{
+			return this.abstractTypeHandlerSearcher.searchAbstractTypeHandler(type, this.customTypeHandlerRegistry);
 		}
 		
 		protected <T> PersistenceTypeHandler<D, ? super T> searchProvidedTypeHandler(final Class<T> type)
