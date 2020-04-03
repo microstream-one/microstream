@@ -24,6 +24,7 @@ public interface PersistenceAbstractTypeHandlerSearcher<D>
 	)
 	{
 		final HashEnum<Class<?>> abstractSuperTypesInOrder = HashEnum.New();
+		final long collectCount = abstractSuperTypesInOrder.size();
 		
 		Class<?>   currentClass           = type;
 		Class<?>[] currentClassInterfaces = {};
@@ -31,27 +32,32 @@ public interface PersistenceAbstractTypeHandlerSearcher<D>
 		// keeping track of all superinterfaces of current level interfaces in hierarchical order is ... dizzying.
 		final HashEnum<Class<?>> superInterfacesNextLevel = HashEnum.New(); // next or last? My head hurts ...
 		
-		do
+		/*
+		 * There are 3 conditions that keep the interface collecting loop going:
+		 * - There are still direct super classes in the hierarchy to be checked
+		 * - There are still "next level" interfaces to be checked collected from the last cycle's interfaces
+		 * -
+		 */
+		while(currentClass != Object.class || abstractSuperTypesInOrder.size() > collectCount)
 		{
-			// always false for the passed class, making the interfaces being covered
-			if(XReflect.isAbstract(currentClass))
-			{
-				abstractSuperTypesInOrder.add(currentClass);
-			}
+			// add current (super) class with higher priority than interfaces, but only if abstract
+			Default.addAbstractClass(superInterfacesNextLevel, currentClass);
 
-			abstractSuperTypesInOrder.addAll(superInterfacesNextLevel);
+			// add last class's interfaces with second highest priority for this cycle
 			abstractSuperTypesInOrder.addAll(currentClassInterfaces);
+
+			// add last class's interface-interfaces with least highest priority for this cycle
+			abstractSuperTypesInOrder.addAll(superInterfacesNextLevel);
+			
+			currentClassInterfaces = currentClass.getInterfaces();
 			
 			superInterfacesNextLevel.clear();
-			currentClassInterfaces = currentClass.getInterfaces();
-			for(final Class<?> interFace : currentClassInterfaces)
-			{
-				superInterfacesNextLevel.addAll(interFace.getInterfaces());
-			}
-			
-			currentClass = currentClass.getSuperclass();
+			Default.collectAllInterfaces(superInterfacesNextLevel, currentClassInterfaces);
+
+			// stick at Object.class to avoid null-checks
+			currentClass = XReflect.getSuperClassNonNull(currentClass);
 		}
-		while(currentClass != Object.class);
+		
 		
 		// (03.04.2020 TM)FIXME: priv#187: this is not correct, yet
 
@@ -77,6 +83,7 @@ public interface PersistenceAbstractTypeHandlerSearcher<D>
 		return result;
 	}
 	
+
 	
 	
 	public static <D> PersistenceAbstractTypeHandlerSearcher<D> New()
@@ -86,6 +93,33 @@ public interface PersistenceAbstractTypeHandlerSearcher<D>
 	
 	public final class Default<D> implements PersistenceAbstractTypeHandlerSearcher<D>
 	{
+		// actually belongs in the interface, but JLS' visibility rules are too stupid to allow clean architecture.
+		static final void addAbstractClass(
+			final HashEnum<Class<?>> collection,
+			final Class<?>           clazz
+		)
+		{
+			if(!XReflect.isAbstract(clazz))
+			{
+				return;
+			}
+			
+			collection.add(clazz);
+		}
+		
+		static final void collectAllInterfaces(
+			final HashEnum<Class<?>> collection,
+			final Class<?>[]         classes
+		)
+		{
+			for(final Class<?> c : classes)
+			{
+				collection.addAll(c.getInterfaces());
+			}
+		}
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
