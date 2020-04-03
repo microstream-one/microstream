@@ -224,5 +224,33 @@ Aber dann:\par
 Das alles einfach rekursiv durchlaufen ist relativ einfach.\par
 Aber Hierarchieebene f\'fcr Hierarchieebene rekursiv durchlaufen ... das sprengt gerade irgendwie die Algorithmus-Vorstellungskraft.\par
 \par
+\par
+\par
+2020-04-03\par
+\par
+Jetzt endlich Algorithmus fertig implementieren.\par
+Also es reicht nicht, nur die Klassen durchzulaufen, denn die Interfacehierarchie kann ja "tiefer/h\'f6her" als die der Klassen sein.\par
+D.h. der loop muss so lange laufen, bis nix neues mehr dazukommt.\par
+\par
+So umbauen.\par
+\par
+Dabei st\'f6rende Detaillogik in Methoden auslagern.\par
+Und dabei mal wieder \'fcber die inkompetent unvollst\'e4ndigen Visibility Regeln f\'fcr interfaces aufregen ... grrr...\par
+Damit ist der look-body trotz viel Logik relativ h\'fcbsch kompakt.\par
+\par
+Au\'dferdem noch erkl\'e4rende Kommentare dazuschreiben.\par
+\par
+HMPFL!\par
+Beim Kommentar schreiben aufgefallen: Das mit den "next level" interfaces reicht so auch nicht, weil ja von denen auch wieder alle interfaces geholt werden m\'fcssen.\par
+Mal \'fcberlegen ...\par
+\par
+Es muss eher sowas sein wie:\par
+- "interfacesToAdd" bef\'fcllen mit interfaces der aktuellen klasse und interface-interfaces der letzten "interfacesToAdd".\par
+- im n\'e4chsten cycle die "interfacesToAdd" alle adden.\par
+- dann die alle durchlaufen, alle deren superinterfaces in eine andere HashEnum packen\par
+- Dann "interfacesToAdd" clearen und die aus der anderen HashEnum umkopieren.\par
+\par
+Aber moment: Punkt 4 ist ein Konflikt mit Punkt 1.\par
+Aaaaahh....!!!\par
 }
  

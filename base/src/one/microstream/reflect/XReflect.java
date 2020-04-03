@@ -1456,6 +1456,15 @@ public final class XReflect
 		);
 	}
 	
+	public final static Class<?> getSuperClassNonNull(final Class<?> c)
+	{
+		return c == Object.class
+			? c
+			: c.getSuperclass()
+		;
+	}
+	
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
