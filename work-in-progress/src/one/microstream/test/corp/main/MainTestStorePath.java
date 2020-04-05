@@ -2,6 +2,7 @@ package one.microstream.test.corp.main;
 
 import java.nio.file.Paths;
 
+import one.microstream.X;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
@@ -12,7 +13,7 @@ public class MainTestStorePath
 {
 	static
 	{
-//		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), true);
+//		Test.clearDefaultStorageDirectory();
 //		XMemory.setMemoryAccessor(MemoryAccessorGeneric.New(JdkInternals.InstantiatorBlank()));
 	}
 	
@@ -28,11 +29,20 @@ public class MainTestStorePath
 
 			Test.print("Model data required.");
 			// (27.11.2019 TM)FIXME: Won't work for now! See comment in BinaryHandlerPath.
-			STORAGE.setRoot(Paths.get("D:/downloads/Java/testString.txt"));
+			STORAGE.setRoot(
+				X.array(
+					Paths.get("D:/downloads/Java/testString1.txt"),
+					Paths.get("D:/downloads/Java/testString2.txt")
+				)
+			);
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();
 			Test.print("Storing completed.");
+			
+			Test.print("Exporting data ...");
+			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
+			Test.print("Data export completed.");
 		}
 		else
 		{

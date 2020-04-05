@@ -1,5 +1,6 @@
 package one.microstream.persistence.types;
 
+import one.microstream.collections.BulkList;
 import one.microstream.collections.HashEnum;
 import one.microstream.reflect.XReflect;
 
@@ -23,47 +24,47 @@ public interface PersistenceAbstractTypeHandlerSearcher<D>
 		final Class<T>                                type
 	)
 	{
-		final HashEnum<Class<?>> abstractSuperTypesInOrder = HashEnum.New();
-		final long collectCount = abstractSuperTypesInOrder.size();
+		final HashEnum<Class<?>> abstractSuperTypesInOrder       = HashEnum.New();
+		final HashEnum<Class<?>> abstractTypesForNextLevel       = HashEnum.New();
+		final BulkList<Class<?>> abstractTypesToAddFromLastLevel = BulkList.New();
 		
-		Class<?>   currentClass           = type;
-		Class<?>[] currentClassInterfaces = {};
-
-		// keeping track of all superinterfaces of current level interfaces in hierarchical order is ... dizzying.
-		final HashEnum<Class<?>> superInterfacesNextLevel = HashEnum.New(); // next or last? My head hurts ...
+		long     collectCount = abstractSuperTypesInOrder.size();
+		Class<?> currentClass = type;
 		
 		/*
-		 * There are 3 conditions that keep the interface collecting loop going:
-		 * - There are still direct super classes in the hierarchy to be checked
-		 * - There are still "next level" interfaces to be checked collected from the last cycle's interfaces
-		 * -
+		 * There are 2 conditions that keep the interface collecting loop going:
+		 * - There are still super classes in the class hierarchy to be checked
+		 * - There are still interface hierarchy interfaces (interface hierarchy is "deeper" than class hierarchy)
+		 * 
+		 * Note that just the count check would not be enough since a class can have a non-abstract superclass
+		 * and no interfaces. So the count would be 0 for the lowest level and the loop would abort prematurely.
 		 */
 		while(currentClass != Object.class || abstractSuperTypesInOrder.size() > collectCount)
 		{
-			// add current (super) class with higher priority than interfaces, but only if abstract
-			Default.addAbstractClass(superInterfacesNextLevel, currentClass);
-
-			// add last class's interfaces with second highest priority for this cycle
-			abstractSuperTypesInOrder.addAll(currentClassInterfaces);
-
-			// add last class's interface-interfaces with least highest priority for this cycle
-			abstractSuperTypesInOrder.addAll(superInterfacesNextLevel);
+			// keep count at the beginning of the cycle to check for new entries afterwards
+			collectCount = abstractSuperTypesInOrder.size();
 			
-			currentClassInterfaces = currentClass.getInterfaces();
-			
-			superInterfacesNextLevel.clear();
-			Default.collectAllInterfaces(superInterfacesNextLevel, currentClassInterfaces);
+			// "currentClass" is actually the previous class at the start of the cycle
+			final Class<?>[] previousClassInterfaces = currentClass.getInterfaces();
 
-			// stick at Object.class to avoid null-checks
+			// get actual "current" class for this cycle from previous class.
 			currentClass = XReflect.getSuperClassNonNull(currentClass);
+			
+			// add current class with higher priority than previous level's interfaces, but only if abstract
+			Default.addAbstractClass(abstractTypesForNextLevel, currentClass);
+			
+			// add previous class's interfaces with secondary priority
+			abstractTypesForNextLevel.addAll(previousClassInterfaces);
+			Default.collectAllSuperInterfaces(abstractTypesForNextLevel, abstractTypesToAddFromLastLevel);
+			
+			// add last hierarchy level's interfaces with second highest priority for this cycle
+			abstractSuperTypesInOrder.addAll(abstractTypesToAddFromLastLevel);
+			abstractTypesToAddFromLastLevel.clear();
+			
+			// move all "next level" types to "toAdd" collection for next cycle.
+			abstractTypesToAddFromLastLevel.addAll(abstractTypesForNextLevel);
+			abstractTypesForNextLevel.clear();
 		}
-		
-		
-		// (03.04.2020 TM)FIXME: priv#187: this is not correct, yet
-
-		// don't forget the interfaces
-		abstractSuperTypesInOrder.addAll(superInterfacesNextLevel);
-		abstractSuperTypesInOrder.addAll(currentClassInterfaces);
 
 		PersistenceTypeHandler<D, ?> abstractTypeHandler = null;
 		for(final Class<?> abstractSuperType : abstractSuperTypesInOrder)
@@ -107,9 +108,9 @@ public interface PersistenceAbstractTypeHandlerSearcher<D>
 			collection.add(clazz);
 		}
 		
-		static final void collectAllInterfaces(
+		static final void collectAllSuperInterfaces(
 			final HashEnum<Class<?>> collection,
-			final Class<?>[]         classes
+			final Iterable<Class<?>> classes
 		)
 		{
 			for(final Class<?> c : classes)

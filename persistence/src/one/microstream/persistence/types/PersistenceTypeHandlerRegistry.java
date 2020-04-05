@@ -164,7 +164,6 @@ extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTyp
 		@Override
 		public <T> boolean registerTypeHandler(final PersistenceTypeHandler<D, T> typeHandler)
 		{
-			// (01.04.2020 TM)FIXME: priv#187: additional variant with Class parameter serving as a mapping key.
 			synchronized(this.handlersByType)
 			{
 				final Class<T> type = typeHandler.type();
