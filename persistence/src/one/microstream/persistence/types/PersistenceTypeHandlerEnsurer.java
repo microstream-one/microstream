@@ -182,7 +182,7 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 				return this.typeHandlerCreator.createTypeHandlerAbstract(type);
 			}
 			
-			// check for types to be handled in an abstract way, e.g. java.io.files.Path
+			// check for types to be handled in an abstract way, e.g. java.nio.file.Path
 			final PersistenceTypeHandler<D, ? super T> abstractHandler = this.lookupAbstractTypeHandler(type);
 			if(abstractHandler != null)
 			{

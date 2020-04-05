@@ -552,7 +552,6 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		
 		private <T> PersistenceTypeHandler<D, ? super T> internalEnsureTypeHandler(final Class<T> type)
 		{
-			// (01.04.2020 TM)FIXME: priv#187: update rationale
 			/*
 			 * Note on super classes and the hiararchy of implemented interface:
 			 * Since every class is handled isolated from its super class, it is not necessary to
@@ -562,6 +561,16 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			 * In short: only concrete classes of to be persisted instances are relevant, not super classes.
 			 * Interfaces are only analyzed (as stateless and unpersistably abstract types) if encountered directly,
 			 * e.g. as a field type. Regarding implemented interfaces, the same rationale applies as with super classes.
+			 * 
+			 * (06.04.2020 TM)NOTE: Update:
+			 * The above rationale is still true for handling classes specifically.
+			 * However, cases like "java.nio.file.Path" made it necessary to introduce a new type handling strategy:
+			 * "abstract type" type handlers.
+			 * WindowsPath is "too specific". It is a system-local implementation of the "actual main type" Path.
+			 * On a Linux system, the class would be another one and persisting and loading "WindowsPath" there
+			 * would be an error.
+			 * To find the "actual main type", a recursive super type analysis has to be included in the type handler
+			 * ensuring logic in the type handler provider.
 			 */
 			
 			synchronized(this.typeHandlerRegistry)
@@ -575,12 +584,8 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 				PersistenceTypeHandler<D, ? super T> typeHandler;
 				if((typeHandler = this.typeHandlerRegistry.lookupTypeHandler(type)) == null)
 				{
-					// (27.11.2019 TM)TODO: priv#187 concrete -> abstract type mapping here?
-					
 					typeHandler = this.typeHandlerProvider.provideTypeHandler(type);
-					this.registerTypeHandler(typeHandler);
-					this.registerEnumContantRoots(typeHandler);
-					this.recursiveEnsureTypeHandlers(typeHandler);
+					this.registerTypeHandler(type, typeHandler);
 				}
 				
 				return typeHandler;
@@ -593,9 +598,23 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			final PersistenceTypeHandler<D, ? super T> typeHandler
 		)
 		{
-			this.validateTypeHandler(typeHandler);
 			synchronized(this.typeHandlerRegistry)
 			{
+				this.validateTypeHandler(typeHandler);
+				
+				// check for "proper" type handler
+				if(type == typeHandler.type())
+				{
+					if(this.synchUnvalidatedRegisterTypeHandler(typeHandler))
+					{
+						this.registerEnumContantRoots(typeHandler);
+						this.recursiveEnsureTypeHandlers(typeHandler);
+						return true;
+					}
+					return false;
+				}
+				
+				// just a simple "abstract type" type handler mapping
 				return this.typeHandlerRegistry.registerTypeHandler(type, typeHandler);
 			}
 		}
@@ -603,12 +622,13 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		@Override
 		public final <T> boolean registerTypeHandler(final PersistenceTypeHandler<D, T> typeHandler)
 		{
-			synchronized(this.typeHandlerRegistry)
-			{
-				this.validateTypeHandler(typeHandler);
-
-				return this.synchUnvalidatedRegisterTypeHandler(typeHandler);
-			}
+			return this.registerTypeHandler(typeHandler.type(), typeHandler);
+//			synchronized(this.typeHandlerRegistry)
+//			{
+//				this.validateTypeHandler(typeHandler);
+//
+//				return this.synchUnvalidatedRegisterTypeHandler(typeHandler);
+//			}
 		}
 		
 		private final boolean synchUnvalidatedRegisterTypeHandler(final PersistenceTypeHandler<D, ?> typeHandler)

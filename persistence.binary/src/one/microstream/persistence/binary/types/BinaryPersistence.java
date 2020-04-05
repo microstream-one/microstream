@@ -56,6 +56,7 @@ import one.microstream.java.net.BinaryHandlerInetAddress;
 import one.microstream.java.net.BinaryHandlerInetSocketAddress;
 import one.microstream.java.net.BinaryHandlerURI;
 import one.microstream.java.net.BinaryHandlerURL;
+import one.microstream.java.nio.file.BinaryHandlerPath;
 import one.microstream.java.sql.BinaryHandlerSqlDate;
 import one.microstream.java.sql.BinaryHandlerSqlTime;
 import one.microstream.java.sql.BinaryHandlerSqlTimestamp;
@@ -223,6 +224,8 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerInetAddress.New() ,
 			BinaryHandlerInet4Address.New(),
 			BinaryHandlerInet6Address.New(),
+			
+			BinaryHandlerPath.New(), // "abstract type" TypeHandler
 			
 			BinaryHandlerInetSocketAddress.New(),
 			

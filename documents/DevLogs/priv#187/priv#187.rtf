@@ -252,5 +252,65 @@ Es muss eher sowas sein wie:\par
 \par
 Aber moment: Punkt 4 ist ein Konflikt mit Punkt 1.\par
 Aaaaahh....!!!\par
+\par
+\par
+Nochmal komplett von vorne angefangen und ewig rum\'fcberlegt. So m\'fcsste es jetzt passen.\par
+Testklasse bauen bzw. suchen.\par
+Ah, gibt's sogar schon. Bissl verbessern.\par
+Testen.\par
+\par
+Interface-sammel-Algorithmus passt. Zumindest f\'fcr WindowsPath.\par
+Ah, aber eins ist noch falsch:\par
+PersistenceTypeHandlerProviderCreating#provideTypeHandler hat schon eine neu vergebene TypeId, f\'fcr die der TypeHandler jetzt initialisiert werden soll.\par
+Das ist falsch. Da muss vorher geschaut werden, ob es einen abstract type TypeHandler gibt.\par
+\par
+Ah! Vor der TypeId Vergabe w\'e4re genau der Punkt im TypeHandlerManager, wo das FIXME "priv#187 concrete -> abstract type mapping here?" steht.\par
+Aber das geht ja nicht, weil ja erst mal die ganzen Validierungen und Sonderf\'e4lle gecheckt werden m\'fcssen.\par
+\par
+Moment mal: So, wie es momentan l\'e4uft, war es ja auch bisher schon nicht ganz richtig:\line Erst wird eine TypeId vergeben und dann werden Validierungen gemacht. Normalerweise macht bei einer Exception ja keiner weiter, aber streng genommen ist das robustness-m\'e4\'dfig gesehen fatal.\par
+Hm.\par
+Es m\'fcsste eher so sein, dass der TypeManager als Methodenaufrufargument durchgereicht wird und nur wenn ein TypeHandler wirklich eine TypeId braucht, wird auch eine vergeben und assoziiert.\par
+Das muss ich so umbauen. Das l\'f6st dann auch den Konflikt hier.\par
+\par
+Ach, Mist: wegen der Rekursion geht das ja nicht.\par
+Oder? Oder findet die nicht erst danach statt? Mal untersuchen.\par
+Ah, ja, doch. Bissl umbauen, konsolidieren, kommentieren.\par
+Neue Version bauen.\par
+Alte vorsichtshalber auskommentiert beibehalten, falls es doch einen bug geben sollte, damit man sofort die \'c4nderung sieht.\par
+Testen.\par
+Passt!\par
+Hurra!\par
+\par
+Hm. Aber eins f\'e4llt mir dabei auf. Genauer gesagt zwei Dinge:\par
+- Sollte mal konkret ein Feld vom Typ "WindowsPath" sein, w\'fcrde das Probleme machen. Soll es ja eigentlich irgendwie auch, denn der konkrete Typ soll ja nicht handlebar sein.\par
+- Ebenfalls ein WindowsPath[] Array. Aber auch das w\'e4re ja "zu konkret" und absichtlich nicht handlebar.\par
+\par
+Die Frage ist nur, wie genau der Fehler(fall) dann aussieht. Aber Mut zur L\'fccke ...\par
+\par
+Jetzt Datenbankinhalt \'fcberpr\'fcfen:\par
+Es gibt 2 Instanzen vom Typ Path, keinen vom Typ WindowsPath.\par
+Passt.\par
+TypeDictionary enth\'e4lt keinen WindowsPath eintrag (wie sollte es auch ...).\par
+Passt.\par
+\par
+Jetzt laden pr\'fcfen:\par
+Beim Dictionary initialisieren wird f\'fcr Path ein TypeHandler gesucht und ganz normal initialisiert, inklusive TypeId.\par
+Aber keiner f\'fcr WindowsPath (wieso auch, wenn es keinen TypeDictionary Eintrag gibt ...)\par
+\par
+Laden ruft BinaryHandlerPath#create auf, wie erwartet.\par
+Und das gibt - in meinem Fall - nat\'fcrlich wieder WindowsPath zur\'fcck. Passt.\par
+Auf einem Linux System w\'e4re das nun LinuxPath oder wei\'df der Geier was.\par
+\par
+Noch ladetest fertig durchlaufen lassen.\par
+Passt.\par
+\par
+Also funktioniert alles genau wie geplant.\par
+\par
+Hei\'dft:\par
+Issue ist fertig.\par
+\par
+Ach, Moment: Noch nach TODOs suchen.\par
+Achja. Bissl unbenutztes Zeug aufr\'e4umen.\par
+Rationale Kommentar updaten ...\par
 }
  

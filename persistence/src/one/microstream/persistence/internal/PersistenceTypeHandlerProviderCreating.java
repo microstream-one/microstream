@@ -67,25 +67,38 @@ implements PersistenceTypeHandlerProvider<D>
 	// methods //
 	////////////
 
-	protected final <T> PersistenceTypeHandler<D, ? super T> provideTypeHandler(
-		final Class<T> type  ,
-		final long     typeId
-	)
-		throws PersistenceExceptionTypeNotPersistable
-	{
-		final PersistenceTypeHandler<D, ? super T> protoTypeHandler = this.ensureTypeHandler(type);
-		final PersistenceTypeHandler<D, ? super T> typeHandler      = protoTypeHandler.initialize(typeId);
-
-		return typeHandler;
-	}
-
 	@Override
 	public final <T> PersistenceTypeHandler<D, ? super T> provideTypeHandler(final Class<T> type)
 	{
-		// type<->tid mapping is created in advance.
-		final long typeId = this.typeManager.ensureTypeId(type);
+		/*
+		 * The recursive member field type handler creation comes AFTER this method,
+		 * so no need to call typeId ensuring (allocation&assignment) in advance as it was before
+		 * (see old code below)
+		 */
+		final PersistenceTypeHandler<D, ? super T> lookedUpTypeHandler = this.ensureTypeHandler(type);
 		
-		return this.provideTypeHandler(type, typeId);
+		final PersistenceTypeHandler<D, ? super T> typeHandler;
+		if(type == lookedUpTypeHandler.type())
+		{
+			final long typeId = this.typeManager.ensureTypeId(type);
+			typeHandler = lookedUpTypeHandler.initialize(typeId);
+		}
+		else
+		{
+			// "abstract type" type handlers are just mapped. No need for an assigned typeId.
+			typeHandler = lookedUpTypeHandler;
+		}
+		
+		return typeHandler;
+		
+		// (06.04.2020 TM)NOTE: old logic before "abstract type" TypeHandlers (e.g. java.nio.file.Path)
+//		// type<->tid mapping is created in advance.
+//		final long typeId = this.typeManager.ensureTypeId(type);
+//
+//		final PersistenceTypeHandler<D, ? super T> protoTypeHandler = this.ensureTypeHandler(type);
+//		final PersistenceTypeHandler<D, ? super T> typeHandler      = protoTypeHandler.initialize(typeId);
+//
+//		return typeHandler;
 	}
 
 	@Override
