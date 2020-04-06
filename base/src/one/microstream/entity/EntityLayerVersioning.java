@@ -10,9 +10,9 @@ import one.microstream.collections.types.XGettingTable;
  * 
  * @author FH
  */
-public class EntityLayerVersioning<K> extends EntityLayer
+public final class EntityLayerVersioning<K> extends EntityLayer
 {
-	EntityVersionContext<K> context;
+	EntityVersionContext<K> context ;
 	EqHashTable<K, Entity>  versions;
 	
 	EntityLayerVersioning()
@@ -20,7 +20,10 @@ public class EntityLayerVersioning<K> extends EntityLayer
 		super(null);
 	}
 	
-	protected EntityLayerVersioning(final Entity inner, final EntityVersionContext<K> context)
+	protected EntityLayerVersioning(
+		final Entity                  inner  ,
+		final EntityVersionContext<K> context
+	)
 	{
 		super(inner);
 		
@@ -80,4 +83,5 @@ public class EntityLayerVersioning<K> extends EntityLayer
 		
 		return super.updateEntityData(data);
 	}
+	
 }

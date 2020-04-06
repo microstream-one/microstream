@@ -7,7 +7,7 @@ import static one.microstream.X.notNull;
  * 
  * @author FH
  */
-public class EntityLayerLogging extends EntityLayer
+public final class EntityLayerLogging extends EntityLayer
 {
 	private final EntityLogger logger;
 	
@@ -49,4 +49,5 @@ public class EntityLayerLogging extends EntityLayer
 		
 		return success;
 	}
+	
 }
