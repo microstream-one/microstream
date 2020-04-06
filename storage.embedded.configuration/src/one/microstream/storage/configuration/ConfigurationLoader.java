@@ -7,25 +7,194 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import one.microstream.chars.XChars;
-import one.microstream.storage.exceptions.StorageExceptionIo;
+import one.microstream.storage.exceptions.StorageConfigurationException;
+import one.microstream.storage.exceptions.StorageConfigurationIoException;
+import one.microstream.storage.exceptions.StorageConfigurationNotFoundException;
 
-
+/**
+ * Loader for external configuration resources.
+ * <p>
+ * Supported resource types:
+ * <ul>
+ * <li>{@link Path}</li>
+ * <li>{@link File}</li>
+ * <li>{@link URL}</li>
+ * <li>{@link InputStream}</li>
+ * </ul>
+ */
 @FunctionalInterface
 public interface ConfigurationLoader
 {
+	/**
+	 * Loads the configuration from the given resource.
+	 * 
+	 * @return the configuration resource's content.
+	 * @throws StorageConfigurationException if an error occurs while loading the resource
+	 */
 	public String loadConfiguration();
 	
-	public static String loadFromFile(final File file)
+	/**
+	 * Loads the configuration from the given resource.
+	 * <p>
+	 * The load order is as follows:
+	 * <ul>
+	 * <li>The classpath</li>
+	 * <li>As an URL</li>
+	 * <li>As a file</li>
+	 * </ul>
+	 * 
+	 * @param path a classpath resource, a file path or an URL 
+	 * @return the configuration resource's content.
+	 * @throws StorageConfigurationException if an error occurs while loading the resource
+	 */
+	public static String load(
+		final String path
+	)
+	{
+		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
+	          URL         url                = contextClassloader != null
+			? contextClassloader.getResource(path)
+			: ConfigurationLoader.class.getResource(path);
+		if(url != null)
+		{
+			return loadFromUrl(url);
+		}
+			
+		try
+		{
+			url = new URL(path);
+			return loadFromUrl(url);
+		}
+		catch(MalformedURLException e)
+		{
+			final File file = new File(path);
+			if(file.exists())
+			{
+				return loadFromFile(file);
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Loads the configuration from the given resource.
+	 * <p>
+	 * The load order is as follows:
+	 * <ul>
+	 * <li>The classpath</li>
+	 * <li>As an URL</li>
+	 * <li>As a file</li>
+	 * </ul>
+	 * 
+	 * @return the configuration resource's content.
+	 * @param path a classpath resource, a file path or an URL 
+	 * @param charset the charset used to load the configuration
+	 * @throws StorageConfigurationException if an error occurs while loading the resource
+	 */
+	public static String load(
+		final String path,
+		final Charset charset
+	)
+	{
+		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
+	          URL         url                = contextClassloader != null
+			? contextClassloader.getResource(path)
+			: ConfigurationLoader.class.getResource(path);
+		if(url != null)
+		{
+			return loadFromUrl(url, charset);
+		}
+			
+		try
+		{
+			url = new URL(path);
+			return loadFromUrl(url, charset);
+		}
+		catch(MalformedURLException e)
+		{
+			final File file = new File(path);
+			if(file.exists())
+			{
+				return loadFromFile(file, charset);
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Tries to load the configuration from <code>path</code>.
+	 * 
+	 * @param path file system path 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
+	public static String loadFromPath(
+		final Path path
+	)
+	{
+		return loadFromPath(path, Defaults.defaultCharset());
+	}
+
+	
+	/**
+	 * Tries to load the configuration from <code>path</code>.
+	 * 
+	 * @param path file system path 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
+	public static String loadFromPath(
+		final Path path, 
+		final Charset charset
+	)
+	{
+		try(InputStream in = Files.newInputStream(path))
+		{
+			return FromInputStream(in, charset).loadConfiguration();
+		}
+		catch(final IOException e)
+		{
+			throw new StorageConfigurationNotFoundException(e);
+		}
+	}
+	
+	/**
+	 * Tries to load the configuration from <code>file</code>.
+	 * 
+	 * @param file file path 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
+	public static String loadFromFile(
+		final File file
+	)
 	{
 		return loadFromFile(file, Defaults.defaultCharset());
 	}
 	
-	public static String loadFromFile(final File file, final Charset charset)
+	/**
+	 * Tries to load the configuration from <code>file</code>.
+	 * 
+	 * @param file file path 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
+	public static String loadFromFile(
+		final File file, 
+		final Charset charset
+	)
 	{
 		try(InputStream in = new FileInputStream(file))
 		{
@@ -33,16 +202,36 @@ public interface ConfigurationLoader
 		}
 		catch(final IOException e)
 		{
-			throw new StorageExceptionIo(e);
+			throw new StorageConfigurationNotFoundException(e);
 		}
 	}
 	
-	public static String loadFromUrl(final URL url)
+	/**
+	 * Tries to load the configuration from the URL <code>url</code>.
+	 * 
+	 * @param url URL path 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
+	public static String loadFromUrl(
+		final URL url
+	)
 	{
 		return loadFromUrl(url, Defaults.defaultCharset());
 	}
 	
-	public static String loadFromUrl(final URL url, final Charset charset)
+	/**
+	 * Tries to load the configuration from the URL <code>url</code>.
+	 * 
+	 * @param url URL path 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
+	public static String loadFromUrl(
+		final URL url, 
+		final Charset charset
+	)
 	{
 		try(InputStream in = url.openStream())
 		{
@@ -50,21 +239,45 @@ public interface ConfigurationLoader
 		}
 		catch(final IOException e)
 		{
-			throw new StorageExceptionIo(e);
+			throw new StorageConfigurationNotFoundException(e);
 		}
 	}
-	
-	public static ConfigurationLoader FromInputStream(final InputStream inputStream)
+
+	/**
+	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
+	 * 
+	 * @param inputStream the stream to read from 
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
+	public static ConfigurationLoader FromInputStream(
+		final InputStream inputStream
+	)
 	{
 		return FromInputStream(inputStream, Defaults.defaultCharset());
 	}
 	
-	public static ConfigurationLoader FromInputStream(final InputStream inputStream, final Charset charset)
+	/**
+	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
+	 * 
+	 * @param inputStream the stream to read from 
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws StorageConfigurationException if the configuration couldn't be loaded
+	 */
+	public static ConfigurationLoader FromInputStream(
+		final InputStream inputStream, 
+		final Charset charset
+	)
 	{
-		return new InputStreamConfigurationLoader(inputStream, charset);
+		return new InputStreamConfigurationLoader(
+			notNull(inputStream),
+			notNull(charset)
+		);
 	}
 	
-	public interface Defaults
+	
+	public static interface Defaults
 	{
 		public static Charset defaultCharset()
 		{
@@ -72,17 +285,20 @@ public interface ConfigurationLoader
 		}
 	}
 	
+	
 	public static class InputStreamConfigurationLoader implements ConfigurationLoader
 	{
 		private final InputStream inputStream;
 		private final Charset     charset;
 		
-		protected InputStreamConfigurationLoader(final InputStream inputStream, final Charset charset)
+		InputStreamConfigurationLoader(
+			final InputStream inputStream, 
+			final Charset charset
+		)
 		{
-			super();
-			
-			this.inputStream = notNull(inputStream);
-			this.charset     = notNull(charset);
+			super();			
+			this.inputStream = inputStream;
+			this.charset     = charset;
 		}
 		
 		@Override
@@ -94,8 +310,10 @@ public interface ConfigurationLoader
 			}
 			catch(final IOException e)
 			{
-				throw new StorageExceptionIo(e);
+				throw new StorageConfigurationIoException(e);
 			}
 		}
+		
 	}
+	
 }

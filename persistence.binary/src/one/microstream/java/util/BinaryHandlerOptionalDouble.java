@@ -8,7 +8,8 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCustomValueFixedLength<OptionalDouble>
+public final class BinaryHandlerOptionalDouble
+extends AbstractBinaryHandlerCustomValueFixedLength<OptionalDouble, Double>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -20,6 +21,8 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 		BINARY_LENGTH            = BINARY_OFFSET_VALUE      + Double.BYTES
 	;
 
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
@@ -103,6 +106,26 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 		;
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
+	// actually never called, just to satisfy the interface
+	@Override
+	public Double getValidationStateFromInstance(final OptionalDouble instance)
+	{
+		return instanceState(instance);
+	}
+
+	// actually never called, just to satisfy the interface
+	@Override
+	public Double getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
+	}
+	
 	@Override
 	public void validateState(
 		final Binary                 data    ,
@@ -118,7 +141,7 @@ public final class BinaryHandlerOptionalDouble extends AbstractBinaryHandlerCust
 			return;
 		}
 		
-		throwInconsistentStateException(instance, instanceState, binaryState);
+		this.throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 	
 }

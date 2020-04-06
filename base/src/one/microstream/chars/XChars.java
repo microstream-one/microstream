@@ -17,6 +17,7 @@ import java.util.stream.IntStream;
 import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
 import one.microstream.bytes.VarByte;
+import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.exceptions.NumberRangeException;
 import one.microstream.functional._charPredicate;
@@ -393,18 +394,6 @@ public final class XChars
 		return -1;
 	}
 
-	static final boolean uncheckedContains(final char[] data, final int size, final int offset, final char c)
-	{
-		for(int i = offset; i < size; i++)
-		{
-			if(data[i] == c)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
 	static final void uncheckedReverse(final char[] data, final int size)
 	{
 		final int last = size - 1;
@@ -724,20 +713,21 @@ public final class XChars
 	}
 
 	public static final int count(
-		final char[] haystack,
-		final int haystackOffset,
-		final int haystackCount,
-		final char needle
+		final char[] input,
+		final int    startIndex,
+		final int    boundIndex,
+		final char   c
 	)
 	{
 		int count = 0;
-		for(int i = haystackOffset; i < haystackCount; i++)
+		for(int i = startIndex; i < boundIndex; i++)
 		{
-			if(haystack[i] == needle)
+			if(input[i] == c)
 			{
 				count++;
 			}
 		}
+		
 		return count;
 	}
 
@@ -2514,6 +2504,12 @@ public final class XChars
 
 		return false;
 	}
+	
+	// it's hilarious how much basic methods are missing in the JDK
+	public static final boolean contains(final String s, final char c)
+	{
+		return s.indexOf(c) >= 0;
+	}
 
 	public static final boolean contains(
 		final char[] subject      ,
@@ -2533,6 +2529,45 @@ public final class XChars
 				return true;
 			}
 		}
+		return false;
+	}
+	
+	public static final boolean contains(
+		final char[] data,
+		final char   c
+	)
+	{
+		return uncheckedContains(data, 0, data.length, c);
+	}
+	
+	public static final boolean contains(
+		final char[] data      ,
+		final int    dataOffset,
+		final int    dataLength,
+		final char   c
+	)
+	{
+		XArrays.checkBounds(data.length, dataOffset, dataOffset + XMath.notNegative(dataLength));
+		
+		return uncheckedContains(data, dataLength, dataOffset, c);
+	}
+	
+	static final boolean uncheckedContains(
+		final char[] data      ,
+		final int    dataOffset,
+		final int    dataLength,
+		final char   c
+	)
+	{
+		final int dataBound = dataOffset + dataLength;
+		for(int i = dataOffset; i < dataBound; i++)
+		{
+			if(data[i] == c)
+			{
+				return true;
+			}
+		}
+		
 		return false;
 	}
 
@@ -2703,6 +2738,91 @@ public final class XChars
 		codePoints.forEach(counter);
 		
 		return counter.yield();
+	}
+	
+	
+	public static String mathRangeIncInc(final long minimum, final long maximum)
+	{
+		return mathRangeIncInc(
+			Long.toString(minimum),
+			Long.toString(maximum)
+		);
+	}
+	
+	public static String mathRangeIncExc(final long minimum, final long upperBound)
+	{
+		return mathRangeIncExc(
+			Long.toString(minimum),
+			Long.toString(upperBound)
+		);
+	}
+	
+	public static String mathRangeExcInc(final long lowerBound, final long maximum)
+	{
+		return mathRangeExcInc(
+			Long.toString(lowerBound),
+			Long.toString(maximum)
+		);
+	}
+	
+	public static String mathRangeExcExc(final long lowerBound, final long upperBound)
+	{
+		return mathRangeExcExc(
+			Long.toString(lowerBound),
+			Long.toString(upperBound)
+		);
+	}
+	
+	public static String mathRangeIncInc(final double minimum, final double maximum)
+	{
+		return mathRangeIncInc(
+			Double.toString(minimum),
+			Double.toString(maximum)
+		);
+	}
+	
+	public static String mathRangeIncExc(final double minimum, final double upperBound)
+	{
+		return mathRangeIncExc(
+			Double.toString(minimum),
+			Double.toString(upperBound)
+		);
+	}
+	
+	public static String mathRangeExcInc(final double lowerBound, final double maximum)
+	{
+		return mathRangeExcInc(
+			Double.toString(lowerBound),
+			Double.toString(maximum)
+		);
+	}
+	
+	public static String mathRangeExcExc(final double lowerBound, final double upperBound)
+	{
+		return mathRangeExcExc(
+			Double.toString(lowerBound),
+			Double.toString(upperBound)
+		);
+	}
+	
+	public static String mathRangeIncInc(final String minimum, final String maximum)
+	{
+		return "[" + minimum + "; " + maximum + "]";
+	}
+	
+	public static String mathRangeIncExc(final String minimum, final String upperBound)
+	{
+		return "[" + minimum + "; " + upperBound + "[";
+	}
+	
+	public static String mathRangeExcInc(final String lowerBound, final String maximum)
+	{
+		return "]" + lowerBound + "; " + maximum + "]";
+	}
+	
+	public static String mathRangeExcExc(final String lowerBound, final String upperBound)
+	{
+		return "]" + lowerBound + "; " + upperBound + "[";
 	}
 		
 

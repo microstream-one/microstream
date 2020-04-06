@@ -5,17 +5,17 @@ import one.microstream.util.BufferSizeProviderIncremental;
 
 public interface PersistenceStorer extends Storer
 {
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public PersistenceStorer initialize();
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public PersistenceStorer initialize(long initialCapacity);
+//	/**
+//	 * {@inheritDoc}
+//	 */
+//	@Override
+//	public PersistenceStorer initialize();
+//
+//	/**
+//	 * {@inheritDoc}
+//	 */
+//	@Override
+//	public PersistenceStorer initialize(long initialCapacity);
 
 	/**
 	 * {@inheritDoc}
@@ -52,7 +52,7 @@ public interface PersistenceStorer extends Storer
 		public PersistenceStorer createLazyStorer(
 			PersistenceTypeHandlerManager<D> typeManager       ,
 			PersistenceObjectManager         objectManager     ,
-			ObjectSwizzling       objectRetriever   ,
+			ObjectSwizzling                  objectRetriever   ,
 			PersistenceTarget<D>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
 		);
@@ -70,7 +70,7 @@ public interface PersistenceStorer extends Storer
 		public default PersistenceStorer createStorer(
 			final PersistenceTypeHandlerManager<D> typeManager       ,
 			final PersistenceObjectManager         objectManager     ,
-			final ObjectSwizzling       objectRetriever   ,
+			final ObjectSwizzling                  objectRetriever   ,
 			final PersistenceTarget<D>             target            ,
 			final BufferSizeProviderIncremental    bufferSizeProvider
 		)
@@ -97,7 +97,7 @@ public interface PersistenceStorer extends Storer
 		public PersistenceStorer createEagerStorer(
 			PersistenceTypeHandlerManager<D> typeManager       ,
 			PersistenceObjectManager         objectManager     ,
-			ObjectSwizzling       objectRetriever   ,
+			ObjectSwizzling                  objectRetriever   ,
 			PersistenceTarget<D>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
 		);

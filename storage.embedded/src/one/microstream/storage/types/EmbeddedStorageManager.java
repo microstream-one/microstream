@@ -21,9 +21,19 @@ import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.reference.LazyReferenceManager;
 import one.microstream.reference.Reference;
+import one.microstream.reference.Swizzling;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.typing.KeyValue;
 
+
+/**
+ * {@link StorageManager} sub type for usage as an embedded storage solution.<p>
+ * "Embedded" is meant in the context that a database is managed in the same process that uses this database,
+ * as opposed to the database being managed by a different process that the using process connects to via network
+ * communication. That would be a "remote" or "standalone" storage process.
+ * 
+ * @author TM
+ */
 public interface EmbeddedStorageManager extends StorageManager
 {
 	@Override
@@ -32,12 +42,14 @@ public interface EmbeddedStorageManager extends StorageManager
 	
 	
 	public static EmbeddedStorageManager.Default New(
+		final Database                               database            ,
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
 		final PersistenceRootsProvider<?>            rootsProvider
 	)
 	{
 		return new EmbeddedStorageManager.Default(
+			notNull(database)            ,
 			notNull(configuration)       ,
 			notNull(connectionFoundation),
 			notNull(rootsProvider)
@@ -51,11 +63,12 @@ public interface EmbeddedStorageManager extends StorageManager
 		// instance fields //
 		////////////////////
 
+		private final Database                               database            ;
 		private final StorageConfiguration                   configuration       ;
 		private final StorageSystem                          storageSystem       ;
 		private final EmbeddedStorageConnectionFoundation<?> connectionFoundation;
 		private final PersistenceRootsProvider<?>            rootsProvider       ;
-		
+				
 		private StorageConnection singletonConnection;
 
 
@@ -65,16 +78,18 @@ public interface EmbeddedStorageManager extends StorageManager
 		/////////////////
 
 		Default(
+			final Database                               database            ,
 			final StorageConfiguration                   configuration       ,
 			final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
 			final PersistenceRootsProvider<?>            rootsProvider
 		)
 		{
 			super();
-			this.configuration        = configuration                           ;
+			this.database             = database                               ;
+			this.configuration        = configuration                          ;
 			this.storageSystem        = connectionFoundation.getStorageSystem(); // to ensure consistency
-			this.connectionFoundation = connectionFoundation                    ;
-			this.rootsProvider        = rootsProvider                           ;
+			this.connectionFoundation = connectionFoundation                   ;
+			this.rootsProvider        = rootsProvider                          ;
 		}
 
 
@@ -92,6 +107,12 @@ public interface EmbeddedStorageManager extends StorageManager
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final Database database()
+		{
+			return this.database;
+		}
 
 		@Override
 		public final Object root()
@@ -115,20 +136,17 @@ public interface EmbeddedStorageManager extends StorageManager
 		@Override
 		public long storeRoot()
 		{
-			final Storer storer = this.createStorer();
-			
 			final PersistenceRootReference rootReference = this.rootReference();
-			storer.store(rootReference);
+			final Object                   root            = rootReference.get();
 			
-			final Object root = rootReference.get();
-			final long rootObjectId = root != null
-				? storer.store(root)
-				: Persistence.nullId()
-			;
-				
-			storer.commit();
+			// this construction is necessary to use the locking mechanism of the called storing methods
+			if(root == null)
+			{
+				this.store(rootReference);
+				return Swizzling.nullId();
+			}
 			
-			return rootObjectId;
+			return this.storeAll(rootReference, root)[1];
 		}
 		
 		@Override
@@ -300,8 +318,7 @@ public interface EmbeddedStorageManager extends StorageManager
 			return this.rootsProvider.provideRoots();
 		}
 
-		@Override
-		public final void initialize()
+		private void initialize()
 		{
 			final StorageConnection initConnection = this.createConnection();
 
@@ -416,9 +433,9 @@ public interface EmbeddedStorageManager extends StorageManager
 		}
 
 		@Override
-		public final boolean issueFileCheck(final long nanoTimeBudgetBound)
+		public final boolean issueFileCheck(final long nanoTimeBudget)
 		{
-			return this.singletonConnection().issueFileCheck(nanoTimeBudgetBound);
+			return this.singletonConnection().issueFileCheck(nanoTimeBudget);
 		}
 
 		@Override
@@ -434,18 +451,18 @@ public interface EmbeddedStorageManager extends StorageManager
 		}
 
 		@Override
-		public final boolean issueCacheCheck(final long nanoTimeBudgetBound)
+		public final boolean issueCacheCheck(final long nanoTimeBudget)
 		{
-			return this.singletonConnection().issueCacheCheck(nanoTimeBudgetBound);
+			return this.singletonConnection().issueCacheCheck(nanoTimeBudget);
 		}
 
 		@Override
 		public final boolean issueCacheCheck(
-			final long                        nanoTimeBudgetBound,
+			final long                        nanoTimeBudget,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 		{
-			return this.singletonConnection().issueCacheCheck(nanoTimeBudgetBound, entityEvaluator);
+			return this.singletonConnection().issueCacheCheck(nanoTimeBudget, entityEvaluator);
 		}
 
 		@Override

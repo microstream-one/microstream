@@ -1744,13 +1744,13 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	@Override
 	public final long lastIndexOf(final KeyValue<K, V> entry)
 	{
-		return HashTable.this.chain.rngIndexOf(HashTable.this.size - 1, -HashTable.this.size, entry);
+		return this.chain.lastIndexOf(entry);
 	}
 
 	@Override
 	public final long lastIndexBy(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		return HashTable.this.chain.rngIndexOf(HashTable.this.size - 1, -HashTable.this.size, predicate);
+		return this.chain.lastIndexBy(predicate);
 	}
 
 	@Override
@@ -2802,7 +2802,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		@Override
 		public final long indexBy(final Predicate<? super K> predicate)
 		{
-			return HashTable.this.chain.keyIndexOf(predicate);
+			return HashTable.this.chain.keyIndexBy(predicate);
 		}
 
 		@Override
@@ -2814,13 +2814,13 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		@Override
 		public final long lastIndexOf(final K element)
 		{
-			return HashTable.this.chain.keyRngIndexOf(HashTable.this.size - 1, -HashTable.this.size, element);
+			return HashTable.this.chain.keyLastIndexOf(element);
 		}
 
 		@Override
 		public final long lastIndexBy(final Predicate<? super K> predicate)
 		{
-			return HashTable.this.chain.keyRngIndexOf(HashTable.this.size - 1, -HashTable.this.size, predicate);
+			return HashTable.this.chain.keyLastIndexBy(predicate);
 		}
 
 		@Override
@@ -3620,7 +3620,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		@Override
 		public final long indexBy(final Predicate<? super V> predicate)
 		{
-			return HashTable.this.chain.valuesIndexOf(predicate);
+			return HashTable.this.chain.valuesIndexBy(predicate);
 		}
 
 		@Override
@@ -3632,13 +3632,13 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		@Override
 		public final long lastIndexOf(final V value)
 		{
-			return HashTable.this.chain.valuesRngIndexOf(HashTable.this.size - 1, HashTable.this.size, value);
+			return HashTable.this.chain.valuesLastIndexOf(value);
 		}
 
 		@Override
 		public final long lastIndexBy(final Predicate<? super V> predicate)
 		{
-			return HashTable.this.chain.valuesRngIndexOf(HashTable.this.size - 1, HashTable.this.size, predicate);
+			return HashTable.this.chain.valuesLastIndexBy(predicate);
 		}
 
 		@Override

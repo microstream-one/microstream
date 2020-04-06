@@ -12,13 +12,14 @@ import one.microstream.hashing.HashStatisticsBucketBased;
 import one.microstream.hashing.XHashing;
 import one.microstream.math.XMath;
 import one.microstream.meta.XDebug;
+import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyObject;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyObjectId;
+import one.microstream.persistence.exceptions.PersistenceExceptionImproperObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionInvalidObjectRegistryCapacity;
-import one.microstream.persistence.exceptions.PersistenceExceptionNullObjectId;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
+import one.microstream.reference.Swizzling;
 import one.microstream.typing.KeyValue;
 
 public final class DefaultObjectRegistry implements PersistenceObjectRegistry
@@ -359,6 +360,12 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			throw new NullPointerException();
 		}
+		
+		return this.internalLookupObjectId(object);
+	}
+	
+	private long internalLookupObjectId(final Object object)
+	{
 
 		for(Entry e = this.refHashTable[hash(object) & this.hashRange]; e != null; e = e.refNext)
 		{
@@ -368,11 +375,16 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			}
 		}
 		
-		return Persistence.nullId();
+		return Swizzling.notFoundId();
 	}
 
 	@Override
 	public final synchronized Object lookupObject(final long objectId)
+	{
+		return this.internalLookupObject(objectId);
+	}
+	
+	private Object internalLookupObject(final long objectId)
 	{
 		for(Entry e = this.oidHashTable[(int)objectId & this.hashRange]; e != null; e = e.oidNext)
 		{
@@ -386,15 +398,70 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 	
 	@Override
+	public final boolean isValid(final long objectId, final Object object)
+	{
+		// hacky flag, but no idea how to better prevent the code redundancy except with abstraction overkill.
+		return this.synchInternalValidate(objectId, object, false);
+	}
+	
+	@Override
+	public synchronized final void validate(final long objectId, final Object object)
+	{
+		// hacky flag, but no idea how to better prevent the code redundancy except with abstraction overkill.
+		this.synchInternalValidate(objectId, object, true);
+	}
+	
+	private boolean synchInternalValidate(final long objectId, final Object object, final boolean throwException)
+	{
+		if(object == null)
+		{
+			throw new NullPointerException();
+		}
+		
+		final long registeredObjectId = this.internalLookupObjectId(object);
+		if(registeredObjectId == objectId)
+		{
+			// already registered entry
+			return true;
+		}
+		
+		if(Swizzling.isNotFoundId(registeredObjectId))
+		{
+			final Object registeredObject = this.internalLookupObject(objectId);
+			if(registeredObject == null)
+			{
+				// consistently not registered object
+				return true;
+			}
+			
+			if(!throwException)
+			{
+				return false;
+			}
+			if(registeredObject == object)
+			{
+				throw new PersistenceExceptionConsistency("Inconsistent object registry for objectId " + objectId);
+			}
+			throw new PersistenceExceptionConsistencyObject(objectId, registeredObject, object);
+		}
+		
+		if(!throwException)
+		{
+			return false;
+		}
+		throw new PersistenceExceptionConsistencyObjectId(object, registeredObjectId, objectId);
+	}
+	
+	@Override
 	public final synchronized boolean registerObject(final long objectId, final Object object)
 	{
 		if(object == null)
 		{
 			throw new NullPointerException();
 		}
-		if(objectId == Persistence.nullId())
+		if(Swizzling.isNotProperId(objectId))
 		{
-			throw new PersistenceExceptionNullObjectId();
+			throw new PersistenceExceptionImproperObjectId();
 		}
 
 		return this.internalAdd(objectId, object);
@@ -407,9 +474,9 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			throw new NullPointerException();
 		}
-		if(objectId == Persistence.nullId())
+		if(Swizzling.isNotProperId(objectId))
 		{
-			throw new PersistenceExceptionNullObjectId();
+			throw new PersistenceExceptionImproperObjectId();
 		}
 		
 		return this.internalAddGet(objectId, object);

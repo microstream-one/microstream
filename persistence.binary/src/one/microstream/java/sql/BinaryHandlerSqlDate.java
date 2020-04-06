@@ -3,7 +3,7 @@ package one.microstream.java.sql;
 import java.sql.Date;
 
 import one.microstream.java.util.BinaryHandlerDate;
-import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomValueFixedLength;
+import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomNonReferentialFixedLength;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
@@ -13,7 +13,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
  * 
  * @author TM
  */
-public final class BinaryHandlerSqlDate extends AbstractBinaryHandlerCustomValueFixedLength<Date>
+public final class BinaryHandlerSqlDate extends AbstractBinaryHandlerCustomNonReferentialFixedLength<Date>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -75,35 +75,11 @@ public final class BinaryHandlerSqlDate extends AbstractBinaryHandlerCustomValue
 	{
 		return new Date(binaryState(data));
 	}
-	
-	@Override
-	public final void initializeState(final Binary data, final Date instance, final PersistenceLoadHandler handler)
-	{
-		this.updateState(data, instance, handler);
-	}
 
 	@Override
 	public final void updateState(final Binary data, final Date instance, final PersistenceLoadHandler handler)
 	{
 		instance.setTime(binaryState(data));
-	}
-	
-	@Override
-	public final void validateState(
-		final Binary                 data    ,
-		final Date                   instance,
-		final PersistenceLoadHandler handler
-	)
-	{
-		final long instanceState = instanceState(instance);
-		final long binaryState   = binaryState(data);
-		
-		if(instanceState == binaryState)
-		{
-			return;
-		}
-		
-		throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

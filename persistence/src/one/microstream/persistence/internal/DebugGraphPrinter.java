@@ -10,6 +10,7 @@ import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceObjectManager;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
+import one.microstream.reference.Swizzling;
 
 public class DebugGraphPrinter implements PersistenceFunction
 {
@@ -44,10 +45,10 @@ public class DebugGraphPrinter implements PersistenceFunction
 	)
 	{
 		super();
-		this.objectManager      = notNull(objectManager)      ;
-		this.typeHandlerManager = notNull(typeManager)        ;
+		this.objectManager      = notNull(objectManager)        ;
+		this.typeHandlerManager = notNull(typeManager)          ;
 		this.objectIdsSlots     = new DebugGraphPrinter.Entry[1];
-		this.objectIdsModulo    = 0       ;
+		this.objectIdsModulo    = 0                             ;
 	}
 
 	public DebugGraphPrinter(
@@ -83,7 +84,7 @@ public class DebugGraphPrinter implements PersistenceFunction
 		if(instance == null)
 		{
 			System.out.println(this.vc.add(instance));
-			return 0L;
+			return Swizzling.nullId();
 		}
 
 		final long objectId = this.objectManager.ensureObjectId(instance);
@@ -95,7 +96,7 @@ public class DebugGraphPrinter implements PersistenceFunction
 		System.out.println(this.vc);
 		if(this.isRegisteredLocal(instance))
 		{
-			return 0L;
+			return Swizzling.nullId();
 		}
 
 		// ensure type handler (or fail if type is not persistable) before ensuring oid
@@ -112,7 +113,8 @@ public class DebugGraphPrinter implements PersistenceFunction
 		handler.iterateInstanceReferences(instance, this);
 		this.level--;
 
-		return 0L; // registerer does not need to return the oid
+		// return value is irrelevant for a debuging graph printer.
+		return Swizzling.nullId();
 	}
 
 

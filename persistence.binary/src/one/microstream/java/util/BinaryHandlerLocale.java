@@ -7,7 +7,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerLocale extends AbstractBinaryHandlerCustomValueVariableLength<Locale>
+public final class BinaryHandlerLocale extends AbstractBinaryHandlerCustomValueVariableLength<Locale, String>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -59,7 +59,7 @@ public final class BinaryHandlerLocale extends AbstractBinaryHandlerCustomValueV
 	)
 	{
 		// for once, they managed to do a kind of proper de/serialization logic. Amazing.
-		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
+		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
@@ -71,14 +71,22 @@ public final class BinaryHandlerLocale extends AbstractBinaryHandlerCustomValueV
 		return Locale.forLanguageTag(binaryState(data));
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
 	@Override
-	public void validateState(
-		final Binary                 data    ,
-		final Locale                 instance,
-		final PersistenceLoadHandler handler
-	)
+	public String getValidationStateFromInstance(final Locale instance)
 	{
-		compareSimpleState(instance, instanceState(instance), binaryState(data));
+		return instanceState(instance);
+	}
+	
+	@Override
+	public String getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
 	}
 
 }

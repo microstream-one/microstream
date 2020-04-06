@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFoundation;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceRefactoringMappingProvider;
@@ -12,6 +13,7 @@ import one.microstream.persistence.types.PersistenceRootResolver;
 import one.microstream.persistence.types.PersistenceRootResolverProvider;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
+import one.microstream.persistence.types.PersistenceTypeEvaluator;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeHandlerRegistration;
@@ -53,12 +55,40 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	public EmbeddedStorageConnectionFoundation<?> getConnectionFoundation();
 	
 	/**
+	 * The register of {@link Database}s where {@link StorageManager} instances created by this foundation
+	 * instance will be registered. By default, this is the global singleton returned by {@link Databases#get()},
+	 * but it can be set to any arbitrary {@link Databases} instances by calling {@link #setDatabases(Databases)}.
+	 * 
+	 * @return the {@link Databases} instance used to register newly created {@link StorageManager} instances.
+	 * 
+	 * @see #setDatabases(Databases)
+	 * @see #setDataBaseName(String)
+	 * @see #getDataBaseName()
+	 */
+	public Databases getDatabases();
+	
+	/**
+	 * A name uniquely identifying the {@link Database} where {@link StorageManager} instances created by
+	 * this foundation will belong to. If no arbitrary name has been set by calling {@link #setDataBaseName(String)},
+	 * a generic name is derived using the storage location.
+	 * 
+	 * @return a name uniquely identifying the {@link Database} to be used.
+	 * 
+	 * @see #setDataBaseName(String)
+	 * @see #setDatabases(Databases)
+	 * @see #getDatabases()
+	 */
+	public String getDataBaseName();
+	
+	/**
 	 * Returns the internal {@link EmbeddedStorageConnectionFoundation} instance's
 	 * {@link PersistenceRootResolverProvider} instance. If none is present so far, a new default one is created.
 	 * 
 	 * @return the {@link PersistenceRootResolverProvider} instance to be used.
 	 */
 	public PersistenceRootResolverProvider getRootResolverProvider();
+		
+	public PersistenceTypeEvaluator getTypeEvaluatorPersistable();
 	
 	/**
 	 * Executes the passed {@literal logic} on the {@link EmbeddedStorageConnectionFoundation} instance provided
@@ -181,6 +211,30 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	public F setConnectionFoundation(EmbeddedStorageConnectionFoundation<?> connectionFoundation);
 	
 	/**
+	 * Sets the {@link Databases} instance to be used to register newly created {@link StorageManager} instances.<br>
+	 * Also see the description in {@link #getDatabases()}.
+	 * 
+	 * @param databases the {@link Databases} instance used to register newly created {@link StorageManager} instances.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 * 
+	 * @see #getDatabases()
+	 * @see #getDataBaseName()
+	 * @see #setDataBaseName(String)
+	 */
+	public F setDatabases(Databases databases);
+	
+	/**
+	 * Sets the name uniquely identifying the {@link Database} to be used.<br>
+	 * Also see the description in {@link #getDataBaseName()}.
+	 * 
+	 * @param dataBaseName the name of the {@link Database} to be used
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setDataBaseName(String dataBaseName);
+	
+	/**
 	 * Registers the passed {@literal root} instance as the root instance at the
 	 * {@link EmbeddedStorageConnectionFoundation} instance provided by
 	 * {@link #getConnectionFoundation()}.<br>
@@ -252,6 +306,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * 
 	 */
 	public F setRootResolverProvider(PersistenceRootResolverProvider rootResolverProvider);
+		
+	public F setTypeEvaluatorPersistable(PersistenceTypeEvaluator typeEvaluatorPersistable);
 	
 	/**
 	 * Sets the passed {@link PersistenceRefactoringMappingProvider} instance to the
@@ -301,7 +357,10 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		// instance fields //
 		////////////////////
 
-		private EmbeddedStorageConnectionFoundation<?> connectionFoundation;
+		private EmbeddedStorageConnectionFoundation<?> connectionFoundation    ;
+		private PersistenceTypeEvaluator               typeEvaluatorPersistable;
+		private Databases                              databases               ;
+		private String                                 dataBaseName            ;
 		
 		
 		
@@ -364,11 +423,30 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			return this.$();
 		}
 		
-		protected EmbeddedStorageConnectionFoundation<?> createConnectionFoundation()
+		protected EmbeddedStorageConnectionFoundation<?> ensureConnectionFoundation()
 		{
-			throw new MissingFoundationPartException(EmbeddedStorageConnectionFoundation.class);
-//			return new EmbeddedStorageConnectionFoundation.Default();
+			final StorageConfiguration     configuration = this.getConfiguration();
+			final PersistenceTypeEvaluator typeEvaluator = this.getTypeEvaluatorPersistable();
+			
+			return EmbeddedStorage.ConnectionFoundation(configuration, typeEvaluator);
 		}
+		
+		protected Databases ensureDatabases()
+		{
+			return Databases.get();
+		}
+		
+		protected String ensureDatabaseName()
+		{
+			final StorageConfiguration config       = this.getConfiguration();
+			final StorageFileProvider  fileProvider = config.fileProvider();
+			final String               defaultName  = Persistence.engineName()
+				+ "@" + fileProvider.getStorageLocationIdentifier()
+			;
+			
+			return defaultName;
+		}
+		
 
 		@Override
 		protected EmbeddedStorageRootTypeIdProvider ensureRootTypeIdProvider()
@@ -387,16 +465,50 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		{
 			if(this.connectionFoundation == null)
 			{
-				this.connectionFoundation = this.dispatch(this.createConnectionFoundation());
+				// tricky callback-creation special case. See comment in #setConnectionFoundation
+				this.setConnectionFoundation(this.dispatch(this.ensureConnectionFoundation()));
 			}
 			
 			return this.connectionFoundation;
 		}
 		
 		@Override
+		public Databases getDatabases()
+		{
+			if(this.databases == null)
+			{
+				this.databases = this.dispatch(this.ensureDatabases());
+			}
+			
+			return this.databases;
+		}
+		
+		@Override
+		public String getDataBaseName()
+		{
+			if(this.dataBaseName == null)
+			{
+				this.dataBaseName = this.dispatch(this.ensureDatabaseName());
+			}
+			
+			return this.dataBaseName;
+		}
+		
+		@Override
 		public PersistenceRootResolverProvider getRootResolverProvider()
 		{
 			return this.getConnectionFoundation().getRootResolverProvider();
+		}
+		
+		@Override
+		public PersistenceTypeEvaluator getTypeEvaluatorPersistable()
+		{
+			if(this.typeEvaluatorPersistable == null)
+			{
+				this.typeEvaluatorPersistable = this.dispatch(this.ensureTypeEvaluatorPersistable());
+			}
+			
+			return this.typeEvaluatorPersistable;
 		}
 
 		/* (02.03.2014 TM)TODO: Storage Configuration more dynamic
@@ -482,13 +594,30 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		{
 			this.connectionFoundation = connectionFoundation;
 
-			/* Tricky: this instance must be set as a callback StorageSystem supplier in case
+			/*
+			 * Tricky: this instance must be set as a callback StorageSystem supplier in case
 			 * the getStorageSystem method is called before createEmbeddedStorageSystem.
 			 * E.g.: setting customizing logic
 			 */
 			this.connectionFoundation.setStorageSystemSupplier(() ->
 				this.createStorageSystem()
 			);
+			
+			return this.$();
+		}
+		
+		@Override
+		public F setDatabases(final Databases databases)
+		{
+			this.databases = databases;
+			
+			return this.$();
+		}
+		
+		@Override
+		public F setDataBaseName(final String dataBaseName)
+		{
+			this.dataBaseName = dataBaseName;
 			
 			return this.$();
 		}
@@ -510,10 +639,18 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			super.setTimestampProvider(timestampProvider);
 			return this.$();
 		}
+		
+		@Override
+		public F setTypeEvaluatorPersistable(final PersistenceTypeEvaluator typeEvaluatorPersistable)
+		{
+			this.typeEvaluatorPersistable = typeEvaluatorPersistable;
+			
+			return this.$();
+		}
 
 		private void initializeEmbeddedStorageRootTypeIdProvider(
 			final StorageRootTypeIdProvider rootTypeIdProvider,
-			final PersistenceTypeManager        typeIdLookup
+			final PersistenceTypeManager    typeIdLookup
 		)
 		{
 			// a little hacky instanceof here, maybe refactor to cleaner structure in the future
@@ -558,10 +695,26 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			this.getConnectionFoundation().registerCustomTypeHandlers(typeHandlers);
 			return this.$();
 		}
+		
+		protected Database ensureDatabase()
+		{
+			final String    databaseName = this.getDataBaseName();
+			final Databases databases    = this.getDatabases();
+			final Database  database     = databases.ensureStoragelessDatabase(databaseName);
+			
+			return database;
+		}
+		
+		protected PersistenceTypeEvaluator ensureTypeEvaluatorPersistable()
+		{
+			return Persistence::isPersistable;
+		}
 								
 		@Override
 		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object root)
 		{
+			final Database database = this.ensureDatabase();
+			
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
 			
 			// explicit root must be registered at the rootResolverProvider.
@@ -586,10 +739,13 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			this.initializeEmbeddedStorageRootTypeIdProvider(this.getRootTypeIdProvider(), thm);
 				
 			// everything bundled together in the actual manager instance
-			final EmbeddedStorageManager esm = EmbeddedStorageManager.New(stm.configuration(), ecf, prp);
+			final EmbeddedStorageManager esm = EmbeddedStorageManager.New(database, stm.configuration(), ecf, prp);
 			
-			// esm reference must be fed back to persistence layer as the "top level" Persister to be used.
-			ecf.setPersister(esm);
+			// link back to database
+			database.setStorage(esm);
+			
+			// db reference must be fed back to persistence layer as the "top level" Persister to be used.
+			ecf.setPersister(database);
 			
 			return esm;
 		}

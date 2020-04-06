@@ -8,7 +8,8 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomValueFixedLength<OptionalInt>
+public final class BinaryHandlerOptionalInt
+extends AbstractBinaryHandlerCustomValueFixedLength<OptionalInt, Integer>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -20,6 +21,8 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 		BINARY_LENGTH            = BINARY_OFFSET_VALUE      + Integer.BYTES
 	;
 
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
@@ -66,7 +69,7 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 	
 	private static int binaryState(final Binary data)
 	{
-		return data.read_int(0);
+		return data.read_int(BINARY_OFFSET_VALUE);
 	}
 
 	@Override
@@ -116,6 +119,26 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 		;
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
+	// actually never called, just to satisfy the interface
+	@Override
+	public Integer getValidationStateFromInstance(final OptionalInt instance)
+	{
+		return instanceState(instance);
+	}
+
+	// actually never called, just to satisfy the interface
+	@Override
+	public Integer getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
+	}
+	
 	@Override
 	public void validateState(
 		final Binary                 data    ,
@@ -131,7 +154,7 @@ public final class BinaryHandlerOptionalInt extends AbstractBinaryHandlerCustomV
 			return;
 		}
 		
-		throwInconsistentStateException(instance, instanceState, binaryState);
+		this.throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 	
 }

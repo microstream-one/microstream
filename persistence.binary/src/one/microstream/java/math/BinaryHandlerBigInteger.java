@@ -8,7 +8,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerCustomValueVariableLength<BigInteger>
+public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerCustomValueVariableLength<BigInteger, byte[]>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -63,6 +63,26 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerCustomVa
 		return new BigInteger(data.build_bytes());
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
+	// actually never called, just to satisfy the interface
+	@Override
+	public byte[] getValidationStateFromInstance(final BigInteger instance)
+	{
+		return instanceState(instance);
+	}
+
+	// actually never called, just to satisfy the interface
+	@Override
+	public byte[] getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
+	}
+	
 	@Override
 	public void validateState(
 		final Binary                 data    ,
@@ -78,7 +98,7 @@ public final class BinaryHandlerBigInteger extends AbstractBinaryHandlerCustomVa
 			return;
 		}
 		
-		throwInconsistentStateException(instance, Arrays.toString(instanceState), Arrays.toString(binaryState));
+		this.throwInconsistentStateException(instance, Arrays.toString(instanceState), Arrays.toString(binaryState));
 	}
 	
 }

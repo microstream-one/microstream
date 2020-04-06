@@ -50,12 +50,20 @@ import one.microstream.java.lang.BinaryHandlerStringBuilder;
 import one.microstream.java.lang.BinaryHandlerVoid;
 import one.microstream.java.math.BinaryHandlerBigDecimal;
 import one.microstream.java.math.BinaryHandlerBigInteger;
+import one.microstream.java.net.BinaryHandlerInet4Address;
+import one.microstream.java.net.BinaryHandlerInet6Address;
+import one.microstream.java.net.BinaryHandlerInetAddress;
+import one.microstream.java.net.BinaryHandlerInetSocketAddress;
+import one.microstream.java.net.BinaryHandlerURI;
+import one.microstream.java.net.BinaryHandlerURL;
+import one.microstream.java.nio.file.BinaryHandlerPath;
 import one.microstream.java.sql.BinaryHandlerSqlDate;
 import one.microstream.java.sql.BinaryHandlerSqlTime;
 import one.microstream.java.sql.BinaryHandlerSqlTimestamp;
 import one.microstream.java.util.BinaryHandlerArrayDeque;
 import one.microstream.java.util.BinaryHandlerArrayList;
 import one.microstream.java.util.BinaryHandlerCopyOnWriteArrayList;
+import one.microstream.java.util.BinaryHandlerCurrency;
 import one.microstream.java.util.BinaryHandlerDate;
 import one.microstream.java.util.BinaryHandlerHashMap;
 import one.microstream.java.util.BinaryHandlerHashSet;
@@ -80,6 +88,7 @@ import one.microstream.java.util.concurrent.BinaryHandlerConcurrentLinkedDeque;
 import one.microstream.java.util.concurrent.BinaryHandlerConcurrentLinkedQueue;
 import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListMap;
 import one.microstream.java.util.concurrent.BinaryHandlerConcurrentSkipListSet;
+import one.microstream.java.util.regex.BinaryHandlerPattern;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.BinaryHandlerPrimitive;
 import one.microstream.persistence.binary.internal.BinaryHandlerSingletonStatelessEnum;
@@ -97,6 +106,7 @@ import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeIdLookup;
 import one.microstream.reference.BinaryHandlerLazyDefault;
 import one.microstream.reference.Referencing;
+import one.microstream.reference.Swizzling;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BinaryHandlerSubstituterDefault;
 
@@ -151,7 +161,7 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		final long nativeTypeId = nativeTypeIdLookup.lookupTypeId(typeHandler.type());
-		if(nativeTypeId == 0)
+		if(Swizzling.isNotFoundId(nativeTypeId))
 		{
 			// (07.11.2018 TM)EXCP: proper exception
 			throw new PersistenceException("No native TypeId found for type " + typeHandler.type());
@@ -204,9 +214,23 @@ public final class BinaryPersistence extends Persistence
 			
 			BinaryHandlerBigInteger.New(),
 			BinaryHandlerBigDecimal.New(),
-			BinaryHandlerFile.New()      ,
-			BinaryHandlerDate.New()      ,
-			BinaryHandlerLocale.New()    ,
+			
+			BinaryHandlerFile.New()    ,
+			BinaryHandlerDate.New()    ,
+			BinaryHandlerLocale.New()  ,
+			BinaryHandlerCurrency.New(),
+			BinaryHandlerPattern.New() ,
+			
+			BinaryHandlerInetAddress.New() ,
+			BinaryHandlerInet4Address.New(),
+			BinaryHandlerInet6Address.New(),
+			
+			BinaryHandlerPath.New(), // "abstract type" TypeHandler
+			
+			BinaryHandlerInetSocketAddress.New(),
+			
+			BinaryHandlerURI.New(),
+			BinaryHandlerURL.New(),
 
 			// non-sensical handlers required for confused developers
 			BinaryHandlerSqlDate.New()     ,
@@ -307,7 +331,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerLazyDefault.New(),
 			
 			// the way Optional is implemented, only a generically (low-level) working handler can handle it correctly
-			typeHandlerCreator.createTypeHandler(Optional.class)
+			typeHandlerCreator.createTypeHandlerGeneric(Optional.class)
 		);
 		
 		return nativeHandlers;

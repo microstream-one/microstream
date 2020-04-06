@@ -10,12 +10,8 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-/* (27.11.2019 TM)FIXME: BinaryHandlerPath
- * This thing is not trivial to use.
- * See priv#185, priv#186, priv#187.
- * Until further notice, Path remains unhandled.
- */
-public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVariableLength<Path>
+// this is an "abstract type" TypeHandler that handles all classess implementing Path as Path, not as the actual class.
+public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVariableLength<Path, String>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -67,7 +63,7 @@ public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVar
 	)
 	{
 		// uri starts with a schema specification that basically defines the type/implementation of the path.
-		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
+		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
@@ -77,14 +73,22 @@ public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVar
 		return Paths.get(URI.create(binaryState(data)));
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
 	@Override
-	public void validateState(
-		final Binary                 data    ,
-		final Path                   instance,
-		final PersistenceLoadHandler handler
-	)
+	public String getValidationStateFromInstance(final Path instance)
 	{
-		compareSimpleState(instance, instanceState(instance), binaryState(data));
+		return instanceState(instance);
+	}
+
+	@Override
+	public String getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
 	}
 
 }

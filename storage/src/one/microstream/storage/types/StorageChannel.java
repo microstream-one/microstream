@@ -16,11 +16,12 @@ import one.microstream.persistence.binary.types.ChunksBufferByteReversing;
 import one.microstream.persistence.types.PersistenceIdSet;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageException;
+import one.microstream.time.XTime;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.BufferSizeProviderIncremental;
 
 
-public interface StorageChannel extends Runnable, StorageHashChannelPart, StorageActivePart
+public interface StorageChannel extends Runnable, StorageChannelResetablePart, StorageActivePart
 {
 	public StorageTypeDictionary typeDictionary();
 
@@ -41,11 +42,11 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 
 	public StorageInventory readStorage();
 
-	public boolean issuedGarbageCollection(long nanoTimeBudgetBound);
+	public boolean issuedGarbageCollection(long nanoTimeBudget);
 
-	public boolean issuedFileCheck(long nanoTimeBudgetBound);
+	public boolean issuedFileCheck(long nanoTimeBudget);
 
-	public boolean issuedCacheCheck(long nanoTimeBudgetBound, StorageEntityCacheEvaluator entityEvaluator);
+	public boolean issuedCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
 
 	public void exportData(StorageIoHandler fileHandler);
 
@@ -75,8 +76,6 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 		StorageInventory storageInventory
 	);
 
-	public void clear();
-
 	public void signalGarbageCollectionSweepCompleted();
 
 //	public void truncateData();
@@ -84,6 +83,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 	public void cleanupStore();
 
 
+	
 
 	public final class Default implements StorageChannel, Unpersistable
 	{
@@ -123,9 +123,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 		private long housekeepingIntervalBudgetNs;
 		
 		private boolean active;
-
-
-
+		
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -230,10 +228,12 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 //			DEBUGStorage.println(this.channelIndex + " ending housekeeping, total time (ns) = " + duration + " of " + budget + "(" + ratio + "%)");
 		}
 
-		private long calculateSpecificHousekeepingTimeBudgetBound(final long specificBudget)
+		private long calculateSpecificHousekeepingTimeBudgetBound(final long nanoTimeBudget)
 		{
 //			DEBUGStorage.println(this.channelIndex + " spec budget = " + specificBudget + ", gen budget = " + this.housekeepingIntervalBudgetNs);
-			return System.nanoTime() + Math.min(specificBudget, this.housekeepingIntervalBudgetNs);
+			return XTime.calculateNanoTimeBudgetBound(
+				Math.min(nanoTimeBudget, this.housekeepingIntervalBudgetNs)
+			);
 		}
 
 		final boolean houseKeepingCheckFileCleanup()
@@ -370,7 +370,7 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 			{
 				try
 				{
-					this.clear();
+					this.reset();
 				}
 				catch(final Throwable t1)
 				{
@@ -475,24 +475,24 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 		}
 
 		@Override
-		public final boolean issuedGarbageCollection(final long nanoTimeBudgetBound)
+		public final boolean issuedGarbageCollection(final long nanoTimeBudget)
 		{
-			return this.entityCache.issuedGarbageCollection(nanoTimeBudgetBound, this);
+			return this.entityCache.issuedGarbageCollection(nanoTimeBudget, this);
 		}
 
 		@Override
-		public boolean issuedFileCheck(final long nanoTimeBudgetBound)
+		public boolean issuedFileCheck(final long nanoTimeBudget)
 		{
-			return this.fileManager.issuedFileCleanupCheck(nanoTimeBudgetBound);
+			return this.fileManager.issuedFileCleanupCheck(nanoTimeBudget);
 		}
 
 		@Override
 		public boolean issuedCacheCheck(
-			final long                        nanoTimeBudgetBound,
+			final long                        nanoTimeBudget,
 			final StorageEntityCacheEvaluator entityEvaluator
 		)
 		{
-			return this.entityCache.issuedCacheCheck(nanoTimeBudgetBound, entityEvaluator);
+			return this.entityCache.issuedCacheCheck(nanoTimeBudget, entityEvaluator);
 		}
 
 		@Override
@@ -618,26 +618,25 @@ public interface StorageChannel extends Runnable, StorageHashChannelPart, Storag
 			return this.fileManager.initializeStorage(
 				taskTimestamp           ,
 				consistentStoreTimestamp,
-				storageInventory
+				storageInventory        ,
+				this
 			);
 		}
-		
-		final void closeAllResources()
-		{
-			this.fileManager.clearRegisteredFiles();
-		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
-		public final void clear()
+		public final void reset()
 		{
-			this.entityCache.clearState();
-			this.closeAllResources();
+			this.entityCache.reset();
+			this.fileManager.reset();
 		}
 
 		@Override
 		public final void signalGarbageCollectionSweepCompleted()
 		{
-			this.fileManager.resetFileCleanupCursor();
+			this.fileManager.restartFileCleanupCursor();
 		}
 
 		@Override

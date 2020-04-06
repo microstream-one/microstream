@@ -15,9 +15,9 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 		// instance fields //
 		////////////////////
 
-		private final StorageTask actualTask         ;
-		private final long        nanoTimeBudgetBound;
-		private       boolean     completed          ;
+		private final StorageTask actualTask    ;
+		private final long        nanoTimeBudget;
+		private       boolean     completed     ;
 
 
 
@@ -27,15 +27,15 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 		/////////////////
 
 		Default(
-			final long        timestamp          ,
-			final int         channelCount       ,
-			final long        nanoTimeBudgetBound,
+			final long        timestamp     ,
+			final int         channelCount  ,
+			final long        nanoTimeBudget,
 			final StorageTask actualTask
 		)
 		{
 			super(timestamp, channelCount);
-			this.actualTask          = actualTask         ;
-			this.nanoTimeBudgetBound = nanoTimeBudgetBound;
+			this.actualTask     = actualTask    ;
+			this.nanoTimeBudget = nanoTimeBudget;
 		}
 
 
@@ -48,7 +48,7 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 		protected final Boolean internalProcessBy(final StorageChannel channel)
 		{
 			// returns true if nothing to do or completed sweep (=done), false otherwise (in marking phase)
-			return channel.issuedGarbageCollection(this.nanoTimeBudgetBound);
+			return channel.issuedGarbageCollection(this.nanoTimeBudget);
 		}
 
 		private synchronized void setActualTask() // must be synchronized to set exactely only once for all channels

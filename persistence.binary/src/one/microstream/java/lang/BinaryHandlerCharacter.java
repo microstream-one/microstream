@@ -5,7 +5,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerCharacter extends AbstractBinaryHandlerCustomValueFixedLength<Character>
+public final class BinaryHandlerCharacter extends AbstractBinaryHandlerCustomValueFixedLength<Character, Character>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -55,6 +55,27 @@ public final class BinaryHandlerCharacter extends AbstractBinaryHandlerCustomVal
 		return data.buildCharacter();
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
+	// actually never called, just to satisfy the interface
+	@Override
+	public Character getValidationStateFromInstance(final Character instance)
+	{
+		// well, lol
+		return instance;
+	}
+
+	// actually never called, just to satisfy the interface
+	@Override
+	public Character getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
+	}
+	
 	@Override
 	public void validateState(
 		final Binary                 data    ,
@@ -70,7 +91,7 @@ public final class BinaryHandlerCharacter extends AbstractBinaryHandlerCustomVal
 			return;
 		}
 		
-		throwInconsistentStateException(instance, instanceState, binaryState);
+		this.throwInconsistentStateException(instance, instanceState, binaryState);
 	}
 
 }

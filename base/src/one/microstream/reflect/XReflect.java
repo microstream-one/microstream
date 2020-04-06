@@ -681,10 +681,10 @@ public final class XReflect
 			throw new IllegalAccessRuntimeException(e);
 		}
 	}
-
+	
 	/**
 	 * Resolves the passed type name to a runtime type (instance of type {@link Class}).
-	 * In contrary to {@link Class#forName(String)}, this method can resolve primitive type names, as well.
+	 * In contrary to JDK's type resolving mechanisms, this method resolves primitive type names, as well.
 	 * <p>
 	 * Note on naming:<br>
 	 * 1.) Looking up a runtime type instance for a type name string is best described as "resolving" the type.<br>
@@ -692,16 +692,37 @@ public final class XReflect
 	 * (classes, interfaces, arrays and in later Java versions enums and annotations), not just classes.
 	 * That the java inventors seemingly didn't understand their own type system and just called everything
 	 * "Class" on the API-level,* even interfaces, is just an error that should be repeated as less as possible.<br>
-	 * In conclusion, the proper naming for the action executed by this method (meaning a verb)
-	 * is "resolveType" and not a dilettantish "forName" as in {@link Class#forName(String)}.
 	 * 
 	 * @param typeName the type name to be resolved, primitive name or full qualified type name.
+	 * 
 	 * @return the resolved type instance (of type {@link Class})
+	 * 
 	 * @throws LinkageError see {@link Class#forName(String)}
 	 * @throws ExceptionInInitializerError see {@link Class#forName(String)}
 	 * @throws ClassNotFoundException see {@link Class#forName(String)}
 	 */
-	public static final Class<?> resolveType(final String typeName)
+	public static final Class<?> resolveType(final String typeName, final ClassLoader classLoader)
+		throws LinkageError, ExceptionInInitializerError, ClassNotFoundException
+	{
+		final Class<?> type = tryResolvePrimitiveType(typeName);
+		return type != null
+			? type
+			: Class.forName(typeName, true, classLoader)
+		;
+	}
+	
+	/**
+	 * Uses {@link Class#forName(String)} which uses the calling class's {@link ClassLoader}.
+	 * 
+	 * @param typeName
+	 * 
+	 * @return
+	 * 
+	 * @throws LinkageError
+	 * @throws ExceptionInInitializerError
+	 * @throws ClassNotFoundException
+	 */
+	public static final Class<?> resolveTypeForName(final String typeName)
 		throws LinkageError, ExceptionInInitializerError, ClassNotFoundException
 	{
 		final Class<?> type = tryResolvePrimitiveType(typeName);
@@ -712,7 +733,7 @@ public final class XReflect
 	}
 	
 	/**
-	 * Calls {@link #resolveType(String)}, but suppresses any {@link ClassNotFoundException} and returns
+	 * Calls {@link #resolveType(String, ClassLoader)}, but suppresses any {@link ClassNotFoundException} and returns
 	 * {@code null} instead. This is useful if the passed class name is only potentially resolvable
 	 * at runtime and is still valid if not. Example: resolving a old type dictionary as far as possible
 	 * and marking the not resolvable types as unresolvable.
@@ -720,11 +741,11 @@ public final class XReflect
 	 * @param className
 	 * @return the {@link Class} instance representing the passed class name or {@code null} if unresolevable.
 	 */
-	public static final Class<?> tryResolveType(final String className)
+	public static final Class<?> tryResolveType(final String className, final ClassLoader classLoader)
 	{
 		try
 		{
-			return XReflect.resolveType(className);
+			return XReflect.resolveType(className, classLoader);
 		}
 		catch(final ClassNotFoundException e)
 		{
@@ -734,7 +755,7 @@ public final class XReflect
 	}
 	
 	/**
-	 * Alias for {@link #tryIterativeResolveType(String...)} with the following difference:<br>
+	 * Alias for {@link #tryIterativeResolveType(ClassLoader, String...)} with the following difference:<br>
 	 * If none of the passed {@literal typeNames} can be resolved, a {@link ClassNotFoundException} listing
 	 * all passed {@literal typeNames} is thrown.
 	 * 
@@ -744,12 +765,15 @@ public final class XReflect
 	 * 
 	 * @throws ClassNotFoundException if none of the passed {@literal typeNames} could have been resolved.
 	 * 
-	 * @see Class#forName(String)
+	 * @see #tryIterativeResolveType(ClassLoader, String)
 	 */
-	public static final Class<?> iterativeResolveType(final String... typeNames)
+	public static final Class<?> iterativeResolveType(
+		final ClassLoader classLoader,
+		final String...   typeNames
+	)
 		throws ClassNotFoundException
 	{
-		final Class<?> type = tryIterativeResolveType(typeNames);
+		final Class<?> type = tryIterativeResolveType(classLoader, typeNames);
 		if(type != null)
 		{
 			return type;
@@ -761,10 +785,10 @@ public final class XReflect
 	
 	/**
 	 * This methods attempts to resolve the passed {@literal typeNames} to {@link Class} instances using
-	 * {@link Class#forName(String)} one by one.
+	 * {@link #resolveType(ClassLoader, String)} one by one.
 	 * The {@link Class} instance of the first successful attempt is returned.
 	 * If none of the passed {@literal typeNames} can be resolved, {@literal null} is returned.
-	 * See {@link #iterativeResolveType(String...)} for an exception-throwing version.
+	 * See {@link #iterativeResolveType(ClassLoader, String...)} for an exception-throwing version.
 	 * <p>
 	 * <b>Note:</b><br>
 	 * While it is generally a bad idea to just use a trial and error approach until something works,
@@ -782,9 +806,12 @@ public final class XReflect
 	 * 
 	 * @return the first successfully resolved {@link Class} instance or {@literal null}
 	 * 
-	 * @see Class#forName(String)
+	 * @see #resolveType(ClassLoader, String)
 	 */
-	public static final Class<?> tryIterativeResolveType(final String... typeNames)
+	public static final Class<?> tryIterativeResolveType(
+		final ClassLoader classLoader,
+		final String...   typeNames
+	)
 	{
 		notNull(typeNames);
 		notEmpty(typeNames);
@@ -794,7 +821,7 @@ public final class XReflect
 			try
 			{
 				// just a debug hook
-				final Class<?> type = Class.forName(typeName);
+				final Class<?> type = resolveType(typeName, classLoader);
 				return type;
 			}
 			catch(final ClassNotFoundException e)
@@ -806,8 +833,64 @@ public final class XReflect
 		
 		return null;
 	}
+	
+	/**
+	 * Local alias for {@link ClassLoader#getSystemClassLoader()}.
+	 * 
+	 * @return the system class loader.
+	 */
+	public static final ClassLoader defaultTypeResolvingClassLoader()
+	{
+		return ClassLoader.getSystemClassLoader();
+	}
+	
+	/**
+	 * Calls {@link #resolveType(String, ClassLoader)} with {@link #defaultTypeResolvingClassLoader()}.
+	 * Make sure this is a suitable {@link ClassLoader} when using this method.
+	 * 
+	 * @param typeName
+	 * @return
+	 */
+	public static final Class<?> resolveType(final String typeName)
+		throws LinkageError, ExceptionInInitializerError, ClassNotFoundException
+	{
+		return resolveType(typeName, defaultTypeResolvingClassLoader());
+	}
+	
+	/**
+	 * Calls {@link #tryResolveType(String, ClassLoader)} with {@link #defaultTypeResolvingClassLoader()}.
+	 * Make sure this is a suitable {@link ClassLoader} when using this method.
+	 * 
+	 * @param className
+	 * @return
+	 */
+	public static final Class<?> tryResolveType(final String className)
+	{
+		return tryResolveType(className, defaultTypeResolvingClassLoader());
+	}
+	
+	/**
+	 * Calls {@link #iterativeResolveType(ClassLoader, String...)} with {@link #defaultTypeResolvingClassLoader()}.
+	 * Make sure this is a suitable {@link ClassLoader} when using this method.
+	 * 
+	 * @param typeName
+	 * @return
+	 */
+	public static final Class<?> iterativeResolveType(final String... typeNames)
+		throws ClassNotFoundException
+	{
+		return iterativeResolveType(defaultTypeResolvingClassLoader(), typeNames);
+	}
+	
+	public static final Class<?> tryIterativeResolveType(final String... typeNames)
+	{
+		return tryIterativeResolveType(defaultTypeResolvingClassLoader(), typeNames);
+	}
 		
-	public static final Field tryGetDeclaredField(final Class<?> declaringClass, final String fieldName)
+	public static final Field tryGetDeclaredField(
+		final Class<?> declaringClass,
+		final String   fieldName
+	)
 	{
 		if(declaringClass == null)
 		{
@@ -824,8 +907,6 @@ public final class XReflect
 			return null;
 		}
 	}
-	
-	
 
 	public static final Class<?> tryResolvePrimitiveType(final String className)
 	{
@@ -1177,8 +1258,213 @@ public final class XReflect
 		}
 		return length;
 	}
+	
+	public static <T, S extends T> S copyFields(
+		final T source,
+		final S target
+	)
+	{
+		return copyFields(source, target, XFunc.all(), CopyPredicate::all);
+	}
+	
+	public static <T, S extends T> S copyFields(
+		final T                        source       ,
+		final S                        target       ,
+		final Predicate<? super Field> fieldSelector
+	)
+	{
+		return copyFields(source, target, fieldSelector, CopyPredicate::all);
+	}
 		
 
+	public static <T, S extends T> S copyFields(
+		final T                        source       ,
+		final S                        target       ,
+		final Predicate<? super Field> fieldSelector,
+		final CopyPredicate            copySelector
+	)
+	{
+		validateFamiliarClass(source, target);
+		final Field[] copyFields = collectInstanceFields(source.getClass(), fieldSelector);
+		
+		for(final Field field : copyFields)
+		{
+			try
+			{
+				copyFieldValue(source, target, field, copySelector);
+			}
+			catch(final Exception e)
+			{
+				// (27.02.2020 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Cannot copy value of field " + field
+					+ " from source instance " + XChars.systemString(source)
+					+ " to target instance "   + XChars.systemString(target) + ".",
+					e
+				);
+			}
+		}
+		
+		return target;
+	}
+	
+	final static <T, S extends T> S copyFields(
+		final T             source       ,
+		final S             target       ,
+		final Field[]       copyFields,
+		final CopyPredicate copySelector
+	)
+	{
+		validateFamiliarClass(source, target);
+		for(final Field field : copyFields)
+		{
+			try
+			{
+				copyFieldValue(source, target, field, copySelector);
+			}
+			catch(final Exception e)
+			{
+				// (27.02.2020 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Cannot copy value of field " + field
+					+ " from source instance " + XChars.systemString(source)
+					+ " to target instance "   + XChars.systemString(target) + ".",
+					e
+				);
+			}
+		}
+		
+		return target;
+	}
+	
+	private static <T, S extends T> void copyFieldValue(
+		final T             source      ,
+		final S             target      ,
+		final Field         field       ,
+		final CopyPredicate copySelector
+	)
+		throws IllegalArgumentException, IllegalAccessException
+	{
+		// must circumvent reflection access by low-level access due to warnings about JDK-internal reflection access.
+		final long fieldOffset = XMemory.objectFieldOffset(field);
+//		XReflect.setAccessible(field);
+		
+		if(field.getType().isPrimitive())
+		{
+			copyPrimitiveFieldValue(source, target, field, fieldOffset, copySelector);
+			return;
+		}
+
+		final Object value = XMemory.getObject(source, fieldOffset);
+//		final Object value = field.get(source);
+		if(!copySelector.test(source, target, field, value))
+		{
+			return;
+		}
+		
+		XMemory.setObject(target, fieldOffset, value);
+//		field.set(target, value);
+	}
+	
+	private static <T, S extends T>void copyPrimitiveFieldValue(
+		final T             source        ,
+		final S             target        ,
+		final Field         primitiveField,
+		final long          fieldOffset   ,
+		final CopyPredicate copySelector
+	)
+		throws IllegalArgumentException, IllegalAccessException
+	{
+		if(!copySelector.test(source, target, primitiveField, null))
+		{
+			return;
+		}
+
+		// must circumvent reflection access by low-level access due to warnings about JDK-internal reflection access.
+		final Class<?> primitiveType = primitiveField.getType();
+		if(primitiveType == int.class)
+		{
+			XMemory.set_int(target, fieldOffset, XMemory.get_int(source, fieldOffset));
+//			primitiveField.setInt(target, primitiveField.getInt(source));
+		}
+		else if(primitiveType == double.class)
+		{
+			XMemory.set_double(target, fieldOffset, XMemory.get_double(source, fieldOffset));
+//			primitiveField.setDouble(target, primitiveField.getDouble(source));
+		}
+		else if(primitiveType == long.class)
+		{
+			XMemory.set_long(target, fieldOffset, XMemory.get_long(source, fieldOffset));
+//			primitiveField.setLong(target, primitiveField.getLong(source));
+		}
+		else if(primitiveType == boolean.class)
+		{
+			XMemory.set_boolean(target, fieldOffset, XMemory.get_boolean(source, fieldOffset));
+//			primitiveField.setBoolean(target, primitiveField.getBoolean(source));
+		}
+		else if(primitiveType == float.class)
+		{
+			XMemory.set_float(target, fieldOffset, XMemory.get_float(source, fieldOffset));
+//			primitiveField.setFloat(target, primitiveField.getFloat(source));
+		}
+		else if(primitiveType == char.class)
+		{
+			XMemory.set_char(target, fieldOffset, XMemory.get_char(source, fieldOffset));
+//			primitiveField.setChar(target, primitiveField.getChar(source));
+		}
+		else if(primitiveType == short.class)
+		{
+			XMemory.set_short(target, fieldOffset, XMemory.get_short(source, fieldOffset));
+//			primitiveField.setShort(target, primitiveField.getShort(source));
+		}
+		else if(primitiveType == byte.class)
+		{
+			XMemory.set_byte(target, fieldOffset, XMemory.get_byte(source, fieldOffset));
+//			primitiveField.setByte(target, primitiveField.getByte(source));
+		}
+		else
+		{
+			// (27.02.2020 TM)EXCP: proper exception
+			// e.g. void.class, maybe value types in the future or whatever.
+			throw new RuntimeException("Field with unhandled primitive type: " + primitiveField);
+		}
+	}
+	
+	/**
+	 * Checks if {@code superClassInstance.getClass().isAssignableFrom(sameOrSubClassInstance.getClass())}
+	 * 
+	 * @param <T>
+	 * @param <S>
+	 * @param superClassInstance
+	 * @param sameOrSubClassInstance
+	 */
+	public static <T, S extends T> void validateFamiliarClass(
+		final T superClassInstance    ,
+		final S sameOrSubClassInstance
+	)
+	{
+		if(superClassInstance.getClass().isAssignableFrom(sameOrSubClassInstance.getClass()))
+		{
+			return;
+		}
+		
+		 // (27.02.2020 TM)EXCP: proper exception
+		throw new RuntimeException(
+			XChars.systemString(sameOrSubClassInstance)
+			+ " is not of the same class or a sub class of "
+			+ XChars.systemString(superClassInstance)
+		);
+	}
+	
+	public final static Class<?> getSuperClassNonNull(final Class<?> c)
+	{
+		return c == Object.class
+			? c
+			: c.getSuperclass()
+		;
+	}
+	
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //

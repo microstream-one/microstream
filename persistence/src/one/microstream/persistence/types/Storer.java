@@ -128,36 +128,36 @@ public interface Storer extends PersistenceStoring
 	 */
 	public long maximumCapacity();
 
-	/**
-	 * Returns whether this {@link Storer} instance has been initialized.
-	 * <p>
-	 * That being initialized means exactely depends on the implementation. The general contract means to bring the
-	 * instance's internal data into a state with which the instance can be used to perform its actual tasks.
-	 * 
-	 * @return whether this {@link Storer} instance has been initialized.
-	 */
-	public boolean isInitialized();
-
-	/**
-	 * Ensures the storer instance is initialized, i.e. ready to perform storing.
-	 * This method is idempotent.
-	 * For a forced (re)initialization, see {@link #reinitialize()}.
-	 *
-	 * @return this.
-	 */
-	public Storer initialize();
-
-	/**
-	 * Ensures the storer instance is initialized, i.e. ready to perform storing.
-	 * If the storer instance needs to be initialized as a consequence of this call, the passed {@code initialCapacity}
-	 * is considered as an estimate for the number of unique instances to be handled until the next commit.
-	 * This method is idempotent, meaning if this instance is already initialized, the passed value might not have
-	 * any effect.
-	 * For a forced (re)initialization, see {@link #reinitialize(long)}.
-	 *
-	 * @return this.
-	 */
-	public Storer initialize(long initialCapacity);
+//	/**
+//	 * Returns whether this {@link Storer} instance has been initialized.
+//	 * <p>
+//	 * What being initialized means exactely depends on the implementation. The general contract means to bring the
+//	 * instance's internal data into a state with which the instance can be used to perform its actual tasks.
+//	 *
+//	 * @return whether this {@link Storer} instance has been initialized.
+//	 */
+//	public boolean isInitialized();
+//
+//	/**
+//	 * Ensures the storer instance is initialized, i.e. ready to perform storing.
+//	 * This method is idempotent.
+//	 * For a forced (re)initialization, see {@link #reinitialize()}.
+//	 *
+//	 * @return this.
+//	 */
+//	public Storer initialize();
+//
+//	/**
+//	 * Ensures the storer instance is initialized, i.e. ready to perform storing.
+//	 * If the storer instance needs to be initialized as a consequence of this call, the passed {@code initialCapacity}
+//	 * is considered as an estimate for the number of unique instances to be handled until the next commit.
+//	 * This method is idempotent, meaning if this instance is already initialized, the passed value might not have
+//	 * any effect.
+//	 * For a forced (re)initialization, see {@link #reinitialize(long)}.
+//	 *
+//	 * @return this.
+//	 */
+//	public Storer initialize(long initialCapacity);
 
 	/**
 	 * Enforces the instance to be initialized, discarding any previous state (clearing it) if necessary prior to

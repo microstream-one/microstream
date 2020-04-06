@@ -8,10 +8,10 @@ import java.nio.channels.FileChannel;
 import java.util.Iterator;
 
 import one.microstream.X;
-import one.microstream.chars.CsvParserCharArray;
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.chars.XCsvParserCharArray;
 import one.microstream.chars._charArrayRange;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
@@ -28,10 +28,10 @@ import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGe
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericComplex;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.exceptions.StorageException;
-import one.microstream.util.csv.CsvConfiguration;
-import one.microstream.util.csv.CsvRecordParserCharArray;
-import one.microstream.util.csv.CsvRowCollector;
-import one.microstream.util.csv.CsvSegmentsParser;
+import one.microstream.util.xcsv.XCsvConfiguration;
+import one.microstream.util.xcsv.XCsvRecordParserCharArray;
+import one.microstream.util.xcsv.XCsvRowCollector;
+import one.microstream.util.xcsv.XCsvSegmentsParser;
 
 public interface StorageDataConverterTypeCsvToBinary<S>
 {
@@ -78,11 +78,11 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 	public final class Default
 	implements
 	StorageDataConverterTypeCsvToBinary<StorageFile>,
-	CsvSegmentsParser.Provider<_charArrayRange>,
-	CsvSegmentsParser<_charArrayRange>,
-	CsvRecordParserCharArray.Provider,
-	CsvRowCollector,
-	CsvRecordParserCharArray
+	XCsvSegmentsParser.Provider<_charArrayRange>,
+	XCsvSegmentsParser<_charArrayRange>,
+	XCsvRecordParserCharArray.Provider,
+	XCsvRowCollector,
+	XCsvRecordParserCharArray
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -147,7 +147,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		long currentBufferAddress ;
 		
 		// might be replaced by file-inherent config
-		CsvConfiguration actualCsvConfiguation;
+		XCsvConfiguration actualCsvConfiguation;
 
 
 
@@ -1079,17 +1079,18 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		{
 			/* (18.09.2018 TM)TODO: unchecked exception really necessary?
 			 * Copied from StorageRequestTaskImportData#internalProcessBy:
-			 * if it is a normal problem, there should be a proper wrapping exception for it
-			 * instead of hacking the JVM.
+			 * if it is a normal problem, there should be a proper wrapping exception for it.
 			 */
 			final char[] input = XIO.unchecked(()->
 				XIO.readString(
-					XIO.Path(this.sourceFile.identifier()),
+					this.sourceFile.fileChannel(),
 					XChars.utf8()
 				)
 			).toCharArray();
+			
+			
 						
-			final CsvParserCharArray parser = CsvParserCharArray.New();
+			final XCsvParserCharArray parser = XCsvParserCharArray.New();
 			parser.parseCsvData(this.configuration.csvConfiguration(), _charArrayRange.New(input), this, this);
 		}
 				
@@ -1704,10 +1705,18 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			this.flushCloseClear();
 		}
 		
+		static final long getTypeIdFromFileName(final StorageFile file)
+		{
+			final String fileName = getSuffixlessFileName(file);
+			final long   typeId   = StorageEntityTypeExportFileProvider.getTypeIdFromUniqueTypeFileName(fileName);
+			
+			return typeId;
+		}
+		
 		static final String getSuffixlessFileName(final StorageFile file)
 		{
 			final String filename = file.name();
-			final int    dotIndex = filename.lastIndexOf('.');
+			final int    dotIndex = filename.lastIndexOf(XIO.fileSuffixSeparator());
 			return dotIndex < 0 ? filename : filename.substring(0, dotIndex);
 		}
 
@@ -1718,14 +1727,20 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final XGettingList<String>     columnTypes
 		)
 		{
-			final String typeName = tableName != null
-				? tableName
-				: getSuffixlessFileName(this.sourceFile)
-			;
-			if((this.currentType = this.typeDictionary.lookupTypeByName(typeName)) == null)
+			// (20.02.2020 TM)NOTE: with the typeId being added to the file name, it must be parsed away, now
+			final long typeId = getTypeIdFromFileName(this.sourceFile);
+			
+			// (20.02.2020 TM)NOTE: previous (now insufficient) version
+//			final String typeName = tableName != null
+//				? tableName
+//				: getSuffixlessFileName(this.sourceFile)
+//			;
+			
+			// (20.02.2020 TM)NOTE: lookup by typeId instead of by type name.
+			if((this.currentType = this.typeDictionary.lookupTypeById(typeId)) == null)
 			{
 				// (01.10.2014 TM)EXCP: proper exception
-				throw new StorageException("Type not found: " + typeName);
+				throw new StorageException("Type not found: " + getSuffixlessFileName(this.sourceFile));
 			}
 
 			final String firstColumnName = columnNames.first();
@@ -1762,9 +1777,9 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		}
 
 		@Override
-		public CsvSegmentsParser<_charArrayRange> provideSegmentsParser(
-			final CsvConfiguration config       ,
-			final CsvRowCollector  rowAggregator
+		public XCsvSegmentsParser<_charArrayRange> provideSegmentsParser(
+			final XCsvConfiguration config       ,
+			final XCsvRowCollector  rowAggregator
 		)
 		{
 			this.actualCsvConfiguation = config;
@@ -1774,7 +1789,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		@Override
 		public void parseSegments(final _charArrayRange input)
 		{
-			CsvParserCharArray.parseSegments(
+			XCsvParserCharArray.parseSegments(
 				input.array(),
 				input.start(),
 				input.bound(),
@@ -1786,7 +1801,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		}
 
 		@Override
-		public CsvRecordParserCharArray provideRecordParser()
+		public XCsvRecordParserCharArray provideRecordParser()
 		{
 			return this;
 		}
@@ -1799,9 +1814,9 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			final char                valueSeparator ,
 			final char                delimiter      ,
 			final char                escaper        ,
-			final char                recordSeparator,
+			final char                lineSeparator,
 			final char                terminator     ,
-			final CsvConfiguration    config         ,
+			final XCsvConfiguration   config         ,
 			final VarString           literalBuilder ,
 			final EscapeHandler       escapeHandler  ,
 			final _charRangeProcedure valueCollector
@@ -1822,7 +1837,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 					// (16.10.2014 TM)EXCP: proper exception
 					throw new StorageException("Incomplete record at index " + i);
 				}
-				else if(input[i] == valueSeparator || input[i] == recordSeparator || input[i] == terminator)
+				else if(input[i] == valueSeparator || input[i] == lineSeparator || input[i] == terminator)
 				{
 					// encountered the next separator while searching for a literal, interpret as error
 					/* there are no null values in storage CSV files, as NULL reference is OID literal "0"
@@ -1837,7 +1852,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 				}
 				else
 				{
-					i = valueHandlers[h].handleValue(input, i, iBound, valueSeparator, recordSeparator);
+					i = valueHandlers[h].handleValue(input, i, iBound, valueSeparator, lineSeparator);
 					if(i >= iBound)
 					{
 						// check if valid end
