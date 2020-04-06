@@ -7,6 +7,7 @@ import java.lang.reflect.Proxy;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.entity.EntityLayerIdentity;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
@@ -143,13 +144,19 @@ public interface PersistenceTypeHandlerCreator<D>
 		@Override
 		public <T> PersistenceTypeHandler<D, T> createTypeHandlerGeneric(final Class<T> type)
 			throws PersistenceExceptionTypeNotPersistable
-		{
+		{			
 			// collections need special handling to avoid dramatically inefficient generic structures
 			if(XReflect.isJavaUtilCollectionType(type))
 			{
 				return this.internalCreateTypeHandlerJavaUtilCollection(type);
 			}
-						
+
+			// special layered entity type handler
+			if(EntityLayerIdentity.class.isAssignableFrom(type))
+			{
+				return this.internalCreateTypeHandlerEntityLayerIdentity(type);
+			}
+			
 			final HashEnum<Field> persistableFields = HashEnum.New();
 			final HashEnum<Field> persisterFields   = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
@@ -229,6 +236,10 @@ public interface PersistenceTypeHandlerCreator<D>
 		);
 		
 		protected abstract <T> PersistenceTypeHandler<D, T> internalCreateTypeHandlerGenericJavaUtilCollection(
+			Class<T> type
+		);
+		
+		protected abstract <T> PersistenceTypeHandler<D, T> internalCreateTypeHandlerEntityLayerIdentity(
 			Class<T> type
 		);
 		

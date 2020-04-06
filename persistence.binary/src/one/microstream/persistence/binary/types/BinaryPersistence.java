@@ -23,6 +23,7 @@ import one.microstream.collections.BinaryHandlerSingleton;
 import one.microstream.collections.ConstList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingSequence;
+import one.microstream.entity.BinaryHandlerEntityLayerVersioning;
 import one.microstream.functional.IndexedAcceptor;
 import one.microstream.functional.InstanceDispatcherLogic;
 import one.microstream.java.io.BinaryHandlerFile;
@@ -342,22 +343,22 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> defaultHandlers = ConstList.New(
-			BinaryHandlerBulkList.New(controller)  ,
-			BinaryHandlerLimitList.New(controller) ,
-			BinaryHandlerFixedList.New()           ,
-			BinaryHandlerConstList.New()           ,
-			BinaryHandlerEqBulkList.New(controller),
-			BinaryHandlerHashEnum.New()            ,
-			BinaryHandlerConstHashEnum.New()       ,
-			BinaryHandlerEqHashEnum.New()          ,
-			BinaryHandlerEqConstHashEnum.New()     ,
-			BinaryHandlerHashTable.New()           ,
-			BinaryHandlerConstHashTable.New()      ,
-			BinaryHandlerEqHashTable.New()         ,
-			BinaryHandlerEqConstHashTable.New()    ,
-			BinaryHandlerSingleton.New()           ,
-
-			BinaryHandlerSubstituterDefault.New()
+			BinaryHandlerBulkList.New(controller)   ,
+			BinaryHandlerLimitList.New(controller)  ,
+			BinaryHandlerFixedList.New()            ,
+			BinaryHandlerConstList.New()            ,
+			BinaryHandlerEqBulkList.New(controller) ,
+			BinaryHandlerHashEnum.New()             ,
+			BinaryHandlerConstHashEnum.New()        ,
+			BinaryHandlerEqHashEnum.New()           ,
+			BinaryHandlerEqConstHashEnum.New()      ,
+			BinaryHandlerHashTable.New()            ,
+			BinaryHandlerConstHashTable.New()       ,
+			BinaryHandlerEqHashTable.New()          ,
+			BinaryHandlerEqConstHashTable.New()     ,
+			BinaryHandlerSingleton.New()            ,
+			BinaryHandlerSubstituterDefault.New()   ,
+			BinaryHandlerEntityLayerVersioning.New( )
 			/* (29.10.2013 TM)TODO: more MicroStream default custom handlers
 			 * - VarString
 			 * - VarByte
