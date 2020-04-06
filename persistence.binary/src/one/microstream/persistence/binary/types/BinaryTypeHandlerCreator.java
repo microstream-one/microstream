@@ -10,6 +10,8 @@ import java.util.Queue;
 import java.util.Set;
 
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.entity.BinaryHandlerEntityLayerIdentity;
+import one.microstream.entity.EntityLayerIdentity;
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.java.lang.BinaryHandlerNativeArrayObject;
 import one.microstream.java.util.BinaryHandlerGenericCollection;
@@ -283,6 +285,15 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				+ type,
 				cause
 			);
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerEntityLayerIdentity(
+			final Class<T> type
+		)
+		{
+			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerEntityLayerIdentity.New((Class<EntityLayerIdentity>)type);
 		}
 		
 		@Override
