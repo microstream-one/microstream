@@ -13,7 +13,10 @@ public abstract class EntityLayer extends Entity.AbstractAccessible
 	// instance fields //
 	////////////////////
 	
-	private Entity inner;
+	/*
+	 * Layers are restored by BinaryHandlerEntityLayerIdentity
+	 */
+	private transient Entity inner;
 	
 	
 	
