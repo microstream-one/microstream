@@ -1,5 +1,7 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.notNull;
+
 import java.util.function.Consumer;
 
 import one.microstream.collections.HashEnum;
@@ -11,7 +13,7 @@ public interface PersistenceCustomTypeHandlerRegistry<D> extends PersistenceType
 {
 	public <T> boolean registerTypeHandler(PersistenceTypeHandler<D, T> typeHandler);
 
-	public <T> boolean registerTypeHandler(Class<T> type, PersistenceTypeHandler<D, T> typeHandler);
+	public <T> boolean registerTypeHandler(Class<T> type, PersistenceTypeHandler<D, ? super T> typeHandler);
 	
 	public <T> boolean registerLegacyTypeHandler(PersistenceLegacyTypeHandler<D, T> legacyTypeHandler);
 	
@@ -23,7 +25,7 @@ public interface PersistenceCustomTypeHandlerRegistry<D> extends PersistenceType
 		XGettingCollection<? extends PersistenceTypeHandler<D, ?>> typeHandlers
 	);
 	
-	public <T> PersistenceTypeHandler<D, T> lookupTypeHandler(Class<T> type);
+	public <T> PersistenceTypeHandler<D, ? super T> lookupTypeHandler(Class<T> type);
 		
 	public XGettingEnum<PersistenceLegacyTypeHandler<D, ?>> legacyTypeHandlers();
 
@@ -50,7 +52,7 @@ public interface PersistenceCustomTypeHandlerRegistry<D> extends PersistenceType
 		 * - Live type cannot be used for LTHs.
 		 * - This is just a collection of "potentially structure-compatible" handlers that get sorted out later.
 		 */
-		private final HashEnum<PersistenceLegacyTypeHandler<D, ?>> legacyTypeHandlers = HashEnum.New() ;
+		private final HashEnum<PersistenceLegacyTypeHandler<D, ?>> legacyTypeHandlers = HashEnum.New();
 
 		
 		
@@ -76,13 +78,15 @@ public interface PersistenceCustomTypeHandlerRegistry<D> extends PersistenceType
 		}
 
 		@Override
-		public final synchronized <T> boolean registerTypeHandler(
-			final Class<T>                     type                  ,
-			final PersistenceTypeHandler<D, T> typeHandlerInitializer
+		public final <T> boolean registerTypeHandler(
+			final Class<T>                             type                  ,
+			final PersistenceTypeHandler<D, ? super T> typeHandlerInitializer
 		)
 		{
-			// put instead of add to allow custom-tailed replacments for native handlers (e.g. divergent TID or logic)
-			return this.liveTypeHandlers.put(type, typeHandlerInitializer);
+			// validate before mutating internal state by public API
+			typeHandlerInitializer.validateEntityType(type);
+			
+			return this.internalRegisterTypeHandler(type, typeHandlerInitializer);
 		}
 
 		@Override
@@ -90,9 +94,22 @@ public interface PersistenceCustomTypeHandlerRegistry<D> extends PersistenceType
 			final PersistenceTypeHandler<D, T> typeHandlerInitializer
 		)
 		{
-			return this.registerTypeHandler(
+			// no need to validate a type handler's own type reference.
+			return this.internalRegisterTypeHandler(
 				typeHandlerInitializer.type(),
 				typeHandlerInitializer
+			);
+		}
+		
+		final synchronized <T> boolean internalRegisterTypeHandler(
+			final Class<T>                             type                  ,
+			final PersistenceTypeHandler<D, ? super T> typeHandlerInitializer
+		)
+		{
+			// put instead of add to allow custom-tailored replacments for native handlers (e.g. divergent TID or logic)
+			return this.liveTypeHandlers.put(
+				notNull(type),
+				notNull(typeHandlerInitializer)
 			);
 		}
 
