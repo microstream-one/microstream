@@ -12,8 +12,13 @@ import one.microstream.collections.types.XGettingTable;
  */
 public class EntityLayerVersioning<K> extends EntityLayer
 {
-	private final EntityVersionContext<K> context;
-	private final EqHashTable<K, Entity>  versions;
+	EntityVersionContext<K> context;
+	EqHashTable<K, Entity>  versions;
+	
+	EntityLayerVersioning()
+	{
+		super(null);
+	}
 	
 	protected EntityLayerVersioning(final Entity inner, final EntityVersionContext<K> context)
 	{
