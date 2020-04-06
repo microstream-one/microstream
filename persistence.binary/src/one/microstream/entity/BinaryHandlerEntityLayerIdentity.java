@@ -85,7 +85,11 @@ public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 	{
 		super(
 			type,
-			SimpleArrayFields()
+			X.ConstList(
+				Complex("layers",
+					CustomField(Entity.class, "layer")
+				)
+			)
 		);
 		this.instantiator = instantiator;
 	}
@@ -142,16 +146,16 @@ public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 		final int count = X.checkArrayRange(
 			data.getListElementCountReferences(0)
 		);
-		if(count > 0)
-		{
-			final Entity[] entities = new Entity[count];
-			data.collectElementsIntoArray(0, handler, entities);
+		
+		// count is always > 0, because minimum layered entity setup is identity and data
+		
+		final Entity[] entities = new Entity[count];
+		data.collectElementsIntoArray(0, handler, entities);
 			
-			identity.setInner(entities[0]);
-			for(int i = 0; i < count - 1; i++)
-			{
-				((EntityLayer)entities[i]).setInner(entities[i + 1]);
-			}
+		identity.setInner(entities[0]);
+		for(int i = 0; i < count - 1; i++)
+		{
+			((EntityLayer)entities[i]).setInner(entities[i + 1]);
 		}
 	}
 	
