@@ -11,7 +11,9 @@ import one.microstream.collections.types.XMap;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
+import one.microstream.reference.ObjectSwizzling;
 import one.microstream.reference.Reference;
+import one.microstream.reflect.ClassLoaderProvider;
 import one.microstream.typing.LambdaTypeRecognizer;
 import one.microstream.typing.TypeMapping;
 import one.microstream.typing.XTypes;
@@ -67,6 +69,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	public PersistenceRegisterer.Creator getRegistererCreator();
 
 	public PersistenceLoader.Creator<D> getBuilderCreator();
+	
+//	public ObjectSwizzling getObjectRetriever();
 	
 	public Persister getPersister();
 
@@ -135,6 +139,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	
 	public PersistenceTypeResolver getTypeResolver();
 	
+	public ClassLoaderProvider getClassLoaderProvider();
+	
 	public PersistenceTypeMismatchValidator<D> getTypeMismatchValidator();
 	
 	public PersistenceTypeDefinitionCreator getTypeDefinitionCreator();
@@ -190,6 +196,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	public PersistenceSizedArrayLengthController getSizedArrayLengthController();
 	
 	public LambdaTypeRecognizer getLambdaTypeRecognizer();
+	
+	public PersistenceAbstractTypeHandlerSearcher<D> getAbstractTypeHandlerSearcher();
 
 	public PersistenceInstantiator<D> getInstantiator();
 	
@@ -220,6 +228,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	public F setTypeAnalyzer(PersistenceTypeAnalyzer typeAnalyzer);
 	
 	public F setTypeResolver(PersistenceTypeResolver typeResolver);
+	
+	public F setClassLoaderProvider(ClassLoaderProvider classLoaderProvider);
 
 	public F setTypeHandlerRegistry(PersistenceTypeHandlerRegistry<D> typeHandlerRegistry);
 
@@ -228,7 +238,9 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	public F setRegistererCreator(PersistenceRegisterer.Creator registererCreator);
 
 	public F setBuilderCreator(PersistenceLoader.Creator<D> builderCreator);
-
+	
+//	public F setObjectRetriever(ObjectSwizzling objectRetriever);
+	
 	public F setPersister(Persister persister);
 
 	public F setPersistenceTarget(PersistenceTarget<D> target);
@@ -308,6 +320,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	public F setRootReferenceProvider(PersistenceRootReferenceProvider<D> rootReferenceProvider);
 		
 	public F setLambdaTypeRecognizer(LambdaTypeRecognizer lambdaTypeRecognizer);
+	
+	public F setAbstractTypeHandlerSearcher(PersistenceAbstractTypeHandlerSearcher<D> abstractTypeHandlerSearcher);
 
 	public F setRootsProvider(PersistenceRootsProvider<D> rootsProvider);
 	
@@ -424,6 +438,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		private PersistenceStorer.Creator<D>                   storerCreator                   ;
 		private PersistenceRegisterer.Creator                  registererCreator               ;
 		private PersistenceLoader.Creator<D>                   builderCreator                  ;
+//		private ObjectSwizzling                                objectRetriever                 ;
 		private Persister                                      persister                       ;
 		private PersistenceTarget<D>                           target                          ;
 		private PersistenceSource<D>                           source                          ;
@@ -454,10 +469,12 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		private PersistenceTypeHandlerCreator<D>               typeHandlerCreator              ;
 		private PersistenceTypeAnalyzer                        typeAnalyzer                    ;
 		private PersistenceTypeResolver                        typeResolver                    ;
+		private ClassLoaderProvider                            classLoaderProvider             ;
 		private PersistenceTypeMismatchValidator<D>            typeMismatchValidator           ;
 		private PersistenceTypeDefinitionCreator               typeDefinitionCreator           ;
 		private PersistenceTypeEvaluator                       typeEvaluatorPersistable        ;
 		private LambdaTypeRecognizer                           lambdaTypeRecognizer            ;
+		private PersistenceAbstractTypeHandlerSearcher<D>      abstractTypeHandlerSearcher     ;
 		private PersistenceSizedArrayLengthController          sizedArrayLengthController      ;
 		private PersistenceInstantiator<D>                     instantiator                    ;
 		private PersistenceTypeInstantiatorProvider<D>         instantiatorProvider            ;
@@ -736,11 +753,25 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 			return this.builderCreator;
 		}
 		
+//		@Override
+//		public ObjectSwizzling getObjectRetriever()
+//		{
+//			if(this.objectRetriever == null)
+//			{
+//				this.objectRetriever = this.dispatch(this.ensureObjectRetriever());
+//			}
+//
+//			return this.objectRetriever;
+//		}
 
 		@Override
 		public Persister getPersister()
 		{
-			// persister may be null, then the persistenceManager itself is the persister.
+			if(this.persister == null)
+			{
+				this.persister = this.dispatch(this.ensurePersister());
+			}
+			
 			return this.persister;
 		}
 
@@ -975,6 +1006,17 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 			}
 			
 			return this.typeResolver;
+		}
+		
+		@Override
+		public ClassLoaderProvider getClassLoaderProvider()
+		{
+			if(this.classLoaderProvider == null)
+			{
+				this.classLoaderProvider = this.dispatch(this.ensureClassLoaderProvider());
+			}
+			
+			return this.classLoaderProvider;
 		}
 		
 		@Override
@@ -1275,6 +1317,17 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		}
 
 		@Override
+		public PersistenceAbstractTypeHandlerSearcher<D> getAbstractTypeHandlerSearcher()
+		{
+			if(this.abstractTypeHandlerSearcher == null)
+			{
+				this.abstractTypeHandlerSearcher = this.dispatch(this.ensureAbstractTypeHandlerSearcher());
+			}
+			
+			return this.abstractTypeHandlerSearcher;
+		}
+
+		@Override
 		public PersistenceRootsProvider<D> getRootsProvider()
 		{
 			if(this.rootsProvider == null)
@@ -1400,6 +1453,13 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 			this.typeResolver = typeResolver;
 			return this.$();
 		}
+		
+		@Override
+		public F setClassLoaderProvider(final ClassLoaderProvider classLoaderProvider)
+		{
+			this.classLoaderProvider = classLoaderProvider;
+			return this.$();
+		}
 
 		@Override
 		public F setTypeHandlerManager(
@@ -1490,6 +1550,13 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 			this.builderCreator = builderCreator;
 			return this.$();
 		}
+
+//		@Override
+//		public F setObjectRetriever(final ObjectSwizzling objectRetriever)
+//		{
+//			this.objectRetriever = objectRetriever;
+//			return this.$();
+//		}
 		
 		@Override
 		public F setPersister(final Persister persister)
@@ -1757,6 +1824,15 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		)
 		{
 			this.lambdaTypeRecognizer = lambdaTypeRecognizer;
+			return this.$();
+		}
+		
+		@Override
+		public F setAbstractTypeHandlerSearcher(
+			final PersistenceAbstractTypeHandlerSearcher<D> abstractTypeHandlerSearcher
+		)
+		{
+			this.abstractTypeHandlerSearcher = abstractTypeHandlerSearcher;
 			return this.$();
 		}
 
@@ -2063,6 +2139,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		{
 			final PersistenceTypeDictionaryParser newTypeDictionaryParser =
 				PersistenceTypeDictionaryParser.New(
+					this.getTypeResolver()            ,
 					this.getFieldFixedLengthResolver(),
 					this.getTypeNameMapper()
 				)
@@ -2091,7 +2168,17 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		
 		protected PersistenceTypeResolver ensureTypeResolver()
 		{
-			return PersistenceTypeResolver.Default();
+			return PersistenceTypeResolver.New(
+				this.getClassLoaderProvider()
+			);
+		}
+		
+		protected ClassLoaderProvider ensureClassLoaderProvider()
+		{
+			// must always resolve types using that ClassCloader with which the initialization happned (this class's).
+			return ClassLoaderProvider.New(
+				this.getClass().getClassLoader()
+			);
 		}
 
 		protected PersistenceTypeHandlerEnsurer<D> ensureTypeHandlerEnsurer()
@@ -2099,6 +2186,9 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 			return PersistenceTypeHandlerEnsurer.New(
 				this.dataType(),
 				this.getCustomTypeHandlerRegistry(),
+				this.getTypeAnalyzer(),
+				this.getLambdaTypeRecognizer(),
+				this.getAbstractTypeHandlerSearcher(),
 				this.getTypeHandlerCreator()
 			);
 		}
@@ -2377,9 +2467,26 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 			return LambdaTypeRecognizer.New();
 		}
 		
+		protected PersistenceAbstractTypeHandlerSearcher<D> ensureAbstractTypeHandlerSearcher()
+		{
+			return PersistenceAbstractTypeHandlerSearcher.New();
+		}
+		
 		protected ByteOrder ensureTargetByteOrder()
 		{
 			return ByteOrder.nativeOrder();
+		}
+		
+		protected Persister ensurePersister()
+		{
+			// null by default, then the persistenceManager itself is the persister.
+			return null;
+		}
+		
+		protected ObjectSwizzling ensureObjectRetriever()
+		{
+			// null by default, then the persistenceManager itself is the persister.
+			return null;
 		}
 
 
@@ -2413,6 +2520,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 				this.getStorerCreator(),
 				this.getBuilderCreator(),
 				this.getRegistererCreator(),
+//				this.getObjectRetriever(),
 				this.getPersister(),
 				this.getPersistenceTarget(),
 				this.getPersistenceSource(),

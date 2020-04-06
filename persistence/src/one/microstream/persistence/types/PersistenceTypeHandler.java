@@ -13,6 +13,7 @@ import one.microstream.collections.types.XImmutableEnum;
 import one.microstream.collections.types.XImmutableSequence;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
+import one.microstream.reference.Swizzling;
 import one.microstream.reflect.XReflect;
 
 public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition, PersistenceDataTypeHolder<D>
@@ -22,6 +23,29 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 	
 	@Override
 	public Class<T> type();
+	
+	public default boolean isValidEntityType(final Class<? extends T> type)
+	{
+		/*
+		 * Note that type() is validated to never be null prior to type handler instance creation.
+		 * Must be super type check instead of simple identity check as some classes must be handleable
+		 * as their super types (e.g. local implementation of java.nio.file.Path)
+		 */
+		return this.type().isAssignableFrom(type);
+	}
+	
+	public default void validateEntityType(final Class<? extends T> type)
+	{
+		if(this.isValidEntityType(type))
+		{
+			return;
+		}
+		
+		// (31.03.2020 TM)EXCP: proper exception
+		throw new PersistenceExceptionTypeConsistency(
+			"Invalid entity type "+ type  +" for type handler " + this.toTypeIdentifier()
+		);
+	}
 	
 	@Override
 	public XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers();
@@ -255,7 +279,7 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 		private final String typeName;
 		
 		// effectively final / immutable: gets only initialized once later on and is never mutated again. initially 0.
-		private long typeId = Persistence.nullId();
+		private long typeId = Swizzling.notFoundId();
 
 
 		
@@ -327,7 +351,7 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 			 * As long as the same typeId (originating from the dictionary file) is passed for initialization,
 			 * everything is fine.
 			 */
-			if(this.typeId != Persistence.nullId())
+			if(Swizzling.isFoundId(this.typeId))
 			{
 				if(this.typeId == typeId)
 				{

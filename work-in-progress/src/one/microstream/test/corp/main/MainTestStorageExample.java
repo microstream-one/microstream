@@ -10,7 +10,7 @@ public class MainTestStorageExample
 {
 	static
 	{
-		Test.clearDefaultStorageDirectory();
+//		Test.clearDefaultStorageDirectory();
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
@@ -30,6 +30,10 @@ public class MainTestStorageExample
 			Test.print("Storing ...");
 			STORAGE.storeRoot();
 			Test.print("Storing completed.");
+			
+			Test.print("Exporting data ...");
+			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
+			Test.print("Data export completed.");
 		}
 		else
 		{
@@ -44,11 +48,11 @@ public class MainTestStorageExample
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
 			Test.print("Data export completed.");
 		}
-		
-		STORAGE.shutdown();
-		
+
 		// no shutdown required, the storage concept is inherently crash-safe
-//		System.exit(0);
+//		STORAGE.shutdown();
+		
+		System.exit(0);
 	}
 		
 }

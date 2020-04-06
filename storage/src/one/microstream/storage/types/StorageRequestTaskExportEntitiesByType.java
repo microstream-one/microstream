@@ -111,7 +111,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		protected final ChannelStatistic internalProcessBy(final StorageChannel channel)
 		{
 			final EqHashTable<Long, TypeStatistic.Default> typeMap     = EqHashTable.New();
-			final BulkList<ExportItem>                            exportItems = this.getExportTypes(channel);
+			final BulkList<ExportItem>                     exportItems = this.getExportTypes(channel);
 
 			for(final ExportItem exportItem : exportItems)
 			{

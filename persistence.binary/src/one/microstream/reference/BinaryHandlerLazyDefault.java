@@ -108,7 +108,8 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 		final PersistenceLoadHandler handler
 	)
 	{
-		/* intentionally no subject lookup here as premature strong referencing
+		/*
+		 * Intentionally no subject lookup here as premature strong referencing
 		 * might defeat the purpose of memory freeing lazy referencing if no
 		 * other strong reference to the subject is present at the moment.
 		 */

@@ -6,10 +6,8 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
-import java.util.Properties;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,112 +19,168 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import one.microstream.storage.exceptions.StorageExceptionInvalidConfiguration;
-import one.microstream.storage.exceptions.StorageExceptionIo;
+import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
+import one.microstream.storage.exceptions.StorageConfigurationException;
+import one.microstream.storage.exceptions.StorageConfigurationIoException;
 
-
+/**
+ * Parser for various configuration formats.
+ * <p>
+ * Supported formats:
+ * <ul>
+ * <li>XML</li>
+ * <li>INI / Properties</li>
+ * </ul>
+ */
 @FunctionalInterface
 public interface ConfigurationParser
 {
-	public default Configuration parse(final String data)
+	/**
+	 * Parses the configuration from the given input.
+	 * 
+	 * @param data the input to parse
+	 * @return the parsed configuration
+	 * @throws StorageConfigurationException if an error occurs while parsing
+	 */
+	public default Configuration parse(
+		final String data
+	)
 	{
 		return this.parse(Configuration.Default(), data);
 	}
 	
-	public Configuration parse(Configuration configuration, String data);
+	/**
+	 * Parses the configuration from the given input.
+	 * 
+	 * @param configuration the configuration to populate
+	 * @param data the input to parse
+	 * @return the given configuration
+	 * @throws StorageConfigurationException if an error occurs while parsing
+	 */
+	public Configuration parse(
+		Configuration configuration, 
+		String data
+	);
 	
+	/**
+	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
+	 */
 	public static ConfigurationParser Ini()
 	{
 		return Ini(ConfigurationPropertyParser.New());
 	}
 	
-	public static ConfigurationParser Ini(final ConfigurationPropertyParser propertyParser)
+	/**
+	 * 
+	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
+	 * 
+	 * @param propertyParser a custom property parser
+	 */
+	public static ConfigurationParser Ini(
+		final ConfigurationPropertyParser propertyParser
+	)
 	{
-		return new IniConfigurationParser(propertyParser);
+		return new IniConfigurationParser(notNull(propertyParser));
 	}
 	
+	/**
+	 * Creates a new {@link ConfigurationParser} which reads xml files.
+	 */
 	public static ConfigurationParser Xml()
 	{
 		return Xml(ConfigurationPropertyParser.New());
 	}
-	
-	public static ConfigurationParser Xml(final ConfigurationPropertyParser propertyParser)
+
+	/**
+	 * Creates a new {@link ConfigurationParser} which reads xml files.
+	 * 
+	 * @param propertyParser a custom property parser
+	 */
+	public static ConfigurationParser Xml(
+		final ConfigurationPropertyParser propertyParser
+	)
 	{
-		return new XmlConfigurationParser(propertyParser);
+		return new XmlConfigurationParser(notNull(propertyParser));
 	}
+	
 	
 	public static class IniConfigurationParser implements ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
 		
-		protected IniConfigurationParser(final ConfigurationPropertyParser propertyParser)
+		IniConfigurationParser(
+			final ConfigurationPropertyParser propertyParser
+		)
 		{
 			super();
-			this.propertyParser = notNull(propertyParser);
+			this.propertyParser = propertyParser;
 		}
 		
 		@Override
-		public Configuration parse(Configuration configuration, final String data)
+		public Configuration parse(
+			final Configuration configuration,
+			final String data
+		)
 		{
-			if(configuration == null)
+			final Map<String, String> properties = new HashMap<>();
+			
+			nextLine:
+			for(String line : data.split("\\r?\\n"))
 			{
-				configuration = Configuration.Default();
+				line = line.trim();
+				if(line.isEmpty())
+				{
+					continue nextLine;
+				}
+				
+				switch(line.charAt(0))
+				{
+					case '#': // comment
+					case ';': // comment
+					case '[': // section
+						continue nextLine;
+				}
+				
+				final int separatorIndex = line.indexOf('=');
+				if(separatorIndex == -1)
+				{
+					continue nextLine; // no key=value pair, ignore
+				}
+				
+				final String name  = line.substring(0, separatorIndex).trim();
+				final String value = line.substring(separatorIndex + 1).trim();
+				properties.put(name, value);
 			}
 			
-			final Properties properties = new Properties();
-			try
-			{
-				properties.load(new StringReader(data));
-			}
-			catch(final IOException e)
-			{
-				throw new StorageExceptionIo(e);
-			}
-			this.removeSections(properties);
-			
-			for(final Object key : properties.keySet())
-			{
-				final String name  = (String)key;
-				final String value = properties.getProperty(name);
-				this.propertyParser.parseProperty(name, value, configuration);
-			}
+			this.propertyParser.parseProperties(properties, configuration);
 			
 			return configuration;
 		}
 		
-		/**
-		 * Removes ini [section]s from properties, java.util.Properties doesn't parse them properly.
-		 */
-		protected void removeSections(final Properties properties)
-		{
-			final Pattern      sectionPattern = Pattern.compile("(?ms)^\\[[^]\\r\\n]+](?:(?!^\\[[^]\\r\\n]+]).)*");
-			final List<Object> sectionKeys    = properties.keySet().stream()
-				.filter(key -> sectionPattern.matcher((String)key).matches())
-				.collect(Collectors.toList());
-			sectionKeys.forEach(properties::remove);
-		}
 	}
 	
 	public static class XmlConfigurationParser implements ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
 		
-		protected XmlConfigurationParser(final ConfigurationPropertyParser propertyParser)
+		XmlConfigurationParser(
+			final ConfigurationPropertyParser propertyParser
+		)
 		{
 			super();
-			this.propertyParser = notNull(propertyParser);
+			this.propertyParser = propertyParser;
 		}
 		
 		@Override
-		public Configuration parse(Configuration configuration, final String data)
+		public Configuration parse(
+			final Configuration configuration, 
+			final String data
+		)
 		{
-			if(configuration == null)
-			{
-				configuration = Configuration.Default();
-			}
-			
 			try
 			{
+				final Map<String, String> properties = new HashMap<>();
+				
 				final DocumentBuilder builder  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 				final Document        document = builder.parse(new InputSource(new StringReader(data)));
 				final Element         documentElement;
@@ -136,22 +190,26 @@ public interface ConfigurationParser
 					for(int i = 0, c = propertyNodes.getLength(); i < c; i++)
 					{
 						final Element propertyElement = (Element)propertyNodes.item(i);
-						final String  name            = notEmpty(propertyElement.getAttribute("name"));
-						final String  value           = notEmpty(propertyElement.getAttribute("value"));
-						this.propertyParser.parseProperty(name, value, configuration);
+						final String  name            = notEmpty(propertyElement.getAttribute("name").trim());
+						final String  value           = notEmpty(propertyElement.getAttribute("value").trim());
+						properties.put(name, value);
 					}
 				}
+				
+				this.propertyParser.parseProperties(properties, configuration);
 			}
 			catch(ParserConfigurationException | SAXException e)
 			{
-				throw new StorageExceptionInvalidConfiguration(e);
+				throw new InvalidStorageConfigurationException(e);
 			}
 			catch(final IOException e)
 			{
-				throw new StorageExceptionIo(e);
+				throw new StorageConfigurationIoException(e);
 			}
 			
 			return configuration;
 		}
+		
 	}
+	
 }

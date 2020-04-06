@@ -7,7 +7,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVariableLength<File>
+public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVariableLength<File, String>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -53,7 +53,7 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVar
 	@Override
 	public void store(final Binary data, final File instance, final long objectId, final PersistenceStoreHandler handler)
 	{
-		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
+		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
@@ -62,14 +62,22 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVar
 		return new File(binaryState(data));
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
 	@Override
-	public void validateState(
-		final Binary                 data    ,
-		final File                   instance,
-		final PersistenceLoadHandler handler
-	)
+	public String getValidationStateFromInstance(final File instance)
 	{
-		compareSimpleState(instance, instanceState(instance), binaryState(data));
+		return instanceState(instance);
+	}
+
+	@Override
+	public String getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
 	}
 
 }

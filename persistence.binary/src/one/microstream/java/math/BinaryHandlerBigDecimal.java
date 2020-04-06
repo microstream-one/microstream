@@ -7,7 +7,7 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomValueVariableLength<BigDecimal>
+public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomValueVariableLength<BigDecimal, String>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -59,7 +59,7 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 	)
 	{
 		// there's a char[] constructor but no char[] utility method, so there's no other option than this
-		data.storeStringValue(this.typeId(), objectId, instanceState(instance));
+		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}
 
 	@Override
@@ -68,14 +68,22 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 		return new BigDecimal(binaryState(data));
 	}
 	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// validation //
+	///////////////
+	
 	@Override
-	public void validateState(
-		final Binary                 data    ,
-		final BigDecimal             instance,
-		final PersistenceLoadHandler handler
-	)
+	public String getValidationStateFromInstance(final BigDecimal instance)
 	{
-		compareSimpleState(instance, instanceState(instance), binaryState(data));
+		return instanceState(instance);
+	}
+	
+	@Override
+	public String getValidationStateFromBinary(final Binary data)
+	{
+		return binaryState(data);
 	}
 
 }

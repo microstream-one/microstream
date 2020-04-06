@@ -4,8 +4,8 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
 
 
-public abstract class AbstractBinaryHandlerCustomValueVariableLength<T>
-extends AbstractBinaryHandlerCustomValue<T>
+public abstract class AbstractBinaryHandlerCustomValueVariableLength<T, S>
+extends AbstractBinaryHandlerCustomValue<T, S>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //

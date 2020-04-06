@@ -966,13 +966,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final long lastIndexOf(final KeyValue<K, V> entry)
 	{
-		return ConstHashTable.this.chain.rngIndexOf(ConstHashTable.this.size - 1, -ConstHashTable.this.size, entry);
+		return ConstHashTable.this.chain.lastIndexOf(entry);
 	}
 
 	@Override
 	public final long lastIndexBy(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		return ConstHashTable.this.chain.rngIndexOf(ConstHashTable.this.size - 1, -ConstHashTable.this.size, predicate);
+		return ConstHashTable.this.chain.lastIndexBy(predicate);
 	}
 
 	@Override
@@ -1440,7 +1440,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final long indexBy(final Predicate<? super K> predicate)
 		{
-			return ConstHashTable.this.chain.keyIndexOf(predicate);
+			return ConstHashTable.this.chain.keyIndexBy(predicate);
 		}
 
 		@Override
@@ -1452,13 +1452,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final long lastIndexOf(final K element)
 		{
-			return ConstHashTable.this.chain.keyRngIndexOf(ConstHashTable.this.size - 1, -ConstHashTable.this.size, element);
+			return ConstHashTable.this.chain.keyLastIndexOf(element);
 		}
 
 		@Override
 		public final long lastIndexBy(final Predicate<? super K> predicate)
 		{
-			return ConstHashTable.this.chain.keyRngIndexOf(ConstHashTable.this.size - 1, -ConstHashTable.this.size, predicate);
+			return ConstHashTable.this.chain.keyLastIndexBy(predicate);
 		}
 
 		@Override
@@ -1923,7 +1923,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final long indexBy(final Predicate<? super V> predicate)
 		{
-			return ConstHashTable.this.chain.valuesIndexOf(predicate);
+			return ConstHashTable.this.chain.valuesIndexBy(predicate);
 		}
 
 		@Override
@@ -1935,13 +1935,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final long lastIndexOf(final V value)
 		{
-			return ConstHashTable.this.chain.valuesRngIndexOf(ConstHashTable.this.size - 1, ConstHashTable.this.size, value);
+			return ConstHashTable.this.chain.valuesLastIndexOf(value);
 		}
 
 		@Override
 		public final long lastIndexBy(final Predicate<? super V> predicate)
 		{
-			return ConstHashTable.this.chain.valuesRngIndexOf(ConstHashTable.this.size - 1, ConstHashTable.this.size, predicate);
+			return ConstHashTable.this.chain.valuesLastIndexBy(predicate);
 		}
 
 		@Override

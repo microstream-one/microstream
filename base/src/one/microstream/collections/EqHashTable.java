@@ -1899,13 +1899,15 @@ implements XTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final long lastIndexOf(final KeyValue<K, V> entry)
 	{
-		return EqHashTable.this.chain.rngIndexOf(EqHashTable.this.size - 1, -EqHashTable.this.size, entry);
+		return EqHashTable.this.chain.lastIndexBy(kv ->
+			this.hashEqualator.equal(kv.key(), entry.key())
+		);
 	}
 
 	@Override
 	public final long lastIndexBy(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		return EqHashTable.this.chain.rngIndexOf(EqHashTable.this.size - 1, -EqHashTable.this.size, predicate);
+		return EqHashTable.this.chain.lastIndexBy(predicate);
 	}
 
 	@Override
@@ -2960,7 +2962,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long indexBy(final Predicate<? super K> predicate)
 		{
-			return EqHashTable.this.chain.keyIndexOf(predicate);
+			return EqHashTable.this.chain.keyIndexBy(predicate);
 		}
 
 		@Override
@@ -2972,13 +2974,13 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long lastIndexOf(final K element)
 		{
-			return EqHashTable.this.chain.keyRngIndexOf(EqHashTable.this.size - 1, -EqHashTable.this.size, element, this.hashEquality());
+			return EqHashTable.this.chain.keyLastIndexOf(element, this.hashEquality());
 		}
 
 		@Override
 		public final long lastIndexBy(final Predicate<? super K> predicate)
 		{
-			return EqHashTable.this.chain.keyRngIndexOf(EqHashTable.this.size - 1, -EqHashTable.this.size, predicate);
+			return EqHashTable.this.chain.keyLastIndexBy(predicate);
 		}
 
 		@Override
@@ -3773,7 +3775,7 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long indexBy(final Predicate<? super V> predicate)
 		{
-			return EqHashTable.this.chain.valuesIndexOf(predicate);
+			return EqHashTable.this.chain.valuesIndexBy(predicate);
 		}
 
 		@Override
@@ -3785,13 +3787,13 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final long lastIndexOf(final V value)
 		{
-			return EqHashTable.this.chain.valuesRngIndexOf(EqHashTable.this.size - 1, EqHashTable.this.size, value);
+			return EqHashTable.this.chain.valuesLastIndexOf(value);
 		}
 
 		@Override
 		public final long lastIndexBy(final Predicate<? super V> predicate)
 		{
-			return EqHashTable.this.chain.valuesRngIndexOf(EqHashTable.this.size - 1, EqHashTable.this.size, predicate);
+			return EqHashTable.this.chain.valuesLastIndexBy(predicate);
 		}
 
 		@Override
