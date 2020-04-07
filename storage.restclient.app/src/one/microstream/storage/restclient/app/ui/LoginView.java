@@ -30,7 +30,7 @@ import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinResponse;
 
 import one.microstream.storage.restclient.app.SessionData;
-import one.microstream.storage.restclient.types.StorageRestClientJersey;
+import one.microstream.storage.restclient.jersey.StorageRestClientJersey;
 
 
 @Route(value = "", layout = RootLayout.class)

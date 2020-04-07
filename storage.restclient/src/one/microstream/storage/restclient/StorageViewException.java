@@ -1,4 +1,4 @@
-package one.microstream.storage.restclient.exceptions;
+package one.microstream.storage.restclient;
 
 import one.microstream.exceptions.BaseException;
 

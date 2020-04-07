@@ -1,5 +1,5 @@
 
-package one.microstream.storage.restclient.types;
+package one.microstream.storage.restclient;
 
 import java.util.Map;
 

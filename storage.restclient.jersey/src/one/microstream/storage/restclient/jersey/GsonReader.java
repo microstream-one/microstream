@@ -1,5 +1,5 @@
 
-package one.microstream.storage.restclient.types;
+package one.microstream.storage.restclient.jersey;
 
 import java.io.IOException;
 import java.io.InputStream;

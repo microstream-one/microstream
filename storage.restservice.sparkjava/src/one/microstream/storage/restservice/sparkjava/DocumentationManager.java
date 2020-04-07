@@ -10,7 +10,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import one.microstream.storage.restadapter.ViewerException;
+import one.microstream.storage.restadapter.StorageRestAdapterException;
 import spark.RouteImpl;
 import spark.Service;
 import spark.route.HttpMethod;
@@ -102,7 +102,7 @@ public class DocumentationManager extends RouteManager
 		}
 		catch(final Exception e)
 		{
-			throw new ViewerException("No documentation found");
+			throw new StorageRestAdapterException("No documentation found");
 		}
 	}
 
@@ -118,7 +118,7 @@ public class DocumentationManager extends RouteManager
 		final Hashtable<String, String> UriMethods = this.getRegisteredRoutes().get(uri);
 		if(UriMethods == null)
 		{
-			throw new ViewerException("No documentation found");
+			throw new StorageRestAdapterException("No documentation found");
 		}
 
 		final JsonObject docu = new JsonObject();
@@ -145,7 +145,7 @@ public class DocumentationManager extends RouteManager
 		}
 		catch(final Exception e )
 		{
-			throw new ViewerException(e);
+			throw new StorageRestAdapterException(e);
 		}
 		
 		final JsonObject handlers = doc.getAsJsonObject("handler");

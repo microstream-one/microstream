@@ -11,9 +11,9 @@ import com.vaadin.flow.data.provider.hierarchy.AbstractBackEndHierarchicalDataPr
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 
+import one.microstream.storage.restclient.StorageView;
+import one.microstream.storage.restclient.StorageViewElement;
 import one.microstream.storage.restclient.app.ApplicationErrorHandler;
-import one.microstream.storage.restclient.types.StorageView;
-import one.microstream.storage.restclient.types.StorageViewElement;
 
 
 public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<StorageViewElement, F>

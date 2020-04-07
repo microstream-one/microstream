@@ -1,30 +1,54 @@
 package one.microstream.storage.restservice.sparkjava;
 
+import static one.microstream.X.notNull;
+
 import one.microstream.storage.restadapter.StorageRestAdapter;
-import one.microstream.storage.restadapter.ViewerException;
+import one.microstream.storage.restadapter.StorageRestAdapterException;
 import one.microstream.storage.restservice.StorageRestService;
+import one.microstream.storage.types.EmbeddedStorageManager;
 import spark.Service;
 import spark.route.HttpMethod;
 
-public class StorageRestServiceDefault implements StorageRestService
+public class StorageRestServiceSparkJava implements StorageRestService
 {
+	public static StorageRestServiceSparkJava New(
+		final EmbeddedStorageManager storage
+	)
+	{
+		return new StorageRestServiceSparkJava(
+			StorageRestAdapter.New(storage)
+		);
+	}
+	
+	public static StorageRestServiceSparkJava New(
+		final StorageRestAdapter storageRestAdapter
+	)
+	{
+		return new StorageRestServiceSparkJava(
+			notNull(storageRestAdapter)
+		);
+	}
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 
-	private StorageRestAdapter storageRestAdapter;
-	private Service sparkService;
-	private String storageName ="microstream";
-	private RouteManager routeManager;
-
+	private final StorageRestAdapter storageRestAdapter;
+	private Service                  sparkService;
+	private String                   storageName = "microstream";
+	private RouteManager             routeManager;
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
-	public StorageRestServiceDefault()
+	StorageRestServiceSparkJava(
+		final StorageRestAdapter storageRestAdapter
+	)
 	{
 		super();
+		this.storageRestAdapter = storageRestAdapter;
 	}
 
 
@@ -47,7 +71,21 @@ public class StorageRestServiceDefault implements StorageRestService
 		this.storageRestAdapter.setDefaultValueLength(defaultDataLength);
 	}
 
-	public void setupRoutes()
+	@Override
+	public void start()
+	{
+		if(this.sparkService == null)
+		{
+			this.sparkService = Service.ignite();
+		}
+
+		this.setupRoutes();
+
+		this.sparkService.init();
+		this.sparkService.awaitInitialization();
+	}
+
+	private void setupRoutes()
 	{
 		this.routeManager = new DocumentationManager(this.sparkService);
 
@@ -72,7 +110,7 @@ public class StorageRestServiceDefault implements StorageRestService
 				response.body(e.getMessage());
 			});
 
-		this.sparkService.exception(ViewerException.class, (e, request, response) ->
+		this.sparkService.exception(StorageRestAdapterException.class, (e, request, response) ->
 			{
 				response.status(404);
 				response.body(e.getMessage());
@@ -80,30 +118,12 @@ public class StorageRestServiceDefault implements StorageRestService
 	}
 
 	@Override
-	public StorageRestService getInstance(final StorageRestAdapter restAdapter)
-	{
-		this.storageRestAdapter = restAdapter;
-		return this;
-	}
-
-	@Override
-	public void start()
-	{
-		if(this.sparkService == null)
-		{
-			this.sparkService = Service.ignite();
-		}
-
-		this.setupRoutes();
-
-		this.sparkService.init();
-		this.sparkService.awaitInitialization();
-	}
-
-	@Override
 	public void stop()
 	{
-		this.sparkService.stop();
-		this.sparkService.awaitStop();
+		if(this.sparkService != null)
+		{
+			this.sparkService.stop();
+			this.sparkService.awaitStop();
+		}
 	}
 }

@@ -8,21 +8,21 @@ import one.microstream.exceptions.BaseException;
  * Exception thrown by RestServiceResolver
  *
  */
-public class RestServiceResolverException extends BaseException
+public class StorageRestServiceNotFoundException extends BaseException
 {
-	public RestServiceResolverException(
+	public StorageRestServiceNotFoundException(
 		final String message
 	)
 	{
 		super(message);
 	}
 	
-	public RestServiceResolverException()
+	public StorageRestServiceNotFoundException()
 	{
 		super();
 	}
 	
-	public RestServiceResolverException(
+	public StorageRestServiceNotFoundException(
 		final String message,
 		final Throwable cause,
 		final boolean enableSuppression,
@@ -32,7 +32,7 @@ public class RestServiceResolverException extends BaseException
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 	
-	public RestServiceResolverException(
+	public StorageRestServiceNotFoundException(
 		final String message,
 		final Throwable cause
 	)
@@ -40,7 +40,7 @@ public class RestServiceResolverException extends BaseException
 		super(message, cause);
 	}
 	
-	public RestServiceResolverException(
+	public StorageRestServiceNotFoundException(
 		final Throwable cause
 	)
 	{

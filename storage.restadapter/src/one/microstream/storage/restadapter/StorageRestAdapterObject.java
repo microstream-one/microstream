@@ -1,6 +1,6 @@
 package one.microstream.storage.restadapter;
 
-public interface StorageRestAdapterObject extends StorageRestAdapterConverter
+public interface StorageRestAdapterObject extends StorageViewDataConverterProvider
 {
 	public long getDefaultValueLength();
 
