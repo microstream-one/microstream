@@ -10,11 +10,7 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-/* (27.11.2019 TM)FIXME: BinaryHandlerPath
- * This thing is not trivial to use.
- * See priv#185, priv#186, priv#187.
- * Until further notice, Path remains unhandled.
- */
+// this is an "abstract type" TypeHandler that handles all classess implementing Path as Path, not as the actual class.
 public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVariableLength<Path, String>
 {
 	///////////////////////////////////////////////////////////////////////////

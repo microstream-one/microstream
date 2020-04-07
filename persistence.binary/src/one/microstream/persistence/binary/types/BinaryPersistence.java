@@ -56,6 +56,7 @@ import one.microstream.java.net.BinaryHandlerInetAddress;
 import one.microstream.java.net.BinaryHandlerInetSocketAddress;
 import one.microstream.java.net.BinaryHandlerURI;
 import one.microstream.java.net.BinaryHandlerURL;
+import one.microstream.java.nio.file.BinaryHandlerPath;
 import one.microstream.java.sql.BinaryHandlerSqlDate;
 import one.microstream.java.sql.BinaryHandlerSqlTime;
 import one.microstream.java.sql.BinaryHandlerSqlTimestamp;
@@ -224,6 +225,8 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerInet4Address.New(),
 			BinaryHandlerInet6Address.New(),
 			
+			BinaryHandlerPath.New(), // "abstract type" TypeHandler
+			
 			BinaryHandlerInetSocketAddress.New(),
 			
 			BinaryHandlerURI.New(),
@@ -328,7 +331,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerLazyDefault.New(),
 			
 			// the way Optional is implemented, only a generically (low-level) working handler can handle it correctly
-			typeHandlerCreator.createTypeHandler(Optional.class)
+			typeHandlerCreator.createTypeHandlerGeneric(Optional.class)
 		);
 		
 		return nativeHandlers;

@@ -196,6 +196,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	public PersistenceSizedArrayLengthController getSizedArrayLengthController();
 	
 	public LambdaTypeRecognizer getLambdaTypeRecognizer();
+	
+	public PersistenceAbstractTypeHandlerSearcher<D> getAbstractTypeHandlerSearcher();
 
 	public PersistenceInstantiator<D> getInstantiator();
 	
@@ -318,6 +320,8 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	public F setRootReferenceProvider(PersistenceRootReferenceProvider<D> rootReferenceProvider);
 		
 	public F setLambdaTypeRecognizer(LambdaTypeRecognizer lambdaTypeRecognizer);
+	
+	public F setAbstractTypeHandlerSearcher(PersistenceAbstractTypeHandlerSearcher<D> abstractTypeHandlerSearcher);
 
 	public F setRootsProvider(PersistenceRootsProvider<D> rootsProvider);
 	
@@ -470,6 +474,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		private PersistenceTypeDefinitionCreator               typeDefinitionCreator           ;
 		private PersistenceTypeEvaluator                       typeEvaluatorPersistable        ;
 		private LambdaTypeRecognizer                           lambdaTypeRecognizer            ;
+		private PersistenceAbstractTypeHandlerSearcher<D>      abstractTypeHandlerSearcher     ;
 		private PersistenceSizedArrayLengthController          sizedArrayLengthController      ;
 		private PersistenceInstantiator<D>                     instantiator                    ;
 		private PersistenceTypeInstantiatorProvider<D>         instantiatorProvider            ;
@@ -1312,6 +1317,17 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		}
 
 		@Override
+		public PersistenceAbstractTypeHandlerSearcher<D> getAbstractTypeHandlerSearcher()
+		{
+			if(this.abstractTypeHandlerSearcher == null)
+			{
+				this.abstractTypeHandlerSearcher = this.dispatch(this.ensureAbstractTypeHandlerSearcher());
+			}
+			
+			return this.abstractTypeHandlerSearcher;
+		}
+
+		@Override
 		public PersistenceRootsProvider<D> getRootsProvider()
 		{
 			if(this.rootsProvider == null)
@@ -1810,6 +1826,15 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 			this.lambdaTypeRecognizer = lambdaTypeRecognizer;
 			return this.$();
 		}
+		
+		@Override
+		public F setAbstractTypeHandlerSearcher(
+			final PersistenceAbstractTypeHandlerSearcher<D> abstractTypeHandlerSearcher
+		)
+		{
+			this.abstractTypeHandlerSearcher = abstractTypeHandlerSearcher;
+			return this.$();
+		}
 
 		@Override
 		public F setRootsProvider(
@@ -2114,6 +2139,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		{
 			final PersistenceTypeDictionaryParser newTypeDictionaryParser =
 				PersistenceTypeDictionaryParser.New(
+					this.getTypeResolver()            ,
 					this.getFieldFixedLengthResolver(),
 					this.getTypeNameMapper()
 				)
@@ -2160,6 +2186,9 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 			return PersistenceTypeHandlerEnsurer.New(
 				this.dataType(),
 				this.getCustomTypeHandlerRegistry(),
+				this.getTypeAnalyzer(),
+				this.getLambdaTypeRecognizer(),
+				this.getAbstractTypeHandlerSearcher(),
 				this.getTypeHandlerCreator()
 			);
 		}
@@ -2436,6 +2465,11 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		protected LambdaTypeRecognizer ensureLambdaTypeRecognizer()
 		{
 			return LambdaTypeRecognizer.New();
+		}
+		
+		protected PersistenceAbstractTypeHandlerSearcher<D> ensureAbstractTypeHandlerSearcher()
+		{
+			return PersistenceAbstractTypeHandlerSearcher.New();
 		}
 		
 		protected ByteOrder ensureTargetByteOrder()

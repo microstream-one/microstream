@@ -682,17 +682,6 @@ public final class XReflect
 		}
 	}
 	
-	public static final ClassLoader defaultTypeResolvingClassLoader()
-	{
-		return ClassLoader.getSystemClassLoader();
-	}
-	
-	public static final Class<?> resolveType(final String typeName)
-		throws LinkageError, ExceptionInInitializerError, ClassNotFoundException
-	{
-		return resolveType(typeName, defaultTypeResolvingClassLoader());
-	}
-
 	/**
 	 * Resolves the passed type name to a runtime type (instance of type {@link Class}).
 	 * In contrary to JDK's type resolving mechanisms, this method resolves primitive type names, as well.
@@ -743,11 +732,6 @@ public final class XReflect
 		;
 	}
 	
-	public static final Class<?> tryResolveType(final String className)
-	{
-		return tryResolveType(className, defaultTypeResolvingClassLoader());
-	}
-	
 	/**
 	 * Calls {@link #resolveType(String, ClassLoader)}, but suppresses any {@link ClassNotFoundException} and returns
 	 * {@code null} instead. This is useful if the passed class name is only potentially resolvable
@@ -770,14 +754,8 @@ public final class XReflect
 		}
 	}
 	
-	public static final Class<?> iterativeResolveType(final String... typeNames)
-		throws ClassNotFoundException
-	{
-		return iterativeResolveType(defaultTypeResolvingClassLoader(), typeNames);
-	}
-	
 	/**
-	 * Alias for {@link #tryIterativeResolveType(String...)} with the following difference:<br>
+	 * Alias for {@link #tryIterativeResolveType(ClassLoader, String...)} with the following difference:<br>
 	 * If none of the passed {@literal typeNames} can be resolved, a {@link ClassNotFoundException} listing
 	 * all passed {@literal typeNames} is thrown.
 	 * 
@@ -787,7 +765,7 @@ public final class XReflect
 	 * 
 	 * @throws ClassNotFoundException if none of the passed {@literal typeNames} could have been resolved.
 	 * 
-	 * @see #tryIterativeResolveType(String)
+	 * @see #tryIterativeResolveType(ClassLoader, String)
 	 */
 	public static final Class<?> iterativeResolveType(
 		final ClassLoader classLoader,
@@ -803,11 +781,6 @@ public final class XReflect
 		
 		// if none of the provided type names resulted in a match, a combined ClassNotFoundException is thrown
 		throw new ClassNotFoundException(Arrays.toString(typeNames));
-	}
-	
-	public static final Class<?> tryIterativeResolveType(final String... typeNames)
-	{
-		return tryIterativeResolveType(defaultTypeResolvingClassLoader(), typeNames);
 	}
 	
 	/**
@@ -860,8 +833,64 @@ public final class XReflect
 		
 		return null;
 	}
+	
+	/**
+	 * Local alias for {@link ClassLoader#getSystemClassLoader()}.
+	 * 
+	 * @return the system class loader.
+	 */
+	public static final ClassLoader defaultTypeResolvingClassLoader()
+	{
+		return ClassLoader.getSystemClassLoader();
+	}
+	
+	/**
+	 * Calls {@link #resolveType(String, ClassLoader)} with {@link #defaultTypeResolvingClassLoader()}.
+	 * Make sure this is a suitable {@link ClassLoader} when using this method.
+	 * 
+	 * @param typeName
+	 * @return
+	 */
+	public static final Class<?> resolveType(final String typeName)
+		throws LinkageError, ExceptionInInitializerError, ClassNotFoundException
+	{
+		return resolveType(typeName, defaultTypeResolvingClassLoader());
+	}
+	
+	/**
+	 * Calls {@link #tryResolveType(String, ClassLoader)} with {@link #defaultTypeResolvingClassLoader()}.
+	 * Make sure this is a suitable {@link ClassLoader} when using this method.
+	 * 
+	 * @param className
+	 * @return
+	 */
+	public static final Class<?> tryResolveType(final String className)
+	{
+		return tryResolveType(className, defaultTypeResolvingClassLoader());
+	}
+	
+	/**
+	 * Calls {@link #iterativeResolveType(ClassLoader, String...)} with {@link #defaultTypeResolvingClassLoader()}.
+	 * Make sure this is a suitable {@link ClassLoader} when using this method.
+	 * 
+	 * @param typeName
+	 * @return
+	 */
+	public static final Class<?> iterativeResolveType(final String... typeNames)
+		throws ClassNotFoundException
+	{
+		return iterativeResolveType(defaultTypeResolvingClassLoader(), typeNames);
+	}
+	
+	public static final Class<?> tryIterativeResolveType(final String... typeNames)
+	{
+		return tryIterativeResolveType(defaultTypeResolvingClassLoader(), typeNames);
+	}
 		
-	public static final Field tryGetDeclaredField(final Class<?> declaringClass, final String fieldName)
+	public static final Field tryGetDeclaredField(
+		final Class<?> declaringClass,
+		final String   fieldName
+	)
 	{
 		if(declaringClass == null)
 		{
@@ -878,8 +907,6 @@ public final class XReflect
 			return null;
 		}
 	}
-	
-	
 
 	public static final Class<?> tryResolvePrimitiveType(final String className)
 	{
@@ -1428,6 +1455,15 @@ public final class XReflect
 			+ XChars.systemString(superClassInstance)
 		);
 	}
+	
+	public final static Class<?> getSuperClassNonNull(final Class<?> c)
+	{
+		return c == Object.class
+			? c
+			: c.getSuperclass()
+		;
+	}
+	
 	
 
 	///////////////////////////////////////////////////////////////////////////

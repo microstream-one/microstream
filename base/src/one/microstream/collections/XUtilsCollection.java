@@ -2178,7 +2178,10 @@ public final class XUtilsCollection
 		return elements.iterate(new AggregateCountingPut<>(target)).yield();
 	}
 
-	public static <E, S extends E> E[] toArray(final XGettingCollection<S> collection, final Class<E> arrayComponentType)
+	public static <E, S extends E> E[] toArray(
+		final XGettingCollection<S> collection        ,
+		final Class<E>              arrayComponentType
+	)
 	{
 		final E[] array = X.Array(arrayComponentType, X.checkArrayRange(collection.size()));
 		XArrays.copyTo(collection, array);

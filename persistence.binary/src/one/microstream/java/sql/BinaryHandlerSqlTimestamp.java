@@ -1,6 +1,6 @@
 package one.microstream.java.sql;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 import one.microstream.java.util.BinaryHandlerDate;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomNonReferentialFixedLength;
@@ -13,7 +13,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
  * 
  * @author TM
  */
-public final class BinaryHandlerSqlTimestamp extends AbstractBinaryHandlerCustomNonReferentialFixedLength<Date>
+public final class BinaryHandlerSqlTimestamp extends AbstractBinaryHandlerCustomNonReferentialFixedLength<Timestamp>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -33,7 +33,7 @@ public final class BinaryHandlerSqlTimestamp extends AbstractBinaryHandlerCustom
 	BinaryHandlerSqlTimestamp()
 	{
 		super(
-			Date.class,
+			Timestamp.class,
 			CustomFields(
 				CustomField(long.class, "timestamp")
 			)
@@ -46,7 +46,7 @@ public final class BinaryHandlerSqlTimestamp extends AbstractBinaryHandlerCustom
 	// methods //
 	////////////
 	
-	private static long instanceState(final Date instance)
+	private static long instanceState(final Timestamp instance)
 	{
 		return instance.getTime();
 	}
@@ -59,7 +59,7 @@ public final class BinaryHandlerSqlTimestamp extends AbstractBinaryHandlerCustom
 	@Override
 	public final void store(
 		final Binary                  data    ,
-		final Date                    instance,
+		final Timestamp               instance,
 		final long                    objectId,
 		final PersistenceStoreHandler handler
 	)
@@ -71,13 +71,13 @@ public final class BinaryHandlerSqlTimestamp extends AbstractBinaryHandlerCustom
 	}
 
 	@Override
-	public final Date create(final Binary data, final PersistenceLoadHandler handler)
+	public final Timestamp create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return new Date(binaryState(data));
+		return new Timestamp(binaryState(data));
 	}
 
 	@Override
-	public final void updateState(final Binary data, final Date instance, final PersistenceLoadHandler handler)
+	public final void updateState(final Binary data, final Timestamp instance, final PersistenceLoadHandler handler)
 	{
 		instance.setTime(binaryState(data));
 	}
