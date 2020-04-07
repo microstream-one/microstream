@@ -25,7 +25,7 @@
 			<dependency>
 	            <groupId>org.springframework.boot</groupId>
 	            <artifactId>spring-boot-dependencies</artifactId>
-	            <version>2.2.2.RELEASE</version>
+	            <version>2.2.6.RELEASE</version>
 	            <type>pom</type>
 	            <scope>import</scope>
 	        </dependency>
@@ -67,6 +67,7 @@
 						the default Spring Boot's 30sec timeout. -->
 					<wait>500</wait>
 					<maxAttempts>240</maxAttempts>
+					
 				</configuration>
 			</plugin>
 			<plugin>
