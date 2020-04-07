@@ -1,20 +1,18 @@
 package one.microstream.test.corp.main;
 
-import java.nio.file.Paths;
+import java.sql.Timestamp;
 
-import one.microstream.X;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
 
-public class MainTestStorePath
+public class MainTestStoreSqlTimestamp
 {
 	static
 	{
 //		Test.clearDefaultStorageDirectory();
-//		XMemory.setMemoryAccessor(MemoryAccessorGeneric.New(JdkInternals.InstantiatorBlank()));
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
@@ -28,12 +26,7 @@ public class MainTestStorePath
 			// first execution enters here (database creation)
 
 			Test.print("Model data required.");
-			STORAGE.setRoot(
-				X.array(
-					Paths.get("D:/downloads/Java/testString1.txt"),
-					Paths.get("D:/downloads/Java/testString2.txt")
-				)
-			);
+			STORAGE.setRoot(new Timestamp(System.currentTimeMillis()));
 			
 			Test.print("Storing ...");
 			STORAGE.storeRoot();
