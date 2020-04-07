@@ -45,8 +45,12 @@ public class ViewerBinaryTypeHandlerManager implements PersistenceTypeHandlerMan
 		//initialize generic handlers
 		for (final PersistenceTypeHandler<Binary, ?> persistenceTypeHandler : this.nativeHandlers)
 		{
-			final PersistenceTypeDefinition h = this.typeDictionary.lookupTypeByName(persistenceTypeHandler.typeName());
-			persistenceTypeHandler.initialize(h.typeId());
+			final PersistenceTypeDefinition typeDefinition = this.typeDictionary
+				.lookupTypeByName(persistenceTypeHandler.typeName());
+			if(typeDefinition != null)
+			{
+				persistenceTypeHandler.initialize(typeDefinition.typeId());
+			}
 		}
 
 		this.buildTypeHandlerDictionary();
