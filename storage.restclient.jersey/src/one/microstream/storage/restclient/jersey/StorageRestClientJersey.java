@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -24,6 +25,11 @@ import one.microstream.storage.restclient.StorageRestClient;
 
 public interface StorageRestClientJersey extends StorageRestClient
 {
+	public void setClientCustomizer(
+		Consumer<ClientBuilder> clientCustomizer
+	);
+	
+	
 	public static StorageRestClientJersey New(
 		final String baseUrl
 	)
@@ -48,10 +54,11 @@ public interface StorageRestClientJersey extends StorageRestClient
 	
 	public static class Default implements StorageRestClientJersey
 	{
-		private final String baseUrl;
-		private final Routes routes;
-		private Client       client;
-		private WebTarget    storageRestService;
+		private final String            baseUrl;
+		private final Routes            routes;
+		private Consumer<ClientBuilder> clientCustomizer;
+		private Client                  client;
+		private WebTarget               storageRestService;
 		
 		Default(
 			final String baseUrl,
@@ -63,14 +70,27 @@ public interface StorageRestClientJersey extends StorageRestClient
 			this.routes  = routes;
 		}
 		
+		@Override
+		public void setClientCustomizer(
+			final Consumer<ClientBuilder> clientCustomizer
+		)
+		{
+			this.clientCustomizer = clientCustomizer;		
+		}
+		
 		private WebTarget storageRestService()
 		{
 			if(this.storageRestService == null)
 			{
-				this.client = ClientBuilder.newBuilder()
-					.register(GsonReader.class)
-					.build();
+				final ClientBuilder clientBuilder = ClientBuilder.newBuilder()
+					.register(GsonReader.class);
 				
+				if(this.clientCustomizer != null)
+				{
+					this.clientCustomizer.accept(clientBuilder);
+				}
+				
+				this.client             = clientBuilder.build();
 				this.storageRestService = this.client.target(this.baseUrl);
 			}
 			
