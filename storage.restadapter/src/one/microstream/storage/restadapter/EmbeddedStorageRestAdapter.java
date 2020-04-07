@@ -1,5 +1,7 @@
 package one.microstream.storage.restadapter;
 
+import static one.microstream.X.notNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,123 +13,162 @@ import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageRawFileStatistics;
 
-public class EmbeddedStorageRestAdapter
+public interface EmbeddedStorageRestAdapter
 {
-	///////////////////////////////////////////////////////////////////////////
-	// instance fields //
-	////////////////////
+	public ObjectDescription getStorageObject(long objectId);
+	
+	public ObjectDescription getConstant(long objectId);
+	
+	public List<ViewerRootDescription> getRoots();
+	
+	public ViewerRootDescription getRoot();
+	
+	public String getTypeDictionary();
 
-	private final ViewerBinaryPersistenceManager viewerPersistenceManager;
-	private final EmbeddedStorageManager embeddedStorageManager;
+	public StorageRawFileStatistics getFileStatistics();
 
-	///////////////////////////////////////////////////////////////////////////
-	// constructors //
-	/////////////////
-
-	public EmbeddedStorageRestAdapter(final EmbeddedStorageManager storage)
+	
+	public static EmbeddedStorageRestAdapter New(final EmbeddedStorageManager storage)
 	{
-		this.viewerPersistenceManager = new ViewerBinaryPersistenceManager(storage);
-		this.embeddedStorageManager = storage;
+		notNull(storage);
+		
+		return new Default(
+			ViewerBinaryPersistenceManager.New(storage),
+			storage
+		);
 	}
 
-	///////////////////////////////////////////////////////////////////////////
-	// methods //
-	////////////
-
-	/**
-	 *
-	 * Get an object's description by a microstream ObjectId
-	 *
-	 * @param objectId
-	 * @return ViewerObjectDescription
-	 */
-	public ObjectDescription getStorageObject(final long objectId)
+	
+	public static class Default implements EmbeddedStorageRestAdapter
 	{
-
-		final IdType idType = IdType.determineFromValue(objectId);
-
-		if(idType == IdType.CID)
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+	
+		private final ViewerBinaryPersistenceManager viewerPersistenceManager;
+		private final EmbeddedStorageManager         embeddedStorageManager;
+	
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default(
+			final ViewerBinaryPersistenceManager viewerPersistenceManager,
+			final EmbeddedStorageManager         embeddedStorageManager
+		)
 		{
-			return this.getConstant(objectId);
+			this.viewerPersistenceManager = viewerPersistenceManager;
+			this.embeddedStorageManager   = embeddedStorageManager;
 		}
-
-		try
+		
+	
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+	
+		/**
+		 *
+		 * Get an object's description by a microstream ObjectId
+		 *
+		 * @param objectId
+		 * @return ViewerObjectDescription
+		 */
+		@Override
+		public ObjectDescription getStorageObject(final long objectId)
 		{
-			return this.viewerPersistenceManager.getStorageObject(objectId);
-		}
-		//TODO will be a StorageException soon ...
-		catch(final RuntimeException e)
-		{
-			if(e.getCause() instanceof StorageException)
+	
+			final IdType idType = IdType.determineFromValue(objectId);
+	
+			if(idType == IdType.CID)
 			{
-				throw new ViewerException(e.getCause().getMessage());
+				return this.getConstant(objectId);
 			}
-			throw e;
-		}
-	}
-
-	/**
-	 *
-	 * Get java constants values
-	 *
-	 * @param objectId
-	 * @return the constants value as object
-	 */
-	public ObjectDescription getConstant(final long objectId)
-	{
-		return this.viewerPersistenceManager.getStorageConstant(objectId);
-	}
-
-	/**
-	 * Get all registered root elements of the current microstream instance
-	 *
-	 * @return List of ViewerRootDescription objects
-	 */
-	public List<ViewerRootDescription> getRoots()
-	{
-		final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
-		final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
-
-		final List<ViewerRootDescription> rootDescriptions = new ArrayList<>();
-
-		roots.iterateEntries((id, root) ->
-		{
-			rootDescriptions.add(new ViewerRootDescription(id, registry.lookupObjectId(root)));
-		});
-
-		return rootDescriptions;
-	}
-
-	/**
-	 * Get the current root name and object id
-	 *
-	 * If no default root is registered the returned ViewerRootDescription
-	 * will have a "null" string as name and objectId 0.
-	 *
-	 * @return ViewerRootDescription
-	 */
-	public ViewerRootDescription getRoot()
-	{
-		final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
-		final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
-
-		final Object defaultRoot = roots.rootReference().get();
-		if(defaultRoot != null)
-		{
-			return new ViewerRootDescription(PersistenceRootsView.rootIdentifier(), registry.lookupObjectId(defaultRoot));
+	
+			try
+			{
+				return this.viewerPersistenceManager.getStorageObject(objectId);
+			}
+			//TODO will be a StorageException soon ...
+			catch(final RuntimeException e)
+			{
+				if(e.getCause() instanceof StorageException)
+				{
+					throw new StorageRestAdapterException(e.getCause().getMessage());
+				}
+				throw e;
+			}
 		}
 
-		return new ViewerRootDescription(PersistenceRootsView.rootIdentifier(), 0);
-	}
+		/**
+		 *
+		 * Get java constants values
+		 *
+		 * @param objectId
+		 * @return the constants value as object
+		 */
+		@Override
+		public ObjectDescription getConstant(final long objectId)
+		{
+			return this.viewerPersistenceManager.getStorageConstant(objectId);
+		}
+	
+		/**
+		 * Get all registered root elements of the current microstream instance
+		 *
+		 * @return List of ViewerRootDescription objects
+		 */
+		@Override
+		public List<ViewerRootDescription> getRoots()
+		{
+			final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
+			final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
+	
+			final List<ViewerRootDescription> rootDescriptions = new ArrayList<>();
+	
+			roots.iterateEntries((id, root) ->
+			{
+				rootDescriptions.add(new ViewerRootDescription(id, registry.lookupObjectId(root)));
+			});
+	
+			return rootDescriptions;
+		}
+	
+		/**
+		 * Get the current root name and object id
+		 *
+		 * If no default root is registered the returned ViewerRootDescription
+		 * will have a "null" string as name and objectId 0.
+		 *
+		 * @return ViewerRootDescription
+		 */
+		@Override
+		public ViewerRootDescription getRoot()
+		{
+			final PersistenceObjectRegistry registry = this.embeddedStorageManager.persistenceManager().objectRegistry();
+			final PersistenceRootsView roots = this.embeddedStorageManager.viewRoots();
+	
+			final Object defaultRoot = roots.rootReference().get();
+			if(defaultRoot != null)
+			{
+				return new ViewerRootDescription(PersistenceRootsView.rootIdentifier(), registry.lookupObjectId(defaultRoot));
+			}
+	
+			return new ViewerRootDescription(PersistenceRootsView.rootIdentifier(), 0);
+		}
 
-	public String getTypeDictionary()
-	{
-		final PersistenceTypeDictionaryAssembler assembler = PersistenceTypeDictionaryAssembler.New();
-		return assembler.assemble(this.embeddedStorageManager.typeDictionary());
-	}
+		@Override
+		public String getTypeDictionary()
+		{
+			final PersistenceTypeDictionaryAssembler assembler = PersistenceTypeDictionaryAssembler.New();
+			return assembler.assemble(this.embeddedStorageManager.typeDictionary());
+		}
 
-	public StorageRawFileStatistics getFileStatistics()
-	{
-		return this.embeddedStorageManager.createStorageStatistics();
+		@Override
+		public StorageRawFileStatistics getFileStatistics()
+		{
+			return this.embeddedStorageManager.createStorageStatistics();
+		}
+		
 	}
+	
 }

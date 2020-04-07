@@ -1,10 +1,10 @@
 package one.microstream.storage.restservice.sparkjava;
 
-import one.microstream.storage.restadapter.StorageRestAdapterConverter;
 import one.microstream.storage.restadapter.StorageViewDataConverter;
+import one.microstream.storage.restadapter.StorageViewDataConverterProvider;
 import spark.Response;
 
-public abstract class RouteBaseConvertable<T extends StorageRestAdapterConverter> extends RouteBase<T>
+public abstract class RouteBaseConvertable<T extends StorageViewDataConverterProvider> extends RouteBase<T>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //

@@ -15,8 +15,8 @@ import one.microstream.storage.restadapter.StorageViewDataConverter;
 
 public class StorageViewDataConverterJson implements StorageViewDataConverter
 {
-	private static final String HTML_RESPONCE_CONTENT_TYPE = "application/json";
-	public static final String[] FORMAT_STRINGS = {HTML_RESPONCE_CONTENT_TYPE, "json"};
+	private static final String   HTML_RESPONCE_CONTENT_TYPE = "application/json";
+	private static final String[] FORMAT_STRINGS              = {HTML_RESPONCE_CONTENT_TYPE, "json"};
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -78,5 +78,6 @@ public class StorageViewDataConverterJson implements StorageViewDataConverter
 	{
 		return FORMAT_STRINGS;
 	}
+	
 }
 

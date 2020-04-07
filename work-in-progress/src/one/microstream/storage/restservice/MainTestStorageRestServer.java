@@ -19,8 +19,8 @@ import one.microstream.chars.VarString;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XList;
 import one.microstream.collections.types.XTable;
-import one.microstream.storage.restservice.RestServiceResolver;
 import one.microstream.storage.restservice.StorageRestService;
+import one.microstream.storage.restservice.StorageRestServiceResolver;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
@@ -37,7 +37,7 @@ public class MainTestStorageRestServer
 			storage.storeRoot();
 		}
 		
-		final StorageRestService service    = RestServiceResolver.getFirst(
+		final StorageRestService service    = StorageRestServiceResolver.resolve(
 			storage
 		);
 		service.start();

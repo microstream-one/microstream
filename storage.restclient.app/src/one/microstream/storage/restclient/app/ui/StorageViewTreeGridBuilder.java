@@ -5,9 +5,9 @@ import java.util.Comparator;
 
 import com.vaadin.flow.component.treegrid.TreeGrid;
 
-import one.microstream.storage.restclient.types.StorageView;
-import one.microstream.storage.restclient.types.StorageViewElement;
-import one.microstream.storage.restclient.types.StorageViewObject;
+import one.microstream.storage.restclient.StorageView;
+import one.microstream.storage.restclient.StorageViewElement;
+import one.microstream.storage.restclient.StorageViewObject;
 
 
 public interface StorageViewTreeGridBuilder

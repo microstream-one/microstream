@@ -1,4 +1,4 @@
-package one.microstream.storage.restclient.types;
+package one.microstream.storage.restclient.jersey;
 
 public interface Routes
 {

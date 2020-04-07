@@ -1,4 +1,4 @@
-package one.microstream.storage.restclient.types;
+package one.microstream.storage.restclient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +15,6 @@ import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGe
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGenericComplex;
 import one.microstream.storage.restadapter.ViewerObjectDescription;
 import one.microstream.storage.restadapter.ViewerRootDescription;
-import one.microstream.storage.restclient.exceptions.StorageViewExceptionMissingTypeDescription;
 
 public interface StorageView
 {

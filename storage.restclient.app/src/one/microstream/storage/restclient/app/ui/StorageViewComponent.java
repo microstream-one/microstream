@@ -5,11 +5,11 @@ import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 
+import one.microstream.storage.restclient.StorageView;
+import one.microstream.storage.restclient.StorageViewConfiguration;
+import one.microstream.storage.restclient.StorageViewElement;
 import one.microstream.storage.restclient.app.SessionData;
-import one.microstream.storage.restclient.types.StorageRestClientJersey;
-import one.microstream.storage.restclient.types.StorageView;
-import one.microstream.storage.restclient.types.StorageViewConfiguration;
-import one.microstream.storage.restclient.types.StorageViewElement;
+import one.microstream.storage.restclient.jersey.StorageRestClientJersey;
 
 public class StorageViewComponent extends SplitLayout
 {

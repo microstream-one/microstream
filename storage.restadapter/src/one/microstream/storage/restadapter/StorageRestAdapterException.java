@@ -4,21 +4,21 @@ package one.microstream.storage.restadapter;
 import one.microstream.exceptions.BaseException;
 
 
-public class ViewerException extends BaseException
+public class StorageRestAdapterException extends BaseException
 {
-	public ViewerException(
+	public StorageRestAdapterException(
 		final String message
 	)
 	{
 		super(message);
 	}
 	
-	public ViewerException()
+	public StorageRestAdapterException()
 	{
 		super();
 	}
 	
-	public ViewerException(
+	public StorageRestAdapterException(
 		final String message,
 		final Throwable cause,
 		final boolean enableSuppression,
@@ -28,7 +28,7 @@ public class ViewerException extends BaseException
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 	
-	public ViewerException(
+	public StorageRestAdapterException(
 		final String message,
 		final Throwable cause
 	)
@@ -36,7 +36,7 @@ public class ViewerException extends BaseException
 		super(message, cause);
 	}
 	
-	public ViewerException(
+	public StorageRestAdapterException(
 		final Throwable cause
 	)
 	{

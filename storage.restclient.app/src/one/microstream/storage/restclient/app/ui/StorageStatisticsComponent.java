@@ -17,7 +17,7 @@ import one.microstream.storage.restadapter.ViewerFileStatistics;
 import one.microstream.storage.restadapter.ViewerStorageFileStatistics;
 import one.microstream.storage.restadapter.ViewerStorageFileStatisticsItem;
 import one.microstream.storage.restclient.app.SessionData;
-import one.microstream.storage.restclient.types.StorageRestClientJersey;
+import one.microstream.storage.restclient.jersey.StorageRestClientJersey;
 
 
 public class StorageStatisticsComponent extends TreeGrid<StorageStatisticsComponent.Item>

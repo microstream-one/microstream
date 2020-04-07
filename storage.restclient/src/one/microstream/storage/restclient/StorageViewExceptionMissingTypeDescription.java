@@ -1,5 +1,5 @@
 
-package one.microstream.storage.restclient.exceptions;
+package one.microstream.storage.restclient;
 
 public class StorageViewExceptionMissingTypeDescription extends StorageViewException
 {
