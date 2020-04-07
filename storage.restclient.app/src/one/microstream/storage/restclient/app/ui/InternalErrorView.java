@@ -3,6 +3,8 @@ package one.microstream.storage.restclient.app.ui;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
@@ -11,6 +13,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.ErrorParameter;
+import com.vaadin.flow.router.HasErrorParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.ParentLayout;
 import com.vaadin.flow.router.Route;
@@ -22,7 +26,8 @@ import one.microstream.storage.restclient.app.SessionData;
 @Route(value = "error", layout = RootLayout.class)
 @ParentLayout(RootLayout.class)
 @PageTitle("Error - " + RootLayout.PAGE_TITLE)
-public class InternalErrorView extends VerticalLayout implements BeforeEnterObserver
+public class InternalErrorView extends VerticalLayout 
+	implements HasErrorParameter<Exception>, BeforeEnterObserver
 {
 	public static String restServiceHint(String baseUrl)
 	{
@@ -36,9 +41,26 @@ public class InternalErrorView extends VerticalLayout implements BeforeEnterObse
 
 		this.setSizeFull();
 	}
+	
+	@Override
+	public int setErrorParameter(
+		final BeforeEnterEvent event, 
+		final ErrorParameter<Exception> parameter
+	)
+	{
+		final VaadinSession session = event.getUI().getSession();
+		session.setAttribute(
+			ApplicationErrorHandler.THROWABLE_ATTRIBUTE,
+			parameter.getCaughtException()
+		);
+		
+		return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+	}
 
 	@Override
-	public void beforeEnter(BeforeEnterEvent event)
+	public void beforeEnter(
+		final BeforeEnterEvent event
+	)
 	{					
 		final H3 header = new H3("An internal error occured.");
 		header.addClassName("error");
