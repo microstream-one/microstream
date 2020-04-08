@@ -7,12 +7,10 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.ParentLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteNotFoundError;
 
 @Route(value = "404", layout = RootLayout.class)
-@ParentLayout(RootLayout.class)
 @PageTitle("404 - " + RootLayout.PAGE_TITLE)
 public class RouteNotFoundView extends RouteNotFoundError
 {
