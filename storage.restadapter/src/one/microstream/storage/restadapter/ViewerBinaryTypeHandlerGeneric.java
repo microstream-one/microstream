@@ -45,13 +45,13 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 	@Override
 	public long typeId()
 	{
-		throw new UnsupportedOperationException();
+		return this.persitenceTypeDefinition.typeId();
 	}
 
 	@Override
 	public String typeName()
 	{
-		throw new UnsupportedOperationException();
+		return this.persitenceTypeDefinition.typeName();
 	}
 
 	@Override

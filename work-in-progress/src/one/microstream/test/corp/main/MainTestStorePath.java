@@ -28,7 +28,6 @@ public class MainTestStorePath
 			// first execution enters here (database creation)
 
 			Test.print("Model data required.");
-			// (27.11.2019 TM)FIXME: Won't work for now! See comment in BinaryHandlerPath.
 			STORAGE.setRoot(
 				X.array(
 					Paths.get("D:/downloads/Java/testString1.txt"),
