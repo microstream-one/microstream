@@ -1,6 +1,6 @@
 {
     "handler": {
-        "storage.restservice.sparkjava.RouteGetRoot": {
+        "one.microstream.storage.restservice.sparkjava.RouteGetRoot": {
             "get": {
                 "description": "get the user defined root",
                 "parameter": {},
@@ -30,7 +30,7 @@
                 "description": "get detailed informations"
             }
         },
-        "storage.restservice.sparkjava.RouteGetObject": {
+        "one.microstream.storage.restservice.sparkjava.RouteGetObject": {
             "options": {
                 "description": "get detailed informations"
             },
@@ -132,7 +132,7 @@
                 }
             }
         },
-        "storage.restservice.sparkjava.RouteTypeDictionary": {
+        "one.microstream.storage.restservice.sparkjava.RouteTypeDictionary": {
             "get": {
                 "description": "get storage type dictionary",
                 "parameter": {},
@@ -152,7 +152,7 @@
                 "description": "get detailed informations"
             }
         },
-        "storage.restservice.sparkjava.RouteStorageFilesStatistics": {
+        "one.microstream.storage.restservice.sparkjava.RouteStorageFilesStatistics": {
             "get": {
                 "description": "get statistics for all storage files",
                 "parameter": {},
@@ -172,7 +172,7 @@
                 "description": "get detailed informations"
             }
         },
-        "storage.restservice.sparkjava.RouteAllRoutes": {
+        "one.microstream.storage.restservice.sparkjava.RouteAllRoutes": {
             "get": {
                 "description": "get a list of all available routes",
                 "parameter": {},
