@@ -8,7 +8,7 @@
 		<version>02.03.00-MS-GA-SNAPSHOT</version>
 	</parent>
 	<artifactId>storage.restclient.app</artifactId>
-	
+
 	<properties>
 		<vaadin.version>14.1.21</vaadin.version>
 	</properties>
@@ -23,12 +23,12 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
-	            <groupId>org.springframework.boot</groupId>
-	            <artifactId>spring-boot-dependencies</artifactId>
-	            <version>2.2.6.RELEASE</version>
-	            <type>pom</type>
-	            <scope>import</scope>
-	        </dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>2.2.6.RELEASE</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -54,20 +54,19 @@
 			</exclusions>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<defaultGoal>spring-boot:run</defaultGoal>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-maven-plugin</artifactId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>one.microstream.storage.restclient.app.Application</mainClass>					
+					<mainClass>one.microstream.storage.restclient.app.Application</mainClass>
 					<!-- Clean build and startup time for Vaadin apps sometimes may exceed 
 						the default Spring Boot's 30sec timeout. -->
 					<wait>500</wait>
 					<maxAttempts>240</maxAttempts>
-					
 				</configuration>
 			</plugin>
 			<plugin>
@@ -84,7 +83,7 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<profiles>
 		<profile>
 			<id>production</id>
@@ -105,7 +104,9 @@
 						<groupId>org.springframework.boot</groupId>
 						<artifactId>spring-boot-maven-plugin</artifactId>
 						<configuration>
+							<mainClass>one.microstream.storage.restclient.app.Application</mainClass>
 							<jvmArguments>-Dvaadin.productionMode</jvmArguments>
+							<layout>JAR</layout>
 						</configuration>
 					</plugin>
 					<plugin>
@@ -115,6 +116,7 @@
 						<executions>
 							<execution>
 								<goals>
+									<goal>prepare-frontend</goal>
 									<goal>build-frontend</goal>
 								</goals>
 								<phase>compile</phase>
