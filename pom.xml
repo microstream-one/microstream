@@ -358,6 +358,7 @@
 				<module>storage.restclient.jersey</module>
 				<module>storage.restservice</module>
 				<module>storage.restservice.sparkjava</module>
+				<module>work-in-progress</module>
 				<module>all</module>
 			</modules>
 		</profile>

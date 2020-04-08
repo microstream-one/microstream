@@ -10,7 +10,7 @@
 	<artifactId>storage.restclient.app</artifactId>
 
 	<properties>
-		<vaadin.version>14.1.21</vaadin.version>
+		<vaadin.version>14.1.25</vaadin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -90,14 +90,12 @@
 			<properties>
 				<vaadin.productionMode>true</vaadin.productionMode>
 			</properties>
-
 			<dependencies>
 				<dependency>
 					<groupId>com.vaadin</groupId>
 					<artifactId>flow-server-production-mode</artifactId>
 				</dependency>
 			</dependencies>
-
 			<build>
 				<plugins>
 					<plugin>
@@ -108,6 +106,13 @@
 							<jvmArguments>-Dvaadin.productionMode</jvmArguments>
 							<layout>JAR</layout>
 						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>repackage</goal>
+								</goals>
+							</execution>
+						</executions>
 					</plugin>
 					<plugin>
 						<groupId>com.vaadin</groupId>
@@ -120,6 +125,31 @@
 									<goal>build-frontend</goal>
 								</goals>
 								<phase>compile</phase>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<configuration>
+							<archive>
+								<manifest>
+									<addClasspath>true</addClasspath>
+									<mainClass>one.microstream.storage.restclient.app.Application</mainClass>
+								</manifest>
+							</archive>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<descriptor>assembly.xml</descriptor>
+						</configuration>
+						<executions>
+							<execution>
+								<id>make-assembly</id>
+								<phase>package</phase>								
+								<goals>
+									<goal>single</goal>
+								</goals>
 							</execution>
 						</executions>
 					</plugin>

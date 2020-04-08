@@ -16,7 +16,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.HasErrorParameter;
 import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.ParentLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
@@ -24,7 +23,6 @@ import one.microstream.storage.restclient.app.ApplicationErrorHandler;
 import one.microstream.storage.restclient.app.SessionData;
 
 @Route(value = "error", layout = RootLayout.class)
-@ParentLayout(RootLayout.class)
 @PageTitle("Error - " + RootLayout.PAGE_TITLE)
 public class InternalErrorView extends VerticalLayout 
 	implements HasErrorParameter<Exception>, BeforeEnterObserver

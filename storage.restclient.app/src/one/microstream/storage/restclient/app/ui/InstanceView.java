@@ -13,14 +13,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.ParentLayout;
 import com.vaadin.flow.router.Route;
 
 import one.microstream.storage.restclient.app.SessionData;
 
 
 @Route(value = "instance", layout = RootLayout.class)
-@ParentLayout(RootLayout.class)
 public class InstanceView extends VerticalLayout implements HasDynamicTitle
 {
 	public InstanceView()
