@@ -1,7 +1,7 @@
 package one.microstream.storage.restadapter;
 
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 import one.microstream.storage.types.StorageRawFileStatistics;
 
@@ -15,7 +15,7 @@ public class ViewerStorageFileStatistics extends ViewerStorageFileStatisticsItem
 	////////////////////
 
 	Date creationTime;
-	Hashtable<Integer, ViewerChannelStatistics> channelStatistics;
+	HashMap<Integer, ViewerChannelStatistics> channelStatistics;
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -31,7 +31,7 @@ public class ViewerStorageFileStatistics extends ViewerStorageFileStatisticsItem
 			final long fileCount,
 			final long liveDataLength,
 			final long totalDataLength,
-			final Hashtable<Integer, ViewerChannelStatistics> channelStatistics)
+			final HashMap<Integer, ViewerChannelStatistics> channelStatistics)
 		{
 			super(fileCount, liveDataLength, totalDataLength);
 			this.creationTime = creationTime;
@@ -44,7 +44,7 @@ public class ViewerStorageFileStatistics extends ViewerStorageFileStatisticsItem
 
 	public static ViewerStorageFileStatistics New(final StorageRawFileStatistics src)
 	{
-		final Hashtable<Integer, ViewerChannelStatistics> channelStatistics = new Hashtable<>();
+		final HashMap<Integer, ViewerChannelStatistics> channelStatistics = new HashMap<>();
 
 		src.channelStatistics().forEach(e -> channelStatistics.put(e.key(), ViewerChannelStatistics.New(e.value())));
 
@@ -70,12 +70,12 @@ public class ViewerStorageFileStatistics extends ViewerStorageFileStatisticsItem
 		this.creationTime = creationTime;
 	}
 
-	public Hashtable<Integer, ViewerChannelStatistics> getChannelStatistics()
+	public HashMap<Integer, ViewerChannelStatistics> getChannelStatistics()
 	{
 		return this.channelStatistics;
 	}
 
-	public void setChannelStatistics(final Hashtable<Integer, ViewerChannelStatistics> channelStatistics)
+	public void setChannelStatistics(final HashMap<Integer, ViewerChannelStatistics> channelStatistics)
 	{
 		this.channelStatistics = channelStatistics;
 	}

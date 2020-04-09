@@ -1,9 +1,12 @@
 package one.microstream.storage.restadapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import one.microstream.persistence.types.PersistenceTypeDefinition;
+import one.microstream.reference.Swizzling;
 
 /**
  * This class encapsulates the type definition and all field values retrieved
@@ -22,6 +25,7 @@ public class ObjectDescription
 	private PersistenceTypeDefinition persistenceTypeDefinition;
 	private long length;
 	private ObjectDescription[] references;
+	private Long[] variableLength;
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -72,6 +76,16 @@ public class ObjectDescription
 		this.length = variableSize;
 	}
 
+	public void setVariableLength(final Long[] objects)
+	{
+		this.variableLength = objects;
+	}
+
+	public Long[] getVariableLength()
+	{
+		return this.variableLength;
+	}
+
 	public ObjectDescription[] getReferences()
 	{
 		return this.references;
@@ -117,32 +131,62 @@ public class ObjectDescription
 		return this.primitiveInstance != null;
 	}
 
-	public void resolveReferences(final long referenceOffset, final long referenceLength, final EmbeddedStorageRestAdapter storageRestAdapter)
+	public void resolveReferences(
+		final long fixedOffset,
+		final long fixedLength,
+		final long variableOffset,
+		final long variableLength,
+		final EmbeddedStorageRestAdapter storageRestAdapter
+	)
 	{
-		int referenceIndex = 0;
-		int referenceCount = 0;
-
 		final List<ObjectDescription> resolvedReferences = new ArrayList<>();
-
-		for(int i = 0; i < this.values.length; i++)
+		
+		Arrays.stream(this.values)
+			.skip(fixedOffset)
+			.limit(fixedLength)
+			.filter(ObjectReferenceWrapper.class::isInstance)
+			.map(ObjectReferenceWrapper.class::cast)
+			.map(wrapper -> this.resolveReference(wrapper, storageRestAdapter))
+			.forEach(resolvedReferences::add);
+			
+		int variableIndex;
+		if(variableLength > 0 && (variableIndex = (int)this.length) < this.values.length)
 		{
-			if(this.values[i] instanceof ObjectReferenceWrapper)
-			{
-				if(referenceIndex++ < referenceOffset) continue;
-				if(referenceCount++ >= referenceLength) break;
-
-				final long oid = ((ObjectReferenceWrapper) this.values[i]).getObjectId();
-				if(oid > 0)
-				{
-					resolvedReferences.add(storageRestAdapter.getStorageObject(oid));
-				}
-				else
-				{
-					resolvedReferences.add(null);
-				}
-			}
+			Arrays.stream((Object[])this.values[variableIndex])
+				.skip(variableOffset)
+				.limit(variableLength)
+				.flatMap(this::flatMapToWrappers)
+				.map(wrapper -> this.resolveReference(wrapper, storageRestAdapter))
+				.forEach(resolvedReferences::add);
 		}
-
-		this.references = resolvedReferences.toArray(new ObjectDescription[0]);
+		
+		this.references = resolvedReferences.toArray(new ObjectDescription[resolvedReferences.size()]);
+	}
+	
+	private Stream<ObjectReferenceWrapper> flatMapToWrappers(final Object data)
+	{
+		if(data instanceof ObjectReferenceWrapper)
+		{
+			return Stream.of((ObjectReferenceWrapper)data);
+		}
+		
+		if(data instanceof Object[])
+		{
+			return Arrays.stream((Object[])data)
+				.flatMap(this::flatMapToWrappers);
+		}
+		
+		return Stream.empty();
+	}
+	
+	private ObjectDescription resolveReference(
+		final ObjectReferenceWrapper wrapper,
+		final EmbeddedStorageRestAdapter storageRestAdapter
+	)
+	{
+		final long oid = wrapper.getObjectId();
+		return oid == Swizzling.nullId()
+			? null
+			: storageRestAdapter.getStorageObject(oid);
 	}
 }
