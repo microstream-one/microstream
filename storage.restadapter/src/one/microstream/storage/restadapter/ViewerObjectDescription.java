@@ -9,8 +9,11 @@ public class ViewerObjectDescription
 	private String objectId;
 	private String typeId;
 	private String length;
+	private String[] variableLength;
+	private boolean simplified;
 	private Object[] data;
 	private ViewerObjectDescription[] references;
+
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -77,6 +80,25 @@ public class ViewerObjectDescription
 		this.references = references;
 	}
 
+	public String[] getVariableLength()
+	{
+		return this.variableLength ;
+	}
+
+	public void setVariableLength(final String[] variableLength)
+	{
+		this.variableLength = variableLength;
+	}
+
+	public void setSimplified(final boolean simplified)
+	{
+		this.simplified = simplified;
+	}
+
+	public boolean getSimplified()
+	{
+		return this.simplified;
+	}
 
 
 }

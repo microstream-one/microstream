@@ -1,5 +1,7 @@
 package one.microstream.storage.restadapter;
 
+import static one.microstream.X.notNull;
+
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 public interface StorageRestAdapter
@@ -7,8 +9,29 @@ public interface StorageRestAdapter
 		StorageRestAdapterObject,
 		StorageRestAdapterRoot,
 		StorageRestAdapterStorageInfo,
-		StorageViewDataConverterProvider
+		StorageViewDataConverterRegistry
 {
+	public static StorageRestAdapter New(
+		final EmbeddedStorageManager storage
+	)
+	{
+		return new Default(
+			StorageViewDataConverterRegistry.New() ,
+			EmbeddedStorageRestAdapter.New(storage)
+		);
+	}
+	
+	public static StorageRestAdapter New(
+		final StorageViewDataConverterRegistry converterRegistry         ,
+		final EmbeddedStorageRestAdapter       embeddedStorageRestAdapter
+	)
+	{
+		return new Default(
+			notNull(converterRegistry)         ,
+			notNull(embeddedStorageRestAdapter)
+		);
+	}
+	
 
 	public class Default implements StorageRestAdapter
 	{
@@ -16,19 +39,21 @@ public interface StorageRestAdapter
 		// instance fields //
 		////////////////////
 
-		private final StorageViewDataConverterProvider converterProvider;
-		private final EmbeddedStorageRestAdapter embeddedStorageRestAdapter;
-		private long defaultDataLength = Long.MAX_VALUE;
+		private final StorageViewDataConverterRegistry converterRegistry;
+		private final EmbeddedStorageRestAdapter       embeddedStorageRestAdapter;
+		private long                                   defaultValueLength = Long.MAX_VALUE;
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		public Default(final EmbeddedStorageManager storage)
+		Default(
+			final StorageViewDataConverterRegistry converterRegistry         ,
+			final EmbeddedStorageRestAdapter       embeddedStorageRestAdapter
+		)
 		{
-			super();
-			this.embeddedStorageRestAdapter = new EmbeddedStorageRestAdapter(storage);
-			this.converterProvider = new StorageViewDataConverterProvider.Default();
+			this.converterRegistry          = converterRegistry;
+			this.embeddedStorageRestAdapter = embeddedStorageRestAdapter;
 		}
 
 		///////////////////////////////////////////////////////////////////////////
@@ -38,26 +63,54 @@ public interface StorageRestAdapter
 		@Override
 		public ViewerObjectDescription getObject(
 			final long objectId,
-			final long dataOffset,
-			final long dataLength,
-			final boolean resolveReferences,
-			final long referenceOffset,
-			final long referenceLength)
+			final long fixedOffset,
+			final long fixedLength,
+			final long variableOffset,
+			final long variableLength,
+			final long valueLength,
+			final boolean resolveReferences)
 		{
-
-			if(dataOffset < 0) throw new ViewerException("invalid parameter dataOffset");
-			if(dataLength < 1) throw new ViewerException("invalid parameter dataLength");
-			if(referenceOffset < 0) throw new ViewerException("invalid parameter referenceOffset");
-			if(referenceLength < 1) throw new ViewerException("invalid parameter referenceLength");
-
+			if(fixedOffset < 0)
+			{
+				throw new StorageRestAdapterException("invalid parameter fixedOffset");
+			}
+			if(fixedLength < 0)
+			{
+				throw new StorageRestAdapterException("invalid parameter fixedLength");
+			}
+			if(variableOffset < 0)
+			{
+				throw new StorageRestAdapterException("invalid parameter variableOffset");
+			}
+			if(variableLength < 0)
+			{
+				throw new StorageRestAdapterException("invalid parameter variableLength");
+			}
+			if(valueLength < 0)
+			{
+				throw new StorageRestAdapterException("invalid parameter valueLength");
+			}
 
 			final ObjectDescription description = this.embeddedStorageRestAdapter.getStorageObject(objectId);
 			if(resolveReferences)
 			{
-				description.resolveReferences(referenceOffset, referenceLength, this.embeddedStorageRestAdapter);
+				description.resolveReferences(
+					fixedOffset,
+					fixedLength,
+					variableOffset,
+					variableLength,
+					this.embeddedStorageRestAdapter
+				);
 			}
 
-			return ViewerObjectDescriptionCreator.create(description, dataOffset, dataLength);
+			return new ViewerObjectDescriptionCreator(
+				description,
+				fixedOffset,
+				fixedLength,
+				variableOffset,
+				variableLength,
+				valueLength
+			).create();
 		}
 
 		@Override
@@ -72,17 +125,16 @@ public interface StorageRestAdapter
 			return this.embeddedStorageRestAdapter.getTypeDictionary();
 		}
 
-
 	    @Override
-	    public long getDefaultDataLength()
+	    public long getDefaultValueLength()
 	    {
-	        return this.defaultDataLength;
+	        return this.defaultValueLength;
 	    }
 
 	    @Override
-	    public void setDefaultDataLength(final long defaultDataLength)
+	    public void setDefaultValueLength(final long defaultValueLength)
 	    {
-	        this.defaultDataLength = defaultDataLength;
+	        this.defaultValueLength = defaultValueLength;
 	    }
 
 		@Override
@@ -94,13 +146,15 @@ public interface StorageRestAdapter
 		@Override
 		public StorageViewDataConverter getConverter(final String format)
 		{
-			return this.converterProvider.getConverter(format);
+			return this.converterRegistry.getConverter(format);
 		}
 
 		@Override
-		public boolean register(final StorageViewDataConverter converter, final String format)
+		public boolean addConverter(final StorageViewDataConverter converter, final String format)
 		{
-			return this.converterProvider.register(converter, format);
+			return this.converterRegistry.addConverter(converter, format);
 		}
+		
 	}
+	
 }
