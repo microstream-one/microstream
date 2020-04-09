@@ -11,6 +11,7 @@
 
 	<properties>
 		<vaadin.version>14.1.25</vaadin.version>
+		<spring.boot.version>2.2.6.RELEASE</spring.boot.version>
 	</properties>
 
 	<dependencyManagement>
@@ -25,7 +26,7 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>2.2.6.RELEASE</version>
+				<version>${spring.boot.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -61,6 +62,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring.boot.version}</version>
 				<configuration>
 					<mainClass>one.microstream.storage.restclient.app.Application</mainClass>
 					<!-- Clean build and startup time for Vaadin apps sometimes may exceed 
@@ -114,6 +116,7 @@
 					<plugin>
 						<groupId>org.springframework.boot</groupId>
 						<artifactId>spring-boot-maven-plugin</artifactId>
+						<version>${spring.boot.version}</version>
 						<configuration>
 							<mainClass>one.microstream.storage.restclient.app.Application</mainClass>
 							<jvmArguments>-Dvaadin.productionMode</jvmArguments>
