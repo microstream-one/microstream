@@ -323,13 +323,22 @@ ByteOrderTargeting<PersistenceManager<D>>
 		
 		@Override
 		public final long ensureObjectId(
-			final Object              object                ,
-			final PersistenceAcceptor lazyObjectIdRequestor ,
-			final PersistenceAcceptor eagerObjectIdRequestor
+			final Object                       object           ,
+			final PersistenceObjectIdRequestor objectIdRequestor
 		)
 		{
 			this.typeHandlerManager.ensureTypeHandler(object.getClass());
-			return this.objectManager.ensureObjectId(object, lazyObjectIdRequestor, eagerObjectIdRequestor);
+			return this.objectManager.ensureObjectId(object, objectIdRequestor);
+		}
+		
+		@Override
+		public final long ensureObjectIdGuaranteedRegister(
+			final Object                       object           ,
+			final PersistenceObjectIdRequestor objectIdRequestor
+		)
+		{
+			this.typeHandlerManager.ensureTypeHandler(object.getClass());
+			return this.objectManager.ensureObjectIdGuaranteedRegister(object, objectIdRequestor);
 		}
 
 		@Override
