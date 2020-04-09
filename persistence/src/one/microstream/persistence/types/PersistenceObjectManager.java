@@ -1,6 +1,5 @@
 package one.microstream.persistence.types;
 
-import static one.microstream.X.coalesce;
 import static one.microstream.X.notNull;
 
 import java.lang.ref.WeakReference;
@@ -18,9 +17,13 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 	public long ensureObjectId(Object object);
 	
 	public long ensureObjectId(
-		Object              object                ,
-		PersistenceAcceptor lazyObjectIdRequestor ,
-		PersistenceAcceptor eagerObjectIdRequestor
+		Object                       object           ,
+		PersistenceObjectIdRequestor objectIdRequestor
+	);
+	
+	public long ensureObjectIdGuaranteedRegister(
+		Object                       object           ,
+		PersistenceObjectIdRequestor objectIdRequestor
 	);
 
 	public void consolidate();
@@ -70,7 +73,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		
 		private WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries = X.WeakReferences(1);
 		
-		private final PersistenceAcceptor noOp = PersistenceAcceptor::noOp;
+		private final PersistenceObjectIdRequestor noOp = PersistenceObjectIdRequestor.NoOp();
 
 		
 
@@ -144,20 +147,15 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		@Override
 		public final long ensureObjectId(final Object object)
 		{
-			return this.ensureObjectId(object, this.noOp, null);
+			return this.ensureObjectId(object, this.noOp);
 		}
 		
 		@Override
 		public long ensureObjectId(
-			final Object              object                ,
-			final PersistenceAcceptor lazyObjectIdRequestor ,
-			final PersistenceAcceptor eagerObjectIdRequestor
+			final Object                       object           ,
+			final PersistenceObjectIdRequestor objectIdRequestor
 		)
 		{
-			final PersistenceAcceptor requestor = notNull(
-				coalesce(lazyObjectIdRequestor, eagerObjectIdRequestor)
-			);
-			
 			/*
 			 * Three steps to determine an object's objectId which must be executed in exactely that order
 			 * and under the protection of a lock on the global registry to enqueue all concurrent storers.
@@ -171,24 +169,18 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				long objectId;
 				if(Swizzling.isNotProperId(objectId = this.objectRegistry.lookupObjectId(object)))
 				{
-					if(Swizzling.isNotProperId(objectId = this.synchCheckLocalRegistries(requestor, object)))
+					if(Swizzling.isNotProperId(objectId = this.synchCheckLocalRegistries(objectIdRequestor, object)))
 					{
 						// see below about not globally registering the newly assigned objectId
 						objectId = this.oidProvider.provideNextObjectId();
 					}
 
 					// lazy logic means only apply if not yet globally known (= something new / "store required").
-					if(lazyObjectIdRequestor != null)
-					{
-						lazyObjectIdRequestor.accept(objectId, object);
-					}
+					objectIdRequestor.registerLazyOptional(objectId, object);
 				}
 				
 				// eager logic means ALWAYS apply, even if already globally known (= "store full").
-				if(eagerObjectIdRequestor != null)
-				{
-					eagerObjectIdRequestor.accept(objectId, object);
-				}
+				objectIdRequestor.registerEagerOptional(objectId, object);
 
 				/* (06.12.2019 TM)NOTE:
 				 * A new object<->id association may NOT be registered right away, since the storing (writing) logic
@@ -207,9 +199,38 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 			}
 		}
 		
+		/**
+		 * Variant of {@link #ensureObjectId(Object)} with guaranteed registering (effectively override-eager-logic)
+		 * 
+		 */
+		@Override
+		public long ensureObjectIdGuaranteedRegister(
+			final Object                       object           ,
+			final PersistenceObjectIdRequestor objectIdRequestor
+		)
+		{
+			// see #ensureObjectId for explaining comments
+			synchronized(this.objectRegistry)
+			{
+				long objectId;
+				if(Swizzling.isNotProperId(objectId = this.objectRegistry.lookupObjectId(object)))
+				{
+					if(Swizzling.isNotProperId(objectId = this.synchCheckLocalRegistries(objectIdRequestor, object)))
+					{
+						objectId = this.oidProvider.provideNextObjectId();
+					}
+				}
+				
+				// overriding "guaranteed registering" logic
+				objectIdRequestor.registerGuaranteed(objectId, object);
+				
+				return objectId;
+			}
+		}
+		
 		private long synchCheckLocalRegistries(
-			final PersistenceAcceptor objectIdRequestor,
-			final Object              instance
+			final PersistenceObjectIdRequestor objectIdRequestor,
+			final Object                       instance
 		)
 		{
 			for(final WeakReference<PersistenceLocalObjectIdRegistry> localRegistryEntry : this.localRegistries)
@@ -336,7 +357,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 					
 					if(registeredLocalRegistry == localRegistry)
 					{
-						synchInternalMergeEntries(localRegistry);
+						this.synchInternalMergeEntries(localRegistry);
 						
 						if(emptySlotCount > 2)
 						{

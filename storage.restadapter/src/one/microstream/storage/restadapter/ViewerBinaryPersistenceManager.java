@@ -6,11 +6,11 @@ import java.util.function.Consumer;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryLoader.CreatorChannelHashing;
 import one.microstream.persistence.types.Persistence;
-import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceContextDispatcher;
 import one.microstream.persistence.types.PersistenceLoader;
 import one.microstream.persistence.types.PersistenceLocalObjectIdRegistry;
 import one.microstream.persistence.types.PersistenceManager;
+import one.microstream.persistence.types.PersistenceObjectIdRequestor;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceRegisterer;
 import one.microstream.persistence.types.PersistenceRetrieving;
@@ -106,12 +106,20 @@ public interface ViewerBinaryPersistenceManager extends PersistenceManager<Binar
 
 		@Override
 		public final long ensureObjectId(
-			final Object              object                ,
-			final PersistenceAcceptor lazyObjectIdRequestor ,
-			final PersistenceAcceptor eagerObjectIdRequestor
+			final Object                       object           ,
+			final PersistenceObjectIdRequestor objectIdRequestor
 		)
 		{
-			return this.persistenceManager.ensureObjectId(object, lazyObjectIdRequestor, eagerObjectIdRequestor);
+			return this.persistenceManager.ensureObjectId(object, objectIdRequestor);
+		}
+
+		@Override
+		public final long ensureObjectIdGuaranteedRegister(
+			final Object                       object           ,
+			final PersistenceObjectIdRequestor objectIdRequestor
+		)
+		{
+			return this.persistenceManager.ensureObjectIdGuaranteedRegister(object, objectIdRequestor);
 		}
 
 		@Override

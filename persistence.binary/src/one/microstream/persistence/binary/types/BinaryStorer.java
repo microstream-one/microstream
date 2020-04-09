@@ -8,6 +8,7 @@ import one.microstream.math.XMath;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceLocalObjectIdRegistry;
+import one.microstream.persistence.types.PersistenceObjectIdRequestor;
 import one.microstream.persistence.types.PersistenceObjectManager;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceStorer;
@@ -299,7 +300,7 @@ public interface BinaryStorer extends PersistenceStorer
 			 * it is assumed to be already stored and therefore not stored here ("again").
 			 * Only if a new OID has to be assigned, the instance is registered (via registerAdd)
 			 */
-			return this.registerLazy(instance);
+			return this.register(instance);
 		}
 		
 		@Override
@@ -330,7 +331,7 @@ public interface BinaryStorer extends PersistenceStorer
 			 * Eager storing logic:
 			 * If the instance is not already handled locally (already stored by this storer), it is now stored.
 			 */
-			return this.registerEager(instance);
+			return this.registerGuaranteed(instance);
 		}
 		
 		/**
@@ -355,7 +356,7 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 			
 			// initial registration. After that, storing adds via recursing the graph and processing items iteratively.
-			rootOid = this.registerEager(notNull(root));
+			rootOid = this.registerGuaranteed(notNull(root));
 
 			// process and collect required instances uniquely in item chain (graph recursion transformed to iteration)
 			for(Item item = this.tail; item != null; item = item.next)
@@ -474,8 +475,8 @@ public interface BinaryStorer extends PersistenceStorer
 		
 		@Override
 		public final long lookupObjectId(
-			final Object              object  ,
-			final PersistenceAcceptor receiver
+			final Object                       object           ,
+			final PersistenceObjectIdRequestor objectIdRequestor
 		)
 		{
 			synchronized(this.head)
@@ -491,7 +492,7 @@ public interface BinaryStorer extends PersistenceStorer
 						}
 						
 						// found a local entry in the current storer, transfer object<->id association to the receiver.
-						receiver.accept(e.oid, object);
+						objectIdRequestor.registerGuaranteed(e.oid, object);
 						return e.oid;
 					}
 				}
@@ -499,9 +500,10 @@ public interface BinaryStorer extends PersistenceStorer
 				return Swizzling.notFoundId();
 			}
 		}
-				
+		
+
 		@Override
-		public final void accept(final long objectId, final Object instance)
+		public final void registerGuaranteed(final long objectId, final Object instance)
 		{
 //			XDebug.println("Registering " + objectId + ": " + XChars.systemString(instance) + " ("  + instance + ")");
 			synchronized(this.head)
@@ -513,23 +515,55 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 		}
 		
-		protected final long registerLazy(final Object instance)
+		@Override
+		public void registerLazyOptional(final long objectId, final Object instance)
 		{
-			/* Note:
-			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
-			 * - lazy, non-eager callback, obviously.
-			 */
-			return this.objectManager.ensureObjectId(instance, this, null);
+			// default is lazy logic.
+			this.registerGuaranteed(objectId, instance);
 		}
 		
-		protected final long registerEager(final Object instance)
+		@Override
+		public void registerEagerOptional(final long objectId, final Object instance)
+		{
+			// default is lazy logic, so no-op
+		}
+		
+		protected final long register(final Object instance)
 		{
 			/* Note:
 			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
-			 * - non-lazy, eager callback, obviously.
+			 * - depending on implementation lazy or eager callback, the other variant is a no-op respectively
 			 */
-			return this.objectManager.ensureObjectId(instance, null, this);
+			return this.objectManager.ensureObjectId(instance, this);
 		}
+		
+		protected final long registerGuaranteed(final Object instance)
+		{
+			/* Note:
+			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
+			 * - calls back to #register(long, Object), guaranteeing the registration
+			 */
+			return this.objectManager.ensureObjectIdGuaranteedRegister(instance, this);
+		}
+		
+		
+//		protected final long registerLazy(final Object instance)
+//		{
+//			/* Note:
+//			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
+//			 * - lazy, non-eager callback, obviously.
+//			 */
+//			return this.objectManager.ensureObjectId(instance, this, null);
+//		}
+//
+//		protected final long registerEager(final Object instance)
+//		{
+//			/* Note:
+//			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
+//			 * - non-lazy, eager callback, obviously.
+//			 */
+//			return this.objectManager.ensureObjectId(instance, null, this);
+//		}
 		
 		@Override
 		public final boolean skipMapped(final Object instance, final long objectId)
@@ -665,6 +699,19 @@ public interface BinaryStorer extends PersistenceStorer
 		{
 			// for a "full" graph storing strategy, the logic is simply to store everything forced.
 			return this.applyEager(instance);
+		}
+		
+		@Override
+		public void registerLazyOptional(final long objectId, final Object instance)
+		{
+			// default is eager logic, so no-op
+		}
+		
+		@Override
+		public void registerEagerOptional(final long objectId, final Object instance)
+		{
+			// default is eager logic.
+			this.registerGuaranteed(objectId, instance);
 		}
 		
 	}
