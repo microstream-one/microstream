@@ -303,7 +303,7 @@ public interface ViewerBinaryPersistenceManager extends PersistenceManager<Binar
 
 			objectDescription.setPersistenceTypeDefinition(type);
 			objectDescription.setObjectId(objectId);
-			objectDescription.setValues(new Object[] {object});
+			objectDescription.setPrimitiveInstance(object);
 			objectDescription.setLength(1);
 
 			return objectDescription;
