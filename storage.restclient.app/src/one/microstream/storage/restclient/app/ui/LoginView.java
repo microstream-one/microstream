@@ -57,7 +57,7 @@ public class LoginView extends VerticalLayout
 				event.getSource().setEnabled(true);
 			}
 		);
-		cmdLogin.setIcon(new Image("images/login.svg", ""));
+		cmdLogin.setIcon(new Image("frontend/images/login.svg", ""));
 		cmdLogin.setDisableOnClick(true);
 		
 		final HorizontalLayout loginLayout = new HorizontalLayout(new Label("URL:"), urlChooser, cmdLogin);
