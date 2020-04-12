@@ -1,0 +1,22 @@
+{
+  "default-node": {
+    "type": "box",
+    "style": "rounded",
+    "color": "#00A0E3",
+    "default-font": {
+      "size": 12,
+      "name": "Roboto, sans-serif"
+    }
+  },
+  "default-edge": {
+    "font": {
+      "size": 12,
+      "name": "Roboto, sans-serif"
+    }
+  },
+  "edge-resolution-styles": {
+    "parent": {
+      "style": "dashed"
+    }
+  }
+}
