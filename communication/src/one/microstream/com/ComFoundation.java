@@ -6,10 +6,10 @@ import java.nio.channels.SocketChannel;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XEnum;
-import one.microstream.com.XSockets;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.types.PersistenceIdStrategy;
 import one.microstream.util.InstanceDispatcher;
+
 
 public interface ComFoundation<C, F extends ComFoundation<C, ?>>
 {

@@ -51,7 +51,7 @@ public interface PersistenceStorer extends Storer
 		 */
 		public PersistenceStorer createLazyStorer(
 			PersistenceTypeHandlerManager<D> typeManager       ,
-			PersistenceObjectManager         objectManager     ,
+			PersistenceObjectManager<D>      objectManager     ,
 			ObjectSwizzling                  objectRetriever   ,
 			PersistenceTarget<D>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
@@ -69,7 +69,7 @@ public interface PersistenceStorer extends Storer
 		 */
 		public default PersistenceStorer createStorer(
 			final PersistenceTypeHandlerManager<D> typeManager       ,
-			final PersistenceObjectManager         objectManager     ,
+			final PersistenceObjectManager<D>      objectManager     ,
 			final ObjectSwizzling                  objectRetriever   ,
 			final PersistenceTarget<D>             target            ,
 			final BufferSizeProviderIncremental    bufferSizeProvider
@@ -96,7 +96,7 @@ public interface PersistenceStorer extends Storer
 		 */
 		public PersistenceStorer createEagerStorer(
 			PersistenceTypeHandlerManager<D> typeManager       ,
-			PersistenceObjectManager         objectManager     ,
+			PersistenceObjectManager<D>      objectManager     ,
 			ObjectSwizzling                  objectRetriever   ,
 			PersistenceTarget<D>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider

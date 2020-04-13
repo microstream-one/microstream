@@ -49,10 +49,10 @@ public final class BinaryHandlerStatelessConstant<T> extends AbstractBinaryHandl
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final T                       instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeStateless(this.typeId(), objectId);

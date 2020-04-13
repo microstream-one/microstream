@@ -97,10 +97,10 @@ extends AbstractBinaryHandlerCustom<PersistenceRoots.Default>
 
 	@Override
 	public final void store(
-		final Binary                   data    ,
-		final PersistenceRoots.Default instance,
-		final long                     objectId,
-		final PersistenceStoreHandler  handler
+		final Binary                          data    ,
+		final PersistenceRoots.Default        instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeRoots(this.typeId(), objectId, instance.entries(), handler);

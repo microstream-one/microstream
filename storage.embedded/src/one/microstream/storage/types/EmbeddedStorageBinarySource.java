@@ -6,7 +6,6 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 import one.microstream.persistence.types.PersistenceIdSet;
 import one.microstream.persistence.types.PersistenceSource;
-import one.microstream.storage.types.StorageRequestAcceptor;
 
 
 public interface EmbeddedStorageBinarySource extends PersistenceSource<Binary>

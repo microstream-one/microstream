@@ -51,7 +51,12 @@ public final class BinaryHandlerFile extends AbstractBinaryHandlerCustomValueVar
 	}
 
 	@Override
-	public void store(final Binary data, final File instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(
+		final Binary                          data    ,
+		final File                            instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
+	)
 	{
 		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}

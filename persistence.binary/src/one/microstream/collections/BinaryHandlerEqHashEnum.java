@@ -189,10 +189,10 @@ extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final EqHashEnum<?>           instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final EqHashEnum<?>                   instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		staticStore(data, instance, this.typeId(), objectId, handler);

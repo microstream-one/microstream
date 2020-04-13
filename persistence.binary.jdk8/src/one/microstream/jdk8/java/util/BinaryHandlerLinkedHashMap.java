@@ -82,10 +82,10 @@ public final class BinaryHandlerLinkedHashMap extends AbstractBinaryHandlerCusto
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
-		final LinkedHashMap<?, ?>     instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          bytes   ,
+		final LinkedHashMap<?, ?>             instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// store elements simply as array binary form

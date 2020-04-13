@@ -55,10 +55,10 @@ public final class BinaryHandlerAbstractType<T> extends AbstractBinaryHandlerTri
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final T                       instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		throw new PersistenceExceptionTypeNotPersistable(this.type());

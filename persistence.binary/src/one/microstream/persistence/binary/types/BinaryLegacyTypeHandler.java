@@ -18,10 +18,10 @@ public interface BinaryLegacyTypeHandler<T> extends PersistenceLegacyTypeHandler
 		
 	@Override
 	public default void store(
-		final Binary                  data    ,
-		final T                       instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		PersistenceLegacyTypeHandler.super.store(data, instance, objectId, handler);
@@ -70,7 +70,12 @@ public interface BinaryLegacyTypeHandler<T> extends PersistenceLegacyTypeHandler
 		}
 		
 		@Override
-		public void store(final Binary data, final T instance, final long objectId, final PersistenceStoreHandler handler)
+		public void store(
+			final Binary                          data    ,
+			final T                               instance,
+			final long                            objectId,
+			final PersistenceStoreHandler<Binary> handler
+		)
 		{
 			BinaryLegacyTypeHandler.super.store(data, instance, objectId, handler);
 		}

@@ -75,7 +75,7 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 		final Binary                           data    ,
 		final PersistenceRootReference.Default instance,
 		final long                             objectId,
-		final PersistenceStoreHandler          handler
+		final PersistenceStoreHandler<Binary>  handler
 		)
 	{
 		// root instance may even be null. Probably just temporarily to "truncate" a database or something like that.

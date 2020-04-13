@@ -90,10 +90,10 @@ public class BinaryHandlerCustomEnumTrivial<T extends Enum<T>> extends AbstractB
 
 	@Override
 	public void store(
-		final Binary                  data    ,
-		final T                       instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);

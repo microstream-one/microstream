@@ -74,10 +74,10 @@ extends AbstractBinaryHandlerCustomValueFixedLength<OptionalLong, Long>
 
 	@Override
 	public void store(
-		final Binary                  data    ,
-		final OptionalLong            instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final OptionalLong                    instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);

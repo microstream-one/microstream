@@ -39,10 +39,10 @@ public final class BinaryHandlerStateless<T> extends AbstractBinaryHandlerTrivia
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final T                       instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeStateless(this.typeId(), objectId);

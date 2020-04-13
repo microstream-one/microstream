@@ -72,10 +72,10 @@ public final class BinaryHandlerClass extends AbstractBinaryHandlerCustomValueFi
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final Class<?>                instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final Class<?>                        instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		final long classTypeId = this.instanceState(instance);
