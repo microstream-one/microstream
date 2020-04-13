@@ -56,10 +56,10 @@ extends AbstractBinaryHandlerCustomCollection<T>
 
 	@Override
 	public void store(
-		final Binary                  data    ,
-		final T                       instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// store elements simply as array binary form

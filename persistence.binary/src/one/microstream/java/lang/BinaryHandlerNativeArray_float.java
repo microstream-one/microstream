@@ -33,7 +33,12 @@ public final class BinaryHandlerNativeArray_float extends AbstractBinaryHandlerN
 	////////////
 
 	@Override
-	public void store(final Binary data, final float[] array, final long objectId, final PersistenceStoreHandler handler)
+	public void store(
+		final Binary                          data    ,
+		final float[]                         array   ,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
+	)
 	{
 		data.store_floats(this.typeId(), objectId, array);
 	}

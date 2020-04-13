@@ -40,10 +40,10 @@ public final class BinaryHandlerString extends AbstractBinaryHandlerCustomValueV
 
 	@Override
 	public void store(
-		final Binary                  data    ,
-		final String                  instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final String                          instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeStringSingleValue(this.typeId(), objectId, instance);

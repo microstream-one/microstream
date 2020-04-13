@@ -42,10 +42,10 @@ public final class BinaryHandlerLazyDefault extends AbstractBinaryHandlerCustom<
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final Lazy.Default<?>         instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final Lazy.Default<?>                 instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		/* (29.09.2015 TM)NOTE: There are several cases that have to be handled here correctly:

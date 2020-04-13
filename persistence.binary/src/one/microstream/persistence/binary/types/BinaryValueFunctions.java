@@ -14,10 +14,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_byte(trgAddress, XMemory.get_byte(source, srcOffset));
@@ -30,10 +30,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_boolean(trgAddress, XMemory.get_boolean(source, srcOffset));
@@ -45,10 +45,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_short(trgAddress, XMemory.get_short(source, srcOffset));
@@ -61,10 +61,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_char(trgAddress, XMemory.get_char(source, srcOffset));
@@ -76,10 +76,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_int(trgAddress, XMemory.get_int(source, srcOffset));
@@ -92,10 +92,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_float(trgAddress, XMemory.get_float(source, srcOffset));
@@ -107,10 +107,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_long(trgAddress, XMemory.get_long(source, srcOffset));
@@ -123,10 +123,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_double(trgAddress, XMemory.get_double(source, srcOffset));
@@ -138,10 +138,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_long(trgAddress, handler.apply(XMemory.getObject(source, srcOffset)));
@@ -153,10 +153,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_long(trgAddress, handler.applyEager(XMemory.getObject(source, srcOffset)));
@@ -168,10 +168,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_short(trgAddress, Short.reverseBytes(XMemory.get_short(source, srcOffset)));
@@ -184,10 +184,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_char(trgAddress, Character.reverseBytes(XMemory.get_char(source, srcOffset)));
@@ -199,10 +199,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_int(trgAddress, Integer.reverseBytes(XMemory.get_int(source, srcOffset)));
@@ -215,10 +215,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			final int rawBits = Float.floatToRawIntBits(XMemory.get_float(source, srcOffset));
@@ -242,10 +242,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_long(trgAddress, Long.reverseBytes(XMemory.get_long(source, srcOffset)));
@@ -258,10 +258,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			final long rawBits = Double.doubleToRawLongBits(XMemory.get_double(source, srcOffset));
@@ -285,10 +285,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_long(
@@ -303,10 +303,10 @@ public final class BinaryValueFunctions
 	{
 		@Override
 		public long storeValueFromMemory(
-			final Object                  source    ,
-			final long                    srcOffset ,
-			final long                    trgAddress,
-			final PersistenceStoreHandler handler
+			final Object                          source    ,
+			final long                            srcOffset ,
+			final long                            trgAddress,
+			final PersistenceStoreHandler<Binary> handler
 		)
 		{
 			XMemory.set_long(

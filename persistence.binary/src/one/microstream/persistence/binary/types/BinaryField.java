@@ -48,7 +48,7 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 	@Override
 	public BinaryField<T> copyForName(String qualifier, String name);
 
-	public void storeFromInstance(T instance, Binary data, PersistenceStoreHandler handler);
+	public void storeFromInstance(T instance, Binary data, PersistenceStoreHandler<Binary> handler);
 	
 	public void setToInstance(T instance, Binary data, PersistenceLoadHandler handler);
 	
@@ -429,7 +429,11 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		@Override
-		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void storeFromInstance(
+			final T                               instance,
+			final Binary                          data    ,
+			final PersistenceStoreHandler<Binary> handler
+		)
 		{
 			final byte value = this.getter.get_byte(instance);
 			data.store_byte(this.binaryOffset(), value);
@@ -528,7 +532,11 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		@Override
-		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void storeFromInstance(
+			final T                               instance,
+			final Binary                          data    ,
+			final PersistenceStoreHandler<Binary> handler
+		)
 		{
 			final boolean value = this.getter.get_boolean(instance);
 			data.store_boolean(this.binaryOffset(), value);
@@ -626,7 +634,11 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		@Override
-		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void storeFromInstance(
+			final T                               instance,
+			final Binary                          data    ,
+			final PersistenceStoreHandler<Binary> handler
+		)
 		{
 			final short value = this.getter.get_short(instance);
 			data.store_short(this.binaryOffset(), value);
@@ -724,7 +736,11 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		@Override
-		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void storeFromInstance(
+			final T                               instance,
+			final Binary                          data    ,
+			final PersistenceStoreHandler<Binary> handler
+		)
 		{
 			final char value = this.getter.get_char(instance);
 			data.store_char(this.binaryOffset(), value);
@@ -822,7 +838,11 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		@Override
-		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void storeFromInstance(
+			final T                               instance,
+			final Binary                          data    ,
+			final PersistenceStoreHandler<Binary> handler
+		)
 		{
 			final int value = this.getter.get_int(instance);
 			data.store_int(this.binaryOffset(), value);
@@ -920,7 +940,11 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		@Override
-		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void storeFromInstance(
+			final T                               instance,
+			final Binary                          data    ,
+			final PersistenceStoreHandler<Binary> handler
+		)
 		{
 			final float value = this.getter.get_float(instance);
 			data.store_float(this.binaryOffset(), value);
@@ -1018,7 +1042,11 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		@Override
-		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void storeFromInstance(
+			final T                               instance,
+			final Binary                          data    ,
+			final PersistenceStoreHandler<Binary> handler
+		)
 		{
 			final long value = this.getter.get_long(instance);
 			data.store_long(this.binaryOffset(), value);
@@ -1116,7 +1144,11 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		@Override
-		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void storeFromInstance(
+			final T                               instance,
+			final Binary                          data    ,
+			final PersistenceStoreHandler<Binary> handler
+		)
 		{
 			final double value = this.getter.get_double(instance);
 			data.store_double(this.binaryOffset(), value);
@@ -1223,7 +1255,11 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		}
 		
 		@Override
-		public final void storeFromInstance(final T instance, final Binary data, final PersistenceStoreHandler handler)
+		public final void storeFromInstance(
+			final T                               instance,
+			final Binary                          data    ,
+			final PersistenceStoreHandler<Binary> handler
+		)
 		{
 			final Object reference = this.getter.get(instance);
 			final long   objectId  = handler.apply(reference);

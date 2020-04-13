@@ -195,10 +195,10 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final InetAddress             instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final A                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// for once, they managed to do a kind of proper de/serialization logic. Amazing.

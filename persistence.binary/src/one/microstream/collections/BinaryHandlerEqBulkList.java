@@ -80,10 +80,10 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final EqBulkList<?>           instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final EqBulkList<?>                   instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// store elements as sized array, leave out space for equalator reference

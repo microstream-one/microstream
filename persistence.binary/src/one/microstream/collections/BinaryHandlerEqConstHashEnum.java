@@ -89,10 +89,10 @@ extends AbstractBinaryHandlerCustomCollection<EqConstHashEnum<?>>
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final EqConstHashEnum<?>      instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final EqConstHashEnum<?>              instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// store elements simply as array binary form

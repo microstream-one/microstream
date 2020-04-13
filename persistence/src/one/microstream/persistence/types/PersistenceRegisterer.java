@@ -19,7 +19,7 @@ public interface PersistenceRegisterer extends PersistenceFunction
 		// instance fields //
 		////////////////////
 
-		private final PersistenceObjectManager         objectManager     ;
+		private final PersistenceObjectManager<?>      objectManager     ;
 		private final PersistenceTypeHandlerManager<?> typeHandlerManager;
 
 		private final Entry[]                          oidsSlots         ;
@@ -32,7 +32,7 @@ public interface PersistenceRegisterer extends PersistenceFunction
 		/////////////////
 
 		public Default(
-			final PersistenceObjectManager             objectManager,
+			final PersistenceObjectManager<?>      objectManager,
 			final PersistenceTypeHandlerManager<?> typeManager
 		)
 		{
@@ -44,8 +44,8 @@ public interface PersistenceRegisterer extends PersistenceFunction
 		}
 
 		public Default(
-			final PersistenceObjectManager             objectManager,
-			final PersistenceTypeHandlerManager<?> typeManager,
+			final PersistenceObjectManager<?>      objectManager,
+			final PersistenceTypeHandlerManager<?> typeManager  ,
 			final int                              hashRange
 		)
 		{
@@ -175,7 +175,7 @@ public interface PersistenceRegisterer extends PersistenceFunction
 		{
 			@Override
 			public PersistenceRegisterer createRegisterer(
-				final PersistenceObjectManager             objectManager,
+				final PersistenceObjectManager<?>      objectManager,
 				final PersistenceTypeHandlerManager<?> typeManager
 			)
 			{
@@ -206,7 +206,7 @@ public interface PersistenceRegisterer extends PersistenceFunction
 	public interface Creator
 	{
 		public PersistenceRegisterer createRegisterer(
-			PersistenceObjectManager             objectManager,
+			PersistenceObjectManager<?>      objectManager,
 			PersistenceTypeHandlerManager<?> typeManager
 		);
 	}

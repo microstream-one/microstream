@@ -27,8 +27,8 @@ public interface PersistenceContextDispatcher<D>
 		return typeHandlerManager;
 	}
 	
-	public default PersistenceObjectManager dispatchObjectManager(
-		final PersistenceObjectManager objectManager
+	public default PersistenceObjectManager<D> dispatchObjectManager(
+		final PersistenceObjectManager<D> objectManager
 	)
 	{
 		return objectManager;
@@ -72,8 +72,8 @@ public interface PersistenceContextDispatcher<D>
 		}
 		
 		@Override
-		public final PersistenceObjectManager dispatchObjectManager(
-			final PersistenceObjectManager objectManager
+		public final PersistenceObjectManager<D> dispatchObjectManager(
+			final PersistenceObjectManager<D> objectManager
 		)
 		{
 			return objectManager.Clone();

@@ -54,10 +54,10 @@ public final class BinaryHandlerURL extends AbstractBinaryHandlerCustomValueVari
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final URL                     instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final URL                             instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));

@@ -58,10 +58,10 @@ public final class BinaryHandlerPattern extends AbstractBinaryHandlerCustomValue
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final Pattern                 instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final Pattern                         instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		final char[] patternChars = XChars.readChars(instance.pattern());

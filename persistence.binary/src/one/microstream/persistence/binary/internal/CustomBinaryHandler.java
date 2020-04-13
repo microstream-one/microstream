@@ -410,7 +410,12 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 	}
 	
 	@Override
-	public void store(final Binary data, final T instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
+	)
 	{
 		final long contentLength = this.calculcateContentLength(instance);
 

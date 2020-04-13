@@ -44,7 +44,12 @@ public final class BinaryHandlerBoolean extends AbstractBinaryHandlerCustomValue
 	}
 
 	@Override
-	public void store(final Binary data, final Boolean instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(
+		final Binary                          data    ,
+		final Boolean                         instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
+	)
 	{
 		data.storeBoolean(this.typeId(), objectId, instanceState(instance));
 	}

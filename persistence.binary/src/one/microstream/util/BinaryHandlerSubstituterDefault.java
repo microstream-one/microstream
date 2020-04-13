@@ -72,10 +72,10 @@ extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final Substituter.Default<?>  instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final Substituter.Default<?>          instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		synchronized(instance)

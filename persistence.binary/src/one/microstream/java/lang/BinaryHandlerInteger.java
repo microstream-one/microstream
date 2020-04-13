@@ -44,7 +44,12 @@ public final class BinaryHandlerInteger extends AbstractBinaryHandlerCustomValue
 	}
 
 	@Override
-	public void store(final Binary data, final Integer instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(
+		final Binary                          data    ,
+		final Integer                         instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
+	)
 	{
 		data.storeInteger(this.typeId(), objectId, instance.intValue());
 	}

@@ -12,7 +12,7 @@ import one.microstream.util.BufferSizeProviderIncremental;
 
 public interface PersistenceManager<D>
 extends
-PersistenceObjectManager,
+PersistenceObjectManager<D>,
 PersistenceRetrieving,
 Persister,
 PersistenceSourceSupplier<D>,
@@ -66,7 +66,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 	
 	public static <D> PersistenceManager<D> New(
 		final PersistenceObjectRegistry        objectRegistering ,
-		final PersistenceObjectManager         objectManager     ,
+		final PersistenceObjectManager<D>      objectManager     ,
 		final PersistenceTypeHandlerManager<D> typeHandlerManager,
 		final PersistenceContextDispatcher<D>  contextDispatcher ,
 		final PersistenceStorer.Creator<D>     storerCreator     ,
@@ -103,7 +103,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 
 		// instance registration components //
 		private final PersistenceObjectRegistry     objectRegistry   ;
-		private final PersistenceObjectManager      objectManager    ;
+		private final PersistenceObjectManager<D>   objectManager    ;
 		private final PersistenceRegisterer.Creator registererCreator;
 
 		// instance handling components //
@@ -142,7 +142,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 
 		Default(
 			final PersistenceObjectRegistry        objectRegistering ,
-			final PersistenceObjectManager         objectManager     ,
+			final PersistenceObjectManager<D>      objectManager     ,
 			final PersistenceTypeHandlerManager<D> typeHandlerManager,
 			final PersistenceContextDispatcher<D>  contextDispatcher ,
 			final PersistenceStorer.Creator<D>     storerCreator     ,
@@ -322,23 +322,25 @@ ByteOrderTargeting<PersistenceManager<D>>
 		}
 		
 		@Override
-		public final long ensureObjectId(
-			final Object                       object           ,
-			final PersistenceObjectIdRequestor objectIdRequestor
+		public final <T> long ensureObjectId(
+			final T                               object           ,
+			final PersistenceObjectIdRequestor<D> objectIdRequestor,
+			final PersistenceTypeHandler<D, T>    optionalHandler
 		)
 		{
 			this.typeHandlerManager.ensureTypeHandler(object.getClass());
-			return this.objectManager.ensureObjectId(object, objectIdRequestor);
+			return this.objectManager.ensureObjectId(object, objectIdRequestor, optionalHandler);
 		}
 		
 		@Override
-		public final long ensureObjectIdGuaranteedRegister(
-			final Object                       object           ,
-			final PersistenceObjectIdRequestor objectIdRequestor
+		public final <T> long ensureObjectIdGuaranteedRegister(
+			final T                               object           ,
+			final PersistenceObjectIdRequestor<D> objectIdRequestor,
+			final PersistenceTypeHandler<D, T>    optionalHandler
 		)
 		{
 			this.typeHandlerManager.ensureTypeHandler(object.getClass());
-			return this.objectManager.ensureObjectIdGuaranteedRegister(object, objectIdRequestor);
+			return this.objectManager.ensureObjectIdGuaranteedRegister(object, objectIdRequestor, optionalHandler);
 		}
 
 		@Override
@@ -360,13 +362,13 @@ ByteOrderTargeting<PersistenceManager<D>>
 		}
 		
 		@Override
-		public final boolean registerLocalRegistry(final PersistenceLocalObjectIdRegistry localRegistry)
+		public final boolean registerLocalRegistry(final PersistenceLocalObjectIdRegistry<D> localRegistry)
 		{
 			return this.objectManager.registerLocalRegistry(localRegistry);
 		}
 		
 		@Override
-		public final void mergeEntries(final PersistenceLocalObjectIdRegistry localRegistry)
+		public final void mergeEntries(final PersistenceLocalObjectIdRegistry<D> localRegistry)
 		{
 			this.objectManager.mergeEntries(localRegistry);
 		}

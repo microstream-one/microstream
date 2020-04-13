@@ -79,10 +79,10 @@ public final class BinaryHandlerTreeSet extends AbstractBinaryHandlerCustomColle
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final TreeSet<?>              instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final TreeSet<?>                      instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// store elements simply as array binary form

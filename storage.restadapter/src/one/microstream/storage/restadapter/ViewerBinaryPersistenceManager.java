@@ -20,6 +20,7 @@ import one.microstream.persistence.types.PersistenceStorer.Creator;
 import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
+import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
 public interface ViewerBinaryPersistenceManager extends PersistenceManager<Binary>
@@ -105,21 +106,23 @@ public interface ViewerBinaryPersistenceManager extends PersistenceManager<Binar
 		}
 
 		@Override
-		public final long ensureObjectId(
-			final Object                       object           ,
-			final PersistenceObjectIdRequestor objectIdRequestor
+		public final <T> long ensureObjectId(
+			final T                                    object           ,
+			final PersistenceObjectIdRequestor<Binary> objectIdRequestor,
+			final PersistenceTypeHandler<Binary, T>    optionalHandler
 		)
 		{
-			return this.persistenceManager.ensureObjectId(object, objectIdRequestor);
+			return this.persistenceManager.ensureObjectId(object, objectIdRequestor, optionalHandler);
 		}
 
 		@Override
-		public final long ensureObjectIdGuaranteedRegister(
-			final Object                       object           ,
-			final PersistenceObjectIdRequestor objectIdRequestor
+		public final <T> long ensureObjectIdGuaranteedRegister(
+			final T                                    object           ,
+			final PersistenceObjectIdRequestor<Binary> objectIdRequestor,
+			final PersistenceTypeHandler<Binary, T>    optionalHandler
 		)
 		{
-			return this.persistenceManager.ensureObjectIdGuaranteedRegister(object, objectIdRequestor);
+			return this.persistenceManager.ensureObjectIdGuaranteedRegister(object, objectIdRequestor, optionalHandler);
 		}
 
 		@Override
@@ -271,13 +274,13 @@ public interface ViewerBinaryPersistenceManager extends PersistenceManager<Binar
 		}
 
 		@Override
-		public boolean registerLocalRegistry(final PersistenceLocalObjectIdRegistry localRegistry)
+		public boolean registerLocalRegistry(final PersistenceLocalObjectIdRegistry<Binary> localRegistry)
 		{
 			return this.persistenceManager.registerLocalRegistry(localRegistry);
 		}
 
 		@Override
-		public void mergeEntries(final PersistenceLocalObjectIdRegistry localRegistry)
+		public void mergeEntries(final PersistenceLocalObjectIdRegistry<Binary> localRegistry)
 		{
 			this.persistenceManager.mergeEntries(localRegistry);
 		}

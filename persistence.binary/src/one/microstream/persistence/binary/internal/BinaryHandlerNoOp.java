@@ -38,10 +38,10 @@ public final class BinaryHandlerNoOp<T> extends AbstractBinaryHandlerTrivial<T>
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final T                       instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// no-op, abort recursive storing here

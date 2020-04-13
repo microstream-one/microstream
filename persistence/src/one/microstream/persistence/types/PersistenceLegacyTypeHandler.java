@@ -24,10 +24,10 @@ public interface PersistenceLegacyTypeHandler<D, T> extends PersistenceTypeHandl
 
 	@Override
 	public default void store(
-		final D                       data    ,
-		final T                       instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final D                          data    ,
+		final T                          instance,
+		final long                       objectId,
+		final PersistenceStoreHandler<D> handler
 	)
 	{
 		// (13.09.2018 TM)EXCP: proper exception
