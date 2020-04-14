@@ -1,6 +1,8 @@
 
 package one.microstream.storage.restclient.app.ui;
 
+import static one.microstream.storage.restclient.app.ui.UIUtils.imagePath;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,8 +30,16 @@ public class InstanceView extends VerticalLayout implements HasDynamicTitle
 		final StorageViewComponent       storageViewComponent       = new StorageViewComponent      ();
 		final StorageStatisticsComponent storageStatisticsComponent = new StorageStatisticsComponent();
 				
-		final Tab storageViewTab       = new Tab(createTabComponent("frontend/images/data.svg"      , "Data"      ));
-		final Tab storageStatisticsTab = new Tab(createTabComponent("frontend/images/statistics.svg", "Statistics"));
+		final Tab storageViewTab       = new Tab(createTabComponent(
+			imagePath("data.svg"),
+			getTranslation("DATA")
+		));
+		storageViewTab.setId(ElementIds.TAB_DATA);
+		final Tab storageStatisticsTab = new Tab(createTabComponent(
+			imagePath("statistics.svg"), 
+			getTranslation("STATISTICS")
+		));
+		storageStatisticsTab.setId(ElementIds.TAB_STATISTICS);
 		
 		final Map<Tab, Component> tabsToPages = new HashMap<>();
 		tabsToPages.put(storageViewTab      , storageViewComponent      );

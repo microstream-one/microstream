@@ -21,7 +21,8 @@ public class StorageViewComponent extends SplitLayout
 		this.setSplitterPosition(65);
 		this.setSizeFull();
 		
-		final TreeGrid<StorageViewElement> treeGrid = StorageViewTreeGridBuilder.New().build();
+		final TreeGrid<StorageViewElement> treeGrid = StorageViewTreeGridBuilder.New(this).build();
+		treeGrid.setId(ElementIds.GRID_DATA);
 		this.addToPrimary(treeGrid);	
 		
 		final Div secondaryDiv = new Div();
@@ -34,7 +35,8 @@ public class StorageViewComponent extends SplitLayout
 			{
 				if(element.hasMembers())
 				{
-					final TreeGrid<StorageViewElement> detailTreeGrid = StorageViewTreeGridBuilder.New().build();
+					final TreeGrid<StorageViewElement> detailTreeGrid = StorageViewTreeGridBuilder.New(this).build();
+					detailTreeGrid.setId(ElementIds.GRID_DETAIL);
 					detailTreeGrid.setDataProvider(StorageViewDataProvider.New(element));
 					detailTreeGrid.expand(element);
 					detailTreeGrid.setSizeFull();
@@ -44,6 +46,7 @@ public class StorageViewComponent extends SplitLayout
 				{
 					final String   value    = element.value();
 					final TextArea textArea = new TextArea();
+					textArea.setId(ElementIds.TEXT_DETAIL);
 					textArea.setValue(value != null ? value : "");
 					textArea.setReadOnly(true);
 					textArea.setWidth("100%");

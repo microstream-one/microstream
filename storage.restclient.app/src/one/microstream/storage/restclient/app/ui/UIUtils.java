@@ -13,6 +13,12 @@ final class UIUtils
 		layout.setSpacing(true);
 		return layout;
 	}
+
+	public static String imagePath(String image)
+	{
+		return "frontend/images/" + image;
+	}
+	
 	
 	private UIUtils()
 	{

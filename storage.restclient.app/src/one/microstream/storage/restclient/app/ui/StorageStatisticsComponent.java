@@ -1,5 +1,6 @@
 package one.microstream.storage.restclient.app.ui;
 
+
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -26,13 +27,14 @@ public class StorageStatisticsComponent extends TreeGrid<StorageStatisticsCompon
 	{
 		super();
 		
+		this.setId(ElementIds.GRID_STATISTICS);
 		this.setColumnReorderingAllowed(false);
 		this.addHierarchyColumn(i -> i.name)
-			.setHeader("Name")
+			.setHeader(getTranslation("NAME"))
 			.setResizable(true)
 			.setFrozen(true);
 		this.addColumn(i -> i.value)
-			.setHeader("Value")
+			.setHeader(getTranslation("VALUE"))
 			.setResizable(true);
 		this.setSizeFull();
 		this.addAttachListener(event -> {
@@ -43,42 +45,42 @@ public class StorageStatisticsComponent extends TreeGrid<StorageStatisticsCompon
 		});
 	}
 	
-	private static List<Item> createItems(
+	private List<Item> createItems(
 		final ViewerStorageFileStatistics statistics
 	)
 	{		
 		final List<Item> items = new ArrayList<>();
 		
 		items.add(new Item(
-			"Creation time", 
+			getTranslation("CREATION_TIME"), 
 			DateFormat.getDateTimeInstance().format(statistics.getCreationTime())
 		));
 		createCommonItems(statistics, items::add);
 		
-		final Item channelsItem = new Item("Channels", "");
+		final Item channelsItem = new Item(getTranslation("CHANNELS"), "");
 		items.add(channelsItem);
 		
 		statistics.getChannelStatistics().values()
 			.stream()
 			.sorted((s1, s2) -> Integer.compare(s1.getChannelIndex(), s2.getChannelIndex()))
-			.map(StorageStatisticsComponent::createChannelItem)
+			.map(this::createChannelItem)
 			.forEach(channelsItem::add);
 		
 		return items;
 	}
 	
-	private static Item createChannelItem(
+	private Item createChannelItem(
 		final ViewerChannelStatistics statistics
 	)
 	{
 		final Item channelItem = new Item(
-			"Channel " + statistics.getChannelIndex(),
+			getTranslation("CHANNEL") + " " + statistics.getChannelIndex(),
 			""
 		);
 		
 		createCommonItems(statistics, channelItem::add);
 		
-		final Item filesItem = new Item("Files", "");
+		final Item filesItem = new Item(getTranslation("FILES"), "");
 		channelItem.add(filesItem);
 		
 		statistics.getFiles().forEach(
@@ -88,12 +90,12 @@ public class StorageStatisticsComponent extends TreeGrid<StorageStatisticsCompon
 		return channelItem;
 	}
 	
-	private static Item createFileItem(
+	private Item createFileItem(
 		final ViewerFileStatistics statistics
 	)
 	{
 		final Item fileItem = new Item(
-			"File " + statistics.getFileNumber(),
+			getTranslation("FILE") + " " + statistics.getFileNumber(),
 			statistics.getFile()
 		);
 		
@@ -102,29 +104,29 @@ public class StorageStatisticsComponent extends TreeGrid<StorageStatisticsCompon
 		return fileItem;
 	}
 	
-	private static void createCommonItems(
+	private void createCommonItems(
 		final ViewerStorageFileStatisticsItem statistics,
 		final Consumer<Item> consumer
 	)
 	{
 		consumer.accept(new Item(
-			"File count", 
+			getTranslation("FILE_COUNT"), 
 			Long.toString(statistics.getFileCount())
 		));
 		createDataItems(statistics, consumer);
 	}
 	
-	private static void createDataItems(
+	private void createDataItems(
 		final ViewerStorageFileStatisticsItem statistics,
 		final Consumer<Item> consumer
 	)
 	{
 		consumer.accept(new Item(
-			"Live data size", 
+			getTranslation("LIVE_DATA_SIZE"), 
 			humanReadableByteSize(statistics.getLiveDataLength())
 		));
 		consumer.accept(new Item(
-			"Total data size", 
+			getTranslation("TOTAL_DATA_SIZE"), 
 			humanReadableByteSize(statistics.getTotalDataLength())
 		));
 	}
