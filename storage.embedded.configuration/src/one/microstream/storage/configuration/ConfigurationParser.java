@@ -58,7 +58,7 @@ public interface ConfigurationParser
 	 * @throws StorageConfigurationException if an error occurs while parsing
 	 */
 	public Configuration parse(
-		Configuration configuration, 
+		Configuration configuration,
 		String data
 	);
 	
@@ -139,6 +139,7 @@ public interface ConfigurationParser
 					case ';': // comment
 					case '[': // section
 						continue nextLine;
+					default: // (13.04.2020 TM)TODO: @HG: fall-through or exception?
 				}
 				
 				final int separatorIndex = line.indexOf('=');
@@ -173,7 +174,7 @@ public interface ConfigurationParser
 		
 		@Override
 		public Configuration parse(
-			final Configuration configuration, 
+			final Configuration configuration,
 			final String data
 		)
 		{

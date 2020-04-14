@@ -114,7 +114,12 @@ public abstract class ViewerBinaryTypeHandlerWrapperAbstract<T> implements Persi
 	}
 
 	@Override
-	public void store(final Binary medium, final Object instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(
+		final Binary                          data    ,
+		final Object                          instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
+	)
 	{
 		//do nothing
 	}

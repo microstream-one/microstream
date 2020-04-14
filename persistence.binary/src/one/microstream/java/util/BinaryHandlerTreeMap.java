@@ -79,10 +79,10 @@ public final class BinaryHandlerTreeMap extends AbstractBinaryHandlerCustomColle
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final TreeMap<?, ?>           instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final TreeMap<?, ?>                   instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// store elements simply as array binary form

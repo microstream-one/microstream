@@ -5,8 +5,6 @@ import static one.microstream.X.notNull;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-import one.microstream.com.XSockets;
-
 public interface ComConnectionListener<C>
 {
 	public C listenForConnection();

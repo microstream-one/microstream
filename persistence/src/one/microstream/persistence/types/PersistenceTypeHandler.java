@@ -59,7 +59,7 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 	public void iterateLoadableReferences(D data, PersistenceReferenceLoader iterator);
 
 	// implementing this method in a per-instance handler to be a no-op makes the instc effectively skipped for storing
-	public void store(D data, T instance, long objectId, PersistenceStoreHandler handler);
+	public void store(D data, T instance, long objectId, PersistenceStoreHandler<D> handler);
 
 	public T create(D data, PersistenceLoadHandler handler);
 	

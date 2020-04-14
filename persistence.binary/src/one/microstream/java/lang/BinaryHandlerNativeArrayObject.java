@@ -78,10 +78,10 @@ public final class BinaryHandlerNativeArrayObject<A/*extends Object[]*/> extends
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final A                       instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final A                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeReferences(

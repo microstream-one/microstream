@@ -64,10 +64,10 @@ extends AbstractBinaryHandlerCustomCollection<ConstList<?>>
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final ConstList<?>            instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final ConstList<?>                    instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeReferences(

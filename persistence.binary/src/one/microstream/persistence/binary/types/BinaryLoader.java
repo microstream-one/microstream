@@ -516,7 +516,23 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 		private Object internalGetFirst()
 		{
-			return this.buildItemsHead.next == null ? null : this.buildItemsHead.next.existingInstance;
+			/* (08.04.2020 TM)NOTE:
+			 * Seek the first proper item with a non-null instance.
+			 * This is necessary since items can be abused to execute meta-operations in their
+			 * referenced handler which, in turn, returns a null-instance.
+			 */
+			for(BinaryLoadItem item = this.buildItemsHead.next; item != null; item = item.next)
+			{
+				if(item.existingInstance != null)
+				{
+					return item.existingInstance;
+				}
+			}
+			
+			return null;
+			
+			// (08.04.2020 TM)NOTE: old version before dummy-item covering.
+//			return this.buildItemsHead.next == null ? null : this.buildItemsHead.next.existingInstance;
 		}
 
 		private void rebuildBuildItems()

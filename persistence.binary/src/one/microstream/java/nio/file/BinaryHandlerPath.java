@@ -56,10 +56,10 @@ public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVar
 
 	@Override
 	public void store(
-		final Binary                  data    ,
-		final Path                    instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final Path                            instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// uri starts with a schema specification that basically defines the type/implementation of the path.

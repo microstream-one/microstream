@@ -52,10 +52,10 @@ public final class BinaryHandlerDate extends AbstractBinaryHandlerCustomNonRefer
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final Date                    instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final Date                            instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeEntityHeader(Long.BYTES, this.typeId(), objectId);

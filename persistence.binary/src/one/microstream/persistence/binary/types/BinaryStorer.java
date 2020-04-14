@@ -8,6 +8,7 @@ import one.microstream.math.XMath;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceEagerStoringFieldEvaluator;
 import one.microstream.persistence.types.PersistenceLocalObjectIdRegistry;
+import one.microstream.persistence.types.PersistenceObjectIdRequestor;
 import one.microstream.persistence.types.PersistenceObjectManager;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceStorer;
@@ -53,7 +54,8 @@ public interface BinaryStorer extends PersistenceStorer
 	 * 
 	 * @author TM
 	 */
-	public class Default implements BinaryStorer, PersistenceStoreHandler, PersistenceLocalObjectIdRegistry
+	public class Default
+	implements BinaryStorer, PersistenceStoreHandler<Binary>, PersistenceLocalObjectIdRegistry<Binary>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -72,7 +74,7 @@ public interface BinaryStorer extends PersistenceStorer
 		////////////////////
 
 		private final boolean                               switchByteOrder;
-		private final PersistenceObjectManager              objectManager  ;
+		private final PersistenceObjectManager<Binary>      objectManager  ;
 		private final ObjectSwizzling                       objectRetriever;
 		private final PersistenceTypeHandlerManager<Binary> typeManager    ;
 		private final PersistenceTarget<Binary>             target         ;
@@ -117,7 +119,7 @@ public interface BinaryStorer extends PersistenceStorer
 		/////////////////
 
 		protected Default(
-			final PersistenceObjectManager              objectManager     ,
+			final PersistenceObjectManager<Binary>      objectManager     ,
 			final ObjectSwizzling                       objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
@@ -145,7 +147,7 @@ public interface BinaryStorer extends PersistenceStorer
 		////////////
 		
 		@Override
-		public final PersistenceObjectManager parentObjectManager()
+		public final PersistenceObjectManager<Binary> parentObjectManager()
 		{
 			return this.objectManager;
 		}
@@ -293,13 +295,27 @@ public interface BinaryStorer extends PersistenceStorer
 				return objectIdLocal;
 			}
 			
-			/*
-			 * Lazy storing logic:
-			 * If the instance already has an OID registered with it (= already known / handled globally),
-			 * it is assumed to be already stored and therefore not stored here ("again").
-			 * Only if a new OID has to be assigned, the instance is registered (via registerAdd)
-			 */
-			return this.registerLazy(instance);
+			return this.register(instance);
+		}
+		
+		@Override
+		public <T> long apply(final T instance, final PersistenceTypeHandler<Binary, T> localTypeHandler)
+		{
+			// concurrency: lookupOid() and ensureObjectId() lock internally, the rest is thread-local
+			
+			if(instance == null)
+			{
+				return Swizzling.nullId();
+			}
+			
+			final long objectIdLocal;
+			if(Swizzling.isFoundId(objectIdLocal = this.lookupOid(instance)))
+			{
+				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
+				return objectIdLocal;
+			}
+			
+			return this.objectManager.ensureObjectId(instance, this, localTypeHandler);
 		}
 		
 		@Override
@@ -325,12 +341,35 @@ public interface BinaryStorer extends PersistenceStorer
 				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
 				return objectIdLocal;
 			}
-
+			
+			return this.registerGuaranteed(instance);
+		}
+		
+		@Override
+		public <T> long applyEager(final T instance, final PersistenceTypeHandler<Binary, T> localTypeHandler)
+		{
+			// concurrency: lookupOid() and ensureObjectId() lock internally, the rest is thread-local
+			
+			if(instance == null)
+			{
+				return Swizzling.nullId();
+			}
+			
 			/*
-			 * Eager storing logic:
-			 * If the instance is not already handled locally (already stored by this storer), it is now stored.
+			 * "Eager" must still mean that if this storer has already stored the passed instance,
+			 * it may not store it again. That would not only be data-wise redundant and unnecessary,
+			 * but would also create infinite storing loops and overflows.
+			 * So "eager" can only mean to not check the global registry, but it must still mean to check
+			 * the local registry.
 			 */
-			return this.registerEager(instance);
+			final long objectIdLocal;
+			if(Swizzling.isFoundId(objectIdLocal = this.lookupOid(instance)))
+			{
+				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
+				return objectIdLocal;
+			}
+			
+			return this.objectManager.ensureObjectIdGuaranteedRegister(instance, this, localTypeHandler);
 		}
 		
 		/**
@@ -355,7 +394,7 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 			
 			// initial registration. After that, storing adds via recursing the graph and processing items iteratively.
-			rootOid = this.registerEager(notNull(root));
+			rootOid = this.registerGuaranteed(notNull(root));
 
 			// process and collect required instances uniquely in item chain (graph recursion transformed to iteration)
 			for(Item item = this.tail; item != null; item = item.next)
@@ -473,9 +512,10 @@ public interface BinaryStorer extends PersistenceStorer
 		}
 		
 		@Override
-		public final long lookupObjectId(
-			final Object              object  ,
-			final PersistenceAcceptor receiver
+		public final <T> long lookupObjectId(
+			final T                                    object           ,
+			final PersistenceObjectIdRequestor<Binary> objectIdRequestor,
+			final PersistenceTypeHandler<Binary, T>    optionalHandler
 		)
 		{
 			synchronized(this.head)
@@ -491,7 +531,7 @@ public interface BinaryStorer extends PersistenceStorer
 						}
 						
 						// found a local entry in the current storer, transfer object<->id association to the receiver.
-						receiver.accept(e.oid, object);
+						objectIdRequestor.registerGuaranteed(e.oid, object, optionalHandler);
 						return e.oid;
 					}
 				}
@@ -499,37 +539,85 @@ public interface BinaryStorer extends PersistenceStorer
 				return Swizzling.notFoundId();
 			}
 		}
-				
+		
+
 		@Override
-		public final void accept(final long objectId, final Object instance)
+		public final <T> void registerGuaranteed(
+			final long                              objectId       ,
+			final T                                 instance       ,
+			final PersistenceTypeHandler<Binary, T> optionalHandler
+		)
 		{
 //			XDebug.println("Registering " + objectId + ": " + XChars.systemString(instance) + " ("  + instance + ")");
 			synchronized(this.head)
 			{
 				// ensure handler (or fail if type is not persistable) before ensuring an OID.
-				final PersistenceTypeHandler<Binary, Object> typeHandler = this.typeManager.ensureTypeHandler(instance);
+				final PersistenceTypeHandler<Binary, ? super T> typeHandler = optionalHandler != null
+					? optionalHandler
+					: this.typeManager.ensureTypeHandler(instance)
+				;
 				final Item item = this.synchRegisterObjectId(instance, typeHandler, objectId);
 				this.tail = this.tail.next = item;
 			}
 		}
 		
-		protected final long registerLazy(final Object instance)
+		@Override
+		public <T> void registerLazyOptional(
+			final long                              objectId       ,
+			final T                                 instance       ,
+			final PersistenceTypeHandler<Binary, T> optionalHandler
+		)
+		{
+			// default is lazy logic.
+			this.registerGuaranteed(objectId, instance, optionalHandler);
+		}
+		
+		@Override
+		public <T> void registerEagerOptional(
+			final long                              objectId       ,
+			final T                                 instance       ,
+			final PersistenceTypeHandler<Binary, T> optionalHandler
+		)
+		{
+			// default is lazy logic, so no-op
+		}
+		
+		protected final long register(final Object instance)
 		{
 			/* Note:
 			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
-			 * - lazy, non-eager callback, obviously.
+			 * - depending on implementation lazy or eager callback, the other variant is a no-op respectively
 			 */
 			return this.objectManager.ensureObjectId(instance, this, null);
 		}
 		
-		protected final long registerEager(final Object instance)
+		protected final long registerGuaranteed(final Object instance)
 		{
 			/* Note:
 			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
-			 * - non-lazy, eager callback, obviously.
+			 * - calls back to #register(long, Object), guaranteeing the registration
 			 */
-			return this.objectManager.ensureObjectId(instance, null, this);
+			return this.objectManager.ensureObjectIdGuaranteedRegister(instance, this, null);
 		}
+		
+		
+//		protected final long registerLazy(final Object instance)
+//		{
+//			/* Note:
+//			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
+//			 * - lazy, non-eager callback, obviously.
+//			 */
+//			return this.objectManager.ensureObjectId(instance, this, null);
+//		}
+//
+//		protected final long registerEager(final Object instance)
+//		{
+//			/* Note:
+//			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
+//			 * - non-lazy, eager callback, obviously.
+//			 */
+//			return this.objectManager.ensureObjectId(instance, null, this);
+//		}
 		
 		@Override
 		public final boolean skipMapped(final Object instance, final long objectId)
@@ -574,10 +662,11 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 		}
 		
-		public final Item synchRegisterObjectId(
-			final Object                                 instance   ,
-			final PersistenceTypeHandler<Binary, Object> typeHandler,
-			final long                                   objectId
+		@SuppressWarnings("unchecked")
+		public final <T> Item synchRegisterObjectId(
+			final T                                         instance   ,
+			final PersistenceTypeHandler<Binary, ? super T> typeHandler,
+			final long                                      objectId
 		)
 		{
 			if(++this.itemCount >= this.hashRange)
@@ -586,7 +675,12 @@ public interface BinaryStorer extends PersistenceStorer
 			}
 
 			return this.hashSlots[identityHashCode(instance) & this.hashRange] =
-				new Item(instance, objectId, typeHandler, this.hashSlots[identityHashCode(instance) & this.hashRange])
+				new Item(
+					instance,
+					objectId,
+					(PersistenceTypeHandler<Binary, Object>)typeHandler,
+					this.hashSlots[identityHashCode(instance) & this.hashRange]
+				)
 			;
 		}
 
@@ -634,7 +728,7 @@ public interface BinaryStorer extends PersistenceStorer
 		/////////////////
 		
 		Eager(
-			final PersistenceObjectManager              objectManager     ,
+			final PersistenceObjectManager<Binary>      objectManager     ,
 			final ObjectSwizzling                       objectRetriever   ,
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
 			final PersistenceTarget<Binary>             target            ,
@@ -665,6 +759,27 @@ public interface BinaryStorer extends PersistenceStorer
 		{
 			// for a "full" graph storing strategy, the logic is simply to store everything forced.
 			return this.applyEager(instance);
+		}
+		
+		@Override
+		public <T> void registerLazyOptional(
+			final long                              objectId       ,
+			final T                                 instance       ,
+			final PersistenceTypeHandler<Binary, T> optionalHandler
+		)
+		{
+			// default is eager logic, so no-op
+		}
+		
+		@Override
+		public <T> void registerEagerOptional(
+			final long                              objectId       ,
+			final T                                 instance       ,
+			final PersistenceTypeHandler<Binary, T> optionalHandler
+		)
+		{
+			// default is eager logic.
+			this.registerGuaranteed(objectId, instance, optionalHandler);
 		}
 		
 	}
@@ -708,7 +823,7 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public BinaryStorer createLazyStorer(
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
-			PersistenceObjectManager              objectManager     ,
+			PersistenceObjectManager<Binary>      objectManager     ,
 			ObjectSwizzling                       objectRetriever   ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
@@ -717,7 +832,7 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public default BinaryStorer createStorer(
 			final PersistenceTypeHandlerManager<Binary> typeManager       ,
-			final PersistenceObjectManager              objectManager     ,
+			final PersistenceObjectManager<Binary>      objectManager     ,
 			final ObjectSwizzling                       objectRetriever   ,
 			final PersistenceTarget<Binary>             target            ,
 			final BufferSizeProviderIncremental         bufferSizeProvider
@@ -729,7 +844,7 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public BinaryStorer createEagerStorer(
 			PersistenceTypeHandlerManager<Binary> typeManager       ,
-			PersistenceObjectManager              objectManager     ,
+			PersistenceObjectManager<Binary>      objectManager     ,
 			ObjectSwizzling                       objectRetriever   ,
 			PersistenceTarget<Binary>             target            ,
 			BufferSizeProviderIncremental         bufferSizeProvider
@@ -794,7 +909,7 @@ public interface BinaryStorer extends PersistenceStorer
 			@Override
 			public final BinaryStorer createLazyStorer(
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
-				final PersistenceObjectManager              objectManager     ,
+				final PersistenceObjectManager<Binary>      objectManager     ,
 				final ObjectSwizzling                       objectRetriever   ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider
@@ -816,7 +931,7 @@ public interface BinaryStorer extends PersistenceStorer
 			@Override
 			public BinaryStorer createEagerStorer(
 				final PersistenceTypeHandlerManager<Binary> typeManager       ,
-				final PersistenceObjectManager              objectManager     ,
+				final PersistenceObjectManager<Binary>      objectManager     ,
 				final ObjectSwizzling                       objectRetriever   ,
 				final PersistenceTarget<Binary>             target            ,
 				final BufferSizeProviderIncremental         bufferSizeProvider

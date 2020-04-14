@@ -28,8 +28,8 @@ public class InstanceView extends VerticalLayout implements HasDynamicTitle
 		final StorageViewComponent       storageViewComponent       = new StorageViewComponent      ();
 		final StorageStatisticsComponent storageStatisticsComponent = new StorageStatisticsComponent();
 				
-		final Tab storageViewTab       = new Tab(createTabComponent("images/data.svg"      , "Data"      ));
-		final Tab storageStatisticsTab = new Tab(createTabComponent("images/statistics.svg", "Statistics"));
+		final Tab storageViewTab       = new Tab(createTabComponent("frontend/images/data.svg"      , "Data"      ));
+		final Tab storageStatisticsTab = new Tab(createTabComponent("frontend/images/statistics.svg", "Statistics"));
 		
 		final Map<Tab, Component> tabsToPages = new HashMap<>();
 		tabsToPages.put(storageViewTab      , storageViewComponent      );

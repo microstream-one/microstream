@@ -2,7 +2,7 @@ package one.microstream.persistence.types;
 
 import one.microstream.reference.ObjectSwizzling;
 
-public interface PersistenceStoreHandler extends PersistenceFunction
+public interface PersistenceStoreHandler<D> extends PersistenceFunction
 {
 	/**
 	 * The "natural" way of handling an instance as defined by the implementation.
@@ -16,6 +16,10 @@ public interface PersistenceStoreHandler extends PersistenceFunction
 	 * This is needed, for example, to store composition pattern instances without breaking OOP encapsulation concepts.
 	 */
 	public <T> long applyEager(T instance);
+	
+	public <T> long apply(T instance, PersistenceTypeHandler<D, T> localTypeHandler);
+	
+	public <T> long applyEager(T instance, PersistenceTypeHandler<D, T> localTypeHandler);
 	
 	public ObjectSwizzling getObjectRetriever();
 	

@@ -14,7 +14,8 @@ import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-public final class BinaryHandlerConcurrentSkipListSet extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListSet<?>>
+public final class BinaryHandlerConcurrentSkipListSet
+extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListSet<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -79,10 +80,10 @@ public final class BinaryHandlerConcurrentSkipListSet extends AbstractBinaryHand
 
 	@Override
 	public final void store(
-		final Binary                   data    ,
-		final ConcurrentSkipListSet<?> instance,
-		final long                     objectId,
-		final PersistenceStoreHandler  handler
+		final Binary                          data    ,
+		final ConcurrentSkipListSet<?>        instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// store elements simply as array binary form

@@ -116,7 +116,12 @@ public class ViewerBinaryTypeHandlerGeneric implements PersistenceTypeHandler<Bi
 	}
 
 	@Override
-	public void store(final Binary medium, final ObjectDescription instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(
+		final Binary                          data    ,
+		final ObjectDescription               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
+	)
 	{
 		throw new UnsupportedOperationException();
 	}

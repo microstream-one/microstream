@@ -1,10 +1,14 @@
 package one.microstream.persistence.types;
 
-public interface PersistenceLocalObjectIdRegistry extends PersistenceAcceptor
+public interface PersistenceLocalObjectIdRegistry<D> extends PersistenceObjectIdRequestor<D>
 {
-	public PersistenceObjectManager parentObjectManager();
+	public PersistenceObjectManager<D> parentObjectManager();
 	
-	public long lookupObjectId(Object instance, PersistenceAcceptor receiver);
+	public <T> long lookupObjectId(
+		T                               object           ,
+		PersistenceObjectIdRequestor<D> objectIdRequestor,
+		PersistenceTypeHandler<D, T>    optionalHandler
+	);
 	
 	public void iterateMergeableEntries(PersistenceAcceptor iterator);
 }

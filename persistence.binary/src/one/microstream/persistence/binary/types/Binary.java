@@ -525,25 +525,25 @@ public abstract class Binary implements Chunk
 	}
 	
 	public final void storeSizedArray(
-		final long                    tid         ,
-		final long                    oid         ,
-		final long                    headerOffset,
-		final Object[]                array       ,
-		final int                     size        ,
-		final PersistenceStoreHandler persister
+		final long                            tid         ,
+		final long                            oid         ,
+		final long                            headerOffset,
+		final Object[]                        array       ,
+		final int                             size        ,
+		final PersistenceStoreHandler<Binary> persister
 	)
 	{
 		this.storeSizedArray(tid, oid, headerOffset, array, 0, size, persister);
 	}
 	
 	public final void storeSizedArray(
-		final long                    tid         ,
-		final long                    oid         ,
-		final long                    headerOffset,
-		final Object[]                array       ,
-		final int                     offset      ,
-		final int                     size        ,
-		final PersistenceStoreHandler persister
+		final long                            tid         ,
+		final long                            oid         ,
+		final long                            headerOffset,
+		final Object[]                        array       ,
+		final int                             offset      ,
+		final int                             size        ,
+		final PersistenceStoreHandler<Binary> persister
 	)
 	{
 		// (29.01.2019 TM)FIXME: priv#70: offset validation
@@ -571,10 +571,10 @@ public abstract class Binary implements Chunk
 	private static final long OFFSET_ROOTS_OID_LIST = 0;
 	
 	public final void storeRoots(
-		final long                          typeId    ,
-		final long                          objectId  ,
-		final XGettingTable<String, Object> entries   ,
-		final PersistenceStoreHandler       idResolver
+		final long                            typeId    ,
+		final long                            objectId  ,
+		final XGettingTable<String, Object>   entries   ,
+		final PersistenceStoreHandler<Binary> idResolver
 	)
 	{
 		// performance is not important here as roots only get stored once per system start and are very few in numbers
@@ -1103,24 +1103,24 @@ public abstract class Binary implements Chunk
 	
 	
 	public final void storeReferences(
-		final long                    typeId      ,
-		final long                    objectId    ,
-		final long                    binaryOffset,
-		final PersistenceStoreHandler idResolver  ,
-		final Object[]                array
+		final long                            typeId      ,
+		final long                            objectId    ,
+		final long                            binaryOffset,
+		final PersistenceStoreHandler<Binary> idResolver  ,
+		final Object[]                        array
 	)
 	{
 		this.storeReferences(typeId, objectId, binaryOffset, idResolver, array, 0, array.length);
 	}
 
 	public final void storeReferences(
-		final long                    typeId      ,
-		final long                    objectId    ,
-		final long                    binaryOffset,
-		final PersistenceStoreHandler idResolver  ,
-		final Object[]                array       ,
-		final int                     arrayOffset ,
-		final int                     arrayLength
+		final long                            typeId      ,
+		final long                            objectId    ,
+		final long                            binaryOffset,
+		final PersistenceStoreHandler<Binary> idResolver  ,
+		final Object[]                        array       ,
+		final int                             arrayOffset ,
+		final int                             arrayLength
 	)
 	{
 		this.storeEntityHeader(
@@ -1133,13 +1133,13 @@ public abstract class Binary implements Chunk
 	}
 	
 	public final void storeFixedSize(
-		final PersistenceStoreHandler handler      ,
-		final long                    contentLength,
-		final long                    typeId       ,
-		final long                    objectId     ,
-		final Object                  instance     ,
-		final long[]                  memoryOffsets,
-		final BinaryValueStorer[]     storers
+		final PersistenceStoreHandler<Binary> handler      ,
+		final long                            contentLength,
+		final long                            typeId       ,
+		final long                            objectId     ,
+		final Object                          instance     ,
+		final long[]                          memoryOffsets,
+		final BinaryValueStorer[]             storers
 	)
 	{
 		this.storeEntityHeader(contentLength, typeId, objectId);
@@ -1765,11 +1765,11 @@ public abstract class Binary implements Chunk
 	}
 	
 	public final void storeReferencesAsList(
-		final long                    memoryOffset,
-		final PersistenceStoreHandler persister   ,
-		final Object[]                array       ,
-		final int                     offset      ,
-		final int                     length
+		final long                            memoryOffset,
+		final PersistenceStoreHandler<Binary> persister   ,
+		final Object[]                        array       ,
+		final int                             offset      ,
+		final int                             length
 	)
 	{
 		this.storeListHeader(
