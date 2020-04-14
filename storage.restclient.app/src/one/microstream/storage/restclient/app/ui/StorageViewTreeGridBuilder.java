@@ -3,6 +3,7 @@ package one.microstream.storage.restclient.app.ui;
 
 import java.util.Comparator;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 
 import one.microstream.storage.restclient.StorageView;
@@ -26,20 +27,22 @@ public interface StorageViewTreeGridBuilder
 	public TreeGrid<StorageViewElement> build();
 	
 	
-	public static StorageViewTreeGridBuilder New()
+	public static StorageViewTreeGridBuilder New(final Component context)
 	{
-		return new Default();
+		return new Default(context);
 	}
 	
 	
 	public static class Default implements StorageViewTreeGridBuilder
 	{
+		private final Component            context;
 		private StorageViewDataProvider<?> dataProvider;
-		private boolean defaultColumns = true;
+		private boolean                    defaultColumns = true;
 		
-		Default()
+		Default(final Component context)
 		{
 			super();
+			this.context = context;
 		}
 		
 		@Override
@@ -86,21 +89,21 @@ public interface StorageViewTreeGridBuilder
 		private void initDefaultColumns(final TreeGrid<StorageViewElement> treeGrid)
 		{
 			treeGrid.addHierarchyColumn(StorageViewElement::name)
-				.setHeader("Name")
+				.setHeader(this.context.getTranslation("NAME"))
 				.setResizable(true)
 				.setFrozen(true)
 				.setComparator(new NameComparator());
 		
 			treeGrid.addColumn(Default::elementValue)
-				.setHeader("Value")
+				.setHeader(this.context.getTranslation("VALUE"))
 				.setResizable(true);
 					
 			treeGrid.addColumn(StorageViewElement::simpleTypeName)
-				.setHeader("Type")
+				.setHeader(this.context.getTranslation("TYPE"))
 				.setResizable(true);
 		
 			treeGrid.addColumn(Default::elementObjectId)
-				.setHeader("ObjectId")
+				.setHeader(this.context.getTranslation("OBJECT_ID"))
 				.setResizable(true);
 		}
 

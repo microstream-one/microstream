@@ -5,12 +5,12 @@ import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 
-import one.microstream.storage.restclient.app.ui.LoginView;
+import one.microstream.storage.restclient.app.ui.ConnectView;
 
 
-public class AppServiceInitListener implements VaadinServiceInitListener
+public class ApplicationServiceInitListener implements VaadinServiceInitListener
 {
-	public AppServiceInitListener()
+	public ApplicationServiceInitListener()
 	{
 		super();
 	}
@@ -28,10 +28,10 @@ public class AppServiceInitListener implements VaadinServiceInitListener
 		
 		service.addUIInitListener(
 			uiInitEvent -> uiInitEvent.getUI().addBeforeEnterListener(enterEvent -> {
-				if(!LoginView.class.equals(enterEvent.getNavigationTarget()) &&
+				if(!ConnectView.class.equals(enterEvent.getNavigationTarget()) &&
 					enterEvent.getUI().getSession().getAttribute(SessionData.class) == null)
 				{
-					enterEvent.rerouteTo(LoginView.class);
+					enterEvent.rerouteTo(ConnectView.class);
 				}
 			}
 		));

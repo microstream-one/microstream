@@ -14,8 +14,8 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.ErrorParameter;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HasErrorParameter;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
@@ -23,21 +23,20 @@ import one.microstream.storage.restclient.app.ApplicationErrorHandler;
 import one.microstream.storage.restclient.app.SessionData;
 
 @Route(value = "error", layout = RootLayout.class)
-@PageTitle("Error - " + RootLayout.PAGE_TITLE)
 public class InternalErrorView extends VerticalLayout 
-	implements HasErrorParameter<Exception>, BeforeEnterObserver
+	implements HasDynamicTitle, HasErrorParameter<Exception>, BeforeEnterObserver
 {
-	public static String restServiceHint(String baseUrl)
-	{
-		return "Please ensure that a started REST service is available at " + baseUrl;
-	}
-	
-	
 	public InternalErrorView()
 	{
 		super();
 
 		this.setSizeFull();
+	}
+	
+	@Override
+	public String getPageTitle()
+	{
+		return getTranslation("ERROR") + " - " + RootLayout.PAGE_TITLE;
 	}
 	
 	@Override
@@ -60,15 +59,15 @@ public class InternalErrorView extends VerticalLayout
 		final BeforeEnterEvent event
 	)
 	{					
-		final H3 header = new H3("An internal error occured.");
-		header.addClassName("error");
+		final H3 header = new H3(getTranslation("INTERNAL_ERROR_TITLE"));
+		header.addClassName(ClassNames.ERROR);
 		this.add(header);
 
 		final VaadinSession session = event.getUI().getSession();
 		final SessionData sessionData = session.getAttribute(SessionData.class);
 		if(sessionData != null)
 		{
-			this.add(new Label(restServiceHint(sessionData.baseUrl()))); 
+			this.add(new Label(getTranslation("INTERNAL_ERROR_HINT", sessionData.baseUrl()))); 
 		}
 		
 		final Throwable t = (Throwable)session.getAttribute(
@@ -89,7 +88,7 @@ public class InternalErrorView extends VerticalLayout
 			stackTrace.setReadOnly(true);
 			stackTrace.setWidth("100%");
 			
-			final Details details = new Details("Details", stackTrace);
+			final Details details = new Details(getTranslation("DETAILS"), stackTrace);
 			details.setOpened(false);
 			this.add(details);
 			this.setHorizontalComponentAlignment(Alignment.STRETCH, details);

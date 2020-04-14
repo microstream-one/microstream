@@ -1,6 +1,8 @@
 
 package one.microstream.storage.restclient.app.ui;
 
+import static one.microstream.storage.restclient.app.ui.UIUtils.imagePath;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
@@ -23,7 +25,7 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinResponse;
@@ -33,51 +35,62 @@ import one.microstream.storage.restclient.jersey.StorageRestClientJersey;
 
 
 @Route(value = "", layout = RootLayout.class)
-@PageTitle("Login - " + RootLayout.PAGE_TITLE)
-public class LoginView extends VerticalLayout
-{
-	public LoginView()
+public class ConnectView extends VerticalLayout implements HasDynamicTitle
+{	
+	public ConnectView()
 	{
 		super();
 		
 		final ComboBox<String> urlChooser = new ComboBox<>();
+		urlChooser.setId(ElementIds.COMBO_URL);
 		urlChooser.setMinWidth("50ch");
 		urlChooser.setDataProvider(DataProvider.ofCollection(this.urls()));
 		urlChooser.setAllowCustomValue(true);
 		urlChooser.addCustomValueSetListener(event -> urlChooser.setValue(event.getDetail()));
 		
-		final Button cmdLogin = new Button("Connect", 
+		final Button cmdConnect = new Button(getTranslation("CONNECT"), 
 			event -> {
 				String url = urlChooser.getValue();
 				if(url != null && (url = url.trim()).length() > 0)
 				{
-					this.tryLogin(url);
+					this.tryConnect(url);
 				}
 				// re-enable button because disableOnClick=true
 				event.getSource().setEnabled(true);
 			}
 		);
-		cmdLogin.setIcon(new Image("frontend/images/login.svg", ""));
-		cmdLogin.setDisableOnClick(true);
+		cmdConnect.setId(ElementIds.BUTTON_CONNECT);
+		cmdConnect.setIcon(new Image(imagePath("login.svg"), ""));
+		cmdConnect.setDisableOnClick(true);
 		
-		final HorizontalLayout loginLayout = new HorizontalLayout(new Label("URL:"), urlChooser, cmdLogin);
-		loginLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-		
-		VerticalLayout loginFrame = new VerticalLayout(
-			new H3("Connect to instance"),
-			loginLayout
+		final HorizontalLayout connectLayout = new HorizontalLayout(
+			new Label(getTranslation("URL") + ":"), 
+			urlChooser, 
+			cmdConnect
 		);
-		loginFrame.setMargin(true);
-		loginFrame.addClassName("box");
-		loginFrame.setSizeUndefined();
+		connectLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 		
-		this.setHorizontalComponentAlignment(Alignment.CENTER, loginFrame);
-		this.add(loginFrame);
-		this.addClassName("header");
+		VerticalLayout connectFrame = new VerticalLayout(
+			new H3(getTranslation("CONNECT_HEADER")),
+			connectLayout
+		);
+		connectFrame.setMargin(true);
+		connectFrame.addClassName(ClassNames.BOX);
+		connectFrame.setSizeUndefined();
+		
+		this.setHorizontalComponentAlignment(Alignment.CENTER, connectFrame);
+		this.add(connectFrame);
+		this.addClassName(ClassNames.HEADER);
 		this.setSizeFull();
 	}
 	
-	private void tryLogin(
+	@Override
+	public String getPageTitle()
+	{
+		return getTranslation("CONNECT") + " - " + RootLayout.PAGE_TITLE;
+	}
+	
+	private void tryConnect(
 		final String baseUrl
 	)
 	{
@@ -99,15 +112,18 @@ public class LoginView extends VerticalLayout
 
 				final Notification notification = new Notification();
 				
-				final H3 header = new H3("Error connecting to instance.");
-				header.addClassName("error");
+				final H3 header = new H3(getTranslation("CONNECT_ERROR"));
+				header.addClassName(ClassNames.ERROR);
 				
-				final Button close = new Button("OK", event -> notification.close());
+				final Button close = new Button(
+					getTranslation("OK"), 
+					event -> notification.close()
+				);
 				
 				final VerticalLayout content = new VerticalLayout(
 					header,
 					new Hr(),
-					new Label(InternalErrorView.restServiceHint(baseUrl)),
+					new Label(getTranslation("INTERNAL_ERROR_HINT", baseUrl)),
 					close 
 				);
 				content.setHorizontalComponentAlignment(Alignment.END, close);

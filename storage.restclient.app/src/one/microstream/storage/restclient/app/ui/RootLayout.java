@@ -1,5 +1,7 @@
 package one.microstream.storage.restclient.app.ui;
 
+import static one.microstream.storage.restclient.app.ui.UIUtils.imagePath;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -46,27 +48,28 @@ public class RootLayout extends VerticalLayout
 	{
 		this.headerLabel = new Label();
 		
-		final Button cmdLogout = new Button("Disconnect", event -> {
+		final Button cmdDisconnect = new Button(getTranslation("DISCONNECT"), event -> {
 			this.getUI().ifPresent(ui -> {
 				ui.getSession().setAttribute(SessionData.class, null);
-				ui.navigate(LoginView.class);
+				ui.navigate(ConnectView.class);
 			});
 		});
-		cmdLogout.setIcon(new Image("frontend/images/logout.svg", ""));
-		cmdLogout.addThemeVariants(ButtonVariant.LUMO_SMALL);
+		cmdDisconnect.setId(ElementIds.BUTTON_DISCONNECT);
+		cmdDisconnect.setIcon(new Image(imagePath("logout.svg"), ""));
+		cmdDisconnect.addThemeVariants(ButtonVariant.LUMO_SMALL);
 		
-		final HorizontalLayout toolBar = new HorizontalLayout(cmdLogout);
+		final HorizontalLayout toolBar = new HorizontalLayout(cmdDisconnect);
 		toolBar.setJustifyContentMode(JustifyContentMode.END);
 		this.toolBar = toolBar;
 		
 		final HorizontalLayout banner = new HorizontalLayout(
-			new Image("frontend/images/logo.png", "Logo"),
+			new Image(imagePath("logo.png"), "Logo"),
 			this.headerLabel,
 			UIUtils.compact(toolBar));
 		banner.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 		banner.setFlexGrow(1, toolBar);
 		
-		banner.addClassName("banner");
+		banner.addClassName(ClassNames.BANNER);
 		
 		return UIUtils.compact(banner);
 	}
@@ -79,12 +82,12 @@ public class RootLayout extends VerticalLayout
 		final SessionData sessionData = event.getUI().getSession().getAttribute(SessionData.class);
 		this.headerLabel.setText(
 			sessionData != null
-				? "Client - " + sessionData.baseUrl()
-				: "Client"
+				? getTranslation("CLIENT") + " - " + sessionData.baseUrl()
+				: getTranslation("CLIENT")
 		);
 		this.toolBar.setVisible(
 			   sessionData != null
-			&& !event.getNavigationTarget().equals(LoginView.class)
+			&& !event.getNavigationTarget().equals(ConnectView.class)
 		);
 	}
 	
@@ -93,7 +96,7 @@ public class RootLayout extends VerticalLayout
 		final InitialPageSettings settings
 	)
 	{
-		settings.addLink("shortcut icon", "frontend/images/icon.ico");
-		settings.addFavIcon("icon", "frontend/images/icon.png", "256x256");
+		settings.addLink   ("shortcut icon", imagePath("icon.ico")           );
+		settings.addFavIcon("icon"         , imagePath("icon.png"), "256x256");
 	}
 }
