@@ -3,7 +3,7 @@ package one.microstream.storage.restclient.app.ui;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -22,7 +22,7 @@ import one.microstream.storage.restclient.app.SessionData;
 
 @Push
 @Theme(value = Lumo.class, variant = Lumo.DARK)
-@JsModule("./styles/shared-styles.js")
+@HtmlImport("styles/shared-styles.html")
 public class RootLayout extends VerticalLayout 
 	implements RouterLayout, BeforeEnterObserver, PageConfigurator
 {
@@ -52,7 +52,7 @@ public class RootLayout extends VerticalLayout
 				ui.navigate(LoginView.class);
 			});
 		});
-		cmdLogout.setIcon(new Image("images/logout.svg", ""));
+		cmdLogout.setIcon(new Image("frontend/images/logout.svg", ""));
 		cmdLogout.addThemeVariants(ButtonVariant.LUMO_SMALL);
 		
 		final HorizontalLayout toolBar = new HorizontalLayout(cmdLogout);
@@ -60,7 +60,7 @@ public class RootLayout extends VerticalLayout
 		this.toolBar = toolBar;
 		
 		final HorizontalLayout banner = new HorizontalLayout(
-			new Image("images/logo.png", "Logo"),
+			new Image("frontend/images/logo.png", "Logo"),
 			this.headerLabel,
 			UIUtils.compact(toolBar));
 		banner.setDefaultVerticalComponentAlignment(Alignment.CENTER);
@@ -93,7 +93,7 @@ public class RootLayout extends VerticalLayout
 		final InitialPageSettings settings
 	)
 	{
-		settings.addLink("shortcut icon", "images/icon.ico");
-		settings.addFavIcon("icon", "images/icon.png", "256x256");
+		settings.addLink("shortcut icon", "frontend/images/icon.ico");
+		settings.addFavIcon("icon", "frontend/images/icon.png", "256x256");
 	}
 }

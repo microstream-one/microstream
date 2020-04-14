@@ -487,7 +487,12 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 	///////////////////////////
 
 	@Override
-	public void store(final Binary data, final T instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
+	)
 	{
 		data.storeFixedSize(
 			handler                  ,

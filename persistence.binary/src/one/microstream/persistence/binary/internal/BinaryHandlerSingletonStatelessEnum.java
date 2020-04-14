@@ -82,10 +82,10 @@ public final class BinaryHandlerSingletonStatelessEnum<T> extends AbstractBinary
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final T                       instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeEntityHeader(0, this.typeId(), objectId);

@@ -80,7 +80,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	
 	public PersistenceObjectRegistry getObjectRegistry();
 
-	public PersistenceObjectManager getObjectManager();
+	public PersistenceObjectManager<D> getObjectManager();
 	
 	public PersistenceTypeRegistry getTypeRegistry();
 	
@@ -211,7 +211,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 
 	public F setInstanceDispatcher(InstanceDispatcherLogic instanceDispatcher);
 
-	public F setObjectManager(PersistenceObjectManager objectManager);
+	public F setObjectManager(PersistenceObjectManager<D> objectManager);
 
 	public F setStorerCreator(PersistenceStorer.Creator<D> storerCreator);
 
@@ -428,7 +428,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		
 		private final HashTable<Class<?>, PersistenceTypeInstantiator<D, ?>> customTypeInstantiators = HashTable.New();
 
-		private PersistenceObjectManager                       objectManager                   ;
+		private PersistenceObjectManager<D>                    objectManager                   ;
 		private PersistenceObjectIdProvider                    oidProvider                     ;
 		private PersistenceTypeIdProvider                      tidProvider                     ;
 		private PersistenceTypeRegistry                        typeRegistry                    ;
@@ -686,7 +686,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		}
 
 		@Override
-		public PersistenceObjectManager getObjectManager()
+		public PersistenceObjectManager<D> getObjectManager()
 		{
 			if(this.objectManager == null)
 			{
@@ -1406,7 +1406,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 
 		@Override
 		public F setObjectManager(
-			final PersistenceObjectManager objectManager
+			final PersistenceObjectManager<D> objectManager
 		)
 		{
 			this.objectManager = objectManager;
@@ -2029,9 +2029,9 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 			return newTypeLineageCreator;
 		}
 
-		protected PersistenceObjectManager ensureObjectManager()
+		protected PersistenceObjectManager<D> ensureObjectManager()
 		{
-			final PersistenceObjectManager newObjectManager = PersistenceObjectManager.New(
+			final PersistenceObjectManager<D> newObjectManager = PersistenceObjectManager.New(
 				this.getObjectRegistry(),
 				this.getObjectIdProvider()
 			);

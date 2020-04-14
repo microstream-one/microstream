@@ -1,6 +1,5 @@
 package one.microstream.persistence.types;
 
-import static one.microstream.X.coalesce;
 import static one.microstream.X.notNull;
 
 import java.lang.ref.WeakReference;
@@ -12,15 +11,21 @@ import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.reference.Swizzling;
 import one.microstream.util.Cloneable;
 
-public interface PersistenceObjectManager
-extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<PersistenceObjectManager>
+public interface PersistenceObjectManager<D>
+extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<PersistenceObjectManager<D>>
 {
 	public long ensureObjectId(Object object);
 	
-	public long ensureObjectId(
-		Object              object                ,
-		PersistenceAcceptor lazyObjectIdRequestor ,
-		PersistenceAcceptor eagerObjectIdRequestor
+	public <T> long ensureObjectId(
+		T                               object           ,
+		PersistenceObjectIdRequestor<D> objectIdRequestor,
+		PersistenceTypeHandler<D, T>    optionalHandler
+	);
+	
+	public <T> long ensureObjectIdGuaranteedRegister(
+		T                               object           ,
+		PersistenceObjectIdRequestor<D> objectIdRequestor,
+		PersistenceTypeHandler<D, T>    optionalHandler
 	);
 
 	public void consolidate();
@@ -29,37 +34,37 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 	public long currentObjectId();
 
 	@Override
-	public PersistenceObjectManager updateCurrentObjectId(long currentObjectId);
+	public PersistenceObjectManager<D> updateCurrentObjectId(long currentObjectId);
 	
 	/**
 	 * Useful for {@link PersistenceContextDispatcher}.
 	 * @return A Clone of this instance as described in {@link Cloneable}.
 	 */
 	@Override
-	public default PersistenceObjectManager Clone()
+	public default PersistenceObjectManager<D> Clone()
 	{
 		return Cloneable.super.Clone();
 	}
 	
-	public boolean registerLocalRegistry(PersistenceLocalObjectIdRegistry localRegistry);
+	public boolean registerLocalRegistry(PersistenceLocalObjectIdRegistry<D> localRegistry);
 	
-	public void mergeEntries(PersistenceLocalObjectIdRegistry localRegistry);
+	public void mergeEntries(PersistenceLocalObjectIdRegistry<D> localRegistry);
 
 
 	
 	
-	public static PersistenceObjectManager.Default New(
+	public static <D> PersistenceObjectManager.Default<D> New(
 		final PersistenceObjectRegistry   objectRegistry,
 		final PersistenceObjectIdProvider oidProvider
 	)
 	{
-		return new PersistenceObjectManager.Default(
+		return new PersistenceObjectManager.Default<>(
 			notNull(objectRegistry),
 			notNull(oidProvider)
 		);
 	}
 
-	public final class Default implements PersistenceObjectManager
+	public final class Default<D> implements PersistenceObjectManager<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -68,9 +73,9 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		private final PersistenceObjectRegistry   objectRegistry;
 		private final PersistenceObjectIdProvider oidProvider   ;
 		
-		private WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries = X.WeakReferences(1);
+		private WeakReference<PersistenceLocalObjectIdRegistry<D>>[] localRegistries = X.WeakReferences(1);
 		
-		private final PersistenceAcceptor noOp = PersistenceAcceptor::noOp;
+		private final PersistenceObjectIdRequestor<D> noOp = PersistenceObjectIdRequestor.NoOp();
 
 		
 
@@ -95,7 +100,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		////////////
 		
 		@Override
-		public PersistenceObjectManager.Default Clone()
+		public PersistenceObjectManager.Default<D> Clone()
 		{
 			/*
 			 * This basically turns the globally connected manager instance into a standalone clone.
@@ -104,7 +109,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 			 */
 			synchronized(this.objectRegistry)
 			{
-				return new PersistenceObjectManager.Default(
+				return new PersistenceObjectManager.Default<>(
 					this.objectRegistry.Clone(),
 					this.oidProvider.Clone()
 				);
@@ -148,16 +153,12 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		}
 		
 		@Override
-		public long ensureObjectId(
-			final Object              object                ,
-			final PersistenceAcceptor lazyObjectIdRequestor ,
-			final PersistenceAcceptor eagerObjectIdRequestor
+		public <T> long ensureObjectId(
+			final T                               object           ,
+			final PersistenceObjectIdRequestor<D> objectIdRequestor,
+			final PersistenceTypeHandler<D, T>    optionalHandler
 		)
 		{
-			final PersistenceAcceptor requestor = notNull(
-				coalesce(lazyObjectIdRequestor, eagerObjectIdRequestor)
-			);
-			
 			/*
 			 * Three steps to determine an object's objectId which must be executed in exactely that order
 			 * and under the protection of a lock on the global registry to enqueue all concurrent storers.
@@ -171,24 +172,18 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 				long objectId;
 				if(Swizzling.isNotProperId(objectId = this.objectRegistry.lookupObjectId(object)))
 				{
-					if(Swizzling.isNotProperId(objectId = this.synchCheckLocalRegistries(requestor, object)))
+					if(Swizzling.isNotProperId(objectId = this.synchCheckLocalRegistries(objectIdRequestor, object, optionalHandler)))
 					{
 						// see below about not globally registering the newly assigned objectId
 						objectId = this.oidProvider.provideNextObjectId();
 					}
 
 					// lazy logic means only apply if not yet globally known (= something new / "store required").
-					if(lazyObjectIdRequestor != null)
-					{
-						lazyObjectIdRequestor.accept(objectId, object);
-					}
+					objectIdRequestor.registerLazyOptional(objectId, object, optionalHandler);
 				}
 				
 				// eager logic means ALWAYS apply, even if already globally known (= "store full").
-				if(eagerObjectIdRequestor != null)
-				{
-					eagerObjectIdRequestor.accept(objectId, object);
-				}
+				objectIdRequestor.registerEagerOptional(objectId, object, optionalHandler);
 
 				/* (06.12.2019 TM)NOTE:
 				 * A new object<->id association may NOT be registered right away, since the storing (writing) logic
@@ -207,26 +202,58 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 			}
 		}
 		
-		private long synchCheckLocalRegistries(
-			final PersistenceAcceptor objectIdRequestor,
-			final Object              instance
+		/**
+		 * Variant of {@link #ensureObjectId(Object)} with guaranteed registering (effectively override-eager-logic)
+		 * 
+		 */
+		@Override
+		public <T> long ensureObjectIdGuaranteedRegister(
+			final T                               object           ,
+			final PersistenceObjectIdRequestor<D> objectIdRequestor,
+			final PersistenceTypeHandler<D, T>    optionalHandler
+			
 		)
 		{
-			for(final WeakReference<PersistenceLocalObjectIdRegistry> localRegistryEntry : this.localRegistries)
+			// see #ensureObjectId for explaining comments
+			synchronized(this.objectRegistry)
+			{
+				long objectId;
+				if(Swizzling.isNotProperId(objectId = this.objectRegistry.lookupObjectId(object)))
+				{
+					if(Swizzling.isNotProperId(objectId = this.synchCheckLocalRegistries(objectIdRequestor, object, optionalHandler)))
+					{
+						objectId = this.oidProvider.provideNextObjectId();
+					}
+				}
+				
+				// overriding "guaranteed registering" logic
+				objectIdRequestor.registerGuaranteed(objectId, object, optionalHandler);
+				
+				return objectId;
+			}
+		}
+		
+		private <T> long synchCheckLocalRegistries(
+			final PersistenceObjectIdRequestor<D> objectIdRequestor,
+			final T                               instance         ,
+			final PersistenceTypeHandler<D, T>    optionalHandler
+		)
+		{
+			for(final WeakReference<PersistenceLocalObjectIdRegistry<D>> localRegistryEntry : this.localRegistries)
 			{
 				if(localRegistryEntry == null)
 				{
 					continue;
 				}
 				
-				final PersistenceLocalObjectIdRegistry localRegistry = localRegistryEntry.get();
+				final PersistenceLocalObjectIdRegistry<D> localRegistry = localRegistryEntry.get();
 				if(localRegistry == null || localRegistry == objectIdRequestor)
 				{
 					continue;
 				}
 				
 				final long objectId;
-				if(Swizzling.isProperId(objectId = localRegistry.lookupObjectId(instance, objectIdRequestor)))
+				if(Swizzling.isProperId(objectId = localRegistry.lookupObjectId(instance, objectIdRequestor, optionalHandler)))
 				{
 					return objectId;
 				}
@@ -235,14 +262,14 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 			return Swizzling.notFoundId();
 		}
 		
-		private void synchInternalMergeEntries(final PersistenceLocalObjectIdRegistry localRegistry)
+		private void synchInternalMergeEntries(final PersistenceLocalObjectIdRegistry<D> localRegistry)
 		{
 			localRegistry.iterateMergeableEntries(this.objectRegistry::validate);
 			localRegistry.iterateMergeableEntries(this.objectRegistry::registerObject);
 		}
 		
 		@Override
-		public boolean registerLocalRegistry(final PersistenceLocalObjectIdRegistry localRegistry)
+		public boolean registerLocalRegistry(final PersistenceLocalObjectIdRegistry<D> localRegistry)
 		{
 			if(localRegistry.parentObjectManager() != this)
 			{
@@ -258,7 +285,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 			
 			synchronized(this.objectRegistry)
 			{
-				final WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries = this.localRegistries;
+				final WeakReference<PersistenceLocalObjectIdRegistry<D>>[] localRegistries = this.localRegistries;
 				if(isAlreadyRegistered(localRegistry, localRegistries))
 				{
 					return false;
@@ -281,9 +308,9 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 			}
 		}
 		
-		private static boolean isAlreadyRegistered(
-			final PersistenceLocalObjectIdRegistry                  localRegistry ,
-			final WeakReference<PersistenceLocalObjectIdRegistry>[] localRegistries
+		private static <D> boolean isAlreadyRegistered(
+			final PersistenceLocalObjectIdRegistry<D>                  localRegistry ,
+			final WeakReference<PersistenceLocalObjectIdRegistry<D>>[] localRegistries
 		)
 		{
 			// no hash set required since there should never be a lot of entries, anyway.
@@ -294,7 +321,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 					continue;
 				}
 				
-				final PersistenceLocalObjectIdRegistry registeredLocalRegistry = localRegistries[i].get();
+				final PersistenceLocalObjectIdRegistry<D> registeredLocalRegistry = localRegistries[i].get();
 				if(registeredLocalRegistry == null)
 				{
 					// some cleanup along the way
@@ -312,7 +339,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		}
 
 		@Override
-		public void mergeEntries(final PersistenceLocalObjectIdRegistry localRegistry)
+		public void mergeEntries(final PersistenceLocalObjectIdRegistry<D> localRegistry)
 		{
 			synchronized(this.objectRegistry)
 			{
@@ -325,7 +352,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 						continue;
 					}
 					
-					final PersistenceLocalObjectIdRegistry registeredLocalRegistry = this.localRegistries[i].get();
+					final PersistenceLocalObjectIdRegistry<D> registeredLocalRegistry = this.localRegistries[i].get();
 					if(registeredLocalRegistry == null)
 					{
 						// some cleanup along the way
@@ -336,7 +363,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 					
 					if(registeredLocalRegistry == localRegistry)
 					{
-						synchInternalMergeEntries(localRegistry);
+						this.synchInternalMergeEntries(localRegistry);
 						
 						if(emptySlotCount > 2)
 						{
@@ -369,7 +396,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 		}
 
 		@Override
-		public PersistenceObjectManager updateCurrentObjectId(final long currentObjectId)
+		public PersistenceObjectManager<D> updateCurrentObjectId(final long currentObjectId)
 		{
 			synchronized(this.objectRegistry)
 			{

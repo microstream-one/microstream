@@ -26,7 +26,7 @@ public class DebugGraphPrinter implements PersistenceFunction
 	// instance fields //
 	////////////////////
 
-	private final PersistenceObjectManager         objectManager     ;
+	private final PersistenceObjectManager<?>      objectManager     ;
 	private final PersistenceTypeHandlerManager<?> typeHandlerManager;
 	private final DebugGraphPrinter.Entry[]        objectIdsSlots    ;
 	private final int                              objectIdsModulo   ;
@@ -40,7 +40,7 @@ public class DebugGraphPrinter implements PersistenceFunction
 	/////////////////
 
 	public DebugGraphPrinter(
-		final PersistenceObjectManager             objectManager,
+		final PersistenceObjectManager<?>             objectManager,
 		final PersistenceTypeHandlerManager<?> typeManager
 	)
 	{
@@ -52,7 +52,7 @@ public class DebugGraphPrinter implements PersistenceFunction
 	}
 
 	public DebugGraphPrinter(
-		final PersistenceObjectManager objectManager,
+		final PersistenceObjectManager<?>      objectManager,
 		final PersistenceTypeHandlerManager<?> typeManager,
 		final int hashRange
 	)

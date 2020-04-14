@@ -11,6 +11,7 @@
 
 	<properties>
 		<vaadin.version>14.1.25</vaadin.version>
+		<spring.boot.version>2.2.6.RELEASE</spring.boot.version>
 	</properties>
 
 	<dependencyManagement>
@@ -25,7 +26,7 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>2.2.6.RELEASE</version>
+				<version>${spring.boot.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -45,13 +46,10 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-spring-boot-starter</artifactId>
-			<exclusions>
-				<!-- Excluding so that webjars are not included. -->
-				<exclusion>
-					<groupId>com.vaadin</groupId>
-					<artifactId>vaadin-core</artifactId>
-				</exclusion>
-			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>flow-server-compatibility-mode</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -61,6 +59,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring.boot.version}</version>
 				<configuration>
 					<mainClass>one.microstream.storage.restclient.app.Application</mainClass>
 					<!-- Clean build and startup time for Vaadin apps sometimes may exceed 
@@ -68,18 +67,6 @@
 					<wait>500</wait>
 					<maxAttempts>240</maxAttempts>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-maven-plugin</artifactId>
-				<version>${vaadin.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>prepare-frontend</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -90,17 +77,12 @@
 			<properties>
 				<vaadin.productionMode>true</vaadin.productionMode>
 			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.vaadin</groupId>
-					<artifactId>flow-server-production-mode</artifactId>
-				</dependency>
-			</dependencies>
 			<build>
 				<plugins>
 					<plugin>
 						<groupId>org.springframework.boot</groupId>
 						<artifactId>spring-boot-maven-plugin</artifactId>
+						<version>${spring.boot.version}</version>
 						<configuration>
 							<mainClass>one.microstream.storage.restclient.app.Application</mainClass>
 							<jvmArguments>-Dvaadin.productionMode</jvmArguments>
@@ -113,45 +95,7 @@
 								</goals>
 							</execution>
 						</executions>
-					</plugin>
-					<plugin>
-						<groupId>com.vaadin</groupId>
-						<artifactId>vaadin-maven-plugin</artifactId>
-						<version>${vaadin.version}</version>
-						<executions>
-							<execution>
-								<goals>
-									<goal>build-frontend</goal>
-								</goals>
-								<phase>compile</phase>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<version>3.2.0</version>
-						<configuration>
-							<archive>
-								<manifest>
-									<addClasspath>true</addClasspath>
-									<mainClass>one.microstream.storage.restclient.app.Application</mainClass>
-								</manifest>
-							</archive>
-							<descriptorRefs>
-								<descriptorRef>jar-with-dependencies</descriptorRef>
-							</descriptorRefs>
-						</configuration>
-						<executions>
-							<execution>
-								<id>make-assembly</id>
-								<phase>package</phase>								
-								<goals>
-									<goal>single</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
+					</plugin>					
 				</plugins>
 			</build>
 		</profile>

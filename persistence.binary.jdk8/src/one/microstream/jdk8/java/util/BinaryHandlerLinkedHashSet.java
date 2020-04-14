@@ -9,8 +9,8 @@ import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustomCo
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
-import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceLoadHandler;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
@@ -74,10 +74,10 @@ public final class BinaryHandlerLinkedHashSet extends AbstractBinaryHandlerCusto
 
 	@Override
 	public final void store(
-		final Binary                  bytes   ,
-		final LinkedHashSet<?>        instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          bytes   ,
+		final LinkedHashSet<?>                instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// store elements simply as array binary form

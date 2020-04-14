@@ -61,10 +61,10 @@ public final class BinaryHandlerSingleton extends AbstractBinaryHandlerCustomCol
 
 	@Override
 	public void store(
-		final Binary                  data    ,
-		final Singleton<Object>            instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final Singleton<Object>               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeEntityHeader(Binary.referenceBinaryLength(1), this.typeId(), objectId);

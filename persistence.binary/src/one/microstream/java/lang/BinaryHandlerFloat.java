@@ -44,7 +44,12 @@ public final class BinaryHandlerFloat extends AbstractBinaryHandlerCustomValueFi
 	}
 
 	@Override
-	public void store(final Binary data, final Float instance, final long objectId, final PersistenceStoreHandler handler)
+	public void store(
+		final Binary                          data    ,
+		final Float                           instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
+	)
 	{
 		data.storeFloat(this.typeId(), objectId, instance.floatValue());
 	}

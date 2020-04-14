@@ -52,10 +52,10 @@ public final class BinaryHandlerBigDecimal extends AbstractBinaryHandlerCustomVa
 
 	@Override
 	public void store(
-		final Binary                  data    ,
-		final BigDecimal              instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final BigDecimal                      instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// there's a char[] constructor but no char[] utility method, so there's no other option than this

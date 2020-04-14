@@ -69,10 +69,10 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<BulkList<?>>
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final BulkList<?>             instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final BulkList<?>                     instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeSizedArray(

@@ -52,10 +52,10 @@ public final class BinaryHandlerCurrency extends AbstractBinaryHandlerCustomValu
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final Currency                instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final Currency                        instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));

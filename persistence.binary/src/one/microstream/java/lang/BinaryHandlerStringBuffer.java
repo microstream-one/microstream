@@ -36,10 +36,10 @@ public final class BinaryHandlerStringBuffer extends AbstractBinaryHandlerAbstra
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final StringBuffer            instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final StringBuffer                    instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		this.storeData(data, XChars.toCharArray(instance), instance.capacity(), objectId, handler);

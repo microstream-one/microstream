@@ -44,11 +44,11 @@ extends AbstractBinaryHandlerCustom<B>
 	/////////////////////
 	
 	protected final void storeData(
-		final Binary                  data    ,
-		final char[]                  chars   ,
-		final int                     capacity,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final char[]                          chars   ,
+		final int                             capacity,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		// capacity + list header + list data

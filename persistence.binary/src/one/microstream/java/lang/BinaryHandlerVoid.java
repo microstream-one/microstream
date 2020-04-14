@@ -35,10 +35,10 @@ public final class BinaryHandlerVoid extends AbstractBinaryHandlerStateless<Void
 
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final Void                    instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final Void                            instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		throw new UnsupportedOperationException();
