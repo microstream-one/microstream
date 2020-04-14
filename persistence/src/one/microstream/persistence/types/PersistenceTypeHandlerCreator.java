@@ -22,6 +22,8 @@ public interface PersistenceTypeHandlerCreator<D>
 	
 	public <T> PersistenceTypeHandler<D, T> createTypeHandlerEnum(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
 	
+	public <T> PersistenceTypeHandler<D, T> createTypeHandlerEntity(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
+	
 	public <T> PersistenceTypeHandler<D, T> createTypeHandlerAbstract(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
 
 	public <T> PersistenceTypeHandler<D, T> createTypeHandlerUnpersistable(Class<T> type);
@@ -127,6 +129,21 @@ public interface PersistenceTypeHandlerCreator<D>
 		{
 			return this.internalCreateTypeHandlerEnum(type);
 		}
+		
+		@Override
+		public <T> PersistenceTypeHandler<D, T> createTypeHandlerEntity(Class<T> type)
+			throws PersistenceExceptionTypeNotPersistable
+		{
+			if(EntityLayerIdentity.class.isAssignableFrom(type))
+			{
+				return this.internalCreateTypeHandlerEntityLayerIdentity(type);
+			}
+			
+			// (14.04.2020 FH)EXCP: proper exception
+			throw new PersistenceException(
+				"Only the identity layer of an entity can be persisted."
+			);
+		}
 
 		@Override
 		public <T> PersistenceTypeHandler<D, T> createTypeHandlerAbstract(final Class<T> type)
@@ -149,12 +166,6 @@ public interface PersistenceTypeHandlerCreator<D>
 			if(XReflect.isJavaUtilCollectionType(type))
 			{
 				return this.internalCreateTypeHandlerJavaUtilCollection(type);
-			}
-
-			// special layered entity type handler
-			if(EntityLayerIdentity.class.isAssignableFrom(type))
-			{
-				return this.internalCreateTypeHandlerEntityLayerIdentity(type);
 			}
 			
 			final HashEnum<Field> persistableFields = HashEnum.New();
@@ -212,6 +223,10 @@ public interface PersistenceTypeHandlerCreator<D>
 			XGettingEnum<Field> persistableFields,
 			XGettingEnum<Field> persisterFields
 		);
+		
+		protected abstract <T> PersistenceTypeHandler<D, T> internalCreateTypeHandlerEntityLayerIdentity(
+			Class<T>            type
+		);
 
 		protected abstract <T> PersistenceTypeHandler<D, T> internalCreateTypeHandlerAbstractType(
 			Class<T> type
@@ -236,10 +251,6 @@ public interface PersistenceTypeHandlerCreator<D>
 		);
 		
 		protected abstract <T> PersistenceTypeHandler<D, T> internalCreateTypeHandlerGenericJavaUtilCollection(
-			Class<T> type
-		);
-		
-		protected abstract <T> PersistenceTypeHandler<D, T> internalCreateTypeHandlerEntityLayerIdentity(
 			Class<T> type
 		);
 		

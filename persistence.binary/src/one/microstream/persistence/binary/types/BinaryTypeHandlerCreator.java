@@ -31,8 +31,10 @@ import one.microstream.persistence.types.PersistenceFieldLengthResolver;
 import one.microstream.persistence.types.PersistenceTypeAnalyzer;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
+import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeInstantiatorProvider;
 import one.microstream.persistence.types.PersistenceTypeResolver;
+import one.microstream.reference.Referencing;
 
 
 public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<Binary>
@@ -72,6 +74,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		final PersistenceFieldLengthResolver              lengthResolver            ,
 		final PersistenceEagerStoringFieldEvaluator       eagerStoringFieldEvaluator,
 		final PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider      ,
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager       ,
 		final boolean                                     switchByteOrder
 	)
 	{
@@ -81,6 +84,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			notNull(lengthResolver)            ,
 			notNull(eagerStoringFieldEvaluator),
 			notNull(instantiatorProvider)      ,
+			notNull(typeHandlerManager)        ,
 			switchByteOrder
 		);
 	}
@@ -93,8 +97,9 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		// instance fields //
 		////////////////////
 		
-		final PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider;
-		final boolean                                     switchByteOrder     ;
+		final PersistenceTypeInstantiatorProvider<Binary>        instantiatorProvider;
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager  ;
+		final boolean                                            switchByteOrder     ;
 		
 		
 		
@@ -108,11 +113,13 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			final PersistenceFieldLengthResolver              lengthResolver            ,
 			final PersistenceEagerStoringFieldEvaluator       eagerStoringFieldEvaluator,
 			final PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider      ,
+			final Referencing<PersistenceTypeHandlerManager<Binary>>   typeHandlerManager       ,
 			final boolean                                     switchByteOrder
 		)
 		{
 			super(typeAnalyzer, typeResolver, lengthResolver, eagerStoringFieldEvaluator);
 			this.instantiatorProvider = instantiatorProvider;
+			this.typeHandlerManager   = typeHandlerManager  ;
 			this.switchByteOrder      = switchByteOrder     ;
 		}
 
@@ -287,15 +294,6 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			);
 		}
 		
-		@SuppressWarnings("unchecked")
-		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerEntityLayerIdentity(
-			final Class<T> type
-		)
-		{
-			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerEntityLayerIdentity.New((Class<EntityLayerIdentity>)type);
-		}
-		
 		@Override
 		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerEnum(
 			final Class<T>            type             ,
@@ -321,6 +319,26 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				this.lengthResolver()            ,
 				this.eagerStoringFieldEvaluator(),
 				this.switchByteOrder
+			);
+		}
+		
+		@Override
+		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerEntityLayerIdentity(
+			final Class<T> type
+		)
+		{
+			return this.createEntityLayerIdentityHandler(type);
+		}
+		
+		@SuppressWarnings("unchecked")
+		final <T, E extends EntityLayerIdentity> PersistenceTypeHandler<Binary, T> createEntityLayerIdentityHandler(
+			final Class<T> type
+		)
+		{
+			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerEntityLayerIdentity.New(
+				(Class<E>)type, 
+				this.typeHandlerManager,
+				this
 			);
 		}
 
