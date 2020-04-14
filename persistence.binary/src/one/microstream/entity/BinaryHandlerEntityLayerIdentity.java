@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 
 import one.microstream.X;
 import one.microstream.collections.BulkList;
+import one.microstream.collections.MiniMap;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.functional.Instantiator;
@@ -14,23 +15,25 @@ import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
+import one.microstream.persistence.types.PersistenceTypeHandler;
+import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
+import one.microstream.persistence.types.PersistenceTypeHandlerManager;
+import one.microstream.reference.Referencing;
 
 public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity> 
 	extends AbstractBinaryHandlerCustom<T>
 {
 	public static <T extends EntityLayerIdentity> BinaryHandlerEntityLayerIdentity<T> New(
-		final Class<T> type
+		final Class<T>                                           type              ,
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager,
+		final PersistenceTypeHandlerCreator<Binary>              typeHandlerCreator
 	)
 	{
-		return New(type, WrapDefaultConstructor(type));
-	}
-	
-	public static <T extends EntityLayerIdentity> BinaryHandlerEntityLayerIdentity<T> New(
-		final Class<T>        type        ,
-		final Instantiator<T> instantiator
-	)
-	{
-		return new BinaryHandlerEntityLayerIdentity<>(type, instantiator);
+		return new BinaryHandlerEntityLayerIdentity<>(
+			type, 
+			WrapDefaultConstructor(type),
+			typeHandlerManager,
+			typeHandlerCreator);
 	}
 		
 	private static <T> Instantiator<T> WrapDefaultConstructor(final Class<T> type)
@@ -75,12 +78,16 @@ public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 	}
 	
 	
-	private final Instantiator<T> instantiator;
-	
-	
+	private final Instantiator<T>                                      instantiator      ;
+	private final Referencing<PersistenceTypeHandlerManager<Binary>>   typeHandlerManager;
+	private final PersistenceTypeHandlerCreator<Binary>                typeHandlerCreator;
+	private       MiniMap<Class<?>, PersistenceTypeHandler<Binary, ?>> internalHandlers  ;
+		
 	BinaryHandlerEntityLayerIdentity(
-		final Class<T>        type        ,
-		final Instantiator<T> instantiator
+		final Class<T>                                           type              ,
+		final Instantiator<T>                                    instantiator      ,
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager,
+		final PersistenceTypeHandlerCreator<Binary>              typeHandlerCreator
 	)
 	{
 		super(
@@ -91,18 +98,62 @@ public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 				)
 			)
 		);
-		this.instantiator = instantiator;
+		this.instantiator       = instantiator      ;
+		this.typeHandlerManager = typeHandlerManager;
+		this.typeHandlerCreator = typeHandlerCreator;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <E extends Entity> PersistenceTypeHandler<Binary, E> ensureInternalHandler(
+		final E entity
+	)
+	{
+		MiniMap<Class<?>, PersistenceTypeHandler<Binary, ?>> internalHandlers;
+		if((internalHandlers = this.internalHandlers) == null)
+		{
+			internalHandlers = this.internalHandlers = new MiniMap<>();
+		}		
+		final Class<E>                    type   = (Class<E>)entity.getClass();
+		PersistenceTypeHandler<Binary, E> handler;
+		if((handler = (PersistenceTypeHandler<Binary, E>)internalHandlers.get(type)) == null)
+		{
+			handler = this.createInternalHandler(type);
+			PersistenceTypeHandlerManager<Binary> typeHandlerManager = this.typeHandlerManager.get();
+			typeHandlerManager.registerTypeHandler(
+				handler.initialize(
+					typeHandlerManager.ensureTypeId(type)
+				)
+			);
+			internalHandlers.put(
+				type, 
+				handler
+			);
+		}
+		return (PersistenceTypeHandler<Binary, E>)handler;		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <E extends Entity> PersistenceTypeHandler<Binary, E> createInternalHandler(
+		final Class<E> type
+	)
+	{
+		if(EntityLayerVersioning.class.isAssignableFrom(type))
+		{
+			return (PersistenceTypeHandler<Binary, E>)new BinaryHandlerEntityLayerVersioning();
+		}
+		
+		return this.typeHandlerCreator.createTypeHandlerGeneric(type);
 	}
 	
 	@Override
 	public final void store(
-		final Binary                  data    ,
-		final T                       instance,
-		final long                    objectId,
-		final PersistenceStoreHandler handler
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
-		final Object[] layers = collectLayers(instance).toArray();
+		final Entity[] layers = collectLayers(instance).toArray(Entity.class);
 				
 		data.storeEntityHeader(
 			Binary.calculateReferenceListTotalBinaryLength(layers.length),
@@ -119,10 +170,13 @@ public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 		long offset = Long.BYTES * 2; // list header
 
 		for(int i = 0; i < layers.length; i++)
-		{
+		{	
 			data.store_long(
 				offset + Binary.referenceBinaryLength(i),
-				handler.applyEager(layers[i])
+				handler.applyEager(
+					layers[i], 
+					this.ensureInternalHandler(layers[i])
+				)
 			);
 		}
 	}

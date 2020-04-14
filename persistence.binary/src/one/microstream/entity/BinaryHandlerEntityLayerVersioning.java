@@ -29,11 +29,6 @@ public class BinaryHandlerEntityLayerVersioning
 		return (Class)EntityLayerVersioning.class; // no idea how to get ".class" to work otherwise
 	}
 	
-	public static BinaryHandlerEntityLayerVersioning New()
-	{
-		return new BinaryHandlerEntityLayerVersioning();
-	}
-	
 	
 	BinaryHandlerEntityLayerVersioning()
 	{
@@ -48,10 +43,10 @@ public class BinaryHandlerEntityLayerVersioning
 	
 	@Override
 	public final void store(
-		final Binary                   data    ,
-		final EntityLayerVersioning<?> instance,
-		final long                     objectId,
-		final PersistenceStoreHandler  handler
+		final Binary                          data    ,
+		final EntityLayerVersioning<?>        instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		data.storeEntityHeader(
