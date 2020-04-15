@@ -55,8 +55,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		
 		protected Abstract(final EntityVersionCleaner<K> cleaner)
 		{
-			super();
-			
+			super();			
 			this.cleaner = mayNull(cleaner);
 		}
 		
@@ -84,7 +83,9 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		return new Mutable.Default<>(null);
 	}
 	
-	public static <K> EntityVersionContext.Mutable<K> Mutable(final EntityVersionCleaner<K> cleaner)
+	public static <K> EntityVersionContext.Mutable<K> Mutable(
+		final EntityVersionCleaner<K> cleaner
+	)
 	{
 		return new Mutable.Default<>(cleaner);
 	}
@@ -117,7 +118,9 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		return new AutoIncrementing.IntIncrementor(null);
 	}
 	
-	public static EntityVersionContext<Integer> AutoIncrementingInt(final EntityVersionCleaner<Integer> cleaner)
+	public static EntityVersionContext<Integer> AutoIncrementingInt(
+		final EntityVersionCleaner<Integer> cleaner
+	)
 	{
 		return new AutoIncrementing.IntIncrementor(cleaner);
 	}
@@ -127,7 +130,9 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		return new AutoIncrementing.LongIncrementor(null);
 	}
 	
-	public static EntityVersionContext<Long> AutoIncrementingLong(final EntityVersionCleaner<Long> cleaner)
+	public static EntityVersionContext<Long> AutoIncrementingLong(
+		final EntityVersionCleaner<Long> cleaner
+	)
 	{
 		return new AutoIncrementing.LongIncrementor(cleaner);
 	}
@@ -137,7 +142,9 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		return new AutoIncrementing.SystemTimeMillis(null);
 	}
 	
-	public static EntityVersionContext<Long> AutoIncrementingSystemTimeMillis(final EntityVersionCleaner<Long> cleaner)
+	public static EntityVersionContext<Long> AutoIncrementingSystemTimeMillis(
+		final EntityVersionCleaner<Long> cleaner
+	)
 	{
 		return new AutoIncrementing.SystemTimeMillis(cleaner);
 	}
@@ -147,7 +154,9 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		return new AutoIncrementing.SystemNanoTime(null);
 	}
 	
-	public static EntityVersionContext<Long> AutoIncrementingSystemNanoTime(final EntityVersionCleaner<Long> cleaner)
+	public static EntityVersionContext<Long> AutoIncrementingSystemNanoTime(
+		final EntityVersionCleaner<Long> cleaner
+	)
 	{
 		return new AutoIncrementing.SystemNanoTime(cleaner);
 	}
@@ -157,7 +166,9 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		return new AutoIncrementing.InstantIncrementor(null);
 	}
 	
-	public static EntityVersionContext<Instant> AutoIncrementingInstant(final EntityVersionCleaner<Instant> cleaner)
+	public static EntityVersionContext<Instant> AutoIncrementingInstant(
+		final EntityVersionCleaner<Instant> cleaner
+	)
 	{
 		return new AutoIncrementing.InstantIncrementor(cleaner);
 	}
@@ -182,7 +193,8 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 				return this.key =
 					this.key == null
 						? 0
-						: this.key + 1;
+						: this.key + 1
+				;
 			}
 		}
 		
@@ -201,7 +213,8 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 				return this.key =
 					this.key == null
 						? 0L
-						: this.key + 1L;
+						: this.key + 1L
+				;
 			}
 		}
 		
@@ -252,5 +265,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 				return this.key = Instant.now();
 			}
 		}
+		
 	}
+	
 }

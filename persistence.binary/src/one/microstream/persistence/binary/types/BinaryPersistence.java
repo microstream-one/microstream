@@ -342,21 +342,20 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> defaultHandlers = ConstList.New(
-			BinaryHandlerBulkList.New(controller)  ,
-			BinaryHandlerLimitList.New(controller) ,
-			BinaryHandlerFixedList.New()           ,
-			BinaryHandlerConstList.New()           ,
-			BinaryHandlerEqBulkList.New(controller),
-			BinaryHandlerHashEnum.New()            ,
-			BinaryHandlerConstHashEnum.New()       ,
-			BinaryHandlerEqHashEnum.New()          ,
-			BinaryHandlerEqConstHashEnum.New()     ,
-			BinaryHandlerHashTable.New()           ,
-			BinaryHandlerConstHashTable.New()      ,
-			BinaryHandlerEqHashTable.New()         ,
-			BinaryHandlerEqConstHashTable.New()    ,
-			BinaryHandlerSingleton.New()           ,
-
+			BinaryHandlerBulkList.New(controller)   ,
+			BinaryHandlerLimitList.New(controller)  ,
+			BinaryHandlerFixedList.New()            ,
+			BinaryHandlerConstList.New()            ,
+			BinaryHandlerEqBulkList.New(controller) ,
+			BinaryHandlerHashEnum.New()             ,
+			BinaryHandlerConstHashEnum.New()        ,
+			BinaryHandlerEqHashEnum.New()           ,
+			BinaryHandlerEqConstHashEnum.New()      ,
+			BinaryHandlerHashTable.New()            ,
+			BinaryHandlerConstHashTable.New()       ,
+			BinaryHandlerEqHashTable.New()          ,
+			BinaryHandlerEqConstHashTable.New()     ,
+			BinaryHandlerSingleton.New()            ,
 			BinaryHandlerSubstituterDefault.New()
 			/* (29.10.2013 TM)TODO: more MicroStream default custom handlers
 			 * - VarString

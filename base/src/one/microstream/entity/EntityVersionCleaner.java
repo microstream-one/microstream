@@ -13,44 +13,58 @@ import one.microstream.collections.types.XTable;
  * 
  * @author FH
  */
+@FunctionalInterface
 public interface EntityVersionCleaner<K>
 {
 	public void cleanVersions(XTable<K, Entity> versions);
 	
+	
 	public static <K extends Comparable<? super K>> EntityVersionCleaner<K> AmountPreserving(
-		final long maxPreservedVersions)
+		final long maxPreservedVersions
+	)
 	{
 		return new AmountPreserving<>(maxPreservedVersions, Comparator.naturalOrder());
 	}
 	
 	public static <K> EntityVersionCleaner<K> AmountPreserving(
-		final long maxPreservedVersions,
-		final Comparator<K> comparator)
+		final long          maxPreservedVersions,
+		final Comparator<K> comparator
+	)
 	{
 		return new AmountPreserving<>(maxPreservedVersions, comparator);
 	}
 	
-	public static EntityVersionCleaner<Long> AgePreservingSystemTimeMillis(final long preservedAgeMillis)
+	public static EntityVersionCleaner<Long> AgePreservingSystemTimeMillis(
+		final long preservedAgeMillis
+	)
 	{
 		return new AgePreservingSystemTimeMillis(preservedAgeMillis);
 	}
 	
-	public static EntityVersionCleaner<Long> AgePreservingSystemNanoTime(final long preservedAgeNanos)
+	public static EntityVersionCleaner<Long> AgePreservingSystemNanoTime(
+		final long preservedAgeNanos
+	)
 	{
 		return new AgePreservingSystemNanoTime(preservedAgeNanos);
 	}
 	
-	public static EntityVersionCleaner<Instant> AgePreservingInstant(final Duration preservedAge)
+	public static EntityVersionCleaner<Instant> AgePreservingInstant(
+		final Duration preservedAge
+	)
 	{
 		return new AgePreservingInstant(preservedAge);
 	}
+	
 	
 	public static class AmountPreserving<K> implements EntityVersionCleaner<K>
 	{
 		private final long                  maxPreservedVersions;
 		private final Comparator<? super K> comparator;
 		
-		protected AmountPreserving(final long maxPreservedVersions, final Comparator<? super K> comparator)
+		protected AmountPreserving(
+			final long                  maxPreservedVersions, 
+			final Comparator<? super K> comparator
+		)
 		{
 			super();
 			
@@ -72,6 +86,7 @@ public interface EntityVersionCleaner<K>
 				while(versions.size() > this.maxPreservedVersions);
 			}
 		}
+		
 	}
 	
 	public static class AgePreservingSystemTimeMillis implements EntityVersionCleaner<Long>
@@ -80,8 +95,7 @@ public interface EntityVersionCleaner<K>
 		
 		protected AgePreservingSystemTimeMillis(final long preservedAgeMillis)
 		{
-			super();
-			
+			super();			
 			this.preservedAgeMillis = preservedAgeMillis;
 		}
 		
@@ -91,6 +105,7 @@ public interface EntityVersionCleaner<K>
 			final long minAge = System.currentTimeMillis() - this.preservedAgeMillis;
 			versions.removeBy(kv -> kv.key() < minAge);
 		}
+		
 	}
 	
 	public static class AgePreservingSystemNanoTime implements EntityVersionCleaner<Long>
@@ -99,8 +114,7 @@ public interface EntityVersionCleaner<K>
 		
 		protected AgePreservingSystemNanoTime(final long preservedAgeNanos)
 		{
-			super();
-			
+			super();			
 			this.preservedAgeNanos = preservedAgeNanos;
 		}
 		
@@ -110,6 +124,7 @@ public interface EntityVersionCleaner<K>
 			final long minAge = System.nanoTime() - this.preservedAgeNanos;
 			versions.removeBy(kv -> kv.key() < minAge);
 		}
+		
 	}
 	
 	public static class AgePreservingInstant implements EntityVersionCleaner<Instant>
@@ -118,8 +133,7 @@ public interface EntityVersionCleaner<K>
 		
 		protected AgePreservingInstant(final Duration preservedAge)
 		{
-			super();
-			
+			super();			
 			this.preservedAge = preservedAge;
 		}
 		
@@ -129,5 +143,7 @@ public interface EntityVersionCleaner<K>
 			final Instant minAge = Instant.now().minus(this.preservedAge);
 			versions.removeBy(kv -> kv.key().isBefore(minAge));
 		}
+		
 	}
+	
 }
