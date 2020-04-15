@@ -1,11 +1,17 @@
 package one.microstream.entity;
 
+import static one.microstream.X.notNull;
+
 import java.lang.reflect.Field;
 
+import one.microstream.X;
 import one.microstream.collections.EqHashTable;
+import one.microstream.collections.old.KeyValueFlatCollector;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.types.BinaryTypeHandler;
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
@@ -13,15 +19,23 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public class BinaryHandlerEntityLayerVersioning 
 	extends AbstractBinaryHandlerCustom<EntityLayerVersioning<?>>
-{	
-	static final long
-		BINARY_OFFSET_CONTEXT  =                                                   0,
-		BINARY_OFFSET_VERSIONS = BINARY_OFFSET_CONTEXT + Binary.objectIdByteLength();
+	implements BinaryHandlerEntityLoading<EntityLayerVersioning<?>>
+{
+	public static BinaryHandlerEntityLayerVersioning New(
+		final EntityTypeHandlerManager entityTypeHandlerManager
+	)
+	{
+		return new BinaryHandlerEntityLayerVersioning(
+			notNull(entityTypeHandlerManager)
+		);
+	}
 	
-	static final Field
-		FIELD_CONTEXT  = getInstanceFieldOfType(EntityLayerVersioning.class, EntityVersionContext.class),
-		FIELD_VERSIONS = getInstanceFieldOfType(EntityLayerVersioning.class, EqHashTable.class         );
-
+	
+	static final long BINARY_OFFSET_CONTEXT  =                                                   0;
+	static final long BINARY_OFFSET_VERSIONS = BINARY_OFFSET_CONTEXT + Binary.objectIdByteLength();
+	
+	static final Field 
+		FIELD_CONTEXT = getInstanceFieldOfType(EntityLayerVersioning.class, EntityVersionContext.class);
 	
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static Class<EntityLayerVersioning<?>> handledType()
@@ -30,39 +44,23 @@ public class BinaryHandlerEntityLayerVersioning
 	}
 	
 	
-	BinaryHandlerEntityLayerVersioning()
+	final EntityTypeHandlerManager entityTypeHandlerManager;
+	
+	BinaryHandlerEntityLayerVersioning(
+		final EntityTypeHandlerManager entityTypeHandlerManager
+	)
 	{
 		super(
 			handledType(),
 			CustomFields(
-				CustomField(EntityVersionContext.class, "entityVersionContext"),
-				CustomField(EqHashTable.class         , "versions"            )
+				CustomField(EntityVersionContext.class, "context"),
+				Complex("versions",
+					CustomField(Object.class, "version"),
+					CustomField(Object.class, "entity")
+				)
 			)
 		);
-	}
-	
-	@Override
-	public final void store(
-		final Binary                          data    ,
-		final EntityLayerVersioning<?>        instance,
-		final long                            objectId,
-		final PersistenceStoreHandler<Binary> handler
-	)
-	{
-		data.storeEntityHeader(
-			Long.BYTES * 2, 
-			this.typeId(), 
-			objectId
-		);
-		
-		data.store_long(
-			BINARY_OFFSET_CONTEXT,
-			handler.applyEager(instance.context)
-		);
-		data.store_long(
-			BINARY_OFFSET_VERSIONS,
-			handler.applyEager(instance.versions)
-		);
+		this.entityTypeHandlerManager = entityTypeHandlerManager;
 	}
 	
 	@Override
@@ -86,11 +84,27 @@ public class BinaryHandlerEntityLayerVersioning
 			XMemory.objectFieldOffset(FIELD_CONTEXT),
 			handler.lookupObject(data.read_long(BINARY_OFFSET_CONTEXT))
 		);
-		XMemory.setObject(
-			instance,
-			XMemory.objectFieldOffset(FIELD_VERSIONS),
-			handler.lookupObject(data.read_long(BINARY_OFFSET_VERSIONS))
-		);
+		
+		final int elementCount = X.checkArrayRange(data.getListElementCountKeyValue(BINARY_OFFSET_VERSIONS));
+		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);
+		data.collectKeyValueReferences(BINARY_OFFSET_VERSIONS, elementCount, handler, collector);
+		data.registerHelper(instance, collector.yield());
+	}
+	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@Override
+	public void complete(
+		final Binary                   data    , 
+		final EntityLayerVersioning    instance, 
+		final PersistenceLoadHandler   handler
+	)
+	{
+		final Object[] elements = (Object[])data.getHelper(instance);
+		instance.versions = EqHashTable.New(instance.context.equalator());
+		for(int i = 0; i < elements.length; )
+		{
+			instance.versions.put(elements[i++], elements[i++]);
+		}
 	}
 	
 	@Override
@@ -100,7 +114,7 @@ public class BinaryHandlerEntityLayerVersioning
 	)
 	{
 		iterator.apply(instance.context);
-		iterator.apply(instance.versions);		
+		Persistence.iterateReferences(iterator, instance.versions);
 	}
 
 	@Override
@@ -110,7 +124,7 @@ public class BinaryHandlerEntityLayerVersioning
 	)
 	{
 		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_CONTEXT));
-		iterator.acceptObjectId(data.read_long(BINARY_OFFSET_VERSIONS));
+		data.iterateKeyValueEntriesReferences(BINARY_OFFSET_VERSIONS, iterator);
 	}
 	
 	@Override
@@ -120,15 +134,63 @@ public class BinaryHandlerEntityLayerVersioning
 	}
 	
 	@Override
-	public boolean hasPersistedVariableLength()
+	public boolean hasVaryingPersistedLengthInstances()
 	{
-		return false;
+		return true;
+	}
+		
+	@Override
+	public void store(
+		final Binary                          data    ,
+		final EntityLayerVersioning<?>        instance,
+		final long                            objectId,
+		final PersistenceStoreHandler<Binary> handler
+	)
+	{
+		BinaryHandlerEntityLoading.super.store(data, instance, objectId, handler);
 	}
 	
 	@Override
-	public boolean hasVaryingPersistedLengthInstances()
+	public BinaryTypeHandler<EntityLayerVersioning<?>> createStoringEntityHandler()
 	{
-		return false;
+		final Storing storing = new Storing(this.entityTypeHandlerManager);
+		storing.initialize(this.typeId());
+		return storing;
+	}
+	
+	
+	static class Storing extends BinaryHandlerEntityLayerVersioning
+	{
+		Storing(
+			final EntityTypeHandlerManager entityTypeHandlerManager
+		)
+		{
+			super(entityTypeHandlerManager);
+		}
+	
+		@Override
+		public void store(
+			final Binary                          data    ,
+			final EntityLayerVersioning<?>        instance,
+			final long                            objectId,
+			final PersistenceStoreHandler<Binary> handler
+		)
+		{
+			data.storeKeyValuesAsEntries(
+				this.typeId()         ,
+				objectId              ,
+				BINARY_OFFSET_VERSIONS,
+				instance.versions       ,
+				instance.versions.size(),
+				EntityPersister.New(this.entityTypeHandlerManager, handler)
+			);
+			
+			data.store_long(
+				BINARY_OFFSET_CONTEXT,
+				handler.applyEager(instance.context)
+			);
+		}
+		
 	}
 	
 }
