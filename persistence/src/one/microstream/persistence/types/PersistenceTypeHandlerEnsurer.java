@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Consumer;
 
+import one.microstream.entity.Entity;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
@@ -180,6 +181,11 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 			if(XReflect.isAbstract(type))
 			{
 				return this.typeHandlerCreator.createTypeHandlerAbstract(type);
+			}
+			
+			if(Entity.class.isAssignableFrom(type))
+			{
+				return this.typeHandlerCreator.createTypeHandlerEntity(type);
 			}
 			
 			// check for types to be handled in an abstract way, e.g. java.nio.file.Path

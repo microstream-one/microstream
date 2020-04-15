@@ -21,6 +21,8 @@ public interface PersistenceTypeHandlerCreator<D>
 	
 	public <T> PersistenceTypeHandler<D, T> createTypeHandlerEnum(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
 	
+	public <T> PersistenceTypeHandler<D, T> createTypeHandlerEntity(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
+	
 	public <T> PersistenceTypeHandler<D, T> createTypeHandlerAbstract(Class<T> type) throws PersistenceExceptionTypeNotPersistable;
 
 	public <T> PersistenceTypeHandler<D, T> createTypeHandlerUnpersistable(Class<T> type);
@@ -126,6 +128,13 @@ public interface PersistenceTypeHandlerCreator<D>
 		{
 			return this.internalCreateTypeHandlerEnum(type);
 		}
+		
+		@Override
+		public <T> PersistenceTypeHandler<D, T> createTypeHandlerEntity(final Class<T> type)
+			throws PersistenceExceptionTypeNotPersistable
+		{
+			return this.internalCreateTypeHandlerEntity(type);
+		}
 
 		@Override
 		public <T> PersistenceTypeHandler<D, T> createTypeHandlerAbstract(final Class<T> type)
@@ -143,13 +152,13 @@ public interface PersistenceTypeHandlerCreator<D>
 		@Override
 		public <T> PersistenceTypeHandler<D, T> createTypeHandlerGeneric(final Class<T> type)
 			throws PersistenceExceptionTypeNotPersistable
-		{
+		{			
 			// collections need special handling to avoid dramatically inefficient generic structures
 			if(XReflect.isJavaUtilCollectionType(type))
 			{
 				return this.internalCreateTypeHandlerJavaUtilCollection(type);
 			}
-						
+			
 			final HashEnum<Field> persistableFields = HashEnum.New();
 			final HashEnum<Field> persisterFields   = HashEnum.New();
 			final HashEnum<Field> problematicFields = HashEnum.New();
@@ -204,6 +213,10 @@ public interface PersistenceTypeHandlerCreator<D>
 			Class<T>            type             ,
 			XGettingEnum<Field> persistableFields,
 			XGettingEnum<Field> persisterFields
+		);
+		
+		protected abstract <T> PersistenceTypeHandler<D, T> internalCreateTypeHandlerEntity(
+			Class<T>            type
 		);
 
 		protected abstract <T> PersistenceTypeHandler<D, T> internalCreateTypeHandlerAbstractType(

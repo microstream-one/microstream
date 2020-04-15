@@ -215,6 +215,7 @@ extends PersistenceFoundation<Binary, F>
 				this.getFieldFixedLengthResolver(),
 				this.getReferenceFieldEagerEvaluator(),
 				this.getInstantiatorProvider(),
+				this.referenceTypeHandlerManager(),
 				this.isByteOrderMismatch()
 			);
 		}
