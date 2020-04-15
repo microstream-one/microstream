@@ -11,7 +11,11 @@ import java.util.Set;
 
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.entity.BinaryHandlerEntityLayerIdentity;
+import one.microstream.entity.BinaryHandlerEntityLayerVersioning;
+import one.microstream.entity.BinaryHandlerEntityLoading;
 import one.microstream.entity.EntityLayerIdentity;
+import one.microstream.entity.EntityLayerVersioning;
+import one.microstream.entity.EntityTypeHandlerManager;
 import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import one.microstream.java.lang.BinaryHandlerNativeArrayObject;
 import one.microstream.java.util.BinaryHandlerGenericCollection;
@@ -69,13 +73,13 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 
 	
 	public static BinaryTypeHandlerCreator New(
-		final PersistenceTypeAnalyzer                     typeAnalyzer              ,
-		final PersistenceTypeResolver                     typeResolver              ,
-		final PersistenceFieldLengthResolver              lengthResolver            ,
-		final PersistenceEagerStoringFieldEvaluator       eagerStoringFieldEvaluator,
-		final PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider      ,
-		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager       ,
-		final boolean                                     switchByteOrder
+		final PersistenceTypeAnalyzer                            typeAnalyzer              ,
+		final PersistenceTypeResolver                            typeResolver              ,
+		final PersistenceFieldLengthResolver                     lengthResolver            ,
+		final PersistenceEagerStoringFieldEvaluator              eagerStoringFieldEvaluator,
+		final PersistenceTypeInstantiatorProvider<Binary>        instantiatorProvider      ,
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager        ,
+		final boolean                                            switchByteOrder
 	)
 	{
 		return new BinaryTypeHandlerCreator.Default(
@@ -97,10 +101,10 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		// instance fields //
 		////////////////////
 		
-		final PersistenceTypeInstantiatorProvider<Binary>        instantiatorProvider;
-		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager  ;
-		final boolean                                            switchByteOrder     ;
-		
+		final PersistenceTypeInstantiatorProvider<Binary>        instantiatorProvider    ;
+		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager      ;
+		final boolean                                            switchByteOrder         ;
+		      EntityTypeHandlerManager                           entityTypeHandlerManager;
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -108,13 +112,13 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		/////////////////
 
 		Default(
-			final PersistenceTypeAnalyzer                     typeAnalyzer              ,
-			final PersistenceTypeResolver                     typeResolver              ,
-			final PersistenceFieldLengthResolver              lengthResolver            ,
-			final PersistenceEagerStoringFieldEvaluator       eagerStoringFieldEvaluator,
-			final PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider      ,
-			final Referencing<PersistenceTypeHandlerManager<Binary>>   typeHandlerManager       ,
-			final boolean                                     switchByteOrder
+			final PersistenceTypeAnalyzer                              typeAnalyzer              ,
+			final PersistenceTypeResolver                              typeResolver              ,
+			final PersistenceFieldLengthResolver                       lengthResolver            ,
+			final PersistenceEagerStoringFieldEvaluator                eagerStoringFieldEvaluator,
+			final PersistenceTypeInstantiatorProvider<Binary>          instantiatorProvider      ,
+			final Referencing<PersistenceTypeHandlerManager<Binary>>   typeHandlerManager        ,
+			final boolean                                              switchByteOrder
 		)
 		{
 			super(typeAnalyzer, typeResolver, lengthResolver, eagerStoringFieldEvaluator);
@@ -323,11 +327,22 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		}
 		
 		@Override
-		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerEntityLayerIdentity(
+		protected <T> PersistenceTypeHandler<Binary, T> internalCreateTypeHandlerEntity(
 			final Class<T> type
 		)
 		{
-			return this.createEntityLayerIdentityHandler(type);
+			if(EntityLayerIdentity.class.isAssignableFrom(type))
+			{
+				return this.createEntityLayerIdentityHandler(type);
+			}
+			if(EntityLayerVersioning.class.equals(type))
+			{
+				return this.createEntityLayerVersioningHandler();
+			}
+			
+			return BinaryHandlerEntityLoading.New(
+				(BinaryTypeHandler<T>)this.createTypeHandlerGeneric(type)
+			);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -337,9 +352,27 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		{
 			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerEntityLayerIdentity.New(
 				(Class<E>)type, 
-				this.typeHandlerManager,
-				this
+				this.ensureEntityTypeHandlerManager()
 			);
+		}
+		
+		@SuppressWarnings("unchecked")
+		final <T, E extends EntityLayerIdentity> PersistenceTypeHandler<Binary, T> createEntityLayerVersioningHandler()
+		{
+			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerEntityLayerVersioning.New(
+				this.ensureEntityTypeHandlerManager()
+			);
+		}
+		
+		final EntityTypeHandlerManager ensureEntityTypeHandlerManager()
+		{
+			if(this.entityTypeHandlerManager == null)
+			{
+				this.entityTypeHandlerManager = EntityTypeHandlerManager.New(
+					this.typeHandlerManager
+				);
+			}
+			return entityTypeHandlerManager;
 		}
 
 	}

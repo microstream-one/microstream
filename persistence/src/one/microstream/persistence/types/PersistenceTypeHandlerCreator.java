@@ -7,7 +7,6 @@ import java.lang.reflect.Proxy;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingEnum;
-import one.microstream.entity.EntityLayerIdentity;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
@@ -131,18 +130,10 @@ public interface PersistenceTypeHandlerCreator<D>
 		}
 		
 		@Override
-		public <T> PersistenceTypeHandler<D, T> createTypeHandlerEntity(Class<T> type)
+		public <T> PersistenceTypeHandler<D, T> createTypeHandlerEntity(final Class<T> type)
 			throws PersistenceExceptionTypeNotPersistable
 		{
-			if(EntityLayerIdentity.class.isAssignableFrom(type))
-			{
-				return this.internalCreateTypeHandlerEntityLayerIdentity(type);
-			}
-			
-			// (14.04.2020 FH)EXCP: proper exception
-			throw new PersistenceException(
-				"Only the identity layer of an entity can be persisted."
-			);
+			return this.internalCreateTypeHandlerEntity(type);
 		}
 
 		@Override
@@ -224,7 +215,7 @@ public interface PersistenceTypeHandlerCreator<D>
 			XGettingEnum<Field> persisterFields
 		);
 		
-		protected abstract <T> PersistenceTypeHandler<D, T> internalCreateTypeHandlerEntityLayerIdentity(
+		protected abstract <T> PersistenceTypeHandler<D, T> internalCreateTypeHandlerEntity(
 			Class<T>            type
 		);
 
