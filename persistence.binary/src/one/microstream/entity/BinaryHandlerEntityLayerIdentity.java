@@ -17,7 +17,7 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity> 
+public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 	extends AbstractBinaryHandlerCustomCollection<T>
 {
 	public static <T extends EntityLayerIdentity> BinaryHandlerEntityLayerIdentity<T> New(
@@ -26,7 +26,7 @@ public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 	)
 	{
 		return new BinaryHandlerEntityLayerIdentity<>(
-			type, 
+			type,
 			WrapDefaultConstructor(type),
 			notNull(entityTypeHandlerManager)
 		);
@@ -107,7 +107,7 @@ public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 	{
 		final Entity[]        layers    = collectLayers(instance).toArray(Entity.class);
 		final EntityPersister persister = EntityPersister.New(
-			this.entityTypeHandlerManager, 
+			this.entityTypeHandlerManager,
 			handler
 		);
 		data.storeReferences(
@@ -117,13 +117,13 @@ public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 			persister           ,
 			layers              ,
 			0                   ,
-			layers.length       
+			layers.length
 		);
 	}
 	
 	@Override
 	public final T create(
-		final Binary                 data   , 
+		final Binary                 data   ,
 		final PersistenceLoadHandler handler
 	)
 	{
@@ -132,8 +132,8 @@ public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 
 	@Override
 	public final void updateState(
-		final Binary                 data    , 
-		final T                      identity, 
+		final Binary                 data    ,
+		final T                      identity,
 		final PersistenceLoadHandler handler
 	)
 	{
@@ -154,14 +154,14 @@ public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 	}
 	
 	@Override
-	public void iterateInstanceReferences(T instance, PersistenceFunction iterator)
+	public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 	{
 		Persistence.iterateReferences(iterator, collectLayers(instance));
 	}
 
 	@Override
 	public final void iterateLoadableReferences(
-		final Binary                     data    , 
+		final Binary                     data    ,
 		final PersistenceReferenceLoader iterator
 	)
 	{
