@@ -9,12 +9,12 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 public interface EntityPersister extends PersistenceFunction
 {
 	public static EntityPersister New(
-		final EntityTypeHandlerManager        entityTypeHandlerManager, 
+		final EntityTypeHandlerManager        entityTypeHandlerManager,
 		final PersistenceStoreHandler<Binary> handler
 	)
 	{
 		return new Default(
-			notNull(entityTypeHandlerManager), 
+			notNull(entityTypeHandlerManager),
 			notNull(handler)
 		);
 	}
@@ -26,7 +26,7 @@ public interface EntityPersister extends PersistenceFunction
 		private final PersistenceStoreHandler<Binary> handler                 ;
 		
 		Default(
-			final EntityTypeHandlerManager        entityTypeHandlerManager, 
+			final EntityTypeHandlerManager        entityTypeHandlerManager,
 			final PersistenceStoreHandler<Binary> handler
 		)
 		{
@@ -36,7 +36,7 @@ public interface EntityPersister extends PersistenceFunction
 		}
 
 		@Override
-		public <T> long apply(T instance)
+		public <T> long apply(final T instance)
 		{
 			return this.handler.applyEager(
 				instance,

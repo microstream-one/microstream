@@ -351,7 +351,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 		)
 		{
 			return (PersistenceTypeHandler<Binary, T>)BinaryHandlerEntityLayerIdentity.New(
-				(Class<E>)type, 
+				(Class<E>)type,
 				this.ensureEntityTypeHandlerManager()
 			);
 		}
@@ -372,7 +372,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 					this.typeHandlerManager
 				);
 			}
-			return entityTypeHandlerManager;
+			return this.entityTypeHandlerManager;
 		}
 
 	}

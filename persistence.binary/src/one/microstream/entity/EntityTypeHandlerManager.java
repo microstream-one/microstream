@@ -12,7 +12,7 @@ import one.microstream.reference.Referencing;
 public interface EntityTypeHandlerManager
 {
 	public <T> PersistenceTypeHandler<Binary, T> ensureInternalEntityTypeHandler(
-		final T instance
+		T instance
 	);
 	
 	
@@ -28,40 +28,54 @@ public interface EntityTypeHandlerManager
 	
 	public static class Default implements EntityTypeHandlerManager
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		private final Referencing<PersistenceTypeHandlerManager<Binary>>   typeHandlerManager                 ;
 		private final MiniMap<Class<?>, PersistenceTypeHandler<Binary, ?>> internalHandlers  = new MiniMap<>();
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 	
 		Default(final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager)
 		{
 			super();
 			this.typeHandlerManager = typeHandlerManager;
 		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
-		@SuppressWarnings({"unchecked", "rawtypes"})
+		@Override
+		@SuppressWarnings({"unchecked"}) // generics safety guaranteed by registration logic
 		public <T> PersistenceTypeHandler<Binary, T> ensureInternalEntityTypeHandler(
 			final T instance
 		)
 		{
-			final Class<T>                    type   = (Class<T>)instance.getClass();
-			PersistenceTypeHandler<Binary, T> handler;
+			final Class<?> type = instance.getClass();
 			
+			PersistenceTypeHandler<Binary, ?> handler;
 			synchronized(this.internalHandlers)
 			{
-				if((handler = (PersistenceTypeHandler<Binary, T>)this.internalHandlers.get(type)) == null)
+				if((handler = this.internalHandlers.get(type)) == null)
 				{
-					handler = (PersistenceTypeHandler<Binary, T>)this.typeHandlerManager.get()
-						.ensureTypeHandler(type);
+					handler = this.typeHandlerManager.get().ensureTypeHandler(type);
 					if(handler instanceof BinaryHandlerEntityLoading)
 					{
-						this.internalHandlers.put(
-							type, 
-							handler = ((BinaryHandlerEntityLoading)handler).createStoringEntityHandler()
-						);
+						handler = ((BinaryHandlerEntityLoading<?>)handler).createStoringEntityHandler();
+						this.internalHandlers.put(type, handler);
 					}
 				}
 			}
 			
-			return (PersistenceTypeHandler<Binary, T>)handler;		
+			return (PersistenceTypeHandler<Binary, T>)handler;
 		}
 	
 	}

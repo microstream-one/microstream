@@ -18,12 +18,13 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 
-public interface BinaryHandlerEntityLoading<T> extends BinaryTypeHandler<T> 
+public interface BinaryHandlerEntityLoading<T> extends BinaryTypeHandler<T>
 {
+	@Override
 	public default void store(
-		final Binary                          data    , 
-		final T                               instance, 
-		final long                            objectId, 
+		final Binary                          data    ,
+		final T                               instance,
+		final long                            objectId,
 		final PersistenceStoreHandler<Binary> handler
 	)
 	{
@@ -54,182 +55,218 @@ public interface BinaryHandlerEntityLoading<T> extends BinaryTypeHandler<T>
 			this.delegate = delegate;
 		}
 
+		@Override
 		public PersistenceTypeHandler<Binary, T> initialize(final long typeId)
 		{
 			this.delegate.initialize(typeId);
 			return this;
 		}
 
+		@Override
 		public Class<Binary> dataType()
 		{
 			return this.delegate.dataType();
 		}
 
+		@Override
 		public long typeId()
 		{
 			return this.delegate.typeId();
 		}
 
+		@Override
 		public String typeName()
 		{
 			return this.delegate.typeName();
 		}
 
+		@Override
 		public XGettingSequence<? extends PersistenceTypeDescriptionMember> instanceReferenceMembers()
 		{
 			return this.delegate.instanceReferenceMembers();
 		}
 
+		@Override
 		public String runtimeTypeName()
 		{
 			return this.delegate.runtimeTypeName();
 		}
 
+		@Override
 		public Class<T> type()
 		{
 			return this.delegate.type();
 		}
 
+		@Override
 		public boolean isValidEntityType(final Class<? extends T> type)
 		{
 			return this.delegate.isValidEntityType(type);
 		}
 
+		@Override
 		public XGettingSequence<? extends PersistenceTypeDescriptionMember> instancePrimitiveMembers()
 		{
 			return this.delegate.instancePrimitiveMembers();
 		}
 
+		@Override
 		public void validateEntityType(final Class<? extends T> type)
 		{
 			this.delegate.validateEntityType(type);
 		}
 
+		@Override
 		public XGettingEnum<? extends PersistenceTypeDefinitionMember> allMembers()
 		{
 			return this.delegate.allMembers();
 		}
 
+		@Override
 		public XGettingEnum<? extends PersistenceTypeDefinitionMember> instanceMembers()
 		{
 			return this.delegate.instanceMembers();
 		}
 
+		@Override
 		public void iterateInstanceReferences(final T instance, final PersistenceFunction iterator)
 		{
 			this.delegate.iterateInstanceReferences(instance, iterator);
 		}
 
+		@Override
 		public void iterateLoadableReferences(final Binary data, final PersistenceReferenceLoader iterator)
 		{
 			this.delegate.iterateLoadableReferences(data, iterator);
 		}
 
+		@Override
 		public T create(final Binary data, final PersistenceLoadHandler handler)
 		{
 			return this.delegate.create(data, handler);
 		}
 
+		@Override
 		public boolean hasPersistedReferences()
 		{
 			return this.delegate.hasPersistedReferences();
 		}
 
+		@Override
 		public long membersPersistedLengthMinimum()
 		{
 			return this.delegate.membersPersistedLengthMinimum();
 		}
 
+		@Override
 		public String toTypeIdentifier()
 		{
 			return this.delegate.toTypeIdentifier();
 		}
 
+		@Override
 		public void initializeState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 		{
 			this.delegate.initializeState(data, instance, handler);
 		}
 
+		@Override
 		public long membersPersistedLengthMaximum()
 		{
 			return this.delegate.membersPersistedLengthMaximum();
 		}
 
+		@Override
 		public boolean hasPersistedVariableLength()
 		{
 			return this.delegate.hasPersistedVariableLength();
 		}
 
+		@Override
 		public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 		{
 			this.delegate.updateState(data, instance, handler);
 		}
 
+		@Override
 		public void complete(final Binary data, final T instance, final PersistenceLoadHandler handler)
 		{
 			this.delegate.complete(data, instance, handler);
 		}
 
+		@Override
 		public boolean isPrimitiveType()
 		{
 			return this.delegate.isPrimitiveType();
 		}
 
+		@Override
 		public boolean hasVaryingPersistedLengthInstances()
 		{
 			return this.delegate.hasVaryingPersistedLengthInstances();
 		}
 
+		@Override
 		public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(final C logic)
 		{
 			return this.delegate.iterateMemberTypes(logic);
 		}
 
+		@Override
 		public String toRuntimeTypeIdentifier()
 		{
 			return this.delegate.toRuntimeTypeIdentifier();
 		}
 
+		@Override
 		public XGettingEnum<? extends PersistenceTypeDefinitionMember> membersInDeclaredOrder()
 		{
 			return this.delegate.membersInDeclaredOrder();
 		}
 
+		@Override
 		public XGettingEnum<? extends PersistenceTypeDescriptionMember> storingMembers()
 		{
 			return this.delegate.storingMembers();
 		}
 
+		@Override
 		public XGettingEnum<? extends PersistenceTypeDescriptionMember> settingMembers()
 		{
 			return this.delegate.settingMembers();
 		}
 
+		@Override
 		public void guaranteeSpecificInstanceViablity() throws PersistenceExceptionTypeNotPersistable
 		{
 			this.delegate.guaranteeSpecificInstanceViablity();
 		}
 
+		@Override
 		public boolean isSpecificInstanceViable()
 		{
 			return this.delegate.isSpecificInstanceViable();
 		}
 
+		@Override
 		public void guaranteeSubTypeInstanceViablity() throws PersistenceExceptionTypeNotPersistable
 		{
 			this.delegate.guaranteeSubTypeInstanceViablity();
 		}
 
+		@Override
 		public boolean isSubTypeInstanceViable()
 		{
 			return this.delegate.isSubTypeInstanceViable();
 		}
 
+		@Override
 		public Object[] collectEnumConstants()
 		{
 			return this.delegate.collectEnumConstants();
 		}
 
+		@Override
 		public int getPersistedEnumOrdinal(final Binary data)
 		{
 			return this.delegate.getPersistedEnumOrdinal(data);
@@ -244,7 +281,7 @@ public interface BinaryHandlerEntityLoading<T> extends BinaryTypeHandler<T>
 		
 		static class Storing<T> extends Default<T>
 		{
-			Storing(BinaryTypeHandler<T> delegate)
+			Storing(final BinaryTypeHandler<T> delegate)
 			{
 				super(delegate);
 			}

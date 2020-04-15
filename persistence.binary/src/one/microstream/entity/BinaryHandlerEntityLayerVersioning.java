@@ -17,7 +17,7 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public class BinaryHandlerEntityLayerVersioning 
+public class BinaryHandlerEntityLayerVersioning
 	extends AbstractBinaryHandlerCustom<EntityLayerVersioning<?>>
 	implements BinaryHandlerEntityLoading<EntityLayerVersioning<?>>
 {
@@ -34,7 +34,7 @@ public class BinaryHandlerEntityLayerVersioning
 	static final long BINARY_OFFSET_CONTEXT  =                                                   0;
 	static final long BINARY_OFFSET_VERSIONS = BINARY_OFFSET_CONTEXT + Binary.objectIdByteLength();
 	
-	static final Field 
+	static final Field
 		FIELD_CONTEXT = getInstanceFieldOfType(EntityLayerVersioning.class, EntityVersionContext.class);
 	
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -65,7 +65,7 @@ public class BinaryHandlerEntityLayerVersioning
 	
 	@Override
 	public final EntityLayerVersioning<?> create(
-		final Binary                 data   , 
+		final Binary                 data   ,
 		final PersistenceLoadHandler handler
 	)
 	{
@@ -74,8 +74,8 @@ public class BinaryHandlerEntityLayerVersioning
 
 	@Override
 	public final void updateState(
-		final Binary                   data    , 
-		final EntityLayerVersioning<?> instance, 
+		final Binary                   data    ,
+		final EntityLayerVersioning<?> instance,
 		final PersistenceLoadHandler   handler
 	)
 	{
@@ -94,8 +94,8 @@ public class BinaryHandlerEntityLayerVersioning
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public void complete(
-		final Binary                   data    , 
-		final EntityLayerVersioning    instance, 
+		final Binary                   data    ,
+		final EntityLayerVersioning    instance,
 		final PersistenceLoadHandler   handler
 	)
 	{
@@ -109,7 +109,7 @@ public class BinaryHandlerEntityLayerVersioning
 	
 	@Override
 	public void iterateInstanceReferences(
-		final EntityLayerVersioning<?> instance, 
+		final EntityLayerVersioning<?> instance,
 		final PersistenceFunction      iterator
 	)
 	{
@@ -119,7 +119,7 @@ public class BinaryHandlerEntityLayerVersioning
 
 	@Override
 	public final void iterateLoadableReferences(
-		final Binary                     data    , 
+		final Binary                     data    ,
 		final PersistenceReferenceLoader iterator
 	)
 	{
@@ -177,9 +177,9 @@ public class BinaryHandlerEntityLayerVersioning
 		)
 		{
 			data.storeKeyValuesAsEntries(
-				this.typeId()         ,
-				objectId              ,
-				BINARY_OFFSET_VERSIONS,
+				this.typeId()           ,
+				objectId                ,
+				BINARY_OFFSET_VERSIONS  ,
 				instance.versions       ,
 				instance.versions.size(),
 				EntityPersister.New(this.entityTypeHandlerManager, handler)
