@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XCollection;
+import one.microstream.collections.types.XGettingList;
 
 /**
  * A mutable entity. Mutations of the entity's data only happen by providing another instance of that entity
@@ -77,6 +78,38 @@ public interface Entity
 		throw new EntityExceptionInaccessibleEntityType(entity);
 	}
 	
+	public static <E> E searchLayer(
+		final Entity entity, 
+		final Class<E> type
+	)
+	{
+		Entity layer = Entity.identity(entity);
+		do
+		{
+			if(type.isInstance(layer))
+			{
+				return type.cast(layer);
+			}
+		}
+		while((layer = Static.inner(layer)) != null);
+		
+		return null;
+	}
+	
+	public static XGettingList<Entity> layers(
+		final Entity entity
+	)
+	{
+		final BulkList<Entity> layers = BulkList.New();
+		Entity layer = Entity.identity(entity);
+		do
+		{
+			layers.add(layer);
+		}
+		while((layer = Static.inner(layer)) != null);
+		return layers.immure();
+	}
+	
 	public default boolean isSameIdentity(final Entity other)
 	{
 		return identity(this) == identity(other);
@@ -123,6 +156,23 @@ public interface Entity
 		public void entityCreated();
 		
 		public boolean updateEntityData(Entity data);
+	}
+	
+	public static final class Static
+	{		
+		static Entity inner(
+			final Entity entity
+		)
+		{
+			return entity instanceof EntityLayer
+				? ((EntityLayer)entity).inner()
+				: null;
+		}
+		
+		private Static()
+		{
+			throw new Error();
+		}
 	}
 	
 	public interface Creator<E extends Entity, C extends Creator<E, C>>

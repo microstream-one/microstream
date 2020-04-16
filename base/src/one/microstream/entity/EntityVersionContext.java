@@ -15,6 +15,18 @@ import one.microstream.hashing.XHashing;
  */
 public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 {
+	public static <K> EntityVersionContext<K> lookup(final Entity entity)
+	{
+		final EntityLayerVersioning<K> versioningLayer = Entity.searchLayer(
+			entity, 
+			EntityLayerVersioning.class
+		);
+		return versioningLayer != null
+			? versioningLayer.context
+			: null;
+	}
+	
+	
 	public K currentVersion();
 	
 	public default K versionForUpdate()
