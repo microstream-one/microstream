@@ -6,7 +6,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream</artifactId>
-	<version>02.03.00-MS-GA-SNAPSHOT</version>
+	<version>03.01.00-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
