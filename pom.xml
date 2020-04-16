@@ -6,7 +6,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream</artifactId>
-	<version>03.00.00-MS-RC2-SNAPSHOT</version>
+	<version>03.00.00-MS-RC2</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -92,7 +92,7 @@
 		<connection>scm:git:git@bitbucket.org:microstreamone/microstream.git</connection>
 		<developerConnection>scm:git:git@bitbucket.org:microstreamone/microstream.git</developerConnection>
 		<url>https://bitbucket.org/microstreamone/microstream.git</url>
-		<tag>HEAD</tag>
+		<tag>microstream-03.00.00-MS-RC2</tag>
 	</scm>
 
 	<build>

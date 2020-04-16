@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream</artifactId>
-		<version>03.00.00-MS-RC2-SNAPSHOT</version>
+		<version>03.00.00-MS-RC2</version>
 	</parent>
 	<artifactId>storage.restclient.app</artifactId>
 
@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>storage.restclient.jersey</artifactId>
-			<version>03.00.00-MS-RC2-SNAPSHOT</version>
+			<version>03.00.00-MS-RC2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>

@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream</artifactId>
-		<version>03.00.00-MS-RC2-SNAPSHOT</version>
+		<version>03.00.00-MS-RC2</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
   
@@ -36,19 +36,19 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>storage</artifactId>
-			<version>03.00.00-MS-RC2-SNAPSHOT</version>
+			<version>03.00.00-MS-RC2</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>storage.embedded</artifactId>
-			<version>03.00.00-MS-RC2-SNAPSHOT</version>
+			<version>03.00.00-MS-RC2</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>persistence.binary</artifactId>
-			<version>03.00.00-MS-RC2-SNAPSHOT</version>
+			<version>03.00.00-MS-RC2</version>
 		</dependency>
 		
 	</dependencies>
