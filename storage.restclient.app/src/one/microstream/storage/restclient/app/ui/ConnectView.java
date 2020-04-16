@@ -48,7 +48,7 @@ public class ConnectView extends VerticalLayout implements HasDynamicTitle
 		urlChooser.setAllowCustomValue(true);
 		urlChooser.addCustomValueSetListener(event -> urlChooser.setValue(event.getDetail()));
 		
-		final Button cmdConnect = new Button(getTranslation("CONNECT"), 
+		final Button cmdConnect = new Button(this.getTranslation("CONNECT"), 
 			event -> {
 				String url = urlChooser.getValue();
 				if(url != null && (url = url.trim()).length() > 0)
@@ -64,14 +64,14 @@ public class ConnectView extends VerticalLayout implements HasDynamicTitle
 		cmdConnect.setDisableOnClick(true);
 		
 		final HorizontalLayout connectLayout = new HorizontalLayout(
-			new Label(getTranslation("URL") + ":"), 
+			new Label(this.getTranslation("URL") + ":"), 
 			urlChooser, 
 			cmdConnect
 		);
 		connectLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 		
-		VerticalLayout connectFrame = new VerticalLayout(
-			new H3(getTranslation("CONNECT_HEADER")),
+		final VerticalLayout connectFrame = new VerticalLayout(
+			new H3(this.getTranslation("CONNECT_HEADER")),
 			connectLayout
 		);
 		connectFrame.setMargin(true);
@@ -80,14 +80,14 @@ public class ConnectView extends VerticalLayout implements HasDynamicTitle
 		
 		this.setHorizontalComponentAlignment(Alignment.CENTER, connectFrame);
 		this.add(connectFrame);
-		this.addClassName(ClassNames.HEADER);
+		this.addClassName(ClassNames.BACKGROUND_THEME);
 		this.setSizeFull();
 	}
 	
 	@Override
 	public String getPageTitle()
 	{
-		return getTranslation("CONNECT") + " - " + RootLayout.PAGE_TITLE;
+		return this.getTranslation("CONNECT") + " - " + RootLayout.PAGE_TITLE;
 	}
 	
 	private void tryConnect(
@@ -98,7 +98,7 @@ public class ConnectView extends VerticalLayout implements HasDynamicTitle
 		{
 			client.requestRoot();
 			
-			updateUrlCookie(baseUrl);
+			this.updateUrlCookie(baseUrl);
 			
 			final SessionData sessionData = new SessionData(baseUrl);
 			this.getUI().ifPresent(ui -> {
@@ -106,24 +106,24 @@ public class ConnectView extends VerticalLayout implements HasDynamicTitle
 				ui.navigate(InstanceView.class);
 			});
 		}
-		catch(Exception e)
+		catch(final Exception e)
 		{
 			this.getUI().ifPresent(ui -> {
 
 				final Notification notification = new Notification();
 				
-				final H3 header = new H3(getTranslation("CONNECT_ERROR"));
+				final H3 header = new H3(this.getTranslation("CONNECT_ERROR"));
 				header.addClassName(ClassNames.ERROR);
 				
 				final Button close = new Button(
-					getTranslation("OK"), 
+					this.getTranslation("OK"), 
 					event -> notification.close()
 				);
 				
 				final VerticalLayout content = new VerticalLayout(
 					header,
 					new Hr(),
-					new Label(getTranslation("INTERNAL_ERROR_HINT", baseUrl)),
+					new Label(this.getTranslation("INTERNAL_ERROR_HINT", baseUrl)),
 					close 
 				);
 				content.setHorizontalComponentAlignment(Alignment.END, close);
