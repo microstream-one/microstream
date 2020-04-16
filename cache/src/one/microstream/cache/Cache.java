@@ -77,6 +77,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	 * 
 	 * @see #putAll(Map, boolean)
 	 */
+	@Override
 	public default void putAll(
 		final Map<? extends K, ? extends V> map
 	)
@@ -245,9 +246,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				this.setStatisticsEnabled(true);
 			}
 			
-			if(evictionManager != null)
+			if(this.evictionManager != null)
 			{
-				evictionManager.install(this, this.cacheTable);
+				this.evictionManager.install(this, this.cacheTable);
 			}
 		}
 		
@@ -284,7 +285,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		
 		@SuppressWarnings("unchecked")
 		private void updateConfiguration(
-			Consumer<MutableConfiguration<K, V>> c
+			final Consumer<MutableConfiguration<K, V>> c
 		)
 		{
 			if(this.configuration instanceof MutableConfiguration)
