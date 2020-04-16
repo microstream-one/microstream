@@ -57,20 +57,11 @@ public class BinaryHandlerEntityLayerIdentity<T extends EntityLayerIdentity>
 	{
 		final BulkList<Entity> layers = BulkList.New();
 		Entity layer = identity;
-		while((layer = inner(layer)) != null)
+		while((layer = Entity.Static.inner(layer)) != null)
 		{
 			layers.add(layer);
 		}
 		return layers;
-	}
-	
-	private static Entity inner(
-		final Entity entity
-	)
-	{
-		return entity instanceof EntityLayer
-			? ((EntityLayer)entity).inner()
-			: null;
 	}
 	
 	static final long BINARY_OFFSET_LAYERS = 0;
