@@ -1,4 +1,4 @@
-package one.microstream.storage.io;
+package one.microstream.afs;
 
 import static one.microstream.X.notNull;
 
@@ -48,7 +48,7 @@ public interface ProtageWritableFile extends ProtageReadableFile
 			super();
 			this.directory  = notNull(directory);
 			this.name       = notNull(name);
-			this.qualifier  = directory.qualifyingIdentifier();
+			this.qualifier  = directory.qualifier();
 			this.identifier = this.qualifier + name;
 		}
 		
@@ -71,7 +71,7 @@ public interface ProtageWritableFile extends ProtageReadableFile
 		}
 		
 		@Override
-		public final String qualifier()
+		public final String parent()
 		{
 			return this.qualifier;
 		}

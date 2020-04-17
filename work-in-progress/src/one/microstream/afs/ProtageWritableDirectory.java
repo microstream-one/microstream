@@ -1,4 +1,4 @@
-package one.microstream.storage.io;
+package one.microstream.afs;
 
 import one.microstream.collections.types.XGettingTable;
 

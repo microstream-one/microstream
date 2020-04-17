@@ -1,38 +1,38 @@
-package one.microstream.storage.io.fs;
+package one.microstream.afs.fs;
 
 import java.io.File;
 import java.util.function.Predicate;
 
+import one.microstream.afs.ProtageWritableDirectory;
+import one.microstream.afs.ProtageWritableFile;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.io.XIO;
-import one.microstream.storage.io.ProtageWritableDirectory;
-import one.microstream.storage.io.ProtageWritableFile;
 
 
-public interface ProtageDirectoryFS extends ProtageWritableDirectory
+public interface FSDirectory extends ProtageWritableDirectory
 {
 	public File directory();
 	
 	@Override
-	public ProtageFileFS createFile(String fileName);
+	public FSFile createFile(String fileName);
 	
 	
 	
-	public static ProtageDirectoryFS New(final File directory, final Predicate<? super File> isRelevantFile)
+	public static FSDirectory New(final File directory, final Predicate<? super File> isRelevantFile)
 	{
-		ProtageFileSystem.validateExistingDirectory(directory);
-		ProtageFileSystem.validateIsDirectory(directory);
+		FS.validateExistingDirectory(directory);
+		FS.validateIsDirectory(directory);
 		
 		final String qualifier  = XIO.ensureNormalizedPathSeperators(directory.getParent());
 		final String name       = directory.getName();
 		final String identifier = XIO.ensureTrailingSlash(qualifier) + name;
 		final String qualIdent  = XIO.ensureTrailingSlash(identifier);
 		
-		final EqHashTable<String, ProtageFileFS.Default>   files      = EqHashTable.New();
-		final XGettingTable<String, ProtageFileFS.Default> viewFiles  = files.view();
+		final EqHashTable<String, FSFile.Default>   files      = EqHashTable.New();
+		final XGettingTable<String, FSFile.Default> viewFiles  = files.view();
 		
-		final ProtageDirectoryFS.Default instance = new ProtageDirectoryFS.Default(
+		final FSDirectory.Default instance = new FSDirectory.Default(
 			directory, qualifier, name, identifier, qualIdent, files, viewFiles
 		);
 		instance.initializeFiles(isRelevantFile);
@@ -40,7 +40,7 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		return instance;
 	}
 	
-	public class Default implements ProtageDirectoryFS
+	public class Default implements FSDirectory
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -52,8 +52,8 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		private final String identifier          ;
 		private final String qualifyingIdentifier;
 		
-		private final EqHashTable<String, ProtageFileFS.Default>   files    ;
-		private final XGettingTable<String, ProtageFileFS.Default> viewFiles;
+		private final EqHashTable<String, FSFile.Default>   files    ;
+		private final XGettingTable<String, FSFile.Default> viewFiles;
 		
 		
 		
@@ -67,8 +67,8 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 			final String                                              name                ,
 			final String                                              identifier          ,
 			final String                                              qualifyingIdentifier,
-			final EqHashTable<String, ProtageFileFS.Default>   files               ,
-			final XGettingTable<String, ProtageFileFS.Default> viewFiles
+			final EqHashTable<String, FSFile.Default>   files               ,
+			final XGettingTable<String, FSFile.Default> viewFiles
 		)
 		{
 			super();
@@ -88,7 +88,7 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		////////////
 		
 		@Override
-		public final String qualifier()
+		public final String parent()
 		{
 			return this.qualifier;
 		}
@@ -106,7 +106,7 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		}
 		
 		@Override
-		public final String qualifyingIdentifier()
+		public final String qualifier()
 		{
 			return this.qualifyingIdentifier;
 		}
@@ -145,11 +145,11 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 		protected File internalCreateSystemFile(final String fileName)
 		{
 			this.validateNotYetContained(fileName);
-			return ProtageFileSystem.createWriteableFile(this.directory, fileName);
+			return FS.createWriteableFile(this.directory, fileName);
 		}
 				
 		@Override
-		public synchronized ProtageFileFS createFile(final String fileName)
+		public synchronized FSFile createFile(final String fileName)
 		{
 			final File file = this.internalCreateSystemFile(fileName);
 			return this.internalCreateFile(file, fileName);
@@ -166,16 +166,16 @@ public interface ProtageDirectoryFS extends ProtageWritableDirectory
 				
 				final String fileName = file.getName();
 				this.validateNotYetContained(fileName);
-				ProtageFileSystem.validateWriteableFile(file);
+				FS.validateWriteableFile(file);
 				
 				this.internalCreateFile(file, fileName);
 			}
 		}
 		
-		protected synchronized ProtageFileFS internalCreateFile(final File file, final String fileName)
+		protected synchronized FSFile internalCreateFile(final File file, final String fileName)
 		{
 			// file is created in closed state to allow a complete creation of a preliminary directory instance
-			final ProtageFileFS.Default createdFile = new ProtageFileFS.Default(
+			final FSFile.Default createdFile = new FSFile.Default(
 				this, fileName, file, null, null
 			);
 			
