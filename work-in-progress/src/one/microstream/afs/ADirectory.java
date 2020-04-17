@@ -1,35 +1,59 @@
-package one.microstream.storage.io;
+package one.microstream.afs;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import one.microstream.collections.types.XGettingTable;
-
-public interface ProtageDirectory extends ProtageIoElement
+public interface ADirectory extends AItem
 {
 	/**
 	 * The identifier String that can be used as a qualifier for a file contained in this directory.<p>
 	 * Depending on the underlying binary storage's adressing concept, this might be equal to {@link #identifier()}
 	 * or it might add a kind of separator. For example for a file system, the qualifying identifier of a directory
 	 * is the directory path plus a trailing slash ('/').
-	 * 
 	 */
-	public default String qualifyingIdentifier()
+	public default String qualifier()
 	{
 		return this.identifier();
 	}
 	
-	public XGettingTable<String, ? extends ProtageFile> files();
+	public AItem getItem(String name);
 	
-	public ProtageFile createFile(String fileName);
+	public ADirectory getDirectory(String name);
 	
-	public default boolean contains(final ProtageFile file)
+	public AFile getFile(String name);
+	
+	public <C extends Consumer<? super AItem>> C iterateItems(C iterator);
+	
+	public void iterateDirectories(Consumer<? super ADirectory> iterator);
+	
+	public <C extends Consumer<? super AFile>> C iterateFiles(C iterator);
+	
+	public ADirectory createDirectory(String name);
+	
+	public AFile createFile(String name);
+	
+	public default boolean contains(final AItem item)
+	{
+		return this.contains(item.name());
+	}
+	
+	public default boolean contains(final ADirectory directory)
+	{
+		return this.contains(directory.name());
+	}
+	
+	public default boolean contains(final AFile file)
 	{
 		return this.contains(file.name());
 	}
 	
-	public boolean contains(String fileName);
+	public default boolean contains(final String itemName)
+	{
+		return this.getItem(itemName) != null;
+	}
 	
 	
+	// (17.04.2020 TM)FIXME: priv#49: external static locking mechanism required? reasonable? why here?
 	/**
 	 * A simple deadlock prevention strategy:<br>
 	 * - directories are locked before files
@@ -46,10 +70,10 @@ public interface ProtageDirectory extends ProtageIoElement
 		final Supplier<ProtageWritableFile> logic
 	)
 	{
-		synchronized(directory1)
+		// deadlock-prevention strategy: order directories by identifier
+		if(directory1.identifier().compareTo(directory2.identifier()) >= 0)
 		{
-			// deadlock-prevention strategy
-			if(directory1.identifier().compareTo(directory2.identifier()) >= 0)
+			synchronized(directory1)
 			{
 				synchronized(directory2)
 				{

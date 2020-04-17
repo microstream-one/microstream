@@ -1,9 +1,9 @@
-package one.microstream.storage.io;
+package one.microstream.afs;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-public interface ProtageReadableFile extends ProtageFile
+public interface ProtageReadableFile extends AFile
 {
 	@Override
 	public ProtageReadableDirectory directory();

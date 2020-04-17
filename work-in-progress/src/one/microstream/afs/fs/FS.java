@@ -1,4 +1,4 @@
-package one.microstream.storage.io.fs;
+package one.microstream.afs.fs;
 
 import java.io.File;
 import java.nio.channels.FileLock;
@@ -6,7 +6,7 @@ import java.nio.channels.FileLock;
 import one.microstream.io.FileException;
 import one.microstream.io.XIO;
 
-public final class ProtageFileSystem
+public final class FS
 {
 	public static final File createWriteableFile(final File directory, final String fileName)
 	{
@@ -76,7 +76,7 @@ public final class ProtageFileSystem
 	 * 
 	 * @throws UnsupportedOperationException
 	 */
-	private ProtageFileSystem()
+	private FS()
 	{
 		// static only
 		throw new UnsupportedOperationException();

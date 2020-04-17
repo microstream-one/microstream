@@ -1,5 +1,6 @@
 package one.microstream.storage.io;
 
+import one.microstream.afs.ProtageWritableDirectory;
 import one.microstream.storage.types.StorageHashChannelPart;
 
 public interface ProtageChannelDirectory extends ProtageWritableDirectory, StorageHashChannelPart
