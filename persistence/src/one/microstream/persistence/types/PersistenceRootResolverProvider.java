@@ -31,7 +31,7 @@ public interface PersistenceRootResolverProvider
 	 * To avoid confusion, this method has been renamed to {@link #setRoot(Object)}.
 	 * The old variant will be removed in a future release.
 	 * 
-	 * @deprecated
+	 * @deprecated replaced by {@link #setRoot(Object)}
 	 */
 	@Deprecated
 	public default PersistenceRootResolverProvider registerRoot(final Object root)

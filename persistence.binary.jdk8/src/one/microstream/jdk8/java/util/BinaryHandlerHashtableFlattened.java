@@ -17,8 +17,8 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 
 /**
  * Premature prototype implementation that has to be kept for live projects using it.
- * <p>
- * Do not use! Use {@link BinaryHandlerHashtable} instead.
+ * 
+ * @deprecated Do not use! Use {@link BinaryHandlerHashtable} instead.
  * 
  * @author FH
  * @author TM

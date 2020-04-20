@@ -997,6 +997,9 @@ public class Persistence
 		return "ROOT";
 	}
 		
+	/**
+	 * @deprecated replaced by {@link #RefactoringMapping(Path)}
+	 */
 	@Deprecated
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final File refactoringsFile
@@ -1021,6 +1024,9 @@ public class Persistence
 		return PersistenceRefactoringMappingProvider.New(refactoringMappings);
 	}
 	
+	/**
+	 * @deprecated replaced by {@link #readRefactoringMappings(Path)}
+	 */
 	@Deprecated
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final File file)
 	{

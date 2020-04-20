@@ -498,7 +498,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
 	 * 
-	 * @return {@linkDoc StorageFileProvider#New(File)@return}
+	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
 	 * 
 	 * @see StorageFileProvider#New(Path)
 	 * @see StorageFileProvider.Builder
