@@ -77,16 +77,16 @@ public final class EmbeddedStorage
 		return ConnectionFoundation(tdih, typeEvaluatorPersistable);
 	}
 	
-	
-	
+	/**
+	 * @deprecated replaced by {@link #ConnectionFoundation(Path)} 
+	 */	
 	@Deprecated
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final File directory
 	)
 	{
 		return ConnectionFoundation(directory.toPath());
-	}
-	
+	}	
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageConnectionFoundation} instance
@@ -171,6 +171,9 @@ public final class EmbeddedStorage
 		return Foundation(EmbeddedStorage.defaultStorageDirectory());
 	}
 	
+	/**
+	 * @deprecated replaced by {@link #Foundation(Path)} 
+	 */
 	@Deprecated
 	public static final EmbeddedStorageFoundation<?> Foundation(
 		final File directory
@@ -187,7 +190,7 @@ public final class EmbeddedStorage
 	 * Calls {@link #Foundation(StorageConfiguration)} with a newly created
 	 * {@link StorageConfiguration} using the passed directory as its storage location.
 	 * 
-	 * @param directory {@linkDoc EmbeddedStorage#Foundation(File, StorageConfiguration.Builder):}
+	 * @param directory {@linkDoc EmbeddedStorage#start(Path):}
 	 * 
 	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed storage directory.
 	 * 
@@ -303,6 +306,9 @@ public final class EmbeddedStorage
 		return start((Object)null);
 	}
 	
+	/**
+	 * @deprecated replaced by {@link #start(Path)} 
+	 */
 	@Deprecated
 	public static final EmbeddedStorageManager start(
 		final File directory
@@ -436,6 +442,9 @@ public final class EmbeddedStorage
 		);
 	}
 	
+	/**
+	 * @deprecated replaced by {@link #start(Object, Path)} 
+	 */
 	@Deprecated
 	public static final EmbeddedStorageManager start(
 		final Object root     ,
@@ -454,7 +463,7 @@ public final class EmbeddedStorage
 	 * 
 	 * @param root      {@linkDoc EmbeddedStorage#start(Object):}
 	 * 
-	 * @param directory {@linkDoc EmbeddedStorage#start(File):}
+	 * @param directory {@linkDoc EmbeddedStorage#start(Path):}
 	 * 
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 * 
