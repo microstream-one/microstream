@@ -1,7 +1,8 @@
 package one.microstream.afs;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+
+import one.microstream.collections.types.XGettingTable;
 
 public interface ADirectory extends AItem
 {
@@ -22,11 +23,20 @@ public interface ADirectory extends AItem
 	
 	public AFile getFile(String name);
 	
-	public <C extends Consumer<? super AItem>> C iterateItems(C iterator);
+	public XGettingTable<String, ? extends ADirectory> directories();
 	
-	public void iterateDirectories(Consumer<? super ADirectory> iterator);
+	public XGettingTable<String, ? extends AFile> files();
 	
-	public <C extends Consumer<? super AFile>> C iterateFiles(C iterator);
+	public default <C extends Consumer<? super AItem>> C iterateItems(final C iterator)
+	{
+		synchronized(this)
+		{
+			this.directories().values().iterate(iterator);
+			this.files().values().iterate(iterator);
+		}
+				
+		return iterator;
+	}
 	
 	public ADirectory createDirectory(String name);
 	
@@ -34,60 +44,46 @@ public interface ADirectory extends AItem
 	
 	public default boolean contains(final AItem item)
 	{
-		return this.contains(item.name());
+		// cannot lock both since hierarchy order is not clear. But one is sufficient, anyway.
+		synchronized(this)
+		{
+			return item.parent() == this;
+		}
 	}
 	
 	public default boolean contains(final ADirectory directory)
 	{
-		return this.contains(directory.name());
+		return this.contains((AItem)directory);
 	}
 	
 	public default boolean contains(final AFile file)
 	{
-		return this.contains(file.name());
+		return this.contains((AItem)file);
 	}
 	
-	public default boolean contains(final String itemName)
+	public default boolean containsItem(final String itemName)
 	{
-		return this.getItem(itemName) != null;
-	}
-	
-	
-	// (17.04.2020 TM)FIXME: priv#49: external static locking mechanism required? reasonable? why here?
-	/**
-	 * A simple deadlock prevention strategy:<br>
-	 * - directories are locked before files
-	 * - directories with higher identifiers are locked before those with lower identifier
-	 * - files with higher identifiers are locked before those with lower identifier
-	 * 
-	 * @param directory1
-	 * @param directory2
-	 * @param logic
-	 */
-	public static ProtageWritableFile executeLocked(
-		final ProtageWritableDirectory      directory1,
-		final ProtageWritableDirectory      directory2,
-		final Supplier<ProtageWritableFile> logic
-	)
-	{
-		// deadlock-prevention strategy: order directories by identifier
-		if(directory1.identifier().compareTo(directory2.identifier()) >= 0)
+		synchronized(this)
 		{
-			synchronized(directory1)
-			{
-				synchronized(directory2)
-				{
-					return logic.get();
-				}
-			}
+			return this.containsFile(itemName)
+				|| this.containsDirectory(itemName)
+			;
 		}
-		
-		synchronized(directory2)
+	}
+	
+	public default boolean containsDirectory(final String directoryName)
+	{
+		synchronized(this)
 		{
-			synchronized(directory1)
-			{
-				return logic.get();
-			}
+			return this.directories().get(directoryName) != null;
+		}
+	}
+	
+	public default boolean containsFile(final String fileName)
+	{
+		synchronized(this)
+		{
+			return this.files().get(fileName) != null;
 		}
 	}
 	
