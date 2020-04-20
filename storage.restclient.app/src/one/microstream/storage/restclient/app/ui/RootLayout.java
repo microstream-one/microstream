@@ -37,18 +37,18 @@ public class RootLayout extends VerticalLayout
 	{
 		super();
 
-		this.add(this.createBanner());
+		this.add(this.createHeader());
 		this.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
 		this.setMargin(false);
 		this.setPadding(false);
 		this.setSizeFull();
 	}
 	
-	private Component createBanner()
+	private Component createHeader()
 	{
 		this.headerLabel = new Label();
 		
-		final Button cmdDisconnect = new Button(getTranslation("DISCONNECT"), event -> {
+		final Button cmdDisconnect = new Button(this.getTranslation("DISCONNECT"), event -> {
 			this.getUI().ifPresent(ui -> {
 				ui.getSession().setAttribute(SessionData.class, null);
 				ui.navigate(ConnectView.class);
@@ -62,16 +62,16 @@ public class RootLayout extends VerticalLayout
 		toolBar.setJustifyContentMode(JustifyContentMode.END);
 		this.toolBar = toolBar;
 		
-		final HorizontalLayout banner = new HorizontalLayout(
+		final HorizontalLayout header = new HorizontalLayout(
 			new Image(imagePath("logo.png"), "Logo"),
 			this.headerLabel,
 			UIUtils.compact(toolBar));
-		banner.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-		banner.setFlexGrow(1, toolBar);
+		header.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+		header.setFlexGrow(1, toolBar);
 		
-		banner.addClassName(ClassNames.BANNER);
+		header.addClassName(ClassNames.HEADER);
 		
-		return UIUtils.compact(banner);
+		return UIUtils.compact(header);
 	}
 	
 	@Override
@@ -82,8 +82,8 @@ public class RootLayout extends VerticalLayout
 		final SessionData sessionData = event.getUI().getSession().getAttribute(SessionData.class);
 		this.headerLabel.setText(
 			sessionData != null
-				? getTranslation("CLIENT") + " - " + sessionData.baseUrl()
-				: getTranslation("CLIENT")
+				? this.getTranslation("CLIENT") + " - " + sessionData.baseUrl()
+				: this.getTranslation("CLIENT")
 		);
 		this.toolBar.setVisible(
 			   sessionData != null
