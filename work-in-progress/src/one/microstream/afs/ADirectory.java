@@ -1,31 +1,62 @@
 package one.microstream.afs;
 
+import static one.microstream.X.mayNull;
+
 import java.util.function.Consumer;
 
+import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
 
 public interface ADirectory extends AItem
 {
-	/**
-	 * The identifier String that can be used as a qualifier for a file contained in this directory.<p>
-	 * Depending on the underlying binary storage's adressing concept, this might be equal to {@link #identifier()}
-	 * or it might add a kind of separator. For example for a file system, the qualifying identifier of a directory
-	 * is the directory path plus a trailing slash ('/').
-	 */
-	public default String qualifier()
-	{
-		return this.identifier();
-	}
-	
-	public AItem getItem(String name);
-	
-	public ADirectory getDirectory(String name);
-	
-	public AFile getFile(String name);
-	
 	public XGettingTable<String, ? extends ADirectory> directories();
 	
 	public XGettingTable<String, ? extends AFile> files();
+	
+	// (21.04.2020 TM)FIXME: priv#49: Move to an "ACreator" or such
+//	public ADirectory createDirectory(String name);
+//	public AFile createFile(String name);
+	
+	/**
+	 * The identifier String that can be used as a qualifier for a file contained in this directory.<p>
+	 * Depending on the underlying binary storage's adressing concept, this might be equal to {@link #path()}
+	 * or it might add a kind of separator. For example for a local file system, the qualifying identifier
+	 * of a directory is the directory path plus a joining slash ('/').
+	 */
+	public default String qualifier()
+	{
+		return this.path();
+	}
+	
+	public default AItem getItem(final String identifier)
+	{
+		synchronized(this)
+		{
+			final AFile file = this.getFile(identifier);
+			if(file != null)
+			{
+				return file;
+			}
+			
+			return this.getDirectory(identifier);
+		}
+	}
+	
+	public default ADirectory getDirectory(final String identifier)
+	{
+		synchronized(this)
+		{
+			return this.directories().get(identifier);
+		}
+	}
+	
+	public default AFile getFile(final String identifier)
+	{
+		synchronized(this)
+		{
+			return this.files().get(identifier);
+		}
+	}
 	
 	public default <C extends Consumer<? super AItem>> C iterateItems(final C iterator)
 	{
@@ -37,10 +68,6 @@ public interface ADirectory extends AItem
 				
 		return iterator;
 	}
-	
-	public ADirectory createDirectory(String name);
-	
-	public AFile createFile(String name);
 	
 	public default boolean contains(final AItem item)
 	{
@@ -85,6 +112,99 @@ public interface ADirectory extends AItem
 		{
 			return this.files().get(fileName) != null;
 		}
+	}
+	
+	// (20.04.2020 TM)TODO: #containsDeeps
+
+	
+	
+	public abstract class Abstract<D extends ADirectory>
+	extends AItem.Abstract<ADirectory>
+	implements ADirectory
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final EqHashTable<String, ADirectory> directories = EqHashTable.New();
+		
+		private final EqHashTable<String, AFile> files = EqHashTable.New();
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		protected Abstract(
+			final D      parent,
+			final String identifier,
+			final String name,
+			final String type
+		)
+		{
+			super(mayNull(parent), identifier);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final XGettingTable<String, ? extends ADirectory> directories()
+		{
+			return this.directories;
+		}
+		
+		@Override
+		public final XGettingTable<String, ? extends AFile> files()
+		{
+			return this.files;
+		}
+		
+		
+	}
+	
+	public abstract class AbstractWrapper<D extends ADirectory, W>
+	extends AFile.Abstract<D>
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final W wrapped;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		protected AbstractWrapper(
+			final D      parent    ,
+			final String identifier,
+			final String name      ,
+			final String type      ,
+			final W      wrapped
+		)
+		{
+			super(parent, identifier, name, type);
+			this.wrapped = wrapped;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		public final W wrapped()
+		{
+			return this.wrapped;
+		}
+		
 	}
 	
 }
