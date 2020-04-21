@@ -1,4 +1,4 @@
-package one.microstream.afs.fs;
+package one.microstream.afs.local;
 
 import java.io.File;
 import java.nio.channels.FileLock;
@@ -6,7 +6,7 @@ import java.nio.channels.FileLock;
 import one.microstream.io.FileException;
 import one.microstream.io.XIO;
 
-public final class FS
+public final class LocalFileSystem
 {
 	public static final File createWriteableFile(final File directory, final String fileName)
 	{
@@ -76,7 +76,7 @@ public final class FS
 	 * 
 	 * @throws UnsupportedOperationException
 	 */
-	private FS()
+	private LocalFileSystem()
 	{
 		// static only
 		throw new UnsupportedOperationException();

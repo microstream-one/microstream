@@ -1,38 +1,38 @@
-package one.microstream.afs.fs;
+package one.microstream.afs.local;
 
 import java.io.File;
 import java.util.function.Predicate;
 
-import one.microstream.afs.ProtageWritableDirectory;
-import one.microstream.afs.ProtageWritableFile;
+import one.microstream.afs.AWritableDirectory;
+import one.microstream.afs.AWritableFile;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.io.XIO;
 
 
-public interface FSDirectory extends ProtageWritableDirectory
+public interface LocalDirectory extends AWritableDirectory
 {
 	public File directory();
 	
 	@Override
-	public FSFile createFile(String fileName);
+	public LocalFile createFile(String fileName);
 	
 	
 	
-	public static FSDirectory New(final File directory, final Predicate<? super File> isRelevantFile)
+	public static LocalDirectory New(final File directory, final Predicate<? super File> isRelevantFile)
 	{
-		FS.validateExistingDirectory(directory);
-		FS.validateIsDirectory(directory);
+		LocalFileSystem.validateExistingDirectory(directory);
+		LocalFileSystem.validateIsDirectory(directory);
 		
 		final String qualifier  = XIO.ensureNormalizedPathSeperators(directory.getParent());
 		final String name       = directory.getName();
 		final String identifier = XIO.ensureTrailingSlash(qualifier) + name;
 		final String qualIdent  = XIO.ensureTrailingSlash(identifier);
 		
-		final EqHashTable<String, FSFile.Default>   files      = EqHashTable.New();
-		final XGettingTable<String, FSFile.Default> viewFiles  = files.view();
+		final EqHashTable<String, LocalFile.Default>   files      = EqHashTable.New();
+		final XGettingTable<String, LocalFile.Default> viewFiles  = files.view();
 		
-		final FSDirectory.Default instance = new FSDirectory.Default(
+		final LocalDirectory.Default instance = new LocalDirectory.Default(
 			directory, qualifier, name, identifier, qualIdent, files, viewFiles
 		);
 		instance.initializeFiles(isRelevantFile);
@@ -40,7 +40,7 @@ public interface FSDirectory extends ProtageWritableDirectory
 		return instance;
 	}
 	
-	public class Default implements FSDirectory
+	public class Default implements LocalDirectory
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -52,8 +52,8 @@ public interface FSDirectory extends ProtageWritableDirectory
 		private final String identifier          ;
 		private final String qualifyingIdentifier;
 		
-		private final EqHashTable<String, FSFile.Default>   files    ;
-		private final XGettingTable<String, FSFile.Default> viewFiles;
+		private final EqHashTable<String, LocalFile.Default>   files    ;
+		private final XGettingTable<String, LocalFile.Default> viewFiles;
 		
 		
 		
@@ -67,8 +67,8 @@ public interface FSDirectory extends ProtageWritableDirectory
 			final String                                              name                ,
 			final String                                              identifier          ,
 			final String                                              qualifyingIdentifier,
-			final EqHashTable<String, FSFile.Default>   files               ,
-			final XGettingTable<String, FSFile.Default> viewFiles
+			final EqHashTable<String, LocalFile.Default>   files               ,
+			final XGettingTable<String, LocalFile.Default> viewFiles
 		)
 		{
 			super();
@@ -100,7 +100,7 @@ public interface FSDirectory extends ProtageWritableDirectory
 		}
 		
 		@Override
-		public final String identifier()
+		public final String path()
 		{
 			return this.identifier;
 		}
@@ -118,7 +118,7 @@ public interface FSDirectory extends ProtageWritableDirectory
 		}
 
 		@Override
-		public final XGettingTable<String, ? extends ProtageWritableFile> files()
+		public final XGettingTable<String, ? extends AWritableFile> files()
 		{
 			return this.viewFiles;
 		}
@@ -145,11 +145,11 @@ public interface FSDirectory extends ProtageWritableDirectory
 		protected File internalCreateSystemFile(final String fileName)
 		{
 			this.validateNotYetContained(fileName);
-			return FS.createWriteableFile(this.directory, fileName);
+			return LocalFileSystem.createWriteableFile(this.directory, fileName);
 		}
 				
 		@Override
-		public synchronized FSFile createFile(final String fileName)
+		public synchronized LocalFile createFile(final String fileName)
 		{
 			final File file = this.internalCreateSystemFile(fileName);
 			return this.internalCreateFile(file, fileName);
@@ -166,16 +166,16 @@ public interface FSDirectory extends ProtageWritableDirectory
 				
 				final String fileName = file.getName();
 				this.validateNotYetContained(fileName);
-				FS.validateWriteableFile(file);
+				LocalFileSystem.validateWriteableFile(file);
 				
 				this.internalCreateFile(file, fileName);
 			}
 		}
 		
-		protected synchronized FSFile internalCreateFile(final File file, final String fileName)
+		protected synchronized LocalFile internalCreateFile(final File file, final String fileName)
 		{
 			// file is created in closed state to allow a complete creation of a preliminary directory instance
-			final FSFile.Default createdFile = new FSFile.Default(
+			final LocalFile.Default createdFile = new LocalFile.Default(
 				this, fileName, file, null, null
 			);
 			

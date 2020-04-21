@@ -3,11 +3,8 @@ package one.microstream.afs;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-public interface ProtageReadableFile extends AFile
+public interface AReadableFile extends AFile
 {
-	@Override
-	public ProtageReadableDirectory directory();
-	
 	public void open();
 	
 	public boolean isOpen();
@@ -16,11 +13,11 @@ public interface ProtageReadableFile extends AFile
 	
 	public boolean isClosed();
 		
-	public <C extends Consumer<? super ProtageReadableFile>> C waitOnClose(C callback);
+	public <C extends Consumer<? super AReadableFile>> C waitOnClose(C callback);
 	
 	public abstract long read(ByteBuffer target, long position);
 	
-	public default void copyTo(final ProtageWritableFile target)
+	public default void copyTo(final AWritableFile target)
 	{
 		// must lock here to get a reliable length value
 		synchronized(this)
@@ -29,7 +26,7 @@ public interface ProtageReadableFile extends AFile
 		}
 	}
 
-	public default void copyTo(final ProtageWritableFile target, final long sourcePosition, final long length)
+	public default void copyTo(final AWritableFile target, final long sourcePosition, final long length)
 	{
 		/* (29.10.2018 TM)FIXME: OGS-45: default copyTo
 		 * create a special Iterator that (re)fills its buffer on every next() call for the whole length

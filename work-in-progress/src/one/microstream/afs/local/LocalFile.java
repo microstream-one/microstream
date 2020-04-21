@@ -1,4 +1,4 @@
-package one.microstream.afs.fs;
+package one.microstream.afs.local;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,18 +10,18 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import one.microstream.afs.ADirectory;
-import one.microstream.afs.ProtageReadableFile;
-import one.microstream.afs.ProtageWritableDirectory;
-import one.microstream.afs.ProtageWritableFile;
-import one.microstream.afs.ProtageWritableFile.Abstract;
+import one.microstream.afs.AReadableFile;
+import one.microstream.afs.AWritableDirectory;
+import one.microstream.afs.AWritableFile;
+import one.microstream.afs.AWritableFile.Abstract;
 import one.microstream.storage.io.ProtageNioChannelFile;
 import one.microstream.storage.io.ProtageNioChannelWritableFile;
 
 
-public interface FSFile extends ProtageNioChannelFile
+public interface LocalFile extends ProtageNioChannelFile
 {
 	@Override
-	public FSDirectory directory();
+	public LocalDirectory directory();
 	
 	public File file();
 	
@@ -32,8 +32,8 @@ public interface FSFile extends ProtageNioChannelFile
 	
 	// there is no publicly accessible constructor. Only directories can create file instances.
 		
-	public final class Default extends ProtageWritableFile.Abstract<FSDirectory>
-	implements FSFile
+	public final class Default extends AWritableFile.Abstract<LocalDirectory>
+	implements LocalFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -50,7 +50,7 @@ public interface FSFile extends ProtageNioChannelFile
 		/////////////////
 
 		Default(
-			final FSDirectory directory,
+			final LocalDirectory directory,
 			final String             name     ,
 			final File               file     ,
 			final FileLock           lock     ,
@@ -108,7 +108,7 @@ public interface FSFile extends ProtageNioChannelFile
 				return;
 			}
 			
-			this.lock    = FS.openFileChannel(this.file);
+			this.lock    = LocalFileSystem.openFileChannel(this.file);
 			this.channel = this.lock.channel();
 		}
 
@@ -164,7 +164,7 @@ public interface FSFile extends ProtageNioChannelFile
 		}
 		
 		@Override
-		public void copyTo(final ProtageWritableFile target, final long sourcePosition, final long length)
+		public void copyTo(final AWritableFile target, final long sourcePosition, final long length)
 		{
 			if(target instanceof ProtageNioChannelWritableFile)
 			{
@@ -194,7 +194,7 @@ public interface FSFile extends ProtageNioChannelFile
 		}
 		
 
-		private void synchMoveTo(final FSDirectory destination)
+		private void synchMoveTo(final LocalDirectory destination)
 		{
 			final Path destDir  = destination.directory().toPath();
 			final Path destFile = destDir.resolve(this.name());
@@ -210,33 +210,33 @@ public interface FSFile extends ProtageNioChannelFile
 			}
 		}
 		
-		private synchronized ProtageWritableFile internalMoveTo(final ProtageWritableDirectory destination)
+		private synchronized AWritableFile internalMoveTo(final AWritableDirectory destination)
 		{
-			if(this.directory() == destination || this.directory().identifier().equals(destination.identifier()))
+			if(this.directory() == destination || this.directory().path().equals(destination.path()))
 			{
 				// (27.10.2018 TM)EXCP: proper exception
 				throw new RuntimeException(
-					"Move destination is identical to the current destination: " + destination.identifier()
+					"Move destination is identical to the current destination: " + destination.path()
 				);
 			}
 			
-			final ProtageWritableFile existingTargetFile = destination.files().get(this.name());
+			final AWritableFile existingTargetFile = destination.files().get(this.name());
 			if(existingTargetFile != null)
 			{
 				// (27.10.2018 TM)EXCP: proper exception
 				throw new RuntimeException(
-					"Move action target file already exists: " + destination.identifier()
+					"Move action target file already exists: " + destination.path()
 					+ ": " + existingTargetFile.name()
 				);
 			}
 
 			// no need to lock the target file since it has just been created from the lock-secured destination.
-			final ProtageWritableFile targetFile = destination.createFile(this.name());
+			final AWritableFile targetFile = destination.createFile(this.name());
 			
-			if(destination instanceof FSDirectory)
+			if(destination instanceof LocalDirectory)
 			{
 				// optimization for filesystem-to-filesystem move
-				this.synchMoveTo((FSDirectory)destination);
+				this.synchMoveTo((LocalDirectory)destination);
 			}
 			else
 			{
@@ -250,7 +250,7 @@ public interface FSFile extends ProtageNioChannelFile
 		}
 
 		@Override
-		public ProtageWritableFile moveTo(final ProtageWritableDirectory destination)
+		public AWritableFile moveTo(final AWritableDirectory destination)
 		{
 			// no locking since the called method does the locking, but in a deadlock-free fashion.
 			return ADirectory.executeLocked(this.directory(), destination, () ->
@@ -285,7 +285,7 @@ public interface FSFile extends ProtageNioChannelFile
 		}
 		
 		@Override
-		public final synchronized <C extends Consumer<? super ProtageReadableFile>> C waitOnClose(final C callback)
+		public final synchronized <C extends Consumer<? super AReadableFile>> C waitOnClose(final C callback)
 		{
 			while(!this.isClosed())
 			{
@@ -307,7 +307,7 @@ public interface FSFile extends ProtageNioChannelFile
 		}
 		
 		@Override
-		public final synchronized <C extends Consumer<? super ProtageWritableFile>> C waitOnDelete(final C callback)
+		public final synchronized <C extends Consumer<? super AWritableFile>> C waitOnDelete(final C callback)
 		{
 			while(!this.isDeleted())
 			{
