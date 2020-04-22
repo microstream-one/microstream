@@ -118,17 +118,17 @@ public interface ADirectory extends AItem
 
 	
 	
-	public abstract class Abstract<D extends ADirectory>
-	extends AItem.Abstract<ADirectory>
+	public abstract class Abstract<D extends ADirectory, F extends AFile>
+	extends AItem.Abstract<D>
 	implements ADirectory
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final EqHashTable<String, ADirectory> directories = EqHashTable.New();
+		private final EqHashTable<String, D> directories = EqHashTable.New();
 		
-		private final EqHashTable<String, AFile> files = EqHashTable.New();
+		private final EqHashTable<String, F> files = EqHashTable.New();
 		
 		
 		
@@ -137,10 +137,8 @@ public interface ADirectory extends AItem
 		/////////////////
 
 		protected Abstract(
-			final D      parent,
-			final String identifier,
-			final String name,
-			final String type
+			final D      parent    ,
+			final String identifier
 		)
 		{
 			super(mayNull(parent), identifier);
@@ -153,22 +151,21 @@ public interface ADirectory extends AItem
 		////////////
 		
 		@Override
-		public final XGettingTable<String, ? extends ADirectory> directories()
+		public final XGettingTable<String, ? extends D> directories()
 		{
 			return this.directories;
 		}
 		
 		@Override
-		public final XGettingTable<String, ? extends AFile> files()
+		public final XGettingTable<String, ? extends F> files()
 		{
 			return this.files;
 		}
 		
-		
 	}
 	
-	public abstract class AbstractWrapper<D extends ADirectory, W>
-	extends AFile.Abstract<D>
+	public abstract class AbstractWrapper<W, D extends ADirectory, F extends AFile>
+	extends ADirectory.Abstract<D, F>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -183,14 +180,12 @@ public interface ADirectory extends AItem
 		/////////////////
 
 		protected AbstractWrapper(
+			final W      wrapped   ,
 			final D      parent    ,
-			final String identifier,
-			final String name      ,
-			final String type      ,
-			final W      wrapped
+			final String identifier
 		)
 		{
-			super(parent, identifier, name, type);
+			super(parent, identifier);
 			this.wrapped = wrapped;
 		}
 		
