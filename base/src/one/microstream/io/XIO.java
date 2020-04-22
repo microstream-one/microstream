@@ -73,7 +73,7 @@ public final class XIO
 	
 	public static String getFilePrefix(final Path file)
 	{
-		return getFileSuffix(getFileName(file));
+		return getFilePrefix(getFileName(file));
 	}
 	
 	public static String getFilePrefix(final String fileName)
@@ -340,6 +340,12 @@ public final class XIO
 	{
 		// file or directory
 		return Files.exists(path);
+	}
+	
+	public static long size(final Path file) throws IOException
+	{
+		// file only
+		return Files.size(file);
 	}
 	
 	public static final boolean delete(final Path path) throws IOException
@@ -1210,6 +1216,18 @@ public final class XIO
 			}
 		}
 		
+		public static final long size(final Path file) throws IORuntimeException
+		{
+			try
+			{
+				return XIO.size(file);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
 		public static final boolean delete(final Path path) throws IORuntimeException
 		{
 			try
@@ -1344,18 +1362,6 @@ public final class XIO
 			try
 			{
 				return XIO.hasNoFiles(directory);
-			}
-			catch(final IOException e)
-			{
-				throw new IORuntimeException(e);
-			}
-		}
-		
-		public static final long size(final Path file) throws IORuntimeException
-		{
-			try
-			{
-				return Files.size(file);
 			}
 			catch(final IOException e)
 			{

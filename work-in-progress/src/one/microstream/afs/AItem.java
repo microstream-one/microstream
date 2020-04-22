@@ -44,6 +44,13 @@ public interface AItem
 	 */
 	public String identifier();
 	
+	/**
+	 * Queries whether the item represented by this instance actually physically exists on the underlying storage layer.
+	 * 
+	 * @return whether the item exists.
+	 */
+	public boolean exists();
+	
 	
 	
 	public abstract class Abstract<D extends ADirectory> implements AItem

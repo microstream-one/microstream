@@ -36,18 +36,11 @@ public interface AFile extends AItem
 	 * @return the length in bytes of this file's content.
 	 */
 	public long length();
-	
-	/**
-	 * Queries whether the file denoted by this instance actually physically exists on the underlying storage layer.
-	 * 
-	 * @return whether the file exists
-	 */
-	public boolean exists();
-	
+		
 	
 	
 	public abstract class Abstract<D extends ADirectory>
-	extends AItem.Abstract<ADirectory>
+	extends AItem.Abstract<D>
 	implements AFile
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -96,7 +89,7 @@ public interface AFile extends AItem
 		
 	}
 	
-	public abstract class AbstractWrapper<D extends ADirectory, W>
+	public abstract class AbstractWrapper<W, D extends ADirectory>
 	extends AFile.Abstract<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -112,11 +105,11 @@ public interface AFile extends AItem
 		/////////////////
 
 		protected AbstractWrapper(
+			final W      wrapped   ,
 			final D      parent    ,
 			final String identifier,
 			final String name      ,
-			final String type      ,
-			final W      wrapped
+			final String type
 		)
 		{
 			super(parent, identifier, name, type);
