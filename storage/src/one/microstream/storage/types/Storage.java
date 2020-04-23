@@ -123,7 +123,7 @@ public final class Storage
 	 * 
 	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
 	 * 
-	 * @see Storage#FileProvider(Path)
+	 * @deprecated replaced by {@link #FileProvider(Path)}
 	 */
 	@Deprecated
 	public static final StorageFileProvider FileProvider(final File storageDirectory)
@@ -403,6 +403,9 @@ public final class Storage
 		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, minimumUseRatio, cleanUpHeadFile);
 	}
 	
+	/**
+	 * @deprecated replaced by {@link #BackupSetup(Path)} 
+	 */
 	@Deprecated
 	public static final StorageBackupSetup BackupSetup(final File backupDirectory)
 	{
@@ -410,11 +413,11 @@ public final class Storage
 	}
 	
 	/**
-	 * {@linkDoc StorageBackupSetup#New(File)}
+	 * {@linkDoc StorageBackupSetup#New(Path)}
 	 * 
-	 * @param backupDirectory {@linkDoc StorageBackupSetup#New(File):}
+	 * @param backupDirectory {@linkDoc StorageBackupSetup#New(Path):}
 	 * 
-	 * @return {@linkDoc StorageBackupSetup#New(File)@return}
+	 * @return {@linkDoc StorageBackupSetup#New(Path)@return}
 	 * 
 	 * @see StorageBackupSetup#New(StorageFileProvider)
 	 * @see StorageBackupHandler
@@ -429,7 +432,7 @@ public final class Storage
 	 * 
 	 * @param backupDirectoryPath the path to the backup directory
 	 * 
-	 * @return {@linkDoc StorageBackupSetup#New(File)@return}
+	 * @return {@linkDoc StorageBackupSetup#New(Path)@return}
 	 * 
 	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupSetup#New(StorageFileProvider)
