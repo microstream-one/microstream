@@ -27,7 +27,7 @@ a:link, a:visited {
 }
 a[href]:hover, a[href]:focus {
     text-decoration:none;
-    color:#2294E0;
+    color:#00A0E3;
 }
 a[name] {
     color:#353833;
@@ -117,7 +117,7 @@ button {
     text-decoration:none;
 }
 .bar a:hover, .bar a:focus {
-    color:#2294E0;
+    color:#00A0E3;
 }
 .tab {
     background-color:#0066FF;
@@ -177,7 +177,7 @@ button {
     clear:left;
     float:left;
     padding:0 0 5px 6px;
-/*     /*     text-transform:uppercase; */ */
+/*  text-transform:uppercase; */
 }
 .subNav .navList {
     padding-top:5px;
@@ -220,12 +220,12 @@ ul.subNavList li {
 }
 .topNav a:hover, .bottomNav a:hover {
     text-decoration:none;
-    color:#229CDE;
+    color:#00A0E3;
     /*     text-transform:uppercase; */
 }
 .navBarCell1Rev {
 /*     background-color:#F8981D; */
-    color:#229CDE;
+    color:#00A0E3;
 /*     margin: auto 5px; */
 }
 .skipNav {
@@ -868,7 +868,7 @@ hr {
 }
 
 .ui-autocomplete-input:focus {
-	border: 1px solid #229CDE;
+	border: 1px solid #00A0E3;
 }
 
 /*
