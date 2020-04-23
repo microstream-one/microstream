@@ -202,4 +202,37 @@ public interface ADirectory extends AItem
 		
 	}
 	
+	public interface ActionListener
+	{
+		public void onBeforeCreateFile(String identifier, String name, String type);
+		
+		public void onAfterCreateFile(AFile createdFile, long creationTime);
+		
+		
+		public void onBeforeMoveFile(AFile fileToMove, AWritableDirectory targetDirectory);
+		
+		public void onAfterMoveFile(AFile movedFile, AWritableDirectory sourceDirectory, long deletionTime);
+		
+		
+		public void onBeforeDeleteFile(AFile fileToDelete);
+		
+		public void onAfterDeleteFile(AFile deletedFile, long deletionTime);
+		
+
+
+		public void onBeforeCreateDirectory(String identifier);
+		
+		public void onAfterCreateDirectory(ADirectory createdDirectory, long creationTime);
+		
+		
+		public void onBeforeMoveDirectory(ADirectory directoryToMove, AWritableDirectory targetDirectory);
+		
+		public void onAfterMoveDirectory(ADirectory movedDirectory, AWritableDirectory sourceDirectory, long deletionTime);
+		
+		
+		public void onBeforeDeleteDirectory(ADirectory directoryToDelete);
+		
+		public void onAfterDeleteDirectory(ADirectory deletedDirectory, long deletionTime);
+	}
+	
 }

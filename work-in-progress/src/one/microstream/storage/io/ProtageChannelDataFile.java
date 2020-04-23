@@ -2,6 +2,9 @@ package one.microstream.storage.io;
 
 public interface ProtageChannelDataFile extends ProtageChannelFile
 {
+	// (23.04.2020 TM)FIXME: priv#49: overhaul
+	
+	
 	public long number();
 	
 	@Override
