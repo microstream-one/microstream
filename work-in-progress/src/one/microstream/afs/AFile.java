@@ -4,6 +4,8 @@ import static one.microstream.X.coalesce;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
+import java.nio.ByteBuffer;
+
 public interface AFile extends AItem
 {
 	/**
@@ -127,6 +129,23 @@ public interface AFile extends AItem
 			return this.wrapped;
 		}
 		
+	}
+	
+	public interface ActionListener
+	{
+		public void onBeforeFileWrite(AWritableFile targetFile, Iterable<? extends ByteBuffer> sources);
+
+		public void onAfterFileWrite(AWritableFile targetFile, Iterable<? extends ByteBuffer> sources, long writeTime);
+		
+		
+		public void onBeforeFileMove(AFile fileToMove, AWritableDirectory targetDirectory);
+		
+		public void onAfterFileMove(AFile movedFile, AWritableDirectory sourceDirectory, long deletionTime);
+		
+		
+		public void onBeforeFileDelete(AFile fileToDelete);
+		
+		public void onAfterFileDelete(AFile deletedFile, long deletionTime);
 	}
 	
 }

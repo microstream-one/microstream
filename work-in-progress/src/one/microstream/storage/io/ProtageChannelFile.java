@@ -6,5 +6,5 @@ import one.microstream.storage.types.StorageHashChannelPart;
 public interface ProtageChannelFile extends AWritableFile, StorageHashChannelPart
 {
 	@Override
-	public ProtageChannelDirectory directory();
+	public ProtageChannelDirectory parent();
 }
