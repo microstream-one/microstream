@@ -3,7 +3,7 @@ package one.microstream.afs;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-public interface AReadableFile extends AFile
+public interface AReadableFile extends AFile, AFile.Wrapper
 {
 	public void open();
 	

@@ -1,4 +1,4 @@
-package one.microstream.afs.local;
+package one.microstream.afs.nio;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,26 +11,26 @@ import java.util.function.Consumer;
 
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFile;
+import one.microstream.afs.AMutableDirectory;
 import one.microstream.afs.AReadableFile;
-import one.microstream.afs.AWritableDirectory;
 import one.microstream.afs.AWritableFile;
 import one.microstream.storage.io.ProtageNioChannelWritableFile;
 
 
-public interface LocalLockedFileIrgendwas extends AFile
+public interface NioLockedFileIrgendwas extends AFile
 {
 	@Override
-	public LocalDirectory parent();
+	public NioDirectory parent();
 	
 	public Path file();
 	
 	
 	
 	
-	// (21.04.2020 TM)FIXME: priv#49:
+	// (21.04.2020 TM)FIXME: priv#49: copy useful code and delete
 		
-	public final class Default extends AWritableFile.Abstract<LocalDirectory>
-	implements LocalLockedFileIrgendwas
+	public final class Default extends AWritableFile.Abstract<NioDirectory>
+	implements NioLockedFileIrgendwas
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -47,7 +47,7 @@ public interface LocalLockedFileIrgendwas extends AFile
 		/////////////////
 
 		Default(
-			final LocalDirectory directory,
+			final NioDirectory directory,
 			final String             name     ,
 			final File               file     ,
 			final FileLock           lock     ,
@@ -106,7 +106,7 @@ public interface LocalLockedFileIrgendwas extends AFile
 				return;
 			}
 			
-			this.lock    = LocalFileSystem.openFileChannel(this.file);
+			this.lock    = NioFileSystem.openFileChannel(this.file);
 			this.channel = this.lock.channel();
 		}
 
@@ -192,7 +192,7 @@ public interface LocalLockedFileIrgendwas extends AFile
 		}
 		
 
-		private void synchMoveTo(final LocalDirectory destination)
+		private void synchMoveTo(final NioDirectory destination)
 		{
 			final Path destDir  = destination.directory().toPath();
 			final Path destFile = destDir.resolve(this.name());
@@ -208,7 +208,7 @@ public interface LocalLockedFileIrgendwas extends AFile
 			}
 		}
 		
-		private synchronized AWritableFile internalMoveTo(final AWritableDirectory destination)
+		private synchronized AWritableFile internalMoveTo(final AMutableDirectory destination)
 		{
 			if(this.directory() == destination || this.directory().path().equals(destination.path()))
 			{
@@ -231,10 +231,10 @@ public interface LocalLockedFileIrgendwas extends AFile
 			// no need to lock the target file since it has just been created from the lock-secured destination.
 			final AWritableFile targetFile = destination.createFile(this.name());
 			
-			if(destination instanceof LocalDirectory)
+			if(destination instanceof NioDirectory)
 			{
 				// optimization for filesystem-to-filesystem move
-				this.synchMoveTo((LocalDirectory)destination);
+				this.synchMoveTo((NioDirectory)destination);
 			}
 			else
 			{
@@ -248,7 +248,7 @@ public interface LocalLockedFileIrgendwas extends AFile
 		}
 
 		@Override
-		public AWritableFile moveTo(final AWritableDirectory destination)
+		public AWritableFile moveTo(final AMutableDirectory destination)
 		{
 			// no locking since the called method does the locking, but in a deadlock-free fashion.
 			return ADirectory.executeLocked(this.directory(), destination, () ->

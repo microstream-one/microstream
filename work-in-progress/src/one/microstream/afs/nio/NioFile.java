@@ -1,4 +1,4 @@
-package one.microstream.afs.local;
+package one.microstream.afs.nio;
 
 import java.nio.file.Path;
 
@@ -6,11 +6,11 @@ import one.microstream.afs.AFile;
 import one.microstream.io.XIO;
 
 
-public interface LocalFile extends LocalItem, AFile
+public interface NioFile extends NioItem, AFile
 {
 	public final class Default
-	extends AFile.AbstractWrapper<Path, LocalDirectory>
-	implements LocalFile
+	extends AFile.AbstractSubjectWrapping<Path, NioDirectory>
+	implements NioFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -18,7 +18,7 @@ public interface LocalFile extends LocalItem, AFile
 
 		Default(
 			final Path           file      ,
-			final LocalDirectory directory ,
+			final NioDirectory directory ,
 			final String         identifier,
 			final String         name      ,
 			final String         type

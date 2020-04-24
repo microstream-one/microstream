@@ -1,4 +1,4 @@
-package one.microstream.afs.local;
+package one.microstream.afs.nio;
 
 import java.nio.file.Path;
 
@@ -7,22 +7,22 @@ import one.microstream.collections.types.XGettingTable;
 import one.microstream.io.XIO;
 
 
-public interface LocalDirectory extends LocalItem, ADirectory
+public interface NioDirectory extends NioItem, ADirectory
 {
 	@Override
-	public LocalDirectory parent();
+	public NioDirectory parent();
 	
 	@Override
-	public XGettingTable<String, ? extends LocalDirectory> directories();
+	public XGettingTable<String, ? extends NioDirectory> directories();
 	
 	@Override
-	public XGettingTable<String, ? extends LocalFile> files();
+	public XGettingTable<String, ? extends NioFile> files();
 	
 	
 	
 	public final class Default
-	extends ADirectory.AbstractWrapper<Path, LocalDirectory, LocalFile>
-	implements LocalDirectory
+	extends ADirectory.AbstractSubjectWrapping<Path, NioDirectory, NioFile>
+	implements NioDirectory
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -30,7 +30,7 @@ public interface LocalDirectory extends LocalItem, ADirectory
 
 		Default(
 			final Path           wrapped   ,
-			final LocalDirectory directory ,
+			final NioDirectory directory ,
 			final String         identifier
 		)
 		{

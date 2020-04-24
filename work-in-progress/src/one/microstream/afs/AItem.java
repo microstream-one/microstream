@@ -95,5 +95,10 @@ public interface AItem
 		}
 		
 	}
+	
+	public interface Wrapper
+	{
+		public AItem actual();
+	}
 		
 }
