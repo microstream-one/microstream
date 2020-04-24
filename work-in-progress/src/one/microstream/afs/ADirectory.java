@@ -5,6 +5,7 @@ import static one.microstream.X.mayNull;
 import java.util.function.Consumer;
 
 import one.microstream.collections.EqHashTable;
+import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingTable;
 
 public interface ADirectory extends AItem
@@ -12,6 +13,10 @@ public interface ADirectory extends AItem
 	public XGettingTable<String, ? extends ADirectory> directories();
 	
 	public XGettingTable<String, ? extends AFile> files();
+	
+	public boolean registerObserver(ADirectory.Observer observer);
+	
+	public boolean removeObserver(ADirectory.Observer observer);
 	
 	// (21.04.2020 TM)FIXME: priv#49: Move to an "ACreator" or such
 //	public ADirectory createDirectory(String name);
@@ -126,9 +131,9 @@ public interface ADirectory extends AItem
 		// instance fields //
 		////////////////////
 		
-		private final EqHashTable<String, D> directories = EqHashTable.New();
-		
-		private final EqHashTable<String, F> files = EqHashTable.New();
+		private final EqHashTable<String, D>        directories;
+		private final EqHashTable<String, F>        files      ;
+		private final HashEnum<ADirectory.Observer> observers  ;
 		
 		
 		
@@ -142,6 +147,9 @@ public interface ADirectory extends AItem
 		)
 		{
 			super(mayNull(parent), identifier);
+			this.directories = EqHashTable.New();
+			this.files       = EqHashTable.New();
+			this.observers   = HashEnum.New()   ;
 		}
 		
 		
@@ -162,16 +170,28 @@ public interface ADirectory extends AItem
 			return this.files;
 		}
 		
+		@Override
+		public synchronized final boolean registerObserver(final ADirectory.Observer observer)
+		{
+			return this.observers.add(observer);
+		}
+		
+		@Override
+		public synchronized final boolean removeObserver(final ADirectory.Observer observer)
+		{
+			return this.observers.removeOne(observer);
+		}
+		
 	}
 	
-	public abstract class AbstractWrapper<W, D extends ADirectory, F extends AFile>
+	public abstract class AbstractSubjectWrapping<S, D extends ADirectory, F extends AFile>
 	extends ADirectory.Abstract<D, F>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final W wrapped;
+		private final S subject;
 		
 		
 		
@@ -179,14 +199,14 @@ public interface ADirectory extends AItem
 		// constructors //
 		/////////////////
 
-		protected AbstractWrapper(
-			final W      wrapped   ,
+		protected AbstractSubjectWrapping(
+			final S      subject   ,
 			final D      parent    ,
 			final String identifier
 		)
 		{
 			super(parent, identifier);
-			this.wrapped = wrapped;
+			this.subject = subject;
 		}
 		
 		
@@ -195,23 +215,66 @@ public interface ADirectory extends AItem
 		// methods //
 		////////////
 		
-		public final W wrapped()
+		public final S wrapped()
 		{
-			return this.wrapped;
+			return this.subject;
 		}
 		
 	}
 	
-	public interface ActionListener
+	public abstract class AbstractRegistering<
+		S,
+		D extends ADirectory,
+		F extends AFile,
+		M extends AMutableDirectory
+	>
+		extends ADirectory.AbstractSubjectWrapping<S, D, F>
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final AMutableDirectory.Entry<M> mutator = AMutableDirectory.Entry();
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+	
+		protected AbstractRegistering(
+			final S      subject   ,
+			final D      parent    ,
+			final String identifier
+		)
+		{
+			super(subject, parent, identifier);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		public synchronized void accessMutator(final Consumer<? super AMutableDirectory.Entry<M>> accessor)
+		{
+			// freely access writer entry, but protected under the lock for this instance
+			accessor.accept(this.mutator);
+		}
+		
+	}
+	
+	public interface Observer
 	{
 		public void onBeforeCreateFile(String identifier, String name, String type);
 		
 		public void onAfterCreateFile(AFile createdFile, long creationTime);
 		
 		
-		public void onBeforeMoveFile(AFile fileToMove, AWritableDirectory targetDirectory);
+		public void onBeforeMoveFile(AFile fileToMove, AMutableDirectory targetDirectory);
 		
-		public void onAfterMoveFile(AFile movedFile, AWritableDirectory sourceDirectory, long deletionTime);
+		public void onAfterMoveFile(AFile movedFile, AMutableDirectory sourceDirectory, long deletionTime);
 		
 		
 		public void onBeforeDeleteFile(AFile fileToDelete);
@@ -225,14 +288,22 @@ public interface ADirectory extends AItem
 		public void onAfterCreateDirectory(ADirectory createdDirectory, long creationTime);
 		
 		
-		public void onBeforeMoveDirectory(ADirectory directoryToMove, AWritableDirectory targetDirectory);
+		public void onBeforeMoveDirectory(ADirectory directoryToMove, AMutableDirectory targetDirectory);
 		
-		public void onAfterMoveDirectory(ADirectory movedDirectory, AWritableDirectory sourceDirectory, long deletionTime);
+		public void onAfterMoveDirectory(ADirectory movedDirectory, AMutableDirectory sourceDirectory, long deletionTime);
 		
 		
 		public void onBeforeDeleteDirectory(ADirectory directoryToDelete);
 		
 		public void onAfterDeleteDirectory(ADirectory deletedDirectory, long deletionTime);
+		
+	}
+	
+	public interface Wrapper extends AItem.Wrapper
+	{
+		@Override
+		public ADirectory actual();
+		
 	}
 	
 }

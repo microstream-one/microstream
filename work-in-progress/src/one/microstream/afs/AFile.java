@@ -5,6 +5,11 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
+
+import one.microstream.collections.HashEnum;
+import one.microstream.collections.HashTable;
+import one.microstream.collections.types.XTable;
 
 public interface AFile extends AItem
 {
@@ -38,6 +43,10 @@ public interface AFile extends AItem
 	 * @return the length in bytes of this file's content.
 	 */
 	public long length();
+	
+	public boolean registerObserver(AFile.Observer observer);
+	
+	public boolean removeObserver(AFile.Observer observer);
 		
 	
 	
@@ -49,8 +58,9 @@ public interface AFile extends AItem
 		// instance fields //
 		////////////////////
 		
-		private final String name;
-		private final String type;
+		private final String                   name     ;
+		private final String                   type     ;
+		private final HashEnum<AFile.Observer> observers;
 		
 		
 		
@@ -66,8 +76,9 @@ public interface AFile extends AItem
 		)
 		{
 			super(notNull(parent), identifier);
-			this.name = coalesce(name, identifier);
-			this.type =  mayNull(type)            ;
+			this.name      = coalesce(name, identifier);
+			this.type      =  mayNull(type);
+			this.observers = HashEnum.New();
 		}
 		
 		
@@ -88,17 +99,28 @@ public interface AFile extends AItem
 			return this.type;
 		}
 		
+		@Override
+		public synchronized final boolean registerObserver(final AFile.Observer observer)
+		{
+			return this.observers.add(observer);
+		}
+		
+		@Override
+		public synchronized final boolean removeObserver(final AFile.Observer observer)
+		{
+			return this.observers.removeOne(observer);
+		}
 		
 	}
 	
-	public abstract class AbstractWrapper<W, D extends ADirectory>
+	public abstract class AbstractSubjectWrapping<S, D extends ADirectory>
 	extends AFile.Abstract<D>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final W wrapped;
+		private final S subject;
 		
 		
 		
@@ -106,8 +128,8 @@ public interface AFile extends AItem
 		// constructors //
 		/////////////////
 
-		protected AbstractWrapper(
-			final W      wrapped   ,
+		protected AbstractSubjectWrapping(
+			final S      subject   ,
 			final D      parent    ,
 			final String identifier,
 			final String name      ,
@@ -115,7 +137,7 @@ public interface AFile extends AItem
 		)
 		{
 			super(parent, identifier, name, type);
-			this.wrapped = wrapped;
+			this.subject = subject;
 		}
 		
 		
@@ -124,28 +146,86 @@ public interface AFile extends AItem
 		// methods //
 		////////////
 		
-		public final W wrapped()
+		public final S wrapped()
 		{
-			return this.wrapped;
+			return this.subject;
 		}
 		
 	}
 	
-	public interface ActionListener
+	public abstract class AbstractRegistering<
+		S,
+		D extends ADirectory,
+		R extends AReadableFile,
+		W extends AWritableFile
+	>
+		extends AFile.AbstractSubjectWrapping<S, D>
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final HashTable<Object, R>  readers = HashTable.New();
+		private final AWritableFile.Entry<W> writer = AWritableFile.Entry();
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		protected AbstractRegistering(
+			final S      wrapped   ,
+			final D      parent    ,
+			final String identifier,
+			final String name      ,
+			final String type
+		)
+		{
+			super(wrapped, parent, identifier, name, type);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		public synchronized void accessReaders(final Consumer<? super XTable<Object, R>> accessor)
+		{
+			// freely access readers table, but protected under the lock for this instance
+			accessor.accept(this.readers);
+		}
+		
+		public synchronized void accessWriter(final Consumer<? super AWritableFile.Entry<W>> accessor)
+		{
+			// freely access writer entry, but protected under the lock for this instance
+			accessor.accept(this.writer);
+		}
+		
+	}
+	
+	public interface Observer
 	{
 		public void onBeforeFileWrite(AWritableFile targetFile, Iterable<? extends ByteBuffer> sources);
 
 		public void onAfterFileWrite(AWritableFile targetFile, Iterable<? extends ByteBuffer> sources, long writeTime);
 		
 		
-		public void onBeforeFileMove(AFile fileToMove, AWritableDirectory targetDirectory);
+		public void onBeforeFileMove(AFile fileToMove, AMutableDirectory targetDirectory);
 		
-		public void onAfterFileMove(AFile movedFile, AWritableDirectory sourceDirectory, long deletionTime);
+		public void onAfterFileMove(AFile movedFile, AMutableDirectory sourceDirectory, long deletionTime);
 		
 		
 		public void onBeforeFileDelete(AFile fileToDelete);
 		
 		public void onAfterFileDelete(AFile deletedFile, long deletionTime);
+	}
+	
+	public interface Wrapper extends AItem.Wrapper
+	{
+		@Override
+		public AFile actual();
 	}
 	
 }
