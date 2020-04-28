@@ -4,31 +4,43 @@ import static one.microstream.X.notNull;
 
 import one.microstream.collections.EqHashTable;
 
-public interface AFileSystem<D, F> extends AccessManager<D, F>
+public interface AFileSystem extends AccessManager
 {
-	// (24.04.2020 TM)FIXME: priv#49: Shouldn't this be a specialized "AResolver" known a properly abstract FileSystem?
-	
-	public ADirectory resolveDirectory(D directory);
-	
-	public AFile resolveFile(F file);
+	public default ADirectory resolveDirectoryPath(final String... pathElements)
+	{
+		return this.resolveDirectoryPath(pathElements, 0, pathElements.length);
+	}
 
+	public ADirectory resolveDirectoryPath(String[] pathElements, int offset, int length);
+	
+	
+	public default AFile resolveFilePath(final String... pathElements)
+	{
+		return this.resolveFilePath(pathElements, 0, pathElements.length - 1, pathElements[pathElements.length - 1]);
+	}
+	
+	public default AFile resolveFilePath(final String[] directoryPathElements, final String fileIdentifier)
+	{
+		return this.resolveFilePath(directoryPathElements, 0, directoryPathElements.length, fileIdentifier);
+	}
+	
+	public AFile resolveFilePath(String[] directoryPathElements, int offset, int length, String fileIdentifier);
+	
 	
 	public abstract class Abstract<
-		SD,
-		SF,
 		D extends ADirectory,
 		R extends AReadableFile,
 		W extends AWritableFile,
-		F extends AFile.AbstractRegistering<SF, D, R, W>
+		F extends AFile.AbstractRegistering<?, D, R, W>
 	>
-		implements AFileSystem<SD, SF>
+		implements AFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
 		private final EqHashTable<String, D> rootDirectories;
-		private final AccessManager<SD, SF>  accessManager  ;
+		private final AccessManager          accessManager  ;
 
 		
 		
@@ -36,7 +48,7 @@ public interface AFileSystem<D, F> extends AccessManager<D, F>
 		// constructors //
 		/////////////////
 		
-		protected Abstract(final AccessManager<SD, SF> accessManager)
+		protected Abstract(final AccessManager accessManager)
 		{
 			super();
 			this.rootDirectories = EqHashTable.New();
@@ -50,29 +62,62 @@ public interface AFileSystem<D, F> extends AccessManager<D, F>
 		////////////
 		
 		@Override
-		public ADirectory resolveDirectory(final SD directory)
+		public ADirectory resolveDirectoryPath(
+			final String[] pathElements,
+			final int      offset      ,
+			final int      length
+		)
 		{
-			// (24.04.2020 TM)FIXME: priv#49: AFileSystem.Abstract#resolveDirectory()
+			// FIXME AFileSystem.Abstract#resolveDirectoryPath()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 		@Override
-		public AFile resolveFile(final SF file)
+		public AFile resolveFilePath(
+			final String[] directoryPathElements,
+			final int      offset               ,
+			final int      length               ,
+			final String   fileIdentifier
+		)
 		{
-			// (24.04.2020 TM)FIXME: priv#49: AFileSystem.Abstract#resolveFile()
-			throw new one.microstream.meta.NotImplementedYetError();
+			final ADirectory directory = this.resolveDirectoryPath(directoryPathElements, offset, length);
+			
+			synchronized(directory)
+			{
+				AFile file = directory.getFile(fileIdentifier);
+				if(file == null)
+				{
+					// (28.04.2020 TM)FIXME: priv#49: transaction-like use mutating
+					file = this.accessManager.createFile(directory, fileIdentifier);
+				}
+				
+				return file;
+			}
 		}
+		
 
 		@Override
-		public AReadableFile createDirectory(final AMutableDirectory parent, final SD directory)
+		public AReadableFile createDirectory(final AMutableDirectory parent, final String identifier)
 		{
-			return this.accessManager.createDirectory(parent, directory);
+			return this.accessManager.createDirectory(parent, identifier);
 		}
 		
 		@Override
-		public AReadableFile createFile(final AMutableDirectory parent, final SF file)
+		public AReadableFile createFile(final AMutableDirectory parent, final String identifier)
 		{
-			return this.accessManager.createFile(parent, file);
+			return this.accessManager.createFile(parent, identifier);
+		}
+		
+		@Override
+		public AReadableFile createFile(final AMutableDirectory parent, final String name, final String type)
+		{
+			return this.accessManager.createFile(parent, name, type);
+		}
+		
+		@Override
+		public AReadableFile createFile(final AMutableDirectory parent, final String identifier, final String name, final String type)
+		{
+			return this.accessManager.createFile(parent, identifier, name, type);
 		}
 		
 		@Override

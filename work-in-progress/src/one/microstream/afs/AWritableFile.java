@@ -4,6 +4,20 @@ import java.nio.ByteBuffer;
 
 public interface AWritableFile extends AReadableFile
 {
+	public void openWriting();
+	
+	public boolean isOpenWriting();
+	
+	// ONLY the writing IO-Aspect, not the AFS-management-level aspect. Reading aspect remains open.
+	public void closeWriting();
+	
+	public boolean isClosedWriting();
+
+	// implicitely #closeWriting PLUS the AFS-management-level WRITING aspect. BOTH reading aspects remain!
+	public boolean releaseWriting();
+	
+	
+	
 	public long write(Iterable<? extends ByteBuffer> sources);
 	
 	
