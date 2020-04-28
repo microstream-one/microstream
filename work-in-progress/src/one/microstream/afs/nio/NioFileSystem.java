@@ -3,13 +3,9 @@ package one.microstream.afs.nio;
 import java.nio.file.Path;
 
 import one.microstream.afs.AFileSystem;
+import one.microstream.afs.AResolver;
 
-public interface NioFileSystem extends AFileSystem<Path, Path>
+public interface NioFileSystem extends AFileSystem
 {
-	@Override
-	public NioDirectory resolveDirectory(Path directory);
-	
-	@Override
-	public NioFile resolveFile(Path file);
-	
+	public AResolver<Path, Path> resolver();
 }
