@@ -16,6 +16,10 @@ public interface AWritableFile extends AReadableFile
 	// implicitely #closeWriting PLUS the AFS-management-level WRITING aspect. BOTH reading aspects remain!
 	public boolean releaseWriting();
 	
+	// (29.04.2020 TM)FIXME: priv#49: reimplement to call #releaseWriting implicitely
+	@Override
+	public boolean release();
+	
 	
 	
 	public long write(Iterable<? extends ByteBuffer> sources);

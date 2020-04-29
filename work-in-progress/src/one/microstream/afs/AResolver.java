@@ -6,26 +6,32 @@ public interface AResolver<D, F>
 	
 	public AFile resolveFile(F file);
 	
+	public ADirectory ensureDirectory(D directory);
+	
+	public AFile ensureFile(F file);
 	
 	
-	public final class Default<D, F> implements AResolver<D, F>
+	
+	public class Default<D, F> implements AResolver<D, F>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final AFileSystem fileSystem;
-
+		private final AFileSystem         fileSystem  ;
+		private final APathResolver<D, F> pathResolver;
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Default(final AFileSystem fileSystem)
+		protected Default(final AFileSystem fileSystem, final APathResolver<D, F> pathResolver)
 		{
 			super();
-			this.fileSystem = fileSystem;
+			this.fileSystem   = fileSystem  ;
+			this.pathResolver = pathResolver;
 		}
 
 
@@ -37,15 +43,33 @@ public interface AResolver<D, F>
 		@Override
 		public ADirectory resolveDirectory(final D directory)
 		{
-			// FIXME AResolver<D,F>#resolveDirectory()
-			throw new one.microstream.meta.NotImplementedYetError();
+			final String[] path = this.pathResolver.resolveDirectoryToPath(directory);
+			
+			return this.fileSystem.resolveDirectoryPath(path);
 		}
 
 		@Override
 		public AFile resolveFile(final F file)
 		{
-			// FIXME AResolver<D,F>#resolveFile()
-			throw new one.microstream.meta.NotImplementedYetError();
+			final String[] path = this.pathResolver.resolveFileToPath(file);
+			
+			return this.fileSystem.resolveFilePath(path);
+		}
+
+		@Override
+		public ADirectory ensureDirectory(final D directory)
+		{
+			final String[] path = this.pathResolver.resolveDirectoryToPath(directory);
+			
+			return this.fileSystem.ensureDirectoryPath(path);
+		}
+
+		@Override
+		public AFile ensureFile(final F file)
+		{
+			final String[] path = this.pathResolver.resolveFileToPath(file);
+			
+			return this.fileSystem.ensureFilePath(path);
 		}
 		
 	}

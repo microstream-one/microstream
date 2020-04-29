@@ -1,6 +1,6 @@
 package one.microstream.afs;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public interface AccessManager
 {
@@ -12,9 +12,34 @@ public interface AccessManager
 	
 	public AReadableFile createFile(AMutableDirectory parent, String identifier, String name, String type);
 	
+	
+
+
+	public boolean isUsed(ADirectory directory);
+	
+	public boolean isMutating(ADirectory directory);
+
+	public boolean isReading(AFile file);
+	
+	public boolean isWriting(AFile file);
+	
+	
+	public boolean isUsed(ADirectory directory, Object owner);
+	
+	public boolean isMutating(ADirectory directory, Object owner);
+
+	public boolean isReading(AFile file, Object owner);
+	
+	public boolean isWriting(AFile file, Object owner);
+	
+	// (29.04.2020 TM)TODO: priv#49: executeIfNot~ methods? Or coverable by execute~ methods below?
+	
+	
 	public AReadableFile useReading(AFile file, Object owner);
 	
 	public AWritableFile useWriting(AFile file, Object owner);
+	
+	public AUsedDirectory use(ADirectory directory, Object owner);
 	
 	public AMutableDirectory useMutating(ADirectory directory, Object owner);
 	
@@ -23,71 +48,79 @@ public interface AccessManager
 		return Thread.currentThread();
 	}
 
-	public default <C extends Consumer<? super AMutableDirectory>> C executeMutating(
-		final ADirectory directory,
-		final C          logic
+	public default <R> R executeMutating(
+		final ADirectory                             directory,
+		final Function<? super AMutableDirectory, R> logic
 	)
 	{
 		return this.executeMutating(directory, this.defaultOwner(), logic);
 	}
 
-	public default <C extends Consumer<? super AWritableFile>> C executeWriting(
-		final AFile file ,
-		final C     logic
+	public default <R> R executeWriting(
+		final AFile                              file ,
+		final Function<? super AWritableFile, R> logic
 	)
 	{
 		return this.executeWriting(file, this.defaultOwner(), logic);
 	}
 	
-	public default <C extends Consumer<? super AMutableDirectory>> C executeMutating(
-		final ADirectory directory,
-		final Object     owner    ,
-		final C          logic
+	public default <R> R executeMutating(
+		final ADirectory                             directory,
+		final Object                                 owner    ,
+		final Function<? super AMutableDirectory, R> logic
 	)
 	{
 		synchronized(directory)
 		{
-			// (28.04.2020 TM)FIXME: priv#49: keep reading aspect!
+			final boolean isUsed = this.isUsed(directory, owner);
 			
 			final AMutableDirectory mDirectory = this.useMutating(directory, owner);
 			
 			try
 			{
-				logic.accept(mDirectory);
+				return logic.apply(mDirectory);
 			}
-			catch(final Throwable t)
+			finally
 			{
-				// (28.04.2020 TM)FIXME: priv#49: release
-				throw t;
+				if(isUsed)
+				{
+					mDirectory.releaseMutating();
+				}
+				else
+				{
+					mDirectory.release();
+				}
 			}
-			
-			return logic;
 		}
 	}
 	
-	public default <C extends Consumer<? super AWritableFile>> C executeWriting(
-		final AFile  file ,
-		final Object owner,
-		final C      logic
+	public default <R> R executeWriting(
+		final AFile                              file ,
+		final Object                             owner,
+		final Function<? super AWritableFile, R> logic
 	)
 	{
 		synchronized(file)
 		{
-			// (28.04.2020 TM)FIXME: priv#49: keep reading aspect!
+			final boolean isReading = this.isReading(file, owner);
 			
 			final AWritableFile mFile = this.useWriting(file, owner);
 			
 			try
 			{
-				logic.accept(mFile);
+				return logic.apply(mFile);
 			}
-			catch(final Throwable t)
+			finally
 			{
-				// (28.04.2020 TM)FIXME: priv#49: unregister owner?
-				throw t;
+				if(isReading)
+				{
+					mFile.releaseWriting();
+				}
+				else
+				{
+					mFile.release();
+				}
 			}
-			
-			return logic;
 		}
 	}
 	

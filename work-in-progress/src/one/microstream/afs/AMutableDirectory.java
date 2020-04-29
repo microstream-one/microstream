@@ -1,11 +1,15 @@
 package one.microstream.afs;
 
-public interface AMutableDirectory extends ADirectory, ADirectory.Wrapper
+public interface AMutableDirectory extends AUsedDirectory
 {
-	// (21.04.2020 TM)FIXME: priv#49: overhaul with new concept
-
 	public AMutableDirectory move(AFile file, AMutableDirectory destination);
 	
+
+	public boolean releaseMutating();
+	
+	// (29.04.2020 TM)FIXME: priv#49: reimplement to call #releaseMutating implicitely
+	@Override
+	public boolean release();
 	
 	
 	public static <M extends AMutableDirectory> Entry<M> Entry()
