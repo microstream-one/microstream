@@ -5,7 +5,7 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
@@ -191,16 +191,16 @@ public interface AFile extends AItem
 		// methods //
 		////////////
 		
-		public synchronized void accessReaders(final Consumer<? super XTable<Object, R>> accessor)
+		public synchronized <T> T accessReaders(final Function<? super XTable<Object, R>, T> accessor)
 		{
 			// freely access readers table, but protected under the lock for this instance
-			accessor.accept(this.readers);
+			return accessor.apply(this.readers);
 		}
 		
-		public synchronized void accessWriter(final Consumer<? super AWritableFile.Entry<W>> accessor)
+		public synchronized <T> T accessWriter(final Function<? super AWritableFile.Entry<W>, T> accessor)
 		{
 			// freely access writer entry, but protected under the lock for this instance
-			accessor.accept(this.writer);
+			return accessor.apply(this.writer);
 		}
 		
 	}
