@@ -147,7 +147,7 @@ public interface DisruptionCollector
 		}
 
 		@Override
-		public synchronized final DisruptionCollector collectDisruption(final Throwable disruption)
+		public final synchronized DisruptionCollector collectDisruption(final Throwable disruption)
 		{
 			if(this.disruptions == null)
 			{
@@ -160,7 +160,7 @@ public interface DisruptionCollector
 		}
 		
 		@Override
-		public synchronized final <C extends Consumer<? super Throwable>> C yield(final C target)
+		public final synchronized <C extends Consumer<? super Throwable>> C yield(final C target)
 		{
 			if(this.disruptions != null)
 			{
@@ -171,7 +171,7 @@ public interface DisruptionCollector
 		}
 		
 		@Override
-		public synchronized final boolean hasDisruptions()
+		public final synchronized boolean hasDisruptions()
 		{
 			return this.disruptions != null && !this.disruptions.isEmpty();
 		}

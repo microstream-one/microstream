@@ -104,13 +104,13 @@ public interface StorageLockFileManager extends Runnable
 		////////////
 
 		@Override
-		public synchronized final boolean isRunning()
+		public final synchronized boolean isRunning()
 		{
 			return this.isRunning;
 		}
 
 		@Override
-		public synchronized final StorageLockFileManager setRunning(final boolean running)
+		public final synchronized StorageLockFileManager setRunning(final boolean running)
 		{
 			this.isRunning = running;
 			

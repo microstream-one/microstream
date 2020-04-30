@@ -1,5 +1,7 @@
 package one.microstream.afs;
 
+import static one.microstream.X.notNull;
+
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
@@ -50,6 +52,17 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 			final Iterable<ByteBuffer> shovel = null;
 			target.write(shovel);
 		}
+	}
+	
+	public static AReadableFile New(
+		final AccessManager accessManager,
+		final AFile         actual
+	)
+	{
+		return new AReadableFile.Default(
+			notNull(accessManager),
+			AFile.actual(actual) // just to be sure/safe
+		);
 	}
 	
 }

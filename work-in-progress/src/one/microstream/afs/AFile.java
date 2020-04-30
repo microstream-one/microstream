@@ -100,13 +100,13 @@ public interface AFile extends AItem
 		}
 		
 		@Override
-		public synchronized final boolean registerObserver(final AFile.Observer observer)
+		public final synchronized boolean registerObserver(final AFile.Observer observer)
 		{
 			return this.observers.add(observer);
 		}
 		
 		@Override
-		public synchronized final boolean removeObserver(final AFile.Observer observer)
+		public final synchronized boolean removeObserver(final AFile.Observer observer)
 		{
 			return this.observers.removeOne(observer);
 		}
@@ -220,6 +220,14 @@ public interface AFile extends AItem
 		public void onBeforeFileDelete(AFile fileToDelete);
 		
 		public void onAfterFileDelete(AFile deletedFile, long deletionTime);
+	}
+
+	public static AFile actual(final AFile file)
+	{
+		return file instanceof AFile.Wrapper
+			? ((AFile.Wrapper)file).actual()
+			: file
+		;
 	}
 	
 	public interface Wrapper extends AItem.Wrapper

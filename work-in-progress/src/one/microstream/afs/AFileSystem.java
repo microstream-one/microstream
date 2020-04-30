@@ -49,20 +49,14 @@ public interface AFileSystem extends AccessManager
 		
 	
 	
-	public abstract class Abstract<
-		D extends ADirectory,
-		R extends AReadableFile,
-		W extends AWritableFile,
-		F extends AFile.AbstractRegistering<?, D, R, W>
-	>
-		implements AFileSystem
+	public final class Default implements AFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final EqHashTable<String, D> rootDirectories;
-		private final AccessManager          accessManager  ;
+		private final EqHashTable<String, ADirectory> rootDirectories;
+		private final AccessManager                   accessManager  ;
 
 		
 		
@@ -70,7 +64,7 @@ public interface AFileSystem extends AccessManager
 		// constructors //
 		/////////////////
 		
-		protected Abstract(final AccessManager accessManager)
+		Default(final AccessManager accessManager)
 		{
 			super();
 			this.rootDirectories = EqHashTable.New();
@@ -84,28 +78,28 @@ public interface AFileSystem extends AccessManager
 		////////////
 		
 		@Override
-		public boolean isUsed(final ADirectory directory)
+		public final synchronized boolean isUsed(final ADirectory directory)
 		{
 			// FIXME AFileSystem.Abstract#isUsed()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 		@Override
-		public boolean isMutating(final ADirectory directory)
+		public final synchronized boolean isMutating(final ADirectory directory)
 		{
 			// FIXME AFileSystem.Abstract#isMutating()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 		@Override
-		public boolean isReading(final AFile file)
+		public final synchronized boolean isReading(final AFile file)
 		{
 			// FIXME AFileSystem.Abstract#isReading()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 		@Override
-		public boolean isWriting(final AFile file)
+		public final synchronized boolean isWriting(final AFile file)
 		{
 			// FIXME AFileSystem.Abstract#isWriting()
 			throw new one.microstream.meta.NotImplementedYetError();
@@ -114,28 +108,28 @@ public interface AFileSystem extends AccessManager
 		
 		
 		@Override
-		public boolean isUsed(final ADirectory directory, final Object owner)
+		public final synchronized boolean isUsed(final ADirectory directory, final Object owner)
 		{
 			// FIXME AFileSystem.Abstract#isUsed()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 		@Override
-		public boolean isMutating(final ADirectory directory, final Object owner)
+		public final synchronized boolean isMutating(final ADirectory directory, final Object owner)
 		{
 			// FIXME AFileSystem.Abstract#isMutating()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 		@Override
-		public boolean isReading(final AFile file, final Object owner)
+		public final synchronized boolean isReading(final AFile file, final Object owner)
 		{
 			// FIXME AFileSystem.Abstract#isReading()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 		@Override
-		public boolean isWriting(final AFile file, final Object owner)
+		public final synchronized boolean isWriting(final AFile file, final Object owner)
 		{
 			// FIXME AFileSystem.Abstract#isWriting()
 			throw new one.microstream.meta.NotImplementedYetError();
@@ -144,7 +138,7 @@ public interface AFileSystem extends AccessManager
 		
 		
 		@Override
-		public ADirectory resolveDirectoryPath(
+		public final synchronized ADirectory resolveDirectoryPath(
 			final String[] pathElements,
 			final int      offset      ,
 			final int      length
@@ -155,7 +149,7 @@ public interface AFileSystem extends AccessManager
 		}
 		
 		@Override
-		public ADirectory ensureDirectoryPath(
+		public final synchronized ADirectory ensureDirectoryPath(
 			final String[] pathElements,
 			final int      offset      ,
 			final int      length
@@ -166,7 +160,7 @@ public interface AFileSystem extends AccessManager
 		}
 		
 		@Override
-		public AFile resolveFilePath(
+		public final synchronized AFile resolveFilePath(
 			final String[] directoryPathElements,
 			final int      offset               ,
 			final int      length               ,
@@ -182,7 +176,7 @@ public interface AFileSystem extends AccessManager
 		}
 		
 		@Override
-		public AFile ensureFilePath(
+		public final synchronized AFile ensureFilePath(
 			final String[] directoryPathElements,
 			final int      offset               ,
 			final int      length               ,

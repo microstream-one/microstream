@@ -205,7 +205,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		}
 
 		@Override
-		public synchronized final void close()
+		public final synchronized void close()
 		{
 			if(this.hasUsers())
 			{
@@ -219,7 +219,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		}
 		
 		@Override
-		public synchronized final boolean tryClose()
+		public final synchronized boolean tryClose()
 		{
 			if(this.hasUsers())
 			{
@@ -272,13 +272,13 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		
 
 		@Override
-		public synchronized final boolean hasUsers()
+		public final synchronized boolean hasUsers()
 		{
 			return this.usagesSize != 0;
 		}
 		
 		@Override
-		public synchronized final boolean executeIfUnsued(final Consumer<? super StorageLockedFile> action)
+		public final synchronized boolean executeIfUnsued(final Consumer<? super StorageLockedFile> action)
 		{
 			if(this.hasUsers())
 			{
@@ -291,13 +291,13 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		}
 
 		@Override
-		public synchronized final boolean registerUsage(final StorageFileUser fileUser)
+		public final synchronized boolean registerUsage(final StorageFileUser fileUser)
 		{
 			return this.ensureEntry(fileUser).increment();
 		}
 		
 		@Override
-		public synchronized final boolean clearUsages(final StorageFileUser fileUser)
+		public final synchronized boolean clearUsages(final StorageFileUser fileUser)
 		{
 			for(int i = 0; i < this.usagesSize; i++)
 			{
@@ -312,7 +312,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		}
 		
 		@Override
-		public synchronized final boolean unregisterUsage(final StorageFileUser fileUser)
+		public final synchronized boolean unregisterUsage(final StorageFileUser fileUser)
 		{
 			for(int i = 0; i < this.usagesSize; i++)
 			{
