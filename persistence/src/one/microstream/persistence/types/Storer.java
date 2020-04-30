@@ -17,7 +17,7 @@ public interface Storer extends PersistenceStoring
 	 * <p>
 	 * This is an atomatic all-or-nothing operation: either all collected data will be persisted successfully,
 	 * or non of it will be persisted. Partially persisted data will be reverted / rolled back in case of a failure.
-	 * 
+	 *
 	 * @return some kind of status information, potentially null.
 	 */
 	public Object commit();
@@ -40,13 +40,13 @@ public interface Storer extends PersistenceStoring
 	 * It is strongly advised to use one of the following alternatives instead:
 	 * {@link #skip(Object)}
 	 * {@link #skipNulled(Object)}
-	 * 
+	 *
 	 * @param instance the instance / reference to be skipped.
-	 * 
+	 *
 	 * @param objectId the objectId to be used as a reference to the skipped instance.
-	 * 
+	 *
 	 * @return {@literal true} if the instance has been newly registered, {@literal false} if it already was.
-	 * 
+	 *
 	 * @see #skip(Object)
 	 * @see #skipNulled(Object)
 	 */
@@ -60,16 +60,16 @@ public interface Storer extends PersistenceStoring
 	 * {@link PersistenceObjectRegistry}, then is associated object id will be used. Otherwise, the null-Id will be
 	 * used, effectively "nulling out" all references to this instance on the persistent level.<br>
 	 * The latter behavior is exactly the same as {@link #skipNulled(Object)}.
-	 * 
+	 *
 	 * @param instance the instance / reference to be skipped.
-	 * 
+	 *
 	 * @return {@literal true} if the instance has been newly registered, {@literal false} if it already was.
-	 * 
+	 *
 	 * @see #skipNulled(Object)
 	 * @see #skipMapped(Object, long)
 	 */
 	public boolean skip(Object instance);
-	
+
 	/**
 	 * Registers the passed {@literal instance} to be skipped from the data persisting process.
 	 * <p>
@@ -78,11 +78,11 @@ public interface Storer extends PersistenceStoring
 	 * the instance is already registered for a certain object id at the used {@link PersistenceObjectRegistry}
 	 * or not.<br>
 	 * To make the skipping consider existing object id registrations, use {@link #skip(Object)}.
-	 * 
+	 *
 	 * @param instance the instance / reference to be skipped by using .
-	 * 
+	 *
 	 * @return {@literal true} if the instance has been newly registered, {@literal false} if it already was.
-	 * 
+	 *
 	 * @see #skip(Object)
 	 * @see #skipMapped(Object, long)
 	 */
@@ -92,7 +92,7 @@ public interface Storer extends PersistenceStoring
 	 * @return the amount of unique instances / references that have already been registered by this
 	 * {@link Storer} instance. This includes both instances encountered during the data collection process and
 	 * instances that have explicitely been registered to be skipped.
-	 * 
+	 *
 	 * @see #skip(Object)
 	 * @see #skipMapped(Object, long)
 	 */
@@ -102,7 +102,7 @@ public interface Storer extends PersistenceStoring
 	 * Queries, whether this {@link Storer} instance has no instances / references registered.
 	 * <p>
 	 * Calling this method is simply an alias for {@code this.size() == 0L}.
-	 * 
+	 *
 	 * @return whether this {@link Storer} instance is empty.
 	 */
 	public default boolean isEmpty()
@@ -160,16 +160,14 @@ public interface Storer extends PersistenceStoring
 //	public Storer initialize(long initialCapacity);
 
 	/**
-	 * Enforces the instance to be initialized, discarding any previous state (clearing it) if necessary prior to
-	 * calling {@link #initialize()}.
+	 * Enforces the instance to be initialized, discarding any previous state (clearing it) if necessary.
 	 *
 	 * @return this.
 	 */
 	public Storer reinitialize();
 
 	/**
-	 * Enforces the instance to be initialized, discarding any previous state (clearing it) if necessary prior to
-	 * calling {@link #initialize()}.
+	 * Enforces the instance to be initialized, discarding any previous state (clearing it) if necessary.
 	 *
 	 * @return this.
 	 */
