@@ -110,7 +110,6 @@ public class DocumentationManager extends RouteManager
 	 * Get the documentation snippet of all http methods for a registered uri
 	 *
 	 * @param uri
-	 * @param httpMethod
 	 * @return JsonObject
 	 */
 	public Object getDocumentation(final String uri)
@@ -147,7 +146,7 @@ public class DocumentationManager extends RouteManager
 		{
 			throw new StorageRestAdapterException(e);
 		}
-		
+
 		final JsonObject handlers = doc.getAsJsonObject("handler");
 
 		handlers.entrySet().forEach( handler -> {

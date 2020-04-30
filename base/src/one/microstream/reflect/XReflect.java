@@ -55,7 +55,7 @@ public final class XReflect
 			// childich checked exceptions ...
 			throw new NoSuchMethodRuntimeException(e);
 		}
-		
+
 		try
 		{
 			return defaultConstructor.newInstance();
@@ -69,7 +69,7 @@ public final class XReflect
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static final Field setAccessible(final Class<?> actualClass, final Field field)
 	{
 		try
@@ -103,7 +103,7 @@ public final class XReflect
 		throws SecurityException/*, InaccessibleObjectException*/
 	{
 		field.setAccessible(true);
-		
+
 		return field;
 	}
 
@@ -190,7 +190,7 @@ public final class XReflect
 		{
 			return false;
 		}
-		
+
 		return c == superclass ? true : isSubClassOf(c, superclass);
 	}
 
@@ -209,10 +209,10 @@ public final class XReflect
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/*
 	 * Welcome to a method checking if a "Class" is a class. Because they couldn't manage to
 	 * name the type generally representing types "Type" but named it "Class" instead, so that in Java Reflection,
@@ -229,7 +229,7 @@ public final class XReflect
 			&& !type.isSynthetic()
 		;
 	}
-	
+
 	/**
 	 * Utility method fixing the WRONGLY implemented {@link Class#isEnum()}.
 	 * <p>
@@ -240,9 +240,9 @@ public final class XReflect
 	 * returns {@literal false} on the generated type. That is a bug since the type is still an enum, a sub class
 	 * of {@link java.lang.Enum}. So the correct way of testing a class for being an enum is using
 	 * {@code java.lang.Enum.class.isAssignableFrom(...)}. This method does that.
-	 * 
+	 *
 	 * @param c the {@link Class} to be tested.
-	 * 
+	 *
 	 * @return whether the passed {@link Class} is a sub class of {@link java.lang.Enum}, i.e. an {@literal enum}.
 	 */
 	public static boolean isEnum(final Class<?> c)
@@ -253,24 +253,24 @@ public final class XReflect
 		 * #isEnum()
 		 * #isDeclaredEnum()
 		 * The latter ("theirs") is probably useful, too, but the primary meaning of "isEnum" is THIS logic here.
-		 * 
+		 *
 		 * Since they made their ENUM bit mask unusable (as usual in their reflection code), it can't be used here.
 		 * It has to be assumed that only proper enum types extend Enum. If not, blame it on the incompetent
 		 * JDK reflection code lacking proper separation of concerns concepts. Amateurs.
 		 */
 		return java.lang.Enum.class.isAssignableFrom(c);
 	}
-	
+
 	public static boolean isDeclaredEnum(final Class<?> c)
 	{
 		return c != null && c.isEnum();
 	}
-	
+
 	public static boolean isSubEnum(final Class<?> c)
 	{
 		return c != null && isDeclaredEnum(c.getSuperclass());
 	}
-	
+
 	public static Class<?> getDeclaredEnumClass(final Class<?> c)
 	{
 		return !isEnum(c)
@@ -280,17 +280,17 @@ public final class XReflect
 				: c.getSuperclass()
 		;
 	}
-	
+
 	public static Object resolveEnumConstantInstance(final Class<?> type, final int ordinal)
 	{
 		validateIsEnum(type);
-		
+
 		// Class detour required for AIC-like special subclass enums constants.
 		final Object[] jvmEnumConstants = XReflect.getDeclaredEnumClass(type).getEnumConstants();
-		
+
 		return jvmEnumConstants[ordinal];
 	}
-	
+
 	public static <T> T resolveEnumConstantInstanceTyped(final Class<T> type, final int ordinal)
 	{
 		/*
@@ -298,16 +298,16 @@ public final class XReflect
 		 * The instance is actually of type T, but it is stored in a "? super T" array of its parent enum type.
 		 */
 		final Object enumConstantInstance = XReflect.resolveEnumConstantInstance(type, ordinal);
-		
+
 		// compensate the subclass typing hassle
 		@SuppressWarnings("unchecked")
 		final T enumConstantinstance = (T)enumConstantInstance;
-		
+
 		return enumConstantinstance;
 	}
-	
 
-	
+
+
 	public static <T> Class<T> validateIsEnum(final Class<T> type)
 	{
 		if(XReflect.isEnum(type))
@@ -317,15 +317,15 @@ public final class XReflect
 		// (07.08.2019 TM)EXCP: proper exception
 		throw new IllegalArgumentException("Not an enum type: " + type);
 	}
-	
+
 	/**
 	 * Alias for {@code iterateDeclaredFieldsUpwards(startingClass, Object.class, logic)}.
-	 * 
+	 *
 	 * @param <L> The logic's contextual type.
-	 * 
+	 *
 	 * @param startingClass the class whose fields shall be iterated.
 	 * @param logic the {@link Consumer} to be executed on each field.
-	 * 
+	 *
 	 * @return the passed {@literal logic}.
 	 */
 	public static final <L extends Consumer<Field>> L iterateDeclaredFieldsUpwards(
@@ -346,13 +346,13 @@ public final class XReflect
 	 * This method is useful to maintain the natural declaration order of the fields, iterating from the last
 	 * declared field of the lowest class (the passed class itself) to the first declared field of the highest class
 	 * declaring a field.
-	 * 
+	 *
 	 * @param <L> The logic's contextual type.
-	 * 
+	 *
 	 * @param startingClass the class whose fields shall be iterated.
 	 * @param boundingClass the class in the hierarchy at which to stop iterating, exclusive bound.
 	 * @param logic the {@link Consumer} to be executed on each field.
-	 * 
+	 *
 	 * @return the passed {@literal logic}.
 	 */
 	public static final <L extends Consumer<Field>> L iterateDeclaredFieldsUpwards(
@@ -366,7 +366,7 @@ public final class XReflect
 		{
 			return logic;
 		}
-		
+
 		try
 		{
 			for(Class<?> currentClass = startingClass; currentClass != Object.class; currentClass = currentClass.getSuperclass())
@@ -377,13 +377,13 @@ public final class XReflect
 					logic.accept(fields[i]);
 				}
 			}
-				
+
 		}
 		catch(final ThrowBreak b)
 		{
 			// abort iteration
 		}
-		
+
 		return logic;
 	}
 
@@ -414,7 +414,7 @@ public final class XReflect
 	public static final Field getAnyField(final Class<?> c, final String name) throws NoSuchFieldRuntimeException
 	{
 		notNull(name);
-		
+
 		try
 		{
 			return getAnyField(c, field ->
@@ -442,15 +442,15 @@ public final class XReflect
 				throw X.BREAK();
 			}
 		});
-		
+
 		if(result.get() != null)
 		{
 			return result.get();
 		}
-		
+
 		throw new NoSuchFieldRuntimeException(new NoSuchFieldException());
 	}
-	
+
 	public static final Field getInstanceFieldOfType(final Class<?> declaringType, final Class<?> fieldType)
 		throws NoSuchFieldRuntimeException
 	{
@@ -470,7 +470,7 @@ public final class XReflect
 			);
 		}
 	}
-	
+
 	public static final Method getAnyMethod(
 		final Class<?> c   ,
 		final String   name
@@ -478,7 +478,7 @@ public final class XReflect
 		throws NoSuchMethodRuntimeException
 	{
 		notNull(name);
-		
+
 		try
 		{
 			return getAnyMethod(c, method ->
@@ -493,7 +493,7 @@ public final class XReflect
 			);
 		}
 	}
-	
+
 	public static final Method getAnyMethod(
 		final Class<?>                  c        ,
 		final Predicate<? super Method> predicate
@@ -509,15 +509,15 @@ public final class XReflect
 				throw X.BREAK();
 			}
 		});
-		
+
 		if(result.get() != null)
 		{
 			return result.get();
 		}
-		
+
 		throw new NoSuchMethodRuntimeException(new NoSuchMethodException());
 	}
-	
+
 	public static final <C extends Consumer<? super Method>> C iterateAllClassMethods(
 		final Class<?> clazz,
 		final C        logic
@@ -537,7 +537,7 @@ public final class XReflect
 		{
 			return logic;
 		}
-		
+
 		try
 		{
 			for(Class<?> currentClass = clazz; currentClass != bound; currentClass = currentClass.getSuperclass())
@@ -552,7 +552,7 @@ public final class XReflect
 		{
 			/* abort inner iteration */
 		}
-		
+
 		return logic;
 	}
 
@@ -565,7 +565,7 @@ public final class XReflect
 	{
 		return Modifier.isStatic(field.getModifiers());
 	}
-	
+
 	public static final boolean isSynthetic(final Member field)
 	{
 		return Modifier.isSynchronized(field.getModifiers());
@@ -681,7 +681,7 @@ public final class XReflect
 			throw new IllegalAccessRuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Resolves the passed type name to a runtime type (instance of type {@link Class}).
 	 * In contrary to JDK's type resolving mechanisms, this method resolves primitive type names, as well.
@@ -692,11 +692,11 @@ public final class XReflect
 	 * (classes, interfaces, arrays and in later Java versions enums and annotations), not just classes.
 	 * That the java inventors seemingly didn't understand their own type system and just called everything
 	 * "Class" on the API-level,* even interfaces, is just an error that should be repeated as less as possible.<br>
-	 * 
+	 *
 	 * @param typeName the type name to be resolved, primitive name or full qualified type name.
-	 * 
+	 *
 	 * @return the resolved type instance (of type {@link Class})
-	 * 
+	 *
 	 * @throws LinkageError see {@link Class#forName(String)}
 	 * @throws ExceptionInInitializerError see {@link Class#forName(String)}
 	 * @throws ClassNotFoundException see {@link Class#forName(String)}
@@ -710,14 +710,14 @@ public final class XReflect
 			: Class.forName(typeName, true, classLoader)
 		;
 	}
-	
+
 	/**
 	 * Uses {@link Class#forName(String)} which uses the calling class's {@link ClassLoader}.
-	 * 
+	 *
 	 * @param typeName
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws LinkageError
 	 * @throws ExceptionInInitializerError
 	 * @throws ClassNotFoundException
@@ -731,13 +731,13 @@ public final class XReflect
 			: Class.forName(typeName)
 		;
 	}
-	
+
 	/**
 	 * Calls {@link #resolveType(String, ClassLoader)}, but suppresses any {@link ClassNotFoundException} and returns
 	 * {@code null} instead. This is useful if the passed class name is only potentially resolvable
 	 * at runtime and is still valid if not. Example: resolving a old type dictionary as far as possible
 	 * and marking the not resolvable types as unresolvable.
-	 * 
+	 *
 	 * @param className
 	 * @return the {@link Class} instance representing the passed class name or {@code null} if unresolevable.
 	 */
@@ -753,19 +753,19 @@ public final class XReflect
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Alias for {@link #tryIterativeResolveType(ClassLoader, String...)} with the following difference:<br>
 	 * If none of the passed {@literal typeNames} can be resolved, a {@link ClassNotFoundException} listing
 	 * all passed {@literal typeNames} is thrown.
-	 * 
+	 *
 	 * @param typeNames the full qualified type names to be attempted to be resolved one by one.
-	 * 
+	 *
 	 * @return the first successfully resolved {@link Class} instance.
-	 * 
+	 *
 	 * @throws ClassNotFoundException if none of the passed {@literal typeNames} could have been resolved.
-	 * 
-	 * @see #tryIterativeResolveType(ClassLoader, String)
+	 *
+	 * @see #tryIterativeResolveType(ClassLoader, String...)
 	 */
 	public static final Class<?> iterativeResolveType(
 		final ClassLoader classLoader,
@@ -778,14 +778,14 @@ public final class XReflect
 		{
 			return type;
 		}
-		
+
 		// if none of the provided type names resulted in a match, a combined ClassNotFoundException is thrown
 		throw new ClassNotFoundException(Arrays.toString(typeNames));
 	}
-	
+
 	/**
 	 * This methods attempts to resolve the passed {@literal typeNames} to {@link Class} instances using
-	 * {@link #resolveType(ClassLoader, String)} one by one.
+	 * {@link #resolveType(String, ClassLoader)} one by one.
 	 * The {@link Class} instance of the first successful attempt is returned.
 	 * If none of the passed {@literal typeNames} can be resolved, {@literal null} is returned.
 	 * See {@link #iterativeResolveType(ClassLoader, String...)} for an exception-throwing version.
@@ -801,12 +801,12 @@ public final class XReflect
 	 * more source code is transformed into contextless plain strings.<br>
 	 * Therefore, when in doubt, it is preferable to stick to the general notion of this method being a "bad idea"
 	 * and finding a more reliable solution.
-	 * 
+	 *
 	 * @param typeNames the full qualified type names to be attempted to be resolved one by one.
-	 * 
+	 *
 	 * @return the first successfully resolved {@link Class} instance or {@literal null}
-	 * 
-	 * @see #resolveType(ClassLoader, String)
+	 *
+	 * @see #resolveType(String, ClassLoader)
 	 */
 	public static final Class<?> tryIterativeResolveType(
 		final ClassLoader classLoader,
@@ -815,7 +815,7 @@ public final class XReflect
 	{
 		notNull(typeNames);
 		notEmpty(typeNames);
-		
+
 		for(final String typeName : typeNames)
 		{
 			try
@@ -830,24 +830,24 @@ public final class XReflect
 				continue;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Local alias for {@link ClassLoader#getSystemClassLoader()}.
-	 * 
+	 *
 	 * @return the system class loader.
 	 */
 	public static final ClassLoader defaultTypeResolvingClassLoader()
 	{
 		return ClassLoader.getSystemClassLoader();
 	}
-	
+
 	/**
 	 * Calls {@link #resolveType(String, ClassLoader)} with {@link #defaultTypeResolvingClassLoader()}.
 	 * Make sure this is a suitable {@link ClassLoader} when using this method.
-	 * 
+	 *
 	 * @param typeName
 	 * @return
 	 */
@@ -856,11 +856,11 @@ public final class XReflect
 	{
 		return resolveType(typeName, defaultTypeResolvingClassLoader());
 	}
-	
+
 	/**
 	 * Calls {@link #tryResolveType(String, ClassLoader)} with {@link #defaultTypeResolvingClassLoader()}.
 	 * Make sure this is a suitable {@link ClassLoader} when using this method.
-	 * 
+	 *
 	 * @param className
 	 * @return
 	 */
@@ -868,12 +868,12 @@ public final class XReflect
 	{
 		return tryResolveType(className, defaultTypeResolvingClassLoader());
 	}
-	
+
 	/**
 	 * Calls {@link #iterativeResolveType(ClassLoader, String...)} with {@link #defaultTypeResolvingClassLoader()}.
 	 * Make sure this is a suitable {@link ClassLoader} when using this method.
-	 * 
-	 * @param typeName
+	 *
+	 * @param typeNames
 	 * @return
 	 */
 	public static final Class<?> iterativeResolveType(final String... typeNames)
@@ -881,12 +881,12 @@ public final class XReflect
 	{
 		return iterativeResolveType(defaultTypeResolvingClassLoader(), typeNames);
 	}
-	
+
 	public static final Class<?> tryIterativeResolveType(final String... typeNames)
 	{
 		return tryIterativeResolveType(defaultTypeResolvingClassLoader(), typeNames);
 	}
-		
+
 	public static final Field tryGetDeclaredField(
 		final Class<?> declaringClass,
 		final String   fieldName
@@ -896,7 +896,7 @@ public final class XReflect
 		{
 			return null;
 		}
-		
+
 		try
 		{
 			return declaringClass.getDeclaredField(fieldName);
@@ -943,10 +943,10 @@ public final class XReflect
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	public static final boolean isOfAnyType(
 		final Class<?>           subject   ,
 		final Iterable<Class<?>> supertypes
@@ -959,10 +959,10 @@ public final class XReflect
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * *sigh*
 	 *
@@ -973,22 +973,22 @@ public final class XReflect
 	{
 		return (Class<T>)object.getClass();
 	}
-	
+
 	public static char fieldIdentifierDelimiter()
 	{
 		return '#';
 	}
-	
+
 	public static String typename_enum()
 	{
 		return "enum";
 	}
-	
+
 	public static char nestedClassNameSeparator()
 	{
 		return '$';
 	}
-	
+
 	public static String toFullQualifiedFieldName(
 		final Class<?>                actualClass,
 		final java.lang.reflect.Field field
@@ -1004,7 +1004,7 @@ public final class XReflect
 	{
 		return toFullQualifiedFieldName(field.getDeclaringClass(), field.getName());
 	}
-	
+
 	public static String toFullQualifiedFieldName(final Class<?> c, final String fieldName)
 	{
 		return c.getName() + fieldIdentifierDelimiter() + fieldName;
@@ -1017,7 +1017,7 @@ public final class XReflect
 		{
 			throw new IllegalArgumentException(); // (16.10.2013 TM)TODO: proper Exception
 		}
-		
+
 		return index;
 	}
 
@@ -1094,7 +1094,7 @@ public final class XReflect
 		}
 		return primitiveType;
 	}
-	
+
 	public static <T> Instantiator<T> WrapDefaultConstructor(final Class<T> type)
 		throws NoSuchMethodRuntimeException
 	{
@@ -1113,17 +1113,17 @@ public final class XReflect
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Checks if the passed type is equal to or a sub type of {@link Collection} or {@link Map}.
 	 * <p>
 	 * <i>Sad that such a method is necessary in the first place, but here we are.</i>
 	 * <br>(See {@link XMap} for an example on how to do it correctly.)
-	 * 
+	 *
 	 * @param type the type to be checked.
-	 * 
+	 *
 	 * @return whether or not the passed type is a java.util collection "in the broader sense".
-	 * 
+	 *
 	 * @see Collection
 	 * @see Map
 	 */
@@ -1134,7 +1134,7 @@ public final class XReflect
 			|| Map.class.isAssignableFrom(type)
 		;
 	}
-	
+
 	public static boolean hasEnumeratedTypeName(final Class<?> type)
 	{
 		final String typeName  = type.getName();
@@ -1146,23 +1146,23 @@ public final class XReflect
 			{
 				return false;
 			}
-			
+
 			final char c = typeName.charAt(i + 1);
 			if(XChars.isDigit(c))
 			{
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	public static boolean isProxyClass(final Class<?> c)
 	{
 		/* (20.08.2019 TM)NOTE:
 		 * I'm willing to concede lack of understanding on the topic, but IMHO, the method
 		 * Proxy#isProxyClass is nonsensical and unusable given its name. Or maybe it's just badly named.
-		 * 
+		 *
 		 * To determine if a class is a Proxy class it MUST ONLY be checked for extending Proxy, but NOT
 		 * any second condition, like being registered in some cache somewhere or something.
 		 * What if (for whatever reason) Proxy's proxyClassCache does not contain the class in question?
@@ -1170,30 +1170,30 @@ public final class XReflect
 		 * Surely not. If any arbitrary proxy class is to be identified, it MUST ONLY be checked for extending
 		 * Proxy. No second condition that might cause the check to result in a false instead of a true.
 		 * Anything else is a bug and therefore unusable.
-		 * 
+		 *
 		 * Maybe the method's intention is more along the line of testing if a certain class has really
 		 * been dynamically created and properly registered, to filter out all classes that might extend
 		 * Proxy but were not really validly created (but hacked into existence or whatever).
 		 * So maybe what the method does is something like "isValidProxyClass". Identify the "good" proxies,
 		 * reject everything else. That is a validation method, not a type identifying method as the name implies.
 		 * Wouldn't be the first time that namings in the JDK are horribly off.
-		 * 
+		 *
 		 * However, for recognizing ANY proxy type, that method would be dangerously wrong: Anything that
 		 * extends Proxy is a Proxy. Period. No second condition.
 		 * ESPECIALLY including any class that extends Proxy but has been created in another way.
-		 * 
+		 *
 		 * So the singular check is the correct thing to do for the given name and its implied logic.
 		 * And competence of JDK developers can, once more, not be trusted.
 		 */
 		return Proxy.class.isAssignableFrom(c);
 	}
-	
+
 	public static boolean isValidProxyClass(final Class<?> c)
 	{
 		// horribly wrong name for a validation method
 		return Proxy.isProxyClass(c);
 	}
-	
+
 	public static Field[] collectPrimitiveFieldsByByteSize(final Field[] fields, final int byteSize)
 	{
 		if(byteSize != XMemory.byteSize_byte()
@@ -1216,12 +1216,12 @@ public final class XReflect
 		}
 		return Arrays.copyOf(primFields, primFieldsCount);
 	}
-	
+
 	public static final Field[] collectInstanceFields(final Class<?> objectClass)
 	{
 		return collectInstanceFields(objectClass, XFunc.all());
 	}
-	
+
 	public static final Field[] collectInstanceFields(final Class<?> objectClass, final Predicate<? super Field> selector)
 	{
 		final BulkList<Field> objectFields = BulkList.New(20);
@@ -1236,15 +1236,15 @@ public final class XReflect
 			{
 				return;
 			}
-			
+
 			objectFields.add(field);
 		});
-		
+
 		final Field[] array = XArrays.reverse(objectFields.toArray(Field.class));
-		
+
 		return array;
 	}
-	
+
 	public static int calculatePrimitivesLength(final Field[] primFields)
 	{
 		int length = 0;
@@ -1258,7 +1258,7 @@ public final class XReflect
 		}
 		return length;
 	}
-	
+
 	public static <T, S extends T> S copyFields(
 		final T source,
 		final S target
@@ -1266,7 +1266,7 @@ public final class XReflect
 	{
 		return copyFields(source, target, XFunc.all(), CopyPredicate::all);
 	}
-	
+
 	public static <T, S extends T> S copyFields(
 		final T                        source       ,
 		final S                        target       ,
@@ -1275,7 +1275,7 @@ public final class XReflect
 	{
 		return copyFields(source, target, fieldSelector, CopyPredicate::all);
 	}
-		
+
 
 	public static <T, S extends T> S copyFields(
 		final T                        source       ,
@@ -1286,7 +1286,7 @@ public final class XReflect
 	{
 		validateFamiliarClass(source, target);
 		final Field[] copyFields = collectInstanceFields(source.getClass(), fieldSelector);
-		
+
 		for(final Field field : copyFields)
 		{
 			try
@@ -1304,10 +1304,10 @@ public final class XReflect
 				);
 			}
 		}
-		
+
 		return target;
 	}
-	
+
 	final static <T, S extends T> S copyFields(
 		final T             source       ,
 		final S             target       ,
@@ -1333,10 +1333,10 @@ public final class XReflect
 				);
 			}
 		}
-		
+
 		return target;
 	}
-	
+
 	private static <T, S extends T> void copyFieldValue(
 		final T             source      ,
 		final S             target      ,
@@ -1348,7 +1348,7 @@ public final class XReflect
 		// must circumvent reflection access by low-level access due to warnings about JDK-internal reflection access.
 		final long fieldOffset = XMemory.objectFieldOffset(field);
 //		XReflect.setAccessible(field);
-		
+
 		if(field.getType().isPrimitive())
 		{
 			copyPrimitiveFieldValue(source, target, field, fieldOffset, copySelector);
@@ -1361,11 +1361,11 @@ public final class XReflect
 		{
 			return;
 		}
-		
+
 		XMemory.setObject(target, fieldOffset, value);
 //		field.set(target, value);
 	}
-	
+
 	private static <T, S extends T>void copyPrimitiveFieldValue(
 		final T             source        ,
 		final S             target        ,
@@ -1429,10 +1429,10 @@ public final class XReflect
 			throw new RuntimeException("Field with unhandled primitive type: " + primitiveField);
 		}
 	}
-	
+
 	/**
 	 * Checks if {@code superClassInstance.getClass().isAssignableFrom(sameOrSubClassInstance.getClass())}
-	 * 
+	 *
 	 * @param <T>
 	 * @param <S>
 	 * @param superClassInstance
@@ -1447,7 +1447,7 @@ public final class XReflect
 		{
 			return;
 		}
-		
+
 		 // (27.02.2020 TM)EXCP: proper exception
 		throw new RuntimeException(
 			XChars.systemString(sameOrSubClassInstance)
@@ -1455,7 +1455,7 @@ public final class XReflect
 			+ XChars.systemString(superClassInstance)
 		);
 	}
-	
+
 	public final static Class<?> getSuperClassNonNull(final Class<?> c)
 	{
 		return c == Object.class
@@ -1463,16 +1463,16 @@ public final class XReflect
 			: c.getSuperclass()
 		;
 	}
-	
-	
+
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
-	
+
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
-	 * 
+	 *
 	 * @throws UnsupportedOperationException
 	 */
 	private XReflect()
@@ -1480,5 +1480,5 @@ public final class XReflect
 		// static only
 		throw new UnsupportedOperationException();
 	}
-	
+
 }

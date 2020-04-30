@@ -13,8 +13,8 @@ import one.microstream.persistence.types.Persistence;
  * and various utility methods.
  * <p>
  * To setup and start a database, see the class "EmbeddedStorage".
- * 
- * 
+ *
+ *
  * @author TM
  * @see Persistence
  * @see StorageChannel
@@ -29,56 +29,56 @@ public final class Storage
 	 * Trivial helper constant.
 	 */
 	private static final long ONE_MILLION = 1_000_000L;
-	
+
 	/**
 	 * Dummy file number for the transactions file.
 	 */
 	private static final long TRANSACTIONS_FILE_NUMBER = -1;
-	
+
 
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
-	
+
 	static final long millisecondsToNanoseconds(final long milliseconds)
 	{
 		return milliseconds * ONE_MILLION;
 	}
-	
+
 	static final long nanosecondsToMilliseconds(final long nanoseconds)
 	{
 		return nanoseconds / ONE_MILLION;
 	}
-	
+
 	static final long millisecondsToSeconds(final long milliseconds)
 	{
 		return milliseconds / ONE_MILLION;
 	}
-	
+
 	/**
-	 * Returns the dummy file number for transaction files, which is the value {@value #TRANSACTIONS_FILE_NUMBER}.
+	 * Returns the dummy file number for transaction files, which is the value <code>-1</code>.
 	 * <p>
 	 * Transaction files conceptually don't have a file number, but are subject to the {@link StorageNumberedFile}
 	 * type, so a dummy value is required. Since transaction files are planned to be replaced in the future
 	 * by meta data inlined directly in the storage files, a dummy value like this is a preferable solution
 	 * to an elaborate restructuring.
-	 * 
+	 *
 	 * @return the dummy file number for transaction files.
 	 */
 	public static final long transactionsFileNumber()
 	{
 		return TRANSACTIONS_FILE_NUMBER;
 	}
-	
+
 	/**
 	 * Checks if the passed {@link StorageNumberedFile} is a transaction file by comparing its file number to
 	 * {@link Storage#transactionsFileNumber()}.
-	 * 
+	 *
 	 * @param file the {@link StorageNumberedFile} to be checked.
-	 * 
+	 *
 	 * @return whether the passed file is a transactions file.
-	 * 
+	 *
 	 * @see Storage#transactionsFileNumber()
 	 * @see Storage#isDataFile(StorageNumberedFile)
 	 */
@@ -86,26 +86,26 @@ public final class Storage
 	{
 		return file.number() == TRANSACTIONS_FILE_NUMBER;
 	}
-	
+
 	/**
 	 * Checks if the passed {@link StorageNumberedFile} is a storage data file.
-	 * 
+	 *
 	 * @param file the {@link StorageNumberedFile} to be checked.
-	 * 
+	 *
 	 * @return whether the passed file is a storage data file.
-	 * 
+	 *
 	 * @see Storage#isTransactionFile(StorageNumberedFile)
 	 */
 	public static final boolean isDataFile(final StorageNumberedFile file)
 	{
 		return file.number() > 0;
 	}
-	
+
 	/**
 	 * {@linkDoc StorageFileProvider#New()}
-	 * 
+	 *
 	 * @return {@linkDoc StorageFileProvider#New()@return}
-	 * 
+	 *
 	 * @see Storage#FileProvider(Path)
 	 * @see StorageFileProvider#New()
 	 * @see StorageFileProvider.Builder
@@ -115,14 +115,14 @@ public final class Storage
 	{
 		return StorageFileProvider.New();
 	}
-	
+
 	/**
 	 * Alias for {@code FileProvider(storageDirectory.toPath())}
-	 * 
+	 *
 	 * @param storageDirectory {@linkDoc StorageFileProvider#New(Path):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
-	 * 
+	 *
 	 * @deprecated replaced by {@link #FileProvider(Path)}
 	 */
 	@Deprecated
@@ -130,14 +130,14 @@ public final class Storage
 	{
 		return FileProvider(storageDirectory.toPath());
 	}
-	
+
 	/**
 	 * {@linkDoc StorageFileProvider#New(Path)}
-	 * 
+	 *
 	 * @param storageDirectory {@linkDoc StorageFileProvider#New(Path):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
-	 * 
+	 *
 	 * @see Storage#FileProvider()
 	 * @see StorageFileProvider#New(Path)
 	 * @see StorageFileProvider.Builder
@@ -147,12 +147,12 @@ public final class Storage
 	{
 		return StorageFileProvider.New(storageDirectory);
 	}
-		
+
 	/**
 	 * {@linkDoc StorageFileProvider#Builder()}
-	 * 
+	 *
 	 * @return {@linkDoc StorageFileProvider#Builder()@return}
-	 * 
+	 *
 	 * @see Storage#FileProvider()
 	 * @see Storage#FileProvider(Path)
 	 * @see StorageFileProvider.Builder
@@ -164,9 +164,9 @@ public final class Storage
 
 	/**
 	 * {@linkDoc StorageConfiguration#New()}
-	 * 
+	 *
 	 * @return {@linkDoc StorageConfiguration#New()@return}
-	 * 
+	 *
 	 * @see Storage#Configuration(StorageFileProvider)
 	 * @see StorageConfiguration#New()
 	 * @see StorageConfiguration.Builder
@@ -175,14 +175,14 @@ public final class Storage
 	{
 		return StorageConfiguration.New();
 	}
-	
+
 	/**
 	 * {@linkDoc StorageConfiguration#New(StorageFileProvider)}
-	 * 
+	 *
 	 * @param fileProvider {@linkDoc StorageConfiguration#New(StorageFileProvider):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageConfiguration#New(StorageFileProvider)@return}
-	 * 
+	 *
 	 * @see Storage#Configuration()
 	 * @see StorageConfiguration#New(StorageFileProvider)
 	 * @see StorageConfiguration.Builder
@@ -193,12 +193,12 @@ public final class Storage
 	{
 		return StorageConfiguration.New(fileProvider);
 	}
-	
+
 	/**
 	 * {@linkDoc StorageConfiguration#Builder()}
-	 * 
+	 *
 	 * @return {@linkDoc StorageConfiguration#Builder()@return}
-	 * 
+	 *
 	 * @see Storage#Configuration()
 	 * @see Storage#Configuration(StorageFileProvider)
 	 * @see StorageConfiguration#Builder()
@@ -211,9 +211,9 @@ public final class Storage
 
 	/**
 	 * {@linkDoc StorageHousekeepingController#New()}
-	 * 
+	 *
 	 * @return {@linkDoc StorageHousekeepingController#New()@return}
-	 * 
+	 *
 	 * @see Storage#HousekeepingController(long, long)
 	 * @see StorageHousekeepingController#New()
 	 * @see StorageHousekeepingController.Defaults
@@ -225,12 +225,12 @@ public final class Storage
 
 	/**
 	 * {@linkDoc StorageHousekeepingController#New(long, long)}
-	 * 
+	 *
 	 * @param housekeepingIntervalMs {@linkDoc StorageHousekeepingController#New(long, long):}	 *
 	 * @param housekeepingTimeBudgetNs {@linkDoc StorageHousekeepingController#New(long, long):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageHousekeepingController#New(long, long)@return}
-	 * 
+	 *
 	 * @see Storage#HousekeepingController()
 	 * @see StorageHousekeepingController#New(long, long)
 	 */
@@ -244,9 +244,9 @@ public final class Storage
 
 	/**
 	 * {@linkDoc StorageEntityCacheEvaluator#New()}
-	 * 
+	 *
 	 * @return {@linkDoc StorageEntityCacheEvaluator#New()@return}
-	 * 
+	 *
 	 * @see Storage#EntityCacheEvaluator(long)
 	 * @see Storage#EntityCacheEvaluator(long, long)
 	 * @see StorageEntityCacheEvaluator#New()
@@ -258,13 +258,13 @@ public final class Storage
 
 	/**
 	 * {@linkDoc StorageEntityCacheEvaluator#New(long)}
-	 * 
+	 *
 	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long)@return}
-	 * 
+	 *
 	 * @throws {@linkDoc StorageEntityCacheEvaluator#New(long)@throws}
-	 * 
+	 *
 	 * @see Storage#EntityCacheEvaluator()
 	 * @see Storage#EntityCacheEvaluator(long, long)
 	 * @see StorageEntityCacheEvaluator#New(long)
@@ -275,17 +275,17 @@ public final class Storage
 	{
 		return StorageEntityCacheEvaluator.New(timeoutMs);
 	}
-	
+
 	/**
 	 * {@linkDoc StorageEntityCacheEvaluator#New(long, long)}
-	 * 
+	 *
 	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
 	 * @param threshold {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}
-	 * 
+	 *
 	 * @throws {@linkDoc StorageEntityCacheEvaluator#New(long, long)@throws}
-	 * 
+	 *
 	 * @see Storage#EntityCacheEvaluator()
 	 * @see Storage#EntityCacheEvaluator(long)
 	 * @see StorageEntityCacheEvaluator#New(long, long)
@@ -300,9 +300,9 @@ public final class Storage
 
 	/**
 	 * {@linkDoc StorageChannelCountProvider#New()}
-	 * 
+	 *
 	 * @return {@linkDoc StorageChannelCountProvider#New()@return}
-	 * 
+	 *
 	 * @see Storage#ChannelCountProvider(int)
 	 * @see StorageChannelCountProvider#New()
 	 */
@@ -313,21 +313,21 @@ public final class Storage
 
 	/**
 	 * {@linkDoc StorageChannelCountProvider#New(int)}
-	 * 
+	 *
 	 * @param channelCount {@linkDoc StorageChannelCountProvider#New(int):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageChannelCountProvider#New(int)@return}
 	 */
 	public static final StorageChannelCountProvider ChannelCountProvider(final int channelCount)
 	{
 		return StorageChannelCountProvider.New(channelCount);
 	}
-	
+
 	/**
 	 * {@linkDoc StorageDataFileEvaluator#New()}
-	 * 
+	 *
 	 * @return {@linkDoc StorageDataFileEvaluator#New()@return}
-	 * 
+	 *
 	 * @see Storage#DataFileEvaluator(int, int)
 	 * @see Storage#DataFileEvaluator(int, int, double)
 	 * @see StorageDataFileEvaluator#New()
@@ -336,15 +336,15 @@ public final class Storage
 	{
 		return StorageDataFileEvaluator.New();
 	}
-	
+
 	/**
 	 * {@linkDoc StorageDataFileEvaluator#New(int, int)}
-	 * 
+	 *
 	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int):}
 	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int)@return}
-	 * 
+	 *
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int, double)
 	 * @see StorageDataFileEvaluator#New(int, int)
@@ -356,15 +356,15 @@ public final class Storage
 	{
 		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize);
 	}
-	
+
 	/**
 	 * {@linkDoc StorageDataFileEvaluator#New(int, int, double)}
-	 * 
+	 *
 	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
 	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
-	 * 
+	 *
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int)
 	 * @see StorageDataFileEvaluator#New(int, int, double)
@@ -380,14 +380,14 @@ public final class Storage
 
 	/**
 	 * {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean)}
-	 * 
+	 *
 	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
 	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
 	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
 	 * @param cleanUpHeadFile {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 * 
+	 *
 	 * @return dissolveHeadfile {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean)@return}
-	 * 
+	 *
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int)
 	 * @see Storage#DataFileEvaluator(int, int, double)
@@ -402,23 +402,23 @@ public final class Storage
 	{
 		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, minimumUseRatio, cleanUpHeadFile);
 	}
-	
+
 	/**
-	 * @deprecated replaced by {@link #BackupSetup(Path)} 
+	 * @deprecated replaced by {@link #BackupSetup(Path)}
 	 */
 	@Deprecated
 	public static final StorageBackupSetup BackupSetup(final File backupDirectory)
 	{
 		return BackupSetup(backupDirectory.toPath());
 	}
-	
+
 	/**
 	 * {@linkDoc StorageBackupSetup#New(Path)}
-	 * 
+	 *
 	 * @param backupDirectory {@linkDoc StorageBackupSetup#New(Path):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageBackupSetup#New(Path)@return}
-	 * 
+	 *
 	 * @see StorageBackupSetup#New(StorageFileProvider)
 	 * @see StorageBackupHandler
 	 */
@@ -426,14 +426,14 @@ public final class Storage
 	{
 		return StorageBackupSetup.New(backupDirectory);
 	}
-	
+
 	/**
 	 * {@linkDoc StorageBackupSetup#New(Path)}
-	 * 
+	 *
 	 * @param backupDirectoryPath the path to the backup directory
-	 * 
+	 *
 	 * @return {@linkDoc StorageBackupSetup#New(Path)@return}
-	 * 
+	 *
 	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupSetup#New(StorageFileProvider)
 	 * @see StorageBackupHandler
@@ -445,11 +445,11 @@ public final class Storage
 
 	/**
 	 * {@linkDoc StorageBackupSetup#New(StorageFileProvider)}
-	 * 
+	 *
 	 * @param backupFileProvider {@linkDoc StorageBackupSetup#New(StorageFileProvider):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageBackupSetup#New(StorageFileProvider)@return}
-	 * 
+	 *
 	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupHandler
 	 */
@@ -457,12 +457,12 @@ public final class Storage
 	{
 		return StorageBackupSetup.New(backupFileProvider);
 	}
-	
+
 	/**
 	 * {@linkDoc StorageLockFileSetup#Provider()}
-	 * 
+	 *
 	 * @return {@linkDoc StorageLockFileSetup#Provider()@return}
-	 * 
+	 *
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider(Charset)
 	 * @see #LockFileSetupProvider(long)
@@ -472,14 +472,14 @@ public final class Storage
 	{
 		return StorageLockFileSetup.Provider();
 	}
-	
+
 	/**
 	 * {@linkDoc StorageLockFileSetup#Provider(Charset)}
-	 * 
+	 *
 	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset)@return}
-	 * 
+	 *
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider()
 	 * @see #LockFileSetupProvider(long)
@@ -491,14 +491,14 @@ public final class Storage
 	{
 		return StorageLockFileSetup.Provider(charset);
 	}
-	
+
 	/**
 	 * {@linkDoc StorageLockFileSetup#Provider(long)}
-	 * 
+	 *
 	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(long):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageLockFileSetup#Provider(long)@return}
-	 * 
+	 *
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider()
 	 * @see #LockFileSetupProvider(Charset)
@@ -510,15 +510,15 @@ public final class Storage
 	{
 		return StorageLockFileSetup.Provider(updateInterval);
 	}
-	
+
 	/**
 	 * {@linkDoc StorageLockFileSetup#Provider(Charset, long)}
-	 * 
+	 *
 	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
 	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
-	 * 
+	 *
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider()
 	 * @see #LockFileSetupProvider(Charset)
@@ -531,7 +531,7 @@ public final class Storage
 	{
 		return StorageLockFileSetup.Provider(charset, updateInterval);
 	}
-	
+
 	/**
 	 * Consolidates the storage system represented by the passed {@link StorageConnection} by calling<br>
 	 * {@link StorageConnection#issueFullGarbageCollection()}<br>
@@ -546,7 +546,7 @@ public final class Storage
 	 * @param storageConnection The connection to the storage that shall be consolidated.
 	 * @param entityEvaluator   The function evaluating whether to clear an entity from the cache.<br>
 	 *                          May be {@literal null} to indicate the use of the live configuration as a default.
-	 * 
+	 *
 	 * @return the passed storageConnection instance.
 	 */
 	public static final <C extends StorageConnection> C consolidate(
@@ -570,15 +570,15 @@ public final class Storage
 	 * with {@literal null} as additional parameters (causing live configuration to be used instead).
 	 *
 	 * @param storageConnection {@linkDoc Storage#consolidate(StorageConnection, StorageEntityCacheEvaluator):}
-	 * 
+	 *
 	 * @return {@linkDoc Storage#consolidate(StorageConnection, StorageEntityCacheEvaluator)@return}
 	 */
 	public static final <C extends StorageConnection> C consolidate(final C storageConnection)
 	{
 		return consolidate(storageConnection, null);
 	}
-		
-	
+
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -586,7 +586,7 @@ public final class Storage
 
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
-	 * 
+	 *
 	 * @throws UnsupportedOperationException
 	 */
 	private Storage()

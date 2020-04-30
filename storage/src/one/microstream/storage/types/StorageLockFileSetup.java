@@ -11,14 +11,14 @@ import one.microstream.util.ProcessIdentityProvider;
 public interface StorageLockFileSetup
 {
 	public StorageFileProvider lockFileProvider();
-	
+
 	public Charset charset();
 
 	public String processIdentity();
-	
+
 	public long updateInterval();
-	
-	
+
+
 	public interface Defaults
 	{
 		public static Charset defaultCharset()
@@ -26,14 +26,14 @@ public interface StorageLockFileSetup
 			// permanent re-aliasing of the same one and only reasonable CharSet which is UTF-8.
 			return Persistence.standardCharset();
 		}
-		
+
 		public static long defaultUpdateInterval()
 		{
 			// default of 10 seconds (meaning the lock file content is read, validated and written every 10 seconds)
 			return 10_000L;
 		}
 	}
-	
+
 	public static StorageLockFileSetup New(
 		final StorageFileProvider     lockFileProvider       ,
 		final ProcessIdentityProvider processIdentityProvider
@@ -46,7 +46,7 @@ public interface StorageLockFileSetup
 			Defaults.defaultUpdateInterval()
 		);
 	}
-	
+
 	public static StorageLockFileSetup New(
 		final StorageFileProvider     lockFileProvider       ,
 		final ProcessIdentityProvider processIdentityProvider,
@@ -61,24 +61,24 @@ public interface StorageLockFileSetup
 			positive(updateInterval)
 		);
 	}
-	
+
 	public final class Default implements StorageLockFileSetup
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
+
 		private final StorageFileProvider     lockFileProvider       ;
 		private final ProcessIdentityProvider processIdentityProvider;
 		private final Charset                 charset                ;
 		private final long                    updateInterval         ;
-		
-		
-		
+
+
+
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
-		
+
 		Default(
 			final StorageFileProvider     lockFileProvider       ,
 			final ProcessIdentityProvider processIdentityProvider,
@@ -93,8 +93,8 @@ public interface StorageLockFileSetup
 			this.updateInterval          = updateInterval         ;
 		}
 
-		
-		
+
+
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
@@ -116,25 +116,25 @@ public interface StorageLockFileSetup
 		{
 			return this.updateInterval;
 		}
-		
+
 		@Override
 		public final Charset charset()
 		{
 			return this.charset;
 		}
-		
+
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageLockFileSetup.Provider} instance
 	 * using default values specified by {@link StorageLockFileSetup.Defaults}.
 	 * <p>
-	 * For explanations and customizing values, see {@link StorageLockFileSetup.Provider(Charset, long)}.
-	 * 
+	 * For explanations and customizing values, see {@link StorageLockFileSetup#Provider(Charset, long)}.
+	 *
 	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
-	 * 
+	 *
 	 * @see StorageLockFileSetup
 	 */
 	public static StorageLockFileSetup.Provider Provider()
@@ -144,17 +144,17 @@ public interface StorageLockFileSetup
 			StorageLockFileSetup.Defaults.defaultUpdateInterval()
 		);
 	}
-	
+
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageLockFileSetup.Provider} instance
 	 * using the passed values and default values specified by {@link StorageLockFileSetup.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLockFileSetup#Provider(Charset, long)}.
-	 * 
+	 *
 	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
-	 * 
+	 *
 	 * @see StorageLockFileSetup
 	 */
 	public static StorageLockFileSetup.Provider Provider(
@@ -166,17 +166,17 @@ public interface StorageLockFileSetup
 			StorageLockFileSetup.Defaults.defaultUpdateInterval()
 		);
 	}
-	
+
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageLockFileSetup.Provider} instance
 	 * using the passed values and default values specified by {@link StorageLockFileSetup.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLockFileSetup#Provider(Charset, long)}.
-	 * 
+	 *
 	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
-	 * 
+	 *
 	 * @see StorageLockFileSetup
 	 */
 	public static StorageLockFileSetup.Provider Provider(
@@ -188,19 +188,19 @@ public interface StorageLockFileSetup
 			updateInterval
 		);
 	}
-	
+
 	/**
 	 * Pseudo-constructor method to create a new {@link Provider} instance
 	 * using the passed values.
 	 * <p>
 	 * A {@link Provider} instance created by this method provides new {@link StorageLockFileSetup}
 	 * instances that use the passed {@literal Charset} and {@literal updateInterval}.
-	 * 
+	 *
 	 * @param charset the {@link Charset} to be used for the lock file content.
 	 * @param updateInterval the update interval in ms.
-	 * 
+	 *
 	 * @return a new {@link Provider} instance.
-	 * 
+	 *
 	 * @see StorageLockFileSetup
 	 */
 	public static StorageLockFileSetup.Provider Provider(
@@ -213,28 +213,28 @@ public interface StorageLockFileSetup
 			positive(updateInterval)
 		);
 	}
-	
+
 	@FunctionalInterface
 	public interface Provider
 	{
 		// (03.06.2019 TM)TODO: every provider should be changed to this pattern of getting the foundation passed
 		public StorageLockFileSetup provideLockFileSetup(StorageFoundation<?> foundation);
-		
+
 		public final class Default implements StorageLockFileSetup.Provider
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
-			
+
 			final Charset charset       ;
 			final long    updateInterval;
-			
-			
-			
+
+
+
 			///////////////////////////////////////////////////////////////////////////
 			// constructors //
 			/////////////////
-			
+
 			Default(
 				final Charset charset       ,
 				final long    updateInterval
@@ -244,13 +244,13 @@ public interface StorageLockFileSetup
 				this.charset        = charset       ;
 				this.updateInterval = updateInterval;
 			}
-			
-			
-			
+
+
+
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
-			
+
 			@Override
 			public StorageLockFileSetup provideLockFileSetup(
 				final StorageFoundation<?> foundation
@@ -263,9 +263,9 @@ public interface StorageLockFileSetup
 					this.updateInterval
 				);
 			}
-			
+
 		}
-		
+
 	}
-	
+
 }

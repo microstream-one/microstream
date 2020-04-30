@@ -38,38 +38,38 @@ import one.microstream.storage.types.EmbeddedStorageManager;
  * <p>
  * Added features:<br>
  * - {@link #getEvictionManagerFactory()}<br>
- * - {@link #getSerializerFieldPredicate()} 
+ * - {@link #getSerializerFieldPredicate()}
  * </p>
  *
  * @param <K> the key type
  * @param <V> the value type
  */
 public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
-{	
+{
 	/**
 	 * The property name which is used to hand the external configuration file path to the application.
 	 * <p>
 	 * Either as system property or in the context's configuration, e.g. Spring's application.properties.
-	 * 
+	 *
 	 * @return "microstream.cache.configuration.path"
 	 */
 	public static String PathProperty()
 	{
 		return "microstream.cache.configuration.path";
 	}
-	
+
 	/**
 	 * The default name of the cache configuration resource.
-	 * 
+	 *
 	 * @see #Load()
-	 * 
+	 *
 	 * @return "microstream-cache.properties"
 	 */
 	public static String DefaultResourceName()
 	{
 		return "microstream-cache.properties";
 	}
-	
+
 	/**
 	 * Tries to load the default configuration file.
 	 * <p>
@@ -83,17 +83,17 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * <li>The user home directory</li>
 	 * </ul></li>
 	 * </ul>
-	 * 
+	 *
 	 * @see #PathProperty()
 	 * @see #DefaultResourceName()
-	 * 
+	 *
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
 	public static CacheConfiguration<?, ?> Load()
 	{
 		return Load(CacheConfigurationLoader.Defaults.defaultCharset());
 	}
-	
+
 	/**
 	 * Tries to load the default configuration file.
 	 * <p>
@@ -107,10 +107,10 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * <li>The user home directory</li>
 	 * </ul></li>
 	 * </ul>
-	 * 
+	 *
 	 * @see #PathProperty()
 	 * @see #DefaultResourceName()
-	 * 
+	 *
 	 * @param charset the charset used to load the configuration
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
@@ -137,7 +137,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		{
 			return Load(url, charset);
 		}
-		
+
 		File file = new File(defaultName);
 		if(file.exists())
 		{
@@ -148,10 +148,10 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		{
 			return Load(file, charset);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Tries to load the default configuration file.
 	 * <p>
@@ -165,10 +165,10 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * <li>The user home directory</li>
 	 * </ul></li>
 	 * </ul>
-	 * 
+	 *
 	 * @see #PathProperty()
 	 * @see #DefaultResourceName()
-	 * 
+	 *
 	 * @param keyType the key type
 	 * @param valueType the value type
 	 * @return the loaded configuration or <code>null</code> if none was found
@@ -180,11 +180,11 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	{
 		return Load(
 			CacheConfigurationLoader.Defaults.defaultCharset(),
-			keyType, 
+			keyType,
 			valueType
 		);
 	}
-	
+
 	/**
 	 * Tries to load the default configuration file.
 	 * <p>
@@ -198,10 +198,10 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * <li>The user home directory</li>
 	 * </ul></li>
 	 * </ul>
-	 * 
+	 *
 	 * @see #PathProperty()
 	 * @see #DefaultResourceName()
-	 * 
+	 *
 	 * @param charset the charset used to load the configuration
 	 * @param keyType the key type
 	 * @param valueType the value type
@@ -232,7 +232,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		{
 			return Load(url, charset, keyType, valueType);
 		}
-		
+
 		File file = new File(defaultName);
 		if(file.exists())
 		{
@@ -243,10 +243,10 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		{
 			return Load(file, charset, keyType, valueType);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Tries to load the configuration file from <code>path</code>.
 	 * <p>
@@ -256,8 +256,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * <li>As an URL</li>
 	 * <li>As a file</li>
 	 * </ul>
-	 * 
-	 * @param path a classpath resource, a file path or an URL 
+	 *
+	 * @param path a classpath resource, a file path or an URL
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static CacheConfiguration<?, ?> Load(
@@ -278,8 +278,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * <li>As an URL</li>
 	 * <li>As a file</li>
 	 * </ul>
-	 * 
-	 * @param path a classpath resource, a file path or an URL 
+	 *
+	 * @param path a classpath resource, a file path or an URL
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 */
@@ -292,7 +292,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			CacheConfigurationLoader.load(path, charset)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration file from <code>path</code>.
 	 * <p>
@@ -302,8 +302,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * <li>As an URL</li>
 	 * <li>As a file</li>
 	 * </ul>
-	 * 
-	 * @param path a classpath resource, a file path or an URL 
+	 *
+	 * @param path a classpath resource, a file path or an URL
 	 * @param keyType the key type
 	 * @param valueType the value type
 	 * @return the configuration or <code>null</code> if none was found
@@ -321,7 +321,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			valueType
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration file from <code>path</code>.
 	 * <p>
@@ -331,8 +331,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * <li>As an URL</li>
 	 * <li>As a file</li>
 	 * </ul>
-	 * 
-	 * @param path a classpath resource, a file path or an URL 
+	 *
+	 * @param path a classpath resource, a file path or an URL
 	 * @param charset the charset used to load the configuration
 	 * @param keyType the key type
 	 * @param valueType the value type
@@ -353,13 +353,13 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		{
 			return Load(url, charset, keyType, valueType);
 		}
-			
+
 		try
 		{
 			url = new URL(path);
 			return Load(url, charset, keyType, valueType);
 		}
-		catch(MalformedURLException e)
+		catch(final MalformedURLException e)
 		{
 			final File file = new File(path);
 			if(file.exists())
@@ -367,14 +367,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 				return Load(file, charset, keyType, valueType);
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Tries to load the configuration from <code>path</code>.
-	 * 
-	 * @param path file system path 
+	 *
+	 * @param path file system path
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
@@ -389,14 +389,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from <code>path</code>.
-	 * 
-	 * @param path file system path 
+	 *
+	 * @param path file system path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static CacheConfiguration<?, ?> Load(
-		final Path path, 
+		final Path path,
 		final Charset charset
 	)
 	{
@@ -404,11 +404,11 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			CacheConfigurationLoader.loadFromPath(path, charset)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration from the file <code>file</code>.
-	 * 
-	 * @param file file path 
+	 *
+	 * @param file file path
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
@@ -423,14 +423,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from the file <code>file</code>.
-	 * 
-	 * @param file file path 
+	 *
+	 * @param file file path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static CacheConfiguration<?, ?> Load(
-		final File file, 
+		final File file,
 		final Charset charset
 	)
 	{
@@ -441,8 +441,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from the URL <code>url</code>.
-	 * 
-	 * @param url URL path 
+	 *
+	 * @param url URL path
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
@@ -457,14 +457,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from the URL <code>url</code>.
-	 * 
-	 * @param url URL path 
+	 *
+	 * @param url URL path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static CacheConfiguration<?, ?> Load(
-		final URL url, 
+		final URL url,
 		final Charset charset
 	)
 	{
@@ -475,8 +475,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
-	 * 
-	 * @param inputStream the stream to read from 
+	 *
+	 * @param inputStream the stream to read from
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
@@ -491,14 +491,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
-	 * 
-	 * @param inputStream the stream to read from 
+	 *
+	 * @param inputStream the stream to read from
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static CacheConfiguration<?, ?> Load(
-		final InputStream inputStream, 
+		final InputStream inputStream,
 		final Charset charset
 	)
 	{
@@ -509,8 +509,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from <code>path</code>.
-	 * 
-	 * @param path file system path 
+	 *
+	 * @param path file system path
 	 * @param keyType the key type
 	 * @param valueType the value type
 	 * @return the configuration
@@ -531,8 +531,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from <code>path</code>.
-	 * 
-	 * @param path file system path 
+	 *
+	 * @param path file system path
 	 * @param charset the charset used to load the configuration
 	 * @param keyType the key type
 	 * @param valueType the value type
@@ -540,7 +540,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
-		final Path path, 
+		final Path path,
 		final Charset charset,
 		final Class<K> keyType,
 		final Class<V> valueType
@@ -555,8 +555,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from the file <code>file</code>.
-	 * 
-	 * @param file file path 
+	 *
+	 * @param file file path
 	 * @param keyType the key type
 	 * @param valueType the value type
 	 * @return the configuration
@@ -577,8 +577,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from the file <code>file</code>.
-	 * 
-	 * @param file file path 
+	 *
+	 * @param file file path
 	 * @param charset the charset used to load the configuration
 	 * @param keyType the key type
 	 * @param valueType the value type
@@ -586,7 +586,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
-		final File file, 
+		final File file,
 		final Charset charset,
 		final Class<K> keyType,
 		final Class<V> valueType
@@ -601,8 +601,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from the URL <code>url</code>.
-	 * 
-	 * @param url URL path 
+	 *
+	 * @param url URL path
 	 * @param keyType the key type
 	 * @param valueType the value type
 	 * @return the configuration
@@ -623,8 +623,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from the URL <code>url</code>.
-	 * 
-	 * @param url URL path 
+	 *
+	 * @param url URL path
 	 * @param charset the charset used to load the configuration
 	 * @param keyType the key type
 	 * @param valueType the value type
@@ -632,7 +632,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
-		final URL url, 
+		final URL url,
 		final Charset charset,
 		final Class<K> keyType,
 		final Class<V> valueType
@@ -647,8 +647,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
-	 * 
-	 * @param inputStream the stream to read from 
+	 *
+	 * @param inputStream the stream to read from
 	 * @param keyType the key type
 	 * @param valueType the value type
 	 * @return the configuration
@@ -669,8 +669,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 
 	/**
 	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
-	 * 
-	 * @param inputStream the stream to read from 
+	 *
+	 * @param inputStream the stream to read from
 	 * @param charset the charset used to load the configuration
 	 * @param keyType the key type
 	 * @param valueType the value type
@@ -678,7 +678,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
-		final InputStream inputStream, 
+		final InputStream inputStream,
 		final Charset charset,
 		final Class<K> keyType,
 		final Class<V> valueType
@@ -691,49 +691,49 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		);
 	}
 
-	
+
 	/**
 	 * Gets the {@link javax.cache.configuration.Factory} for the
      * {@link EvictionManager}, if any.
-     * 
+     *
 	 * @return the {@link javax.cache.configuration.Factory} for the
      * {@link EvictionManager} or null if none has been set.
 	 */
 	public Factory<EvictionManager<K, V>> getEvictionManagerFactory();
-	
+
 	/**
 	 * Gets the Serializer {@link Field} {@link Predicate}, if any.
-	 * 
-	 * @return the {@link Field} {@link Predicate} for the Serializer, or null if none has been set 
+	 *
+	 * @return the {@link Field} {@link Predicate} for the Serializer, or null if none has been set
 	 */
 	public Predicate<? super Field> getSerializerFieldPredicate();
-	
+
 	/**
 	 * Creates a new {@link Builder} for a {@link CacheConfiguration}.
-	 * 
+	 *
 	 * @param keyType the key type
 	 * @param valueType the value type
 	 */
 	public static <K, V> Builder<K, V> Builder(
-		final Class<K> keyType, 
+		final Class<K> keyType,
 		final Class<V> valueType
 	)
 	{
 		return new Builder.Default<>(keyType, valueType);
 	}
-	
+
 	/**
-	 * Creates a new {@link Builder} for a {@link CacheConfiguration}, which uses 
+	 * Creates a new {@link Builder} for a {@link CacheConfiguration}, which uses
 	 * the <code>storageManager</code> as a backing store.
-	 * 
+	 *
 	 * @param keyType the key type
 	 * @param valueType the value type
-	 * @param cacheName the slot name for the data in the {@link EmbeddedStorageManager}'s root, 
+	 * @param cacheName the slot name for the data in the {@link EmbeddedStorageManager}'s root,
 	 * 	usually the {@link Cache}'s name
 	 * @param storageManager the {@link EmbeddedStorageManager} to use as a backing store
 	 */
 	public static <K, V> Builder<K, V> Builder(
-		final Class<K> keyType, 
+		final Class<K> keyType,
 		final Class<V> valueType,
 		final String cacheName,
 		final EmbeddedStorageManager storageManager
@@ -749,9 +749,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * Creates a new {@link Builder} for a {@link CacheConfiguration}, which uses 
+	 * Creates a new {@link Builder} for a {@link CacheConfiguration}, which uses
 	 * the <code>storageManager</code> as a backing store.
-	 * 
+	 *
 	 * @param keyType the key type
 	 * @param valueType the value type
 	 * @param uri prefix of the slot name for the data in the {@link EmbeddedStorageManager}'s root
@@ -759,7 +759,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param storageManager the {@link EmbeddedStorageManager} to use as a backing store
 	 */
 	public static <K, V> Builder<K, V> Builder(
-		final Class<K> keyType, 
+		final Class<K> keyType,
 		final Class<V> valueType,
 		final URI uri,
 		final String cacheName,
@@ -769,41 +769,41 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		notNull(uri);
 		notEmpty(cacheName);
 		notNull(storageManager);
-		
+
 		final String           cacheKey   = uri.toString() + "::" + cacheName;
 		final CacheStore<K, V> cacheStore = CacheStore.New(cacheKey, storageManager);
-		
+
 		return Builder(keyType, valueType)
 			.cacheLoaderFactory(() -> cacheStore)
 			.cacheWriterFactory(() -> cacheStore)
 			.readThrough()
 			.writeThrough();
 	}
-	
+
 	public static interface Builder<K, V>
 	{
 		/**
 		 * Add a configuration for a {@link CacheEntryListener}.
 		 *
-		 * @param cacheEntryListenerConfiguration the
+		 * @param listenerConfiguration the
 		 *  {@link CacheEntryListenerConfiguration}
 		 */
 		public Builder<K, V> addListenerConfiguration(CacheEntryListenerConfiguration<K, V> listenerConfiguration);
-		
+
 		/**
 	     * Set the {@link CacheLoader} {@link Factory}.
 	     *
 	     * @param cacheLoaderFactory the {@link CacheLoader} {@link Factory}
 	     */
 		public Builder<K, V> cacheLoaderFactory(Factory<CacheLoader<K, V>> cacheLoaderFactory);
-		
+
 		/**
 	     * Set the {@link CacheWriter} {@link Factory}.
 	     *
 	     * @param cacheWriterFactory the {@link CacheWriter} {@link Factory}
 	     */
 		public Builder<K, V> cacheWriterFactory(Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory);
-		
+
 		/**
 		 * Set the {@link Factory} for the {@link ExpiryPolicy}. If <code>null</code>
 		 * is specified the default {@link ExpiryPolicy} is used.
@@ -813,11 +813,11 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 *
 		 * @param expiryPolicyFactory
 		 *            the {@link ExpiryPolicy} {@link Factory}
-		 *            
+		 *
 		 * @see CacheConfiguration#DefaultExpiryPolicyFactory()
 		 */
 		public Builder<K, V> expiryPolicyFactory(Factory<ExpiryPolicy> expiryPolicyFactory);
-		
+
 		/**
 	     * Set the {@link EvictionManager} {@link Factory}. If <code>null</code>
 		 * is specified the default {@link EvictionManager} is used.
@@ -826,11 +826,11 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 * before cache construction will be the one used.
 	     *
 	     * @param evictionManagerFactory the {@link EvictionManager} {@link Factory}
-	     * 
+	     *
 	     * @see CacheConfiguration#DefaultEvictionManagerFactory()
 	     */
 		public Builder<K, V> evictionManagerFactory(Factory<EvictionManager<K, V>> evictionManagerFactory);
-		
+
 		/**
 		 * Set that read-through caching should be used.
 		 * <p>
@@ -839,9 +839,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 */
 		public default Builder<K, V> readThrough()
 		{
-			return readThrough(true);
+			return this.readThrough(true);
 		}
-		
+
 		/**
 		 * Set if read-through caching should be used.
 		 * <p>
@@ -852,7 +852,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 *            <code>true</code> if read-through is required
 		 */
 		public Builder<K, V> readThrough(boolean readThrough);
-		
+
 		/**
 		 * Set that write-through caching should be used.
 		 * <p>
@@ -861,9 +861,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 */
 		public default Builder<K, V> writeThrough()
 		{
-			return writeThrough(true);
+			return this.writeThrough(true);
 		}
-		
+
 		/**
 		 * Set if write-through caching should be used.
 		 * <p>
@@ -874,23 +874,23 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 *            <code>true</code> if write-through is required
 		 */
 		public Builder<K, V> writeThrough(boolean writeThrough);
-		
+
 		/**
 		 * Set that store-by-value semantics should be used.
 		 */
 		public default Builder<K, V> storeByValue()
 		{
-			return storeByValue(true);
+			return this.storeByValue(true);
 		}
-		
+
 		/**
 		 * Set that store-by-reference semantics should be used.
 		 */
 		public default Builder<K, V> storeByReference()
 		{
-			return storeByValue(false);
+			return this.storeByValue(false);
 		}
-		
+
 		/**
 		 * Set if a configured cache should use store-by-value or store-by-reference
 		 * semantics.
@@ -900,7 +900,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 *            <code>false</code> for store-by-reference
 		 */
 		public Builder<K, V> storeByValue(boolean storeByValue);
-		
+
 		/**
 		 * Enables statistics gathering.
 		 * <p>
@@ -910,9 +910,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 */
 		public default Builder<K, V> enableStatistics()
 		{
-			return enableStatistics(true);
+			return this.enableStatistics(true);
 		}
-		
+
 		/**
 		 * Disables statistics gathering.
 		 * <p>
@@ -922,9 +922,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 */
 		public default Builder<K, V> disableStatistics()
 		{
-			return enableStatistics(false);
+			return this.enableStatistics(false);
 		}
-		
+
 		/**
 		 * Sets whether statistics gathering is enabled.
 		 * <p>
@@ -936,7 +936,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 *            true to enable statistics, false to disable.
 		 */
 		public Builder<K, V> enableStatistics(final boolean statisticsEnabled);
-		
+
 		/**
 		 * Enables the management bean.
 		 * <p>
@@ -946,9 +946,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 */
 		public default Builder<K, V> enableManagement()
 		{
-			return enableManagement(true);
+			return this.enableManagement(true);
 		}
-		
+
 		/**
 		 * Disables the management bean.
 		 * <p>
@@ -958,9 +958,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 */
 		public default Builder<K, V> disableManagement()
 		{
-			return enableManagement(false);
+			return this.enableManagement(false);
 		}
-		
+
 		/**
 		 * Sets whether the management bean is enabled.
 		 * <p>
@@ -968,11 +968,11 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 * {@link CacheManager#enableManagement(String, boolean)} or
 		 * {@link Cache#setManagementEnabled(boolean)}.
 		 *
-		 * @param enabled
+		 * @param managementEnabled
 		 *            true to enable statistics, false to disable.
 		 */
 		public Builder<K, V> enableManagement(final boolean managementEnabled);
-		
+
 		/**
 	     * Set the Serializer {@link Field} {@link Predicate}. If <code>null</code>
 		 * is specified the default {@link Predicate} is used.
@@ -981,16 +981,16 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		 * before cache construction will be the one used.
 	     *
 	     * @param serializerFieldPredicate the Serializer {@link Field} {@link Predicate}
-	     * 
+	     *
 	     * @see CacheConfiguration#DefaultSerializerFieldPredicate()
 	     */
 		public Builder<K, V> serializerFieldPredicate(Predicate<? super Field> serializerFieldPredicate);
-		
+
 		/**
 		 * Builds a {@link CacheConfiguration} based on the values of this {@link Builder}.
 		 */
 		public CacheConfiguration<K, V> build();
-		
+
 		public static class Default<K, V> implements Builder<K, V>
 		{
 			private final Class<K>                                 keyType;
@@ -1006,15 +1006,15 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			private boolean                                        statisticsEnabled;
 			private boolean                                        managementEnabled;
 			private Predicate<? super Field>                       serializerFieldPredicate;
-			
+
 			Default(final Class<K> keyType, final Class<V> valueType)
 			{
 				super();
-				
+
 				this.keyType   = notNull(keyType);
 				this.valueType = notNull(valueType);
 			}
-			
+
 			@Override
 			public Builder<K, V>
 				addListenerConfiguration(final CacheEntryListenerConfiguration<K, V> listenerConfiguration)
@@ -1022,77 +1022,77 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 				this.listenerConfigurations.add(listenerConfiguration);
 				return this;
 			}
-			
+
 			@Override
 			public Builder<K, V> cacheLoaderFactory(final Factory<CacheLoader<K, V>> cacheLoaderFactory)
 			{
 				this.cacheLoaderFactory = cacheLoaderFactory;
 				return this;
 			}
-			
+
 			@Override
 			public Builder<K, V> cacheWriterFactory(final Factory<CacheWriter<? super K, ? super V>> cacheWriterFactory)
 			{
 				this.cacheWriterFactory = cacheWriterFactory;
 				return this;
 			}
-			
+
 			@Override
 			public Builder<K, V> expiryPolicyFactory(final Factory<ExpiryPolicy> expiryPolicyFactory)
 			{
 				this.expiryPolicyFactory = expiryPolicyFactory;
 				return this;
 			}
-			
+
 			@Override
 			public Builder<K, V> evictionManagerFactory(final Factory<EvictionManager<K, V>> evictionManagerFactory)
 			{
 				this.evictionManagerFactory = evictionManagerFactory;
 				return this;
 			}
-			
+
 			@Override
 			public Builder<K, V> readThrough(final boolean readThrough)
 			{
 				this.readThrough = readThrough;
 				return this;
 			}
-			
+
 			@Override
 			public Builder<K, V> writeThrough(final boolean writeThrough)
 			{
 				this.writeThrough = writeThrough;
 				return this;
 			}
-			
+
 			@Override
 			public Builder<K, V> storeByValue(final boolean storeByValue)
 			{
 				this.storeByValue = storeByValue;
 				return this;
 			}
-			
+
 			@Override
 			public Builder<K, V> enableStatistics(final boolean statisticsEnabled)
 			{
 				this.statisticsEnabled = statisticsEnabled;
 				return this;
 			}
-			
+
 			@Override
 			public Builder<K, V> enableManagement(final boolean managementEnabled)
 			{
 				this.managementEnabled = managementEnabled;
 				return this;
 			}
-			
+
 			@Override
 			public Builder<K, V> serializerFieldPredicate(final Predicate<? super Field> serializerFieldPredicate)
 			{
 				this.serializerFieldPredicate = serializerFieldPredicate;
 				return this;
 			}
-			
+
 			@Override
 			public CacheConfiguration<K, V> build()
 			{
@@ -1100,17 +1100,17 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 					this.expiryPolicyFactory,
 					DefaultExpiryPolicyFactory()
 				);
-				
+
 				final Factory<EvictionManager<K, V>> evictionManagerFactory = coalesce(
 					this.evictionManagerFactory,
 					DefaultEvictionManagerFactory()
 				);
-				
+
 				final Predicate<? super Field> serializerFieldPredicate = coalesce(
 					this.serializerFieldPredicate,
 					DefaultSerializerFieldPredicate()
 				);
-				
+
 				return new CacheConfiguration.Default<>(this.keyType,
 					this.valueType,
 					this.listenerConfigurations,
@@ -1126,11 +1126,11 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 					serializerFieldPredicate
 				);
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	/**
 	 * Returns the default {@link ExpiryPolicy} {@link Factory}, which is eternal.
 	 */
@@ -1138,7 +1138,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	{
 		return EternalExpiryPolicy.factoryOf();
 	}
-	
+
 	/**
 	 * Returns the default {@link EvictionManager} {@link Factory}, which doesn't evict at all.
 	 */
@@ -1146,7 +1146,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	{
 		return () -> null;
 	}
-	
+
 	/**
 	 * Returns the default Serializer {@link Field} {@link Predicate}, which excludes transient fields.
 	 */
@@ -1154,29 +1154,29 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	{
 		return XReflect::isNotTransient;
 	}
-	
+
 	/**
 	 * Creates a new {@link CacheConfiguration} based on a {@link Configuration}.
 	 */
 	public static <K, V> CacheConfiguration<K, V> New(final Configuration<K, V> other)
 	{
 		final HashSet<CacheEntryListenerConfiguration<K, V>> listenerConfigurations = new HashSet<>();
-		
+
 		if(other instanceof CompleteConfiguration)
 		{
 			final CompleteConfiguration<K, V> complete = (CompleteConfiguration<K, V>)other;
-			
+
 			for(final CacheEntryListenerConfiguration<K, V> listenerConfig : complete
 				.getCacheEntryListenerConfigurations())
 			{
 				listenerConfigurations.add(listenerConfig);
 			}
-			
+
 			final Factory<ExpiryPolicy> expiryPolicyFactory = coalesce(
 				complete.getExpiryPolicyFactory(),
 				DefaultExpiryPolicyFactory()
 			);
-			
+
 			final Factory<EvictionManager<K, V>> evictionManagerFactory;
 			final Predicate<? super Field>       serializerFieldPredicate;
 			if(other instanceof CacheConfiguration)
@@ -1190,7 +1190,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 				evictionManagerFactory   = DefaultEvictionManagerFactory();
 				serializerFieldPredicate = DefaultSerializerFieldPredicate();
 			}
-			
+
 			return new Default<>(
 				complete.getKeyType(),
 				complete.getValueType(),
@@ -1207,7 +1207,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 				serializerFieldPredicate
 			);
 		}
-		
+
 		return new Default<>(
 			other.getKeyType(),
 			other.getValueType(),
@@ -1223,12 +1223,12 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			false,
 			DefaultSerializerFieldPredicate());
 	}
-	
+
 	public static class Default<K, V> extends MutableConfiguration<K, V> implements CacheConfiguration<K, V>
 	{
 		private final Factory<EvictionManager<K, V>>                 evictionManagerFactory;
 		private final Predicate<? super Field>                       serializerFieldPredicate;
-		
+
 		Default(
 			final Class<K>                                       keyType,
 			final Class<V>                                       valueType,
@@ -1246,7 +1246,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		)
 		{
 			super();
-			
+
 			this.keyType                  = keyType;
 			this.valueType                = valueType;
 			if(listenerConfigurations != null)
@@ -1264,19 +1264,19 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			this.isManagementEnabled      = isManagementEnabled;
 			this.serializerFieldPredicate = serializerFieldPredicate;
 		}
-		
+
 		@Override
 		public Class<K> getKeyType()
 		{
 			return this.keyType;
 		}
-		
+
 		@Override
 		public Class<V> getValueType()
 		{
 			return this.valueType;
 		}
-		
+
 		@Override
 		public Iterable<CacheEntryListenerConfiguration<K, V>> getCacheEntryListenerConfigurations()
 		{
@@ -1284,19 +1284,19 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 				? this.listenerConfigurations
 				: Collections.emptyList();
 		}
-		
+
 		@Override
 		public Factory<EvictionManager<K, V>> getEvictionManagerFactory()
 		{
 			return this.evictionManagerFactory;
 		}
-		
+
 		@Override
 		public Predicate<? super Field> getSerializerFieldPredicate()
 		{
 			return this.serializerFieldPredicate;
 		}
-		
+
 		@Override
 		public int hashCode()
 		{
@@ -1317,7 +1317,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			result = prime * result + (this.serializerFieldPredicate == null ? 0 : this.serializerFieldPredicate.hashCode());
 			return result;
 		}
-		
+
 		@Override
 		public boolean equals(final Object obj)
 		{
@@ -1440,7 +1440,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			}
 			return true;
 		}
-		
+
 	}
-	
+
 }

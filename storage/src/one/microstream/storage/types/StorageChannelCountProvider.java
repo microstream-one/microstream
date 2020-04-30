@@ -12,8 +12,8 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 	@Override
 	public int getChannelCount();
 
-	
-	
+
+
 	public interface Defaults
 	{
 		public static int defaultChannelCount()
@@ -22,7 +22,7 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 			return 1;
 		}
 	}
-	
+
 	public interface Validation
 	{
 		/**
@@ -34,26 +34,26 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 		 * This check has no actual technical background, it is just a safety net against
 		 * oversight mistakes to prevent creation of thousands of threads and files.<br>
 		 * Can be altered or removed anytime.
-		 * 
+		 *
 		 * @return the maximum channel count value of {@literal 1024}.
 		 */
 		public static int maximumChannelCount()
 		{
 			return 1024;
 		}
-		
+
 		/**
 		 * This is NOT necessarily the default channel count.
 		 * If the default changes to 2, the lowest valid count will still be 1!
-		 * 
+		 *
 		 * @return the minimum channel count value of {@literal 1}.
 		 */
 		public static int minimumChannelCount()
 		{
 			return 1;
 		}
-		
-		
+
+
 		public static boolean isValidChannelCountRange(final int channelCount)
 		{
 			// breakpoint-friendly statement
@@ -62,7 +62,7 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 				: false
 			;
 		}
-		
+
 		public static boolean isValidChannelCountPow2Value(final int channelCount)
 		{
 			// breakpoint-friendly statement
@@ -71,7 +71,7 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 				: false
 			;
 		}
-		
+
 		public static void validateParameters(
 			final int channelCount
 		)
@@ -87,7 +87,7 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 					+ "."
 				);
 			}
-			
+
 			if(!isValidChannelCountPow2Value(channelCount))
 			{
 				// (26.03.2019 TM)EXCP: proper exception
@@ -99,25 +99,25 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 			}
 		}
 	}
-	
+
 	public static int validateChannelCount(final int channelCount) throws IllegalArgumentException
 	{
 		Validation.validateParameters(channelCount);
-		
+
 		return channelCount;
 	}
-	
 
-	
-	
+
+
+
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageChannelCountProvider} instance
 	 * using default values defined by {@link StorageChannelCountProvider.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageChannelCountProvider#New(int)}.
-	 * 
+	 *
 	 * @return {@linkDoc StorageChannelCountProvider#New(int)@return}
-	 * 
+	 *
 	 * @see StorageChannelCountProvider#New(int)
 	 * @see StorageChannelCountProvider.Defaults
 	 */
@@ -131,7 +131,7 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 			Defaults.defaultChannelCount()
 		);
 	}
-	
+
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageChannelCountProvider} instance
 	 * using the passed value.
@@ -144,21 +144,21 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 	 * Since channels use bitwise modulo hashing, the number of channels must always be
 	 * a 2^n number with n greater than or equal 0.<br>
 	 * (Meaning 1, 2, 4, 8, 16, etc.)
-	 * 
+	 *
 	 * @param channelCount the number of channels. Must be a 2^n number with n greater than or equal 0.
-	 * 
+	 *
 	 * @return a new {@link StorageChannelCountProvider} instance.
-	 * 
+	 *
 	 * @throws IllegalArgumentException if the passed value is higher than the value returned by
-	 *         {@link StorageChannelCountProvider.Defaults#maximumChannelCount()}
-	 * 
+	 *         {@link StorageChannelCountProvider.Validation#maximumChannelCount()}
+	 *
 	 * @see StorageChannelCountProvider#New()
 	 * @see StorageChannelCountProvider.Defaults
 	 */
 	public static StorageChannelCountProvider New(final int channelCount)
 	{
 		Validation.validateParameters(channelCount);
-		
+
 		return new StorageChannelCountProvider.Default(channelCount);
 	}
 
