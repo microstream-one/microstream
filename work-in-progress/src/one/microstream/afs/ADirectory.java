@@ -174,13 +174,13 @@ public interface ADirectory extends AItem
 		}
 		
 		@Override
-		public synchronized final boolean registerObserver(final ADirectory.Observer observer)
+		public final synchronized boolean registerObserver(final ADirectory.Observer observer)
 		{
 			return this.observers.add(observer);
 		}
 		
 		@Override
-		public synchronized final boolean removeObserver(final ADirectory.Observer observer)
+		public final synchronized boolean removeObserver(final ADirectory.Observer observer)
 		{
 			return this.observers.removeOne(observer);
 		}
@@ -308,6 +308,14 @@ public interface ADirectory extends AItem
 		
 		public void onAfterDeleteDirectory(ADirectory deletedDirectory, long deletionTime);
 		
+	}
+
+	public static ADirectory actual(final ADirectory directory)
+	{
+		return directory instanceof ADirectory.Wrapper
+			? ((ADirectory.Wrapper)directory).actual()
+			: directory
+		;
 	}
 	
 	public interface Wrapper extends AItem.Wrapper
