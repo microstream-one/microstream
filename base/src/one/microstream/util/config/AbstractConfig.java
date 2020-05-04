@@ -207,7 +207,7 @@ public abstract class AbstractConfig implements Config
 		int i = 0;
 		while(i < startBound)
 		{
-			if(elements[i] != stringStrt || elements[i + 2] != stringTerm)
+			if(!stringStrt.equals(elements[i]) || !stringTerm.equals(elements[i + 2]))
 			{
 				result.add(elements[i++]);
 				continue;

@@ -328,7 +328,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 			this.tail = this.head == null ? (this.head = newEntry) : (this.tail.next = newEntry);
 			this.touch();
 			this.checkWorkerCreation();
-			this.notify();
+			this.notifyAll();
 		}
 
 		private static final class Entry<E>

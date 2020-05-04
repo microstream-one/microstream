@@ -122,6 +122,12 @@ public final class VarByte implements Externalizable
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
+	
+	// to satisfy code analysis tools regarding implementation of Externalizable
+	private VarByte()
+	{
+		this(CAPACITY_MIN);
+	}
 
 	private VarByte(final int uncheckedInitialCapacity)
 	{

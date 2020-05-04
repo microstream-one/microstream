@@ -45,7 +45,7 @@ public class BinaryHandlerGenericQueue<T extends Queue<?>> extends AbstractBinar
 	// instance fields //
 	////////////////////
 	
-	public Instantiator<T> instantiator;
+	private final Instantiator<T> instantiator;
 	
 	
 

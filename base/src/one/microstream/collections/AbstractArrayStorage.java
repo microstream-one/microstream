@@ -66,11 +66,11 @@ public abstract class AbstractArrayStorage
 
 		if(length > 0 && offset + length > upperBound)
 		{
-			throw new IndexExceededException(upperBound, offset + length);
+			throw new IndexExceededException(upperBound, (long)offset + length);
 		}
 		else if(length < 0 && offset + length < -1)
 		{
-			throw new IndexExceededException(-1, offset + length);
+			throw new IndexExceededException(-1, (long)offset + length);
 		}
 	}
 
@@ -89,10 +89,10 @@ public abstract class AbstractArrayStorage
 	///////////////////
 
 	public static final <E> int rangedIndexOF(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final E[] data   ,
+		final int size   ,
+		final int offset ,
+		final int length ,
 		final E   element
 	)
 	{
@@ -142,10 +142,10 @@ public abstract class AbstractArrayStorage
 	// -- //
 
 	public static final <E> int rangedConditionalIndexOf(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final E[]                  data     ,
+		final int                  size     ,
+		final int                  offset   ,
+		final int                  length   ,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -157,9 +157,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> int forwardConditionalIndexOf(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
+		final E[]                  data     ,
+		final int                  lowOffset,
+		final int                  highBound,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -181,9 +181,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> int reverseConditionalIndexOf(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
+		final E[]                  data      ,
+		final int                  highOffset,
+		final int                  lowEnd    ,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -207,14 +207,15 @@ public abstract class AbstractArrayStorage
 	// -- //
 
 	public static final <E> int rangedScan(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final E[]                  data     ,
+		final int                  size     ,
+		final int                  offset   ,
+		final int                  length   ,
 		final Predicate<? super E> predicate
 	)
 	{
 		validateRange0toUpperBound(size, offset, length);
+		
 		return length >= 0
 			? forwardScan(data, offset, offset + length    , predicate)
 			: reverseScan(data, offset, offset + length + 1, predicate)
@@ -222,9 +223,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> int forwardScan(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
+		final E[]                  data     ,
+		final int                  lowOffset,
+		final int                  highBound,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -247,9 +248,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> int reverseScan(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
+		final E[]                  data      ,
+		final int                  highOffset,
+		final int                  lowEnd    ,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -278,14 +279,15 @@ public abstract class AbstractArrayStorage
 	///////////////////////
 
 	public static final <E> boolean rangedContains(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final E[]                  data     ,
+		final int                  size     ,
+		final int                  offset   ,
+		final int                  length   ,
 		final Predicate<? super E> predicate
 	)
 	{
 		validateRange0toUpperBound(size, offset, length);
+		
 		return length >= 0
 			? forwardContains(data, offset, offset + length    , predicate)
 			: reverseContains(data, offset, offset + length + 1, predicate)
@@ -318,9 +320,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> boolean reverseContains(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
+		final E[]                  data      ,
+		final int                  highOffset,
+		final int                  lowEnd    ,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -344,14 +346,15 @@ public abstract class AbstractArrayStorage
 	// -- //
 
 	public static final <E> boolean rangedApplies(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final E[]                  data     ,
+		final int                  size     ,
+		final int                  offset   ,
+		final int                  length   ,
 		final Predicate<? super E> predicate
 	)
 	{
 		validateRange0toUpperBound(size, offset, length);
+		
 		return length >= 0
 			? forwardApplies(data, offset, offset + length    , predicate)
 			: reverseApplies(data, offset, offset + length + 1, predicate)
@@ -427,13 +430,15 @@ public abstract class AbstractArrayStorage
 	/////////////////////////
 
 	public static final <E> int rangedConditionalCount(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final E[]                  data     ,
+		final int                  size     ,
+		final int                  offset   ,
+		final int                  length   ,
 		final Predicate<? super E> predicate
 	)
 	{
+		validateRange0toUpperBound(size, offset, length);
+		
 		return length >= 0
 			? forwardConditionalCount(data, offset, offset + length    , predicate)
 			: reverseConditionalCount(data, offset, offset + length + 1, predicate)
@@ -441,9 +446,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> int forwardConditionalCount(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
+		final E[]                  data     ,
+		final int                  lowOffset,
+		final int                  highBound,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -466,9 +471,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> int reverseConditionalCount(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
+		final E[]                  data      ,
+		final int                  highOffset,
+		final int                  lowEnd    ,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -497,12 +502,12 @@ public abstract class AbstractArrayStorage
 	/////////////////////
 
 	public static final <E> E rangedSearchElement(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
-		final Predicate<? super E> predicate,
-		final E notFoundMarker
+		final E[]                  data          ,
+		final int                  size          ,
+		final int                  offset        ,
+		final int                  length        ,
+		final Predicate<? super E> predicate     ,
+		final E                    notFoundMarker
 	)
 	{
 		return length >= 0
@@ -512,11 +517,11 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> E forwardSearchElement(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
-		final Predicate<? super E> predicate,
-		final E notFoundMarker
+		final E[]                  data          ,
+		final int                  lowOffset     ,
+		final int                  highBound     ,
+		final Predicate<? super E> predicate     ,
+		final E                    notFoundMarker
 	)
 	{
 		try
@@ -537,11 +542,11 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> E reverseSearchElement(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
-		final Predicate<? super E> predicate,
-		final E notFoundMarker
+		final E[]                  data          ,
+		final int                  highOffset    ,
+		final int                  lowEnd        ,
+		final Predicate<? super E> predicate     ,
+		final E                    notFoundMarker
 	)
 	{
 		try
@@ -564,12 +569,12 @@ public abstract class AbstractArrayStorage
 	// -- //
 
 	public static final <E> E rangedQueryElement(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
-		final Predicate<? super E> predicate,
-		final E notFoundMarker
+		final E[]                  data          ,
+		final int                  size          ,
+		final int                  offset        ,
+		final int                  length        ,
+		final Predicate<? super E> predicate     ,
+		final E                    notFoundMarker
 	)
 	{
 		validateRange0toUpperBound(size, offset, length);
@@ -580,11 +585,11 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> E forwardQueryElement(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
-		final Predicate<? super E> predicate,
-		final E notFoundMarker
+		final E[]                  data          ,
+		final int                  lowOffset     ,
+		final int                  highBound     ,
+		final Predicate<? super E> predicate     ,
+		final E                    notFoundMarker
 	)
 	{
 		E match = notFoundMarker;
@@ -606,11 +611,11 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> E reverseQueryElement(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
-		final Predicate<? super E> predicate,
-		final E notFoundMarker
+		final E[]                  data          ,
+		final int                  highOffset    ,
+		final int                  lowEnd        ,
+		final Predicate<? super E> predicate     ,
+		final E                    notFoundMarker
 	)
 	{
 		E match = notFoundMarker;
@@ -677,10 +682,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> void rangedIterate(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final E[]                 data     ,
+		final int                 size     ,
+		final int                 offset   ,
+		final int                 length   ,
 		final Consumer<? super E> procedure
 	)
 	{
@@ -696,12 +701,12 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, A> void rangedJoin(
-		final E[]                          data  ,
-		final int                          size  ,
-		final int                          offset,
-		final int                          length,
-		final BiConsumer<? super E, ? super A> joiner,
-		final A                            aggregate
+		final E[]                              data     ,
+		final int                              size     ,
+		final int                              offset   ,
+		final int                              length   ,
+		final BiConsumer<? super E, ? super A> joiner   ,
+		final A                                aggregate
 	)
 	{
 		validateRange0toUpperBound(size, offset, length);
@@ -716,9 +721,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> void forwardIterate(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
+		final E[]                 data     ,
+		final int                 lowOffset,
+		final int                 highBound,
 		final Consumer<? super E> procedure
 	)
 	{
@@ -736,9 +741,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> void reverseIterate(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
+		final E[]                 data      ,
+		final int                 highOffset,
+		final int                 lowEnd    ,
 		final Consumer<? super E> procedure
 	)
 	{
@@ -756,11 +761,11 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, A> void forwardJoin(
-		final E[]                          data     ,
-		final int                          lowOffset,
-		final int                          highBound,
+		final E[]                              data     ,
+		final int                              lowOffset,
+		final int                              highBound,
 		final BiConsumer<? super E, ? super A> joiner   ,
-		final A                            aggregate
+		final A                                aggregate
 	)
 	{
 		try
@@ -777,11 +782,11 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, A> void reverseJoin(
-		final E[]                          data      ,
-		final int                          highOffset,
-		final int                          lowEnd    ,
+		final E[]                              data      ,
+		final int                              highOffset,
+		final int                              lowEnd    ,
 		final BiConsumer<? super E, ? super A> joiner    ,
-		final A                            aggregate
+		final A                                aggregate
 	)
 	{
 		try
@@ -800,12 +805,12 @@ public abstract class AbstractArrayStorage
 	// -- //
 
 	public static final <E> void rangedConditionalIterate(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final E[]                  data     ,
+		final int                  size     ,
+		final int                  offset   ,
+		final int                  length   ,
 		final Predicate<? super E> predicate,
-		final Consumer<? super E> procedure
+		final Consumer<? super E>  procedure
 	)
 	{
 		validateRange0toUpperBound(size, offset, length);
@@ -820,22 +825,22 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> void forwardConditionalIterate(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
+		final E[]                  data     ,
+		final int                  lowOffset,
+		final int                  highBound,
 		final Predicate<? super E> predicate,
-		final Consumer<? super E> procedure
+		final Consumer<? super E>  procedure
 	)
 	{
 		forwardIterate(data, lowOffset, highBound, XFunc.wrapWithPredicate(procedure, predicate));
 	}
 
 	public static final <E> void reverseConditionalIterate(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
-		final Predicate<? super E> predicate,
-		final Consumer<? super E> procedure
+		final E[]                  data      ,
+		final int                  highOffset,
+		final int                  lowEnd    ,
+		final Predicate<? super E> predicate ,
+		final Consumer<? super E>  procedure
 	)
 	{
 		reverseIterate(data, highOffset, lowEnd, XFunc.wrapWithPredicate(procedure, predicate));
@@ -848,10 +853,10 @@ public abstract class AbstractArrayStorage
 	////////////////
 
 	public static final <E, R> R rangedAggregate(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final E[]                      data      ,
+		final int                      size      ,
+		final int                      offset    ,
+		final int                      length    ,
 		final Aggregator<? super E, R> aggregator
 	)
 	{
@@ -863,9 +868,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, R> R forwardAggregate(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
+		final E[]                      data      ,
+		final int                      lowOffset ,
+		final int                      highBound ,
 		final Aggregator<? super E, R> aggregator
 	)
 	{
@@ -874,9 +879,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, R> R reverseAggregate(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
+		final E[]                      data      ,
+		final int                      highOffset,
+		final int                      lowEnd    ,
 		final Aggregator<? super E, R> aggregator
 	)
 	{
@@ -887,11 +892,11 @@ public abstract class AbstractArrayStorage
 	// -- //
 
 	public static final <E, R> R rangedConditionalAggregate(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
-		final Predicate<? super E> predicate,
+		final E[]                      data      ,
+		final int                      size      ,
+		final int                      offset    ,
+		final int                      length    ,
+		final Predicate<? super E>     predicate ,
 		final Aggregator<? super E, R> aggregator
 	)
 	{
@@ -903,10 +908,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, R> R forwardConditionalAggregate(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
-		final Predicate<? super E> predicate,
+		final E[]                      data      ,
+		final int                      lowOffset ,
+		final int                      highBound ,
+		final Predicate<? super E>     predicate ,
 		final Aggregator<? super E, R> aggregator
 	)
 	{
@@ -915,10 +920,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, R> R reverseConditionalAggregate(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
-		final Predicate<? super E> predicate,
+		final E[]                      data      ,
+		final int                      highOffset,
+		final int                      lowEnd    ,
+		final Predicate<? super E>     predicate ,
 		final Aggregator<? super E, R> aggregator
 	)
 	{
@@ -933,11 +938,11 @@ public abstract class AbstractArrayStorage
 	///////////
 
 	public static final <E> int addAll(
-		final E[] data,
-		final int size,
-		final E[] src,
-		final int srcIndex,
-		final int srcLength,
+		final E[]                  data     ,
+		final int                  size     ,
+		final E[]                  src      ,
+		final int                  srcIndex ,
+		final int                  srcLength,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -957,11 +962,11 @@ public abstract class AbstractArrayStorage
 	}
 
 	private static final <E> int forwardAddAll(
-		final E[] data,
-		final int size,
-		final E[] src,
-		final int srcIndex,
-		final int srcLength,
+		final E[]                  data     ,
+		final int                  size     ,
+		final E[]                  src      ,
+		final int                  srcIndex ,
+		final int                  srcLength,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -985,11 +990,11 @@ public abstract class AbstractArrayStorage
 	}
 
 	private static final <E> int reverseAddAll(
-		final E[] data,
-		final int size,
-		final E[] src,
-		final int srcIndex,
-		final int srcLength,
+		final E[]                  data     ,
+		final int                  size     ,
+		final E[]                  src      ,
+		final int                  srcIndex ,
+		final int                  srcLength,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -1019,8 +1024,8 @@ public abstract class AbstractArrayStorage
 	///////////////
 
 	public static final <E> boolean rangedContainsNull(
-		final E[] data,
-		final int size,
+		final E[] data  ,
+		final int size  ,
 		final int offset,
 		final int length
 	)
@@ -1033,7 +1038,7 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> boolean forwardNullContained(
-		final E[] data,
+		final E[] data     ,
 		final int lowOffset,
 		final int highBound
 	)
@@ -1042,7 +1047,7 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> boolean reverseNullContained(
-		final E[] data,
+		final E[] data      ,
 		final int highOffset,
 		final int lowEnd
 	)
@@ -1053,11 +1058,11 @@ public abstract class AbstractArrayStorage
 	// -- //
 
 	public static final <E> boolean rangedContainsSame(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
-		final E element
+		final E[] data   ,
+		final int size   ,
+		final int offset ,
+		final int length ,
+		final E   element
 	)
 	{
 		validateRange0toUpperBound(size, offset, length);
@@ -1068,7 +1073,7 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> boolean forwardContainsSame(
-		final E[] data,
+		final E[] data     ,
 		final int lowOffset,
 		final int highBound,
 		final E   element
@@ -1078,7 +1083,7 @@ public abstract class AbstractArrayStorage
 	}
 	
 	public static final <E> boolean reverseContainsSame(
-		final E[] data,
+		final E[] data     ,
 		final int lowOffset,
 		final int highBound,
 		final E   element
@@ -1090,8 +1095,8 @@ public abstract class AbstractArrayStorage
 	// -- //
 
 	public static final <E> boolean containsAll(
-		final E[] data,
-		final int size,
+		final E[]                             data    ,
+		final int                             size    ,
 		final XGettingCollection<? extends E> elements
 	)
 	{
@@ -1115,10 +1120,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> boolean rangedContainsAll(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final E[]                             data    ,
+		final int                             size    ,
+		final int                             offset  ,
+		final int                             length  ,
 		final XGettingCollection<? extends E> elements
 	)
 	{
@@ -1150,10 +1155,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> boolean containsAll(
-		final E[] data,
-		final int size,
-		final XGettingCollection<? extends E> elements,
-		final Equalator<? super E> equalator
+		final E[]                             data     ,
+		final int                             size     ,
+		final XGettingCollection<? extends E> elements ,
+		final Equalator<? super E>            equalator
 	)
 	{
 		if(elements instanceof AbstractSimpleArrayCollection<?>)
@@ -1183,11 +1188,11 @@ public abstract class AbstractArrayStorage
 	/////////////
 
 	public static final <E> int rangedCount(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
-		final E element
+		final E[] data   ,
+		final int size   ,
+		final int offset ,
+		final int length ,
+		final E   element
 	)
 	{
 		validateRange0toUpperBound(size, offset, length);
@@ -1198,7 +1203,7 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> int forwardCount(
-		final E[] data,
+		final E[] data     ,
 		final int lowOffset,
 		final int highBound,
 		final E   element
@@ -1208,9 +1213,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> int reverseCount(
-		final E[] data,
+		final E[] data      ,
 		final int highOffset,
-		final int lowEnd,
+		final int lowEnd    ,
 		final E   element
 	)
 	{
@@ -1220,8 +1225,8 @@ public abstract class AbstractArrayStorage
 	// -- //
 
 	public static final <E> E max(
-		final E[] data,
-		final int size,
+		final E[]                   data      ,
+		final int                   size      ,
 		final Comparator<? super E> comparator
 	)
 	{
@@ -1229,27 +1234,35 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> E min(
-		final E[] data,
-		final int size,
+		final E[]                   data      ,
+		final int                   size      ,
 		final Comparator<? super E> comparator
 	)
 	{
 		return forwardAggregate(data, 0, size, new AggregateMin<>(comparator));
 	}
 
-	public static final <E> int lastIndexOf(final E[] data, final int size, final Predicate<? super E> predicate)
+	public static final <E> int lastIndexOf(
+		final E[]                  data     ,
+		final int                  size     ,
+		final Predicate<? super E> predicate
+	)
 	{
 		return reverseConditionalIndexOf(data, size - 1, 0, predicate);
 	}
 
-	public static final <E> int maxIndex(final E[] data, final int size, final Comparator<? super E> comparator)
+	public static final <E> int maxIndex(
+		final E[]                   data      ,
+		final int                   size      ,
+		final Comparator<? super E> comparator
+	)
 	{
 		return forwardScan(data, 0, size, new IsGreater<>(comparator));
 	}
 
 	public static final <E> int minIndex(
-		final E[] data,
-		final int size,
+		final E[]                   data      ,
+		final int                   size      ,
 		final Comparator<? super E> comparator
 	)
 	{
@@ -1259,11 +1272,11 @@ public abstract class AbstractArrayStorage
 	// -- //
 
 	public static final <E, C extends Consumer<? super E>> C rangedCopyTo(
-		final E[] data,
-		final int size,
+		final E[] data  ,
+		final int size  ,
 		final int offset,
 		final int length,
-		final C target
+		final C   target
 	)
 	{
 		// note: even if target is an adding collection, the private storage array may not be passed to it directly
@@ -1275,10 +1288,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, C extends Consumer<? super E>> C forwardCopyTo(
-		final E[] data,
+		final E[] data     ,
 		final int lowOffset,
 		final int highBound,
-		final C target
+		final C   target
 	)
 	{
 		forwardIterate(data, lowOffset, highBound, target);
@@ -1286,10 +1299,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, C extends Consumer<? super E>> C reverseCopyTo(
-		final E[] data,
+		final E[] data      ,
 		final int highOffset,
-		final int lowEnd,
-		final C target
+		final int lowEnd    ,
+		final C   target
 	)
 	{
 		reverseIterate(data, highOffset, lowEnd, target);
@@ -1299,11 +1312,11 @@ public abstract class AbstractArrayStorage
 	// -- //
 
 	public static final <E, C extends Consumer<? super E>> C rangedCopyTo(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
-		final C target,
+		final E[]                  data     ,
+		final int                  size     ,
+		final int                  offset   ,
+		final int                  length   ,
+		final C                    target   ,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -1315,10 +1328,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, C extends Consumer<? super E>> C forwardCopyTo(
-		final E[] data,
-		final int lowOffset,
-		final int highBound,
-		final C target,
+		final E[]                  data     ,
+		final int                  lowOffset,
+		final int                  highBound,
+		final C                    target   ,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -1327,10 +1340,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, C extends Consumer<? super E>> C reverseCopyTo(
-		final E[] data,
-		final int highOffset,
-		final int lowEnd,
-		final C target,
+		final E[]                  data      ,
+		final int                  highOffset,
+		final int                  lowEnd    ,
+		final C                    target    ,
 		final Predicate<? super E> predicate
 	)
 	{
@@ -1340,11 +1353,11 @@ public abstract class AbstractArrayStorage
 
 	@SuppressWarnings("unchecked")
 	public static final <E, T> T[] rangedCopyTo(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
-		final T[] target,
+		final E[] data        ,
+		final int size        ,
+		final int offset      ,
+		final int length      ,
+		final T[] target      ,
 		final int targetOffset
 	)
 	{
@@ -1369,10 +1382,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, C extends Consumer<? super E>> C copySelection(
-		final E[] data,
-		final int size,
+		final E[]    data   ,
+		final int    size   ,
 		final long[] indices,
-		final C target
+		final C      target
 	)
 	{
 		final int length = indices.length;
@@ -1396,9 +1409,9 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> int binarySearch(
-		final E[] data,
-		final int size,
-		final E element,
+		final E[]                   data      ,
+		final int                   size      ,
+		final E                     element   ,
 		final Comparator<? super E> comparator
 	)
 	{
@@ -1406,11 +1419,11 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E> int rangedBinarySearch(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
-		final E element,
+		final E[]                   data      ,
+		final int                   size      ,
+		final int                   offset    ,
+		final int                   length    ,
+		final E                     element   ,
 		final Comparator<? super E> comparator
 	)
 	{
@@ -1422,10 +1435,10 @@ public abstract class AbstractArrayStorage
 	}
 
 	static final <E> int internalBinarySearch(
-		final E[] data,
-		      int low,
-		      int high,
-		final E element,
+		final E[]                   data      ,
+		      int                   low       ,
+		      int                   high      ,
+		final E                     element   ,
 		final Comparator<? super E> comparator
 	)
 	{
@@ -1462,11 +1475,11 @@ public abstract class AbstractArrayStorage
 	////////////////////
 
 	public static final <E, C extends Consumer<? super E>> C intersect(
-		final E[] data,
-		final int size,
-		final XGettingCollection<? extends E> samples,
-		final Equalator<? super E> equalator,
-		final C target
+		final E[]                             data     ,
+		final int                             size     ,
+		final XGettingCollection<? extends E> samples  ,
+		final Equalator<? super E>            equalator,
+		final C                               target
 	)
 	{
 		if(samples instanceof AbstractSimpleArrayCollection<?>)
@@ -1782,9 +1795,9 @@ public abstract class AbstractArrayStorage
 
 
 	public static final <E, C extends Consumer<? super E>> C distinct(
-		final E[] data,
-		final int size,
-		final C target
+		final E[] data  ,
+		final int size  ,
+		final C   target
 	)
 	{
 		final HashEnum<E> distincts = HashEnum.New();
@@ -1802,11 +1815,11 @@ public abstract class AbstractArrayStorage
 	}
 
 	public static final <E, C extends Consumer<? super E>> C rangedDistinct(
-		final E[] data,
-		final int size,
+		final E[] data  ,
+		final int size  ,
 		final int offset,
 		final int length,
-		final C target
+		final C   target
 	)
 	{
 		final int d; // bi-directional index movement
@@ -1832,9 +1845,9 @@ public abstract class AbstractArrayStorage
 
 	@SuppressWarnings("unchecked")
 	public static final <E, C extends Consumer<? super E>> C distinct(
-		final E[] data,
-		final int size,
-		final C target,
+		final E[]                  data     ,
+		final int                  size     ,
+		final C                    target   ,
 		final Equalator<? super E> equalator
 	)
 	{
@@ -1861,11 +1874,11 @@ public abstract class AbstractArrayStorage
 
 	@SuppressWarnings("unchecked")
 	public static final <E, C extends Consumer<? super E>> C rangedDistinct(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
-		final C target,
+		final E[]                  data     ,
+		final int                  size     ,
+		final int                  offset   ,
+		final int                  length   ,
+		final C                    target   ,
 		final Equalator<? super E> equalator
 	)
 	{
@@ -1903,7 +1916,11 @@ public abstract class AbstractArrayStorage
 	// executing //
 	//////////////
 
-	public static final <E> void iterate(final E[] data, final int size, final IndexedAcceptor<? super E> procedure)
+	public static final <E> void iterate(
+		final E[]                        data     ,
+		final int                        size     ,
+		final IndexedAcceptor<? super E> procedure
+	)
 	{
 		try
 		{
@@ -1921,10 +1938,10 @@ public abstract class AbstractArrayStorage
 	// (20.01.2013 TM)FIXME: replace ALL " + = d" constructions with case distinction and constant iteration
 
 	public static final <E> void rangedIterate(
-		final E[] data,
-		final int size,
-		final int offset,
-		final int length,
+		final E[]                        data     ,
+		final int                        size     ,
+		final int                        offset   ,
+		final int                        length   ,
 		final IndexedAcceptor<? super E> procedure
 	)
 	{

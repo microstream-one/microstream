@@ -112,11 +112,6 @@ public final class XTime
 		return timestamp(year, month, day, 0, 0, 0, 0);
 	}
 
-	public static final TimeSpan TimeSpan(final long time)
-	{
-		return new TimeSpan.Default(time);
-	}
-
 
 	public static final GregorianCalendar asGregCal(final Date date)
 	{
