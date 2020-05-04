@@ -3,13 +3,10 @@ package one.microstream.afs;
 import static one.microstream.X.mayNull;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
-import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.collections.types.XTable;
 
 public interface ADirectory extends AItem
 {
@@ -224,58 +221,7 @@ public interface ADirectory extends AItem
 		}
 		
 	}
-	
-	public abstract class AbstractRegistering<
-		S,
-		D extends ADirectory,
-		F extends AFile,
-		U extends AUsedDirectory,
-		M extends AMutableDirectory
-	>
-		extends ADirectory.AbstractSubjectWrapping<S, D, F>
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
 		
-		private final HashTable<Object, U>       users   = HashTable.New()          ;
-		private final AMutableDirectory.Entry<M> mutator = AMutableDirectory.Entry();
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-	
-		protected AbstractRegistering(
-			final S      subject   ,
-			final D      parent    ,
-			final String identifier
-		)
-		{
-			super(subject, parent, identifier);
-		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-		
-		public synchronized <T> T accessUsers(final Function<? super XTable<Object, U>, T> accessor)
-		{
-			// freely access readers table, but protected under the lock for this instance
-			return accessor.apply(this.users);
-		}
-		
-		public synchronized <T> T accessMutator(final Function<? super AMutableDirectory.Entry<M>, T> accessor)
-		{
-			// freely access writer entry, but protected under the lock for this instance
-			return accessor.apply(this.mutator);
-		}
-		
-	}
-	
 	public interface Observer
 	{
 		public void onBeforeCreateFile(String identifier, String name, String type);

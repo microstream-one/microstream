@@ -1,5 +1,7 @@
 package one.microstream.afs;
 
+import static one.microstream.X.notNull;
+
 public interface AMutableDirectory extends AUsedDirectory
 {
 	public AMutableDirectory move(AFile file, AMutableDirectory destination);
@@ -12,62 +14,58 @@ public interface AMutableDirectory extends AUsedDirectory
 	public boolean release();
 	
 	
-	public static <M extends AMutableDirectory> Entry<M> Entry()
+
+	
+	public static AMutableDirectory New(
+		final AccessManager accessManager,
+		final ADirectory    actual
+	)
 	{
-		return new Entry.Default<>();
+		return new AMutableDirectory.Default(
+			notNull(accessManager),
+			ADirectory.actual(actual) // just to be sure/safe
+		);
 	}
 	
-	public interface Entry<M extends AMutableDirectory>
+	public class Default extends AUsedDirectory.Default implements AMutableDirectory
 	{
-		public Object mutator();
 		
-		public M directory();
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
-		public Object setMutator(Object writer);
-		
-		public M setDirectory(M file);
-		
-		static final class Default<W extends AMutableDirectory> implements AMutableDirectory.Entry<W>
+		Default(final AccessManager accessManager, final ADirectory actual)
 		{
-			private Object mutator  ;
-			private W      directory;
-			
-			Default()
-			{
-				super();
-			}
+			super(accessManager, actual);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
-			@Override
-			public final Object mutator()
-			{
-				return this.mutator;
-			}
+		@Override
+		public boolean release()
+		{
+			// (30.04.2020 TM)FIXME: priv#49: #release
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
 
-			@Override
-			public final W directory()
-			{
-				return this.directory;
-			}
+		@Override
+		public boolean releaseMutating()
+		{
+			// (30.04.2020 TM)FIXME: priv#49: #releaseMutating
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
 
-			@Override
-			public final Object setMutator(final Object mutator)
-			{
-				final Object oldMutator = this.mutator;
-				this.mutator = mutator;
-				
-				return oldMutator;
-			}
-
-			@Override
-			public final W setDirectory(final W directory)
-			{
-				final W oldDirectory = this.directory;
-				this.directory = directory;
-				
-				return oldDirectory;
-			}
-			
+		@Override
+		public AMutableDirectory move(final AFile file, final AMutableDirectory destination)
+		{
+			// (30.04.2020 TM)FIXME: priv#49: #move
+			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 	}
+	
 }
