@@ -1,5 +1,7 @@
 package one.microstream.afs;
 
+import static one.microstream.X.notNull;
+
 import java.nio.ByteBuffer;
 
 public interface AWritableFile extends AReadableFile
@@ -16,71 +18,89 @@ public interface AWritableFile extends AReadableFile
 	// implicitely #closeWriting PLUS the AFS-management-level WRITING aspect. BOTH reading aspects remain!
 	public boolean releaseWriting();
 	
-	// (29.04.2020 TM)FIXME: priv#49: reimplement to call #releaseWriting implicitely
 	@Override
 	public boolean release();
-	
 	
 	
 	public long write(Iterable<? extends ByteBuffer> sources);
 	
 	
 	
-	public static <W extends AWritableFile> Entry<W> Entry()
+	public static AWritableFile New(
+		final AccessManager accessManager,
+		final AFile         actual
+	)
 	{
-		return new Entry.Default<>();
+		return new AWritableFile.Default(
+			notNull(accessManager),
+			AFile.actual(actual) // just to be sure/safe
+		);
 	}
-	
-	public interface Entry<W extends AWritableFile>
+		
+	public final class Default extends AReadableFile.Default implements AWritableFile
 	{
-		public Object writer();
-		
-		public W file();
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
-		public Object setWriter(Object writer);
-		
-		public W setFile(W file);
-		
-		static final class Default<W extends AWritableFile> implements AWritableFile.Entry<W>
+		Default(final AccessManager accessManager, final AFile actual)
 		{
-			private Object writer;
-			private W      file  ;
-			
-			Default()
-			{
-				super();
-			}
+			super(accessManager, actual);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
 
-			@Override
-			public final Object writer()
-			{
-				return this.writer;
-			}
+		@Override
+		public void openWriting()
+		{
+			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#openWriting()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
 
-			@Override
-			public final W file()
-			{
-				return this.file;
-			}
+		@Override
+		public boolean isOpenWriting()
+		{
+			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#isOpenWriting()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
 
-			@Override
-			public final Object setWriter(final Object writer)
-			{
-				final Object oldWriter = this.writer;
-				this.writer = writer;
-				
-				return oldWriter;
-			}
+		@Override
+		public void closeWriting()
+		{
+			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#closeWriting()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
 
-			@Override
-			public final W setFile(final W file)
-			{
-				final W oldFile = this.file;
-				this.file = file;
-				
-				return oldFile;
-			}
-			
+		@Override
+		public boolean isClosedWriting()
+		{
+			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#isClosedWriting()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+		
+		@Override
+		public boolean release()
+		{
+			// (29.04.2020 TM)FIXME: priv#49: reimplement to call #releaseWriting implicitely
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+
+		@Override
+		public boolean releaseWriting()
+		{
+			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#releaseWriting()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+
+		@Override
+		public long write(final Iterable<? extends ByteBuffer> sources)
+		{
+			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#write()
+			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 	}

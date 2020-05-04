@@ -21,7 +21,7 @@ public interface AUsedDirectory extends ADirectory, ADirectory.Wrapper
 		);
 	}
 	
-	public final class Default implements AUsedDirectory
+	public class Default implements AUsedDirectory
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -111,4 +111,5 @@ public interface AUsedDirectory extends ADirectory, ADirectory.Wrapper
 		}
 		
 	}
+	
 }

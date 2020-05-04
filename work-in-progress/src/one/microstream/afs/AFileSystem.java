@@ -6,6 +6,8 @@ import one.microstream.collections.EqHashTable;
 
 public interface AFileSystem extends AccessManager
 {
+	// (30.04.2020 TM)FIXME: priv#49: "protocol" here or in AccessManager
+	
 	public default ADirectory resolveDirectoryPath(final String... pathElements)
 	{
 		return this.resolveDirectoryPath(pathElements, 0, pathElements.length);
@@ -49,13 +51,27 @@ public interface AFileSystem extends AccessManager
 		
 	
 	
+	public static AFileSystem New(
+		final ACreator      creator      ,
+		final AccessManager accessManager
+	)
+	{
+		return new AFileSystem.Default(
+			EqHashTable.New()     ,
+			notNull(creator)      ,
+			notNull(accessManager)
+		);
+	}
+	
 	public final class Default implements AFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
+		// (30.04.2020 TM)FIXME: priv#49: ARoot?
 		private final EqHashTable<String, ADirectory> rootDirectories;
+		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
 
 		
@@ -64,11 +80,16 @@ public interface AFileSystem extends AccessManager
 		// constructors //
 		/////////////////
 		
-		Default(final AccessManager accessManager)
+		Default(
+			final EqHashTable<String, ADirectory> rootDirectories,
+			final ACreator                        creator        ,
+			final AccessManager                   accessManager
+		)
 		{
 			super();
 			this.rootDirectories = EqHashTable.New();
-			this.accessManager   = notNull(accessManager);
+			this.creator         = creator          ;
+			this.accessManager   = accessManager    ;
 		}
 		
 		
@@ -191,41 +212,13 @@ public interface AFileSystem extends AccessManager
 				if(file == null)
 				{
 					file = this.accessManager.executeMutating(directory, d ->
-						this.createFile(d, fileIdentifier)
+						this.creator.createFile(d, fileIdentifier)
 					);
 				}
 				
 				return file;
 			}
 		}
-
-		
-		
-		@Override
-		public AReadableFile createDirectory(final AMutableDirectory parent, final String identifier)
-		{
-			return this.accessManager.createDirectory(parent, identifier);
-		}
-		
-		@Override
-		public AReadableFile createFile(final AMutableDirectory parent, final String identifier)
-		{
-			return this.accessManager.createFile(parent, identifier);
-		}
-		
-		@Override
-		public AReadableFile createFile(final AMutableDirectory parent, final String name, final String type)
-		{
-			return this.accessManager.createFile(parent, name, type);
-		}
-		
-		@Override
-		public AReadableFile createFile(final AMutableDirectory parent, final String identifier, final String name, final String type)
-		{
-			return this.accessManager.createFile(parent, identifier, name, type);
-		}
-		
-		
 		
 		@Override
 		public AUsedDirectory use(final ADirectory directory, final Object mutator)

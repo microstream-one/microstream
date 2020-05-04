@@ -5,11 +5,8 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
-import java.util.function.Function;
 
 import one.microstream.collections.HashEnum;
-import one.microstream.collections.HashTable;
-import one.microstream.collections.types.XTable;
 
 public interface AFile extends AItem
 {
@@ -152,59 +149,7 @@ public interface AFile extends AItem
 		}
 		
 	}
-	
-	public abstract class AbstractRegistering<
-		S,
-		D extends ADirectory,
-		R extends AReadableFile,
-		W extends AWritableFile
-	>
-		extends AFile.AbstractSubjectWrapping<S, D>
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
 		
-		private final HashTable<Object, R>  readers = HashTable.New();
-		private final AWritableFile.Entry<W> writer = AWritableFile.Entry();
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
-		protected AbstractRegistering(
-			final S      wrapped   ,
-			final D      parent    ,
-			final String identifier,
-			final String name      ,
-			final String type
-		)
-		{
-			super(wrapped, parent, identifier, name, type);
-		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-		
-		public synchronized <T> T accessReaders(final Function<? super XTable<Object, R>, T> accessor)
-		{
-			// freely access readers table, but protected under the lock for this instance
-			return accessor.apply(this.readers);
-		}
-		
-		public synchronized <T> T accessWriter(final Function<? super AWritableFile.Entry<W>, T> accessor)
-		{
-			// freely access writer entry, but protected under the lock for this instance
-			return accessor.apply(this.writer);
-		}
-		
-	}
-	
 	public interface Observer
 	{
 		public void onBeforeFileWrite(AWritableFile targetFile, Iterable<? extends ByteBuffer> sources);
@@ -230,10 +175,94 @@ public interface AFile extends AItem
 		;
 	}
 	
-	public interface Wrapper extends AItem.Wrapper
+	public interface Wrapper extends AItem.Wrapper, AFile
 	{
 		@Override
 		public AFile actual();
+		
+		
+		
+		public abstract class Abstract implements AFile.Wrapper
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			private final AFile actual;
+			
+						
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			protected Abstract(final AFile actual)
+			{
+				super();
+				this.actual = notNull(actual);
+			}
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
+			@Override
+			public AFile actual()
+			{
+				return this.actual;
+			}
+
+			@Override
+			public boolean registerObserver(final Observer observer)
+			{
+				return this.actual.registerObserver(observer);
+			}
+
+			@Override
+			public boolean removeObserver(final Observer observer)
+			{
+				return this.actual.removeObserver(observer);
+			}
+
+			@Override
+			public ADirectory parent()
+			{
+				return this.actual.parent();
+			}
+
+			@Override
+			public String path()
+			{
+				return this.actual.path();
+			}
+
+			@Override
+			public String identifier()
+			{
+				return this.actual.identifier();
+			}
+
+			@Override
+			public String name()
+			{
+				return this.actual.name();
+			}
+
+			@Override
+			public String type()
+			{
+				return this.actual.type();
+			}
+
+			@Override
+			public boolean exists()
+			{
+				return this.actual.exists();
+			}
+			
+		}
+		
 	}
 	
 }

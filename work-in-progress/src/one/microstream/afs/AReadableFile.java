@@ -54,6 +54,8 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 		}
 	}
 	
+	
+	
 	public static AReadableFile New(
 		final AccessManager accessManager,
 		final AFile         actual
@@ -63,6 +65,90 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 			notNull(accessManager),
 			AFile.actual(actual) // just to be sure/safe
 		);
+	}
+	
+	public class Default extends AFile.Wrapper.Abstract implements AReadableFile
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+
+		private final AccessManager accessManager;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		Default(final AccessManager accessManager, final AFile actual)
+		{
+			super(actual);
+			this.accessManager = notNull(accessManager);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+
+		@Override
+		public boolean release()
+		{
+			// (30.04.2020 TM)FIXME: priv#49: #release
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+
+		@Override
+		public long length()
+		{
+			// (30.04.2020 TM)FIXME: priv#49: AFile#length()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+
+		@Override
+		public void open()
+		{
+			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#open()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+
+		@Override
+		public boolean isOpen()
+		{
+			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#isOpen()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+
+		@Override
+		public void close()
+		{
+			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#close()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+
+		@Override
+		public boolean isClosed()
+		{
+			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#isClosed()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+
+		@Override
+		public <C extends Consumer<? super AReadableFile>> C waitOnClose(final C callback)
+		{
+			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#waitOnClose()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+
+		@Override
+		public long read(final ByteBuffer target, final long position)
+		{
+			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#read()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+		
 	}
 	
 }
