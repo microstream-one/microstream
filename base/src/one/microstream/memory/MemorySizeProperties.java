@@ -5,28 +5,28 @@ import java.lang.reflect.Field;
 public interface MemorySizeProperties
 {
 	// memory size querying logic //
-	
+
 	/**
 	 * Returns the system's memory "page size" (whatever that may be exactely for a given system).
 	 * Use with care (and the dependency to a system value in mind!).
-	 * 
+	 *
 	 * @return the system's memory "page size".
 	 */
 	public int pageSize();
-		
+
 	public int byteSizeReference();
-	
+
 	public int byteSizeInstance(Class<?> type);
-	
+
 	public int byteSizeObjectHeader(Class<?> type);
 
 	public default int byteSizeFieldValue(final Field field)
 	{
 		return this.byteSizeFieldValue(field.getType());
 	}
-	
+
 	public int byteSizeFieldValue(Class<?> type);
-	
+
 	public long byteSizeArray_byte(long elementCount);
 
 	public long byteSizeArray_boolean(long elementCount);
@@ -44,17 +44,17 @@ public interface MemorySizeProperties
 	public long byteSizeArray_double(long elementCount);
 
 	public long byteSizeArrayObject(long elementCount);
-	
-		
-	
+
+
+
 	public static MemorySizeProperties Unsupported()
 	{
 		return new MemorySizeProperties.Unsupported();
 	}
-	
+
 	/**
-	 * Default implementation that returns {@value -1} for every method.
-	 * 
+	 * Default implementation that returns <code>-1</code> for every method.
+	 *
 	 * @author TM
 	 */
 	public final class Unsupported implements MemorySizeProperties
@@ -62,14 +62,14 @@ public interface MemorySizeProperties
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
-		
+
 		Unsupported()
 		{
 			super();
 		}
-		
-		
-		
+
+
+
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
@@ -157,7 +157,7 @@ public interface MemorySizeProperties
 		{
 			return -1;
 		}
-		
+
 	}
-	
+
 }
