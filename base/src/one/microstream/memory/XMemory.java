@@ -25,16 +25,16 @@ public final class XMemory
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
-	
+
 	static MemoryAccessor       MEMORY_ACCESSOR         ;
 	static MemoryAccessor       MEMORY_ACCESSOR_REVERSED;
 	static MemorySizeProperties MEMORY_SIZE_PROPERTIES  ;
-	
+
 	static
 	{
 		initializeMemoryAccess();
 	}
-	
+
 	private static VmCheck[] createVmChecks()
 	{
 		return X.array
@@ -48,7 +48,7 @@ public final class XMemory
 				entry("java.vendor"   , "The Android Project"),
 				entry("java.vm.vendor", "The Android Project")
 			),
-			
+
 			/*
 			 * There are non-standard, "cheap", "hacked", whatever implementations of Android that
 			 * differ from the standard android. Since those are not reliable to support the required
@@ -65,16 +65,16 @@ public final class XMemory
 				entry("java.vendor"   , "Android"),
 				entry("java.vm.vendor", " Android")
 			)
-			
+
 			// add additional checks here
 		);
 	}
-	
+
 	private static String systemPropertyToString(final String key)
 	{
 		return key + ": " + System.getProperty(key, "[null]");
 	}
-	
+
 	static final void throwUnhandledPlatformException()
 	{
 		// (19.11.2019 TM)EXCP: proper exception
@@ -84,17 +84,17 @@ public final class XMemory
 			+ systemPropertyToString("java.vm.vendor")
 		);
 	}
-	
+
 	private static String[] entry(final String key, final String value)
 	{
 		return new String[]{key, value};
 	}
-	
+
 	private static void initializeMemoryAccess()
 	{
 		// no sense in permanently occupying memory with data that is only used exactly once during initialization.
 		final VmCheck[] vmChecks = createVmChecks();
-		
+
 		for(final VmCheck vmCheck : vmChecks)
 		{
 			// can either set an Memory accessing/handling implementation or throw an Error.
@@ -103,7 +103,7 @@ public final class XMemory
 				return;
 			}
 		}
-		
+
 		/* (18.11.2019 TM)NOTE:
 		 * If no specific vm check applied, the default initialization is used, assuming a fully
 		 * JDK/-Unsafe-compatible JVM. It might not seem that way, but this is actually the normal case.
@@ -114,7 +114,7 @@ public final class XMemory
 		 */
 		setMemoryHandling(JdkMemoryAccessor.New());
 	}
-	
+
 	private static VmCheck VmCheckEquality(
 		final String      name                        ,
 		final Runnable    action                      ,
@@ -129,7 +129,7 @@ public final class XMemory
 			action
 		);
 	}
-	
+
 	private static VmCheck VmCheckContained(
 		final String      name                         ,
 		final Runnable    action                       ,
@@ -144,7 +144,7 @@ public final class XMemory
 			action
 		);
 	}
-	
+
 	static final VmCheck VmInitializer(
 		final String     name                         ,
 		final Runnable   action                       ,
@@ -161,21 +161,21 @@ public final class XMemory
 			action
 		);
 	}
-	
+
 	private static Predicate<VmCheck> SystemPropertyCheckEquality(
 		final String[][] systemPropertyChecksEquality
 	)
 	{
 		return SystemPropertyCheck(systemPropertyChecksEquality, new String[0][]);
 	}
-	
+
 	private static Predicate<VmCheck> SystemPropertyCheckContained(
 		final String[][] systemPropertyChecksContained
 	)
 	{
 		return SystemPropertyCheck(new String[0][], systemPropertyChecksContained);
 	}
-	
+
 	private static Predicate<VmCheck> SystemPropertyCheck(
 		final String[][] systemPropertyChecksEquality,
 		final String[][] systemPropertyChecksContained
@@ -194,7 +194,7 @@ public final class XMemory
 					return true;
 				}
 			}
-			
+
 			for(final String[] s : systemPropertyChecksContained)
 			{
 				if(s == null)
@@ -206,19 +206,19 @@ public final class XMemory
 					return true;
 				}
 			}
-			
+
 			// no check applied
 			return false;
 		};
 	}
-	
+
 
 	static final class VmCheck
 	{
 		final String                   name  ;
 		final Predicate<VmCheck> tester;
 		final Runnable                 action;
-		
+
 		VmCheck(
 			final String                   name  ,
 			final Predicate<VmCheck> tester,
@@ -230,12 +230,12 @@ public final class XMemory
 			this.tester = tester;
 			this.action = action;
 		}
-		
+
 		final boolean test()
 		{
 			return this.tester.test(this);
 		}
-		
+
 		final boolean check()
 		{
 			if(this.test())
@@ -243,18 +243,18 @@ public final class XMemory
 				this.action.run();
 				return true;
 			}
-			
+
 			return false;
 		}
 	}
-	
+
 	public static final synchronized <H extends MemoryAccessor & MemorySizeProperties> void setMemoryHandling(
 		final H memoryHandler
 	)
 	{
 		setMemoryHandling(memoryHandler, memoryHandler);
 	}
-	
+
 	public static final synchronized void setMemoryAccessor(
 		final MemoryAccessor memoryAccessor
 	)
@@ -271,31 +271,31 @@ public final class XMemory
 		MEMORY_ACCESSOR_REVERSED = notNull(memoryAccessor.toReversing());
 		MEMORY_SIZE_PROPERTIES   = notNull(memorySizeProperties);
 	}
-	
+
 	public static final synchronized MemoryAccessor memoryAccessor()
 	{
 		return MEMORY_ACCESSOR;
 	}
-	
+
 	public static final synchronized MemoryAccessor memoryAccessorReversing()
 	{
 		return MEMORY_ACCESSOR_REVERSED;
 	}
-	
+
 	public static final synchronized MemorySizeProperties memorySizeProperties()
 	{
 		return MEMORY_SIZE_PROPERTIES;
 	}
-	
+
 	public static final void guaranteeUsability()
 	{
 		MEMORY_ACCESSOR.guaranteeUsability();
 	}
-	
-	
-	
+
+
+
 	// direct byte buffer handling //
-	
+
 	public static final long getDirectByteBufferAddress(final ByteBuffer directBuffer)
 	{
 		return MEMORY_ACCESSOR.getDirectByteBufferAddress(directBuffer);
@@ -315,11 +315,11 @@ public final class XMemory
 	{
 		return MEMORY_ACCESSOR.guaranteeDirectByteBuffer(directBuffer);
 	}
-	
 
-	
+
+
 	// memory allocation //
-	
+
 	public static final long allocate(final long bytes)
 	{
 		return MEMORY_ACCESSOR.allocateMemory(bytes);
@@ -339,18 +339,18 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.fillMemory(address, length, value);
 	}
-	
-	
-	
+
+
+
 	// memory size querying logic //
-	
+
 	/**
 	 * Arbitrary value that coincidently matches most hardware's standard page
 	 * sizes without being hard-tied to an actual pageSize system value.
 	 * So this value is an educated guess and almost always a "good" value when
 	 * paged-sized-ish buffer sizes are needed, while still not being at the
 	 * mercy of an OS's JVM implementation.
-	 * 
+	 *
 	 * @return a "good" value for a paged-sized-ish default buffer size.
 	 */
 	public static final int defaultBufferSize()
@@ -358,32 +358,32 @@ public final class XMemory
 		// source: https://en.wikipedia.org/wiki/Page_(computer_memory)
 		return 4096;
 	}
-	
+
 	public static final int pageSize()
 	{
 		return MEMORY_SIZE_PROPERTIES.pageSize();
 	}
-	
+
 	public static final int byteSizeInstance(final Class<?> c)
 	{
 		return MEMORY_SIZE_PROPERTIES.byteSizeInstance(c);
 	}
-	
+
 	public static final int byteSizeObjectHeader(final Class<?> c)
 	{
 		return MEMORY_SIZE_PROPERTIES.byteSizeObjectHeader(c);
 	}
-	
+
 	public static final int byteSizeFieldValue(final Field field)
 	{
 		return MEMORY_SIZE_PROPERTIES.byteSizeFieldValue(field);
 	}
-	
+
 	public static final int byteSizeFieldValue(final Class<?> type)
 	{
 		return MEMORY_SIZE_PROPERTIES.byteSizeFieldValue(type);
 	}
-	
+
 	public static final long byteSizeArray_byte(final long elementCount)
 	{
 		return MEMORY_SIZE_PROPERTIES.byteSizeArray_byte(elementCount);
@@ -428,7 +428,7 @@ public final class XMemory
 	{
 		return MEMORY_SIZE_PROPERTIES.byteSizeArrayObject(elementCount);
 	}
-	
+
 	public static final int byteSizePrimitive(final Class<?> type)
 	{
 		// once again missing JDK functionality. Roughly ordered by probability.
@@ -464,11 +464,11 @@ public final class XMemory
 		{
 			return byteSize_short();
 		}
-				
+
 		// intentionally covers void.class
 		throw new IllegalArgumentException();
 	}
-	
+
 	public static final int bitSize_byte()
 	{
 		return Byte.SIZE;
@@ -553,11 +553,11 @@ public final class XMemory
 	{
 		return Double.SIZE;
 	}
-	
-	
+
+
 
 	// field offset abstraction //
-	
+
 	public static final long objectFieldOffset(final Field field)
 	{
 		return MEMORY_ACCESSOR.objectFieldOffset(field);
@@ -567,7 +567,7 @@ public final class XMemory
 	{
 		return MEMORY_ACCESSOR.objectFieldOffsets(fields);
 	}
-	
+
 	public static final long objectFieldOffset(final Class<?> c, final Field field)
 	{
 		return MEMORY_ACCESSOR.objectFieldOffset(c, field);
@@ -577,8 +577,8 @@ public final class XMemory
 	{
 		return MEMORY_ACCESSOR.objectFieldOffsets(c, fields);
 	}
-		
-	
+
+
 
 	// address-based getters for primitive values //
 
@@ -624,10 +624,10 @@ public final class XMemory
 
 	// note: getting a pointer from a non-Object-relative address makes no sense.
 
-	
-	
+
+
 	// object-based getters for primitive values and references //
-	
+
 	public static final byte get_byte(final Object instance, final long offset)
 	{
 		return MEMORY_ACCESSOR.get_byte(instance, offset);
@@ -672,8 +672,8 @@ public final class XMemory
 	{
 		return MEMORY_ACCESSOR.getObject(instance, offset);
 	}
-	
-	
+
+
 
 	// address-based setters for primitive values //
 
@@ -717,10 +717,10 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.set_double(address, value);
 	}
-	
+
 	// note: setting a pointer to a non-Object-relative address makes no sense.
-	
-	
+
+
 
 	// object-based setters for primitive values and references //
 
@@ -768,8 +768,8 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.setObject(instance, offset, value);
 	}
-	
-	
+
+
 
 	// transformative byte array primitive value setters //
 
@@ -777,7 +777,7 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.set_byteInBytes(bytes, index, value);
 	}
-	
+
 	public static final void set_booleanInBytes(final byte[] bytes, final int index, final boolean value)
 	{
 		MEMORY_ACCESSOR.set_booleanInBytes(bytes, index, value);
@@ -813,7 +813,7 @@ public final class XMemory
 		MEMORY_ACCESSOR.set_doubleInBytes(bytes, index, value);
 	}
 
-	
+
 
 	// generic variable-length range copying //
 
@@ -821,8 +821,8 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.copyRange(sourceAddress, targetAddress, length);
 	}
-	
-	
+
+
 
 	// address-to-array range copying //
 
@@ -830,7 +830,7 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
-	
+
 	public static final void copyRangeToArray(final long sourceAddress, final boolean[] target)
 	{
 		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
@@ -845,7 +845,7 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
-	
+
 	public static final void copyRangeToArray(final long sourceAddress, final int[] target)
 	{
 		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
@@ -865,8 +865,8 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.copyRangeToArray(sourceAddress, target);
 	}
-		
-	
+
+
 
 	// array-to-address range copying //
 
@@ -874,12 +874,12 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
-	
+
 	public static final void copyArrayToAddress(final boolean[] array, final long targetAddress)
 	{
 		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
-	
+
 	public static final void copyArrayToAddress(final short[] array, final long targetAddress)
 	{
 		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
@@ -889,29 +889,29 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
-	
+
 	public static final void copyArrayToAddress(final int[] array, final long targetAddress)
 	{
 		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
-	
+
 	public static final void copyArrayToAddress(final float[] array, final long targetAddress)
 	{
 		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
-	
+
 	public static final void copyArrayToAddress(final long[] array, final long targetAddress)
 	{
 		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
-	
+
 	public static final void copyArrayToAddress(final double[] array, final long targetAddress)
 	{
 		MEMORY_ACCESSOR.copyArrayToAddress(array, targetAddress);
 	}
-	
-	
-	
+
+
+
 	// conversion to byte array //
 
 	public static final byte[] asByteArray(final long[] longArray)
@@ -923,7 +923,7 @@ public final class XMemory
 	{
 		return MEMORY_ACCESSOR.asByteArray(value);
 	}
-	
+
 
 
 	// special system methods, not really memory-related //
@@ -932,39 +932,39 @@ public final class XMemory
 	{
 		MEMORY_ACCESSOR.ensureClassInitialized(c);
 	}
-	
+
 	public static final void ensureClassInitialized(final Class<?> c, final Iterable<Field> usedFields)
 	{
 		MEMORY_ACCESSOR.ensureClassInitialized(c, usedFields);
 	}
-		
+
 	public static final <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
 	{
 		return MEMORY_ACCESSOR.instantiateBlank(c);
 	}
 
-	
+
 	public static final ByteOrder nativeByteOrder()
 	{
 		return ByteOrder.nativeOrder();
 	}
-	
+
 	public static final boolean isBigEndianNativeOrder()
 	{
 		return ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
 	}
-	
+
 	public static final boolean isLittleEndianNativeOrder()
 	{
 		return ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 	}
-	
+
 	/**
 	 * Parses a {@link String} instance to a {@link ByteOrder} instance according to {@code ByteOrder#toString()}
 	 * or throws an {@link IllegalArgumentException} if the passed string does not match exactely one of the
 	 * {@link ByteOrder} constant instances' string representation.
 	 *
-	 * @param byteOrder the string representing the {@link ByteOrder} instance to be parsed.
+	 * @param name the string representing the {@link ByteOrder} instance to be parsed.
 	 * @return the recognized {@link ByteOrder}
 	 * @throws IllegalArgumentException if the string can't be recognized as a {@link ByteOrder} constant instance.
 	 * @see ByteOrder#toString()
@@ -980,23 +980,23 @@ public final class XMemory
 		{
 			return ByteOrder.LITTLE_ENDIAN;
 		}
-		
+
 		// (31.10.2018 TM)EXCP: proper exception
 		throw new RuntimeException("Unknown ByteOrder: \"" + name + "\"");
 	}
-	
+
 	/**
 	 * Alias for {@code ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder())}.
 	 * See {@link ByteBuffer#allocateDirect(int)} for details.
-	 * 
+	 *
 	 * @param capacity
 	 *         The new buffer's capacity, in bytes
-	 * 
+	 *
 	 * @return a newly created direct byte buffer with the specified capacity and the platform's native byte order.
-	 * 
+	 *
      * @throws IllegalArgumentException
      *         If the {@code capacity} is a negative integer.
-     * 
+     *
 	 * @see ByteBuffer#allocateDirect(int)
 	 * @see ByteBuffer#order(ByteOrder)
 	 */
@@ -1007,75 +1007,75 @@ public final class XMemory
 			.order(ByteOrder.nativeOrder())
 		;
 	}
-	
+
 	public static final ByteBuffer allocateDirectNative(final long capacity) throws IllegalArgumentException
 	{
 		return allocateDirectNative(
 			X.checkArrayRange(capacity)
 		);
 	}
-	
+
 	public static final ByteBuffer allocateDirectNativeDefault()
 	{
 		return allocateDirectNative(XMemory.defaultBufferSize());
 	}
-	
+
 	// another episode of "They couldn't even implement the most basic functionality."
 	public static final byte[] toArray(final ByteBuffer source)
 	{
 		final int currentSourcePosition = source.position();
-		
+
 		final byte[] bytes = new byte[source.remaining()];
 		source.get(bytes, 0, bytes.length);
-		
+
 		// why would a querying methode intrinsically increase the position? WHY?
 		source.position(currentSourcePosition);
-		
+
 		return bytes;
 	}
-	
+
 	public static final byte[] toArray(final ByteBuffer source, final int position, final int length)
 	{
 		final long plState = getPositionLimit(source);
 		setPositionLimit(source, position, position + length);
-		
+
 		final byte[] bytes = new byte[length];
 		source.get(bytes, 0, length);
-		
+
 		// why would a querying methode intrinsically increase the position? WHY?
 		setPositionLimit(source, plState);
-		
+
 		return bytes;
 	}
-	
+
 	public static final long getPositionLimit(final ByteBuffer buffer)
 	{
 		return ((long)buffer.position() << Integer.SIZE) + buffer.limit();
 	}
-	
+
 	public static final ByteBuffer setPositionLimit(final ByteBuffer buffer, final long positionLimit)
 	{
 		return setPositionLimit(buffer, (int)(positionLimit >>> Integer.SIZE), (int)positionLimit);
 	}
-	
+
 	public static final ByteBuffer setPositionLimit(final ByteBuffer buffer, final int position, final int limit)
 	{
 		// must set limit first because position is validated against it!
 		buffer.limit(limit);
 		buffer.position(position);
-		
+
 		return buffer;
 	}
-	
-	
-	
+
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
-	
+
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
-	 * 
+	 *
 	 * @throws UnsupportedOperationException
 	 */
 	private XMemory()
