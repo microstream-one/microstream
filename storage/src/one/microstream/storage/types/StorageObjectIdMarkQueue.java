@@ -146,7 +146,7 @@ public interface StorageObjectIdMarkQueue
 			 * Only marking channels ever notify on a mark queue instance
 			 * (including the owner channel itself, but then it is not waiting in the first place).
 			 */
-			this.notify();
+			this.notifyAll();
 		}
 
 		@Override
@@ -172,7 +172,7 @@ public interface StorageObjectIdMarkQueue
 			 * (including the owner channel itself, but then it is not waiting in the first place).
 			 */
 //			DEBUGStorage.println("notify " + size);
-			this.notify();
+			this.notifyAll();
 		}
 
 		@Override

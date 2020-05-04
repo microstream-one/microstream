@@ -1078,7 +1078,7 @@ public final class XSort
 					// if main thread was faster (and waits now), notify it to proceed
 					synchronized(board)
 					{
-						board.notify();
+						board.notifyAll();
 					}
 				}
 			}

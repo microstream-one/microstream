@@ -3,6 +3,7 @@ package one.microstream.collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -182,7 +183,7 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 			@Override
 			public KeyValue<K, V> next()
 			{
-				throw new NullPointerException();
+				throw new NoSuchElementException();
 			}
 
 			@Override

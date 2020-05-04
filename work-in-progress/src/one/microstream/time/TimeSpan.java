@@ -173,6 +173,17 @@ public interface TimeSpan
 		}
 
 	}
+	
+	
+	public static TimeSpan New()
+	{
+		return New(System.currentTimeMillis());
+	}
+	
+	public static TimeSpan New(final long time)
+	{
+		return new TimeSpan.Default(time);
+	}
 
 	public final class Default implements TimeSpan
 	{

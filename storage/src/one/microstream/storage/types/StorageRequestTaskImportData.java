@@ -310,7 +310,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 					// notify storage thread that a new source file is ready for processing
 					synchronized(oldSourceFileHead)
 					{
-						oldSourceFileHead.notify();
+						oldSourceFileHead.notifyAll();
 					}
 				}
 			}

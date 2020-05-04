@@ -405,137 +405,137 @@ public final class X
 	
 	
 	
-	public static final Byte[] box(final byte... bytes)
+	public static final Byte[] box(final byte... values)
 	{
-		if(bytes == null)
+		if(values == null)
 		{
 			return null;
 		}
 
-		final int length;
-		final Byte[] result = new Byte[length = bytes.length];
+		final int length = values.length;
+		final Byte[] result = new Byte[length];
 		for(int i = 0; i < length; i++)
 		{
-			result[i] = bytes[i];
+			result[i] = values[i];
 		}
 		
 		return result;
 	}
 	
-	public static final Boolean[] box(final boolean... booleans)
+	public static final Boolean[] box(final boolean... values)
 	{
-		if(booleans == null)
+		if(values == null)
 		{
 			return null;
 		}
 
-		final int length;
-		final Boolean[] result = new Boolean[length = booleans.length];
+		final int length = values.length;
+		final Boolean[] result = new Boolean[length];
 		for(int i = 0; i < length; i++)
 		{
-			result[i] = booleans[i];
+			result[i] = values[i];
 		}
 		
 		return result;
 	}
 	
-	public static final Short[] box(final short... shorts)
+	public static final Short[] box(final short... values)
 	{
-		if(shorts == null)
+		if(values == null)
 		{
 			return null;
 		}
 
-		final int length;
-		final Short[] result = new Short[length = shorts.length];
+		final int length = values.length;
+		final Short[] result = new Short[length];
 		for(int i = 0; i < length; i++)
 		{
-			result[i] = shorts[i];
+			result[i] = values[i];
 		}
 		
 		return result;
 	}
 	
-	public static final Integer[] box(final int... ints)
+	public static final Integer[] box(final int... values)
 	{
-		if(ints == null)
+		if(values == null)
 		{
 			return null;
 		}
 	
-		final int length;
-		final Integer[] result = new Integer[length = ints.length];
+		final int length = values.length;
+		final Integer[] result = new Integer[length];
 		for(int i = 0; i < length; i++)
 		{
-			result[i] = ints[i];
+			result[i] = values[i];
 		}
 		
 		return result;
 	}
 	
-	public static final Character[] box(final char... chars)
+	public static final Character[] box(final char... values)
 	{
-		if(chars == null)
+		if(values == null)
 		{
 			return null;
 		}
 
-		final int length;
-		final Character[] result = new Character[length = chars.length];
+		final int length = values.length;
+		final Character[] result = new Character[length];
 		for(int i = 0; i < length; i++)
 		{
-			result[i] = chars[i];
+			result[i] = values[i];
 		}
 		
 		return result;
 	}
 	
-	public static final Float[] box(final float... floats)
+	public static final Float[] box(final float... values)
 	{
-		if(floats == null)
+		if(values == null)
 		{
 			return null;
 		}
 
-		final int length;
-		final Float[] result = new Float[length = floats.length];
+		final int length = values.length;
+		final Float[] result = new Float[length];
 		for(int i = 0; i < length; i++)
 		{
-			result[i] = floats[i];
+			result[i] = values[i];
 		}
 		
 		return result;
 	}
 	
-	public static final Long[] box(final long... longs)
+	public static final Long[] box(final long... values)
 	{
-		if(longs == null)
+		if(values == null)
 		{
 			return null;
 		}
 
-		final int length;
-		final Long[] result = new Long[length = longs.length];
+		final int length = values.length;
+		final Long[] result = new Long[length];
 		for(int i = 0; i < length; i++)
 		{
-			result[i] = longs[i];
+			result[i] = values[i];
 		}
 		
 		return result;
 	}
 	
-	public static final Double[] box(final double... doubles)
+	public static final Double[] box(final double... values)
 	{
-		if(doubles == null)
+		if(values == null)
 		{
 			return null;
 		}
 
-		final int length;
-		final Double[] result = new Double[length = doubles.length];
+		final int length = values.length;
+		final Double[] result = new Double[length];
 		for(int i = 0; i < length; i++)
 		{
-			result[i] = doubles[i];
+			result[i] = values[i];
 		}
 		
 		return result;
