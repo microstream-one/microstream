@@ -11,13 +11,13 @@ import javax.cache.processor.MutableEntry;
 public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 {
 	public Operation getOperation();
-	
+
 	@Override
 	public default <T> T unwrap(final Class<T> clazz)
 	{
 		return Static.unwrap(this, clazz);
 	}
-	
+
 	public static enum Operation
 	{
 		NONE,
@@ -27,7 +27,7 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 		REMOVE,
 		UPDATE;
 	}
-	
+
 	public static <K, V> MutableCacheEntry<K, V> New(
 		final ObjectConverter converter,
 		final K key,
@@ -44,7 +44,7 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 			cacheLoader
 		);
 	}
-	
+
 	public static class Default<K, V> implements MutableCacheEntry<K, V>
 	{
 		private final K                 key;
@@ -54,7 +54,7 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 		private final CacheLoader<K, V> cacheLoader;
 		private V                       value;
 		private Operation               operation;
-		
+
 		Default(
 			final ObjectConverter converter,
 			final K key,
@@ -71,13 +71,13 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 			this.now         = now;
 			this.cacheLoader = cacheLoader;
 		}
-		
+
 		@Override
 		public K getKey()
 		{
 			return this.key;
 		}
-		
+
 		@Override
 		public V getValue()
 		{
@@ -95,7 +95,7 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 						: this.converter.externalize(internalValue);
 				}
 			}
-			
+
 			if(this.value != null)
 			{
 				// mark as Accessed so AccessedExpiry will be computed upon return from entry processor.
@@ -122,35 +122,32 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 						{
 							throw new CacheLoaderException("Exception in CacheLoader", e);
 						}
-						else
-						{
-							throw e;
-						}
+
+						throw e;
 					}
 				}
 			}
 			return this.value;
 		}
-		
+
 		@Override
 		public boolean exists()
 		{
 			return this.value != null
-			   || (   this.operation == Operation.NONE
+			   || this.operation == Operation.NONE
 			       && this.cachedValue != null
-				   && !this.cachedValue.isExpiredAt(this.now)
-				  );
+				   && !this.cachedValue.isExpiredAt(this.now);
 		}
-		
+
 		@Override
 		public void remove()
 		{
-			this.operation = (this.operation == Operation.CREATE || this.operation == Operation.LOAD)
+			this.operation = this.operation == Operation.CREATE || this.operation == Operation.LOAD
 				? Operation.NONE
 				: Operation.REMOVE;
 			this.value     = null;
 		}
-		
+
 		@Override
 		public void setValue(final V value)
 		{
@@ -160,13 +157,13 @@ public interface MutableCacheEntry<K, V> extends MutableEntry<K, V>, Unwrappable
 				: Operation.UPDATE;
 			this.value     = value;
 		}
-		
+
 		@Override
 		public Operation getOperation()
 		{
 			return this.operation;
 		}
-		
+
 	}
-	
+
 }

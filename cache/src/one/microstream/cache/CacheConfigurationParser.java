@@ -11,7 +11,7 @@ public interface CacheConfigurationParser
 {
 	/**
 	 * Parses the configuration from the given input.
-	 * 
+	 *
 	 * @param data the input to parse
 	 * @return the parsed configuration
 	 * @throws CacheConfigurationException if an error occurs while parsing
@@ -19,10 +19,10 @@ public interface CacheConfigurationParser
 	public CacheConfiguration<?, ?> parse(
 		String data
 	);
-	
+
 	/**
 	 * Parses the configuration from the given input.
-	 * 
+	 *
 	 * @param data the input to parse
 	 * @param keyType the key type
 	 * @param valueType the value type
@@ -30,22 +30,22 @@ public interface CacheConfigurationParser
 	 * @throws CacheConfigurationException if an error occurs while parsing
 	 */
 	public <K, V> CacheConfiguration<K, V> parse(
-		String data, 
-		Class<K> keyType, 
+		String data,
+		Class<K> keyType,
 		Class<V> valueType
 	);
-	
+
 	/**
 	 * Creates a new {@link CacheConfigurationParser}.
 	 */
 	public static CacheConfigurationParser New()
 	{
 		return New(CacheConfigurationPropertyParser.New());
-	}	
-	
+	}
+
 	/**
 	 * Creates a new {@link CacheConfigurationParser}.
-	 * 
+	 *
 	 * @param propertyParser a custom property parser
 	 */
 	public static CacheConfigurationParser New(
@@ -54,8 +54,8 @@ public interface CacheConfigurationParser
 	{
 		return new Default(notNull(propertyParser));
 	}
-	
-	
+
+
 	public static class Default implements CacheConfigurationParser, CacheConfigurationPropertyNames
 	{
 		private final CacheConfigurationPropertyParser propertyParser;
@@ -66,51 +66,51 @@ public interface CacheConfigurationParser
 		{
 			super();
 			this.propertyParser = propertyParser;
-		}		
-		
+		}
+
 		@Override
 		public CacheConfiguration<?, ?> parse(
 			final String data
 		)
 		{
-			final Map<String, String> properties = new HashMap<>();			
+			final Map<String, String> properties = new HashMap<>();
 			this.parseProperties(data, properties);
 
 			final Class<?> keyType   = this.valueAsClass(properties.get(KEY_TYPE),   Object.class);
 			final Class<?> valueType = this.valueAsClass(properties.get(VALUE_TYPE), Object.class);
 
 			final CacheConfiguration.Builder<?, ?> builder = CacheConfiguration.Builder(
-				keyType, 
+				keyType,
 				valueType
 			);
-						
+
 			this.propertyParser.parseProperties(properties, builder);
-						
+
 			return builder.build();
 		}
-		
+
 		@Override
 		public <K, V> CacheConfiguration<K, V> parse(
-			final String data, 
-			final Class<K> keyType, 
+			final String data,
+			final Class<K> keyType,
 			final Class<V> valueType
 		)
 		{
-			final Map<String, String> properties = new HashMap<>();		
+			final Map<String, String> properties = new HashMap<>();
 			this.parseProperties(data, properties);
 
 			final CacheConfiguration.Builder<K, V> builder = CacheConfiguration.Builder(
-				keyType, 
+				keyType,
 				valueType
 			);
-						
+
 			this.propertyParser.parseProperties(properties, builder);
-						
+
 			return builder.build();
 		}
-		
+
 		protected Class<?> valueAsClass(
-			final String value, 
+			final String value,
 			final Class<?> defaultValue
 		)
 		{
@@ -121,14 +121,14 @@ public interface CacheConfigurationParser
 					: Class.forName(value)
 				;
 			}
-			catch(ClassNotFoundException e)
+			catch(final ClassNotFoundException e)
 			{
 				throw new CacheConfigurationException(e);
 			}
 		}
 
 		protected void parseProperties(
-			final String data, 
+			final String data,
 			final Map<String, String> properties
 		)
 		{
@@ -140,27 +140,28 @@ public interface CacheConfigurationParser
 				{
 					continue nextLine;
 				}
-				
+
 				switch(line.charAt(0))
 				{
 					case '#': // comment
 					case ';': // comment
 					case '[': // section
 						continue nextLine;
+					default:  // fall-through
 				}
-				
+
 				final int separatorIndex = line.indexOf('=');
 				if(separatorIndex == -1)
 				{
 					continue nextLine; // no key=value pair, ignore
 				}
-				
+
 				final String name  = line.substring(0, separatorIndex).trim();
 				final String value = line.substring(separatorIndex + 1).trim();
 				properties.put(name, value);
 			}
 		}
-		
+
 	}
-	
+
 }
