@@ -15,64 +15,48 @@ import one.microstream.collections.Constant;
 public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 {
 	public boolean hasNext();
+	
 	public boolean isNext(LinkingReferencing<T> linkedReference);
+	
 	public LinkingReferencing<T> next();
 
 	public Object[] toArray();
 
-
-	/**
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString();
 
-
 	public String toChainString();
 
+	
 
 	public class Default<T> extends Constant<T> implements LinkingReferencing<T>
 	{
 
 		private final LinkingReferencing<T> next = null;
 
-
-		/**
-		 * @param ref
-		 */
 		public Default(final T ref)
 		{
 			super(ref);
 		}
-
-
-		/**
-		 */
+		
 		@Override
 		public LinkingReferencing<T> next()
 		{
 			return this.next;
 		}
 
-		/**
-		 */
 		@Override
 		public boolean hasNext()
 		{
 			return this.next != null;
 		}
 
-		/**
-		 * @param linkedReference
-		 */
 		@Override
 		public boolean isNext(final LinkingReferencing<T> linkedReference)
 		{
 			return this.next == linkedReference;
 		}
 
-		/**
-		 */
 		@Override
 		public Object[] toArray()
 		{
@@ -95,30 +79,21 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 			return array;
 		}
 
-
-		/**
-		 */
 		@Override
 		public Iterator<T> iterator()
 		{
 			return new ChainIterator<>(this);
 		}
 
-		/**
-		 * @see java.lang.Object#toString()
-		 */
 		@Override
 		public String toString()
 		{
 			final String e = String.valueOf(this.get());
 			final StringBuilder sb = new StringBuilder(e.length() + 3);
+			
 			return sb.append('(').append(e).append(')').append(this.hasNext() ? '-' : 'x').toString();
 		}
 
-
-		/**
-		 * @see one.microstream.reference.LinkingReferencing#toChainString()
-		 */
 		@Override
 		public String toChainString()
 		{
@@ -128,9 +103,9 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 			{
 				sb.append('-').append('(').append(r.get()).append(')');
 			}
+			
 			return sb.toString();
 		}
-
 
 	}
 
@@ -158,6 +133,7 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 		{
 			final LinkingReferencing<T> currentCurrent = this.current;
 			this.current = currentCurrent.next();
+			
 			return currentCurrent.get();
 		}
 
@@ -168,5 +144,6 @@ public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 				"Can't remove current element in a one directional chain"
 			);
 		}
+		
 	}
 }

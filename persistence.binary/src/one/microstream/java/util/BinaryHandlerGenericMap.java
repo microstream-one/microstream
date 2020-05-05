@@ -45,7 +45,7 @@ public class BinaryHandlerGenericMap<T extends Map<?, ?>> extends AbstractBinary
 	// instance fields //
 	////////////////////
 	
-	public Instantiator<T> instantiator;
+	private final Instantiator<T> instantiator;
 
 
 

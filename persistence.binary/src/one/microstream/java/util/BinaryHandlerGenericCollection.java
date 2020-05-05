@@ -45,7 +45,7 @@ public class BinaryHandlerGenericCollection<T extends Collection<?>> extends Abs
 	// instance fields //
 	////////////////////
 	
-	public Instantiator<T> instantiator;
+	private final Instantiator<T> instantiator;
 
 
 

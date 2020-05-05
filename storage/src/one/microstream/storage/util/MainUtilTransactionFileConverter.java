@@ -18,6 +18,11 @@ import one.microstream.storage.types.StorageTransactionsFileAnalysis;
  */
 public class MainUtilTransactionFileConverter
 {
+	/* (04.05.2020 TM)NOTE:
+	 * Since this is a tiny standalone utility program that is not called from "primary" framework code,
+	 * it intentionally uses naive sys-outs and exception printing.
+	 * So if code analysis tools pick on it, please ignore them.
+	 */
 	public static void main(final String[] args)
 	{
 		if(XArrays.hasNoContent(args))
@@ -51,7 +56,9 @@ public class MainUtilTransactionFileConverter
 		}
 		catch(final IOException e)
 		{
+			// naive printing is okay for a tiny standalone-utility program.
 			e.printStackTrace();
+			
 			XThreads.sleep(1000);
 			System.exit(-3);
 		}

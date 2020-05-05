@@ -45,7 +45,7 @@ public class BinaryHandlerGenericSet<T extends Set<?>> extends AbstractBinaryHan
 	// instance fields //
 	////////////////////
 	
-	public Instantiator<T> instantiator;
+	private final Instantiator<T> instantiator;
 
 
 

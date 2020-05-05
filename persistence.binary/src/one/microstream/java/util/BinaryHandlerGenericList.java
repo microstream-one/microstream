@@ -45,7 +45,7 @@ public class BinaryHandlerGenericList<T extends List<?>> extends AbstractBinaryH
 	// instance fields //
 	////////////////////
 	
-	public Instantiator<T> instantiator;
+	private final Instantiator<T> instantiator;
 	
 	
 

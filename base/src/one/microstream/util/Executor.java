@@ -13,7 +13,7 @@ public interface Executor<EX extends Throwable>
 
 	public boolean handle(Throwable t);
 
-	public void finalize(Runnable onSuccessLogics);
+	public void complete(Runnable onSuccessLogics);
 
 
 
@@ -244,7 +244,7 @@ public interface Executor<EX extends Throwable>
 		}
 
 		@Override
-		public void finalize(final Runnable onSuccessLogics)
+		public void complete(final Runnable onSuccessLogics)
 		{
 			if(this.collector.isEmpty())
 			{
