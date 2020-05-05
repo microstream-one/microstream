@@ -12,7 +12,7 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 	private final V       value;
 	private final V       oldValue;
 	private final boolean oldValueAvailable;
-	
+
 	CacheEvent(
 		final Cache<K, V> source,
 		final EventType eventType,
@@ -29,7 +29,7 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 			false
 		);
 	}
-	
+
 	CacheEvent(
 		final Cache<K, V> source,
 		final EventType eventType,
@@ -47,7 +47,7 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 			true
 		);
 	}
-	
+
 	CacheEvent(
 		final Cache<K, V> source,
 		final EventType eventType,
@@ -58,31 +58,30 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 	)
 	{
 		super(source, eventType);
-		
+
 		this.key               = key;
 		this.value             = value;
 		this.oldValue          = oldValue;
 		this.oldValueAvailable = oldValueAvailable;
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	public Cache<K, V> getCache()
 	{
 		return super.getSource();
 	}
-	
+
 	@Override
 	public K getKey()
 	{
 		return this.key;
 	}
-	
+
 	@Override
 	public V getValue()
 	{
 		return this.value;
 	}
-	
+
 	@Override
 	public V getOldValue() throws UnsupportedOperationException
 	{
@@ -90,17 +89,17 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 			? this.oldValue
 			: null;
 	}
-	
+
 	@Override
 	public boolean isOldValueAvailable()
 	{
 		return this.oldValueAvailable;
 	}
-	
+
 	@Override
 	public <T> T unwrap(final Class<T> clazz)
 	{
 		return Static.unwrap(this, clazz);
 	}
-	
+
 }

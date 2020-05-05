@@ -38,12 +38,12 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	private volatile CacheConfiguration<Object, Object> cacheConfiguration;
 	private volatile MissingCacheStrategy               missingCacheStrategy;
 	private volatile long                               cacheLockTimeout;
-	
+
 	public CacheRegionFactory()
 	{
 		this(DefaultCacheKeysFactory.INSTANCE);
 	}
-	
+
 	public CacheRegionFactory(
 		final CacheKeysFactory cacheKeysFactory
 	)
@@ -51,53 +51,49 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		super();
 		this.cacheKeysFactory = cacheKeysFactory;
 	}
-	
+
 	@Override
-	protected CacheKeysFactory getImplicitCacheKeysFactory() 
+	protected CacheKeysFactory getImplicitCacheKeysFactory()
 	{
 		return this.cacheKeysFactory;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	protected void prepareForUse(
-		final SessionFactoryOptions settings, 
+		final SessionFactoryOptions settings,
 		final Map properties
 	)
 	{
 		this.cacheManager         = this.resolveCacheManager(
-			settings, 
+			settings,
 			properties
 		);
-		
+
 		this.cacheConfiguration   = this.resolveCacheConfiguration(
-			settings, 
+			settings,
 			properties
 		);
-		
+
 		this.missingCacheStrategy = MissingCacheStrategy.ofSetting(
 			properties.get(ConfigurationPropertyNames.MISSING_CACHE_STRATEGY)
 		);
-		
+
 		final Object cacheLockTimeoutConfigValue = properties.get(
 			ConfigurationPropertyNames.CACHE_LOCK_TIMEOUT
 		);
 		if(cacheLockTimeoutConfigValue != null)
 		{
-			final Integer lockTimeoutInMillis = cacheLockTimeoutConfigValue instanceof String
+			final int lockTimeoutInMillis = cacheLockTimeoutConfigValue instanceof String
 				? Integer.decode((String)cacheLockTimeoutConfigValue)
-				: ((Number)cacheLockTimeoutConfigValue).intValue();
+				: ((Number)cacheLockTimeoutConfigValue).intValue()
 			;
-			this.cacheLockTimeout = lockTimeoutInMillis != null
-				? SimpleTimestamper.ONE_MS * lockTimeoutInMillis
-				: super.getTimeout()
-			;
+			this.cacheLockTimeout = SimpleTimestamper.ONE_MS * lockTimeoutInMillis;
 		}
 	}
 
-	@SuppressWarnings("rawtypes") 
+	@SuppressWarnings("rawtypes")
 	protected CacheManager resolveCacheManager(
-		final SessionFactoryOptions settings, 
+		final SessionFactoryOptions settings,
 		final Map properties
 	)
 	{
@@ -111,24 +107,24 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 
 	@SuppressWarnings("unchecked")
 	protected CacheManager useExplicitCacheManager(
-		final SessionFactoryOptions settings, 
+		final SessionFactoryOptions settings,
 		final Object setting
 	)
 	{
-		if(setting instanceof CacheManager) 
+		if(setting instanceof CacheManager)
 		{
 			return (CacheManager)setting;
 		}
-		
+
 		try
 		{
 			final Class<? extends CacheManager> cacheManagerClass = setting instanceof Class
 				? (Class<? extends CacheManager>)setting
 				: this.loadClass(setting.toString(), settings)
-			;			
+			;
 			return cacheManagerClass.newInstance();
 		}
-		catch(ClassNotFoundException | InstantiationException | IllegalAccessException e) 
+		catch(ClassNotFoundException | InstantiationException | IllegalAccessException e)
 		{
 			throw new CacheException("Could not use explicit CacheManager : " + setting, e);
 		}
@@ -136,15 +132,15 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 
 	@SuppressWarnings({"rawtypes", "resource"})
 	protected CacheManager createCacheManager(
-		final SessionFactoryOptions settings, 
-		final Map properties) 
+		final SessionFactoryOptions settings,
+		final Map properties)
 	{
 		return new CachingProvider().getCacheManager();
 	}
-	
+
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	protected CacheConfiguration<Object, Object> resolveCacheConfiguration(
-		final SessionFactoryOptions settings, 
+		final SessionFactoryOptions settings,
 		final Map properties
 	)
 	{
@@ -161,13 +157,13 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 			}
 			return CacheConfiguration.Load(url, Object.class, Object.class);
 		}
-		
+
 		// 2. Check for properties in context config
 		final String                 prefix            = "hibernate.cache.microstream.";
 		final Map<String, String> msCacheProperties = ((Map<Object, Object>)properties).entrySet().stream()
 			.filter(kv -> kv.getKey().toString().startsWith(prefix))
 			.collect(Collectors.toMap(
-				kv -> kv.getKey().toString().substring(prefix.length()), 
+				kv -> kv.getKey().toString().substring(prefix.length()),
 				kv -> kv.getValue().toString()
 			))
 		;
@@ -184,9 +180,9 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 			);
 			return builder.build();
 		}
-		
+
 		// 3. Check for default property resource
-		CacheConfiguration<Object, Object> configuration = 
+		final CacheConfiguration<Object, Object> configuration =
 			CacheConfiguration.Load(Object.class, Object.class);
 		return configuration != null
 			? configuration
@@ -195,108 +191,108 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 				.storeByReference()
 				.build();
 	}
-	
+
 	protected URL loadResource(
 		final String configurationResourceName,
 		final SessionFactoryOptions settings
-	) 
+	)
 	{
-		if(!super.isStarted()) 
+		if(!super.isStarted())
 		{
 			throw new IllegalStateException("Cannot load resource through a non-started CacheRegionFactory");
 		}
-		
+
 		URL url = settings.getServiceRegistry()
 			.getService(ClassLoaderService.class)
 			.locateResource(configurationResourceName)
 		;
 
-		if(url == null) 
+		if(url == null)
 		{
 			final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
-			if(contextClassloader != null) 
+			if(contextClassloader != null)
 			{
 				url = contextClassloader.getResource(configurationResourceName);
 			}
-			if(url == null) 
+			if(url == null)
 			{
 				url = this.getClass().getResource(configurationResourceName);
-				
-				if(url == null) 
+
+				if(url == null)
 				{
-					try 
+					try
 					{
 						url = new URL(configurationResourceName);
 					}
-					catch(MalformedURLException e) 
+					catch(final MalformedURLException e)
 					{
 						// ignore
 					}
 				}
 			}
 		}
-		
+
 		return url;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected <T> Class<T> loadClass(
 		final String configurationClassName,
 		final SessionFactoryOptions settings
-	) throws ClassNotFoundException 
+	) throws ClassNotFoundException
 	{
-		if(!super.isStarted()) 
+		if(!super.isStarted())
 		{
 			throw new IllegalStateException("Cannot load class through a non-started CacheRegionFactory");
 		}
-		
+
 		Class<T> clazz = settings.getServiceRegistry()
 			.getService(ClassLoaderService.class)
 			.classForName(configurationClassName)
 		;
 
-		if(clazz == null) 
+		if(clazz == null)
 		{
 			final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
-			if(contextClassloader != null) 
+			if(contextClassloader != null)
 			{
 				clazz = (Class<T>)contextClassloader.loadClass(configurationClassName);
 			}
-			if(clazz == null) 
+			if(clazz == null)
 			{
 				clazz = (Class<T>)Class.forName(configurationClassName);
 			}
 		}
-		
+
 		return clazz;
 	}
 
 	@Override
-	public long getTimeout() 
+	public long getTimeout()
 	{
-		return cacheLockTimeout;
+		return this.cacheLockTimeout;
 	}
-	
+
 	@Override
 	protected DomainDataStorageAccess createDomainDataStorageAccess(
-		DomainDataRegionConfig regionConfig,
-		DomainDataRegionBuildingContext buildingContext)
+		final DomainDataRegionConfig regionConfig,
+		final DomainDataRegionBuildingContext buildingContext)
 	{
 		return StorageAccess.New(
-			this.getOrCreateCache(regionConfig.getRegionName(), buildingContext.getSessionFactory()) 
+			this.getOrCreateCache(regionConfig.getRegionName(), buildingContext.getSessionFactory())
 		);
 	}
 
 	@Override
 	public DomainDataRegion buildDomainDataRegion(
-		final DomainDataRegionConfig regionConfig, 
+		final DomainDataRegionConfig regionConfig,
 		final DomainDataRegionBuildingContext buildingContext
-	) 
+	)
 	{
 		return new DomainDataRegionImpl(
 			regionConfig,
 			this,
-			createDomainDataStorageAccess(regionConfig, buildingContext),
+			this.createDomainDataStorageAccess(regionConfig, buildingContext),
 			this.cacheKeysFactory,
 			buildingContext
 		);
@@ -315,14 +311,14 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 			LEGACY_QUERY_RESULTS_REGION_UNQUALIFIED_NAMES
 		);
 		return StorageAccess.New(
-			this.getOrCreateCache(defaultedRegionName, sessionFactory) 
+			this.getOrCreateCache(defaultedRegionName, sessionFactory)
 		);
 	}
 
 	@Override
 	protected StorageAccess createTimestampsRegionStorageAccess(
 		final String regionName,
-		final SessionFactoryImplementor sessionFactory	
+		final SessionFactoryImplementor sessionFactory
 	)
 	{
 		final String defaultedRegionName = this.defaultRegionName(
@@ -337,20 +333,20 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	}
 
 	protected final String defaultRegionName(
-		final String regionName, 
+		final String regionName,
 		final SessionFactoryImplementor sessionFactory,
-		final String defaultRegionName, 
+		final String defaultRegionName,
 		final List<String> legacyDefaultRegionNames
-	) 
+	)
 	{
-		if(defaultRegionName.equals(regionName) && !this.cacheExists(regionName, sessionFactory)) 
+		if(defaultRegionName.equals(regionName) && !this.cacheExists(regionName, sessionFactory))
 		{
-			for(String legacyDefaultRegionName : legacyDefaultRegionNames) 
+			for(final String legacyDefaultRegionName : legacyDefaultRegionNames)
 			{
-				if(cacheExists(legacyDefaultRegionName, sessionFactory)) 
+				if(this.cacheExists(legacyDefaultRegionName, sessionFactory))
 				{
-					SecondLevelCacheLogger.INSTANCE.usingLegacyCacheName( 
-						defaultRegionName, 
+					SecondLevelCacheLogger.INSTANCE.usingLegacyCacheName(
+						defaultRegionName,
 						legacyDefaultRegionName
 					);
 					return legacyDefaultRegionName;
@@ -362,9 +358,9 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	}
 
 	protected boolean cacheExists(
-		final String unqualifiedRegionName, 
+		final String unqualifiedRegionName,
 		final SessionFactoryImplementor sessionFactory
-	) 
+	)
 	{
 		final String qualifiedRegionName = RegionNameQualifier.INSTANCE.qualify(
 			unqualifiedRegionName,
@@ -374,9 +370,9 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	}
 
 	protected Cache<Object, Object> getOrCreateCache(
-		final String unqualifiedRegionName, 
+		final String unqualifiedRegionName,
 		final SessionFactoryImplementor sessionFactory
-	) 
+	)
 	{
 		this.verifyStarted();
 
@@ -396,27 +392,27 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		final String regionName
 	)
 	{
-		switch(this.missingCacheStrategy) 
+		switch(this.missingCacheStrategy)
 		{
 			case CREATE_WARN:
 				SecondLevelCacheLogger.INSTANCE.missingCacheCreated(
 					regionName,
-					ConfigurationPropertyNames.MISSING_CACHE_STRATEGY, 
+					ConfigurationPropertyNames.MISSING_CACHE_STRATEGY,
 					MissingCacheStrategy.CREATE.getExternalRepresentation()
 				);
 				// fall-through to create
-				
+
 			case CREATE:
 				return this.cacheManager.createCache(
-					regionName, 
+					regionName,
 					this.cacheConfiguration
 				);
-				
+
 			case FAIL:
 				throw new CacheException("On-the-fly creation of MicroStream Cache objects is not supported [" + regionName + "]");
-				
+
 			default:
-				throw new IllegalStateException("Unsupported missing cache strategy: " + missingCacheStrategy);
+				throw new IllegalStateException("Unsupported missing cache strategy: " + this.missingCacheStrategy);
 		}
 	}
 
@@ -438,5 +434,5 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 			}
 		}
 	}
-	
+
 }

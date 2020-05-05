@@ -1,6 +1,5 @@
 package one.microstream.storage.restservice.sparkjava;
 
-@SuppressWarnings("serial")
 public class InvalidRouteParametersException extends RuntimeException
 {
 	private static final String EXCEPTION_TEXT = "invalid url parameter ";
