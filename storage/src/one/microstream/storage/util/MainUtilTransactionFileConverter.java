@@ -57,7 +57,7 @@ public class MainUtilTransactionFileConverter
 		catch(final IOException e)
 		{
 			// naive printing is okay for a tiny standalone-utility program.
-			e.printStackTrace();
+			e.printStackTrace(); // NOSONAR
 			
 			XThreads.sleep(1000);
 			System.exit(-3);
