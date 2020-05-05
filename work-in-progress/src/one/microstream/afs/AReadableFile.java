@@ -37,11 +37,12 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 	}
 
 
-	// (28.04.2020 TM)FIXME: priv#49: review/overhaul/delete
+	
 	public default void copyTo(final AWritableFile target, final long sourcePosition, final long length)
 	{
-		/* (29.10.2018 TM)FIXME: OGS-45: default copyTo
+		/* (29.10.2018 TM)FIXME: priv#49: default copyTo
 		 * create a special Iterator that (re)fills its buffer on every next() call for the whole length
+		 * (28.04.2020 TM): review/overhaul/delete
 		 */
 		if(System.currentTimeMillis() > 0)
 		{

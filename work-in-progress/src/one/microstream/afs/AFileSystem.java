@@ -6,7 +6,22 @@ import one.microstream.collections.EqHashTable;
 
 public interface AFileSystem extends AccessManager
 {
-	// (30.04.2020 TM)FIXME: priv#49: "protocol" here or in AccessManager
+	/* (30.04.2020 TM)FIXME: priv#49: "protocol" here or in AccessManager
+	 * Or is "protocol" a trait of a root directory?
+	 * With a FileSystem instance being able to contain roots with different protocols?
+	 * Example:
+	 * "file://C:/"
+	 * "file://C:/"
+	 * "https://some.cloudstorage.com/storage12343534/"
+	 * 
+	 * HMMM....
+	 */
+	
+	// (04.05.2020 TM)TODO: priv#49: #resolve methods with root String?
+	
+	/* (04.05.2020 TM)TODO: priv#49: #resolve methods with single String that gets parsed?
+	 * Or is that the job of an APathResolver?
+	 */
 	
 	public default ADirectory resolveDirectoryPath(final String... pathElements)
 	{
@@ -69,10 +84,13 @@ public interface AFileSystem extends AccessManager
 		// instance fields //
 		////////////////////
 		
-		// (30.04.2020 TM)FIXME: priv#49: ARoot?
+		// (30.04.2020 TM)FIXME: priv#49: ARoot extends ADirectory?
 		private final EqHashTable<String, ADirectory> rootDirectories;
 		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
+		
+		// (04.05.2020 TM)FIXME: priv#49: AccessManager must be an unshared member of a FileSystem instance
+		// (04.05.2020 TM)FIXME: priv#49: IoManager
 
 		
 		
