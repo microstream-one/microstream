@@ -727,7 +727,7 @@ public interface MultiMatch<E>
 				}
 			}
 			
-			this.averageSimilarity = total / this.matchCount;
+			this.averageSimilarity = this.matchCount == 0 ? 0 : total / this.matchCount;
 			this.lowestSimilarity  = lowest;
 			this.highestSimilarity = highest;
 		}

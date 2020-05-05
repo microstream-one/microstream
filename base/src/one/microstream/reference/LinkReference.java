@@ -74,70 +74,58 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 	public class Default<T> extends Singleton<T> implements LinkReference<T>
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
 
 		private LinkReference<T> next;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
-
-		/**
-		 * @param ref
-		 */
 		public Default(final T ref)
 		{
 			super(ref);
 		}
 
-
-		/**
-		 */
 		@Override
 		public LinkReference<T> next()
 		{
 			return this.next;
 		}
 
-		/**
-		 */
 		@Override
 		public boolean hasNext()
 		{
 			return this.next != null;
 		}
 
-		/**
-		 * @param linkedReference
-		 */
 		@Override
 		public boolean isNext(final LinkingReferencing<T> linkedReference)
 		{
 			return this.next == linkedReference;
 		}
 
-		/**
-		 * @param linkedReference
-		 */
 		@Override
 		public LinkReference<T> link(final LinkReference<T> linkedReference)
 		{
 			this.next = linkedReference;
+			
 			return linkedReference;
 		}
 
-
-		/**
-		 * @param linkedReference
-		 */
 		@Override
 		public LinkReference<T> setNext(final LinkReference<T> linkedReference)
 		{
 			final LinkReference<T> old = this.next;
 			this.next = linkedReference;
+			
 			return old;
 		}
 
-
-		/**
-		 * @param nextRef
-		 */
 		@Override
 		public LinkReference<T> link(final T nextRef)
 		{
@@ -147,6 +135,7 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 		/**
 		 * @param linkedReference
+		 * 
 		 * @throws NullPointerException if {@code linkedReference} is {@code null}.
 		 */
 		@Override
@@ -159,23 +148,19 @@ public interface LinkReference<T> extends LinkingReference<T>
 			{
 				linkedReference.setNext(next); //provoke NullPointer for argument
 			}
+			
 			return this;
 		}
 
-
-		/**
-		 */
 		@Override
 		public LinkReference<T> removeNext()
 		{
 			final LinkReference<T> next = this.next;
 			this.next = next == null ? null : next.next();
+			
 			return next;
 		}
 
-
-		/**
-		 */
 		@Override
 		public Object[] toArray()
 		{
@@ -198,30 +183,21 @@ public interface LinkReference<T> extends LinkingReference<T>
 			return array;
 		}
 
-
-		/**
-		 */
 		@Override
 		public Iterator<T> iterator()
 		{
 			return new ChainIterator<>(this);
 		}
 
-
-		/**
-		 * @see java.lang.Object#toString()
-		 */
 		@Override
 		public String toString()
 		{
 			final String e = String.valueOf(this.get());
 			final StringBuilder sb = new StringBuilder(e.length() + 3);
+			
 			return sb.append('(').append(e).append(')').append(this.hasNext() ? '-' : 'x').toString();
 		}
 
-		/**
-		 * @see one.microstream.reference.LinkingReferencing#toChainString()
-		 */
 		@Override
 		public String toChainString()
 		{
@@ -231,6 +207,7 @@ public interface LinkReference<T> extends LinkingReference<T>
 			{
 				sb.append('-').append('(').append(r.get()).append(')');
 			}
+			
 			return sb.toString();
 		}
 
@@ -239,9 +216,17 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 	final class ChainIterator<T> implements Iterator<T>
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
 		private LinkReference<T> current;
 
 
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 
 		ChainIterator(final LinkReference<T> current)
 		{
@@ -260,6 +245,7 @@ public interface LinkReference<T> extends LinkingReference<T>
 		{
 			final LinkReference<T> currentCurrent = this.current;
 			this.current = currentCurrent.next();
+			
 			return currentCurrent.get();
 		}
 
@@ -270,5 +256,6 @@ public interface LinkReference<T> extends LinkingReference<T>
 				"Can't remove current element in a one directional chain"
 			);
 		}
+		
 	}
 }

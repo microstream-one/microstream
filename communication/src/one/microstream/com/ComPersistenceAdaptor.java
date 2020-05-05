@@ -193,8 +193,9 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		private final ByteOrder              hostByteOrder     ;
 		private final PersistenceIdStrategy  hostIdStrategy    ;
 		
-		private transient PersistenceTypeDictionaryView cachedTypeDictionary     ;
-		private transient boolean                       initializedHostFoundation;
+		private transient volatile PersistenceTypeDictionaryView cachedTypeDictionary;
+		
+		private transient boolean initializedHostFoundation;
 		
 		
 		
@@ -254,7 +255,17 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 			{
 				synchronized(this)
 				{
-					// recheck after synch
+					/*
+					 * Recheck after synch.
+					 * Note:
+					 * This is NOT a double-check antipattern since #provideTypeDictionary returns a fully
+					 * initialized instance.
+					 * Also, #cachedTypeDictionary is exclusively accessed in this method, so there can be no
+					 * side effect logic using a null value or a partially initalized instance.
+					 * 
+					 * Nevertheless, a "volatile" has been added to the field because its performance implication
+					 * should hardly matter in this case.
+					 */
 					if(this.cachedTypeDictionary == null)
 					{
 						this.cachedTypeDictionary = ComPersistenceAdaptor.super.provideTypeDictionary();

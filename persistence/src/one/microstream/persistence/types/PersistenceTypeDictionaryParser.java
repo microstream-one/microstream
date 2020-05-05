@@ -1098,8 +1098,8 @@ public interface PersistenceTypeDictionaryParser
 				return this.buildMemberPrimitiveDefinition();
 			}
 			
-			// identity comparison suffices since only that particular instance is set.
-			if(this.typeName() == PersistenceTypeDictionary.Symbols.KEYWORD_ENUM)
+			// identity comparison would suffice, here, but false positives in code analysis tools are annoying ...
+			if(PersistenceTypeDictionary.Symbols.KEYWORD_ENUM.equals(this.typeName()))
 			{
 				return this.buildMemberEnumConstant();
 			}
