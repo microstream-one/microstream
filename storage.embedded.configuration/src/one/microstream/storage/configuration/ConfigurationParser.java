@@ -9,7 +9,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -37,7 +37,7 @@ public interface ConfigurationParser
 {
 	/**
 	 * Parses the configuration from the given input.
-	 * 
+	 *
 	 * @param data the input to parse
 	 * @return the parsed configuration
 	 * @throws StorageConfigurationException if an error occurs while parsing
@@ -48,10 +48,10 @@ public interface ConfigurationParser
 	{
 		return this.parse(Configuration.Default(), data);
 	}
-	
+
 	/**
 	 * Parses the configuration from the given input.
-	 * 
+	 *
 	 * @param configuration the configuration to populate
 	 * @param data the input to parse
 	 * @return the given configuration
@@ -61,7 +61,7 @@ public interface ConfigurationParser
 		Configuration configuration,
 		String data
 	);
-	
+
 	/**
 	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
 	 */
@@ -69,11 +69,11 @@ public interface ConfigurationParser
 	{
 		return Ini(ConfigurationPropertyParser.New());
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
-	 * 
+	 *
 	 * @param propertyParser a custom property parser
 	 */
 	public static ConfigurationParser Ini(
@@ -82,7 +82,7 @@ public interface ConfigurationParser
 	{
 		return new IniConfigurationParser(notNull(propertyParser));
 	}
-	
+
 	/**
 	 * Creates a new {@link ConfigurationParser} which reads xml files.
 	 */
@@ -93,7 +93,7 @@ public interface ConfigurationParser
 
 	/**
 	 * Creates a new {@link ConfigurationParser} which reads xml files.
-	 * 
+	 *
 	 * @param propertyParser a custom property parser
 	 */
 	public static ConfigurationParser Xml(
@@ -102,12 +102,12 @@ public interface ConfigurationParser
 	{
 		return new XmlConfigurationParser(notNull(propertyParser));
 	}
-	
-	
+
+
 	public static class IniConfigurationParser implements ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
-		
+
 		IniConfigurationParser(
 			final ConfigurationPropertyParser propertyParser
 		)
@@ -115,7 +115,7 @@ public interface ConfigurationParser
 			super();
 			this.propertyParser = propertyParser;
 		}
-		
+
 		@Override
 		public Configuration parse(
 			final Configuration configuration,
@@ -123,7 +123,7 @@ public interface ConfigurationParser
 		)
 		{
 			final Map<String, String> properties = new HashMap<>();
-			
+
 			nextLine:
 			for(String line : data.split("\\r?\\n"))
 			{
@@ -132,38 +132,38 @@ public interface ConfigurationParser
 				{
 					continue nextLine;
 				}
-				
+
 				switch(line.charAt(0))
 				{
 					case '#': // comment
 					case ';': // comment
 					case '[': // section
 						continue nextLine;
-					default: // (13.04.2020 TM)TODO: @HG: fall-through or exception?
+					default: // fall-through
 				}
-				
+
 				final int separatorIndex = line.indexOf('=');
 				if(separatorIndex == -1)
 				{
 					continue nextLine; // no key=value pair, ignore
 				}
-				
+
 				final String name  = line.substring(0, separatorIndex).trim();
 				final String value = line.substring(separatorIndex + 1).trim();
 				properties.put(name, value);
 			}
-			
+
 			this.propertyParser.parseProperties(properties, configuration);
-			
+
 			return configuration;
 		}
-		
+
 	}
-	
+
 	public static class XmlConfigurationParser implements ConfigurationParser
 	{
 		private final ConfigurationPropertyParser propertyParser;
-		
+
 		XmlConfigurationParser(
 			final ConfigurationPropertyParser propertyParser
 		)
@@ -171,7 +171,7 @@ public interface ConfigurationParser
 			super();
 			this.propertyParser = propertyParser;
 		}
-		
+
 		@Override
 		public Configuration parse(
 			final Configuration configuration,
@@ -181,10 +181,13 @@ public interface ConfigurationParser
 			try
 			{
 				final Map<String, String> properties = new HashMap<>();
-				
-				final DocumentBuilder builder  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-				final Document        document = builder.parse(new InputSource(new StringReader(data)));
-				final Element         documentElement;
+
+				final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+				factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+				factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+				final Document document = factory.newDocumentBuilder()
+					.parse(new InputSource(new StringReader(data)));
+				final Element  documentElement;
 				if((documentElement = document.getDocumentElement()) != null)
 				{
 					final NodeList propertyNodes = documentElement.getElementsByTagName("property");
@@ -196,7 +199,7 @@ public interface ConfigurationParser
 						properties.put(name, value);
 					}
 				}
-				
+
 				this.propertyParser.parseProperties(properties, configuration);
 			}
 			catch(ParserConfigurationException | SAXException e)
@@ -207,10 +210,10 @@ public interface ConfigurationParser
 			{
 				throw new StorageConfigurationIoException(e);
 			}
-			
+
 			return configuration;
 		}
-		
+
 	}
-	
+
 }
