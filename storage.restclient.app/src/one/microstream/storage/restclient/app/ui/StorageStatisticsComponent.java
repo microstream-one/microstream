@@ -26,111 +26,111 @@ public class StorageStatisticsComponent extends TreeGrid<StorageStatisticsCompon
 	public StorageStatisticsComponent()
 	{
 		super();
-		
+
 		this.setId(ElementIds.GRID_STATISTICS);
 		this.setColumnReorderingAllowed(false);
 		this.addHierarchyColumn(i -> i.name)
-			.setHeader(getTranslation("NAME"))
+			.setHeader(this.getTranslation("NAME"))
 			.setResizable(true)
 			.setFrozen(true);
 		this.addColumn(i -> i.value)
-			.setHeader(getTranslation("VALUE"))
+			.setHeader(this.getTranslation("VALUE"))
 			.setResizable(true);
 		this.setSizeFull();
 		this.addAttachListener(event -> {
 			final SessionData sessionData = event.getUI().getSession().getAttribute(SessionData.class);
 			final StorageRestClientJersey client = StorageRestClientJersey.New(sessionData.baseUrl());
 			final ViewerStorageFileStatistics statistics = client.requestFileStatistics();
-			this.setDataProvider(new StatisticsDataProvider(createItems(statistics)));
+			this.setDataProvider(new StatisticsDataProvider(this.createItems(statistics)));
 		});
 	}
-	
+
 	private List<Item> createItems(
 		final ViewerStorageFileStatistics statistics
 	)
-	{		
+	{
 		final List<Item> items = new ArrayList<>();
-		
+
 		items.add(new Item(
-			getTranslation("CREATION_TIME"), 
+			this.getTranslation("CREATION_TIME"),
 			DateFormat.getDateTimeInstance().format(statistics.getCreationTime())
 		));
-		createCommonItems(statistics, items::add);
-		
-		final Item channelsItem = new Item(getTranslation("CHANNELS"), "");
+		this.createCommonItems(statistics, items::add);
+
+		final Item channelsItem = new Item(this.getTranslation("CHANNELS"), "");
 		items.add(channelsItem);
-		
+
 		statistics.getChannelStatistics().values()
 			.stream()
 			.sorted((s1, s2) -> Integer.compare(s1.getChannelIndex(), s2.getChannelIndex()))
 			.map(this::createChannelItem)
 			.forEach(channelsItem::add);
-		
+
 		return items;
 	}
-	
+
 	private Item createChannelItem(
 		final ViewerChannelStatistics statistics
 	)
 	{
 		final Item channelItem = new Item(
-			getTranslation("CHANNEL") + " " + statistics.getChannelIndex(),
+			this.getTranslation("CHANNEL") + " " + statistics.getChannelIndex(),
 			""
 		);
-		
-		createCommonItems(statistics, channelItem::add);
-		
-		final Item filesItem = new Item(getTranslation("FILES"), "");
+
+		this.createCommonItems(statistics, channelItem::add);
+
+		final Item filesItem = new Item(this.getTranslation("FILES"), "");
 		channelItem.add(filesItem);
-		
+
 		statistics.getFiles().forEach(
-			fileStatistics -> filesItem.add(createFileItem(fileStatistics))
+			fileStatistics -> filesItem.add(this.createFileItem(fileStatistics))
 		);
-		
+
 		return channelItem;
 	}
-	
+
 	private Item createFileItem(
 		final ViewerFileStatistics statistics
 	)
 	{
 		final Item fileItem = new Item(
-			getTranslation("FILE") + " " + statistics.getFileNumber(),
+			this.getTranslation("FILE") + " " + statistics.getFileNumber(),
 			statistics.getFile()
 		);
-		
-		createDataItems(statistics, fileItem::add);
-		
+
+		this.createDataItems(statistics, fileItem::add);
+
 		return fileItem;
 	}
-	
+
 	private void createCommonItems(
 		final ViewerStorageFileStatisticsItem statistics,
 		final Consumer<Item> consumer
 	)
 	{
 		consumer.accept(new Item(
-			getTranslation("FILE_COUNT"), 
+			this.getTranslation("FILE_COUNT"),
 			Long.toString(statistics.getFileCount())
 		));
-		createDataItems(statistics, consumer);
+		this.createDataItems(statistics, consumer);
 	}
-	
+
 	private void createDataItems(
 		final ViewerStorageFileStatisticsItem statistics,
 		final Consumer<Item> consumer
 	)
 	{
 		consumer.accept(new Item(
-			getTranslation("LIVE_DATA_SIZE"), 
+			this.getTranslation("LIVE_DATA_SIZE"),
 			humanReadableByteSize(statistics.getLiveDataLength())
 		));
 		consumer.accept(new Item(
-			getTranslation("TOTAL_DATA_SIZE"), 
+			this.getTranslation("TOTAL_DATA_SIZE"),
 			humanReadableByteSize(statistics.getTotalDataLength())
 		));
 	}
-	
+
 	static String humanReadableByteSize(
 		final long byteSize
 	)
@@ -138,50 +138,43 @@ public class StorageStatisticsComponent extends TreeGrid<StorageStatisticsCompon
 		final NumberFormat numberFormat = NumberFormat.getNumberInstance();
 		numberFormat.setMaximumFractionDigits(2);
 		numberFormat.setMinimumFractionDigits(0);
-		
-		double d = 0;
+
 		if(byteSize < 1024)
 		{
 			return numberFormat.format(byteSize).concat(" Bytes");
 		}
-		else
+
+		double d = byteSize / 1024d;
+		if(d < 1024d)
 		{
-			d = byteSize / 1024d;
-			if(d < 1024d)
-			{
-				return numberFormat.format(d).concat(" KB");
-			}
-			else
-			{
-				d /= 1024d;
-				if(d < 1024d)
-				{
-					return numberFormat.format(d).concat(" MB");
-				}
-				else
-				{
-					d /= 1024d;
-					return numberFormat.format(d).concat(" GB");
-				}
-			}
+			return numberFormat.format(d).concat(" KB");
 		}
+
+		d /= 1024d;
+		if(d < 1024d)
+		{
+			return numberFormat.format(d).concat(" MB");
+		}
+
+		d /= 1024d;
+		return numberFormat.format(d).concat(" GB");
 	}
-	
+
 	static class Item
 	{
 		final String name;
 		final String value;
 		List<Item>   children;
-		
+
 		Item(
-			final String name, 
+			final String name,
 			final String value
 		)
 		{
 			this.name  = name;
 			this.value = value;
 		}
-		
+
 		void add(
 			final Item item
 		)
@@ -193,13 +186,13 @@ public class StorageStatisticsComponent extends TreeGrid<StorageStatisticsCompon
 			this.children.add(item);
 		}
 	}
-	
-	
-	static class StatisticsDataProvider 
+
+
+	static class StatisticsDataProvider
 		extends AbstractBackEndHierarchicalDataProvider<Item,Void>
 	{
 		private final List<Item> roots;
-		
+
 		StatisticsDataProvider(
 			final List<Item> roots
 		)
@@ -217,7 +210,7 @@ public class StorageStatisticsComponent extends TreeGrid<StorageStatisticsCompon
 		}
 
 		@Override
-		public int getChildCount(HierarchicalQuery<Item, Void> query)
+		public int getChildCount(final HierarchicalQuery<Item, Void> query)
 		{
 			final Item parent = query.getParent();
 			return parent == null
@@ -228,11 +221,11 @@ public class StorageStatisticsComponent extends TreeGrid<StorageStatisticsCompon
 		}
 
 		@Override
-		protected Stream<Item> fetchChildrenFromBackEnd(HierarchicalQuery<Item, Void> query)
+		protected Stream<Item> fetchChildrenFromBackEnd(final HierarchicalQuery<Item, Void> query)
 		{
 			final Item parent = query.getParent();
-			Stream<Item> stream = 
-				(parent == null 
+			Stream<Item> stream =
+				(parent == null
 					? this.roots
 					: parent.children
 				)
@@ -247,7 +240,7 @@ public class StorageStatisticsComponent extends TreeGrid<StorageStatisticsCompon
 				.skip(query.getOffset())
 				.limit(query.getLimit());
 		}
-		
+
 	}
-	
+
 }

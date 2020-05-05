@@ -20,38 +20,38 @@ public interface CacheConfigurationPropertyParser
 {
 	@FunctionalInterface
 	public static interface ClassResolver
-	{		
+	{
 		public Class<?> loadClass(
 			String name
 		)
 			throws ClassNotFoundException;
-		
-		
+
+
 		public static ClassResolver Default()
 		{
 			return Class::forName;
 		}
 	}
-	
-	
+
+
 	public <K, V> void parseProperties(
 		Map<String, String> properties,
 		CacheConfiguration.Builder<K, V> builder
 	);
-	
-	
+
+
 	public static CacheConfigurationPropertyParser New()
 	{
 		return New(ClassResolver.Default());
 	}
-	
+
 	public static CacheConfigurationPropertyParser New(
 		final ClassResolver classResolver
 	)
 	{
 		return new Default(notNull(classResolver));
 	}
-	
+
 	public static class Default implements CacheConfigurationPropertyParser, CacheConfigurationPropertyNames
 	{
 		private final ClassResolver classResolver;
@@ -66,23 +66,24 @@ public interface CacheConfigurationPropertyParser
 
 		@Override
 		public <K, V> void parseProperties(
-			final Map<String, String> properties, 
+			final Map<String, String> properties,
 			final Builder<K, V> builder
 		)
 		{
 			properties.entrySet().forEach(kv ->
 				this.parseProperty(kv.getKey(), kv.getValue(), builder)
 			);
-			
+
 			if(properties.get(STORAGE_CONFIGURATION_RESOURCE_NAME) == null)
 			{
 				this.processStorageProperties(properties, builder);
 			}
-		}		
-		
+		}
+
+		@SuppressWarnings("incomplete-switch")
 		protected <K, V> void parseProperty(
-			final String name, 
-			final String value, 
+			final String name,
+			final String value,
 			final CacheConfiguration.Builder<K, V> builder
 		)
 		{
@@ -94,7 +95,7 @@ public interface CacheConfigurationPropertyParser
 					{
 						throw new CacheException("Storage configuration not found: " + value);
 					}
-					final CacheLoaderWriterFactories<K, V> factories = 
+					final CacheLoaderWriterFactories<K, V> factories =
 						CacheLoaderWriterFactories.New(storageConfiguration);
 					builder
 						.cacheLoaderFactory(factories.loaderFactory())
@@ -102,31 +103,31 @@ public interface CacheConfigurationPropertyParser
 						.writeThrough()
 						.readThrough();
 				break;
-				
+
 				case CACHE_LOADER_FACTORY:
 					builder.cacheLoaderFactory(this.valueAsFactory(value));
 				break;
-				
+
 				case CACHE_WRITER_FACTORY:
 					builder.cacheWriterFactory(this.valueAsFactory(value));
 				break;
-				
+
 				case EXPIRY_POLICY_FACTORY:
 					builder.expiryPolicyFactory(this.valueAsFactory(value));
 				break;
-				
+
 				case EVICTION_MANAGER_FACTORY:
 					builder.evictionManagerFactory(this.valueAsFactory(value));
 				break;
-				
+
 				case READ_THROUGH:
 					builder.readThrough(Boolean.valueOf(value));
 				break;
-				
+
 				case WRITE_THROUGH:
 					builder.writeThrough(Boolean.valueOf(value));
 				break;
-				
+
 				case STORE_BY_VALUE:
 					if(Boolean.valueOf(value))
 					{
@@ -137,14 +138,14 @@ public interface CacheConfigurationPropertyParser
 						builder.storeByReference();
 					}
 				break;
-				
+
 				case STATISTICS_ENABLED:
 					if(Boolean.valueOf(value))
 					{
 						builder.enableStatistics();
 					}
 				break;
-				
+
 				case MANAGEMENT_ENABLED:
 					if(Boolean.valueOf(value))
 					{
@@ -153,8 +154,7 @@ public interface CacheConfigurationPropertyParser
 				break;
 			}
 		}
-		
-		@SuppressWarnings("unchecked")
+
 		protected <T> Factory<T> valueAsFactory(
 			final String value
 		)
@@ -167,17 +167,17 @@ public interface CacheConfigurationPropertyParser
 						.newInstance()
 				);
 			}
-			catch(ClassNotFoundException | ClassCastException | 
+			catch(ClassNotFoundException | ClassCastException |
 				  InstantiationException | IllegalAccessException e
 			)
 			{
 				throw new CacheException(e);
 			}
 		}
-		
+
 		@SuppressWarnings({"rawtypes", "unchecked"})
 		protected void processStorageProperties(
-			final Map<String, String> properties, 
+			final Map<String, String> properties,
 			final CacheConfiguration.Builder builder
 		)
 		{
@@ -185,7 +185,7 @@ public interface CacheConfigurationPropertyParser
 			final Map<String, String> storageProperties = properties.entrySet().stream()
 				.filter(kv -> kv.getKey().startsWith(prefix))
 				.collect(Collectors.toMap(
-					kv -> kv.getKey().substring(prefix.length()), 
+					kv -> kv.getKey().substring(prefix.length()),
 					kv -> kv.getValue()
 				))
 			;
@@ -194,11 +194,11 @@ public interface CacheConfigurationPropertyParser
 				final Configuration storageConfiguration = Configuration.Default();
 				ConfigurationPropertyParser.New()
 					.parseProperties(
-						storageProperties, 
+						storageProperties,
 						storageConfiguration
 					)
 				;
-				final CacheLoaderWriterFactories<?, ?> factories = 
+				final CacheLoaderWriterFactories<?, ?> factories =
 					CacheLoaderWriterFactories.New(storageConfiguration);
 				builder
 					.cacheLoaderFactory(factories.loaderFactory())
@@ -207,7 +207,7 @@ public interface CacheConfigurationPropertyParser
 					.readThrough();
 			}
 		}
-		
+
 	}
-	
+
 }

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
@@ -26,42 +27,42 @@ public class InstanceView extends VerticalLayout implements HasDynamicTitle
 	public InstanceView()
 	{
 		super();
-		
+
 		final StorageViewComponent       storageViewComponent       = new StorageViewComponent      ();
 		final StorageStatisticsComponent storageStatisticsComponent = new StorageStatisticsComponent();
-				
-		final Tab storageViewTab       = new Tab(createTabComponent(
+
+		final Tab storageViewTab       = new Tab(this.createTabComponent(
 			imagePath("data.svg"),
-			getTranslation("DATA")
+			this.getTranslation("DATA")
 		));
 		storageViewTab.setId(ElementIds.TAB_DATA);
-		final Tab storageStatisticsTab = new Tab(createTabComponent(
-			imagePath("statistics.svg"), 
-			getTranslation("STATISTICS")
+		final Tab storageStatisticsTab = new Tab(this.createTabComponent(
+			imagePath("statistics.svg"),
+			this.getTranslation("STATISTICS")
 		));
 		storageStatisticsTab.setId(ElementIds.TAB_STATISTICS);
-		
+
 		final Map<Tab, Component> tabsToPages = new HashMap<>();
 		tabsToPages.put(storageViewTab      , storageViewComponent      );
 		tabsToPages.put(storageStatisticsTab, storageStatisticsComponent);
-		
+
 		final Tabs tabs = new Tabs(
-			storageViewTab, 
+			storageViewTab,
 			storageStatisticsTab
 		);
-				
+
 		final Div pages = new Div(
 			storageViewComponent,
 			storageStatisticsComponent
 		);
 
 		final Component[] visiblePage = {storageViewComponent};
-		tabsToPages.values().forEach(c -> c.setVisible(c == visiblePage[0]));		
+		tabsToPages.values().forEach(c -> c.setVisible(c == visiblePage[0]));
 		tabs.addSelectedChangeListener(event -> {
 			visiblePage[0].setVisible(false);
 		    (visiblePage[0] = tabsToPages.get(tabs.getSelectedTab())).setVisible(true);
 		});
-				
+
 		this.setPadding(false);
 		this.setMargin(false);
 		this.setSpacing(false);
@@ -70,12 +71,12 @@ public class InstanceView extends VerticalLayout implements HasDynamicTitle
 		this.setFlexGrow(1.0, pages);
 		this.setSizeFull();
 	}
-	
-	
-	private HorizontalLayout createTabComponent(String image, String text)
+
+
+	private HorizontalLayout createTabComponent(final String image, final String text)
 	{
 		final HorizontalLayout layout = new HorizontalLayout(
-			new Image(image, text), 
+			new Image(image, text),
 			new Span(text)
 		);
 		layout.setAlignItems(Alignment.CENTER);
@@ -84,11 +85,24 @@ public class InstanceView extends VerticalLayout implements HasDynamicTitle
 		layout.setMargin(false);
 		return layout;
 	}
-	
+
 	@Override
 	public String getPageTitle()
 	{
-		SessionData sessionData = getUI().get().getSession().getAttribute(SessionData.class);
-		return sessionData.baseUrl() + " - " + RootLayout.PAGE_TITLE;
+		final SessionData sessionData = this.getSessionData();
+		return sessionData != null
+			? sessionData.baseUrl() + " - " + RootLayout.PAGE_TITLE
+			: RootLayout.PAGE_TITLE
+		;
 	}
+
+	private SessionData getSessionData()
+	{
+		final UI ui = this.getUI().orElse(null);
+		return ui != null
+			? ui.getSession().getAttribute(SessionData.class)
+			: null
+		;
+	}
+
 }
