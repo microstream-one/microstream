@@ -1,6 +1,6 @@
 package one.microstream.afs;
 
-import static one.microstream.X.mayNull;
+import static one.microstream.X.notNull;
 
 import java.util.function.Consumer;
 
@@ -17,6 +17,8 @@ public interface ADirectory extends AItem
 	public boolean registerObserver(ADirectory.Observer observer);
 	
 	public boolean removeObserver(ADirectory.Observer observer);
+	
+	public <C extends Consumer<? super ADirectory.Observer>> C iterateObservers(C logic);
 	
 	// (21.04.2020 TM)FIXME: priv#49: Convenience-relaying methods?
 //	public ADirectory createDirectory(String name);
@@ -123,8 +125,8 @@ public interface ADirectory extends AItem
 
 	
 	
-	public abstract class Abstract<D extends ADirectory, F extends AFile>
-	extends AItem.Abstract<D>
+	public abstract class Abstract<D extends ADirectory, F extends AFile, S>
+	extends AItem.Abstract<D, S>
 	implements ADirectory
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -142,11 +144,11 @@ public interface ADirectory extends AItem
 		/////////////////
 
 		protected Abstract(
-			final D      parent    ,
-			final String identifier
+			final D parent ,
+			final S subject
 		)
 		{
-			super(mayNull(parent), identifier);
+			super(parent, subject);
 			this.directories = EqHashTable.New();
 			this.files       = EqHashTable.New();
 			this.observers   = HashEnum.New()   ;
@@ -182,46 +184,14 @@ public interface ADirectory extends AItem
 			return this.observers.removeOne(observer);
 		}
 		
-	}
-	
-	public abstract class AbstractSubjectWrapping<S, D extends ADirectory, F extends AFile>
-	extends ADirectory.Abstract<D, F>
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-		
-		private final S subject;
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
-		protected AbstractSubjectWrapping(
-			final S      subject   ,
-			final D      parent    ,
-			final String identifier
-		)
+		@Override
+		public final synchronized <C extends Consumer<? super Observer>> C iterateObservers(final C logic)
 		{
-			super(parent, identifier);
-			this.subject = subject;
-		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-		
-		public final S wrapped()
-		{
-			return this.subject;
+			return this.observers.iterate(logic);
 		}
 		
 	}
-		
+			
 	public interface Observer
 	{
 		public void onBeforeCreateFile(String identifier, String name, String type);
@@ -268,6 +238,102 @@ public interface ADirectory extends AItem
 	{
 		@Override
 		public ADirectory actual();
+		
+		
+		
+		public abstract class Abstract implements ADirectory.Wrapper, ADirectory
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			private final ADirectory actual;
+			
+						
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			protected Abstract(final ADirectory actual)
+			{
+				super();
+				this.actual = notNull(actual);
+			}
+			
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
+			@Override
+			public Object subject()
+			{
+				return this.actual.subject();
+			}
+			
+			@Override
+			public ADirectory actual()
+			{
+				return this.actual;
+			}
+
+			@Override
+			public XGettingTable<String, ? extends ADirectory> directories()
+			{
+				return this.actual.directories();
+			}
+
+			@Override
+			public XGettingTable<String, ? extends AFile> files()
+			{
+				return this.actual.files();
+			}
+
+			@Override
+			public boolean registerObserver(final Observer observer)
+			{
+				return this.actual.registerObserver(observer);
+			}
+
+			@Override
+			public boolean removeObserver(final Observer observer)
+			{
+				return this.actual.removeObserver(observer);
+			}
+			
+			@Override
+			public <C extends Consumer<? super Observer>> C iterateObservers(final C logic)
+			{
+				return this.actual.iterateObservers(logic);
+			}
+
+			@Override
+			public ADirectory parent()
+			{
+				return this.actual.parent();
+			}
+
+			@Override
+			public String path()
+			{
+				return this.actual.path();
+			}
+
+			@Override
+			public String identifier()
+			{
+				return this.actual.identifier();
+			}
+
+			@Override
+			public boolean exists()
+			{
+				return this.actual.exists();
+			}
+			
+		}
 		
 	}
 	

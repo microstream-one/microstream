@@ -58,12 +58,12 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 	
 	
 	public static AReadableFile New(
-		final AccessManager accessManager,
-		final AFile         actual
+		final AFileSystem fileSystem,
+		final AFile       actual
 	)
 	{
 		return new AReadableFile.Default(
-			notNull(accessManager),
+			notNull(fileSystem),
 			AFile.actual(actual) // just to be sure/safe
 		);
 	}
@@ -74,7 +74,7 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 		// instance fields //
 		////////////////////
 
-		private final AccessManager accessManager;
+		private final AFileSystem fileSystem;
 		
 		
 		
@@ -82,10 +82,10 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 		// constructors //
 		/////////////////
 
-		Default(final AccessManager accessManager, final AFile actual)
+		Default(final AFileSystem fileSystem, final AFile actual)
 		{
 			super(actual);
-			this.accessManager = notNull(accessManager);
+			this.fileSystem = notNull(fileSystem);
 		}
 		
 		
