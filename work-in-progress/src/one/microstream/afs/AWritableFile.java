@@ -27,12 +27,12 @@ public interface AWritableFile extends AReadableFile
 	
 	
 	public static AWritableFile New(
-		final AccessManager accessManager,
-		final AFile         actual
+		final AFileSystem fileSystem,
+		final AFile       actual
 	)
 	{
 		return new AWritableFile.Default(
-			notNull(accessManager),
+			notNull(fileSystem),
 			AFile.actual(actual) // just to be sure/safe
 		);
 	}
@@ -43,9 +43,9 @@ public interface AWritableFile extends AReadableFile
 		// constructors //
 		/////////////////
 
-		Default(final AccessManager accessManager, final AFile actual)
+		Default(final AFileSystem fileSystem, final AFile actual)
 		{
-			super(accessManager, actual);
+			super(fileSystem, actual);
 		}
 		
 		

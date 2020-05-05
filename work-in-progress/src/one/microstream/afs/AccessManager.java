@@ -149,8 +149,9 @@ public interface AccessManager
 		// instance fields //
 		////////////////////
 		
-		private final HashTable<ADirectory, DirEntry > directoryUsers = HashTable.New();
-		private final HashTable<AFile     , FileEntry> fileUsers      = HashTable.New();
+		private final AFileSystem                      fileSystem    ;
+		private final HashTable<ADirectory, DirEntry > directoryUsers;
+		private final HashTable<AFile     , FileEntry> fileUsers     ;
 		
 		static final class DirEntry
 		{
@@ -198,11 +199,26 @@ public interface AccessManager
 		}
 		
 		
+
+		
+		Default(
+			final AFileSystem                      fileSystem    ,
+			final HashTable<ADirectory, DirEntry > directoryUsers,
+			final HashTable<AFile     , FileEntry> fileUsers
+		)
+		{
+			super();
+			this.fileSystem     = fileSystem    ;
+			this.directoryUsers = directoryUsers;
+			this.fileUsers      = fileUsers     ;
+		}
+		
+		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+
 		@Override
 		public final synchronized boolean isUsed(
 			final ADirectory directory
@@ -359,12 +375,12 @@ public interface AccessManager
 		
 		private AUsedDirectory wrapForUse(final ADirectory directory)
 		{
-			return AUsedDirectory.New(this, directory);
+			return AUsedDirectory.New(this.fileSystem, directory);
 		}
 		
 		private AMutableDirectory wrapForMutation(final ADirectory directory)
 		{
-			return AMutableDirectory.New(this, directory);
+			return AMutableDirectory.New(this.fileSystem, directory);
 		}
 		
 		@Override
@@ -449,12 +465,12 @@ public interface AccessManager
 		
 		private AReadableFile wrapForReading(final AFile file)
 		{
-			return AReadableFile.New(this, file);
+			return AReadableFile.New(this.fileSystem, file);
 		}
 		
 		private AWritableFile wrapForWriting(final AFile file)
 		{
-			return AWritableFile.New(this, file);
+			return AWritableFile.New(this.fileSystem, file);
 		}
 		
 		@Override

@@ -17,12 +17,12 @@ public interface AMutableDirectory extends AUsedDirectory
 
 	
 	public static AMutableDirectory New(
-		final AccessManager accessManager,
-		final ADirectory    actual
+		final AFileSystem fileSystem,
+		final ADirectory  actual
 	)
 	{
 		return new AMutableDirectory.Default(
-			notNull(accessManager),
+			notNull(fileSystem),
 			ADirectory.actual(actual) // just to be sure/safe
 		);
 	}
@@ -34,9 +34,9 @@ public interface AMutableDirectory extends AUsedDirectory
 		// constructors //
 		/////////////////
 
-		Default(final AccessManager accessManager, final ADirectory actual)
+		Default(final AFileSystem fileSystem, final ADirectory actual)
 		{
-			super(accessManager, actual);
+			super(fileSystem, actual);
 		}
 		
 		

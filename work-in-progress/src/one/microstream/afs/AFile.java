@@ -1,10 +1,9 @@
 package one.microstream.afs;
 
-import static one.microstream.X.coalesce;
-import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
 
 import one.microstream.collections.HashEnum;
 
@@ -44,19 +43,19 @@ public interface AFile extends AItem
 	public boolean registerObserver(AFile.Observer observer);
 	
 	public boolean removeObserver(AFile.Observer observer);
+	
+	public <C extends Consumer<? super AFile.Observer>> C iterateObservers(C logic);
 		
 	
 	
-	public abstract class Abstract<D extends ADirectory>
-	extends AItem.Abstract<D>
+	public abstract class Abstract<D extends ADirectory, S>
+	extends AItem.Abstract<D, S>
 	implements AFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final String                   name     ;
-		private final String                   type     ;
 		private final HashEnum<AFile.Observer> observers;
 		
 		
@@ -66,15 +65,11 @@ public interface AFile extends AItem
 		/////////////////
 
 		protected Abstract(
-			final D      parent,
-			final String identifier,
-			final String name,
-			final String type
+			final D parent ,
+			final S subject
 		)
 		{
-			super(notNull(parent), identifier);
-			this.name      = coalesce(name, identifier);
-			this.type      =  mayNull(type);
+			super(notNull(parent), subject);
 			this.observers = HashEnum.New();
 		}
 		
@@ -83,18 +78,6 @@ public interface AFile extends AItem
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		@Override
-		public final String name()
-		{
-			return this.name;
-		}
-		
-		@Override
-		public final String type()
-		{
-			return this.type;
-		}
 		
 		@Override
 		public final synchronized boolean registerObserver(final AFile.Observer observer)
@@ -108,48 +91,14 @@ public interface AFile extends AItem
 			return this.observers.removeOne(observer);
 		}
 		
-	}
-	
-	public abstract class AbstractSubjectWrapping<S, D extends ADirectory>
-	extends AFile.Abstract<D>
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-		
-		private final S subject;
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
-		protected AbstractSubjectWrapping(
-			final S      subject   ,
-			final D      parent    ,
-			final String identifier,
-			final String name      ,
-			final String type
-		)
+		@Override
+		public final synchronized <C extends Consumer<? super Observer>> C iterateObservers(final C logic)
 		{
-			super(parent, identifier, name, type);
-			this.subject = subject;
-		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-		
-		public final S wrapped()
-		{
-			return this.subject;
+			return this.observers.iterate(logic);
 		}
 		
 	}
-		
+			
 	public interface Observer
 	{
 		public void onBeforeFileWrite(AWritableFile targetFile, Iterable<? extends ByteBuffer> sources);
@@ -203,9 +152,16 @@ public interface AFile extends AItem
 			}
 			
 			
+			
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
+			
+			@Override
+			public Object subject()
+			{
+				return this.actual.subject();
+			}
 			
 			@Override
 			public AFile actual()
@@ -223,6 +179,12 @@ public interface AFile extends AItem
 			public boolean removeObserver(final Observer observer)
 			{
 				return this.actual.removeObserver(observer);
+			}
+			
+			@Override
+			public <C extends Consumer<? super Observer>> C iterateObservers(final C logic)
+			{
+				return this.actual.iterateObservers(logic);
 			}
 
 			@Override
