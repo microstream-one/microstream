@@ -753,32 +753,32 @@ public final class JdkInternals
 
 	public static final void copyRangeToArray(final long sourceAddress, final short[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_SHORT_BASE_OFFSET, target.length * Short.BYTES);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_SHORT_BASE_OFFSET, (long)target.length * Short.BYTES);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final char[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET, target.length * Character.BYTES);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET, (long)target.length * Character.BYTES);
 	}
 	
 	public static final void copyRangeToArray(final long sourceAddress, final int[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_INT_BASE_OFFSET, target.length * Integer.BYTES);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_INT_BASE_OFFSET, (long)target.length * Integer.BYTES);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final float[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_FLOAT_BASE_OFFSET, target.length * Float.BYTES);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_FLOAT_BASE_OFFSET, (long)target.length * Float.BYTES);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final long[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_LONG_BASE_OFFSET, target.length * Long.BYTES);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_LONG_BASE_OFFSET, (long)target.length * Long.BYTES);
 	}
 
 	public static final void copyRangeToArray(final long sourceAddress, final double[] target)
 	{
-		VM.copyMemory(null, sourceAddress, target, ARRAY_DOUBLE_BASE_OFFSET, target.length * Double.BYTES);
+		VM.copyMemory(null, sourceAddress, target, ARRAY_DOUBLE_BASE_OFFSET, (long)target.length * Double.BYTES);
 	}
 	
 	
@@ -797,32 +797,32 @@ public final class JdkInternals
 	
 	public static final void copyArrayToAddress(final short[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET, null, targetAddress, array.length * Short.BYTES);
+		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET, null, targetAddress, (long)array.length * Short.BYTES);
 	}
 
 	public static final void copyArrayToAddress(final char[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET, null, targetAddress, array.length * Character.BYTES);
+		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET, null, targetAddress, (long)array.length * Character.BYTES);
 	}
 	
 	public static final void copyArrayToAddress(final int[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET, null, targetAddress, array.length * Integer.BYTES);
+		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET, null, targetAddress, (long)array.length * Integer.BYTES);
 	}
 	
 	public static final void copyArrayToAddress(final float[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, array.length * Float.BYTES);
+		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, (long)array.length * Float.BYTES);
 	}
 	
 	public static final void copyArrayToAddress(final long[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET, null, targetAddress, array.length * Long.BYTES);
+		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET, null, targetAddress, (long)array.length * Long.BYTES);
 	}
 	
 	public static final void copyArrayToAddress(final double[] array, final long targetAddress)
 	{
-		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, array.length * Double.BYTES);
+		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, (long)array.length * Double.BYTES);
 	}
 	
 	
