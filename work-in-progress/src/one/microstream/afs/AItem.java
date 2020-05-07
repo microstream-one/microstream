@@ -10,6 +10,8 @@ import java.nio.file.Path;
 
 public interface AItem
 {
+	public AFileSystem fileSystem();
+	
 	/**
 	 * The directory (identifying container) in which this item is located and in which
 	 * no other item can have the same {@link #identifier()} as this item.
@@ -78,8 +80,9 @@ public interface AItem
 		// instance fields //
 		////////////////////
 		
-		private final D parent ;
-		private final S subject;
+		private final AFileSystem fileSystem;
+		private final D           parent    ;
+		private final S           subject   ;
 		
 		
 		
@@ -87,11 +90,12 @@ public interface AItem
 		// constructors //
 		/////////////////
 
-		protected Abstract(final D parent, final S subject)
+		protected Abstract(final AFileSystem fileSystem, final D parent, final S subject)
 		{
 			super();
-			this.parent  =  mayNull(parent) ;
-			this.subject =  notNull(subject);
+			this.fileSystem = notNull(fileSystem);
+			this.parent     = mayNull(parent)    ;
+			this.subject    = notNull(subject)   ;
 		}
 		
 		
@@ -101,13 +105,19 @@ public interface AItem
 		////////////
 		
 		@Override
-		public final D parent()
+		public AFileSystem fileSystem()
+		{
+			return this.fileSystem;
+		}
+		
+		@Override
+		public D parent()
 		{
 			return this.parent;
 		}
 		
 		@Override
-		public final S subject()
+		public S subject()
 		{
 			return this.subject;
 		}

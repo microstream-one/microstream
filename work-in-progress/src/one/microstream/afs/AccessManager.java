@@ -465,12 +465,12 @@ public interface AccessManager
 		
 		private AReadableFile wrapForReading(final AFile file)
 		{
-			return AReadableFile.New(this.fileSystem, file);
+			return AReadableFile.New(file);
 		}
 		
 		private AWritableFile wrapForWriting(final AFile file)
 		{
-			return AWritableFile.New(this.fileSystem, file);
+			return AWritableFile.New(file);
 		}
 		
 		@Override

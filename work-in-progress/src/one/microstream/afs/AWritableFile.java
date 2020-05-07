@@ -1,7 +1,5 @@
 package one.microstream.afs;
 
-import static one.microstream.X.notNull;
-
 import java.nio.ByteBuffer;
 
 public interface AWritableFile extends AReadableFile
@@ -27,12 +25,10 @@ public interface AWritableFile extends AReadableFile
 	
 	
 	public static AWritableFile New(
-		final AFileSystem fileSystem,
 		final AFile       actual
 	)
 	{
 		return new AWritableFile.Default(
-			notNull(fileSystem),
 			AFile.actual(actual) // just to be sure/safe
 		);
 	}
@@ -43,9 +39,9 @@ public interface AWritableFile extends AReadableFile
 		// constructors //
 		/////////////////
 
-		Default(final AFileSystem fileSystem, final AFile actual)
+		Default(final AFile actual)
 		{
-			super(fileSystem, actual);
+			super(actual);
 		}
 		
 		

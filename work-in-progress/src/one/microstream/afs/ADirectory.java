@@ -144,11 +144,12 @@ public interface ADirectory extends AItem
 		/////////////////
 
 		protected Abstract(
-			final D parent ,
-			final S subject
+			final AFileSystem fileSystem,
+			final D           parent    ,
+			final S           subject
 		)
 		{
-			super(parent, subject);
+			super(fileSystem, parent, subject);
 			this.directories = EqHashTable.New();
 			this.files       = EqHashTable.New();
 			this.observers   = HashEnum.New()   ;
@@ -277,6 +278,12 @@ public interface ADirectory extends AItem
 			public ADirectory actual()
 			{
 				return this.actual;
+			}
+			
+			@Override
+			public AFileSystem fileSystem()
+			{
+				return this.actual.fileSystem();
 			}
 
 			@Override

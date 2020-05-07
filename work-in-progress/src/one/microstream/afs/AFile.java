@@ -65,11 +65,12 @@ public interface AFile extends AItem
 		/////////////////
 
 		protected Abstract(
-			final D parent ,
-			final S subject
+			final AFileSystem fileSystem,
+			final D           parent    ,
+			final S           subject
 		)
 		{
-			super(notNull(parent), subject);
+			super(fileSystem, parent, subject);
 			this.observers = HashEnum.New();
 		}
 		
@@ -167,6 +168,12 @@ public interface AFile extends AItem
 			public AFile actual()
 			{
 				return this.actual;
+			}
+			
+			@Override
+			public AFileSystem fileSystem()
+			{
+				return this.actual.fileSystem();
 			}
 
 			@Override
