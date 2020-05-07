@@ -6,6 +6,7 @@ public interface AUsedDirectory extends ADirectory, ADirectory.Wrapper
 {
 	public boolean release();
 	
+	// (06.05.2020 TM)FIXME: priv#49: Directory accessing must be only implicitly, not explicitely
 	
 	
 	public static AUsedDirectory New(

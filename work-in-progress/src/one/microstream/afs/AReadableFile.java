@@ -1,7 +1,5 @@
 package one.microstream.afs;
 
-import static one.microstream.X.notNull;
-
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
@@ -58,34 +56,24 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 	
 	
 	public static AReadableFile New(
-		final AFileSystem fileSystem,
 		final AFile       actual
 	)
 	{
 		return new AReadableFile.Default(
-			notNull(fileSystem),
 			AFile.actual(actual) // just to be sure/safe
 		);
 	}
 	
 	public class Default extends AFile.Wrapper.Abstract implements AReadableFile
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		private final AFileSystem fileSystem;
-		
-		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Default(final AFileSystem fileSystem, final AFile actual)
+		Default( final AFile actual)
 		{
 			super(actual);
-			this.fileSystem = notNull(fileSystem);
 		}
 		
 		
