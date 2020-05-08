@@ -3,7 +3,7 @@ package one.microstream.afs;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-public interface AReadableFile extends AFile, AFile.Wrapper
+public interface AReadableFile extends AFile.Wrapper
 {
 	public void open();
 	
@@ -54,26 +54,25 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 	}
 	
 	
+	// (07.05.2020 TM)FIXME: priv#49: must be implementation detail of FileSystem or such
+//	public static <S> AReadableFile New(final AFile actual, final Object subject)
+//	{
+//		return new AReadableFile.Default<>(
+//			AFile.actual(actual), // just to be sure/safe
+//			notNull(subject)
+//		);
+//	}
 	
-	public static AReadableFile New(
-		final AFile       actual
-	)
-	{
-		return new AReadableFile.Default(
-			AFile.actual(actual) // just to be sure/safe
-		);
-	}
-	
-	public class Default extends AFile.Wrapper.Abstract implements AReadableFile
+	public class Default<U, S> extends AFile.Wrapper.Abstract<U, S> implements AReadableFile
 	{
 		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Default( final AFile actual)
+		Default(final AFile actual, final U user, final S subject)
 		{
-			super(actual);
+			super(actual, user, subject);
 		}
 		
 		
@@ -85,21 +84,20 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 		@Override
 		public boolean release()
 		{
-			// (30.04.2020 TM)FIXME: priv#49: #release
-			throw new one.microstream.meta.NotImplementedYetError();
+			return this.fileSystem().accessManager().release(this);
 		}
 
 		@Override
 		public long length()
 		{
-			// (30.04.2020 TM)FIXME: priv#49: AFile#length()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return this.fileSystem().ioHandler().length(this);
 		}
 
 		@Override
 		public void open()
 		{
-			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#open()
+			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#open() F extends FileSystem type paremeter?
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
@@ -107,6 +105,7 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 		public boolean isOpen()
 		{
 			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#isOpen()
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
@@ -114,6 +113,7 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 		public void close()
 		{
 			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#close()
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
@@ -121,6 +121,7 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 		public boolean isClosed()
 		{
 			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#isClosed()
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
@@ -128,6 +129,7 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 		public <C extends Consumer<? super AReadableFile>> C waitOnClose(final C callback)
 		{
 			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#waitOnClose()
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
@@ -135,6 +137,7 @@ public interface AReadableFile extends AFile, AFile.Wrapper
 		public long read(final ByteBuffer target, final long position)
 		{
 			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#read()
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		

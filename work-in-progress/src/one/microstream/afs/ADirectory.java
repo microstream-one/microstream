@@ -125,8 +125,8 @@ public interface ADirectory extends AItem
 
 	
 	
-	public abstract class Abstract<D extends ADirectory, F extends AFile, S>
-	extends AItem.Abstract<D, S>
+	public abstract class Abstract<D extends ADirectory, F extends AFile>
+	extends AItem.Abstract<D>
 	implements ADirectory
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -145,11 +145,10 @@ public interface ADirectory extends AItem
 
 		protected Abstract(
 			final AFileSystem fileSystem,
-			final D           parent    ,
-			final S           subject
+			final D           parent
 		)
 		{
-			super(fileSystem, parent, subject);
+			super(fileSystem, parent);
 			this.directories = EqHashTable.New();
 			this.files       = EqHashTable.New();
 			this.observers   = HashEnum.New()   ;
@@ -200,9 +199,9 @@ public interface ADirectory extends AItem
 		public void onAfterCreateFile(AFile createdFile, long creationTime);
 		
 		
-		public void onBeforeMoveFile(AFile fileToMove, AMutableDirectory targetDirectory);
+		public void onBeforeMoveFile(AFile fileToMove, ADirectory targetDirectory);
 		
-		public void onAfterMoveFile(AFile movedFile, AMutableDirectory sourceDirectory, long deletionTime);
+		public void onAfterMoveFile(AFile movedFile, ADirectory sourceDirectory, long deletionTime);
 		
 		
 		public void onBeforeDeleteFile(AFile fileToDelete);
@@ -216,9 +215,9 @@ public interface ADirectory extends AItem
 		public void onAfterCreateDirectory(ADirectory createdDirectory, long creationTime);
 		
 		
-		public void onBeforeMoveDirectory(ADirectory directoryToMove, AMutableDirectory targetDirectory);
+		public void onBeforeMoveDirectory(ADirectory directoryToMove, ADirectory targetDirectory);
 		
-		public void onAfterMoveDirectory(ADirectory movedDirectory, AMutableDirectory sourceDirectory, long deletionTime);
+		public void onAfterMoveDirectory(ADirectory movedDirectory, ADirectory sourceDirectory, long deletionTime);
 		
 		
 		public void onBeforeDeleteDirectory(ADirectory directoryToDelete);
@@ -227,6 +226,8 @@ public interface ADirectory extends AItem
 		
 	}
 
+	// (07.05.2020 TM)FIXME: priv#49: remove all the ADirectory wrapper stuff if really no longer needed.
+	
 	public static ADirectory actual(final ADirectory directory)
 	{
 		return directory instanceof ADirectory.Wrapper
@@ -242,13 +243,14 @@ public interface ADirectory extends AItem
 		
 		
 		
-		public abstract class Abstract implements ADirectory.Wrapper, ADirectory
+		public abstract class Abstract<S> implements ADirectory.Wrapper, ADirectory
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
 			
 			private final ADirectory actual;
+			private final S          subject;
 			
 						
 			
@@ -256,10 +258,11 @@ public interface ADirectory extends AItem
 			// constructors //
 			/////////////////
 			
-			protected Abstract(final ADirectory actual)
+			protected Abstract(final ADirectory actual, final S subject)
 			{
 				super();
-				this.actual = notNull(actual);
+				this.actual  = notNull(actual) ;
+				this.subject = notNull(subject);
 			}
 			
 			
@@ -269,9 +272,9 @@ public interface ADirectory extends AItem
 			////////////
 			
 			@Override
-			public Object subject()
+			public S subject()
 			{
-				return this.actual.subject();
+				return this.subject;
 			}
 			
 			@Override

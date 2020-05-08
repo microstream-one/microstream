@@ -5,7 +5,6 @@ import static one.microstream.X.notNull;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Path;
 
 public interface AItem
@@ -57,24 +56,10 @@ public interface AItem
 	 * @return whether the item exists.
 	 */
 	public boolean exists();
-	
-	/**
-	 * Returns the low-level file representation instance, whatever that might be for a particular specific file system.
-	 * <br>
-	 * Examples:
-	 * <ul>
-	 * <li>{@link Path}</li>
-	 * <li>{@link File}</li>
-	 * <li>{@link URL}</li>
-	 * <li>{@link URI}</li>
-	 * </ul>
-	 * @return
-	 */
-	public Object subject();
+		
 	
 	
-	
-	public abstract class Abstract<D extends ADirectory, S> implements AItem
+	public abstract class Abstract<D extends ADirectory> implements AItem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -82,7 +67,6 @@ public interface AItem
 		
 		private final AFileSystem fileSystem;
 		private final D           parent    ;
-		private final S           subject   ;
 		
 		
 		
@@ -90,12 +74,11 @@ public interface AItem
 		// constructors //
 		/////////////////
 
-		protected Abstract(final AFileSystem fileSystem, final D parent, final S subject)
+		protected Abstract(final AFileSystem fileSystem, final D parent)
 		{
 			super();
 			this.fileSystem = notNull(fileSystem);
 			this.parent     = mayNull(parent)    ;
-			this.subject    = notNull(subject)   ;
 		}
 		
 		
@@ -116,17 +99,29 @@ public interface AItem
 			return this.parent;
 		}
 		
-		@Override
-		public S subject()
-		{
-			return this.subject;
-		}
-		
 	}
 	
 	public interface Wrapper
 	{
 		public AItem actual();
+		
+		// (07.05.2020 TM)FIXME: priv#49: move to AFile$Wrapper and delete Wrapper here if Directory Wrappers not needed.
+		
+		/**
+		 * Returns the low-level file representation instance, whatever that might be for a particular specific file system.
+		 * <br>
+		 * Examples:
+		 * <ul>
+		 * <li>{@link Path}</li>
+		 * <li>{@link File}</li>
+		 * <li>{@link URL}</li>
+		 * <li>{@link URI}</li>
+		 * </ul>
+		 * @return
+		 */
+		public Object subject();
+		
+		public Object user();
 	}
 		
 }

@@ -23,25 +23,26 @@ public interface AWritableFile extends AReadableFile
 	public long write(Iterable<? extends ByteBuffer> sources);
 	
 	
-	
-	public static AWritableFile New(
-		final AFile       actual
-	)
-	{
-		return new AWritableFile.Default(
-			AFile.actual(actual) // just to be sure/safe
-		);
-	}
+
+	// (07.05.2020 TM)FIXME: priv#49: must be implementation detail of FileSystem or such
+//	public static AWritableFile New(
+//		final AFile       actual
+//	)
+//	{
+//		return new AWritableFile.Default(
+//			AFile.actual(actual) // just to be sure/safe
+//		);
+//	}
 		
-	public final class Default extends AReadableFile.Default implements AWritableFile
+	public final class Default<U, S> extends AReadableFile.Default<U, S> implements AWritableFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Default(final AFile actual)
+		Default(final AFile actual, final U user, final S subject)
 		{
-			super(actual);
+			super(actual, user, subject);
 		}
 		
 		
@@ -49,11 +50,13 @@ public interface AWritableFile extends AReadableFile
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+	
 
 		@Override
 		public void openWriting()
 		{
 			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#openWriting()
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
@@ -61,6 +64,7 @@ public interface AWritableFile extends AReadableFile
 		public boolean isOpenWriting()
 		{
 			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#isOpenWriting()
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
@@ -68,6 +72,7 @@ public interface AWritableFile extends AReadableFile
 		public void closeWriting()
 		{
 			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#closeWriting()
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
@@ -75,6 +80,7 @@ public interface AWritableFile extends AReadableFile
 		public boolean isClosedWriting()
 		{
 			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#isClosedWriting()
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
@@ -82,6 +88,7 @@ public interface AWritableFile extends AReadableFile
 		public boolean release()
 		{
 			// (29.04.2020 TM)FIXME: priv#49: reimplement to call #releaseWriting implicitely
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
@@ -89,6 +96,7 @@ public interface AWritableFile extends AReadableFile
 		public boolean releaseWriting()
 		{
 			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#releaseWriting()
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
@@ -96,6 +104,7 @@ public interface AWritableFile extends AReadableFile
 		public long write(final Iterable<? extends ByteBuffer> sources)
 		{
 			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#write()
+			this.fileSystem();
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		

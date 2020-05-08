@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.collections.EqHashTable;
 
-public interface AFileSystem extends AccessManager
+public interface AFileSystem
 {
 	/* (30.04.2020 TM)FIXME: priv#49: "protocol" here or in AccessManager
 	 * Or is "protocol" a trait of a root directory?
@@ -63,18 +63,23 @@ public interface AFileSystem extends AccessManager
 	
 	public AFile ensureFilePath(String[] directoryPathElements, int offset, int length, String fileIdentifier);
 	
+	public AccessManager accessManager();
+	
+	public IoHandler ioHandler();
 		
 	
 	
 	public static AFileSystem New(
 		final ACreator      creator      ,
-		final AccessManager accessManager
+		final AccessManager accessManager,
+		final IoHandler     ioHandler
 	)
 	{
 		return new AFileSystem.Default(
 			EqHashTable.New()     ,
 			notNull(creator)      ,
-			notNull(accessManager)
+			notNull(accessManager),
+			notNull(ioHandler)
 		);
 	}
 	
@@ -88,9 +93,9 @@ public interface AFileSystem extends AccessManager
 		private final EqHashTable<String, ADirectory> rootDirectories;
 		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
+		private final IoHandler                       ioHandler      ;
 		
 		// (04.05.2020 TM)FIXME: priv#49: AccessManager must be an unshared member of a FileSystem instance
-		// (04.05.2020 TM)FIXME: priv#49: IoManager
 
 		
 		
@@ -101,13 +106,15 @@ public interface AFileSystem extends AccessManager
 		Default(
 			final EqHashTable<String, ADirectory> rootDirectories,
 			final ACreator                        creator        ,
-			final AccessManager                   accessManager
+			final AccessManager                   accessManager  ,
+			final IoHandler                       ioHandler
 		)
 		{
 			super();
 			this.rootDirectories = EqHashTable.New();
 			this.creator         = creator          ;
 			this.accessManager   = accessManager    ;
+			this.ioHandler       = ioHandler        ;
 		}
 		
 		
@@ -117,65 +124,17 @@ public interface AFileSystem extends AccessManager
 		////////////
 		
 		@Override
-		public final synchronized boolean isUsed(final ADirectory directory)
+		public AccessManager accessManager()
 		{
-			// FIXME AFileSystem.Abstract#isUsed()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return this.accessManager;
 		}
 		
 		@Override
-		public final synchronized boolean isMutating(final ADirectory directory)
+		public IoHandler ioHandler()
 		{
-			// FIXME AFileSystem.Abstract#isMutating()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return this.ioHandler;
 		}
-		
-		@Override
-		public final synchronized boolean isReading(final AFile file)
-		{
-			// FIXME AFileSystem.Abstract#isReading()
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-		
-		@Override
-		public final synchronized boolean isWriting(final AFile file)
-		{
-			// FIXME AFileSystem.Abstract#isWriting()
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-		
-		
-		
-		@Override
-		public final synchronized boolean isUsed(final ADirectory directory, final Object owner)
-		{
-			// FIXME AFileSystem.Abstract#isUsed()
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-		
-		@Override
-		public final synchronized boolean isMutating(final ADirectory directory, final Object owner)
-		{
-			// FIXME AFileSystem.Abstract#isMutating()
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-		
-		@Override
-		public final synchronized boolean isReading(final AFile file, final Object owner)
-		{
-			// FIXME AFileSystem.Abstract#isReading()
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-		
-		@Override
-		public final synchronized boolean isWriting(final AFile file, final Object owner)
-		{
-			// FIXME AFileSystem.Abstract#isWriting()
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-		
-		
-		
+				
 		@Override
 		public final synchronized ADirectory resolveDirectoryPath(
 			final String[] pathElements,
@@ -236,30 +195,6 @@ public interface AFileSystem extends AccessManager
 				
 				return file;
 			}
-		}
-		
-		@Override
-		public AUsedDirectory use(final ADirectory directory, final Object mutator)
-		{
-			return this.accessManager.use(directory, mutator);
-		}
-		
-		@Override
-		public AMutableDirectory useMutating(final ADirectory directory, final Object mutator)
-		{
-			return this.accessManager.useMutating(directory, mutator);
-		}
-		
-		@Override
-		public AReadableFile useReading(final AFile file, final Object reader)
-		{
-			return this.accessManager.useReading(file, reader);
-		}
-		
-		@Override
-		public AWritableFile useWriting(final AFile file, final Object writer)
-		{
-			return this.accessManager.useWriting(file, writer);
 		}
 		
 	}
