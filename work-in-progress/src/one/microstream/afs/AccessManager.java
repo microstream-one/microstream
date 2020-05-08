@@ -2,6 +2,7 @@ package one.microstream.afs;
 
 import java.util.function.Function;
 
+import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 
 public interface AccessManager
@@ -15,10 +16,6 @@ public interface AccessManager
 	public boolean isWriting(AFile file);
 	
 	
-	
-	public boolean isUsed(ADirectory directory, Object user);
-	
-	public boolean isMutating(ADirectory directory, Object user);
 
 	public boolean isReading(AFile file, Object user);
 	
@@ -26,15 +23,13 @@ public interface AccessManager
 	
 	// (29.04.2020 TM)TODO: priv#49: executeIfNot~ methods? Or coverable by execute~ methods below?
 	
-
-	
-	public AUsedDirectory use(ADirectory directory, Object user);
-	
-	public AMutableDirectory useMutating(ADirectory directory, Object user);
 	
 	public AReadableFile useReading(AFile file, Object user);
 	
 	public AWritableFile useWriting(AFile file, Object user);
+	
+	
+	public boolean release(AReadableFile file);
 	
 	
 	
@@ -45,17 +40,7 @@ public interface AccessManager
 	{
 		return Thread.currentThread();
 	}
-	
-	public default AUsedDirectory use(final ADirectory directory)
-	{
-		return this.use(directory, this.defaultuser());
-	}
-	
-	public default AMutableDirectory useMutating(final ADirectory directory)
-	{
-		return this.useMutating(directory, this.defaultuser());
-	}
-	
+		
 	public default AReadableFile useReading(final AFile file)
 	{
 		return this.useReading(file, this.defaultuser());
@@ -67,8 +52,8 @@ public interface AccessManager
 	}
 
 	public default <R> R executeMutating(
-		final ADirectory                             directory,
-		final Function<? super AMutableDirectory, R> logic
+		final ADirectory                      directory,
+		final Function<? super ADirectory, R> logic
 	)
 	{
 		return this.executeMutating(directory, this.defaultuser(), logic);
@@ -83,33 +68,35 @@ public interface AccessManager
 	}
 	
 	public default <R> R executeMutating(
-		final ADirectory                             directory,
-		final Object                                 user    ,
-		final Function<? super AMutableDirectory, R> logic
+		final ADirectory                      directory,
+		final Object                          user    ,
+		final Function<? super ADirectory, R> logic
 	)
 	{
-		synchronized(directory)
-		{
-			final boolean isUsed = this.isUsed(directory, user);
-			
-			final AMutableDirectory mDirectory = this.useMutating(directory, user);
-			
-			try
-			{
-				return logic.apply(mDirectory);
-			}
-			finally
-			{
-				if(isUsed)
-				{
-					mDirectory.releaseMutating();
-				}
-				else
-				{
-					mDirectory.release();
-				}
-			}
-		}
+		// (07.05.2020 TM)FIXME: priv#49: overhaul for new concept
+		throw new one.microstream.meta.NotImplementedYetError();
+//		synchronized(directory)
+//		{
+//			final boolean isUsed = this.isUsed(directory);
+//
+//			final ADirectory mDirectory = this.useMutating(directory);
+//
+//			try
+//			{
+//				return logic.apply(mDirectory);
+//			}
+//			finally
+//			{
+//				if(isUsed)
+//				{
+//					mDirectory.releaseMutating();
+//				}
+//				else
+//				{
+//					mDirectory.release();
+//				}
+//			}
+//		}
 	}
 	
 	public default <R> R executeWriting(
@@ -143,74 +130,56 @@ public interface AccessManager
 	}
 	
 	
-	public final class Default implements AccessManager
+	public abstract class Abstract implements AccessManager
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final AFileSystem                      fileSystem    ;
-		private final HashTable<ADirectory, DirEntry > directoryUsers;
-		private final HashTable<AFile     , FileEntry> fileUsers     ;
-		
-		static final class DirEntry
-		{
-			final HashTable<Object, AUsedDirectory> sharedUsers = HashTable.New();
-			
-			Object            exclusiveUser   ;
-			AMutableDirectory exclusiveWrapper;
-			
-			DirEntry(final Object user, final AUsedDirectory wrapper)
-			{
-				super();
-				this.sharedUsers.add(user, wrapper);
-			}
-			
-			DirEntry(final Object user, final AMutableDirectory wrapper)
-			{
-				super();
-				this.exclusiveUser    = user   ;
-				this.exclusiveWrapper = wrapper;
-			}
-			
-		}
-		
+		private final AFileSystem                 fileSystem         ;
+		private final HashEnum<ADirectory>        usedDirectories    ;
+		private final HashEnum<ADirectory>        mutatingDirectories;
+		private final HashTable<AFile, FileEntry> fileUsers          ;
+				
 		static final class FileEntry
 		{
 			final HashTable<Object, AReadableFile> sharedUsers = HashTable.New();
 			
-			Object        exclusiveUser   ;
-			AWritableFile exclusiveWrapper;
+			AWritableFile exclusive;
 
 			
-			FileEntry(final Object user, final AReadableFile wrapper)
+			FileEntry(final AReadableFile wrapper)
 			{
 				super();
-				this.sharedUsers.add(user, wrapper);
+				this.sharedUsers.add(wrapper.user(), wrapper);
 			}
 			
-			FileEntry(final Object user, final AWritableFile wrapper)
+			FileEntry(final AWritableFile wrapper)
 			{
 				super();
-				this.exclusiveUser    = user   ;
-				this.exclusiveWrapper = wrapper;
+				this.exclusive = wrapper;
 			}
 			
 		}
 		
 		
 
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
 		
-		Default(
-			final AFileSystem                      fileSystem    ,
-			final HashTable<ADirectory, DirEntry > directoryUsers,
-			final HashTable<AFile     , FileEntry> fileUsers
+		Abstract(
+			final AFileSystem                 fileSystem         ,
+			final HashEnum<ADirectory>        usedDirectories    ,
+			final HashEnum<ADirectory>        mutatingDirectories,
+			final HashTable<AFile, FileEntry> fileUsers
 		)
 		{
 			super();
-			this.fileSystem     = fileSystem    ;
-			this.directoryUsers = directoryUsers;
-			this.fileUsers      = fileUsers     ;
+			this.fileSystem          = fileSystem         ;
+			this.usedDirectories     = usedDirectories    ;
+			this.mutatingDirectories = mutatingDirectories;
+			this.fileUsers           = fileUsers          ;
 		}
 		
 		
@@ -224,13 +193,7 @@ public interface AccessManager
 			final ADirectory directory
 		)
 		{
-			final DirEntry e = this.directoryUsers.get(directory);
-			if(e == null)
-			{
-				return false;
-			}
-			
-			return e.exclusiveUser != null || !e.sharedUsers.isEmpty();
+			return this.usedDirectories.contains(ADirectory.actual(directory));
 		}
 		
 		@Override
@@ -238,13 +201,7 @@ public interface AccessManager
 			final ADirectory directory
 		)
 		{
-			final DirEntry e = this.directoryUsers.get(directory);
-			if(e == null)
-			{
-				return false;
-			}
-			
-			return e.exclusiveUser != null;
+			return this.mutatingDirectories.contains(ADirectory.actual(directory));
 		}
 
 		@Override
@@ -258,7 +215,7 @@ public interface AccessManager
 				return false;
 			}
 			
-			return e.exclusiveUser != null || !e.sharedUsers.isEmpty();
+			return e.exclusive != null || !e.sharedUsers.isEmpty();
 		}
 		
 		@Override
@@ -272,41 +229,9 @@ public interface AccessManager
 				return false;
 			}
 			
-			return e.exclusiveUser != null;
+			return e.exclusive != null;
 		}
 		
-		
-		
-		@Override
-		public final synchronized boolean isUsed(
-			final ADirectory directory,
-			final Object     user
-		)
-		{
-			final DirEntry e = this.directoryUsers.get(directory);
-			if(e == null)
-			{
-				return false;
-			}
-			
-			return e.exclusiveUser == user || e.sharedUsers.get(user) != null;
-		}
-		
-		@Override
-		public final synchronized boolean isMutating(
-			final ADirectory directory,
-			final Object     user
-		)
-		{
-			final DirEntry e = this.directoryUsers.get(directory);
-			if(e == null)
-			{
-				return false;
-			}
-			
-			return e.exclusiveUser == user;
-		}
-
 		@Override
 		public final synchronized boolean isReading(
 			final AFile  file,
@@ -319,7 +244,7 @@ public interface AccessManager
 				return false;
 			}
 			
-			return e.exclusiveUser == user || e.sharedUsers.get(user) != null;
+			return e.exclusive == user || e.sharedUsers.get(user) != null;
 		}
 		
 		@Override
@@ -334,99 +259,9 @@ public interface AccessManager
 				return false;
 			}
 			
-			return e.exclusiveUser == user;
+			return e.exclusive != null && e.exclusive.user() == user;
 		}
 				
-		@Override
-		public final synchronized AUsedDirectory use(
-			final ADirectory directory,
-			final Object     user
-		)
-		{
-			final DirEntry e = this.directoryUsers.get(directory);
-			if(e == null)
-			{
-				final AUsedDirectory wrapper = this.wrapForUse(directory);
-				this.directoryUsers.add(directory, new DirEntry(user, wrapper));
-				
-				return wrapper;
-			}
-			
-			if(e.exclusiveUser != null)
-			{
-				if(e.exclusiveUser == user)
-				{
-					return e.exclusiveWrapper;
-				}
-				
-				// (30.04.2020 TM)EXCP: proper exception
-				throw new RuntimeException("Directory is exclusively used: " + directory);
-			}
-			
-			AUsedDirectory wrapper = e.sharedUsers.get(user);
-			if(wrapper == null)
-			{
-				wrapper = this.wrapForUse(directory);
-				e.sharedUsers.add(user, wrapper);
-			}
-			
-			return wrapper;
-		}
-		
-		private AUsedDirectory wrapForUse(final ADirectory directory)
-		{
-			return AUsedDirectory.New(this.fileSystem, directory);
-		}
-		
-		private AMutableDirectory wrapForMutation(final ADirectory directory)
-		{
-			return AMutableDirectory.New(this.fileSystem, directory);
-		}
-		
-		@Override
-		public final synchronized AMutableDirectory useMutating(
-			final ADirectory directory,
-			final Object     user
-		)
-		{
-			final DirEntry e = this.directoryUsers.get(directory);
-			if(e == null)
-			{
-				final AMutableDirectory wrapper = this.wrapForMutation(directory);
-				this.directoryUsers.add(directory, new DirEntry(user, wrapper));
-				
-				return wrapper;
-			}
-			
-			if(e.exclusiveUser != null)
-			{
-				if(e.exclusiveUser == user)
-				{
-					return e.exclusiveWrapper;
-				}
-				
-				// (30.04.2020 TM)EXCP: proper exception
-				throw new RuntimeException("Directory is exclusively used: " + directory);
-			}
-			
-			if(!e.sharedUsers.isEmpty())
-			{
-				if(e.sharedUsers.size() > 1 || e.sharedUsers.get().key() != user)
-				{
-					// (30.04.2020 TM)EXCP: priv#49: proper exception
-					throw new RuntimeException();
-				}
-				e.sharedUsers.removeFor(user);
-			}
-
-			final AMutableDirectory wrapper = this.wrapForMutation(directory);
-			e.exclusiveUser = user;
-			e.exclusiveWrapper = wrapper;
-			
-			return wrapper;
-		}
-		
-		
 		@Override
 		public final synchronized AReadableFile useReading(
 			final AFile  file ,
@@ -437,16 +272,16 @@ public interface AccessManager
 			if(e == null)
 			{
 				final AReadableFile wrapper = this.wrapForReading(file);
-				this.fileUsers.add(file, new FileEntry(user, wrapper));
+				this.fileUsers.add(file, new FileEntry(wrapper));
 				
 				return wrapper;
 			}
 			
-			if(e.exclusiveUser != null)
+			if(e.exclusive != null)
 			{
-				if(e.exclusiveUser == user)
+				if(e.exclusive.user() == user)
 				{
-					return e.exclusiveWrapper;
+					return e.exclusive;
 				}
 				
 				// (30.04.2020 TM)EXCP: proper exception
@@ -463,15 +298,9 @@ public interface AccessManager
 			return wrapper;
 		}
 		
-		private AReadableFile wrapForReading(final AFile file)
-		{
-			return AReadableFile.New(file);
-		}
+		protected abstract AReadableFile wrapForReading(AFile file);
 		
-		private AWritableFile wrapForWriting(final AFile file)
-		{
-			return AWritableFile.New(file);
-		}
+		protected abstract AWritableFile wrapForWriting(AFile file);
 		
 		@Override
 		public final synchronized AWritableFile useWriting(
@@ -483,16 +312,16 @@ public interface AccessManager
 			if(e == null)
 			{
 				final AWritableFile wrapper = this.wrapForWriting(file);
-				this.fileUsers.add(file, new FileEntry(user, wrapper));
+				this.fileUsers.add(file, new FileEntry(wrapper));
 				
 				return wrapper;
 			}
 			
-			if(e.exclusiveUser != null)
+			if(e.exclusive != null)
 			{
-				if(e.exclusiveUser == user)
+				if(e.exclusive.user() == user)
 				{
-					return e.exclusiveWrapper;
+					return e.exclusive;
 				}
 				
 				// (30.04.2020 TM)EXCP: proper exception
@@ -510,8 +339,7 @@ public interface AccessManager
 			}
 
 			final AWritableFile wrapper = this.wrapForWriting(file);
-			e.exclusiveUser = user;
-			e.exclusiveWrapper = wrapper;
+			e.exclusive = wrapper;
 			
 			return wrapper;
 		}

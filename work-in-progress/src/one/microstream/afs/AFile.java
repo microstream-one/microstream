@@ -48,8 +48,8 @@ public interface AFile extends AItem
 		
 	
 	
-	public abstract class Abstract<D extends ADirectory, S>
-	extends AItem.Abstract<D, S>
+	public abstract class Abstract<D extends ADirectory>
+	extends AItem.Abstract<D>
 	implements AFile
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -66,11 +66,10 @@ public interface AFile extends AItem
 
 		protected Abstract(
 			final AFileSystem fileSystem,
-			final D           parent    ,
-			final S           subject
+			final D           parent
 		)
 		{
-			super(fileSystem, parent, subject);
+			super(fileSystem, parent);
 			this.observers = HashEnum.New();
 		}
 		
@@ -107,9 +106,9 @@ public interface AFile extends AItem
 		public void onAfterFileWrite(AWritableFile targetFile, Iterable<? extends ByteBuffer> sources, long writeTime);
 		
 		
-		public void onBeforeFileMove(AFile fileToMove, AMutableDirectory targetDirectory);
+		public void onBeforeFileMove(AFile fileToMove, ADirectory targetDirectory);
 		
-		public void onAfterFileMove(AFile movedFile, AMutableDirectory sourceDirectory, long deletionTime);
+		public void onAfterFileMove(AFile movedFile, ADirectory sourceDirectory, long deletionTime);
 		
 		
 		public void onBeforeFileDelete(AFile fileToDelete);
@@ -132,13 +131,15 @@ public interface AFile extends AItem
 		
 		
 		
-		public abstract class Abstract implements AFile.Wrapper
+		public abstract class Abstract<U, S> implements AFile.Wrapper
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
 			
-			private final AFile actual;
+			private final AFile actual ;
+			private final U     user   ;
+			private final S     subject;
 			
 						
 			
@@ -146,10 +147,12 @@ public interface AFile extends AItem
 			// constructors //
 			/////////////////
 			
-			protected Abstract(final AFile actual)
+			protected Abstract(final AFile actual, final U user, final S subject)
 			{
 				super();
-				this.actual = notNull(actual);
+				this.actual  = notNull(actual) ;
+				this.user    = notNull(user)   ;
+				this.subject = notNull(subject);
 			}
 			
 			
@@ -159,9 +162,15 @@ public interface AFile extends AItem
 			////////////
 			
 			@Override
-			public Object subject()
+			public U user()
 			{
-				return this.actual.subject();
+				return this.user;
+			}
+			
+			@Override
+			public S subject()
+			{
+				return this.subject;
 			}
 			
 			@Override

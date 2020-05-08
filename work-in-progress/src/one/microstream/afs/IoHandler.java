@@ -12,4 +12,6 @@ public interface IoHandler
 	public void moveFile(AWritableFile sourceFile, AWritableFile targetFile);
 	
 	public void deleteFile(AWritableFile file);
+	
+	public long length(AFile file);
 }
