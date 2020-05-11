@@ -1,146 +1,189 @@
 package one.microstream.afs;
 
 import java.nio.ByteBuffer;
-import java.util.function.Consumer;
+
+import one.microstream.io.BufferProvider;
 
 public interface AReadableFile extends AFile.Wrapper
 {
-	public void open();
-	
-	public boolean isOpen();
+	// ONLY the IO-Aspect, not the AFS-management-level aspect
+	public default boolean open()
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().open(this);
+		}
+	}
+
+	// ONLY the IO-Aspect, not the AFS-management-level aspect
+	public default boolean isOpen()
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().isOpen(this);
+		}
+	}
 	
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
-	public void close();
-	
-	public boolean isClosed();
+	public default boolean close()
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().close(this);
+		}
+	}
 
+	// ONLY the IO-Aspect, not the AFS-management-level aspect
+	public default boolean isClosed()
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().isClosed(this);
+		}
+	}
+
+
+	// (10.05.2020 TM)FIXME: priv#49: enum for quad-state return value? Use for dual-value as well?
 	// implicitely #close PLUS the AFS-management-level aspect
-	public boolean release();
-	
-	
-	
-	// (28.04.2020 TM)FIXME: priv#49: review old stuff below
-		
-	public <C extends Consumer<? super AReadableFile>> C waitOnClose(C callback);
-	
-	public abstract long read(ByteBuffer target, long position);
-	
-	public default void copyTo(final AWritableFile target)
+	public default boolean release()
 	{
-		// must lock here to get a reliable length value
 		synchronized(this)
 		{
-			this.copyTo(target, 0, this.length());
-		}
-	}
-
-
-	
-	public default void copyTo(final AWritableFile target, final long sourcePosition, final long length)
-	{
-		/* (29.10.2018 TM)FIXME: priv#49: default copyTo
-		 * create a special Iterator that (re)fills its buffer on every next() call for the whole length
-		 * (28.04.2020 TM): review/overhaul/delete
-		 */
-		if(System.currentTimeMillis() > 0)
-		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIXME ProtageReadableFile#copyTo()
-		}
-		synchronized(this)
-		{
-			final Iterable<ByteBuffer> shovel = null;
-			target.write(shovel);
+			this.actual().fileSystem().ioHandler().close(this);
+			
+			return this.actual().fileSystem().accessManager().release(this);
 		}
 	}
 	
+
+	public default boolean ensure()
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().ensure(this);
+		}
+	}
 	
-	// (07.05.2020 TM)FIXME: priv#49: must be implementation detail of FileSystem or such
-//	public static <S> AReadableFile New(final AFile actual, final Object subject)
-//	{
-//		return new AReadableFile.Default<>(
-//			AFile.actual(actual), // just to be sure/safe
-//			notNull(subject)
-//		);
-//	}
+	@Override
+	default long length()
+	{
+		synchronized(this)
+		{
+			return this.fileSystem().ioHandler().length(this);
+		}
+	}
+	
+			
+
+	public default ByteBuffer readBytes()
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().readBytes(this);
+		}
+	}
+	
+	public default ByteBuffer readBytes(final long position)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().readBytes(this, position);
+		}
+	}
+	
+	public default ByteBuffer readBytes(final long position, final long length)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().readBytes(this, position, length);
+		}
+	}
+	
+	
+	public default long readBytes(final ByteBuffer targetBuffer)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().readBytes(this, targetBuffer);
+		}
+	}
+	
+	public default long readBytes(final ByteBuffer targetBuffer, final long position)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().readBytes(this, targetBuffer, position);
+		}
+	}
+	
+	public default long readBytes(final ByteBuffer targetBuffer, final long position, final long length)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().readBytes(this, targetBuffer, position, length);
+		}
+	}
+	
+	
+	public default long readBytes(final BufferProvider bufferProvider)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().readBytes(this, bufferProvider);
+		}
+	}
+	
+	public default long readBytes(final BufferProvider bufferProvider, final long position)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().readBytes(this, bufferProvider, position);
+		}
+	}
+	
+	public default long readBytes(final BufferProvider bufferProvider, final long position, final long length)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().readBytes(this, bufferProvider, position, length);
+		}
+	}
+
+	
+	
+	public default long copyTo(final AWritableFile target)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().copyTo(this, target);
+		}
+	}
+	
+	public default long copyTo(final AWritableFile target, final long sourcePosition)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().copyTo(this, target, sourcePosition);
+		}
+	}
+	
+	public default long copyTo(final AWritableFile target, final long sourcePosition, final long length)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().copyTo(this, target, sourcePosition, length);
+		}
+	}
+	
+	
 	
 	public class Default<U, S> extends AFile.Wrapper.Abstract<U, S> implements AReadableFile
 	{
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
 		Default(final AFile actual, final U user, final S subject)
 		{
 			super(actual, user, subject);
 		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-
-		@Override
-		public boolean release()
-		{
-			return this.fileSystem().accessManager().release(this);
-		}
-
-		@Override
-		public long length()
-		{
-			return this.fileSystem().ioHandler().length(this);
-		}
-
-		@Override
-		public void open()
-		{
-			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#open() F extends FileSystem type paremeter?
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		public boolean isOpen()
-		{
-			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#isOpen()
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		public void close()
-		{
-			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#close()
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		public boolean isClosed()
-		{
-			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#isClosed()
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		public <C extends Consumer<? super AReadableFile>> C waitOnClose(final C callback)
-		{
-			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#waitOnClose()
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		public long read(final ByteBuffer target, final long position)
-		{
-			// (30.04.2020 TM)FIXME: priv#49: AReadableFile#read()
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-		
+				
 	}
 	
 }

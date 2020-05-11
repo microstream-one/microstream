@@ -70,15 +70,15 @@ public interface AFileSystem
 	
 	
 	public static AFileSystem New(
-		final ACreator      creator      ,
-		final AccessManager accessManager,
-		final IoHandler     ioHandler
+		final ACreator              creator             ,
+		final AccessManager.Creator accessManagerCreator,
+		final IoHandler             ioHandler
 	)
 	{
 		return new AFileSystem.Default(
-			EqHashTable.New()     ,
-			notNull(creator)      ,
-			notNull(accessManager),
+			EqHashTable.New()            ,
+			notNull(creator)             ,
+			notNull(accessManagerCreator),
 			notNull(ioHandler)
 		);
 	}
@@ -90,13 +90,14 @@ public interface AFileSystem
 		////////////////////
 		
 		// (30.04.2020 TM)FIXME: priv#49: ARoot extends ADirectory?
+		// (09.05.2020 TM)FIXME: priv#49: How to register roots? remove? collection logic?
 		private final EqHashTable<String, ADirectory> rootDirectories;
 		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
 		private final IoHandler                       ioHandler      ;
 		
-		// (04.05.2020 TM)FIXME: priv#49: AccessManager must be an unshared member of a FileSystem instance
-
+		// (09.05.2020 TM)FIXME: priv#49: Lock FileSystem for creating new Items or just their parent directory?
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -104,17 +105,19 @@ public interface AFileSystem
 		/////////////////
 		
 		Default(
-			final EqHashTable<String, ADirectory> rootDirectories,
-			final ACreator                        creator        ,
-			final AccessManager                   accessManager  ,
+			final EqHashTable<String, ADirectory> rootDirectories     ,
+			final ACreator                        creator             ,
+			final AccessManager.Creator           accessManagerCreator,
 			final IoHandler                       ioHandler
 		)
 		{
 			super();
 			this.rootDirectories = EqHashTable.New();
 			this.creator         = creator          ;
-			this.accessManager   = accessManager    ;
 			this.ioHandler       = ioHandler        ;
+			
+			// called at the very last just in case the creator needs some of the other state
+			this.accessManager = accessManagerCreator.createAccessManager(this);
 		}
 		
 		
