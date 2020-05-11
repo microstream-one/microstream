@@ -2,8 +2,6 @@ package one.microstream.afs;
 
 public interface ACreator
 {
-	// (30.04.2020 TM)FIXME: priv#49: creator with subject types D/F?
-	
 	public ADirectory createDirectory(ADirectory parent, String identifier);
 	
 	public AFile createFile(ADirectory parent, String identifier);

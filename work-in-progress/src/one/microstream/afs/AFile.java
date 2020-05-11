@@ -111,9 +111,20 @@ public interface AFile extends AItem
 		public void onAfterFileMove(AFile movedFile, ADirectory sourceDirectory, long deletionTime);
 		
 		
+		public void onBeforeFileCloseReading(AReadableFile fileToClose);
+		
+		public void onAfterFileCloseReading(AReadableFile closedFile);
+		
+		
+		public void onBeforeFileCloseWriting(AWritableFile fileToClose);
+		
+		public void onAfterFileCloseWriting(AWritableFile closedFile);
+		
+		
 		public void onBeforeFileDelete(AFile fileToDelete);
 		
 		public void onAfterFileDelete(AFile deletedFile, long deletionTime);
+		
 	}
 
 	public static AFile actual(final AFile file)

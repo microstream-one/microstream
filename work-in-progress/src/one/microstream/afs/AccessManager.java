@@ -130,6 +130,12 @@ public interface AccessManager
 	}
 	
 	
+	public interface Creator
+	{
+		public AccessManager createAccessManager(AFileSystem parent);
+	}
+	
+	
 	public abstract class Abstract implements AccessManager
 	{
 		///////////////////////////////////////////////////////////////////////////
