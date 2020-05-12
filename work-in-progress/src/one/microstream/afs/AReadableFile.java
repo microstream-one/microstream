@@ -11,7 +11,7 @@ public interface AReadableFile extends AFile.Wrapper
 	{
 		synchronized(this)
 		{
-			return this.actual().fileSystem().ioHandler().open(this);
+			return this.actual().fileSystem().ioHandler().openReading(this);
 		}
 	}
 
@@ -20,7 +20,7 @@ public interface AReadableFile extends AFile.Wrapper
 	{
 		synchronized(this)
 		{
-			return this.actual().fileSystem().ioHandler().isOpen(this);
+			return this.actual().fileSystem().ioHandler().isOpenReading(this);
 		}
 	}
 	
@@ -42,16 +42,22 @@ public interface AReadableFile extends AFile.Wrapper
 		}
 	}
 
-
-	// (10.05.2020 TM)FIXME: priv#49: enum for quad-state return value? Use for dual-value as well?
 	// implicitely #close PLUS the AFS-management-level aspect
-	public default boolean release()
+	public default ActionReport release()
 	{
 		synchronized(this)
 		{
-			this.actual().fileSystem().ioHandler().close(this);
+			final boolean wasClosed   = this.actual().fileSystem().ioHandler().close(this);
+			final boolean wasReleased = this.actual().fileSystem().accessManager().release(this);
 			
-			return this.actual().fileSystem().accessManager().release(this);
+			return wasClosed
+				? wasReleased
+					? ActionReport.FULL_ACTION
+					: null // impossible / inconsistent
+				: wasReleased
+					? ActionReport.PART_ACTION
+					: ActionReport.NO_ACTION
+			;
 		}
 	}
 	

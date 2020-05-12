@@ -7,10 +7,12 @@ import one.microstream.io.BufferProvider;
 public interface IoHandler
 {
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
-	public boolean open(AReadableFile file);
+	public boolean openReading(AReadableFile file);
 
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
-	public boolean isOpen(AReadableFile file);
+	public boolean isOpenReading(AReadableFile file);
+	
+	// (11.05.2020 TM)FIXME: priv#49: may a readableFile closing logic close reading AND writing of a WritableFile?
 	
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public boolean close(AReadableFile file);
@@ -21,9 +23,10 @@ public interface IoHandler
 
 	public boolean ensure(AReadableFile file);
 
-	// (10.05.2020 TM)FIXME: priv#49: enum for triple-state return value? Use for dual-value above as well?
-	public boolean ensure(AWritableFile file);
+	public ActionReport ensure(AWritableFile file);
 	
+
+	public long length(AFile file);
 	
 	
 	public ByteBuffer readBytes(AReadableFile sourceFile);
@@ -45,25 +48,32 @@ public interface IoHandler
 	public long readBytes(AReadableFile sourceFile, BufferProvider bufferProvider, long position);
 	
 	public long readBytes(AReadableFile sourceFile, BufferProvider bufferProvider, long position, long length);
-	
-	
-	
-	public long writeBytes(AWritableFile targetFile, Iterable<? extends ByteBuffer> sourceBuffers);
-	
+		
 	
 	public long copyTo(AReadableFile sourceFile, AWritableFile target);
 	
 	public long copyTo(AReadableFile sourceFile, AWritableFile target, long sourcePosition);
 	
 	public long copyTo(AReadableFile sourceFile, AWritableFile target, long sourcePosition, long length);
+		
 	
 	
+	public boolean openWriting(AWritableFile file);
+	
+	public boolean isOpenWriting(AWritableFile file);
+	
+	// ONLY the writing IO-Aspect, not the AFS-management-level aspect. Reading aspect remains open.
+	public boolean closeWriting(AWritableFile file);
+	
+	public boolean isClosedWriting(AWritableFile file);
+
+	// implicitely #closeWriting PLUS the AFS-management-level WRITING aspect. BOTH reading aspects remain!
+	public boolean releaseWriting(AWritableFile file);
+		
+	public long writeBytes(AWritableFile targetFile, Iterable<? extends ByteBuffer> sourceBuffers);
 
 	public void moveFile(AWritableFile sourceFile, AWritableFile targetFile);
 	
 	public void deleteFile(AWritableFile file);
 	
-	public long length(AFile file);
-	
-
 }
