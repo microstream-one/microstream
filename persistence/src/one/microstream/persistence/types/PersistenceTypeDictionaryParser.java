@@ -598,6 +598,9 @@ public interface PersistenceTypeDictionaryParser
 				
 				i = parseNestedMember(input, i, iBound, nestedMemberBuilder);
 				member.nestedMembers.add(nestedMemberBuilder.buildGenericFieldMember());
+
+				// (11.05.2020 TM)NOTE: fix for priv#291
+				nestedMemberBuilder.reset();
 				
 				// skip trailing whitespaces before bound is checked again
 				i = skipWhitespaces(input, i, iBound);
