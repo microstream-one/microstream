@@ -4,108 +4,63 @@ import java.nio.ByteBuffer;
 
 public interface AWritableFile extends AReadableFile
 {
-	public void openWriting();
+	public default boolean openWriting()
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().openWriting(this);
+		}
+	}
 	
-	public boolean isOpenWriting();
+	public default boolean isOpenWriting()
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().isOpenWriting(this);
+		}
+	}
 	
 	// ONLY the writing IO-Aspect, not the AFS-management-level aspect. Reading aspect remains open.
-	public void closeWriting();
+	public default boolean closeWriting()
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().closeWriting(this);
+		}
+	}
 	
-	public boolean isClosedWriting();
+	public default boolean isClosedWriting()
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().isClosedWriting(this);
+		}
+	}
 
 	// implicitely #closeWriting PLUS the AFS-management-level WRITING aspect. BOTH reading aspects remain!
-	public boolean releaseWriting();
+	public default boolean releaseWriting()
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().releaseWriting(this);
+		}
+	}
 	
-	@Override
-	public boolean release();
+	public default long writeBytes(final Iterable<? extends ByteBuffer> sources)
+	{
+		synchronized(this)
+		{
+			return this.actual().fileSystem().ioHandler().writeBytes(this, sources);
+		}
+	}
 	
 	
-	public long write(Iterable<? extends ByteBuffer> sources);
-	
-	
-
-	// (07.05.2020 TM)FIXME: priv#49: must be implementation detail of FileSystem or such
-//	public static AWritableFile New(
-//		final AFile       actual
-//	)
-//	{
-//		return new AWritableFile.Default(
-//			AFile.actual(actual) // just to be sure/safe
-//		);
-//	}
 		
 	public final class Default<U, S> extends AReadableFile.Default<U, S> implements AWritableFile
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
 		Default(final AFile actual, final U user, final S subject)
 		{
 			super(actual, user, subject);
-		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-	
-
-		@Override
-		public void openWriting()
-		{
-			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#openWriting()
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		public boolean isOpenWriting()
-		{
-			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#isOpenWriting()
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		public void closeWriting()
-		{
-			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#closeWriting()
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		public boolean isClosedWriting()
-		{
-			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#isClosedWriting()
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-		
-		@Override
-		public boolean release()
-		{
-			// (29.04.2020 TM)FIXME: priv#49: reimplement to call #releaseWriting implicitely
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		public boolean releaseWriting()
-		{
-			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#releaseWriting()
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		public long write(final Iterable<? extends ByteBuffer> sources)
-		{
-			// (29.04.2020 TM)FIXME: priv#49: AWritableFile#write()
-			this.fileSystem();
-			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
 	}
