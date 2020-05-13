@@ -7,6 +7,8 @@ import one.microstream.collections.HashTable;
 
 public interface AccessManager
 {
+	public AFileSystem fileSystem();
+	
 	public boolean isUsed(ADirectory directory);
 	
 	public boolean isMutating(ADirectory directory);
@@ -29,7 +31,9 @@ public interface AccessManager
 	public AWritableFile useWriting(AFile file, Object user);
 	
 	
-	public boolean release(AReadableFile file);
+	public boolean unregister(AReadableFile file);
+	
+	public boolean unregister(AWritableFile file);
 	
 	
 	
@@ -107,8 +111,6 @@ public interface AccessManager
 	{
 		synchronized(file)
 		{
-			final boolean isReading = this.isReading(file, user);
-			
 			final AWritableFile mFile = this.useWriting(file, user);
 			
 			try
@@ -117,14 +119,7 @@ public interface AccessManager
 			}
 			finally
 			{
-				if(isReading)
-				{
-					mFile.releaseWriting();
-				}
-				else
-				{
-					mFile.release();
-				}
+				mFile.release();
 			}
 		}
 	}
@@ -136,13 +131,13 @@ public interface AccessManager
 	}
 	
 	
-	public abstract class Abstract implements AccessManager
+	public abstract class Abstract<S extends AFileSystem> implements AccessManager
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final AFileSystem                 fileSystem         ;
+		private final S                           fileSystem         ;
 		private final HashEnum<ADirectory>        usedDirectories    ;
 		private final HashEnum<ADirectory>        mutatingDirectories;
 		private final HashTable<AFile, FileEntry> fileUsers          ;
@@ -174,18 +169,13 @@ public interface AccessManager
 		// constructors //
 		/////////////////
 		
-		Abstract(
-			final AFileSystem                 fileSystem         ,
-			final HashEnum<ADirectory>        usedDirectories    ,
-			final HashEnum<ADirectory>        mutatingDirectories,
-			final HashTable<AFile, FileEntry> fileUsers
-		)
+		protected Abstract(final S fileSystem)
 		{
 			super();
-			this.fileSystem          = fileSystem         ;
-			this.usedDirectories     = usedDirectories    ;
-			this.mutatingDirectories = mutatingDirectories;
-			this.fileUsers           = fileUsers          ;
+			this.fileSystem          = fileSystem     ;
+			this.usedDirectories     = HashEnum.New() ;
+			this.mutatingDirectories = HashEnum.New() ;
+			this.fileUsers           = HashTable.New();
 		}
 		
 		
@@ -193,6 +183,12 @@ public interface AccessManager
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final S fileSystem()
+		{
+			return this.fileSystem;
+		}
 
 		@Override
 		public final synchronized boolean isUsed(
@@ -270,14 +266,14 @@ public interface AccessManager
 				
 		@Override
 		public final synchronized AReadableFile useReading(
-			final AFile  file ,
+			final AFile  file,
 			final Object user
 		)
 		{
 			final FileEntry e = this.fileUsers.get(file);
 			if(e == null)
 			{
-				final AReadableFile wrapper = this.wrapForReading(file);
+				final AReadableFile wrapper = this.wrapForReading(file, user);
 				this.fileUsers.add(file, new FileEntry(wrapper));
 				
 				return wrapper;
@@ -297,16 +293,12 @@ public interface AccessManager
 			AReadableFile wrapper = e.sharedUsers.get(user);
 			if(wrapper == null)
 			{
-				wrapper = this.wrapForReading(file);
+				wrapper = this.wrapForReading(file, user);
 				e.sharedUsers.add(user, wrapper);
 			}
 			
 			return wrapper;
 		}
-		
-		protected abstract AReadableFile wrapForReading(AFile file);
-		
-		protected abstract AWritableFile wrapForWriting(AFile file);
 		
 		@Override
 		public final synchronized AWritableFile useWriting(
@@ -317,7 +309,7 @@ public interface AccessManager
 			final FileEntry e = this.fileUsers.get(file);
 			if(e == null)
 			{
-				final AWritableFile wrapper = this.wrapForWriting(file);
+				final AWritableFile wrapper = this.wrapForWriting(file, user);
 				this.fileUsers.add(file, new FileEntry(wrapper));
 				
 				return wrapper;
@@ -344,11 +336,29 @@ public interface AccessManager
 				e.sharedUsers.removeFor(user);
 			}
 
-			final AWritableFile wrapper = this.wrapForWriting(file);
+			final AWritableFile wrapper = this.wrapForWriting(file, user);
 			e.exclusive = wrapper;
 			
 			return wrapper;
 		}
+		
+		@Override
+		public boolean unregister(final AReadableFile file)
+		{
+			// FIXME AccessManager.Abstract#unregister()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+		
+		@Override
+		public boolean unregister(final AWritableFile file)
+		{
+			// FIXME AccessManager.Abstract#unregister()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+		
+		protected abstract AReadableFile wrapForReading(AFile file, Object user);
+		
+		protected abstract AWritableFile wrapForWriting(AFile file, Object user);
 		
 	}
 	

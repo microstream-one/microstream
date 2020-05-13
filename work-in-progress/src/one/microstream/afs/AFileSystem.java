@@ -66,6 +66,25 @@ public interface AFileSystem
 	public AccessManager accessManager();
 	
 	public IoHandler ioHandler();
+
+	// implicitely #close PLUS the AFS-management-level aspect
+	public default ActionReport release(final AReadableFile file)
+	{
+		synchronized(file)
+		{
+			final boolean wasClosed   = this.ioHandler().close(file);
+			final boolean wasReleased = this.accessManager().unregister(file);
+			
+			return wasClosed
+				? wasReleased
+					? ActionReport.FULL_ACTION
+					: null // impossible / inconsistent
+				: wasReleased
+					? ActionReport.PART_ACTION
+					: ActionReport.NO_ACTION
+			;
+		}
+	}
 		
 	
 	
