@@ -1,62 +1,54 @@
 package one.microstream.afs;
 
+import static one.microstream.X.notNull;
+
 import java.nio.ByteBuffer;
 
 public interface AWritableFile extends AReadableFile
 {
-	public default boolean openWriting()
+	@Override
+	public default boolean open()
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().openWriting(this);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().openWriting(this);
 	}
 	
-	public default boolean isOpenWriting()
+	@Override
+	public default boolean isOpen()
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().isOpenWriting(this);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().isOpenWriting(this);
 	}
-	
-	// ONLY the writing IO-Aspect, not the AFS-management-level aspect. Reading aspect remains open.
-	public default boolean closeWriting()
-	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().closeWriting(this);
-		}
-	}
-	
-	public default boolean isClosedWriting()
-	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().isClosedWriting(this);
-		}
-	}
-
-	// implicitely #closeWriting PLUS the AFS-management-level WRITING aspect. BOTH reading aspects remain!
-	public default boolean releaseWriting()
-	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().releaseWriting(this);
-		}
-	}
-	
+		
 	public default long writeBytes(final Iterable<? extends ByteBuffer> sources)
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().writeBytes(this, sources);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().writeBytes(this, sources);
+	}
+	
+	public default boolean delete()
+	{
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().deleteFile(this);
 	}
 	
 	
+	
+	
+	public static AWritableFile New(
+		final AFile  actual ,
+		final Object user   ,
+		final Object subject
+	)
+	{
+		return new AWritableFile.Default<>(
+			notNull(actual) ,
+			notNull(user)   ,
+			notNull(subject)
+		);
+	}
 		
-	public final class Default<U, S> extends AReadableFile.Default<U, S> implements AWritableFile
+	public class Default<U, S> extends AReadableFile.Default<U, S> implements AWritableFile
 	{
 		Default(final AFile actual, final U user, final S subject)
 		{

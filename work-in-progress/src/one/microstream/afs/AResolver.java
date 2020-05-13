@@ -6,6 +6,12 @@ public interface AResolver<D, F>
 	
 	public AFile resolveFile(F file);
 	
+	public D resolve(ADirectory directory);
+	
+	public F resolve(AFile file);
+	
+	// (13.05.2020 TM)TODO: priv#49: does ensure~ really belong here?
+	
 	public ADirectory ensureDirectory(D directory);
 	
 	public AFile ensureFile(F file);
@@ -54,6 +60,20 @@ public interface AResolver<D, F>
 			final String[] path = this.pathResolver.resolveFileToPath(file);
 			
 			return this.fileSystem.resolveFilePath(path);
+		}
+		
+		@Override
+		public D resolve(final ADirectory directory)
+		{
+			// FIXME AResolver.Default#resolve()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+		
+		@Override
+		public F resolve(final AFile file)
+		{
+			// FIXME AResolver.Default#resolve()
+			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
 		@Override

@@ -1,5 +1,7 @@
 package one.microstream.afs;
 
+import static one.microstream.X.notNull;
+
 import java.nio.ByteBuffer;
 
 import one.microstream.io.BufferProvider;
@@ -9,150 +11,108 @@ public interface AReadableFile extends AFile.Wrapper
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public default boolean open()
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().openReading(this);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().openReading(this);
 	}
 
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public default boolean isOpen()
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().isOpenReading(this);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().isOpenReading(this);
 	}
 	
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public default boolean close()
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().close(this);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().close(this);
 	}
 
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public default boolean isClosed()
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().isClosed(this);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().isClosed(this);
 	}
 
 	// implicitely #close PLUS the AFS-management-level aspect
 	public default ActionReport release()
 	{
-		synchronized(this)
-		{
-			final boolean wasClosed   = this.actual().fileSystem().ioHandler().close(this);
-			final boolean wasReleased = this.actual().fileSystem().accessManager().release(this);
-			
-			return wasClosed
-				? wasReleased
-					? ActionReport.FULL_ACTION
-					: null // impossible / inconsistent
-				: wasReleased
-					? ActionReport.PART_ACTION
-					: ActionReport.NO_ACTION
-			;
-		}
+		// synchronization handled by FileSystem.
+		return this.actual().fileSystem().release(this);
 	}
 	
 
 	public default boolean ensure()
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().ensure(this);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().ensure(this);
 	}
 	
 	@Override
-	default long length()
+	public default long length()
 	{
-		synchronized(this)
-		{
-			return this.fileSystem().ioHandler().length(this);
-		}
+		// synchronization handled by IoHandler.
+		return this.fileSystem().ioHandler().length(this);
 	}
 	
 			
 
 	public default ByteBuffer readBytes()
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().readBytes(this);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().readBytes(this);
 	}
 	
 	public default ByteBuffer readBytes(final long position)
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().readBytes(this, position);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().readBytes(this, position);
 	}
 	
 	public default ByteBuffer readBytes(final long position, final long length)
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().readBytes(this, position, length);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().readBytes(this, position, length);
 	}
 	
 	
 	public default long readBytes(final ByteBuffer targetBuffer)
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().readBytes(this, targetBuffer);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().readBytes(this, targetBuffer);
 	}
 	
 	public default long readBytes(final ByteBuffer targetBuffer, final long position)
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().readBytes(this, targetBuffer, position);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().readBytes(this, targetBuffer, position);
 	}
 	
 	public default long readBytes(final ByteBuffer targetBuffer, final long position, final long length)
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().readBytes(this, targetBuffer, position, length);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().readBytes(this, targetBuffer, position, length);
 	}
 	
 	
 	public default long readBytes(final BufferProvider bufferProvider)
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().readBytes(this, bufferProvider);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().readBytes(this, bufferProvider);
 	}
 	
 	public default long readBytes(final BufferProvider bufferProvider, final long position)
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().readBytes(this, bufferProvider, position);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().readBytes(this, bufferProvider, position);
 	}
 	
 	public default long readBytes(final BufferProvider bufferProvider, final long position, final long length)
 	{
-		synchronized(this)
-		{
-			return this.actual().fileSystem().ioHandler().readBytes(this, bufferProvider, position, length);
-		}
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().readBytes(this, bufferProvider, position, length);
 	}
 
 	
@@ -182,6 +142,19 @@ public interface AReadableFile extends AFile.Wrapper
 	}
 	
 	
+	
+	public static AReadableFile New(
+		final AFile  actual ,
+		final Object user   ,
+		final Object subject
+	)
+	{
+		return new AReadableFile.Default<>(
+			notNull(actual) ,
+			notNull(user)   ,
+			notNull(subject)
+		);
+	}
 	
 	public class Default<U, S> extends AFile.Wrapper.Abstract<U, S> implements AReadableFile
 	{
