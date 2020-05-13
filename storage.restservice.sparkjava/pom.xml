@@ -3,7 +3,7 @@
   <parent>
     <groupId>one.microstream</groupId>
     <artifactId>microstream</artifactId>
-    <version>03.00.01-MS-GA-SNAPSHOT</version>
+    <version>03.00.01-MS-GA</version>
   </parent>
   <artifactId>storage.restservice.sparkjava</artifactId>
   
@@ -12,7 +12,7 @@
   		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>storage.restservice</artifactId>
-			<version>03.00.01-MS-GA-SNAPSHOT</version>
+			<version>03.00.01-MS-GA</version>
 		</dependency>
 		
 		<dependency>
