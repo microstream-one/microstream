@@ -2,6 +2,8 @@ package one.microstream.afs;
 
 public interface ACreator
 {
+	public ARoot createRootDirectory(String identifier);
+	
 	public ADirectory createDirectory(ADirectory parent, String identifier);
 	
 	public AFile createFile(ADirectory parent, String identifier);

@@ -13,9 +13,7 @@ public interface IoHandler
 
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public boolean isOpenReading(AReadableFile file);
-	
-	// (11.05.2020 TM)FIXME: priv#49: may a readableFile closing logic close reading AND writing of a WritableFile?
-	
+		
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public boolean close(AReadableFile file);
 

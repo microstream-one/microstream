@@ -2,6 +2,7 @@ package one.microstream.afs;
 
 import java.util.function.Function;
 
+import one.microstream.chars.XChars;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 
@@ -191,7 +192,7 @@ public interface AccessManager
 		}
 
 		@Override
-		public final synchronized boolean isUsed(
+		public synchronized boolean isUsed(
 			final ADirectory directory
 		)
 		{
@@ -199,7 +200,7 @@ public interface AccessManager
 		}
 		
 		@Override
-		public final synchronized boolean isMutating(
+		public synchronized boolean isMutating(
 			final ADirectory directory
 		)
 		{
@@ -207,7 +208,7 @@ public interface AccessManager
 		}
 
 		@Override
-		public final synchronized boolean isReading(
+		public synchronized boolean isReading(
 			final AFile file
 		)
 		{
@@ -221,7 +222,7 @@ public interface AccessManager
 		}
 		
 		@Override
-		public final synchronized boolean isWriting(
+		public synchronized boolean isWriting(
 			final AFile file
 		)
 		{
@@ -235,7 +236,7 @@ public interface AccessManager
 		}
 		
 		@Override
-		public final synchronized boolean isReading(
+		public synchronized boolean isReading(
 			final AFile  file,
 			final Object user
 		)
@@ -250,7 +251,7 @@ public interface AccessManager
 		}
 		
 		@Override
-		public final synchronized boolean isWriting(
+		public synchronized boolean isWriting(
 			final AFile  file,
 			final Object user
 		)
@@ -265,16 +266,17 @@ public interface AccessManager
 		}
 				
 		@Override
-		public final synchronized AReadableFile useReading(
+		public synchronized AReadableFile useReading(
 			final AFile  file,
 			final Object user
 		)
 		{
-			final FileEntry e = this.fileUsers.get(file);
+			final AFile actual = AFile.actual(file);
+			final FileEntry e = this.fileUsers.get(actual);
 			if(e == null)
 			{
-				final AReadableFile wrapper = this.wrapForReading(file, user);
-				this.fileUsers.add(file, new FileEntry(wrapper));
+				final AReadableFile wrapper = this.wrapForReading(actual, user);
+				this.fileUsers.add(actual, new FileEntry(wrapper));
 				
 				return wrapper;
 			}
@@ -287,13 +289,13 @@ public interface AccessManager
 				}
 				
 				// (30.04.2020 TM)EXCP: proper exception
-				throw new RuntimeException("File is exclusively used: " + file);
+				throw new RuntimeException("File is exclusively used: " + actual);
 			}
 			
 			AReadableFile wrapper = e.sharedUsers.get(user);
 			if(wrapper == null)
 			{
-				wrapper = this.wrapForReading(file, user);
+				wrapper = this.wrapForReading(actual, user);
 				e.sharedUsers.add(user, wrapper);
 			}
 			
@@ -301,16 +303,17 @@ public interface AccessManager
 		}
 		
 		@Override
-		public final synchronized AWritableFile useWriting(
+		public synchronized AWritableFile useWriting(
 			final AFile  file,
 			final Object user
 		)
 		{
-			final FileEntry e = this.fileUsers.get(file);
+			final AFile actual = AFile.actual(file);
+			final FileEntry e = this.fileUsers.get(actual);
 			if(e == null)
 			{
-				final AWritableFile wrapper = this.wrapForWriting(file, user);
-				this.fileUsers.add(file, new FileEntry(wrapper));
+				final AWritableFile wrapper = this.wrapForWriting(actual, user);
+				this.fileUsers.add(actual, new FileEntry(wrapper));
 				
 				return wrapper;
 			}
@@ -323,7 +326,7 @@ public interface AccessManager
 				}
 				
 				// (30.04.2020 TM)EXCP: proper exception
-				throw new RuntimeException("File is exclusively used: " + file);
+				throw new RuntimeException("File is exclusively used: " + actual);
 			}
 			
 			if(!e.sharedUsers.isEmpty())
@@ -336,24 +339,79 @@ public interface AccessManager
 				e.sharedUsers.removeFor(user);
 			}
 
-			final AWritableFile wrapper = this.wrapForWriting(file, user);
+			final AWritableFile wrapper = this.wrapForWriting(actual, user);
 			e.exclusive = wrapper;
 			
 			return wrapper;
 		}
 		
 		@Override
-		public boolean unregister(final AReadableFile file)
+		public synchronized boolean unregister(final AReadableFile file)
 		{
-			// FIXME AccessManager.Abstract#unregister()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return this.internalUnregister(file);
 		}
 		
 		@Override
-		public boolean unregister(final AWritableFile file)
+		public synchronized boolean unregister(final AWritableFile file)
 		{
-			// FIXME AccessManager.Abstract#unregister()
-			throw new one.microstream.meta.NotImplementedYetError();
+			// logic has to cover writing case, anyway.
+			return this.internalUnregister(file);
+		}
+		
+		protected boolean internalUnregister(final AReadableFile file)
+		{
+			final AFile actual = file.actual();
+			final FileEntry e = this.fileUsers.get(actual);
+			if(e == null)
+			{
+				return false;
+			}
+			
+			return this.internalUnregister(file, e);
+		}
+		
+		protected boolean internalUnregister(final AReadableFile file, final FileEntry entry)
+		{
+			// AWritableFile "is a" AReadableFile, so it could be passed here and must be covered as well.
+			this.unregisterWriting(file, entry);
+			
+			return this.unregister(file);
+		}
+
+		protected boolean unregisterReading(final AReadableFile file, final FileEntry entry)
+		{
+			final AReadableFile removed = entry.sharedUsers.removeFor(file.user());
+			if(removed == null)
+			{
+				return false;
+			}
+			
+			// should never happen since creation/registration checks for that
+			if(removed != file)
+			{
+				// (13.05.2020 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Inconsistency detected: "
+					+ AReadableFile.class.getSimpleName() + " " + XChars.systemString(file)
+					+ " is not the same as removed  "
+					+ AReadableFile.class.getSimpleName() + " " + XChars.systemString(removed)
+					+ "."
+				);
+			}
+			
+			return true;
+		}
+		
+		protected boolean unregisterWriting(final AReadableFile file, final FileEntry entry)
+		{
+			// AWritableFile "is a" AReadableFile
+			if(entry.exclusive != file)
+			{
+				return false;
+			}
+			entry.exclusive = null;
+			
+			return true;
 		}
 		
 		protected abstract AReadableFile wrapForReading(AFile file, Object user);
