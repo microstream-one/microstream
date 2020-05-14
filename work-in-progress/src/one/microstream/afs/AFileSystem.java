@@ -2,7 +2,11 @@ package one.microstream.afs;
 
 import static one.microstream.X.notNull;
 
+import java.util.function.Function;
+
+import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
+import one.microstream.collections.types.XGettingTable;
 
 public interface AFileSystem
 {
@@ -85,6 +89,12 @@ public interface AFileSystem
 			;
 		}
 	}
+	
+	public ADirectory addRoot(String identifier);
+	
+	public ADirectory removeRoot(String identifier);
+	
+	public <R> R accessRoots(Function<? super XGettingTable<String, ADirectory>, R> logic);
 		
 	
 	
@@ -102,20 +112,19 @@ public interface AFileSystem
 		);
 	}
 	
-	public final class Default implements AFileSystem
+	public class Default implements AFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		// (30.04.2020 TM)FIXME: priv#49: ARoot extends ADirectory?
-		// (09.05.2020 TM)FIXME: priv#49: How to register roots? remove? collection logic?
 		private final EqHashTable<String, ADirectory> rootDirectories;
 		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
 		private final IoHandler                       ioHandler      ;
 		
 		// (09.05.2020 TM)FIXME: priv#49: Lock FileSystem for creating new Items or just their parent directory?
+		// (13.05.2020 TM)FIXME: priv#49: include resolver here via Generics typing?
 		
 		
 		
@@ -155,6 +164,36 @@ public interface AFileSystem
 		public IoHandler ioHandler()
 		{
 			return this.ioHandler;
+		}
+
+		@Override
+		public final synchronized ADirectory addRoot(final String identifier)
+		{
+			final ADirectory existing = this.rootDirectories.get(identifier);
+			if(existing != null)
+			{
+				// (13.05.2020 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Root with identifier \"" + identifier + "\" already exists: " + XChars.systemString(existing)
+				);
+			}
+			
+			final ADirectory created = this.creator.createRootDirectory(identifier);
+			this.rootDirectories.add(identifier, created);
+			
+			return created;
+		}
+		
+		@Override
+		public final synchronized ADirectory removeRoot(final String name)
+		{
+			return this.rootDirectories.removeFor(name);
+		}
+		
+		@Override
+		public final synchronized <R> R accessRoots(final Function<? super XGettingTable<String, ADirectory>, R> logic)
+		{
+			return logic.apply(this.rootDirectories);
 		}
 				
 		@Override
