@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import one.microstream.storage.restadapter.StorageRestAdapter;
-import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageManager;
 
 /**
  * Service loader for {@link StorageRestService}s
@@ -22,7 +22,7 @@ public final class StorageRestServiceResolver
 	 * @param storage storage to initialize the service with
 	 * @return StorageRestService instance
 	 */
-	public static StorageRestService resolve(final EmbeddedStorageManager storage)
+	public static StorageRestService resolve(final StorageManager storage)
 	{
 		final StorageRestServiceProvider provider = resolveProvider();
 		if(provider != null)
@@ -31,7 +31,7 @@ public final class StorageRestServiceResolver
 				StorageRestAdapter.New(storage)
 			);
 		}
-		
+
 		throw new StorageRestServiceNotFoundException("No StorageRestServer implementation found");
 	}
 
@@ -48,19 +48,19 @@ public final class StorageRestServiceResolver
 		{
 			return provider.provideService(storageRestAdapter);
 		}
-		
+
 		throw new StorageRestServiceNotFoundException("No StorageRestServer implementation found");
 	}
-	
+
 	public static StorageRestServiceProvider resolveProvider()
 	{
-		final ServiceLoader<StorageRestServiceProvider> serviceLoader = 
+		final ServiceLoader<StorageRestServiceProvider> serviceLoader =
 			ServiceLoader.load(StorageRestServiceProvider.class);
 		final Iterator<StorageRestServiceProvider> iterator = serviceLoader.iterator();
 		return iterator.hasNext()
 			? iterator.next()
 			: null
-		;	
+		;
 	}
 
 

@@ -21,7 +21,7 @@ import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeHandler;
-import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageManager;
 
 public interface ViewerBinaryPersistenceManager extends PersistenceManager<Binary>
 {
@@ -30,7 +30,7 @@ public interface ViewerBinaryPersistenceManager extends PersistenceManager<Binar
 	public ObjectDescription getStorageConstant(long objectId);
 
 
-	public static ViewerBinaryPersistenceManager New(final EmbeddedStorageManager storage)
+	public static ViewerBinaryPersistenceManager New(final StorageManager storage)
 	{
 		final PersistenceManager<Binary>           persistenceManager = storage.persistenceManager();
 		final PersistenceObjectRegistry            objectRegistry     = new ViewerObjectRegistryDisabled();
