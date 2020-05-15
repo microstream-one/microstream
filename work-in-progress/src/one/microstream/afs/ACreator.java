@@ -1,8 +1,9 @@
 package one.microstream.afs;
 
-public interface ACreator
+public interface ACreator extends ARoot.Creator
 {
-	public ARoot createRootDirectory(String identifier);
+	@Override
+	public ARoot createRootDirectory(AFileSystem fileSystem, String identifier);
 	
 	public ADirectory createDirectory(ADirectory parent, String identifier);
 	
