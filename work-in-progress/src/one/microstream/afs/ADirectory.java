@@ -4,11 +4,12 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Consumer;
 
+import one.microstream.chars.VarString;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XGettingTable;
 
-public interface ADirectory extends AItem
+public interface ADirectory extends AItem, AResolving
 {
 	public XGettingTable<String, ? extends ADirectory> directories();
 	
@@ -48,7 +49,7 @@ public interface ADirectory extends AItem
 			return this.getDirectory(identifier);
 		}
 	}
-	
+		
 	public default ADirectory getDirectory(final String identifier)
 	{
 		synchronized(this)
@@ -122,8 +123,41 @@ public interface ADirectory extends AItem
 	}
 	
 	// (20.04.2020 TM)TODO: #containsDeeps
-
 	
+	@Override
+	public default ADirectory resolveDirectoryPath(
+		final String[] pathElements,
+		final int      offset      ,
+		final int      length
+	)
+	{
+		if(length == 0)
+		{
+			return this;
+		}
+		
+		synchronized(this)
+		{
+			final ADirectory directory = this.getDirectory(pathElements[offset]);
+			if(directory == null)
+			{
+				// (14.05.2020 TM)EXCP: proper exception
+				throw new RuntimeException(
+					VarString.New()
+					.add("Unresolvable path element \"")
+					.add(pathElements[offset])
+					.add("\" in path \"")
+					.addAll(pathElements, VarString::commaSpace)
+					.deleteLast(2)
+					.add('"', '.')
+					.toString()
+				);
+			}
+			
+			// beautiful recursion (as long as the depth doesn't kill the stack ...). Cascading locks intentional!
+			return directory.resolveDirectoryPath(pathElements, offset + 1, length - 1);
+		}
+	}
 	
 	public abstract class Abstract<D extends ADirectory, F extends AFile>
 	extends AItem.Abstract<D>

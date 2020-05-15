@@ -9,4 +9,13 @@ public interface ARoot extends ADirectory
 	 */
 	
 	public String protocol();
+	
+	
+	
+	@FunctionalInterface
+	public interface Creator
+	{
+		public ARoot createRootDirectory(AFileSystem fileSystem, String identifier);
+	}
+	
 }

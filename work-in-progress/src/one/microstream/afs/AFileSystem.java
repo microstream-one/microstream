@@ -1,14 +1,12 @@
 package one.microstream.afs;
 
-import static one.microstream.X.notNull;
-
 import java.util.function.Function;
 
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
 
-public interface AFileSystem
+public interface AFileSystem extends AResolving
 {
 	/* (30.04.2020 TM)FIXME: priv#49: "protocol" here or in AccessManager
 	 * Or is "protocol" a trait of a root directory?
@@ -27,24 +25,7 @@ public interface AFileSystem
 	 * Or is that the job of an APathResolver?
 	 */
 	
-	public default ADirectory resolveDirectoryPath(final String... pathElements)
-	{
-		return this.resolveDirectoryPath(pathElements, 0, pathElements.length);
-	}
 
-	public ADirectory resolveDirectoryPath(String[] pathElements, int offset, int length);
-		
-	public default AFile resolveFilePath(final String... pathElements)
-	{
-		return this.resolveFilePath(pathElements, 0, pathElements.length - 1, pathElements[pathElements.length - 1]);
-	}
-	
-	public default AFile resolveFilePath(final String[] directoryPathElements, final String fileIdentifier)
-	{
-		return this.resolveFilePath(directoryPathElements, 0, directoryPathElements.length, fileIdentifier);
-	}
-	
-	public AFile resolveFilePath(String[] directoryPathElements, int offset, int length, String fileIdentifier);
 	
 	
 	
@@ -90,35 +71,32 @@ public interface AFileSystem
 		}
 	}
 	
+
+	public ADirectory getRoot(String identifier);
+	
 	public ADirectory addRoot(String identifier);
 	
+	public ADirectory addRoot(ARoot.Creator rootCreator, String identifier);
+	
 	public ADirectory removeRoot(String identifier);
+	
+	public boolean addRoot(ADirectory rootDirectory);
+	
+	public boolean removeRoot(ADirectory rootDirectory);
 	
 	public <R> R accessRoots(Function<? super XGettingTable<String, ADirectory>, R> logic);
 		
 	
 	
-	public static AFileSystem New(
-		final ACreator              creator             ,
-		final AccessManager.Creator accessManagerCreator,
-		final IoHandler             ioHandler
-	)
-	{
-		return new AFileSystem.Default(
-			EqHashTable.New()            ,
-			notNull(creator)             ,
-			notNull(accessManagerCreator),
-			notNull(ioHandler)
-		);
-	}
 	
-	public class Default implements AFileSystem
+	public class Abstract<D, F> implements AFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
 		private final EqHashTable<String, ADirectory> rootDirectories;
+		private final AResolver<D, F>                 resolver       ;
 		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
 		private final IoHandler                       ioHandler      ;
@@ -132,15 +110,16 @@ public interface AFileSystem
 		// constructors //
 		/////////////////
 		
-		Default(
-			final EqHashTable<String, ADirectory> rootDirectories     ,
-			final ACreator                        creator             ,
-			final AccessManager.Creator           accessManagerCreator,
-			final IoHandler                       ioHandler
+		Abstract(
+			final AResolver<D, F>       resolver            ,
+			final ACreator              creator             ,
+			final AccessManager.Creator accessManagerCreator,
+			final IoHandler             ioHandler
 		)
 		{
 			super();
 			this.rootDirectories = EqHashTable.New();
+			this.resolver        = resolver         ;
 			this.creator         = creator          ;
 			this.ioHandler       = ioHandler        ;
 			
@@ -165,29 +144,119 @@ public interface AFileSystem
 		{
 			return this.ioHandler;
 		}
+		
 
 		@Override
-		public final synchronized ADirectory addRoot(final String identifier)
+		public final synchronized ADirectory getRoot(final String identifier)
 		{
 			final ADirectory existing = this.rootDirectories.get(identifier);
 			if(existing != null)
 			{
-				// (13.05.2020 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Root with identifier \"" + identifier + "\" already exists: " + XChars.systemString(existing)
-				);
+				return existing;
+			}
+
+			// (14.05.2020 TM)EXCP: proper exception
+			throw new RuntimeException("No root directory found with identifier \"" + identifier + ".");
+		}
+
+		@Override
+		public final synchronized ADirectory addRoot(final String identifier)
+		{
+			return this.addRoot(this.creator, identifier);
+		}
+		
+		private void validateNonExistingRootDirectory(final String identifier)
+		{
+			final ADirectory existing = this.rootDirectories.get(identifier);
+			if(existing == null)
+			{
+				return;
+			}
+
+			// (13.05.2020 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Root with identifier \"" + identifier + "\" already exists: " + XChars.systemString(existing)
+			);
+		}
+		
+		private void validateParentFileSystem(final AItem item)
+		{
+			if(item.fileSystem() == this)
+			{
+				return;
+			}
+
+			// (14.05.2020 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Incompatible parent FileSystem of " + XChars.systemString(item) + ":"
+				+ XChars.systemString(item.fileSystem()) + " != this (" + XChars.systemString(this) + ")."
+			);
+		}
+		
+		private boolean validateRegisteredRootDirectory(final ADirectory rootDirectory)
+		{
+			final String rootIdentifier = rootDirectory.identifier();
+			final ADirectory registered = this.rootDirectories.get(rootIdentifier);
+			if(registered == null)
+			{
+				return false;
 			}
 			
-			final ADirectory created = this.creator.createRootDirectory(identifier);
+			if(registered == rootDirectory)
+			{
+				return true;
+			}
+			
+			// (14.05.2020 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Inconsistent root directories for identifier \"" + rootIdentifier + "\": "
+				+ XChars.systemString(registered) + " != " + XChars.systemString(rootDirectory)
+			);
+		}
+
+		@Override
+		public final synchronized ADirectory addRoot(final ARoot.Creator rootCreator, final String identifier)
+		{
+			this.validateNonExistingRootDirectory(identifier);
+			
+			final ADirectory created = rootCreator.createRootDirectory(this, identifier);
 			this.rootDirectories.add(identifier, created);
 			
 			return created;
+		}
+
+		@Override
+		public final synchronized boolean addRoot(final ADirectory rootDirectory)
+		{
+			this.validateParentFileSystem(rootDirectory);
+			
+			// validate and check for already registerd (abort condition)
+			if(this.validateRegisteredRootDirectory(rootDirectory))
+			{
+				return false;
+			}
+			
+			return this.rootDirectories.add(rootDirectory.identifier(), rootDirectory);
 		}
 		
 		@Override
 		public final synchronized ADirectory removeRoot(final String name)
 		{
 			return this.rootDirectories.removeFor(name);
+		}
+		
+		@Override
+		public final synchronized boolean removeRoot(final ADirectory rootDirectory)
+		{
+			if(!this.validateRegisteredRootDirectory(rootDirectory))
+			{
+				return false;
+			}
+			
+			// remove only if no inconcistency was detected.
+			this.rootDirectories.removeFor(rootDirectory.identifier());
+			
+			return true;
 		}
 		
 		@Override
@@ -203,8 +272,10 @@ public interface AFileSystem
 			final int      length
 		)
 		{
-			// FIXME AFileSystem.Abstract#resolveDirectoryPath()
-			throw new one.microstream.meta.NotImplementedYetError();
+			// getRoot guarantees non-null
+			final ADirectory root = this.getRoot(pathElements[offset]);
+			
+			return root.resolveDirectoryPath(pathElements, offset + 1, length - 1);
 		}
 		
 		@Override
@@ -216,22 +287,6 @@ public interface AFileSystem
 		{
 			// FIXME AFileSystem.Abstract#resolveDirectoryPath()
 			throw new one.microstream.meta.NotImplementedYetError();
-		}
-		
-		@Override
-		public final synchronized AFile resolveFilePath(
-			final String[] directoryPathElements,
-			final int      offset               ,
-			final int      length               ,
-			final String   fileIdentifier
-		)
-		{
-			final ADirectory directory = this.resolveDirectoryPath(directoryPathElements, offset, length);
-			
-			return directory == null
-				? null
-				: directory.getFile(fileIdentifier)
-			;
 		}
 		
 		@Override
