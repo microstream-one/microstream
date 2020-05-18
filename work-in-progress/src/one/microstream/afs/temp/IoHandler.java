@@ -1,4 +1,4 @@
-package one.microstream.afs;
+package one.microstream.afs.temp;
 
 import java.nio.ByteBuffer;
 
@@ -24,7 +24,8 @@ public interface IoHandler
 	public boolean openWriting(AWritableFile file);
 	
 	public boolean isOpenWriting(AWritableFile file);
-		
+
+	public boolean ensure(ADirectory file);
 
 	public boolean ensure(AReadableFile file);
 

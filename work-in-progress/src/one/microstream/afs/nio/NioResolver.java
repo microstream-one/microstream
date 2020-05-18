@@ -4,9 +4,9 @@ import static one.microstream.X.notNull;
 
 import java.nio.file.Path;
 
-import one.microstream.afs.ADirectory;
-import one.microstream.afs.AFile;
-import one.microstream.afs.AResolver;
+import one.microstream.afs.temp.ADirectory;
+import one.microstream.afs.temp.AFile;
+import one.microstream.afs.temp.AResolver;
 
 public interface NioResolver extends AResolver<Path, Path>
 {

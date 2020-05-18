@@ -1,4 +1,4 @@
-package one.microstream.afs;
+package one.microstream.afs.temp;
 
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
