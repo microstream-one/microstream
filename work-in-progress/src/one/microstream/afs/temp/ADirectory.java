@@ -1,8 +1,10 @@
-package one.microstream.afs;
+package one.microstream.afs.temp;
 
 import static one.microstream.X.notNull;
 
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import one.microstream.chars.VarString;
 import one.microstream.collections.EqHashTable;
@@ -14,6 +16,15 @@ public interface ADirectory extends AItem, AResolving
 	public XGettingTable<String, ? extends ADirectory> directories();
 	
 	public XGettingTable<String, ? extends AFile> files();
+	
+
+	public <R> R accessDirectories(Function<? super XGettingTable<String, ? extends ADirectory>, R> logic);
+	
+	public <R> R accessFiles(Function<? super XGettingTable<String, ? extends AFile>, R> logic);
+	
+	public <S, R> R accessDirectories(S subject, BiFunction<? super XGettingTable<String, ? extends ADirectory>, S, R> logic);
+	
+	public <S, R> R accessFiles(S subject, BiFunction<? super XGettingTable<String, ? extends AFile>, S, R> logic);
 	
 	public boolean registerObserver(ADirectory.Observer observer);
 	
@@ -171,6 +182,9 @@ public interface ADirectory extends AItem, AResolving
 		private final EqHashTable<String, F>        files      ;
 		private final HashEnum<ADirectory.Observer> observers  ;
 		
+		private final XGettingTable<String, D> viewDirectories;
+		private final XGettingTable<String, F> viewFiles      ;
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -186,6 +200,9 @@ public interface ADirectory extends AItem, AResolving
 			this.directories = EqHashTable.New();
 			this.files       = EqHashTable.New();
 			this.observers   = HashEnum.New()   ;
+			
+			this.viewDirectories = this.directories.view();
+			this.viewFiles       = this.files.view();
 		}
 		
 		
@@ -197,13 +214,47 @@ public interface ADirectory extends AItem, AResolving
 		@Override
 		public final XGettingTable<String, ? extends D> directories()
 		{
-			return this.directories;
+			return this.viewDirectories;
 		}
 		
 		@Override
 		public final XGettingTable<String, ? extends F> files()
 		{
-			return this.files;
+			return this.viewFiles;
+		}
+		
+		@Override
+		public synchronized final <R> R accessDirectories(
+			final Function<? super XGettingTable<String, ? extends ADirectory>, R> logic
+		)
+		{
+			return logic.apply(this.directories);
+		}
+		
+		@Override
+		public synchronized final <R> R accessFiles(
+			final Function<? super XGettingTable<String, ? extends AFile>, R> logic
+		)
+		{
+			return logic.apply(this.files);
+		}
+
+		@Override
+		public synchronized final<S, R> R accessDirectories(
+			final S                                                                     subject,
+			final BiFunction<? super XGettingTable<String, ? extends ADirectory>, S, R> logic
+		)
+		{
+			return logic.apply(this.directories, subject);
+		}
+		
+		@Override
+		public synchronized final<S, R> R accessFiles(
+			final S                                                                subject,
+			final BiFunction<? super XGettingTable<String, ? extends AFile>, S, R> logic
+		)
+		{
+			return logic.apply(this.files, subject);
 		}
 		
 		@Override

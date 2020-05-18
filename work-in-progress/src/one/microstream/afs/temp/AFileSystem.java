@@ -1,9 +1,10 @@
-package one.microstream.afs;
+package one.microstream.afs.temp;
 
 import java.util.function.Function;
 
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
+import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingTable;
 
 public interface AFileSystem extends AResolving
@@ -73,10 +74,10 @@ public interface AFileSystem extends AResolving
 	
 
 	public ADirectory getRoot(String identifier);
+
+	public ADirectory ensureRoot(String identifier);
 	
-	public ADirectory addRoot(String identifier);
-	
-	public ADirectory addRoot(ARoot.Creator rootCreator, String identifier);
+	public ADirectory ensureRoot(ARoot.Creator rootCreator, String identifier);
 	
 	public ADirectory removeRoot(String identifier);
 	
@@ -160,9 +161,9 @@ public interface AFileSystem extends AResolving
 		}
 
 		@Override
-		public final synchronized ADirectory addRoot(final String identifier)
+		public final synchronized ADirectory ensureRoot(final String identifier)
 		{
-			return this.addRoot(this.creator, identifier);
+			return this.ensureRoot(this.creator, identifier);
 		}
 		
 		private void validateNonExistingRootDirectory(final String identifier)
@@ -215,7 +216,7 @@ public interface AFileSystem extends AResolving
 		}
 
 		@Override
-		public final synchronized ADirectory addRoot(final ARoot.Creator rootCreator, final String identifier)
+		public final synchronized ADirectory ensureRoot(final ARoot.Creator rootCreator, final String identifier)
 		{
 			this.validateNonExistingRootDirectory(identifier);
 			
@@ -285,7 +286,13 @@ public interface AFileSystem extends AResolving
 			final int      length
 		)
 		{
-			// FIXME AFileSystem.Abstract#resolveDirectoryPath()
+			XArrays.validateArrayRange(pathElements, offset, length);
+			
+			final ADirectory root = this.ensureRoot(pathElements[offset]);
+			
+			
+			
+			// FIXME AFileSystem.Abstract#ensureDirectoryPath()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		
