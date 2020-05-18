@@ -6,6 +6,7 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -46,16 +47,18 @@ import one.microstream.storage.types.StorageHousekeepingController;
  * baseDirectory = ~/data-dir
  * backupDirectory = backup-dir
  * channelCount = 4
- * 
+ *
  * Configuration configuration = Configuration.LoadIni(
  *     "path-to-properties-file"
  * );
  * </pre>
  * </p>
- * 
+ *
  * @see ConfigurationLoader
  * @see ConfigurationParser
  * @see ConfigurationPropertyNames
+ * @see ConfigurationStorer
+ * @see ConfigurationAssembler
  * @see <a href="https://manual.docs.microstream.one/data-store/configuration#external-configuration">MicroStream Reference Manual</a>
  */
 public interface Configuration
@@ -64,26 +67,26 @@ public interface Configuration
 	 * The property name which is used to hand the external configuration file path to the application.
 	 * <p>
 	 * Either as system property or in the context's configuration, e.g. Spring's application.properties.
-	 * 
+	 *
 	 * @return "microstream.storage.configuration.path"
 	 */
 	public static String PathProperty()
 	{
 		return "microstream.storage.configuration.path";
 	}
-	
+
 	/**
 	 * The default name of the storage configuration resource.
-	 * 
+	 *
 	 * @see #Load()
-	 * 
+	 *
 	 * @return "microstream-storage.properties"
 	 */
 	public static String DefaultResourceName()
 	{
 		return "microstream-storage.properties";
 	}
-	
+
 	/**
 	 * Tries to load the default configuration properties file.
 	 * <p>
@@ -97,17 +100,17 @@ public interface Configuration
 	 * <li>The user home directory</li>
 	 * </ul></li>
 	 * </ul>
-	 * 
+	 *
 	 * @see #PathProperty()
 	 * @see #DefaultResourceName()
-	 * 
+	 *
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
 	public static Configuration Load()
 	{
 		return Load(ConfigurationLoader.Defaults.defaultCharset());
 	}
-	
+
 	/**
 	 * Tries to load the default configuration properties file.
 	 * <p>
@@ -121,10 +124,10 @@ public interface Configuration
 	 * <li>The user home directory</li>
 	 * </ul></li>
 	 * </ul>
-	 * 
+	 *
 	 * @see #PathProperty()
 	 * @see #DefaultResourceName()
-	 * 
+	 *
 	 * @param charset the charset used to load the configuration
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
@@ -151,7 +154,7 @@ public interface Configuration
 		{
 			return LoadIni(url, charset);
 		}
-		
+
 		File file = new File(defaultName);
 		if(file.exists())
 		{
@@ -162,10 +165,10 @@ public interface Configuration
 		{
 			return LoadIni(file, charset);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Tries to load the configuration file from <code>path</code>.
 	 * Depending on the file suffix either the XML or the INI loader is used.
@@ -176,8 +179,8 @@ public interface Configuration
 	 * <li>As an URL</li>
 	 * <li>As a file</li>
 	 * </ul>
-	 * 
-	 * @param path a classpath resource, a file path or an URL 
+	 *
+	 * @param path a classpath resource, a file path or an URL
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static Configuration Load(
@@ -186,7 +189,7 @@ public interface Configuration
 	{
 		return Load(path, ConfigurationLoader.Defaults.defaultCharset());
 	}
-	
+
 	/**
 	 * Tries to load the configuration file from <code>path</code>.
 	 * Depending on the file suffix either the XML or the INI loader is used.
@@ -197,8 +200,8 @@ public interface Configuration
 	 * <li>As an URL</li>
 	 * <li>As a file</li>
 	 * </ul>
-	 * 
-	 * @param path a classpath resource, a file path or an URL 
+	 *
+	 * @param path a classpath resource, a file path or an URL
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 */
@@ -212,7 +215,7 @@ public interface Configuration
 			: LoadIni(path, charset)
 		;
 	}
-	
+
 	/**
 	 * Tries to load the configuration INI file from <code>path</code>.
 	 * <p>
@@ -222,8 +225,8 @@ public interface Configuration
 	 * <li>As an URL</li>
 	 * <li>As a file</li>
 	 * </ul>
-	 * 
-	 * @param path a classpath resource, a file path or an URL 
+	 *
+	 * @param path a classpath resource, a file path or an URL
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static Configuration LoadIni(
@@ -234,7 +237,7 @@ public interface Configuration
 			ConfigurationLoader.load(path)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration INI file from <code>path</code>.
 	 * <p>
@@ -244,13 +247,13 @@ public interface Configuration
 	 * <li>As an URL</li>
 	 * <li>As a file</li>
 	 * </ul>
-	 * 
-	 * @param path a classpath resource, a file path or an URL 
+	 *
+	 * @param path a classpath resource, a file path or an URL
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static Configuration LoadIni(
-		final String path, 
+		final String path,
 		final Charset charset
 	)
 	{
@@ -258,11 +261,11 @@ public interface Configuration
 			ConfigurationLoader.load(path, charset)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration INI file from <code>path</code>.
-	 * 
-	 * @param path file system path 
+	 *
+	 * @param path file system path
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
@@ -274,17 +277,17 @@ public interface Configuration
 			ConfigurationLoader.loadFromPath(path)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration INI file from <code>path</code>.
-	 * 
-	 * @param path file system path 
+	 *
+	 * @param path file system path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadIni(
-		final Path path, 
+		final Path path,
 		final Charset charset
 	)
 	{
@@ -292,11 +295,11 @@ public interface Configuration
 			ConfigurationLoader.loadFromPath(path, charset)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration INI from the file <code>file</code>.
-	 * 
-	 * @param file file path 
+	 *
+	 * @param file file path
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
@@ -308,17 +311,17 @@ public interface Configuration
 			ConfigurationLoader.loadFromFile(file)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration INI from the file <code>file</code>.
-	 * 
-	 * @param file file path 
+	 *
+	 * @param file file path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadIni(
-		final File file, 
+		final File file,
 		final Charset charset
 	)
 	{
@@ -326,11 +329,11 @@ public interface Configuration
 			ConfigurationLoader.loadFromFile(file, charset)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration INI from the URL <code>url</code>.
-	 * 
-	 * @param url URL path 
+	 *
+	 * @param url URL path
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
@@ -342,17 +345,17 @@ public interface Configuration
 			ConfigurationLoader.loadFromUrl(url)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration INI from the URL <code>url</code>.
-	 * 
-	 * @param url URL path 
+	 *
+	 * @param url URL path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadIni(
-		final URL url, 
+		final URL url,
 		final Charset charset
 	)
 	{
@@ -360,11 +363,13 @@ public interface Configuration
 			ConfigurationLoader.loadFromUrl(url, charset)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration INI from the {@link InputStream} <code>inputStream</code>.
-	 * 
-	 * @param inputStream the stream to read from 
+	 * <p>
+	 * Note that the given <code>inputStream</code> will not be closed by this method.
+	 *
+	 * @param inputStream the stream to read from
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
@@ -376,17 +381,19 @@ public interface Configuration
 			ConfigurationLoader.FromInputStream(inputStream).loadConfiguration()
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration INI from the {@link InputStream} <code>inputStream</code>.
-	 * 
-	 * @param inputStream the stream to read from 
+	 * <p>
+	 * Note that the given <code>inputStream</code> will not be closed by this method.
+	 *
+	 * @param inputStream the stream to read from
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadIni(
-		final InputStream inputStream, 
+		final InputStream inputStream,
 		final Charset charset
 	)
 	{
@@ -394,7 +401,7 @@ public interface Configuration
 			ConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration XML file from <code>path</code>.
 	 * <p>
@@ -404,8 +411,8 @@ public interface Configuration
 	 * <li>As an URL</li>
 	 * <li>As a file</li>
 	 * </ul>
-	 * 
-	 * @param path a classpath resource, a file path or an URL 
+	 *
+	 * @param path a classpath resource, a file path or an URL
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static Configuration LoadXml(
@@ -416,7 +423,7 @@ public interface Configuration
 			ConfigurationLoader.load(path)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration XML file from <code>path</code>.
 	 * <p>
@@ -426,13 +433,13 @@ public interface Configuration
 	 * <li>As an URL</li>
 	 * <li>As a file</li>
 	 * </ul>
-	 * 
-	 * @param path a classpath resource, a file path or an URL 
+	 *
+	 * @param path a classpath resource, a file path or an URL
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static Configuration LoadXml(
-		final String path, 
+		final String path,
 		final Charset charset
 	)
 	{
@@ -440,11 +447,11 @@ public interface Configuration
 			ConfigurationLoader.load(path, charset)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration XML file from <code>path</code>.
-	 * 
-	 * @param path file system path 
+	 *
+	 * @param path file system path
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
@@ -456,11 +463,11 @@ public interface Configuration
 			ConfigurationLoader.loadFromPath(path)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration XML file from <code>path</code>.
-	 * 
-	 * @param path file system path 
+	 *
+	 * @param path file system path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
@@ -474,11 +481,11 @@ public interface Configuration
 			ConfigurationLoader.loadFromPath(path, charset)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration XML from the file <code>file</code>.
-	 * 
-	 * @param file file path 
+	 *
+	 * @param file file path
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
@@ -493,14 +500,14 @@ public interface Configuration
 
 	/**
 	 * Tries to load the configuration XML from the file <code>file</code>.
-	 * 
-	 * @param file file path 
+	 *
+	 * @param file file path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadXml(
-		final File file, 
+		final File file,
 		final Charset charset
 	)
 	{
@@ -508,11 +515,11 @@ public interface Configuration
 			ConfigurationLoader.loadFromFile(file, charset)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration XML from the URL <code>url</code>.
-	 * 
-	 * @param url URL path 
+	 *
+	 * @param url URL path
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
@@ -527,14 +534,14 @@ public interface Configuration
 
 	/**
 	 * Tries to load the configuration XML from the URL <code>url</code>.
-	 * 
-	 * @param url URL path 
+	 *
+	 * @param url URL path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadXml(
-		final URL url, 
+		final URL url,
 		final Charset charset
 	)
 	{
@@ -542,11 +549,13 @@ public interface Configuration
 			ConfigurationLoader.loadFromUrl(url, charset)
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration XML from the {@link InputStream} <code>inputStream</code>.
-	 * 
-	 * @param inputStream the stream to read from 
+	 * <p>
+	 * Note that the given <code>inputStream</code> will not be closed by this method.
+	 *
+	 * @param inputStream the stream to read from
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
@@ -558,17 +567,19 @@ public interface Configuration
 			ConfigurationLoader.FromInputStream(inputStream).loadConfiguration()
 		);
 	}
-	
+
 	/**
 	 * Tries to load the configuration XML from the {@link InputStream} <code>inputStream</code>.
-	 * 
-	 * @param inputStream the stream to read from 
+	 * <p>
+	 * Note that the given <code>inputStream</code> will not be closed by this method.
+	 *
+	 * @param inputStream the stream to read from
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadXml(
-		final InputStream inputStream, 
+		final InputStream inputStream,
 		final Charset charset
 	)
 	{
@@ -576,24 +587,24 @@ public interface Configuration
 			ConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
 		);
 	}
-	
+
 	/**
 	 * Creates an {@link EmbeddedStorageFoundation} based on the settings of this {@link Configuration}.
-	 * 
+	 *
 	 * @return an {@link EmbeddedStorageFoundation}
-	 * 
+	 *
 	 * @see EmbeddedStorageFoundationCreator
 	 */
 	public default EmbeddedStorageFoundation<?> createEmbeddedStorageFoundation()
 	{
 		return EmbeddedStorageFoundationCreator.New().createFoundation(this);
 	}
-	
+
 	/**
 	 * The base directory of the storage in the file system.
 	 */
 	public Configuration setBaseDirectory(final String baseDirectory);
-	
+
 	/**
 	 * The base directory of the storage in the file system.
 	 *
@@ -606,37 +617,37 @@ public interface Configuration
 		this.setBaseDirectory(new File(userHomeDir, baseDirectoryInUserHome).getAbsolutePath());
 		return this;
 	}
-	
+
 	/**
 	 * The base directory of the storage in the file system.
 	 */
 	public String getBaseDirectory();
-	
+
 	/**
 	 * The deletion directory.
 	 */
 	public Configuration setDeletionDirectory(final String deletionDirectory);
-	
+
 	/**
 	 * The deletion directory.
 	 */
 	public String getDeletionDirectory();
-	
+
 	/**
 	 * The truncation directory.
 	 */
 	public Configuration setTruncationDirectory(final String truncationDirectory);
-	
+
 	/**
 	 * The truncation directory.
 	 */
 	public String getTruncationDirectory();
-	
+
 	/**
 	 * The backup directory.
 	 */
 	public Configuration setBackupDirectory(final String backupDirectory);
-	
+
 	/**
 	 * The backup directory.
 	 *
@@ -649,12 +660,12 @@ public interface Configuration
 		this.setBackupDirectory(new File(userHomeDir, backupDirectoryInUserHome).getAbsolutePath());
 		return this;
 	}
-	
+
 	/**
 	 * The backup directory.
 	 */
 	public String getBackupDirectory();
-	
+
 	/**
 	 * The number of threads and number of directories used by the storage
 	 * engine. Every thread has exclusive access to its directory. Default is
@@ -664,13 +675,13 @@ public interface Configuration
 	 *            the new channel count, must be a power of 2
 	 */
 	public Configuration setChannelCount(int channelCount);
-	
+
 	/**
 	 * The number of threads and number of directories used by the storage
 	 * engine. Every thread has exclusive access to its directory.
 	 */
 	public int getChannelCount();
-	
+
 	/**
 	 * Name prefix of the subdirectories used by the channel threads. Default is
 	 * <code>"channel_"</code>.
@@ -679,12 +690,12 @@ public interface Configuration
 	 *            new prefix
 	 */
 	public Configuration setChannelDirectoryPrefix(String channelDirectoryPrefix);
-	
+
 	/**
 	 * Name prefix of the subdirectories used by the channel threads.
 	 */
 	public String getChannelDirectoryPrefix();
-	
+
 	/**
 	 * Name prefix of the storage files. Default is <code>"channel_"</code>.
 	 *
@@ -692,12 +703,12 @@ public interface Configuration
 	 *            new prefix
 	 */
 	public Configuration setDataFilePrefix(String dataFilePrefix);
-	
+
 	/**
 	 * Name prefix of the storage files.
 	 */
 	public String getDataFilePrefix();
-	
+
 	/**
 	 * Name suffix of the storage files. Default is <code>".dat"</code>.
 	 *
@@ -705,12 +716,12 @@ public interface Configuration
 	 *            new suffix
 	 */
 	public Configuration setDataFileSuffix(String dataFileSuffix);
-	
+
 	/**
 	 * Name suffix of the storage files.
 	 */
 	public String getDataFileSuffix();
-	
+
 	/**
 	 * Name prefix of the storage transaction file. Default is <code>"transactions_"</code>.
 	 *
@@ -718,12 +729,12 @@ public interface Configuration
 	 *            new prefix
 	 */
 	public Configuration setTransactionFilePrefix(String transactionFilePrefix);
-	
+
 	/**
 	 * Name prefix of the storage transaction file.
 	 */
 	public String getTransactionFilePrefix();
-	
+
 	/**
 	 * Name suffix of the storage transaction file. Default is <code>".sft"</code>.
 	 *
@@ -731,12 +742,12 @@ public interface Configuration
 	 *            new suffix
 	 */
 	public Configuration setTransactionFileSuffix(String transactionFileSuffix);
-	
+
 	/**
 	 * Name suffix of the storage transaction file.
 	 */
 	public String getTransactionFileSuffix();
-	
+
 	/**
 	 * The name of the dictionary file. Default is
 	 * <code>"PersistenceTypeDictionary.ptd"</code>.
@@ -745,12 +756,12 @@ public interface Configuration
 	 *            new name
 	 */
 	public Configuration setTypeDictionaryFilename(String typeDictionaryFilename);
-	
+
 	/**
 	 * The name of the dictionary file.
 	 */
 	public String getTypeDictionaryFilename();
-	
+
 	/**
 	 * @deprecated replaced by {@link #setHousekeepingIntervalMs(long)}, will be removed in a future release
 	 */
@@ -759,7 +770,7 @@ public interface Configuration
 	{
 		return this.setHousekeepingIntervalMs(houseKeepingInterval);
 	}
-	
+
 	/**
 	 * Interval in milliseconds for the houskeeping. This is work like garbage
 	 * collection or cache checking. In combination with
@@ -773,7 +784,7 @@ public interface Configuration
 	 * @see #setHousekeepingTimeBudgetNs(long)
 	 */
 	public Configuration setHousekeepingIntervalMs(long houseKeepingIntervalMs);
-	
+
 	/**
 	 * @deprecated replaced by {@link #getHousekeepingIntervalMs()}, will be removed in a future release
 	 */
@@ -782,7 +793,7 @@ public interface Configuration
 	{
 		return this.getHousekeepingIntervalMs();
 	}
-	
+
 	/**
 	 * Interval in milliseconds for the houskeeping. This is work like garbage
 	 * collection or cache checking.
@@ -790,7 +801,7 @@ public interface Configuration
 	 * @see #getHousekeepingTimeBudgetNs()
 	 */
 	public long getHousekeepingIntervalMs();
-	
+
 	/**
 	 * @deprecated replaced by {@link #setHousekeepingTimeBudgetNs(long)}, will be removed in a future release
 	 */
@@ -799,7 +810,7 @@ public interface Configuration
 	{
 		return this.setHousekeepingTimeBudgetNs(houseKeepingNanoTimeBudget);
 	}
-	
+
 	/**
 	 * Number of nanoseconds used for each housekeeping cycle. However, no
 	 * matter how low the number is, one item of work will always be completed.
@@ -813,7 +824,7 @@ public interface Configuration
 	 * @see #setHousekeepingIntervalMs(long)
 	 */
 	public Configuration setHousekeepingTimeBudgetNs(long housekeepingTimeBudgetNs);
-	
+
 	/**
 	 * @deprecated replaced by {@link #getHousekeepingTimeBudgetNs()}, will be removed in a future release
 	 */
@@ -822,7 +833,7 @@ public interface Configuration
 	{
 		return this.getHousekeepingTimeBudgetNs();
 	}
-	
+
 	/**
 	 * Number of nanoseconds used for each housekeeping cycle. However, no
 	 * matter how low the number is, one item of work will always be completed.
@@ -831,7 +842,7 @@ public interface Configuration
 	 * @see #getHousekeepingIntervalMs()
 	 */
 	public long getHousekeepingTimeBudgetNs();
-	
+
 	/**
 	 * Abstract threshold value for the lifetime of entities in the cache. See
 	 * {@link StorageEntityCacheEvaluator}. Default is <code>1000000000</code>.
@@ -840,13 +851,13 @@ public interface Configuration
 	 *            the new threshold
 	 */
 	public Configuration setEntityCacheThreshold(long entityCacheThreshold);
-	
+
 	/**
 	 * Abstract threshold value for the lifetime of entities in the cache. See
 	 * {@link StorageEntityCacheEvaluator}.
 	 */
 	public long getEntityCacheThreshold();
-	
+
 	/**
 	 * @deprecated replaced by {@link #setEntityCacheTimeoutMs(long)}, will be removed in a future release
 	 */
@@ -855,7 +866,7 @@ public interface Configuration
 	{
 		return this.setEntityCacheTimeoutMs(entityCacheTimeout);
 	}
-	
+
 	/**
 	 * Timeout in milliseconds for the entity cache evaluator. If an entity
 	 * wasn't accessed in this timespan it will be removed from the cache.
@@ -866,7 +877,7 @@ public interface Configuration
 	 * @see Duration
 	 */
 	public Configuration setEntityCacheTimeoutMs(long entityCacheTimeoutMs);
-	
+
 	/**
 	 * @deprecated replaced by {@link #getEntityCacheTimeoutMs()}, will be removed in a future release
 	 */
@@ -875,13 +886,13 @@ public interface Configuration
 	{
 		return this.getEntityCacheTimeoutMs();
 	}
-	
+
 	/**
 	 * Timeout in milliseconds for the entity cache evaluator. If an entity
 	 * wasn't accessed in this timespan it will be removed from the cache.
 	 */
 	public long getEntityCacheTimeoutMs();
-	
+
 	/**
 	 * @deprecated replaced by {@link #setDataFileMinimumSize(int)}, will be removed in a future release
 	 */
@@ -890,7 +901,7 @@ public interface Configuration
 	{
 		return this.setDataFileMinimumSize(dataFileMinSize);
 	}
-	
+
 	/**
 	 * Minimum file size for a data file to avoid cleaning it up. Default is
 	 * 1024^2 = 1 MiB.
@@ -901,7 +912,7 @@ public interface Configuration
 	 * @see #setDataFileMinimumUseRatio(double)
 	 */
 	public Configuration setDataFileMinimumSize(int dataFileMinimumSize);
-	
+
 	/**
 	 * @deprecated replaced by {@link #getDataFileMinimumSize()}, will be removed in a future release
 	 */
@@ -910,14 +921,14 @@ public interface Configuration
 	{
 		return this.getDataFileMinimumSize();
 	}
-	
+
 	/**
 	 * Minimum file size for a data file to avoid cleaning it up.
 	 *
 	 * @see #getDataFileMinimumUseRatio()
 	 */
 	public int getDataFileMinimumSize();
-	
+
 	/**
 	 * @deprecated replaced by {@link #setDataFileMaximumSize(int)}, will be removed in a future release
 	 */
@@ -926,7 +937,7 @@ public interface Configuration
 	{
 		return this.setDataFileMaximumSize(dataFileMaxSize);
 	}
-	
+
 	/**
 	 * Maximum file size for a data file to avoid cleaning it up. Default is
 	 * 1024^2*8 = 8 MiB.
@@ -937,7 +948,7 @@ public interface Configuration
 	 * @see #setDataFileMinimumUseRatio(double)
 	 */
 	public Configuration setDataFileMaximumSize(int dataFileMaximumSize);
-	
+
 	/**
 	 * @deprecated replaced by {@link #getDataFileMaximumSize()}, will be removed in a future release
 	 */
@@ -946,14 +957,14 @@ public interface Configuration
 	{
 		return this.getDataFileMaximumSize();
 	}
-	
+
 	/**
 	 * Maximum file size for a data file to avoid cleaning it up.
 	 *
 	 * @see #getDataFileMinimumUseRatio()
 	 */
 	public int getDataFileMaximumSize();
-	
+
 	/**
 	 * @deprecated replaced by {@link #setDataFileMinimumUseRatio(double)}, will be removed in a future release
 	 */
@@ -962,7 +973,7 @@ public interface Configuration
 	{
 		return this.setDataFileMinimumUseRatio(dataFileDissolveRatio);
 	}
-	
+
 	/**
 	 * The ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
 	 * the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
@@ -975,7 +986,7 @@ public interface Configuration
 	 *            the new minimum use ratio
 	 */
 	public Configuration setDataFileMinimumUseRatio(double dataFileMinimumUseRatio);
-	
+
 	/**
 	 * @deprecated replaced by {@link #getDataFileMinimumUseRatio()}, will be removed in a future release
 	 */
@@ -984,7 +995,7 @@ public interface Configuration
 	{
 		return this.getDataFileMinimumUseRatio();
 	}
-	
+
 	/**
 	 * The ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
 	 * the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
@@ -994,27 +1005,269 @@ public interface Configuration
 	 * file dissolving (data transfers to new files) is required and vice versa.
 	 */
 	public double getDataFileMinimumUseRatio();
-	
+
 	/**
 	 * A flag defining wether the current head file (the only file actively written to)
 	 * shall be subjected to file cleanups as well.
-	 * 
+	 *
 	 * @param dataFileCleanupHeadFile
 	 */
 	public Configuration setDataFileCleanupHeadFile(boolean dataFileCleanupHeadFile);
-	
+
 	/**
 	 * A flag defining wether the current head file (the only file actively written to)
 	 * shall be subjected to file cleanups as well.
 	 */
 	public boolean getDataFileCleanupHeadFile();
-	
-	
+
+	/**
+	 * Exports this configuration as XML.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(final OutputStream outputStream)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream).storeConfiguration(
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as XML.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(final OutputStream outputStream, final Charset charset)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream, charset).storeConfiguration(
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(final Path path)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(final Path path, final Charset charset)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			charset,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param file the file to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(final File file)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param file the file to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(final File file, final Charset charset)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			charset,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param url the URL to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(final URL url)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param url the URL to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(final URL url, final Charset charset)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			charset,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as INI.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(final OutputStream outputStream)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream).storeConfiguration(
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as INI.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(final OutputStream outputStream, final Charset charset)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream, charset).storeConfiguration(
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as an INI file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(final Path path)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as an INI file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(final Path path, final Charset charset)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			charset,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param file the file to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(final File file)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param file the file to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(final File file, final Charset charset)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			charset,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param url the URL to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(final URL url)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param url the URL to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(final URL url, final Charset charset)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			charset,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+
 	/**
 	 * Creates a new {@link Configuration} with the default settings.
-	 * 
+	 *
 	 * @return a new {@link Configuration}
-	 * 
+	 *
 	 * @see StorageFileProvider.Defaults
 	 * @see StorageChannelCountProvider.Defaults
 	 * @see StorageHousekeepingController.Defaults
@@ -1025,8 +1278,8 @@ public interface Configuration
 	{
 		return new Configuration.Default();
 	}
-	
-	
+
+
 	public static class Default implements Configuration
 	{
 		private String  baseDirectory            = StorageFileProvider.Defaults.defaultStorageDirectory();
@@ -1039,78 +1292,78 @@ public interface Configuration
 		private String  transactionFilePrefix    = StorageFileProvider.Defaults.defaultTransactionFilePrefix();
 		private String  transactionFileSuffix    = StorageFileProvider.Defaults.defaultTransactionFileSuffix();
 		private String  typeDictionaryFilename   = StorageFileProvider.Defaults.defaultTypeDictionaryFileName();
-		
+
 		private int     channelCount             = StorageChannelCountProvider.Defaults.defaultChannelCount();
-		
+
 		private long    housekeepingIntervalMs   = StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs();
 		private long    housekeepingTimeBudgetNs = StorageHousekeepingController.Defaults.defaultHousekeepingTimeBudgetNs();
-	
+
 		private long    entityCacheTimeoutMs     = StorageEntityCacheEvaluator.Defaults.defaultTimeoutMs();
 		private long    entityCacheThreshold     = StorageEntityCacheEvaluator.Defaults.defaultCacheThreshold();
-		
+
 		private int     dataFileMinimumSize      = StorageDataFileEvaluator.Defaults.defaultFileMinimumSize();
 		private int     dataFileMaximumSize      = StorageDataFileEvaluator.Defaults.defaultFileMaximumSize();
 		private double  dataFileMinimumUseRatio  = StorageDataFileEvaluator.Defaults.defaultMinimumUseRatio();
 		private boolean dataFileCleanupHeadFile  = StorageDataFileEvaluator.Defaults.defaultResolveHeadfile();
-		
-		
+
+
 		Default()
 		{
 			super();
 		}
-				
+
 		@Override
 		public Configuration setBaseDirectory(final String baseDirectory)
 		{
 			this.baseDirectory = notEmpty(baseDirectory);
 			return this;
 		}
-		
+
 		@Override
 		public String getBaseDirectory()
 		{
 			return this.baseDirectory;
 		}
-		
+
 		@Override
 		public Configuration setDeletionDirectory(final String deletionDirectory)
 		{
 			this.deletionDirectory = deletionDirectory;
 			return this;
 		}
-		
+
 		@Override
 		public String getDeletionDirectory()
 		{
 			return this.deletionDirectory;
 		}
-		
+
 		@Override
 		public Configuration setTruncationDirectory(final String truncationDirectory)
 		{
 			this.truncationDirectory = truncationDirectory;
 			return this;
 		}
-		
+
 		@Override
 		public String getTruncationDirectory()
 		{
 			return this.truncationDirectory;
 		}
-		
+
 		@Override
 		public Configuration setBackupDirectory(final String backupDirectory)
 		{
 			this.backupDirectory = backupDirectory;
 			return this;
 		}
-		
+
 		@Override
 		public String getBackupDirectory()
 		{
 			return this.backupDirectory;
 		}
-		
+
 		@Override
 		public Configuration setChannelCount(final int channelCount)
 		{
@@ -1118,91 +1371,91 @@ public interface Configuration
 			this.channelCount = channelCount;
 			return this;
 		}
-		
+
 		@Override
 		public int getChannelCount()
 		{
 			return this.channelCount;
 		}
-		
+
 		@Override
 		public Configuration setChannelDirectoryPrefix(final String channelDirectoryPrefix)
 		{
 			this.channelDirectoryPrefix = notNull(channelDirectoryPrefix);
 			return this;
 		}
-		
+
 		@Override
 		public String getChannelDirectoryPrefix()
 		{
 			return this.channelDirectoryPrefix;
 		}
-		
+
 		@Override
 		public Configuration setDataFilePrefix(final String dataFilePrefix)
 		{
 			this.dataFilePrefix = notNull(dataFilePrefix);
 			return this;
 		}
-		
+
 		@Override
 		public String getDataFilePrefix()
 		{
 			return this.dataFilePrefix;
 		}
-		
+
 		@Override
 		public Configuration setDataFileSuffix(final String dataFileSuffix)
 		{
 			this.dataFileSuffix = notNull(dataFileSuffix);
 			return this;
 		}
-		
+
 		@Override
 		public String getDataFileSuffix()
 		{
 			return this.dataFileSuffix;
 		}
-		
+
 		@Override
 		public Configuration setTransactionFilePrefix(final String transactionFilePrefix)
 		{
 			this.transactionFilePrefix = notNull(transactionFilePrefix);
 			return this;
 		}
-		
+
 		@Override
 		public String getTransactionFilePrefix()
 		{
 			return this.transactionFilePrefix;
 		}
-		
+
 		@Override
 		public Configuration setTransactionFileSuffix(final String transactionFileSuffix)
 		{
 			this.transactionFileSuffix = notNull(transactionFileSuffix);
 			return this;
 		}
-		
+
 		@Override
 		public String getTransactionFileSuffix()
 		{
 			return this.transactionFileSuffix;
 		}
-		
+
 		@Override
 		public Configuration setTypeDictionaryFilename(final String typeDictionaryFilename)
 		{
 			this.typeDictionaryFilename = notEmpty(typeDictionaryFilename);
 			return this;
 		}
-		
+
 		@Override
 		public String getTypeDictionaryFilename()
 		{
 			return this.typeDictionaryFilename;
 		}
-		
+
 		@Override
 		public Configuration setHousekeepingIntervalMs(final long housekeepingIntervalMs)
 		{
@@ -1213,13 +1466,13 @@ public interface Configuration
 			this.housekeepingIntervalMs = housekeepingIntervalMs;
 			return this;
 		}
-		
+
 		@Override
 		public long getHousekeepingIntervalMs()
 		{
 			return this.housekeepingIntervalMs;
 		}
-		
+
 		@Override
 		public Configuration setHousekeepingTimeBudgetNs(final long housekeepingNanoTimeBudgetNs)
 		{
@@ -1230,13 +1483,13 @@ public interface Configuration
 			this.housekeepingTimeBudgetNs = housekeepingNanoTimeBudgetNs;
 			return this;
 		}
-		
+
 		@Override
 		public long getHousekeepingTimeBudgetNs()
 		{
 			return this.housekeepingTimeBudgetNs;
 		}
-		
+
 		@Override
 		public Configuration setEntityCacheThreshold(final long entityCacheThreshold)
 		{
@@ -1247,13 +1500,13 @@ public interface Configuration
 			this.entityCacheThreshold = entityCacheThreshold;
 			return this;
 		}
-		
+
 		@Override
 		public long getEntityCacheThreshold()
 		{
 			return this.entityCacheThreshold;
 		}
-		
+
 		@Override
 		public Configuration setEntityCacheTimeoutMs(final long entityCacheTimeoutMs)
 		{
@@ -1264,13 +1517,13 @@ public interface Configuration
 			this.entityCacheTimeoutMs = entityCacheTimeoutMs;
 			return this;
 		}
-		
+
 		@Override
 		public long getEntityCacheTimeoutMs()
 		{
 			return this.entityCacheTimeoutMs;
 		}
-		
+
 		@Override
 		public Configuration setDataFileMinimumSize(final int dataFileMinimumSize)
 		{
@@ -1282,13 +1535,13 @@ public interface Configuration
 			this.dataFileMinimumSize = dataFileMinimumSize;
 			return this;
 		}
-		
+
 		@Override
 		public int getDataFileMinimumSize()
 		{
 			return this.dataFileMinimumSize;
 		}
-		
+
 		@Override
 		public Configuration setDataFileMaximumSize(final int dataFileMaximumSize)
 		{
@@ -1300,13 +1553,13 @@ public interface Configuration
 			this.dataFileMaximumSize = dataFileMaximumSize;
 			return this;
 		}
-		
+
 		@Override
 		public int getDataFileMaximumSize()
 		{
 			return this.dataFileMaximumSize;
 		}
-		
+
 		@Override
 		public Configuration setDataFileMinimumUseRatio(final double dataFileMinimumUseRatio)
 		{
@@ -1318,13 +1571,13 @@ public interface Configuration
 			this.dataFileMinimumUseRatio = dataFileMinimumUseRatio;
 			return this;
 		}
-		
+
 		@Override
 		public double getDataFileMinimumUseRatio()
 		{
 			return this.dataFileMinimumUseRatio;
 		}
-		
+
 		@Override
 		public Configuration setDataFileCleanupHeadFile(
 			final boolean dataFileCleanupHeadFile
@@ -1333,13 +1586,13 @@ public interface Configuration
 			this.dataFileCleanupHeadFile = dataFileCleanupHeadFile;
 			return this;
 		}
-		
+
 		@Override
 		public boolean getDataFileCleanupHeadFile()
 		{
 			return this.dataFileCleanupHeadFile;
 		}
-		
+
 	}
-	
+
 }

@@ -25,65 +25,65 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	 * - PersistenceDataItem (Folder or File)
 	 * - PersistenceDataLocation extends PersistenceDataItem (Folder, has n PersistenceDataItems, each with unique name)
 	 * - PersistenceDataFile extends PersistenceDataItem (File, must always be Folder + String name)
-	 * 
+	 *
 	 * Then this type here will no longer extend PersistenceTypeDictionaryIoHandler.Provider,
 	 * but just a PersistenceTypeDictionaryDataFileProvider
 	 */
-	
+
 	/**
 	 * Returns a String that uniquely identifies the storage location.
-	 * 
+	 *
 	 * @return a String that uniquely identifies the storage location.
 	 */
 	public String getStorageLocationIdentifier();
-	
+
 	@Override
 	public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler(
 		PersistenceTypeDictionaryStorer writeListener
 	);
-	
+
 	public StorageNumberedFile provideDataFile(int channelIndex, long fileNumber);
 
 	public StorageNumberedFile provideTransactionsFile(int channelIndex);
-	
+
 	public StorageLockedFile provideLockFile();
-	
+
 	public StorageNumberedFile provideDeletionTargetFile(StorageNumberedFile fileToBeDeleted);
-	
+
 	public StorageNumberedFile provideTruncationBackupTargetFile(StorageNumberedFile fileToBeTruncated, long newLength);
 
-	
-	
+
+
 	public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(P collector, int channelIndex);
-	
-	
+
+
 	public interface Defaults
 	{
 		public static String defaultStorageDirectory()
 		{
 			return "storage";
 		}
-		
+
 		public static String defaultDeletionDirectory()
 		{
 			return null;
 		}
-		
+
 		public static String defaultTruncationDirectory()
 		{
 			return null;
 		}
-		
+
 		public static String defaultChannelDirectoryPrefix()
 		{
 			return "channel_";
 		}
-		
+
 		public static String defaultStorageFilePrefix()
 		{
 			return "channel_";
 		}
-		
+
 		public static String defaultStorageFileSuffix()
 		{
 			return ".dat";
@@ -93,7 +93,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		{
 			return "transactions_";
 		}
-		
+
 		public static String defaultTransactionFileSuffix()
 		{
 			return ".sft"; // "storage file transactions"
@@ -103,7 +103,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		{
 			return Persistence.defaultFilenameTypeDictionary();
 		}
-		
+
 		public static String defaultLockFileName()
 		{
 			return "used.lock";
@@ -113,7 +113,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		{
 			return PersistenceTypeDictionaryFileHandler::New;
 		}
-		
+
 	}
 
 
@@ -139,7 +139,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			{
 				throw new IORuntimeException(e);
 			}
-			
+
 			return collector;
 		}
 
@@ -172,7 +172,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			{
 				return;
 			}
-			
+
 			final String hashIndexString = middlePart.substring(0, separatorIndex);
 			try
 			{
@@ -201,7 +201,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			collector.accept(StorageNumberedFile.New(hashIndex, fileNumber, file));
 		}
 
-		
+
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -209,7 +209,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 		/**
 		 * Dummy constructor to prevent instantiation of this static-only utility class.
-		 * 
+		 *
 		 * @throws UnsupportedOperationException
 		 */
 		private Static()
@@ -218,21 +218,21 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			throw new UnsupportedOperationException();
 		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageFileProvider.Builder} instance.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
-	 * 
+	 *
 	 * @return a new {@link StorageFileProvider.Builder} instance.
 	 */
 	public static Builder<?> Builder()
 	{
 		return new StorageFileProvider.Builder.Default<>();
 	}
-	
+
 	public interface Builder<B extends Builder<?>>
 	{
 		public String baseDirectory();
@@ -274,21 +274,21 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		public String lockFileName();
 
 		public B setLockFileName(String lockFileName);
-		
+
 		public PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator();
-		
+
 		public B setFileHandlerCreator(PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator);
-		
+
 		public StorageFileProvider createFileProvider();
-		
-		
-		
+
+
+
 		public class Default<B extends Builder.Default<?>> implements StorageFileProvider.Builder<B>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
-			
+
 			private String
 				baseDirectory         ,
 				deletionDirectory     ,
@@ -301,26 +301,26 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				typeDictionaryFileName,
 				lockFileName
 			;
-			
+
 			private PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator;
-			
-			
+
+
 
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
-			
+
 			Default()
 			{
 				super();
 			}
-			
-			
-			
+
+
+
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
-			
+
 			@SuppressWarnings("unchecked")
 			protected final B $()
 			{
@@ -456,20 +456,20 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				this.lockFileName = lockFileName;
 				return this.$();
 			}
-			
+
 			@Override
 			public PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator()
 			{
 				return this.fileHandlerCreator;
 			}
-			
+
 			@Override
 			public B setFileHandlerCreator(final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator)
 			{
 				this.fileHandlerCreator = fileHandlerCreator;
 				return this.$();
 			}
-			
+
 			@Override
 			public StorageFileProvider createFileProvider()
 			{
@@ -487,19 +487,19 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 					coalesce(this.fileHandlerCreator    , Defaults.defaultTypeDictionaryFileHandlerCreator())
 				);
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with default values
 	 * provided by {@link StorageFileProvider.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
-	 * 
+	 *
 	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
-	 * 
+	 *
 	 * @see StorageFileProvider#New(Path)
 	 * @see StorageFileProvider.Builder
 	 * @see StorageFileProvider.Defaults
@@ -510,17 +510,17 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			.createFileProvider()
 		;
 	}
-	
+
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with the passed file
 	 * as the storage directory and defaults provided by {@link StorageFileProvider.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
-	 * 
+	 *
 	 * @param storageDirectory the directory where the storage will be located.
-	 * 
+	 *
 	 * @return a new {@link StorageFileProvider} instance.
-	 * 
+	 *
 	 * @see StorageFileProvider#New()
 	 * @see StorageFileProvider.Builder
 	 * @see StorageFileProvider.Defaults
@@ -536,9 +536,9 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			.createFileProvider()
 		;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param baseDirectory may <b>not</b> be null.
 	 * @param channelDirectoryPrefix may <b>not</b> be null.
 	 * @param storageFilePrefix may <b>not</b> be null.
@@ -581,7 +581,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	}
 
 
-	
+
 	public final class Default implements StorageFileProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -600,7 +600,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			typeDictionaryFileName,
 			lockFileName
 		;
-		
+
 		private final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator;
 
 
@@ -636,13 +636,13 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			this.deletionDirectory      = deletionDirectory     ;
 			this.truncationDirectory    = truncationDirectory   ;
 		}
-		
+
 
 
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+
 		@Override
 		public String getStorageLocationIdentifier()
 		{
@@ -663,17 +663,32 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		{
 			return this.truncationDirectory;
 		}
-		
+
 		public String channelDirectoryPrefix()
 		{
 			return this.channelDirectoryPrefix;
 		}
-		
+
+		public String storageFilePrefix()
+		{
+			return this.storageFilePrefix;
+		}
+
 		public String storageFileSuffix()
 		{
 			return this.storageFileSuffix;
 		}
-		
+
+		public String transactionsFilePrefix()
+		{
+			return this.transactionsFilePrefix;
+		}
+
+		public String transactionsFileSuffix()
+		{
+			return this.transactionsFileSuffix;
+		}
+
 		public String typeDictionaryFileName()
 		{
 			return this.typeDictionaryFileName;
@@ -693,7 +708,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		{
 			return this.transactionsFilePrefix + channelIndex + this.transactionsFileSuffix;
 		}
-		
+
 		@Override
 		public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler(
 			final PersistenceTypeDictionaryStorer writeListener
@@ -704,7 +719,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			 */
 			final Path directory = XIO.Path(this.baseDirectory());
 			XIO.unchecked.ensureDirectory(directory);
-			
+
 			final Path file = XIO.Path(directory, this.typeDictionaryFileName());
 			return this.fileHandlerCreator.createTypeDictionaryIoHandler(file, writeListener);
 		}
@@ -720,7 +735,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		{
 			return this.provideChannelDirectory(this.baseDirectory(), channelIndex);
 		}
-		
+
 		@Override
 		public final StorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
 		{
@@ -728,7 +743,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				this.provideChannelDirectory(channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber)
 			);
-			
+
 			return StorageNumberedFile.New(channelIndex, fileNumber, file);
 		}
 
@@ -742,12 +757,12 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 			return StorageNumberedFile.New(channelIndex, Storage.transactionsFileNumber(), file);
 		}
-		
+
 		@Override
 		public StorageLockedFile provideLockFile()
 		{
 			final Path lockFile = XIO.Path(this.baseDirectory(), this.lockFileName());
-			
+
 			return StorageLockedFile.openLockedFile(lockFile);
 		}
 
@@ -759,18 +774,18 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			{
 				return null;
 			}
-			
+
 			final int  channelIndex = fileToBeDeleted.channelIndex();
 			final long fileNumber   = fileToBeDeleted.number();
-			
+
 			final Path file = XIO.Path(
 				this.provideChannelDirectory(deletionDirectory, channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber)
 			);
-			
+
 			return StorageNumberedFile.New(channelIndex, fileNumber, file);
 		}
-		
+
 		@Override
 		public StorageNumberedFile provideTruncationBackupTargetFile(
 			final StorageNumberedFile fileToBeTruncated,
@@ -782,17 +797,17 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			{
 				return null;
 			}
-			
+
 			final int  channelIndex = fileToBeTruncated.channelIndex();
 			final long fileNumber   = fileToBeTruncated.number();
-			
+
 			final Path file = XIO.Path(
 				this.provideChannelDirectory(truncationDirectory, channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber)
 				+ "_truncated_from_" + fileToBeTruncated.length() + "_to_" + newLength
 				+ "_@" + System.currentTimeMillis() + ".bak"
 			);
-			
+
 			return StorageNumberedFile.New(channelIndex, fileNumber, file);
 		}
 
@@ -825,7 +840,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				.toString()
 			;
 		}
-			
+
 	}
 
 }
