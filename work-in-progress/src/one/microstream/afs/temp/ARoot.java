@@ -1,13 +1,14 @@
 package one.microstream.afs.temp;
 
+import static one.microstream.X.coalesce;
+
 public interface ARoot extends ADirectory
 {
-	/* (13.05.2020 TM)FIXME: priv#49: ARoot containing the protocol
+	/**
 	 * E.g.
 	 * https://
 	 * file://
 	 */
-	
 	public String protocol();
 	
 	
@@ -15,7 +16,21 @@ public interface ARoot extends ADirectory
 	@FunctionalInterface
 	public interface Creator
 	{
-		public ARoot createRootDirectory(AFileSystem fileSystem, String identifier);
+		public ARoot createRootDirectory(AFileSystem fileSystem, String protocol, String identifier);
+		
+		public default ARoot createRootDirectory(final AFileSystem fileSystem, final String identifier)
+		{
+			return this.createRootDirectory(
+				fileSystem,
+				coalesce(this.protocol(), fileSystem.defaultProtocol()),
+				identifier
+			);
+		}
+		
+		public default String protocol()
+		{
+			return null;
+		}
 	}
 	
 }

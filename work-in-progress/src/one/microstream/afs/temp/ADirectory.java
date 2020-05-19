@@ -16,7 +16,6 @@ public interface ADirectory extends AItem, AResolving
 	public XGettingTable<String, ? extends ADirectory> directories();
 	
 	public XGettingTable<String, ? extends AFile> files();
-	
 
 	public <R> R accessDirectories(Function<? super XGettingTable<String, ? extends ADirectory>, R> logic);
 	
@@ -47,55 +46,15 @@ public interface ADirectory extends AItem, AResolving
 		return this.path();
 	}
 	
-	public default AItem getItem(final String identifier)
-	{
-		synchronized(this)
-		{
-			final AFile file = this.getFile(identifier);
-			if(file != null)
-			{
-				return file;
-			}
-			
-			return this.getDirectory(identifier);
-		}
-	}
+	public AItem getItem(String identifier);
 		
-	public default ADirectory getDirectory(final String identifier)
-	{
-		synchronized(this)
-		{
-			return this.directories().get(identifier);
-		}
-	}
+	public ADirectory getDirectory(String identifier);
 	
-	public default AFile getFile(final String identifier)
-	{
-		synchronized(this)
-		{
-			return this.files().get(identifier);
-		}
-	}
+	public AFile getFile(String identifier);
 	
-	public default <C extends Consumer<? super AItem>> C iterateItems(final C iterator)
-	{
-		synchronized(this)
-		{
-			this.directories().values().iterate(iterator);
-			this.files().values().iterate(iterator);
-		}
-				
-		return iterator;
-	}
+	public <C extends Consumer<? super AItem>> C iterateItems(C iterator);
 	
-	public default boolean contains(final AItem item)
-	{
-		// cannot lock both since hierarchy order is not clear. But one is sufficient, anyway.
-		synchronized(this)
-		{
-			return item.parent() == this;
-		}
-	}
+	public boolean contains(AItem item);
 	
 	public default boolean contains(final ADirectory directory)
 	{
@@ -107,68 +66,18 @@ public interface ADirectory extends AItem, AResolving
 		return this.contains((AItem)file);
 	}
 	
-	public default boolean containsItem(final String itemName)
-	{
-		synchronized(this)
-		{
-			return this.containsFile(itemName)
-				|| this.containsDirectory(itemName)
-			;
-		}
-	}
+	public boolean containsItem(String itemName);
 	
-	public default boolean containsDirectory(final String directoryName)
-	{
-		synchronized(this)
-		{
-			return this.directories().get(directoryName) != null;
-		}
-	}
+	public boolean containsDirectory(String directoryName);
 	
-	public default boolean containsFile(final String fileName)
-	{
-		synchronized(this)
-		{
-			return this.files().get(fileName) != null;
-		}
-	}
+	public boolean containsFile(String fileName);
 	
 	// (20.04.2020 TM)TODO: #containsDeeps
 	
 	@Override
-	public default ADirectory resolveDirectoryPath(
-		final String[] pathElements,
-		final int      offset      ,
-		final int      length
-	)
-	{
-		if(length == 0)
-		{
-			return this;
-		}
-		
-		synchronized(this)
-		{
-			final ADirectory directory = this.getDirectory(pathElements[offset]);
-			if(directory == null)
-			{
-				// (14.05.2020 TM)EXCP: proper exception
-				throw new RuntimeException(
-					VarString.New()
-					.add("Unresolvable path element \"")
-					.add(pathElements[offset])
-					.add("\" in path \"")
-					.addAll(pathElements, VarString::commaSpace)
-					.deleteLast(2)
-					.add('"', '.')
-					.toString()
-				);
-			}
-			
-			// beautiful recursion (as long as the depth doesn't kill the stack ...). Cascading locks intentional!
-			return directory.resolveDirectoryPath(pathElements, offset + 1, length - 1);
-		}
-	}
+	public ADirectory resolveDirectoryPath(String[] pathElements, int offset, int length);
+	
+	
 	
 	public abstract class Abstract<D extends ADirectory, F extends AFile>
 	extends AItem.Abstract<D>
@@ -211,6 +120,11 @@ public interface ADirectory extends AItem, AResolving
 		// methods //
 		////////////
 		
+		protected final Object mutex()
+		{
+			return this.observers;
+		}
+		
 		@Override
 		public final XGettingTable<String, ? extends D> directories()
 		{
@@ -224,59 +138,220 @@ public interface ADirectory extends AItem, AResolving
 		}
 		
 		@Override
-		public synchronized final <R> R accessDirectories(
-			final Function<? super XGettingTable<String, ? extends ADirectory>, R> logic
-		)
+		public final AItem getItem(final String identifier)
 		{
-			return logic.apply(this.directories);
+			synchronized(this.mutex())
+			{
+				final AFile file = this.getFile(identifier);
+				if(file != null)
+				{
+					return file;
+				}
+				
+				return this.getDirectory(identifier);
+			}
+		}
+		
+		private ADirectory internalGetDirectory(final String identifier)
+		{
+			return this.directories.get(identifier);
 		}
 		
 		@Override
-		public synchronized final <R> R accessFiles(
+		public final ADirectory getDirectory(final String identifier)
+		{
+			synchronized(this.mutex())
+			{
+				return this.internalGetDirectory(identifier);
+			}
+		}
+		
+		@Override
+		public final AFile getFile(final String identifier)
+		{
+			synchronized(this.mutex())
+			{
+				return this.files().get(identifier);
+			}
+		}
+		
+		@Override
+		public final <C extends Consumer<? super AItem>> C iterateItems(final C iterator)
+		{
+			synchronized(this.mutex())
+			{
+				this.directories().values().iterate(iterator);
+				this.files().values().iterate(iterator);
+			}
+					
+			return iterator;
+		}
+		
+		@Override
+		public final boolean contains(final AItem item)
+		{
+			// cannot lock both since hierarchy order is not clear. But one is sufficient, anyway.
+			synchronized(this.mutex())
+			{
+				return item.parent() == this;
+			}
+		}
+		
+		@Override
+		public final boolean containsItem(final String itemName)
+		{
+			synchronized(this.mutex())
+			{
+				return this.containsFile(itemName)
+					|| this.containsDirectory(itemName)
+				;
+			}
+		}
+		
+		@Override
+		public final boolean containsDirectory(final String directoryName)
+		{
+			synchronized(this.mutex())
+			{
+				return this.directories().get(directoryName) != null;
+			}
+		}
+		
+		@Override
+		public final boolean containsFile(final String fileName)
+		{
+			synchronized(this.mutex())
+			{
+				return this.files().get(fileName) != null;
+			}
+		}
+		
+		@Override
+		public final ADirectory resolveDirectoryPath(
+			final String[] pathElements,
+			final int      offset      ,
+			final int      length
+		)
+		{
+			// (19.05.2020 TM)TODO: priv#49: 1 or 0? bounds? must test and comment.
+			if(length == 1)
+			{
+				if(pathElements[offset].equals(this.identifier()))
+				{
+					return this;
+				}
+				
+				// (19.05.2020 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Inconsistent path: identifier of this (\"" + this.identifier() +
+					"\") does not match the specified identifier \"" + pathElements[offset] + "\"."
+				);
+				
+			}
+			
+			synchronized(this.fileSystem())
+			{
+				ADirectory directory = null;
+				for(int o = offset, l = length; l > 0; o++, l--)
+				{
+					// lock not required since all mutating operations require a central lock on filesystem.
+					directory = this.internalGetDirectory(pathElements[o]);
+					if(directory == null)
+					{
+						// (14.05.2020 TM)EXCP: proper exception
+						throw new RuntimeException(
+							VarString.New()
+							.add("Unresolvable path element \"")
+							.add(pathElements[offset])
+							.add("\" in path \"")
+							.addAll(pathElements, VarString::commaSpace)
+							.deleteLast(2)
+							.add('"', '.')
+							.toString()
+						);
+					}
+				}
+				
+				return directory;
+			}
+		}
+		
+		@Override
+		public final <R> R accessDirectories(
+			final Function<? super XGettingTable<String, ? extends ADirectory>, R> logic
+		)
+		{
+			synchronized(this.mutex())
+			{
+				return logic.apply(this.directories);
+			}
+		}
+		
+		@Override
+		public final <R> R accessFiles(
 			final Function<? super XGettingTable<String, ? extends AFile>, R> logic
 		)
 		{
-			return logic.apply(this.files);
+			synchronized(this.mutex())
+			{
+				return logic.apply(this.files);
+			}
 		}
 
 		@Override
-		public synchronized final<S, R> R accessDirectories(
+		public final<S, R> R accessDirectories(
 			final S                                                                     subject,
 			final BiFunction<? super XGettingTable<String, ? extends ADirectory>, S, R> logic
 		)
 		{
-			return logic.apply(this.directories, subject);
+			synchronized(this.mutex())
+			{
+				return logic.apply(this.directories, subject);
+			}
 		}
 		
 		@Override
-		public synchronized final<S, R> R accessFiles(
+		public final<S, R> R accessFiles(
 			final S                                                                subject,
 			final BiFunction<? super XGettingTable<String, ? extends AFile>, S, R> logic
 		)
 		{
-			return logic.apply(this.files, subject);
+			synchronized(this.mutex())
+			{
+				return logic.apply(this.files, subject);
+			}
 		}
 		
 		@Override
-		public final synchronized boolean registerObserver(final ADirectory.Observer observer)
+		public final boolean registerObserver(final ADirectory.Observer observer)
 		{
-			return this.observers.add(observer);
+			synchronized(this.mutex())
+			{
+				return this.observers.add(observer);
+			}
 		}
 		
 		@Override
-		public final synchronized boolean removeObserver(final ADirectory.Observer observer)
+		public final boolean removeObserver(final ADirectory.Observer observer)
 		{
-			return this.observers.removeOne(observer);
+			synchronized(this.mutex())
+			{
+				return this.observers.removeOne(observer);
+			}
 		}
 		
 		@Override
-		public final synchronized <C extends Consumer<? super Observer>> C iterateObservers(final C logic)
+		public final <C extends Consumer<? super Observer>> C iterateObservers(final C logic)
 		{
-			return this.observers.iterate(logic);
+			synchronized(this.mutex())
+			{
+				return this.observers.iterate(logic);
+			}
 		}
 		
 	}
-			
+		
+	// (19.05.2020 TM)TODO: priv#49: call Observer methods
 	public interface Observer
 	{
 		public void onBeforeCreateFile(String identifier, String name, String type);
