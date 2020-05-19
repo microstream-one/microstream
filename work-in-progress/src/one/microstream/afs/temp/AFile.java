@@ -79,26 +79,41 @@ public interface AFile extends AItem
 		// methods //
 		////////////
 		
-		@Override
-		public final synchronized boolean registerObserver(final AFile.Observer observer)
+		protected final Object mutex()
 		{
-			return this.observers.add(observer);
+			return this.observers;
 		}
 		
 		@Override
-		public final synchronized boolean removeObserver(final AFile.Observer observer)
+		public final boolean registerObserver(final AFile.Observer observer)
 		{
-			return this.observers.removeOne(observer);
+			synchronized(this.mutex())
+			{
+				return this.observers.add(observer);
+			}
 		}
 		
 		@Override
-		public final synchronized <C extends Consumer<? super Observer>> C iterateObservers(final C logic)
+		public final boolean removeObserver(final AFile.Observer observer)
 		{
-			return this.observers.iterate(logic);
+			synchronized(this.mutex())
+			{
+				return this.observers.removeOne(observer);
+			}
+		}
+		
+		@Override
+		public final <C extends Consumer<? super Observer>> C iterateObservers(final C logic)
+		{
+			synchronized(this.mutex())
+			{
+				return this.observers.iterate(logic);
+			}
 		}
 		
 	}
-			
+
+	// (19.05.2020 TM)TODO: priv#49: call Observer methods
 	public interface Observer
 	{
 		public void onBeforeFileWrite(AWritableFile targetFile, Iterable<? extends ByteBuffer> sources);

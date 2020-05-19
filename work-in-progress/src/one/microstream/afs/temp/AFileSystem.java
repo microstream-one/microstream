@@ -27,7 +27,7 @@ public interface AFileSystem extends AResolving
 	 */
 	
 
-	
+	public String defaultProtocol();
 	
 	
 	public default ADirectory ensureDirectoryPath(final String... pathElements)
@@ -56,7 +56,7 @@ public interface AFileSystem extends AResolving
 	// implicitely #close PLUS the AFS-management-level aspect
 	public default ActionReport release(final AReadableFile file)
 	{
-		synchronized(file)
+		synchronized(this)
 		{
 			final boolean wasClosed   = this.ioHandler().close(file);
 			final boolean wasReleased = this.accessManager().unregister(file);
@@ -96,13 +96,13 @@ public interface AFileSystem extends AResolving
 		// instance fields //
 		////////////////////
 		
+		private final String                          defaultProtocol;
 		private final EqHashTable<String, ADirectory> rootDirectories;
 		private final AResolver<D, F>                 resolver       ;
 		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
 		private final IoHandler                       ioHandler      ;
 		
-		// (09.05.2020 TM)FIXME: priv#49: Lock FileSystem for creating new Items or just their parent directory?
 		// (13.05.2020 TM)FIXME: priv#49: include resolver here via Generics typing?
 		
 		
@@ -112,6 +112,7 @@ public interface AFileSystem extends AResolving
 		/////////////////
 		
 		Abstract(
+			final String                defaultProtocol     ,
 			final AResolver<D, F>       resolver            ,
 			final ACreator              creator             ,
 			final AccessManager.Creator accessManagerCreator,
@@ -120,6 +121,7 @@ public interface AFileSystem extends AResolving
 		{
 			super();
 			this.rootDirectories = EqHashTable.New();
+			this.defaultProtocol = defaultProtocol  ;
 			this.resolver        = resolver         ;
 			this.creator         = creator          ;
 			this.ioHandler       = ioHandler        ;
@@ -133,6 +135,12 @@ public interface AFileSystem extends AResolving
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final String defaultProtocol()
+		{
+			return this.defaultProtocol;
+		}
 		
 		@Override
 		public AccessManager accessManager()
@@ -273,7 +281,7 @@ public interface AFileSystem extends AResolving
 			final int      length
 		)
 		{
-			// getRoot guarantees non-null
+			// getRoot guarantees non-null or exception.
 			final ADirectory root = this.getRoot(pathElements[offset]);
 			
 			return root.resolveDirectoryPath(pathElements, offset + 1, length - 1);
@@ -290,10 +298,20 @@ public interface AFileSystem extends AResolving
 			
 			final ADirectory root = this.ensureRoot(pathElements[offset]);
 			
+			ADirectory directory = root;
+			for(int o = offset + 1, l = length - 1; l > 0; o++, l--)
+			{
+				final String pathElement = pathElements[o];
+				ADirectory elementDir = directory.getDirectory(pathElement);
+				if(elementDir == null)
+				{
+					elementDir = this.creator.createDirectory(directory, pathElement);
+				}
+				
+				directory = elementDir;
+			}
 			
-			
-			// FIXME AFileSystem.Abstract#ensureDirectoryPath()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return directory;
 		}
 		
 		@Override
@@ -306,18 +324,13 @@ public interface AFileSystem extends AResolving
 		{
 			final ADirectory directory = this.ensureDirectoryPath(directoryPathElements, offset, length);
 			
-			synchronized(directory)
+			AFile file = directory.getFile(fileIdentifier);
+			if(file == null)
 			{
-				AFile file = directory.getFile(fileIdentifier);
-				if(file == null)
-				{
-					file = this.accessManager.executeMutating(directory, d ->
-						this.creator.createFile(d, fileIdentifier)
-					);
-				}
-				
-				return file;
+				file = this.creator.createFile(directory, fileIdentifier);
 			}
+			
+			return file;
 		}
 		
 	}
