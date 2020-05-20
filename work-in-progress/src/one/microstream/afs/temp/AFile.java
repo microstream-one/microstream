@@ -45,6 +45,17 @@ public interface AFile extends AItem
 	public boolean removeObserver(AFile.Observer observer);
 	
 	public <C extends Consumer<? super AFile.Observer>> C iterateObservers(C logic);
+	
+	public default AReadableFile useReading(final Object user)
+	{
+		return this.fileSystem().accessManager().useReading(this, user);
+	}
+	
+	public AWritableFile useWriting(Object user);
+	
+	public AReadableFile useReading();
+	
+	public AWritableFile useWriting();
 		
 	
 	
