@@ -5,6 +5,7 @@ import java.util.function.Function;
 import one.microstream.chars.XChars;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
+import one.microstream.collections.interfaces.OptimizableCollection;
 
 public interface AccessManager
 {
@@ -41,19 +42,19 @@ public interface AccessManager
 	
 	
 	
-	public default Object defaultuser()
+	public default Object defaultUser()
 	{
 		return Thread.currentThread();
 	}
 		
 	public default AReadableFile useReading(final AFile file)
 	{
-		return this.useReading(file, this.defaultuser());
+		return this.useReading(file, this.defaultUser());
 	}
 	
 	public default AWritableFile useWriting(final AFile file)
 	{
-		return this.useWriting(file, this.defaultuser());
+		return this.useWriting(file, this.defaultUser());
 	}
 
 	public default <R> R executeMutating(
@@ -61,7 +62,7 @@ public interface AccessManager
 		final Function<? super ADirectory, R> logic
 	)
 	{
-		return this.executeMutating(directory, this.defaultuser(), logic);
+		return this.executeMutating(directory, this.defaultUser(), logic);
 	}
 
 	public default <R> R executeWriting(
@@ -69,7 +70,7 @@ public interface AccessManager
 		final Function<? super AWritableFile, R> logic
 	)
 	{
-		return this.executeWriting(file, this.defaultuser(), logic);
+		return this.executeWriting(file, this.defaultUser(), logic);
 	}
 	
 	public default <R> R executeMutating(
@@ -161,7 +162,6 @@ public interface AccessManager
 			final HashTable<Object, AReadableFile> sharedUsers = HashTable.New();
 			
 			AWritableFile exclusive;
-
 			
 			FileEntry(final AReadableFile wrapper)
 			{
@@ -198,6 +198,11 @@ public interface AccessManager
 		// methods //
 		////////////
 		
+		protected final Object mutex()
+		{
+			return this.fileSystem;
+		}
+		
 		@Override
 		public final S fileSystem()
 		{
@@ -205,114 +210,135 @@ public interface AccessManager
 		}
 
 		@Override
-		public synchronized boolean isUsed(
+		public boolean isUsed(
 			final ADirectory directory
 		)
 		{
-			return this.usedDirectories.get(ADirectory.actual(directory)) != null;
+			synchronized(this.mutex())
+			{
+				return this.usedDirectories.get(ADirectory.actual(directory)) != null;
+			}
 		}
 		
 		@Override
-		public synchronized boolean isMutating(
+		public boolean isMutating(
 			final ADirectory directory
 		)
 		{
-			return this.mutatingDirectories.contains(ADirectory.actual(directory));
+			synchronized(this.mutex())
+			{
+				return this.mutatingDirectories.contains(ADirectory.actual(directory));
+			}
 		}
 
 		@Override
-		public synchronized boolean isReading(
+		public boolean isReading(
 			final AFile file
 		)
 		{
-			final FileEntry e = this.fileUsers.get(file);
-			if(e == null)
+			synchronized(this.mutex())
 			{
-				return false;
+				final FileEntry e = this.fileUsers.get(file);
+				if(e == null)
+				{
+					return false;
+				}
+				
+				return e.exclusive != null || !e.sharedUsers.isEmpty();
 			}
-			
-			return e.exclusive != null || !e.sharedUsers.isEmpty();
 		}
 		
 		@Override
-		public synchronized boolean isWriting(
+		public boolean isWriting(
 			final AFile file
 		)
 		{
-			final FileEntry e = this.fileUsers.get(file);
-			if(e == null)
+			synchronized(this.mutex())
 			{
-				return false;
+				final FileEntry e = this.fileUsers.get(file);
+				if(e == null)
+				{
+					return false;
+				}
+				
+				return e.exclusive != null;
 			}
-			
-			return e.exclusive != null;
 		}
 		
 		@Override
-		public synchronized boolean isReading(
+		public boolean isReading(
 			final AFile  file,
 			final Object user
 		)
 		{
-			final FileEntry e = this.fileUsers.get(file);
-			if(e == null)
+			synchronized(this.mutex())
 			{
-				return false;
+				final FileEntry e = this.fileUsers.get(file);
+				if(e == null)
+				{
+					return false;
+				}
+				
+				return e.exclusive == user || e.sharedUsers.get(user) != null;
 			}
-			
-			return e.exclusive == user || e.sharedUsers.get(user) != null;
 		}
 		
 		@Override
-		public synchronized boolean isWriting(
+		public boolean isWriting(
 			final AFile  file,
 			final Object user
 		)
 		{
-			final FileEntry e = this.fileUsers.get(file);
-			if(e == null)
+			synchronized(this.mutex())
 			{
-				return false;
+				final FileEntry e = this.fileUsers.get(file);
+				if(e == null)
+				{
+					return false;
+				}
+				
+				return e.exclusive != null && e.exclusive.user() == user;
 			}
-			
-			return e.exclusive != null && e.exclusive.user() == user;
 		}
 				
 		@Override
-		public synchronized AReadableFile useReading(
+		public AReadableFile useReading(
 			final AFile  file,
 			final Object user
 		)
 		{
-			final AFile actual = AFile.actual(file);
-			final FileEntry e = this.fileUsers.get(actual);
-			if(e == null)
+			synchronized(this.mutex())
 			{
-				final AReadableFile wrapper = this.synchRegisterReading(actual, user);
-				this.fileUsers.add(actual, new FileEntry(wrapper));
+				final AFile actual = AFile.actual(file);
+				final FileEntry e = this.fileUsers.get(actual);
+				if(e == null)
+				{
+					final AReadableFile wrapper = this.synchRegisterReading(actual, user);
+					this.fileUsers.add(actual, new FileEntry(wrapper));
+					
+					return wrapper;
+				}
+				
+				if(e.exclusive != null)
+				{
+					if(e.exclusive.user() == user)
+					{
+						return e.exclusive;
+					}
+					
+					// (30.04.2020 TM)EXCP: proper exception
+					throw new RuntimeException("File is exclusively used: " + actual);
+				}
+				
+				AReadableFile wrapper = e.sharedUsers.get(user);
+				if(wrapper == null)
+				{
+					wrapper = this.synchRegisterReading(actual, user);
+					e.sharedUsers.add(user, wrapper);
+				}
 				
 				return wrapper;
 			}
-			
-			if(e.exclusive != null)
-			{
-				if(e.exclusive.user() == user)
-				{
-					return e.exclusive;
-				}
-				
-				// (30.04.2020 TM)EXCP: proper exception
-				throw new RuntimeException("File is exclusively used: " + actual);
-			}
-			
-			AReadableFile wrapper = e.sharedUsers.get(user);
-			if(wrapper == null)
-			{
-				wrapper = this.synchRegisterReading(actual, user);
-				e.sharedUsers.add(user, wrapper);
-			}
-			
-			return wrapper;
 		}
 		
 		private AReadableFile synchRegisterReading(
@@ -354,46 +380,49 @@ public interface AccessManager
 		}
 		
 		@Override
-		public synchronized AWritableFile useWriting(
+		public AWritableFile useWriting(
 			final AFile  file,
 			final Object user
 		)
 		{
-			final AFile actual = AFile.actual(file);
-			final FileEntry e = this.fileUsers.get(actual);
-			if(e == null)
+			synchronized(this.mutex())
 			{
+				final AFile actual = AFile.actual(file);
+				final FileEntry e = this.fileUsers.get(actual);
+				if(e == null)
+				{
+					final AWritableFile wrapper = this.synchRegisterWriting(actual, user);
+					this.fileUsers.add(actual, new FileEntry(wrapper));
+					
+					return wrapper;
+				}
+				
+				if(e.exclusive != null)
+				{
+					if(e.exclusive.user() == user)
+					{
+						return e.exclusive;
+					}
+					
+					// (30.04.2020 TM)EXCP: proper exception
+					throw new RuntimeException("File is exclusively used: " + actual);
+				}
+				
+				if(!e.sharedUsers.isEmpty())
+				{
+					if(e.sharedUsers.size() > 1 || e.sharedUsers.get().key() != user)
+					{
+						// (30.04.2020 TM)EXCP: priv#49: proper exception
+						throw new RuntimeException();
+					}
+					e.sharedUsers.removeFor(user);
+				}
+	
 				final AWritableFile wrapper = this.synchRegisterWriting(actual, user);
-				this.fileUsers.add(actual, new FileEntry(wrapper));
+				e.exclusive = wrapper;
 				
 				return wrapper;
 			}
-			
-			if(e.exclusive != null)
-			{
-				if(e.exclusive.user() == user)
-				{
-					return e.exclusive;
-				}
-				
-				// (30.04.2020 TM)EXCP: proper exception
-				throw new RuntimeException("File is exclusively used: " + actual);
-			}
-			
-			if(!e.sharedUsers.isEmpty())
-			{
-				if(e.sharedUsers.size() > 1 || e.sharedUsers.get().key() != user)
-				{
-					// (30.04.2020 TM)EXCP: priv#49: proper exception
-					throw new RuntimeException();
-				}
-				e.sharedUsers.removeFor(user);
-			}
-
-			final AWritableFile wrapper = this.synchRegisterWriting(actual, user);
-			e.exclusive = wrapper;
-			
-			return wrapper;
 		}
 
 		
@@ -409,16 +438,22 @@ public interface AccessManager
 		}
 		
 		@Override
-		public synchronized boolean unregister(final AReadableFile file)
+		public boolean unregister(final AReadableFile file)
 		{
-			return this.internalUnregister(file);
+			synchronized(this.mutex())
+			{
+				return this.internalUnregister(file);
+			}
 		}
 		
 		@Override
-		public synchronized boolean unregister(final AWritableFile file)
+		public boolean unregister(final AWritableFile file)
 		{
-			// logic has to cover writing case, anyway.
-			return this.internalUnregister(file);
+			synchronized(this.mutex())
+			{
+				// logic has to cover writing case, anyway.
+				return this.internalUnregister(file);
+			}
 		}
 		
 		protected boolean internalUnregister(final AReadableFile file)
@@ -436,8 +471,20 @@ public interface AccessManager
 			}
 			
 			this.decrementDirectoryUsageCount(actual.parent());
+			optimizeMemoryUsage(this.fileUsers);
+			
 			
 			return true;
+		}
+		
+		private static void optimizeMemoryUsage(final OptimizableCollection collection)
+		{
+			if((collection.size() & 127) != 0)
+			{
+				return;
+			}
+
+			collection.optimize();
 		}
 		
 		protected void decrementDirectoryUsageCount(final ADirectory directory)

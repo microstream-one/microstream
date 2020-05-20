@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import one.microstream.chars.VarString;
 import one.microstream.collections.interfaces.OptimizableCollection;
-import one.microstream.collections.interfaces.Sized;
 import one.microstream.collections.types.XList;
 import one.microstream.functional._longProcedure;
 import one.microstream.math.XMath;
@@ -17,7 +16,7 @@ import one.microstream.typing.KeyValue;
  * @author Thomas Muenz
  *
  */
-public final class HashMapIdObject<E> implements Sized, OptimizableCollection, Composition
+public final class HashMapIdObject<E> implements OptimizableCollection, Composition
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
