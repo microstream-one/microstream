@@ -2,7 +2,7 @@ package one.microstream.storage.restadapter;
 
 import static one.microstream.X.notNull;
 
-import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageManager;
 
 public interface StorageRestAdapter
 	extends StorageRestAdapterTypeDictionary,
@@ -12,7 +12,7 @@ public interface StorageRestAdapter
 		StorageViewDataConverterRegistry
 {
 	public static StorageRestAdapter New(
-		final EmbeddedStorageManager storage
+		final StorageManager storage
 	)
 	{
 		return new Default(
@@ -20,7 +20,7 @@ public interface StorageRestAdapter
 			EmbeddedStorageRestAdapter.New(storage)
 		);
 	}
-	
+
 	public static StorageRestAdapter New(
 		final StorageViewDataConverterRegistry converterRegistry         ,
 		final EmbeddedStorageRestAdapter       embeddedStorageRestAdapter
@@ -31,7 +31,7 @@ public interface StorageRestAdapter
 			notNull(embeddedStorageRestAdapter)
 		);
 	}
-	
+
 
 	public class Default implements StorageRestAdapter
 	{
@@ -154,7 +154,7 @@ public interface StorageRestAdapter
 		{
 			return this.converterRegistry.addConverter(converter, format);
 		}
-		
+
 	}
-	
+
 }
