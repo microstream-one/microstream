@@ -138,11 +138,24 @@ public interface AccessManager
 		// instance fields //
 		////////////////////
 		
-		private final S                           fileSystem         ;
-		private final HashEnum<ADirectory>        usedDirectories    ;
-		private final HashEnum<ADirectory>        mutatingDirectories;
-		private final HashTable<AFile, FileEntry> fileUsers          ;
-				
+		private final S                               fileSystem         ;
+		private final HashTable<ADirectory, DirEntry> usedDirectories    ;
+		private final HashEnum<ADirectory>            mutatingDirectories;
+		private final HashTable<AFile, FileEntry>     fileUsers          ;
+		
+		static final class DirEntry
+		{
+			final ADirectory directory;
+			int usingChildCount;
+			
+			DirEntry(final ADirectory directory)
+			{
+				super();
+				this.directory = directory;
+			}
+			
+		}
+		
 		static final class FileEntry
 		{
 			final HashTable<Object, AReadableFile> sharedUsers = HashTable.New();
@@ -174,7 +187,7 @@ public interface AccessManager
 		{
 			super();
 			this.fileSystem          = fileSystem     ;
-			this.usedDirectories     = HashEnum.New() ;
+			this.usedDirectories     = HashTable.New();
 			this.mutatingDirectories = HashEnum.New() ;
 			this.fileUsers           = HashTable.New();
 		}
@@ -196,7 +209,7 @@ public interface AccessManager
 			final ADirectory directory
 		)
 		{
-			return this.usedDirectories.contains(ADirectory.actual(directory));
+			return this.usedDirectories.get(ADirectory.actual(directory)) != null;
 		}
 		
 		@Override
@@ -275,7 +288,7 @@ public interface AccessManager
 			final FileEntry e = this.fileUsers.get(actual);
 			if(e == null)
 			{
-				final AReadableFile wrapper = this.wrapForReading(actual, user);
+				final AReadableFile wrapper = this.synchRegisterReading(actual, user);
 				this.fileUsers.add(actual, new FileEntry(wrapper));
 				
 				return wrapper;
@@ -295,11 +308,49 @@ public interface AccessManager
 			AReadableFile wrapper = e.sharedUsers.get(user);
 			if(wrapper == null)
 			{
-				wrapper = this.wrapForReading(actual, user);
+				wrapper = this.synchRegisterReading(actual, user);
 				e.sharedUsers.add(user, wrapper);
 			}
 			
 			return wrapper;
+		}
+		
+		private AReadableFile synchRegisterReading(
+			final AFile  actual,
+			final Object user
+		)
+		{
+			final AReadableFile wrapper = this.wrapForReading(actual, user);
+			this.incrementDirectoryUsageCount(actual.parent());
+			
+			return wrapper;
+		}
+				
+		protected final void incrementDirectoryUsageCount(final ADirectory directory)
+		{
+			DirEntry entry = this.usedDirectories.get(directory);
+			if(entry == null)
+			{
+				entry = this.addUsedDirectoryEntry(directory);
+				
+				// new entry means increment usage count for parent incrementally
+				if(directory.parent() != null)
+				{
+					this.incrementDirectoryUsageCount(directory);
+				}
+			}
+			
+			entry.usingChildCount++;
+			
+			// note: child count incrementation on one level does not concern the parent directory count.
+		}
+		
+		private DirEntry addUsedDirectoryEntry(final ADirectory directory)
+		{
+			final DirEntry entry;
+			this.usedDirectories.add(directory, entry = new DirEntry(directory));
+			
+			return entry;
 		}
 		
 		@Override
@@ -312,7 +363,7 @@ public interface AccessManager
 			final FileEntry e = this.fileUsers.get(actual);
 			if(e == null)
 			{
-				final AWritableFile wrapper = this.wrapForWriting(actual, user);
+				final AWritableFile wrapper = this.synchRegisterWriting(actual, user);
 				this.fileUsers.add(actual, new FileEntry(wrapper));
 				
 				return wrapper;
@@ -339,8 +390,20 @@ public interface AccessManager
 				e.sharedUsers.removeFor(user);
 			}
 
-			final AWritableFile wrapper = this.wrapForWriting(actual, user);
+			final AWritableFile wrapper = this.synchRegisterWriting(actual, user);
 			e.exclusive = wrapper;
+			
+			return wrapper;
+		}
+
+		
+		private AWritableFile synchRegisterWriting(
+			final AFile  actual,
+			final Object user
+		)
+		{
+			final AWritableFile wrapper = this.wrapForWriting(actual, user);
+			this.incrementDirectoryUsageCount(actual.parent());
 			
 			return wrapper;
 		}
@@ -367,15 +430,56 @@ public interface AccessManager
 				return false;
 			}
 			
-			return this.internalUnregister(file, e);
+			if(!this.internalUnregister(file, e))
+			{
+				return false;
+			}
+			
+			this.decrementDirectoryUsageCount(actual.parent());
+			
+			return true;
+		}
+		
+		protected void decrementDirectoryUsageCount(final ADirectory directory)
+		{
+			final DirEntry entry = this.getNonNullDirEntry(directory);
+			if(--entry.usingChildCount == 0)
+			{
+				if(directory.parent() != null)
+				{
+					this.decrementDirectoryUsageCount(directory.parent());
+				}
+				this.usedDirectories.removeFor(directory);
+			}
+		}
+		
+		protected final DirEntry getNonNullDirEntry(final ADirectory directory)
+		{
+			final DirEntry entry = this.usedDirectories.get(directory);
+			if(entry == null)
+			{
+				// (20.05.2020 TM)EXCP: proper exception
+				throw new RuntimeException("Directory not registered as used: " + directory.path());
+			}
+			
+			return entry;
+		}
+		
+		protected final DirEntry ensureDirEntry(final ADirectory directory)
+		{
+			return this.usedDirectories.ensure(directory, DirEntry::new);
 		}
 		
 		protected boolean internalUnregister(final AReadableFile file, final FileEntry entry)
 		{
 			// AWritableFile "is a" AReadableFile, so it could be passed here and must be covered as well.
-			this.unregisterWriting(file, entry);
+			if(this.unregisterIfExclusive(file, entry))
+			{
+				// exclusive entries never have a shared entry (since they are not shared), so abort here.
+				return true;
+			}
 			
-			return this.unregister(file);
+			return this.unregisterReading(file, entry);
 		}
 
 		protected boolean unregisterReading(final AReadableFile file, final FileEntry entry)
@@ -402,7 +506,7 @@ public interface AccessManager
 			return true;
 		}
 		
-		protected boolean unregisterWriting(final AReadableFile file, final FileEntry entry)
+		protected boolean unregisterIfExclusive(final AReadableFile file, final FileEntry entry)
 		{
 			// AWritableFile "is a" AReadableFile
 			if(entry.exclusive != file)
