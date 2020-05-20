@@ -49,6 +49,8 @@ import one.microstream.reflect.XReflect;
 import one.microstream.typing.Composition;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.xcsv.XCSV;
+import one.microstream.util.xcsv.XCsvConfiguration;
+import one.microstream.util.xcsv.XCsvDataType;
 
 
 public class Persistence
@@ -1018,6 +1020,45 @@ public class Persistence
 	}
 	
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
+		final String refactoringMappings
+	)
+	{
+		return RefactoringMapping(
+			readRefactoringMappings(refactoringMappings)
+		);
+	}
+	
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
+		final String refactoringMappings,
+		final char   valueSeparator
+	)
+	{
+		return RefactoringMapping(
+			readRefactoringMappings(refactoringMappings, valueSeparator)
+		);
+	}
+	
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
+		final String       refactoringMappings,
+		final XCsvDataType dataType
+	)
+	{
+		return RefactoringMapping(
+			readRefactoringMappings(refactoringMappings, dataType)
+		);
+	}
+	
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
+		final String            refactoringMappings,
+		final XCsvConfiguration configuration
+	)
+	{
+		return RefactoringMapping(
+			readRefactoringMappings(refactoringMappings, configuration)
+		);
+	}
+	
+	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final XGettingSequence<KeyValue<String, String>> refactoringMappings
 	)
 	{
@@ -1037,6 +1078,50 @@ public class Persistence
 	{
 		final StringTable stringTable = XCSV.readFromFile(file);
 		
+		return parseRefactoringMappings(stringTable);
+	}
+	
+	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(
+		final String string
+	)
+	{
+		final StringTable stringTable = XCSV.parse(string);
+		
+		return parseRefactoringMappings(stringTable);
+	}
+	
+	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(
+		final String string        ,
+		final char   valueSeparator
+	)
+	{
+		final StringTable stringTable = XCSV.parse(string, valueSeparator);
+		
+		return parseRefactoringMappings(stringTable);
+	}
+	
+	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(
+		final String       string  ,
+		final XCsvDataType dataType
+	)
+	{
+		final StringTable stringTable = XCSV.parse(string, dataType);
+		
+		return parseRefactoringMappings(stringTable);
+	}
+	
+	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(
+		final String            string       ,
+		final XCsvConfiguration configuration
+	)
+	{
+		final StringTable stringTable = XCSV.parse(string, configuration);
+		
+		return parseRefactoringMappings(stringTable);
+	}
+		
+	public static XGettingSequence<KeyValue<String, String>> parseRefactoringMappings(final StringTable stringTable)
+	{
 		final BulkList<KeyValue<String, String>> entries = BulkList.New(stringTable.rows().size());
 		
 		stringTable.mapTo(
