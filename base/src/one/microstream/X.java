@@ -859,6 +859,33 @@ public final class X
 	{
 		return (E[])Array.newInstance(sampleArray.getClass().getComponentType(), sampleArray.length);
 	}
+	
+	public static <E> E[] Array(final E element)
+	{
+		return Array(1, element);
+	}
+	
+	public static <E> E[] Array(final int length, final E element)
+	{
+		@SuppressWarnings("unchecked")
+		final E[] newArray = (E[])Array.newInstance(element.getClass(), length);
+		newArray[0] = element;
+		
+		return newArray;
+	}
+	
+	public static <E> E[] Array(final Class<E> componentType, final E element)
+	{
+		return Array(componentType, element, 1);
+	}
+	
+	public static <E> E[] Array(final Class<E> componentType, final E element, final int length)
+	{
+		final E[] newArray = Array(componentType, length);
+		newArray[0] = element;
+		
+		return newArray;
+	}
 
 	@SuppressWarnings("unchecked")
 	public static <E> E[] Array(final Class<E> componentType, final int length)

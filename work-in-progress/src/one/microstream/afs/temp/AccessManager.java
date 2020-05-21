@@ -2,9 +2,11 @@ package one.microstream.afs.temp;
 
 import java.util.function.Function;
 
+import one.microstream.X;
 import one.microstream.chars.XChars;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
+import one.microstream.collections.XArrays;
 import one.microstream.collections.interfaces.OptimizableCollection;
 
 public interface AccessManager
@@ -159,20 +161,131 @@ public interface AccessManager
 		
 		static final class FileEntry
 		{
-			final HashTable<Object, AReadableFile> sharedUsers = HashTable.New();
+			private static final AReadableFile[] NO_SHARED_USERS = new AReadableFile[0];
+		
+			private AReadableFile[] sharedUsers;
 			
 			AWritableFile exclusive;
 			
 			FileEntry(final AReadableFile wrapper)
 			{
 				super();
-				this.sharedUsers.add(wrapper.user(), wrapper);
+				this.sharedUsers = X.Array(wrapper);
 			}
 			
 			FileEntry(final AWritableFile wrapper)
 			{
 				super();
 				this.exclusive = wrapper;
+				this.sharedUsers = NO_SHARED_USERS;
+			}
+			
+			final boolean hasSharedUsers()
+			{
+				return this.sharedUsers != NO_SHARED_USERS;
+			}
+			
+			final boolean isSoleUser(final Object user)
+			{
+				return this.sharedUsers.length == 1 && this.sharedUsers[0].user() == user;
+			}
+			
+			final AReadableFile getForUser(final Object user)
+			{
+				for(final AReadableFile f : this.sharedUsers)
+				{
+					if(f.user() == user)
+					{
+						return f;
+					}
+				}
+				
+				return null;
+			}
+			
+			private int indexForUser(final Object user)
+			{
+				return XArrays.indexOf(user, this.sharedUsers, FileEntry::isForUser);
+			}
+			
+			static final boolean isForUser(final AReadableFile file, final Object user)
+			{
+				return file.user() == user;
+			}
+			
+			final void add(final AReadableFile file)
+			{
+				// best performance and common case for first user
+				if(this.sharedUsers == NO_SHARED_USERS)
+				{
+					this.sharedUsers = X.Array(file);
+					return;
+				}
+
+				// general case: if not yet contained, add.
+				if(this.getForUser(file.user()) == null)
+				{
+					this.sharedUsers = XArrays.add(this.sharedUsers, file);
+					return;
+				}
+
+				// already contained
+			}
+			
+			final boolean remove(final AReadableFile file)
+			{
+				if(this.sharedUsers.length == 1 && this.sharedUsers[0] == file)
+				{
+					this.sharedUsers = NO_SHARED_USERS;
+					return true;
+				}
+				
+				final int index = this.indexForUser(file.user());
+				if(index < 0)
+				{
+					return false;
+				}
+				
+				// should never happen since creation/registration checks for that
+				if(this.sharedUsers[index] != file)
+				{
+					// (13.05.2020 TM)EXCP: proper exception
+					throw new RuntimeException(
+						"Inconsistency detected: to be removed file "
+						+ AReadableFile.class.getSimpleName() + " " + XChars.systemString(file)
+						+ " is not the same as the one contained for the same user: "
+						+ AReadableFile.class.getSimpleName() + " " + XChars.systemString(this.sharedUsers[index])
+						+ "."
+					);
+				}
+				
+				this.removeIndex(index);
+				
+				return true;
+			}
+			
+			final void removeForUser(final Object user)
+			{
+				final int index = this.indexForUser(user);
+				if(index < 0)
+				{
+					return;
+				}
+
+				this.removeIndex(index);
+			}
+			
+			private void removeIndex(final int index)
+			{
+				// must enforce use of empty constant in any case.
+				if(index == 0 && this.sharedUsers.length == 1)
+				{
+					this.sharedUsers = NO_SHARED_USERS;
+				}
+				else
+				{
+					this.sharedUsers = XArrays.remove(this.sharedUsers, index);
+				}
 			}
 			
 		}
@@ -244,7 +357,7 @@ public interface AccessManager
 					return false;
 				}
 				
-				return e.exclusive != null || !e.sharedUsers.isEmpty();
+				return e.exclusive != null || e.hasSharedUsers();
 			}
 		}
 		
@@ -279,7 +392,7 @@ public interface AccessManager
 					return false;
 				}
 				
-				return e.exclusive == user || e.sharedUsers.get(user) != null;
+				return e.exclusive == user || e.getForUser(user) != null;
 			}
 		}
 		
@@ -330,11 +443,11 @@ public interface AccessManager
 					throw new RuntimeException("File is exclusively used: " + actual);
 				}
 				
-				AReadableFile wrapper = e.sharedUsers.get(user);
+				AReadableFile wrapper = e.getForUser(user);
 				if(wrapper == null)
 				{
 					wrapper = this.synchRegisterReading(actual, user);
-					e.sharedUsers.add(user, wrapper);
+					e.add(wrapper);
 				}
 				
 				return wrapper;
@@ -346,10 +459,10 @@ public interface AccessManager
 			final Object user
 		)
 		{
-			final AReadableFile wrapper = this.wrapForReading(actual, user);
+			this.checkForMutatingParents(actual);
 			this.incrementDirectoryUsageCount(actual.parent());
-			
-			return wrapper;
+
+			return this.wrapForReading(actual, user);
 		}
 				
 		protected final void incrementDirectoryUsageCount(final ADirectory directory)
@@ -408,14 +521,17 @@ public interface AccessManager
 					throw new RuntimeException("File is exclusively used: " + actual);
 				}
 				
-				if(!e.sharedUsers.isEmpty())
+				if(e.hasSharedUsers())
 				{
-					if(e.sharedUsers.size() > 1 || e.sharedUsers.get().key() != user)
+					if(e.isSoleUser(user))
+					{
+						e.removeForUser(user);
+					}
+					else
 					{
 						// (30.04.2020 TM)EXCP: priv#49: proper exception
 						throw new RuntimeException();
 					}
-					e.sharedUsers.removeFor(user);
 				}
 	
 				final AWritableFile wrapper = this.synchRegisterWriting(actual, user);
@@ -431,10 +547,26 @@ public interface AccessManager
 			final Object user
 		)
 		{
-			final AWritableFile wrapper = this.wrapForWriting(actual, user);
+			this.checkForMutatingParents(actual);
 			this.incrementDirectoryUsageCount(actual.parent());
-			
-			return wrapper;
+						
+			return this.wrapForWriting(actual, user);
+		}
+		
+		private void checkForMutatingParents(final AFile file)
+		{
+			for(ADirectory p = file.parent(); p != null; p = p.parent())
+			{
+				if(this.mutatingDirectories.contains(p))
+				{
+					// (21.05.2020 TM)EXCP: proper exception
+					throw new RuntimeException(
+						"File \"" + file.path()
+						+ "\" cannot be accessed since directory \""
+						+ p.path() + "\" is in the process of being changed."
+					);
+				}
+			}
 		}
 		
 		@Override
@@ -497,6 +629,7 @@ public interface AccessManager
 					this.decrementDirectoryUsageCount(directory.parent());
 				}
 				this.usedDirectories.removeFor(directory);
+				optimizeMemoryUsage(this.usedDirectories);
 			}
 		}
 		
@@ -512,11 +645,6 @@ public interface AccessManager
 			return entry;
 		}
 		
-		protected final DirEntry ensureDirEntry(final ADirectory directory)
-		{
-			return this.usedDirectories.ensure(directory, DirEntry::new);
-		}
-		
 		protected boolean internalUnregister(final AReadableFile file, final FileEntry entry)
 		{
 			// AWritableFile "is a" AReadableFile, so it could be passed here and must be covered as well.
@@ -526,31 +654,7 @@ public interface AccessManager
 				return true;
 			}
 			
-			return this.unregisterReading(file, entry);
-		}
-
-		protected boolean unregisterReading(final AReadableFile file, final FileEntry entry)
-		{
-			final AReadableFile removed = entry.sharedUsers.removeFor(file.user());
-			if(removed == null)
-			{
-				return false;
-			}
-			
-			// should never happen since creation/registration checks for that
-			if(removed != file)
-			{
-				// (13.05.2020 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Inconsistency detected: "
-					+ AReadableFile.class.getSimpleName() + " " + XChars.systemString(file)
-					+ " is not the same as removed  "
-					+ AReadableFile.class.getSimpleName() + " " + XChars.systemString(removed)
-					+ "."
-				);
-			}
-			
-			return true;
+			return entry.remove(file);
 		}
 		
 		protected boolean unregisterIfExclusive(final AReadableFile file, final FileEntry entry)
