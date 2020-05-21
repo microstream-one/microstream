@@ -6,16 +6,18 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.collections.EqHashTable;
-import one.microstream.collections.HashEnum;
+import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingTable;
 
 public interface ADirectory extends AItem, AResolving
 {
-	public XGettingTable<String, ? extends ADirectory> directories();
-	
-	public XGettingTable<String, ? extends AFile> files();
+	// (20.05.2020 TM)TODO: priv#49: remove if really not needed
+//	public XGettingTable<String, ? extends ADirectory> directories();
+//
+//	public XGettingTable<String, ? extends AFile> files();
 
 	public <R> R accessDirectories(Function<? super XGettingTable<String, ? extends ADirectory>, R> logic);
 	
@@ -84,15 +86,36 @@ public interface ADirectory extends AItem, AResolving
 	implements ADirectory
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// static fields //
+		//////////////////
+		
+		private static final ADirectory.Observer[] NO_OBSERVERS = new ADirectory.Observer[0];
+		private static final EqHashTable<String, Object> EMPTY = EqHashTable.NewCustom(0);
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// static methods //
+		///////////////////
+		
+		@SuppressWarnings("unchecked") // safe due to not containing any elements
+		static <T> EqHashTable<String, T> emptyTable()
+		{
+			return (EqHashTable<String, T>)EMPTY;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
-		private final EqHashTable<String, D>        directories;
-		private final EqHashTable<String, F>        files      ;
-		private final HashEnum<ADirectory.Observer> observers  ;
-		
-		private final XGettingTable<String, D> viewDirectories;
-		private final XGettingTable<String, F> viewFiles      ;
+
+		// (20.05.2020 TM)FIXME: priv#49: how are those populated?
+		private final EqHashTable<String, D> directories = emptyTable();
+		private final EqHashTable<String, F> files       = emptyTable();
+
+		// memory-optimized array because there should usually be no or very few observers (<= 10).
+		private ADirectory.Observer[] observers = NO_OBSERVERS;
 		
 		
 		
@@ -106,12 +129,6 @@ public interface ADirectory extends AItem, AResolving
 		)
 		{
 			super(fileSystem, parent);
-			this.directories = EqHashTable.New();
-			this.files       = EqHashTable.New();
-			this.observers   = HashEnum.New()   ;
-			
-			this.viewDirectories = this.directories.view();
-			this.viewFiles       = this.files.view();
 		}
 		
 		
@@ -123,18 +140,6 @@ public interface ADirectory extends AItem, AResolving
 		protected final Object mutex()
 		{
 			return this.observers;
-		}
-		
-		@Override
-		public final XGettingTable<String, ? extends D> directories()
-		{
-			return this.viewDirectories;
-		}
-		
-		@Override
-		public final XGettingTable<String, ? extends F> files()
-		{
-			return this.viewFiles;
 		}
 		
 		@Override
@@ -171,7 +176,7 @@ public interface ADirectory extends AItem, AResolving
 		{
 			synchronized(this.mutex())
 			{
-				return this.files().get(identifier);
+				return this.files.get(identifier);
 			}
 		}
 		
@@ -180,8 +185,8 @@ public interface ADirectory extends AItem, AResolving
 		{
 			synchronized(this.mutex())
 			{
-				this.directories().values().iterate(iterator);
-				this.files().values().iterate(iterator);
+				this.directories.values().iterate(iterator);
+				this.files.values().iterate(iterator);
 			}
 					
 			return iterator;
@@ -213,7 +218,7 @@ public interface ADirectory extends AItem, AResolving
 		{
 			synchronized(this.mutex())
 			{
-				return this.directories().get(directoryName) != null;
+				return this.directories.get(directoryName) != null;
 			}
 		}
 		
@@ -222,7 +227,7 @@ public interface ADirectory extends AItem, AResolving
 		{
 			synchronized(this.mutex())
 			{
-				return this.files().get(fileName) != null;
+				return this.files.get(fileName) != null;
 			}
 		}
 		
@@ -327,7 +332,22 @@ public interface ADirectory extends AItem, AResolving
 		{
 			synchronized(this.mutex())
 			{
-				return this.observers.add(observer);
+				// best performance and common case for first observer
+				if(this.observers == NO_OBSERVERS)
+				{
+					this.observers = X.Array(observer);
+					return true;
+				}
+
+				// general case: if not yet contained, add.
+				if(!XArrays.contains(this.observers, observer))
+				{
+					this.observers = XArrays.add(this.observers, observer);
+					return true;
+				}
+
+				// already contained
+				return false;
 			}
 		}
 		
@@ -336,7 +356,29 @@ public interface ADirectory extends AItem, AResolving
 		{
 			synchronized(this.mutex())
 			{
-				return this.observers.removeOne(observer);
+				// best performance and special (also weirdly common) case for last/sole observer.
+				if(this.observers.length == 1 && this.observers[0] == observer)
+				{
+					this.observers = NO_OBSERVERS;
+					return true;
+				}
+
+				// cannot be contained in empty array. Should happen a lot, worth checking.
+				if(this.observers == NO_OBSERVERS)
+				{
+					return false;
+				}
+
+				// general case: remove if contained.
+				final int index = XArrays.indexOf(observer, this.observers);
+				if(index >= 0)
+				{
+					XArrays.remove(this.observers, index);
+					return true;
+				}
+				
+				// not contained.
+				return false;
 			}
 		}
 		
@@ -345,7 +387,7 @@ public interface ADirectory extends AItem, AResolving
 		{
 			synchronized(this.mutex())
 			{
-				return this.observers.iterate(logic);
+				return XArrays.iterate(this.observers, logic);
 			}
 		}
 		
@@ -447,18 +489,6 @@ public interface ADirectory extends AItem, AResolving
 			public AFileSystem fileSystem()
 			{
 				return this.actual.fileSystem();
-			}
-
-			@Override
-			public XGettingTable<String, ? extends ADirectory> directories()
-			{
-				return this.actual.directories();
-			}
-
-			@Override
-			public XGettingTable<String, ? extends AFile> files()
-			{
-				return this.actual.files();
 			}
 
 			@Override

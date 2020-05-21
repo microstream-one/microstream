@@ -5,7 +5,8 @@ import static one.microstream.X.notNull;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
-import one.microstream.collections.HashEnum;
+import one.microstream.X;
+import one.microstream.collections.XArrays;
 
 public interface AFile extends AItem
 {
@@ -51,11 +52,20 @@ public interface AFile extends AItem
 		return this.fileSystem().accessManager().useReading(this, user);
 	}
 	
-	public AWritableFile useWriting(Object user);
+	public default AWritableFile useWriting(final Object user)
+	{
+		return this.fileSystem().accessManager().useWriting(this, user);
+	}
 	
-	public AReadableFile useReading();
+	public default AReadableFile useReading()
+	{
+		return this.fileSystem().accessManager().useReading(this);
+	}
 	
-	public AWritableFile useWriting();
+	public default AWritableFile useWriting()
+	{
+		return this.fileSystem().accessManager().useWriting(this);
+	}
 		
 	
 	
@@ -64,10 +74,19 @@ public interface AFile extends AItem
 	implements AFile
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// static fields //
+		//////////////////
+		
+		private static final AFile.Observer[] NO_OBSERVERS = new AFile.Observer[0];
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final HashEnum<AFile.Observer> observers;
+		// memory-optimized array because there should usually be no or very few observers (<= 10).
+		private AFile.Observer[] observers = NO_OBSERVERS;
 		
 		
 		
@@ -81,7 +100,6 @@ public interface AFile extends AItem
 		)
 		{
 			super(fileSystem, parent);
-			this.observers = HashEnum.New();
 		}
 		
 		
@@ -100,7 +118,22 @@ public interface AFile extends AItem
 		{
 			synchronized(this.mutex())
 			{
-				return this.observers.add(observer);
+				// best performance and common case for first observer
+				if(this.observers == NO_OBSERVERS)
+				{
+					this.observers = X.Array(observer);
+					return true;
+				}
+
+				// general case: if not yet contained, add.
+				if(!XArrays.contains(this.observers, observer))
+				{
+					this.observers = XArrays.add(this.observers, observer);
+					return true;
+				}
+
+				// already contained
+				return false;
 			}
 		}
 		
@@ -109,7 +142,29 @@ public interface AFile extends AItem
 		{
 			synchronized(this.mutex())
 			{
-				return this.observers.removeOne(observer);
+				// best performance and special (also weirdly common) case for last/sole observer.
+				if(this.observers.length == 1 && this.observers[0] == observer)
+				{
+					this.observers = NO_OBSERVERS;
+					return true;
+				}
+
+				// cannot be contained in empty array. Should happen a lot, worth checking.
+				if(this.observers == NO_OBSERVERS)
+				{
+					return false;
+				}
+
+				// general case: remove if contained.
+				final int index = XArrays.indexOf(observer, this.observers);
+				if(index >= 0)
+				{
+					XArrays.remove(this.observers, index);
+					return true;
+				}
+				
+				// not contained.
+				return false;
 			}
 		}
 		
@@ -118,7 +173,7 @@ public interface AFile extends AItem
 		{
 			synchronized(this.mutex())
 			{
-				return this.observers.iterate(logic);
+				return XArrays.iterate(this.observers, logic);
 			}
 		}
 		
