@@ -3,12 +3,21 @@ package one.microstream.afs.nio;
 import java.nio.file.Path;
 
 import one.microstream.afs.temp.AFile;
+import one.microstream.afs.temp.AFileSystem;
 import one.microstream.afs.temp.AReadableFile;
 import one.microstream.afs.temp.AWritableFile;
 import one.microstream.afs.temp.AccessManager;
 
-public interface NioAccessManager
+public interface NioAccessManager extends AccessManager
 {
+	
+	
+	public interface Creator extends AccessManager.Creator
+	{
+		@Override
+		public NioAccessManager createAccessManager(AFileSystem parent);
+	}
+	
 	public final class Default
 	extends AccessManager.Abstract<NioFileSystem>
 	implements NioAccessManager

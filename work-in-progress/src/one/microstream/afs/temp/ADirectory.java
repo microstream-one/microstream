@@ -110,7 +110,7 @@ public interface ADirectory extends AItem, AResolving
 		// instance fields //
 		////////////////////
 
-		// (20.05.2020 TM)FIXME: priv#49: how are those populated?
+		// (20.05.2020 TM)FIXME: priv#49: how are those populated API-wise?
 		private final EqHashTable<String, D> directories = emptyTable();
 		private final EqHashTable<String, F> files       = emptyTable();
 
@@ -198,7 +198,7 @@ public interface ADirectory extends AItem, AResolving
 			// cannot lock both since hierarchy order is not clear. But one is sufficient, anyway.
 			synchronized(this.mutex())
 			{
-				return item.parent() == this;
+				return AItem.actual(item).parent() == this;
 			}
 		}
 		
