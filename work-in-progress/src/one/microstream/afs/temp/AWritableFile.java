@@ -31,7 +31,7 @@ public interface AWritableFile extends AReadableFile
 		// synchronization handled by IoHandler.
 		return this.actual().fileSystem().ioHandler().deleteFile(this);
 	}
-	
+		
 	
 	
 	

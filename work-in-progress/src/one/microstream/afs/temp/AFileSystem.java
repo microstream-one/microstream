@@ -9,17 +9,6 @@ import one.microstream.collections.types.XGettingTable;
 
 public interface AFileSystem extends AResolving
 {
-	/* (30.04.2020 TM)FIXME: priv#49: "protocol" here or in AccessManager
-	 * Or is "protocol" a trait of a root directory?
-	 * With a FileSystem instance being able to contain roots with different protocols?
-	 * Example:
-	 * "file://C:/"
-	 * "file://C:/"
-	 * "https://some.cloudstorage.com/storage12343534/"
-	 * 
-	 * HMMM....
-	 */
-	
 	// (04.05.2020 TM)TODO: priv#49: #resolve methods with root String?
 	
 	/* (04.05.2020 TM)TODO: priv#49: #resolve methods with single String that gets parsed?
@@ -28,7 +17,6 @@ public interface AFileSystem extends AResolving
 	
 
 	public String defaultProtocol();
-	
 	
 	public default ADirectory ensureDirectoryPath(final String... pathElements)
 	{
@@ -89,7 +77,6 @@ public interface AFileSystem extends AResolving
 		
 	
 	
-	
 	public class Abstract<D, F> implements AFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -111,7 +98,7 @@ public interface AFileSystem extends AResolving
 		// constructors //
 		/////////////////
 		
-		Abstract(
+		protected Abstract(
 			final String                defaultProtocol     ,
 			final AResolver<D, F>       resolver            ,
 			final ACreator              creator             ,
@@ -135,6 +122,11 @@ public interface AFileSystem extends AResolving
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		protected AResolver<D, F> resolver()
+		{
+			return this.resolver;
+		}
 		
 		@Override
 		public final String defaultProtocol()
@@ -273,6 +265,7 @@ public interface AFileSystem extends AResolving
 		{
 			return logic.apply(this.rootDirectories);
 		}
+		
 				
 		@Override
 		public final synchronized ADirectory resolveDirectoryPath(

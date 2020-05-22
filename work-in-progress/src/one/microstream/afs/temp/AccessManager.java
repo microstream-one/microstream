@@ -4,7 +4,6 @@ import java.util.function.Function;
 
 import one.microstream.X;
 import one.microstream.chars.XChars;
-import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.interfaces.OptimizableCollection;
@@ -26,8 +25,6 @@ public interface AccessManager
 	public boolean isReading(AFile file, Object user);
 	
 	public boolean isWriting(AFile file, Object user);
-	
-	// (29.04.2020 TM)TODO: priv#49: executeIfNot~ methods? Or coverable by execute~ methods below?
 	
 	
 	public AReadableFile useReading(AFile file, Object user);
@@ -58,14 +55,8 @@ public interface AccessManager
 	{
 		return this.useWriting(file, this.defaultUser());
 	}
-
-	public default <R> R executeMutating(
-		final ADirectory                      directory,
-		final Function<? super ADirectory, R> logic
-	)
-	{
-		return this.executeMutating(directory, this.defaultUser(), logic);
-	}
+	
+	// (29.04.2020 TM)TODO: priv#49: execute~IfPossible methods? Or coverable by execute~ methods below?
 
 	public default <R> R executeWriting(
 		final AFile                              file ,
@@ -75,37 +66,10 @@ public interface AccessManager
 		return this.executeWriting(file, this.defaultUser(), logic);
 	}
 	
-	public default <R> R executeMutating(
-		final ADirectory                      directory,
-		final Object                          user    ,
-		final Function<? super ADirectory, R> logic
-	)
-	{
-		// (07.05.2020 TM)FIXME: priv#49: overhaul for new concept
-		throw new one.microstream.meta.NotImplementedYetError();
-//		synchronized(directory)
-//		{
-//			final boolean isUsed = this.isUsed(directory);
-//
-//			final ADirectory mDirectory = this.useMutating(directory);
-//
-//			try
-//			{
-//				return logic.apply(mDirectory);
-//			}
-//			finally
-//			{
-//				if(isUsed)
-//				{
-//					mDirectory.releaseMutating();
-//				}
-//				else
-//				{
-//					mDirectory.release();
-//				}
-//			}
-//		}
-	}
+	public <R> R executeMutating(
+		ADirectory                      directory,
+		Function<? super ADirectory, R> logic
+	);
 	
 	public default <R> R executeWriting(
 		final AFile                              file ,
@@ -113,18 +77,15 @@ public interface AccessManager
 		final Function<? super AWritableFile, R> logic
 	)
 	{
-		synchronized(file)
+		// no locking needed, here since the implementation of #useWriting has to cover that
+		final AWritableFile writableFile = this.useWriting(file, user);
+		try
 		{
-			final AWritableFile mFile = this.useWriting(file, user);
-			
-			try
-			{
-				return logic.apply(mFile);
-			}
-			finally
-			{
-				mFile.release();
-			}
+			return logic.apply(writableFile);
+		}
+		finally
+		{
+			writableFile.release();
 		}
 	}
 	
@@ -143,7 +104,7 @@ public interface AccessManager
 		
 		private final S                               fileSystem         ;
 		private final HashTable<ADirectory, DirEntry> usedDirectories    ;
-		private final HashEnum<ADirectory>            mutatingDirectories;
+		private final HashTable<ADirectory, Thread>   mutatingDirectories;
 		private final HashTable<AFile, FileEntry>     fileUsers          ;
 		
 		static final class DirEntry
@@ -301,7 +262,7 @@ public interface AccessManager
 			super();
 			this.fileSystem          = fileSystem     ;
 			this.usedDirectories     = HashTable.New();
-			this.mutatingDirectories = HashEnum.New() ;
+			this.mutatingDirectories = HashTable.New();
 			this.fileUsers           = HashTable.New();
 		}
 		
@@ -340,18 +301,16 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
-				return this.mutatingDirectories.contains(ADirectory.actual(directory));
+				return this.mutatingDirectories.keys().contains(ADirectory.actual(directory));
 			}
 		}
 
 		@Override
-		public boolean isReading(
-			final AFile file
-		)
+		public boolean isReading(final AFile file)
 		{
 			synchronized(this.mutex())
 			{
-				final FileEntry e = this.fileUsers.get(file);
+				final FileEntry e = this.fileUsers.get(AFile.actual(file));
 				if(e == null)
 				{
 					return false;
@@ -362,13 +321,11 @@ public interface AccessManager
 		}
 		
 		@Override
-		public boolean isWriting(
-			final AFile file
-		)
+		public boolean isWriting(final AFile file)
 		{
 			synchronized(this.mutex())
 			{
-				final FileEntry e = this.fileUsers.get(file);
+				final FileEntry e = this.fileUsers.get(AFile.actual(file));
 				if(e == null)
 				{
 					return false;
@@ -386,7 +343,7 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
-				final FileEntry e = this.fileUsers.get(file);
+				final FileEntry e = this.fileUsers.get(AFile.actual(file));
 				if(e == null)
 				{
 					return false;
@@ -404,13 +361,61 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
-				final FileEntry e = this.fileUsers.get(file);
+				final FileEntry e = this.fileUsers.get(AFile.actual(file));
 				if(e == null)
 				{
 					return false;
 				}
 				
 				return e.exclusive != null && e.exclusive.user() == user;
+			}
+		}
+				
+		@Override
+		public final <R> R executeMutating(
+			final ADirectory                      directory,
+			final Function<? super ADirectory, R> logic
+		)
+		{
+			synchronized(this.mutex())
+			{
+				final ADirectory actual = ADirectory.actual(directory);
+				
+				// Step 1: check for already existing mutating entry
+				final Thread mutatingThread = this.mutatingDirectories.get(actual);
+				if(mutatingThread == Thread.currentThread())
+				{
+					// execute logic WITHOUT removing logic since the call is obviously nested.
+					return logic.apply(directory);
+				}
+				if(mutatingThread != null)
+				{
+					// (22.05.2020 TM)EXCP: proper exception
+					throw new RuntimeException(
+						"Directory " + actual.path() + " already used for mutation by \"" + mutatingThread + "\"."
+					);
+				}
+				
+				// Step 2: check for already existing using entry
+				final Object user = this.usedDirectories.get(actual);
+				if(user != null && user != Thread.currentThread())
+				{
+					// (22.05.2020 TM)EXCP: proper exception
+					throw new RuntimeException(
+						"Directory " + actual.path() + " already used by \"" + user + "\"."
+					);
+				}
+				
+				// Step 3: create mutating entry, execute logic, remove entry in any case.
+				this.mutatingDirectories.add(actual, Thread.currentThread());
+				try
+				{
+					return logic.apply(directory);
+				}
+				finally
+				{
+					this.mutatingDirectories.removeFor(actual);
+				}
 			}
 		}
 				
@@ -459,7 +464,7 @@ public interface AccessManager
 			final Object user
 		)
 		{
-			this.checkForMutatingParents(actual);
+			this.checkForMutatingParents(actual, user);
 			this.incrementDirectoryUsageCount(actual.parent());
 
 			return this.wrapForReading(actual, user);
@@ -529,7 +534,7 @@ public interface AccessManager
 					}
 					else
 					{
-						// (30.04.2020 TM)EXCP: priv#49: proper exception
+						// (30.04.2020 TM)TODO: priv#49: proper exception
 						throw new RuntimeException();
 					}
 				}
@@ -547,23 +552,23 @@ public interface AccessManager
 			final Object user
 		)
 		{
-			this.checkForMutatingParents(actual);
+			this.checkForMutatingParents(actual, user);
 			this.incrementDirectoryUsageCount(actual.parent());
 						
 			return this.wrapForWriting(actual, user);
 		}
 		
-		private void checkForMutatingParents(final AFile file)
+		private void checkForMutatingParents(final AFile actual, final Object user)
 		{
-			for(ADirectory p = file.parent(); p != null; p = p.parent())
+			for(ADirectory p = actual.parent(); p != null; p = p.parent())
 			{
-				if(this.mutatingDirectories.contains(p))
+				if(this.mutatingDirectories.get(p) != user)
 				{
 					// (21.05.2020 TM)EXCP: proper exception
 					throw new RuntimeException(
-						"File \"" + file.path()
-						+ "\" cannot be accessed since directory \""
-						+ p.path() + "\" is in the process of being changed."
+						"File \"" + actual.path()
+						+ "\" cannot be accessed by user \"" + user + "\" since directory \""
+						+ p.path() + "\" is in the process of being changed by user \"" + user + "\"."
 					);
 				}
 			}
