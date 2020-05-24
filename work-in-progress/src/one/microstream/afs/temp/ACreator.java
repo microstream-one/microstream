@@ -2,14 +2,32 @@ package one.microstream.afs.temp;
 
 public interface ACreator extends ARoot.Creator
 {
-	@Override
-	public ARoot createRootDirectory(AFileSystem fileSystem, String identifier);
+	public default ADirectory createDirectory(final ADirectory parent, final String identifier)
+	{
+		return ADirectory.New(parent, identifier);
+	}
 	
-	public ADirectory createDirectory(ADirectory parent, String identifier);
+	public default AFile createFile(final ADirectory parent, final String identifier)
+	{
+		return AFile.New(parent, identifier);
+	}
 	
-	public AFile createFile(ADirectory parent, String identifier);
+	public default AFile createFile(
+		final ADirectory parent    ,
+		final String     identifier,
+		final String     name      ,
+		final String     type
+	)
+	{
+		return this.createFile(parent, identifier);
+	}
 	
-	public AFile createFile(ADirectory parent, String name, String type);
 	
-	public AFile createFile(ADirectory parent, String identifier, String name, String type);
+	@FunctionalInterface
+	public interface Creator
+	{
+		// yes, yes, Creator$Creator. Funny.
+		public ACreator createCreator(AFileSystem parent);
+	}
+	
 }

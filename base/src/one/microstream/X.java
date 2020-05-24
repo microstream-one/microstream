@@ -137,6 +137,47 @@ public final class X
 		return (int)capacity;
 	}
 	
+	/**
+	 * Transiently ensures the passed object to be not {@code null} by either returning it in case it is
+	 * not {@code null} or throwing a {@link NullPointerException} otherwise.
+	 * <p>
+	 * <i>(Really, no idea why java.util.Objects.notNull got renamed to requireNotNull after some odd objection from
+	 * some guy in the mailing list that the name would be misleading.
+	 * Of course "notNull" means "the thing you pass has to be not null, otherwise you'll get an exception".
+	 * What else could the meaning of a transient method named "notNull" be?
+	 * If "requireNotNull" is needed to express this behavior, than what would "notNull" alone mean?<br>
+	 * In the end, "requireNotNull" is just additional clutter, hence not usable and is replaced by
+	 * this, still properly named "notNull" method.)<i>
+	 *
+	 * @param <T> the type of the object to be ensured to be not {@code null}.
+	 * @param object the object to be ensured to be not {@code null}.
+	 * @return the passed object, guaranteed to be not {@code null}.
+	 * @throws NullPointerException if {@code null} was passed.
+	 */
+	public static final <T> T notNull(final T object) throws NullPointerException
+	{
+		if(object == null)
+		{
+			throw UtilStackTrace.cutStacktraceByOne(new NullPointerException());
+		}
+		return object;
+	}
+	
+	/**
+	 * This method is a complete dummy, simply serving as a semantical counterpart to {@link #notNull(Object)}.<br>
+	 * The use is small, but still there:<br>
+	 * - the sourcecode is easier to read if the same structure is used next to a {@link #notNull(Object)} call
+	 *   instead of missing method calls and comments (like "may be null" or "optional").
+	 * - the IDE can search for all occurances of this method, listing all places where something may be null.
+	 * 
+	 * @param object the passed reference.
+	 * @return the passed reference without doing ANYTHING else.
+	 */
+	public static final <T> T mayNull(final T object)
+	{
+		return object;
+	}
+	
 	
 	/**
 	 * Helper method to project ternary values to binary logic.<br>
@@ -198,50 +239,6 @@ public final class X
 		return reference != null;
 	}
 
-	
-	
-	/**
-	 * Transiently ensures the passed object to be not {@code null} by either returning it in case it is
-	 * not {@code null} or throwing a {@link NullPointerException} otherwise.
-	 * <p>
-	 * <i>(Really, no idea why java.util.Objects.notNull got renamed to requireNotNull after some odd objection from
-	 * some guy in the mailing list that the name would be misleading.
-	 * Of course "notNull" means "the thing you pass has to be not null, otherwise you'll get an exception".
-	 * What else could the meaning of a transient method named "notNull" be?
-	 * If "requireNotNull" is needed to express this behavior, than what would "notNull" alone mean?<br>
-	 * In the end, "requireNotNull" is just additional clutter, hence not usable and is replaced by
-	 * this, still properly named "notNull" method.)<i>
-	 *
-	 * @param <T> the type of the object to be ensured to be not {@code null}.
-	 * @param object the object to be ensured to be not {@code null}.
-	 * @return the passed object, guaranteed to be not {@code null}.
-	 * @throws NullPointerException if {@code null} was passed.
-	 */
-	public static final <T> T notNull(final T object) throws NullPointerException
-	{
-		if(object == null)
-		{
-			throw UtilStackTrace.cutStacktraceByOne(new NullPointerException());
-		}
-		return object;
-	}
-	
-	/**
-	 * This method is a complete dummy, simply serving as a semantical counterpart to {@link #notNull(Object)}.<br>
-	 * The use is small, but still there:<br>
-	 * - the sourcecode is easier to read if the same structure is used next to a {@link #notNull(Object)} call
-	 *   instead of missing method calls and comments (like "may be null" or "optional").
-	 * - the IDE can search for all occurances of this method, listing all places where something may be null.
-	 * 
-	 * @param object the passed reference.
-	 * @return the passed reference without doing ANYTHING else.
-	 */
-	public static final <T> T mayNull(final T object)
-	{
-		return object;
-	}
-	
-	
 	
 	public static final <T> T coalesce(final T firstElement, final T secondElement)
 	{

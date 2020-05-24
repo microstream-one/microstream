@@ -25,6 +25,7 @@ import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.XArrays;
+import one.microstream.collections.XUtilsCollection;
 import one.microstream.collections.types.XAddingCollection;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.functional.XFunc;
@@ -326,6 +327,21 @@ public final class XIO
 			? file.getFileName().toString()
 			: null
 		;
+	}
+	
+	public static String[] splitPath(final Path path)
+	{
+		return XUtilsCollection.projectInto(path, XIO::getFileName, BulkList.New())
+			.toArray(String.class)
+		;
+	}
+	
+	public static final VarString assemblePath(
+		final VarString       vs       ,
+		final CharSequence... elements
+	)
+	{
+		return XChars.assembleSeparated(vs, XIO.fileSuffixSeparator(), elements);
 	}
 
 	// because the IDE-generated ", null" for their method drives one crazy when working with it.

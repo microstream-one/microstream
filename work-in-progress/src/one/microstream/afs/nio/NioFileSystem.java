@@ -1,31 +1,42 @@
 package one.microstream.afs.nio;
 
+import static one.microstream.X.notNull;
+
 import java.nio.file.Path;
 
-import one.microstream.afs.temp.ACreator;
+import one.microstream.afs.temp.ADirectory;
+import one.microstream.afs.temp.AFile;
 import one.microstream.afs.temp.AFileSystem;
-import one.microstream.afs.temp.APathResolver;
+import one.microstream.afs.temp.AItem;
+import one.microstream.chars.VarString;
+import one.microstream.io.XIO;
 
-public interface NioFileSystem extends AFileSystem, APathResolver<Path, Path>
+public interface NioFileSystem extends AFileSystem
 {
-	public NioResolver resolver();
 	
+	public static NioFileSystem New(
+		final String       defaultProtocol,
+		final NioIoHandler ioHandler
+	)
+	{
+		return new NioFileSystem.Default(
+			notNull(defaultProtocol),
+			notNull(ioHandler)
+		);
+	}
 	
-	public final class Default extends AFileSystem.Abstract<Path, Path> implements NioFileSystem
+	public class Default extends AFileSystem.Abstract<Path, Path> implements NioFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Default(
-			final String                   defaultProtocol     ,
-			final NioResolver              resolver            ,
-			final ACreator                 creator             ,
-			final NioAccessManager.Creator accessManagerCreator,
-			final NioIoHandler             ioHandler
+		protected Default(
+			final String       defaultProtocol,
+			final NioIoHandler ioHandler
 		)
 		{
-			super(defaultProtocol, resolver, creator, accessManagerCreator, ioHandler);
+			super(defaultProtocol, ioHandler);
 		}
 		
 		
@@ -33,27 +44,51 @@ public interface NioFileSystem extends AFileSystem, APathResolver<Path, Path>
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
+		
 		@Override
-		public NioResolver resolver()
+		public String getFileName(final AFile file)
 		{
-			// cast safety ensured by constructors
-			return (NioResolver)super.resolver();
+			return XIO.getFilePrefix(file.identifier());
 		}
-
+		
+		@Override
+		public String getFileType(final AFile file)
+		{
+			return XIO.getFileSuffix(file.identifier());
+		}
+		
 		@Override
 		public String[] resolveDirectoryToPath(final Path directory)
 		{
-			// FIXME APathResolver<Path,Path>#resolveDirectoryToPath()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return XIO.splitPath(directory);
 		}
 
 		@Override
 		public String[] resolveFileToPath(final Path file)
 		{
-			// FIXME APathResolver<Path,Path>#resolveFileToPath()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return XIO.splitPath(file);
+		}
+
+		@Override
+		public Path resolve(final ADirectory directory)
+		{
+			// does not need synchronization since it only reads immutable state and creates only thread local state.
+			return XIO.Path(directory.toPath());
+		}
+
+		@Override
+		public Path resolve(final AFile file)
+		{
+			// does not need synchronization since it only reads immutable state and creates only thread local state.
+			return XIO.Path(file.toPath());
+		}
+		
+		@Override
+		protected VarString assembleItemPath(final AItem item, final VarString vs)
+		{
+			return XIO.assemblePath(vs, item.toPath());
 		}
 		
 	}
+	
 }

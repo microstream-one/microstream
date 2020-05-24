@@ -2173,13 +2173,38 @@ public final class XChars
 		return ints;
 	}
 
-	public static final void assembleNewLinedTabbed(final VarString vs, final CharSequence... elements)
+	public static final VarString assembleNewLinedTabbed(
+		final VarString       vs      ,
+		final CharSequence... elements
+	)
 	{
 		vs.lf().add(elements[0]);
 		for(int i = 1; i < elements.length; i++)
 		{
 			vs.tab().add(elements[i]);
 		}
+		
+		return vs;
+	}
+	
+	public static final VarString assembleSeparated(
+		final VarString       vs       ,
+		final char            separator,
+		final CharSequence... elements
+	)
+	{
+		if(XArrays.hasNoContent(elements))
+		{
+			return vs;
+		}
+		
+		vs.lf().add(elements[0]);
+		for(int i = 1; i < elements.length; i++)
+		{
+			vs.add(separator).add(elements[i]);
+		}
+		
+		return vs;
 	}
 
 	public static final byte parse_byteDecimal(final char[] input)

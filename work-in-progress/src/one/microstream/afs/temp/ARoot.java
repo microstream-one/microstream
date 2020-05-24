@@ -1,6 +1,7 @@
 package one.microstream.afs.temp;
 
 import static one.microstream.X.coalesce;
+import static one.microstream.X.notNull;
 
 public interface ARoot extends ADirectory
 {
@@ -31,6 +32,73 @@ public interface ARoot extends ADirectory
 		{
 			return null;
 		}
+	}
+	
+	
+	
+	public static ARoot New(
+		final AFileSystem fileSystem,
+		final String      protocol  ,
+		final String      identifier
+	)
+	{
+		return new ARoot.Default(
+			notNull(fileSystem),
+			notNull(protocol),
+			notNull(identifier)
+		);
+	}
+	
+	public final class Default extends ADirectory.Abstract implements ARoot
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final AFileSystem fileSystem;
+		private final String      protocol  ;
+
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		protected Default(
+			final AFileSystem fileSystem,
+			final String      protocol  ,
+			final String      identifier
+		)
+		{
+			super(identifier);
+			this.protocol   = protocol  ;
+			this.fileSystem = fileSystem;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final AFileSystem fileSystem()
+		{
+			return this.fileSystem;
+		}
+		
+		@Override
+		public final String protocol()
+		{
+			return this.protocol;
+		}
+		
+		@Override
+		public final ADirectory parent()
+		{
+			return null;
+		}
+		
 	}
 	
 }

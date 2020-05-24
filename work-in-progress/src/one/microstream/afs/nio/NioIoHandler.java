@@ -22,6 +22,20 @@ public interface NioIoHandler extends IoHandler
 			// FIXME IoHandler#length()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
+		
+		@Override
+		public boolean exists(final AFile file)
+		{
+			// FIXME NioIoHandler.Default#exists()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+		
+		@Override
+		public boolean exists(final ADirectory directory)
+		{
+			// FIXME NioIoHandler.Default#exists()
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
 
 		@Override
 		public boolean openReading(final AReadableFile file)

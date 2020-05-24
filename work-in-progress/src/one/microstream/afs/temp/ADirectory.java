@@ -14,11 +14,18 @@ import one.microstream.collections.types.XGettingTable;
 
 public interface ADirectory extends AItem, AResolving
 {
-	// (20.05.2020 TM)TODO: priv#49: remove if really not needed
-//	public XGettingTable<String, ? extends ADirectory> directories();
-//
-//	public XGettingTable<String, ? extends AFile> files();
+	@Override
+	public default String toPathString()
+	{
+		return this.fileSystem().assemblePath(this);
+	}
 
+	@Override
+	public default String[] toPath()
+	{
+		return this.fileSystem().buildPath(this);
+	}
+	
 	public <R> R accessDirectories(Function<? super XGettingTable<String, ? extends ADirectory>, R> logic);
 	
 	public <R> R accessFiles(Function<? super XGettingTable<String, ? extends AFile>, R> logic);
@@ -33,21 +40,10 @@ public interface ADirectory extends AItem, AResolving
 	
 	public <C extends Consumer<? super ADirectory.Observer>> C iterateObservers(C logic);
 	
-	// (21.04.2020 TM)FIXME: priv#49: Convenience-relaying methods?
-//	public ADirectory createDirectory(String name);
-//	public AFile createFile(String name);
+	public ADirectory ensureDirectory(String identifier);
 	
-	/**
-	 * The identifier String that can be used as a qualifier for a file contained in this directory.<p>
-	 * Depending on the underlying binary storage's adressing concept, this might be equal to {@link #path()}
-	 * or it might add a kind of separator. For example for a local file system, the qualifying identifier
-	 * of a directory is the directory path plus a joining slash ('/').
-	 */
-	public default String qualifier()
-	{
-		return this.path();
-	}
-	
+	public AFile ensureFile(String identifier);
+		
 	public AItem getItem(String identifier);
 		
 	public ADirectory getDirectory(String identifier);
@@ -79,10 +75,16 @@ public interface ADirectory extends AItem, AResolving
 	@Override
 	public ADirectory resolveDirectoryPath(String[] pathElements, int offset, int length);
 	
+	@Override
+	public default boolean exists()
+	{
+		return this.fileSystem().ioHandler().exists(this);
+	}
 	
 	
-	public abstract class Abstract<D extends ADirectory, F extends AFile>
-	extends AItem.Abstract<D>
+	
+	public abstract class Abstract
+	extends AItem.Abstract
 	implements ADirectory
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -110,9 +112,8 @@ public interface ADirectory extends AItem, AResolving
 		// instance fields //
 		////////////////////
 
-		// (20.05.2020 TM)FIXME: priv#49: how are those populated API-wise?
-		private final EqHashTable<String, D> directories = emptyTable();
-		private final EqHashTable<String, F> files       = emptyTable();
+		private EqHashTable<String, ADirectory> directories = emptyTable();
+		private EqHashTable<String, AFile>      files       = emptyTable();
 
 		// memory-optimized array because there should usually be no or very few observers (<= 10).
 		private ADirectory.Observer[] observers = NO_OBSERVERS;
@@ -123,12 +124,9 @@ public interface ADirectory extends AItem, AResolving
 		// constructors //
 		/////////////////
 
-		protected Abstract(
-			final AFileSystem fileSystem,
-			final D           parent
-		)
+		protected Abstract(final String identifier)
 		{
-			super(fileSystem, parent);
+			super(identifier);
 		}
 		
 		
@@ -198,7 +196,7 @@ public interface ADirectory extends AItem, AResolving
 			// cannot lock both since hierarchy order is not clear. But one is sufficient, anyway.
 			synchronized(this.mutex())
 			{
-				return AItem.actual(item).parent() == this;
+				return item.parent() == this;
 			}
 		}
 		
@@ -231,6 +229,56 @@ public interface ADirectory extends AItem, AResolving
 			}
 		}
 		
+		private void register(final String identifier, final ADirectory directory)
+		{
+			if(this.directories == ADirectory.Abstract.<ADirectory>emptyTable())
+			{
+				this.directories = EqHashTable.New();
+			}
+			this.directories.add(identifier, directory);
+		}
+		
+		private void register(final String identifier, final AFile file)
+		{
+			if(this.files == ADirectory.Abstract.<AFile>emptyTable())
+			{
+				this.files = EqHashTable.New();
+			}
+			this.files.add(identifier, file);
+		}
+		
+		@Override
+		public final ADirectory ensureDirectory(final String identifier)
+		{
+			synchronized(this.mutex())
+			{
+				ADirectory directory = this.directories.get(identifier);
+				if(directory == null)
+				{
+					directory = this.fileSystem().creator().createDirectory(this, identifier);
+					this.register(identifier, directory);
+				}
+				
+				return directory;
+			}
+		}
+		
+		@Override
+		public final AFile ensureFile(final String identifier)
+		{
+			synchronized(this.mutex())
+			{
+				AFile file = this.files.get(identifier);
+				if(file == null)
+				{
+					file = this.fileSystem().creator().createFile(this, identifier);
+					this.register(identifier, file);
+				}
+				
+				return file;
+			}
+		}
+		
 		@Override
 		public final ADirectory resolveDirectoryPath(
 			final String[] pathElements,
@@ -238,7 +286,7 @@ public interface ADirectory extends AItem, AResolving
 			final int      length
 		)
 		{
-			// (19.05.2020 TM)TODO: priv#49: 1 or 0? bounds? must test and comment.
+			// (19.05.2020 TM)XXX: priv#49: 1 or 0? bounds? must test and comment.
 			if(length == 1)
 			{
 				if(pathElements[offset].equals(this.identifier()))
@@ -392,6 +440,55 @@ public interface ADirectory extends AItem, AResolving
 		}
 		
 	}
+	
+	
+	public static ADirectory New(final ADirectory parent, final String identifier)
+	{
+		return new ADirectory.Default(
+			notNull(parent),
+			notNull(identifier)
+		);
+	}
+	
+	public class Default extends Abstract
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final ADirectory parent;
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		protected Default(final ADirectory parent, final String identifier)
+		{
+			super(identifier);
+			this.parent = parent;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final ADirectory parent()
+		{
+			return this.parent;
+		}
+		
+		@Override
+		public final AFileSystem fileSystem()
+		{
+			return this.parent.fileSystem();
+		}
+		
+	}
 		
 	// (19.05.2020 TM)TODO: priv#49: call Observer methods
 	public interface Observer
@@ -425,115 +522,6 @@ public interface ADirectory extends AItem, AResolving
 		public void onBeforeDeleteDirectory(ADirectory directoryToDelete);
 		
 		public void onAfterDeleteDirectory(ADirectory deletedDirectory, long deletionTime);
-		
-	}
-
-	// (07.05.2020 TM)FIXME: priv#49: remove all the ADirectory wrapper stuff if really no longer needed.
-	
-	public static ADirectory actual(final ADirectory directory)
-	{
-		return directory instanceof ADirectory.Wrapper
-			? ((ADirectory.Wrapper)directory).actual()
-			: directory
-		;
-	}
-	
-	public interface Wrapper extends AItem.Wrapper
-	{
-		@Override
-		public ADirectory actual();
-		
-		
-		
-		public abstract class Abstract<S> implements ADirectory.Wrapper, ADirectory
-		{
-			///////////////////////////////////////////////////////////////////////////
-			// instance fields //
-			////////////////////
-			
-			private final ADirectory actual;
-			private final S          subject;
-			
-						
-			
-			///////////////////////////////////////////////////////////////////////////
-			// constructors //
-			/////////////////
-			
-			protected Abstract(final ADirectory actual, final S subject)
-			{
-				super();
-				this.actual  = notNull(actual) ;
-				this.subject = notNull(subject);
-			}
-			
-			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// methods //
-			////////////
-			
-			@Override
-			public S subject()
-			{
-				return this.subject;
-			}
-			
-			@Override
-			public ADirectory actual()
-			{
-				return this.actual;
-			}
-			
-			@Override
-			public AFileSystem fileSystem()
-			{
-				return this.actual.fileSystem();
-			}
-
-			@Override
-			public boolean registerObserver(final Observer observer)
-			{
-				return this.actual.registerObserver(observer);
-			}
-
-			@Override
-			public boolean removeObserver(final Observer observer)
-			{
-				return this.actual.removeObserver(observer);
-			}
-			
-			@Override
-			public <C extends Consumer<? super Observer>> C iterateObservers(final C logic)
-			{
-				return this.actual.iterateObservers(logic);
-			}
-
-			@Override
-			public ADirectory parent()
-			{
-				return this.actual.parent();
-			}
-
-			@Override
-			public String path()
-			{
-				return this.actual.path();
-			}
-
-			@Override
-			public String identifier()
-			{
-				return this.actual.identifier();
-			}
-
-			@Override
-			public boolean exists()
-			{
-				return this.actual.exists();
-			}
-			
-		}
 		
 	}
 	

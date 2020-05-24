@@ -7,6 +7,10 @@ import one.microstream.io.BufferProvider;
 public interface IoHandler
 {
 	public long length(AFile file);
+
+	public boolean exists(AFile file);
+	
+	public boolean exists(ADirectory directory);
 	
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public boolean openReading(AReadableFile file);

@@ -1,5 +1,7 @@
 package one.microstream.afs.temp;
 
+import static one.microstream.X.notNull;
+
 import java.util.function.Function;
 
 import one.microstream.X;
@@ -90,13 +92,21 @@ public interface AccessManager
 	}
 	
 	
+	@FunctionalInterface
 	public interface Creator
 	{
 		public AccessManager createAccessManager(AFileSystem parent);
 	}
 	
 	
-	public abstract class Abstract<S extends AFileSystem> implements AccessManager
+	public static AccessManager New(final AFileSystem fileSystem)
+	{
+		return new AccessManager.Default<>(
+			notNull(fileSystem)
+		);
+	}
+	
+	public class Default<S extends AFileSystem> implements AccessManager
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -106,6 +116,22 @@ public interface AccessManager
 		private final HashTable<ADirectory, DirEntry> usedDirectories    ;
 		private final HashTable<ADirectory, Thread>   mutatingDirectories;
 		private final HashTable<AFile, FileEntry>     fileUsers          ;
+			
+		
+
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		protected Default(final S fileSystem)
+		{
+			super();
+			this.fileSystem          = fileSystem     ;
+			this.usedDirectories     = HashTable.New();
+			this.mutatingDirectories = HashTable.New();
+			this.fileUsers           = HashTable.New();
+		}
+		
 		
 		static final class DirEntry
 		{
@@ -252,21 +278,6 @@ public interface AccessManager
 		}
 		
 		
-
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-		
-		protected Abstract(final S fileSystem)
-		{
-			super();
-			this.fileSystem          = fileSystem     ;
-			this.usedDirectories     = HashTable.New();
-			this.mutatingDirectories = HashTable.New();
-			this.fileUsers           = HashTable.New();
-		}
-		
-		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
@@ -290,7 +301,7 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
-				return this.usedDirectories.get(ADirectory.actual(directory)) != null;
+				return this.usedDirectories.get(directory) != null;
 			}
 		}
 		
@@ -301,7 +312,7 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
-				return this.mutatingDirectories.keys().contains(ADirectory.actual(directory));
+				return this.mutatingDirectories.keys().contains(directory);
 			}
 		}
 
@@ -379,10 +390,8 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
-				final ADirectory actual = ADirectory.actual(directory);
-				
 				// Step 1: check for already existing mutating entry
-				final Thread mutatingThread = this.mutatingDirectories.get(actual);
+				final Thread mutatingThread = this.mutatingDirectories.get(directory);
 				if(mutatingThread == Thread.currentThread())
 				{
 					// execute logic WITHOUT removing logic since the call is obviously nested.
@@ -392,29 +401,29 @@ public interface AccessManager
 				{
 					// (22.05.2020 TM)EXCP: proper exception
 					throw new RuntimeException(
-						"Directory " + actual.path() + " already used for mutation by \"" + mutatingThread + "\"."
+						"Directory \"" + directory.toPathString() + "\\\" already used for mutation by \"" + mutatingThread + "\"."
 					);
 				}
 				
 				// Step 2: check for already existing using entry
-				final Object user = this.usedDirectories.get(actual);
+				final Object user = this.usedDirectories.get(directory);
 				if(user != null && user != Thread.currentThread())
 				{
 					// (22.05.2020 TM)EXCP: proper exception
 					throw new RuntimeException(
-						"Directory " + actual.path() + " already used by \"" + user + "\"."
+						"Directory \\\"" + directory.toPathString() + "\\\" already used by \"" + user + "\"."
 					);
 				}
 				
 				// Step 3: create mutating entry, execute logic, remove entry in any case.
-				this.mutatingDirectories.add(actual, Thread.currentThread());
+				this.mutatingDirectories.add(directory, Thread.currentThread());
 				try
 				{
 					return logic.apply(directory);
 				}
 				finally
 				{
-					this.mutatingDirectories.removeFor(actual);
+					this.mutatingDirectories.removeFor(directory);
 				}
 			}
 		}
@@ -467,7 +476,7 @@ public interface AccessManager
 			this.checkForMutatingParents(actual, user);
 			this.incrementDirectoryUsageCount(actual.parent());
 
-			return this.wrapForReading(actual, user);
+			return this.fileSystem().wrapForReading(actual, user);
 		}
 				
 		protected final void incrementDirectoryUsageCount(final ADirectory directory)
@@ -534,8 +543,11 @@ public interface AccessManager
 					}
 					else
 					{
-						// (30.04.2020 TM)TODO: priv#49: proper exception
-						throw new RuntimeException();
+						// (30.04.2020 TM) EXCP: proper exception
+						throw new RuntimeException(
+							"File \"" + actual.toPathString()
+							+ "\" cannot be accessed in writing mode since there are multiple reading users present."
+						);
 					}
 				}
 	
@@ -555,7 +567,7 @@ public interface AccessManager
 			this.checkForMutatingParents(actual, user);
 			this.incrementDirectoryUsageCount(actual.parent());
 						
-			return this.wrapForWriting(actual, user);
+			return this.fileSystem().wrapForWriting(actual, user);
 		}
 		
 		private void checkForMutatingParents(final AFile actual, final Object user)
@@ -566,14 +578,14 @@ public interface AccessManager
 				{
 					// (21.05.2020 TM)EXCP: proper exception
 					throw new RuntimeException(
-						"File \"" + actual.path()
+						"File \"" + actual.toPathString()
 						+ "\" cannot be accessed by user \"" + user + "\" since directory \""
-						+ p.path() + "\" is in the process of being changed by user \"" + user + "\"."
+						+ p.toPathString() + "\" is in the process of being changed by user \"" + user + "\"."
 					);
 				}
 			}
 		}
-		
+				
 		@Override
 		public boolean unregister(final AReadableFile file)
 		{
@@ -644,7 +656,7 @@ public interface AccessManager
 			if(entry == null)
 			{
 				// (20.05.2020 TM)EXCP: proper exception
-				throw new RuntimeException("Directory not registered as used: " + directory.path());
+				throw new RuntimeException("Directory not registered as used: " + directory.toPathString());
 			}
 			
 			return entry;
@@ -673,11 +685,7 @@ public interface AccessManager
 			
 			return true;
 		}
-		
-		protected abstract AReadableFile wrapForReading(AFile file, Object user);
-		
-		protected abstract AWritableFile wrapForWriting(AFile file, Object user);
-		
+				
 	}
 	
 }
