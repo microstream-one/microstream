@@ -2,7 +2,10 @@ package one.microstream.afs.temp;
 
 import static one.microstream.X.notNull;
 
+import java.io.File;
+import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -10,6 +13,19 @@ import one.microstream.collections.XArrays;
 
 public interface AFile extends AItem
 {
+	@Override
+	public default String toPathString()
+	{
+		return this.fileSystem().assemblePath(this);
+	}
+
+	@Override
+	public default String[] toPath()
+	{
+		return this.fileSystem().buildPath(this);
+	}
+	
+	
 	/**
 	 * A simple String representing the "name" of the file. While no two files can have the same {@link #identifier()}
 	 * inside a given directory, any number of files can have the same name.<p>
@@ -17,13 +33,16 @@ public interface AFile extends AItem
 	 * but while {@link #identifier()} is guaranteed to be a unique local identifier for any file system,
 	 * {@link #name()} is not.
 	 * 
-	 * @see #path()
+	 * @see #toPathString()
 	 * @see #identifier()
 	 * @see #type()
 	 * 
 	 * @return the file's name.
 	 */
-	public String name();
+	public default String name()
+	{
+		return this.fileSystem().getFileName(this);
+	}
 	
 	/**
 	 * An optional String defining the type of the file's content.
@@ -32,14 +51,20 @@ public interface AFile extends AItem
 	 * 
 	 * @return the file's type.
 	 */
-	public String type();
+	public default String type()
+	{
+		return this.fileSystem().getFileType(this);
+	}
 	
 	/**
-	 * Returns the length in bytes of this file's content. Without any space required for file metadata (name etc.).
+	 * Returns the length in bytes of this file's content, without any space required for file metadata (name etc.).
 	 * 
 	 * @return the length in bytes of this file's content.
 	 */
-	public long length();
+	public default long length()
+	{
+		return this.fileSystem().ioHandler().length(this);
+	}
 	
 	public boolean registerObserver(AFile.Observer observer);
 	
@@ -66,11 +91,28 @@ public interface AFile extends AItem
 	{
 		return this.fileSystem().accessManager().useWriting(this);
 	}
+	
+	@Override
+	public default boolean exists()
+	{
+		return this.fileSystem().ioHandler().exists(this);
+	}
 		
 	
 	
-	public abstract class Abstract<D extends ADirectory>
-	extends AItem.Abstract<D>
+	public static AFile New(
+		final ADirectory  parent    ,
+		final String      identifier
+	)
+	{
+		return new AFile.Default(
+			notNull(parent),
+			notNull(identifier)
+		);
+	}
+	
+	public class Default
+	extends AItem.Abstract
 	implements AFile
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -85,6 +127,8 @@ public interface AFile extends AItem
 		// instance fields //
 		////////////////////
 		
+		final ADirectory parent;
+		
 		// memory-optimized array because there should usually be no or very few observers (<= 10).
 		private AFile.Observer[] observers = NO_OBSERVERS;
 		
@@ -94,12 +138,10 @@ public interface AFile extends AItem
 		// constructors //
 		/////////////////
 
-		protected Abstract(
-			final AFileSystem fileSystem,
-			final D           parent
-		)
+		protected Default(final ADirectory parent, final String identifier)
 		{
-			super(fileSystem, parent);
+			super(identifier);
+			this.parent = parent;
 		}
 		
 		
@@ -107,6 +149,18 @@ public interface AFile extends AItem
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final ADirectory parent()
+		{
+			return this.parent;
+		}
+		
+		@Override
+		public final AFileSystem fileSystem()
+		{
+			return this.parent.fileSystem();
+		}
 		
 		protected final Object mutex()
 		{
@@ -215,12 +269,26 @@ public interface AFile extends AItem
 			: file
 		;
 	}
-	
-	public interface Wrapper extends AItem.Wrapper, AFile
+		
+	public interface Wrapper extends AFile
 	{
-		@Override
 		public AFile actual();
 		
+		/**
+		 * Returns the low-level file representation instance, whatever that might be for a particular specific file system.
+		 * <br>
+		 * Examples:
+		 * <ul>
+		 * <li>{@link Path}</li>
+		 * <li>{@link File}</li>
+		 * <li>{@link URL}</li>
+		 * <li>{@link URI}</li>
+		 * </ul>
+		 * @return
+		 */
+		public Object subject();
+		
+		public Object user();
 		
 		
 		public abstract class Abstract<U, S> implements AFile.Wrapper
@@ -299,12 +367,6 @@ public interface AFile extends AItem
 			public ADirectory parent()
 			{
 				return this.actual.parent();
-			}
-
-			@Override
-			public String path()
-			{
-				return this.actual.path();
 			}
 
 			@Override

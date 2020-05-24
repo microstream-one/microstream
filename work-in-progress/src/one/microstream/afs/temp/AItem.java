@@ -1,6 +1,5 @@
 package one.microstream.afs.temp;
 
-import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.io.File;
@@ -16,7 +15,7 @@ public interface AItem
 	 * no other item can have the same {@link #identifier()} as this item.
 	 * 
 	 * @see #identifier()
-	 * @see #path()
+	 * @see #toPathString()
 	 * 
 	 * @return the item's parent directory.
 	 */
@@ -25,7 +24,7 @@ public interface AItem
 	/**
 	 * The value that uniquely identifies the item globally in the whole file system.
 	 * <p>
-	 * Note that this value might be a combination of the identifiers of {@link #parent()} directories
+	 * Note that this value is usually a combination of the identifiers of {@link #parent()} directories
 	 * and the local {@link #identifier()}, but such a relation is not mandatory.
 	 * 
 	 * @see #parent()
@@ -33,7 +32,9 @@ public interface AItem
 	 * 
 	 * @return the item's globally unique identifier.
 	 */
-	public String path();
+	public String toPathString();
+	
+	public String[] toPath();
 
 	/**
 	 * The value that uniquely identifies the item locally in its {@link #parent()} directory.
@@ -42,7 +43,7 @@ public interface AItem
 	 * but such a relation is not mandatory.
 	 * 
 	 * @see #parent()
-	 * @see #path()
+	 * @see #toPathString()
 	 * @see #name()
 	 * @see #type()
 	 * 
@@ -58,15 +59,34 @@ public interface AItem
 	public boolean exists();
 		
 	
+
 	
-	public abstract class Abstract<D extends ADirectory> implements AItem
+	public static String[] buildItemPath(final AItem item)
+	{
+		// doing the quick loop twice is enormously faster than populating a dynamically growing collection.
+		int depth = 0;
+		for(AItem i = item; i != null; i = i.parent())
+		{
+			depth++;
+		}
+		
+		final String[] path = new String[depth];
+		for(AItem i = item; i != null; i = i.parent())
+		{
+			path[--depth] = item.identifier();
+		}
+		
+		return path;
+	}
+	
+		
+	public abstract class Abstract implements AItem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final AFileSystem fileSystem;
-		private final D           parent    ;
+		private final String identifier;
 		
 		
 		
@@ -74,11 +94,10 @@ public interface AItem
 		// constructors //
 		/////////////////
 
-		protected Abstract(final AFileSystem fileSystem, final D parent)
+		protected Abstract(final String identifier)
 		{
 			super();
-			this.fileSystem = notNull(fileSystem);
-			this.parent     = mayNull(parent)    ;
+			this.identifier = notNull(identifier);
 		}
 		
 		
@@ -86,35 +105,21 @@ public interface AItem
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+				
 		@Override
-		public AFileSystem fileSystem()
+		public final String identifier()
 		{
-			return this.fileSystem;
-		}
-		
-		@Override
-		public D parent()
-		{
-			return this.parent;
+			return this.identifier;
 		}
 		
 	}
 	
-	public static AItem actual(final AItem item)
-	{
-		return item instanceof AItem.Wrapper
-			? ((AItem.Wrapper)item).actual()
-			: item
-		;
-	}
+		
 	
 	public interface Wrapper
 	{
 		public AItem actual();
-		
-		// (07.05.2020 TM)FIXME: priv#49: move to AFile$Wrapper and delete Wrapper here if Directory Wrappers not needed.
-		
+				
 		/**
 		 * Returns the low-level file representation instance, whatever that might be for a particular specific file system.
 		 * <br>

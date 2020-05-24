@@ -2,6 +2,7 @@ package one.microstream.afs.temp;
 
 import java.util.function.Function;
 
+import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XArrays;
@@ -9,13 +10,6 @@ import one.microstream.collections.types.XGettingTable;
 
 public interface AFileSystem extends AResolving
 {
-	// (04.05.2020 TM)TODO: priv#49: #resolve methods with root String?
-	
-	/* (04.05.2020 TM)TODO: priv#49: #resolve methods with single String that gets parsed?
-	 * Or is that the job of an APathResolver?
-	 */
-	
-
 	public String defaultProtocol();
 	
 	public default ADirectory ensureDirectoryPath(final String... pathElements)
@@ -27,19 +21,25 @@ public interface AFileSystem extends AResolving
 		
 	public default AFile ensureFilePath(final String... pathElements)
 	{
-		return this.resolveFilePath(pathElements, 0, pathElements.length - 1, pathElements[pathElements.length - 1]);
+		return this.ensureFilePath(pathElements, 0, pathElements.length - 1, pathElements[pathElements.length - 1]);
 	}
 	
 	public default AFile ensureFilePath(final String[] directoryPathElements, final String fileIdentifier)
 	{
-		return this.resolveFilePath(directoryPathElements, 0, directoryPathElements.length, fileIdentifier);
+		return this.ensureFilePath(directoryPathElements, 0, directoryPathElements.length, fileIdentifier);
 	}
 	
 	public AFile ensureFilePath(String[] directoryPathElements, int offset, int length, String fileIdentifier);
 	
 	public AccessManager accessManager();
 	
+	public ACreator creator();
+	
 	public IoHandler ioHandler();
+	
+	public AReadableFile wrapForReading(AFile file, Object user);
+
+	public AWritableFile wrapForWriting(AFile file, Object user);
 
 	// implicitely #close PLUS the AFS-management-level aspect
 	public default ActionReport release(final AReadableFile file)
@@ -76,8 +76,34 @@ public interface AFileSystem extends AResolving
 	public <R> R accessRoots(Function<? super XGettingTable<String, ADirectory>, R> logic);
 		
 	
+	public default String assemblePath(final AFile file)
+	{
+		return this.assemblePath(file, VarString.New()).toString();
+	}
 	
-	public class Abstract<D, F> implements AFileSystem
+	public default String assemblePath(final ADirectory directory)
+	{
+		return this.assemblePath(directory, VarString.New()).toString();
+	}
+	
+
+	public VarString assemblePath(AFile file, VarString vs);
+	
+	public VarString assemblePath(ADirectory directory, VarString vs);
+	
+
+	public String[] buildPath(AFile file);
+	
+	public String[] buildPath(ADirectory directory);
+	
+	
+	public String getFileName(AFile file);
+	
+	public String getFileType(AFile file);
+	
+	
+	
+	public abstract class Abstract<D, F> implements AFileSystem, AResolver<D, F>, ACreator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -85,12 +111,9 @@ public interface AFileSystem extends AResolving
 		
 		private final String                          defaultProtocol;
 		private final EqHashTable<String, ADirectory> rootDirectories;
-		private final AResolver<D, F>                 resolver       ;
 		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
 		private final IoHandler                       ioHandler      ;
-		
-		// (13.05.2020 TM)FIXME: priv#49: include resolver here via Generics typing?
 		
 		
 		
@@ -99,18 +122,33 @@ public interface AFileSystem extends AResolving
 		/////////////////
 		
 		protected Abstract(
-			final String                defaultProtocol     ,
-			final AResolver<D, F>       resolver            ,
-			final ACreator              creator             ,
-			final AccessManager.Creator accessManagerCreator,
-			final IoHandler             ioHandler
+			final String    defaultProtocol,
+			final IoHandler ioHandler
+		)
+		{
+			this(defaultProtocol, null, ioHandler);
+		}
+		
+		protected Abstract(
+			final String           defaultProtocol,
+			final ACreator.Creator creatorCreator ,
+			final IoHandler        ioHandler
+		)
+		{
+			this(defaultProtocol, creatorCreator, AccessManager::New, ioHandler);
+		}
+		
+		protected Abstract(
+			final String                     defaultProtocol     ,
+			final ACreator.Creator           creatorCreator      ,
+			final AccessManager.Creator      accessManagerCreator,
+			final IoHandler                  ioHandler
 		)
 		{
 			super();
 			this.rootDirectories = EqHashTable.New();
 			this.defaultProtocol = defaultProtocol  ;
-			this.resolver        = resolver         ;
-			this.creator         = creator          ;
+			this.creator         = this.ensureCreator(creatorCreator);
 			this.ioHandler       = ioHandler        ;
 			
 			// called at the very last just in case the creator needs some of the other state
@@ -123,15 +161,35 @@ public interface AFileSystem extends AResolving
 		// methods //
 		////////////
 		
+		protected ACreator ensureCreator(final ACreator.Creator creatorCreator)
+		{
+			return creatorCreator == null
+				? this
+				: creatorCreator.createCreator(this)
+			;
+		}
+		
+		@Override
+		public AFileSystem fileSystem()
+		{
+			return this;
+		}
+		
 		protected AResolver<D, F> resolver()
 		{
-			return this.resolver;
+			return this;
 		}
 		
 		@Override
 		public final String defaultProtocol()
 		{
 			return this.defaultProtocol;
+		}
+		
+		@Override
+		public ACreator creator()
+		{
+			return this.creator;
 		}
 		
 		@Override
@@ -324,6 +382,58 @@ public interface AFileSystem extends AResolving
 			}
 			
 			return file;
+		}
+		
+		@Override
+		public synchronized AReadableFile wrapForReading(final AFile file, final Object user)
+		{
+			final F path = this.resolver().resolve(file);
+			
+			return AReadableFile.New(file, user, path);
+		}
+
+		@Override
+		public synchronized AWritableFile wrapForWriting(final AFile file, final Object user)
+		{
+			final F path = this.resolver().resolve(file);
+			
+			return AWritableFile.New(file, user, path);
+		}
+		
+		protected abstract VarString assembleItemPath(AItem item, VarString vs);
+		
+		@Override
+		public VarString assemblePath(final ADirectory directory, final VarString vs)
+		{
+			return this.assembleItemPath(directory, vs);
+		}
+		
+		@Override
+		public VarString assemblePath(final AFile file, final VarString vs)
+		{
+			return this.assembleItemPath(file, vs);
+		}
+		
+		@Override
+		public String[] buildPath(final AFile file)
+		{
+			return AItem.buildItemPath(file);
+		}
+		
+		@Override
+		public String[] buildPath(final ADirectory directory)
+		{
+			return AItem.buildItemPath(directory);
+		}
+
+		@Override
+		public ARoot createRootDirectory(
+			final AFileSystem fileSystem,
+			final String      protocol  ,
+			final String      identifier
+		)
+		{
+			return ARoot.New(fileSystem, protocol, identifier);
 		}
 		
 	}
