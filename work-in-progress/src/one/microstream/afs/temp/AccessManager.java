@@ -301,7 +301,7 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
-				return this.usedDirectories.get(directory) != null;
+				return this.usedDirectories.get(ADirectory.actual(directory)) != null;
 			}
 		}
 		
@@ -312,7 +312,7 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
-				return this.mutatingDirectories.keys().contains(directory);
+				return this.mutatingDirectories.keys().contains(ADirectory.actual(directory));
 			}
 		}
 
@@ -390,12 +390,14 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
+				final ADirectory actual = ADirectory.actual(directory);
+				
 				// Step 1: check for already existing mutating entry
-				final Thread mutatingThread = this.mutatingDirectories.get(directory);
+				final Thread mutatingThread = this.mutatingDirectories.get(actual);
 				if(mutatingThread == Thread.currentThread())
 				{
 					// execute logic WITHOUT removing logic since the call is obviously nested.
-					return logic.apply(directory);
+					return logic.apply(actual);
 				}
 				if(mutatingThread != null)
 				{
@@ -406,7 +408,7 @@ public interface AccessManager
 				}
 				
 				// Step 2: check for already existing using entry
-				final Object user = this.usedDirectories.get(directory);
+				final Object user = this.usedDirectories.get(actual);
 				if(user != null && user != Thread.currentThread())
 				{
 					// (22.05.2020 TM)EXCP: proper exception
@@ -416,14 +418,14 @@ public interface AccessManager
 				}
 				
 				// Step 3: create mutating entry, execute logic, remove entry in any case.
-				this.mutatingDirectories.add(directory, Thread.currentThread());
+				this.mutatingDirectories.add(actual, Thread.currentThread());
 				try
 				{
 					return logic.apply(directory);
 				}
 				finally
 				{
-					this.mutatingDirectories.removeFor(directory);
+					this.mutatingDirectories.removeFor(actual);
 				}
 			}
 		}
@@ -481,15 +483,17 @@ public interface AccessManager
 				
 		protected final void incrementDirectoryUsageCount(final ADirectory directory)
 		{
-			DirEntry entry = this.usedDirectories.get(directory);
+			final ADirectory actual = ADirectory.actual(directory);
+			
+			DirEntry entry = this.usedDirectories.get(actual);
 			if(entry == null)
 			{
-				entry = this.addUsedDirectoryEntry(directory);
+				entry = this.addUsedDirectoryEntry(actual);
 				
 				// new entry means increment usage count for parent incrementally
-				if(directory.parent() != null)
+				if(actual.parent() != null)
 				{
-					this.incrementDirectoryUsageCount(directory);
+					this.incrementDirectoryUsageCount(actual);
 				}
 			}
 			
@@ -498,10 +502,10 @@ public interface AccessManager
 			// note: child count incrementation on one level does not concern the parent directory count.
 		}
 		
-		private DirEntry addUsedDirectoryEntry(final ADirectory directory)
+		private DirEntry addUsedDirectoryEntry(final ADirectory actual)
 		{
 			final DirEntry entry;
-			this.usedDirectories.add(directory, entry = new DirEntry(directory));
+			this.usedDirectories.add(actual, entry = new DirEntry(actual));
 			
 			return entry;
 		}
@@ -638,21 +642,25 @@ public interface AccessManager
 		
 		protected void decrementDirectoryUsageCount(final ADirectory directory)
 		{
-			final DirEntry entry = this.getNonNullDirEntry(directory);
+			final ADirectory actual = ADirectory.actual(directory);
+
+			final DirEntry entry = this.getNonNullDirEntry(actual);
 			if(--entry.usingChildCount == 0)
 			{
-				if(directory.parent() != null)
+				if(actual.parent() != null)
 				{
-					this.decrementDirectoryUsageCount(directory.parent());
+					this.decrementDirectoryUsageCount(actual.parent());
 				}
-				this.usedDirectories.removeFor(directory);
+				this.usedDirectories.removeFor(actual);
 				optimizeMemoryUsage(this.usedDirectories);
 			}
 		}
 		
 		protected final DirEntry getNonNullDirEntry(final ADirectory directory)
 		{
-			final DirEntry entry = this.usedDirectories.get(directory);
+			final ADirectory actual = ADirectory.actual(directory);
+
+			final DirEntry entry = this.usedDirectories.get(actual);
 			if(entry == null)
 			{
 				// (20.05.2020 TM)EXCP: proper exception

@@ -26,6 +26,7 @@ import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeInstantiator;
 import one.microstream.reference.Swizzling;
@@ -867,6 +868,61 @@ public abstract class Binary implements Chunk
 		
 		// validations have already been done above.
 		this.iterateReferenceRangeUnvalidated(elementsStartOffset, elementsBoundOffset, iterator);
+	}
+	
+	/**
+	 * <u>Usage example</u>:<br>
+	 * For an entity solely consisting of a list of elements with each (2 ints, 1 float, 1 reference), call:<br>
+	 * {@code iterateReferences(data, 0, 12, 1, 0, iterator)}.<br>
+	 * (2*4 bytes + 1*4 bytes, 1 reference, no trailing bytes)
+	 * <p>
+	 * For an entity solely consisting of a list of elements with each (1 ints, 3 reference, 1 short), call:<br>
+	 * {@code iterateReferences(data, 0, 4, 3, 2, iterator)}.<br>
+	 * (1*4 bytes, 3 references, 1*2 trailing bytes)
+	 * 
+	 * @param data the {@link Binary} instance to read the data from.
+	 * @param elementsListOffset the offset in bytes where the elements list is located in the whole entity.
+	 * @param elementReferencesOffset the offset in bytes where the references are located in each element.
+	 * @param elementReferenceCount the amount of references in each element.
+	 * @param elementTrailingBytes the number of bytes after the references in each element.
+	 * @param iterator the iterator to process the reference ids.
+	 */
+	public static void iterateListStructureCompositeElements(
+		final Binary                     data                   ,
+		final long                       elementsListOffset     ,
+		final int                        elementReferencesOffset,
+		final int                        elementReferenceCount  ,
+		final int                        elementTrailingBytes   ,
+		final PersistenceReferenceLoader iterator
+	)
+	{
+		final long elementLength =
+			elementReferencesOffset
+			+ Binary.referenceBinaryLength(elementReferenceCount)
+			+ elementTrailingBytes
+		;
+		
+		final long elementCount = data.getBinaryListElementCountValidating(
+			elementsListOffset,
+			elementLength
+		);
+		
+		final long elementsStartOffset = Binary.toBinaryListElementsOffset(elementsListOffset);
+		final long elementsBoundOffset = elementsStartOffset + elementCount * elementLength;
+		
+		final long startAddress = data.loadItemEntityContentAddress() + elementsStartOffset;
+		final long boundAddress = data.loadItemEntityContentAddress() + elementsBoundOffset;
+		
+		for(long address = startAddress; address < boundAddress; address += elementLength)
+		{
+			final long referencesStartAddress = address + elementReferencesOffset;
+			for(int r = 0; r < elementReferenceCount; r++)
+			{
+				final long referenceAddress = referencesStartAddress + Binary.referenceBinaryLength(r);
+				iterator.acceptObjectId(data.get_longFromAddress(referenceAddress));
+			}
+			// trailing bytes are accounted for by advancing one whole element length
+		}
 	}
 	
 	public final void iterateKeyValueEntriesReferences(

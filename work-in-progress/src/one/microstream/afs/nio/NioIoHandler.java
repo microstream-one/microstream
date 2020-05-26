@@ -1,40 +1,122 @@
 package one.microstream.afs.nio;
 
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 
 import one.microstream.afs.temp.ADirectory;
 import one.microstream.afs.temp.AFile;
+import one.microstream.afs.temp.AItem;
 import one.microstream.afs.temp.AReadableFile;
 import one.microstream.afs.temp.AWritableFile;
 import one.microstream.afs.temp.ActionReport;
 import one.microstream.afs.temp.IoHandler;
+import one.microstream.chars.XChars;
 import one.microstream.io.BufferProvider;
+import one.microstream.io.XIO;
 
 
 public interface NioIoHandler extends IoHandler
 {
+
+	public static Path toPath(final AItem item)
+	{
+		if(item instanceof AItem.Wrapper)
+		{
+			return NioIoHandler.toPath((AItem.Wrapper)item);
+		}
+		
+		return NioFileSystem.toPath(item);
+	}
+	
+	public static Path toPath(final AItem.Wrapper item)
+	{
+		final Object subject = item.subject();
+		if(subject instanceof Path)
+		{
+			return (Path)subject;
+		}
+		
+		return NioFileSystem.toPath(item);
+	}
+	
+
+	public static Path getPath(final AFile file)
+	{
+		return Static.getPath(file, AFile.class);
+	}
+	
+	public static Path getPath(final AFile.Wrapper file)
+	{
+		return Static.getPath(file, AFile.Wrapper.class);
+	}
+	
+	public static Path getPath(final ADirectory file)
+	{
+		return Static.getPath(file, ADirectory.class);
+	}
+	
+	public static Path getPath(final ADirectory.Wrapper file)
+	{
+		return Static.getPath(file, ADirectory.Wrapper.class);
+	}
+	
+	
+	
+	/*
+	 * It's just ludicrous that such a class is necessary.
+	 * Why not support package-private and protected visibility in interfaces?
+	 */
+	public final class Static
+	{
+		static Path getPath(final AItem item, final Class<? extends AItem> type)
+		{
+			if(item instanceof AItem.Wrapper)
+			{
+				return Static.getPath((AItem.Wrapper)item, type);
+			}
+
+			
+			// (25.05.2020 TM)EXCP: proper exception
+			throw new RuntimeException(
+				type + " instance " + XChars.systemString(item)
+				+ " does not implement " + AItem.Wrapper.class
+			);
+		}
+		
+		static Path getPath(final AItem.Wrapper item, final Class<? extends AItem> type)
+		{
+			final Object subject = item.subject();
+			if(subject instanceof Path)
+			{
+				return (Path)subject;
+			}
+			
+			// (25.05.2020 TM)EXCP: proper exception
+			throw new RuntimeException(
+				type + " instance " + XChars.systemString(item)
+				+ " does not reference a subject instance of type " + Path.class + "."
+			);
+		}
+	}
+	
 	public final class Default implements NioIoHandler
 	{
-
 		@Override
 		public long length(final AFile file)
 		{
-			// FIXME IoHandler#length()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return XIO.unchecked.size(NioIoHandler.toPath(file));
 		}
 		
 		@Override
 		public boolean exists(final AFile file)
 		{
-			// FIXME NioIoHandler.Default#exists()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return XIO.unchecked.exists(NioIoHandler.toPath(file));
 		}
 		
 		@Override
 		public boolean exists(final ADirectory directory)
 		{
-			// FIXME NioIoHandler.Default#exists()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return XIO.unchecked.exists(NioIoHandler.toPath(directory));
 		}
 
 		@Override

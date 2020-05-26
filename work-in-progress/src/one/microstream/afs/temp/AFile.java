@@ -2,10 +2,7 @@ package one.microstream.afs.temp;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
-import java.net.URI;
 import java.nio.ByteBuffer;
-import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -270,25 +267,10 @@ public interface AFile extends AItem
 		;
 	}
 		
-	public interface Wrapper extends AFile
+	public interface Wrapper extends AFile, AItem.Wrapper
 	{
+		@Override
 		public AFile actual();
-		
-		/**
-		 * Returns the low-level file representation instance, whatever that might be for a particular specific file system.
-		 * <br>
-		 * Examples:
-		 * <ul>
-		 * <li>{@link Path}</li>
-		 * <li>{@link File}</li>
-		 * <li>{@link URL}</li>
-		 * <li>{@link URI}</li>
-		 * </ul>
-		 * @return
-		 */
-		public Object subject();
-		
-		public Object user();
 		
 		
 		public abstract class Abstract<U, S> implements AFile.Wrapper

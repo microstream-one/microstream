@@ -525,4 +525,20 @@ public interface ADirectory extends AItem, AResolving
 		
 	}
 	
+	
+	public static ADirectory actual(final ADirectory directory)
+	{
+		return directory instanceof ADirectory.Wrapper
+			? ((ADirectory.Wrapper)directory).actual()
+			: directory
+		;
+	}
+	
+	public interface Wrapper extends ADirectory, AItem.Wrapper
+	{
+		@Override
+		public ADirectory actual();
+		
+	}
+	
 }
