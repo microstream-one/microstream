@@ -274,7 +274,10 @@ public interface AFileSystem extends AResolving
 		}
 
 		@Override
-		public final synchronized ADirectory ensureRoot(final ARoot.Creator rootCreator, final String identifier)
+		public final synchronized ADirectory ensureRoot(
+			final ARoot.Creator rootCreator,
+			final String        identifier
+		)
 		{
 			this.validateNonExistingRootDirectory(identifier);
 			
@@ -319,7 +322,9 @@ public interface AFileSystem extends AResolving
 		}
 		
 		@Override
-		public final synchronized <R> R accessRoots(final Function<? super XGettingTable<String, ADirectory>, R> logic)
+		public final synchronized <R> R accessRoots(
+			final Function<? super XGettingTable<String, ADirectory>, R> logic
+		)
 		{
 			return logic.apply(this.rootDirectories);
 		}

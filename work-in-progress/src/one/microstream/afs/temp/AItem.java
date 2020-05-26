@@ -116,7 +116,15 @@ public interface AItem
 	
 		
 	
-	public interface Wrapper
+	public static AItem actual(final AItem item)
+	{
+		return item instanceof AItem.Wrapper
+			? ((AItem.Wrapper)item).actual()
+			: item
+		;
+	}
+	
+	public interface Wrapper extends AItem
 	{
 		public AItem actual();
 				

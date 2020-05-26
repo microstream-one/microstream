@@ -7,7 +7,7 @@ import java.lang.reflect.Type;
 import one.microstream.chars.XChars;
 import one.microstream.collections.types.XReference;
 
-public class _MainTestGenericTypeStuff
+public class MainTestGenericTypeStuff
 {
 	
 	public static void main(final String[] args)

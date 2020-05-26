@@ -13,6 +13,11 @@ import one.microstream.io.XIO;
 
 public interface NioFileSystem extends AFileSystem
 {
+	public static Path toPath(final AItem item)
+	{
+		return XIO.Path(item.toPath());
+	}
+	
 	
 	public static NioFileSystem New(
 		final String       defaultProtocol,
@@ -73,14 +78,14 @@ public interface NioFileSystem extends AFileSystem
 		public Path resolve(final ADirectory directory)
 		{
 			// does not need synchronization since it only reads immutable state and creates only thread local state.
-			return XIO.Path(directory.toPath());
+			return NioFileSystem.toPath(directory);
 		}
 
 		@Override
 		public Path resolve(final AFile file)
 		{
 			// does not need synchronization since it only reads immutable state and creates only thread local state.
-			return XIO.Path(file.toPath());
+			return NioFileSystem.toPath(file);
 		}
 		
 		@Override
