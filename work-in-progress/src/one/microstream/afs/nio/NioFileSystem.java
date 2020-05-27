@@ -8,6 +8,8 @@ import one.microstream.afs.temp.ADirectory;
 import one.microstream.afs.temp.AFile;
 import one.microstream.afs.temp.AFileSystem;
 import one.microstream.afs.temp.AItem;
+import one.microstream.afs.temp.AReadableFile;
+import one.microstream.afs.temp.AWritableFile;
 import one.microstream.chars.VarString;
 import one.microstream.io.XIO;
 
@@ -15,7 +17,12 @@ public interface NioFileSystem extends AFileSystem
 {
 	public static Path toPath(final AItem item)
 	{
-		return XIO.Path(item.toPath());
+		return NioFileSystem.toPath(item.toPath());
+	}
+	
+	public static Path toPath(final String... pathElements)
+	{
+		return XIO.Path(pathElements);
 	}
 	
 	
@@ -92,6 +99,22 @@ public interface NioFileSystem extends AFileSystem
 		protected VarString assembleItemPath(final AItem item, final VarString vs)
 		{
 			return XIO.assemblePath(vs, item.toPath());
+		}
+		
+		@Override
+		public synchronized AReadableFile wrapForReading(final AFile file, final Object user)
+		{
+			final Path path = this.resolve(file);
+			
+			return NioReadableFile.New(file, user, path);
+		}
+
+		@Override
+		public synchronized AWritableFile wrapForWriting(final AFile file, final Object user)
+		{
+			final Path path = this.resolve(file);
+			
+			return NioWritableFile.New(file, user, path);
 		}
 		
 	}

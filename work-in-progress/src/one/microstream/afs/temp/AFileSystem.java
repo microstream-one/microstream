@@ -35,7 +35,7 @@ public interface AFileSystem extends AResolving
 	
 	public ACreator creator();
 	
-	public IoHandler ioHandler();
+	public AIoHandler ioHandler();
 	
 	public AReadableFile wrapForReading(AFile file, Object user);
 
@@ -113,7 +113,7 @@ public interface AFileSystem extends AResolving
 		private final EqHashTable<String, ADirectory> rootDirectories;
 		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
-		private final IoHandler                       ioHandler      ;
+		private final AIoHandler                       ioHandler      ;
 		
 		
 		
@@ -123,7 +123,7 @@ public interface AFileSystem extends AResolving
 		
 		protected Abstract(
 			final String    defaultProtocol,
-			final IoHandler ioHandler
+			final AIoHandler ioHandler
 		)
 		{
 			this(defaultProtocol, null, ioHandler);
@@ -132,7 +132,7 @@ public interface AFileSystem extends AResolving
 		protected Abstract(
 			final String           defaultProtocol,
 			final ACreator.Creator creatorCreator ,
-			final IoHandler        ioHandler
+			final AIoHandler        ioHandler
 		)
 		{
 			this(defaultProtocol, creatorCreator, AccessManager::New, ioHandler);
@@ -142,7 +142,7 @@ public interface AFileSystem extends AResolving
 			final String                     defaultProtocol     ,
 			final ACreator.Creator           creatorCreator      ,
 			final AccessManager.Creator      accessManagerCreator,
-			final IoHandler                  ioHandler
+			final AIoHandler                  ioHandler
 		)
 		{
 			super();
@@ -175,11 +175,6 @@ public interface AFileSystem extends AResolving
 			return this;
 		}
 		
-		protected AResolver<D, F> resolver()
-		{
-			return this;
-		}
-		
 		@Override
 		public final String defaultProtocol()
 		{
@@ -199,7 +194,7 @@ public interface AFileSystem extends AResolving
 		}
 		
 		@Override
-		public IoHandler ioHandler()
+		public AIoHandler ioHandler()
 		{
 			return this.ioHandler;
 		}
@@ -387,22 +382,6 @@ public interface AFileSystem extends AResolving
 			}
 			
 			return file;
-		}
-		
-		@Override
-		public synchronized AReadableFile wrapForReading(final AFile file, final Object user)
-		{
-			final F path = this.resolver().resolve(file);
-			
-			return AReadableFile.New(file, user, path);
-		}
-
-		@Override
-		public synchronized AWritableFile wrapForWriting(final AFile file, final Object user)
-		{
-			final F path = this.resolver().resolve(file);
-			
-			return AWritableFile.New(file, user, path);
 		}
 		
 		protected abstract VarString assembleItemPath(AItem item, VarString vs);

@@ -2,10 +2,6 @@ package one.microstream.afs.temp;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
-import java.net.URI;
-import java.nio.file.Path;
-
 public interface AItem
 {
 	public AFileSystem fileSystem();
@@ -127,21 +123,7 @@ public interface AItem
 	public interface Wrapper extends AItem
 	{
 		public AItem actual();
-				
-		/**
-		 * Returns the low-level file representation instance, whatever that might be for a particular specific file system.
-		 * <br>
-		 * Examples:
-		 * <ul>
-		 * <li>{@link Path}</li>
-		 * <li>{@link File}</li>
-		 * <li>{@link URL}</li>
-		 * <li>{@link URI}</li>
-		 * </ul>
-		 * @return
-		 */
-		public Object subject();
-		
+						
 		public Object user();
 	}
 		
