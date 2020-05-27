@@ -17,7 +17,7 @@ public interface AReadableFile extends AFile.Wrapper
 	public default boolean isOpen()
 	{
 		// synchronization handled by IoHandler.
-		return this.actual().fileSystem().ioHandler().isOpenReading(this);
+		return this.actual().fileSystem().ioHandler().isOpen(this);
 	}
 	
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
@@ -27,25 +27,11 @@ public interface AReadableFile extends AFile.Wrapper
 		return this.actual().fileSystem().ioHandler().close(this);
 	}
 
-	// ONLY the IO-Aspect, not the AFS-management-level aspect
-	public default boolean isClosed()
-	{
-		// synchronization handled by IoHandler.
-		return this.actual().fileSystem().ioHandler().isClosed(this);
-	}
-
 	// implicitely #close PLUS the AFS-management-level aspect
 	public default ActionReport release()
 	{
 		// synchronization handled by FileSystem.
 		return this.actual().fileSystem().release(this);
-	}
-	
-
-	public default boolean ensure()
-	{
-		// synchronization handled by IoHandler.
-		return this.actual().fileSystem().ioHandler().ensure(this);
 	}
 	
 	@Override
