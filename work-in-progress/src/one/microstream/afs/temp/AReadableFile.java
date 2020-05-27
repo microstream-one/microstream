@@ -1,7 +1,5 @@
 package one.microstream.afs.temp;
 
-import static one.microstream.X.notNull;
-
 import java.nio.ByteBuffer;
 
 import one.microstream.io.BufferProvider;
@@ -51,10 +49,10 @@ public interface AReadableFile extends AFile.Wrapper
 	}
 	
 	@Override
-	public default long length()
+	public default long size()
 	{
 		// synchronization handled by IoHandler.
-		return this.fileSystem().ioHandler().length(this);
+		return this.fileSystem().ioHandler().size(this);
 	}
 	
 			
@@ -131,29 +129,5 @@ public interface AReadableFile extends AFile.Wrapper
 	{
 		return this.actual().fileSystem().ioHandler().copyTo(this, target, sourcePosition, length);
 	}
-	
-	
-	
-	public static AReadableFile New(
-		final AFile  actual ,
-		final Object user   ,
-		final Object subject
-	)
-	{
-		return new AReadableFile.Default<>(
-			notNull(actual) ,
-			notNull(user)   ,
-			notNull(subject)
-		);
-	}
-	
-	public class Default<U, S> extends AFile.Wrapper.Abstract<U, S> implements AReadableFile
-	{
-		Default(final AFile actual, final U user, final S subject)
-		{
-			super(actual, user, subject);
-		}
-				
-	}
-	
+		
 }

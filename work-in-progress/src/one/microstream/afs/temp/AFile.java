@@ -54,13 +54,13 @@ public interface AFile extends AItem
 	}
 	
 	/**
-	 * Returns the length in bytes of this file's content, without any space required for file metadata (name etc.).
+	 * Returns the size in bytes of this file's content, without any space required for file metadata (name etc.).
 	 * 
-	 * @return the length in bytes of this file's content.
+	 * @return the size in bytes of this file's content.
 	 */
-	public default long length()
+	public default long size()
 	{
-		return this.fileSystem().ioHandler().length(this);
+		return this.fileSystem().ioHandler().size(this);
 	}
 	
 	public boolean registerObserver(AFile.Observer observer);
@@ -272,16 +272,14 @@ public interface AFile extends AItem
 		@Override
 		public AFile actual();
 		
-		
-		public abstract class Abstract<U, S> implements AFile.Wrapper
+		public abstract class Abstract<U> implements AFile.Wrapper
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
 			
-			private final AFile actual ;
-			private final U     user   ;
-			private final S     subject;
+			private final AFile actual;
+			private final U     user  ;
 			
 						
 			
@@ -289,12 +287,11 @@ public interface AFile extends AItem
 			// constructors //
 			/////////////////
 			
-			protected Abstract(final AFile actual, final U user, final S subject)
+			protected Abstract(final AFile actual, final U user)
 			{
 				super();
 				this.actual  = notNull(actual) ;
 				this.user    = notNull(user)   ;
-				this.subject = notNull(subject);
 			}
 			
 			
@@ -307,12 +304,6 @@ public interface AFile extends AItem
 			public U user()
 			{
 				return this.user;
-			}
-			
-			@Override
-			public S subject()
-			{
-				return this.subject;
 			}
 			
 			@Override

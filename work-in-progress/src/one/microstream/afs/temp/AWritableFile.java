@@ -1,7 +1,5 @@
 package one.microstream.afs.temp;
 
-import static one.microstream.X.notNull;
-
 import java.nio.ByteBuffer;
 
 public interface AWritableFile extends AReadableFile
@@ -43,30 +41,5 @@ public interface AWritableFile extends AReadableFile
 		// synchronization handled by IoHandler.
 		return this.actual().fileSystem().ioHandler().deleteFile(this);
 	}
-		
-	
-	
-	
-	public static AWritableFile New(
-		final AFile  actual ,
-		final Object user   ,
-		final Object subject
-	)
-	{
-		return new AWritableFile.Default<>(
-			notNull(actual) ,
-			notNull(user)   ,
-			notNull(subject)
-		);
-	}
-		
-	public class Default<U, S> extends AReadableFile.Default<U, S> implements AWritableFile
-	{
-		Default(final AFile actual, final U user, final S subject)
-		{
-			super(actual, user, subject);
-		}
-		
-	}
-			
+				
 }
