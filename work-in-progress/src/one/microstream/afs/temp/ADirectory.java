@@ -490,38 +490,38 @@ public interface ADirectory extends AItem, AResolving
 		
 	}
 		
-	// (19.05.2020 TM)TODO: priv#49: call Observer methods
+	// (19.05.2020 TM)TODO: priv#49: call directory Observer directory methods
 	public interface Observer
 	{
-		public void onBeforeCreateFile(String identifier, String name, String type);
+		public void onBeforeFileCreate(AWritableFile fileToCreate);
 		
-		public void onAfterCreateFile(AFile createdFile, long creationTime);
-		
-		
-		public void onBeforeMoveFile(AFile fileToMove, ADirectory targetDirectory);
-		
-		public void onAfterMoveFile(AFile movedFile, ADirectory sourceDirectory, long deletionTime);
+		public void onAfterFileCreate(AWritableFile createdFile, boolean result);
 		
 		
-		public void onBeforeDeleteFile(AFile fileToDelete);
+		public void onBeforeFileMove(AWritableFile fileToMove, AWritableFile targetFile);
 		
-		public void onAfterDeleteFile(AFile deletedFile, long deletionTime);
+		public void onAfterFileMove(AWritableFile movedFile, AWritableFile targetFile);
+		
+		
+		public void onBeforeFileDelete(AWritableFile fileToDelete);
+		
+		public void onAfterFileDelete(AWritableFile deletedFile, boolean result);
 		
 
 
-		public void onBeforeCreateDirectory(String identifier);
+		public void onBeforeDirectoryCreate(ADirectory directoryToCreate);
 		
-		public void onAfterCreateDirectory(ADirectory createdDirectory, long creationTime);
-		
-		
-		public void onBeforeMoveDirectory(ADirectory directoryToMove, ADirectory targetDirectory);
-		
-		public void onAfterMoveDirectory(ADirectory movedDirectory, ADirectory sourceDirectory, long deletionTime);
+		public void onAfterDirectoryCreate(ADirectory createdDirectory, boolean result);
 		
 		
-		public void onBeforeDeleteDirectory(ADirectory directoryToDelete);
+		public void onBeforeDirectoryMove(ADirectory directoryToMove, ADirectory targetDirectory);
 		
-		public void onAfterDeleteDirectory(ADirectory deletedDirectory, long deletionTime);
+		public void onAfterDirectoryMove(ADirectory movedDirectory, ADirectory sourceDirectory);
+		
+		
+		public void onBeforeDirectoryDelete(ADirectory directoryToDelete);
+		
+		public void onAfterDirectoryDelete(ADirectory deletedDirectory, boolean result);
 		
 	}
 	

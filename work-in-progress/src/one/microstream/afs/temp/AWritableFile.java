@@ -22,18 +22,17 @@ public interface AWritableFile extends AReadableFile
 		// synchronization handled by IoHandler.
 		return this.actual().fileSystem().ioHandler().openWriting(this);
 	}
-	
-	@Override
-	public default boolean isOpen()
-	{
-		// synchronization handled by IoHandler.
-		return this.actual().fileSystem().ioHandler().isOpenWriting(this);
-	}
 		
 	public default long writeBytes(final Iterable<? extends ByteBuffer> sources)
 	{
 		// synchronization handled by IoHandler.
 		return this.actual().fileSystem().ioHandler().writeBytes(this, sources);
+	}
+
+	public default boolean create()
+	{
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().ioHandler().create(this);
 	}
 	
 	public default boolean delete()
@@ -41,5 +40,11 @@ public interface AWritableFile extends AReadableFile
 		// synchronization handled by IoHandler.
 		return this.actual().fileSystem().ioHandler().deleteFile(this);
 	}
-				
+	
+	public default AReadableFile downgrade()
+	{
+		// synchronization handled by IoHandler.
+		return this.actual().fileSystem().accessManager().downgrade(this);
+	}
+					
 }

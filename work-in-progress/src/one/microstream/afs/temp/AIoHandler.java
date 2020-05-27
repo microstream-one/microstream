@@ -13,30 +13,22 @@ public interface AIoHandler
 	public boolean exists(AFile file);
 	
 	public boolean exists(ADirectory directory);
+
+	public boolean create(ADirectory directory);
+
+	public boolean create(AWritableFile file);
+	
+
+	// ONLY the IO-Aspect, not the AFS-management-level aspect
+	public boolean isOpen(AReadableFile file);
 	
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public boolean openReading(AReadableFile file);
-
-	// ONLY the IO-Aspect, not the AFS-management-level aspect
-	public boolean isOpenReading(AReadableFile file);
+	
+	public boolean openWriting(AWritableFile file);
 		
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public boolean close(AReadableFile file);
-
-	// ONLY the IO-Aspect, not the AFS-management-level aspect
-	public boolean isClosed(AReadableFile file);
-	
-	
-	public boolean openWriting(AWritableFile file);
-	
-	public boolean isOpenWriting(AWritableFile file);
-
-	public boolean ensure(ADirectory directory);
-
-	public boolean ensure(AReadableFile file);
-
-	public ActionReport ensureWritable(AWritableFile file);
-	
 	
 	
 	
@@ -132,23 +124,17 @@ public interface AIoHandler
 
 		protected abstract boolean specificExists(D directory);
 
+		protected abstract boolean specificIsOpen(R file);
+
 		protected abstract boolean specificOpenReading(R file);
-
-		protected abstract boolean specificIsOpenReading(R file);
-
-		protected abstract boolean specificClose(R file);
-
-		protected abstract boolean specificIsClosed(R file);
 
 		protected abstract boolean specificOpenWriting(W file);
 
-		protected abstract boolean specificIsOpenWriting(W file);
+		protected abstract boolean specificClose(R file);
 
-		protected abstract boolean specificEnsure(D file);
+		protected abstract boolean specificCreate(D file);
 
-		protected abstract boolean specificEnsure(R file);
-
-		protected abstract ActionReport specificEnsureWritable(W file);
+		protected abstract boolean specificCreate(W file);
 		
 		protected abstract ByteBuffer specificReadBytes(R sourceFile);
 		
@@ -287,11 +273,11 @@ public interface AIoHandler
 		}
 
 		@Override
-		public boolean isOpenReading(final AReadableFile file)
+		public boolean isOpen(final AReadableFile file)
 		{
 			if(this.typeReadableFile.isInstance(file))
 			{
-				return this.specificIsOpenReading(this.typeReadableFile.cast(file));
+				return this.specificIsOpen(this.typeReadableFile.cast(file));
 			}
 			
 			throw this.createUnhandledTypeExceptionReadableFile(file);
@@ -302,18 +288,17 @@ public interface AIoHandler
 		{
 			if(this.typeReadableFile.isInstance(file))
 			{
-				return this.specificClose(this.typeReadableFile.cast(file));
-			}
-			
-			throw this.createUnhandledTypeExceptionReadableFile(file);
-		}
+				file.iterateObservers(o ->
+					o.onBeforeFileClose(file)
+				);
+				
+				final boolean result = this.specificClose(this.typeReadableFile.cast(file));
 
-		@Override
-		public boolean isClosed(final AReadableFile file)
-		{
-			if(this.typeReadableFile.isInstance(file))
-			{
-				return this.specificIsClosed(this.typeReadableFile.cast(file));
+				file.iterateObservers(o ->
+					o.onAfterFileClose(file, result)
+				);
+				
+				return result;
 			}
 			
 			throw this.createUnhandledTypeExceptionReadableFile(file);
@@ -331,44 +316,38 @@ public interface AIoHandler
 		}
 
 		@Override
-		public boolean isOpenWriting(final AWritableFile file)
-		{
-			if(this.typeWritableFile.isInstance(file))
-			{
-				return this.specificIsOpenWriting(this.typeWritableFile.cast(file));
-			}
-			
-			throw this.createUnhandledTypeExceptionWritableFile(file);
-		}
-
-		@Override
-		public boolean ensure(final ADirectory directory)
+		public boolean create(final ADirectory directory)
 		{
 			if(this.typeDirectory.isInstance(directory))
 			{
-				return this.specificEnsure(this.typeDirectory.cast(directory));
+				return this.specificCreate(this.typeDirectory.cast(directory));
 			}
 			
 			throw this.createUnhandledTypeExceptionDirectory(directory);
 		}
 
 		@Override
-		public boolean ensure(final AReadableFile file)
-		{
-			if(this.typeReadableFile.isInstance(file))
-			{
-				return this.specificEnsure(this.typeReadableFile.cast(file));
-			}
-			
-			throw this.createUnhandledTypeExceptionReadableFile(file);
-		}
-
-		@Override
-		public ActionReport ensureWritable(final AWritableFile file)
+		public boolean create(final AWritableFile file)
 		{
 			if(this.typeWritableFile.isInstance(file))
 			{
-				return this.specificEnsureWritable(this.typeWritableFile.cast(file));
+				file.parent().iterateObservers(o ->
+					o.onBeforeFileCreate(file)
+				);
+				file.iterateObservers(o ->
+					o.onBeforeFileCreate(file)
+				);
+				
+				final boolean result = this.specificCreate(this.typeWritableFile.cast(file));
+				
+				file.iterateObservers(o ->
+					o.onAfterFileCreate(file, result)
+				);
+				file.parent().iterateObservers(o ->
+					o.onAfterFileCreate(file, result)
+				);
+				
+				return result;
 			}
 			
 			throw this.createUnhandledTypeExceptionWritableFile(file);
@@ -557,7 +536,20 @@ public interface AIoHandler
 		{
 			if(this.typeWritableFile.isInstance(targetFile))
 			{
-				return this.specificWriteBytes(this.typeWritableFile.cast(targetFile), sourceBuffers);
+				targetFile.iterateObservers(o ->
+					o.onBeforeFileWrite(targetFile, sourceBuffers)
+				);
+							
+				final long writeCount = this.specificWriteBytes(
+					this.typeWritableFile.cast(targetFile),
+					sourceBuffers
+				);
+				
+				targetFile.iterateObservers(o ->
+					o.onAfterFileWrite(targetFile, sourceBuffers, writeCount)
+				);
+				
+				return writeCount;
 			}
 			
 			throw this.createUnhandledTypeExceptionWritableFile(targetFile);
@@ -571,7 +563,30 @@ public interface AIoHandler
 		{
 			if(this.typeWritableFile.isInstance(sourceFile))
 			{
+				targetFile.parent().iterateObservers(o ->
+				{
+					o.onBeforeFileMove(sourceFile, targetFile);
+					o.onBeforeFileDelete(sourceFile);
+				});
+				targetFile.iterateObservers(o ->
+				{
+					o.onBeforeFileMove(sourceFile, targetFile);
+					o.onBeforeFileDelete(sourceFile);
+				});
+				
 				this.specificMoveFile(this.typeWritableFile.cast(sourceFile), targetFile);
+				
+				targetFile.iterateObservers(o ->
+				{
+					o.onAfterFileMove(sourceFile, targetFile);
+					o.onAfterFileDelete(sourceFile, true);
+				});
+				targetFile.parent().iterateObservers(o ->
+				{
+					o.onAfterFileMove(sourceFile, targetFile);
+					o.onAfterFileDelete(sourceFile, true);
+				});
+				
 				return;
 			}
 			
@@ -583,7 +598,23 @@ public interface AIoHandler
 		{
 			if(this.typeWritableFile.isInstance(file))
 			{
-				return this.specificDeleteFile(this.typeWritableFile.cast(file));
+				file.parent().iterateObservers(o ->
+					o.onBeforeFileDelete(file)
+				);
+				file.iterateObservers(o ->
+					o.onBeforeFileDelete(file)
+				);
+				
+				final boolean result = this.specificDeleteFile(this.typeWritableFile.cast(file));
+
+				file.iterateObservers(o ->
+					o.onAfterFileDelete(file, result)
+				);
+				file.parent().iterateObservers(o ->
+					o.onAfterFileDelete(file, result)
+				);
+				
+				return result;
 			}
 			
 			throw this.createUnhandledTypeExceptionWritableFile(file);

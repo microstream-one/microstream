@@ -33,6 +33,8 @@ public interface AccessManager
 	
 	public AWritableFile useWriting(AFile file, Object user);
 	
+	public AReadableFile downgrade(AWritableFile file);
+	
 	
 	public boolean unregister(AReadableFile file);
 	
@@ -508,6 +510,16 @@ public interface AccessManager
 			this.usedDirectories.add(actual, entry = new DirEntry(actual));
 			
 			return entry;
+		}
+		
+		@Override
+		public AReadableFile downgrade(final AWritableFile file)
+		{
+			synchronized(this.mutex())
+			{
+				// (27.05.2020 TM)FIXME: priv#49: AccessManager.Default#downgrade()
+				throw new one.microstream.meta.NotImplementedYetError();
+			}
 		}
 		
 		@Override

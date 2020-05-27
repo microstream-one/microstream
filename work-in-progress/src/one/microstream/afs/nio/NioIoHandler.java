@@ -1,14 +1,19 @@
 package one.microstream.afs.nio;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+
+import org.eclipse.jetty.io.RuntimeIOException;
 
 import one.microstream.afs.temp.ADirectory;
 import one.microstream.afs.temp.AFile;
 import one.microstream.afs.temp.AIoHandler;
 import one.microstream.afs.temp.AItem;
 import one.microstream.afs.temp.AWritableFile;
-import one.microstream.afs.temp.ActionReport;
+import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.BufferProvider;
 import one.microstream.io.XIO;
 
@@ -115,23 +120,15 @@ public interface NioIoHandler extends AIoHandler
 		}
 
 		@Override
-		protected boolean specificIsOpenReading(final NioReadableFile file)
+		protected boolean specificIsOpen(final NioReadableFile file)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificIsOpenReading()
-			throw new one.microstream.meta.NotImplementedYetError();
+			return file.fileChannel() != null && file.fileChannel().isOpen();
 		}
 
 		@Override
 		protected boolean specificClose(final NioReadableFile file)
 		{
 			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificClose()
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		protected boolean specificIsClosed(final NioReadableFile file)
-		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificIsClosed()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
@@ -143,38 +140,59 @@ public interface NioIoHandler extends AIoHandler
 		}
 
 		@Override
-		protected boolean specificIsOpenWriting(final NioWritableFile file)
-		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificIsOpenWriting()
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		protected boolean specificEnsure(final ADirectory file)
+		protected boolean specificCreate(final ADirectory file)
 		{
 			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificEnsure()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 
 		@Override
-		protected boolean specificEnsure(final NioReadableFile file)
+		protected boolean specificCreate(final NioWritableFile file)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificEnsure()
-			throw new one.microstream.meta.NotImplementedYetError();
+			try
+			{
+				// (27.05.2020 TM)FIXME: priv#49: does it create parent directories automatically?
+				Files.createFile(file.path());
+			}
+			catch(final FileAlreadyExistsException e)
+			{
+				return false;
+			}
+			catch(final IOException e)
+			{
+				throw new RuntimeIOException(e);
+			}
+
+			return true;
 		}
 
 		@Override
-		protected ActionReport specificEnsureWritable(final NioWritableFile file)
+		protected boolean specificDeleteFile(final NioWritableFile file)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificEnsureWritable()
-			throw new one.microstream.meta.NotImplementedYetError();
+			try
+			{
+				return XIO.delete(file.path());
+			}
+			catch (final IOException e)
+			{
+				throw new RuntimeIOException(e);
+			}
 		}
 
 		@Override
 		protected ByteBuffer specificReadBytes(final NioReadableFile sourceFile)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificReadBytes()
-			throw new one.microstream.meta.NotImplementedYetError();
+			// ensure file is opened for reading
+			this.openReading(sourceFile);
+			
+			try
+			{
+				return XIO.read(sourceFile.fileChannel());
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
 		}
 
 		@Override
@@ -183,8 +201,17 @@ public interface NioIoHandler extends AIoHandler
 			final long            position
 		)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificReadBytes()
-			throw new one.microstream.meta.NotImplementedYetError();
+			// ensure file is opened for reading
+			this.openReading(sourceFile);
+			
+			try
+			{
+				return XIO.read(sourceFile.fileChannel(), position);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
 		}
 
 		@Override
@@ -194,8 +221,17 @@ public interface NioIoHandler extends AIoHandler
 			final long            length
 		)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificReadBytes()
-			throw new one.microstream.meta.NotImplementedYetError();
+			// ensure file is opened for reading
+			this.openReading(sourceFile);
+			
+			try
+			{
+				return XIO.read(sourceFile.fileChannel(), position, length);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
 		}
 
 		@Override
@@ -204,8 +240,17 @@ public interface NioIoHandler extends AIoHandler
 			final ByteBuffer      targetBuffer
 		)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificReadBytes()
-			throw new one.microstream.meta.NotImplementedYetError();
+			// ensure file is opened for reading
+			this.openReading(sourceFile);
+			
+			try
+			{
+				return XIO.read(sourceFile.fileChannel(), targetBuffer);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
 		}
 
 		@Override
@@ -215,8 +260,17 @@ public interface NioIoHandler extends AIoHandler
 			final long            position
 		)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificReadBytes()
-			throw new one.microstream.meta.NotImplementedYetError();
+			// ensure file is opened for reading
+			this.openReading(sourceFile);
+			
+			try
+			{
+				return XIO.read(sourceFile.fileChannel(), targetBuffer, position);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
 		}
 
 		@Override
@@ -227,8 +281,17 @@ public interface NioIoHandler extends AIoHandler
 			final long            length
 		)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificReadBytes()
-			throw new one.microstream.meta.NotImplementedYetError();
+			// ensure file is opened for reading
+			this.openReading(sourceFile);
+			
+			try
+			{
+				return XIO.read(sourceFile.fileChannel(), targetBuffer, position, length);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
 		}
 
 		@Override
@@ -237,8 +300,15 @@ public interface NioIoHandler extends AIoHandler
 			final BufferProvider  bufferProvider
 		)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificReadBytes()
-			throw new one.microstream.meta.NotImplementedYetError();
+			bufferProvider.initializeOperation();
+			try
+			{
+				return this.specificReadBytes(sourceFile, bufferProvider.provideNextBuffer());
+			}
+			finally
+			{
+				bufferProvider.completeOperation();
+			}
 		}
 
 		@Override
@@ -248,8 +318,15 @@ public interface NioIoHandler extends AIoHandler
 			final long            position
 		)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificReadBytes()
-			throw new one.microstream.meta.NotImplementedYetError();
+			bufferProvider.initializeOperation();
+			try
+			{
+				return this.specificReadBytes(sourceFile, bufferProvider.provideNextBuffer(), position);
+			}
+			finally
+			{
+				bufferProvider.completeOperation();
+			}
 		}
 
 		@Override
@@ -260,8 +337,15 @@ public interface NioIoHandler extends AIoHandler
 			final long            length
 		)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificReadBytes()
-			throw new one.microstream.meta.NotImplementedYetError();
+			bufferProvider.initializeOperation();
+			try
+			{
+				return this.specificReadBytes(sourceFile, bufferProvider.provideNextBuffer(), position, length);
+			}
+			finally
+			{
+				bufferProvider.completeOperation();
+			}
 		}
 
 		@Override
@@ -303,8 +387,17 @@ public interface NioIoHandler extends AIoHandler
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificWriteBytes()
-			throw new one.microstream.meta.NotImplementedYetError();
+			// ensure file is opened for writing
+			this.openWriting(targetFile);
+			
+			try
+			{
+				return XIO.write(targetFile.fileChannel(), sourceBuffers);
+			}
+			catch (final IOException e)
+			{
+				throw new RuntimeIOException(e);
+			}
 		}
 
 		@Override
@@ -314,13 +407,6 @@ public interface NioIoHandler extends AIoHandler
 		)
 		{
 			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificMoveFile()
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
-
-		@Override
-		protected boolean specificDeleteFile(final NioWritableFile file)
-		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificDeleteFile()
 			throw new one.microstream.meta.NotImplementedYetError();
 		}
 		

@@ -1000,6 +1000,22 @@ public final class XIO
 		return writeCount;
 	}
 	
+	public static long write(
+		final FileChannel                    fileChannel,
+		final Iterable<? extends ByteBuffer> buffers
+	)
+		throws IOException
+	{
+		long writeCount = 0;
+		
+		for(final ByteBuffer buffer : buffers)
+		{
+			writeCount += write(fileChannel, buffer);
+		}
+		
+		return writeCount;
+	}
+	
 	public static final <T> T performClosingOperation(
 		final FileChannel                   fileChannel,
 		final IoOperationSR<FileChannel, T> operation
@@ -1019,11 +1035,20 @@ public final class XIO
 	public static ByteBuffer read(final FileChannel fileChannel)
 		throws IOException
 	{
-		return read(fileChannel, 0, fileChannel.size());
+		return read(fileChannel, 0);
 	}
 	
 	public static ByteBuffer read(
-		final FileChannel fileChannel,
+		final FileChannel fileChannel ,
+		final long        filePosition
+	)
+		throws IOException
+	{
+		return read(fileChannel, filePosition, fileChannel.size());
+	}
+	
+	public static ByteBuffer read(
+		final FileChannel fileChannel ,
 		final long        filePosition,
 		final long        length
 	)
@@ -1064,11 +1089,32 @@ public final class XIO
 				+ targetBuffer.remaining() + " < " + length
 			);
 		}
-
-		final int  targetLimit = X.checkArrayRange(targetBuffer.position() + length);
+		
+		return internalRead(fileChannel, targetBuffer, filePosition, length);
+	}
+	
+	public static long read(
+		final FileChannel fileChannel ,
+		final ByteBuffer  targetBuffer,
+		final long        filePosition
+	)
+		throws IOException
+	{
+		return internalRead(fileChannel, targetBuffer, filePosition, targetBuffer.remaining());
+	}
+	
+	private static long internalRead(
+		final FileChannel fileChannel ,
+		final ByteBuffer  targetBuffer,
+		final long        filePosition,
+		final long        effectiveLength
+	)
+		throws IOException
+	{
+		final int  targetLimit = X.checkArrayRange(targetBuffer.position() + effectiveLength);
 		final long fileLength  = fileChannel.size();
 		
-		long fileOffset = X.validateRange(fileLength, filePosition, length);
+		long fileOffset = X.validateRange(fileLength, filePosition, effectiveLength);
 		targetBuffer.limit(targetLimit);
 		
 		// reading should be done in one fell swoop, but better be sure

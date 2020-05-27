@@ -230,32 +230,74 @@ public interface AFile extends AItem
 		
 	}
 
-	// (19.05.2020 TM)TODO: priv#49: call Observer methods
+	// (27.05.2020 TM)TODO: priv#49: Composite Observer implementation with lambda-based factory
 	public interface Observer
 	{
-		public void onBeforeFileWrite(AWritableFile targetFile, Iterable<? extends ByteBuffer> sources);
+		public default void onBeforeFileWrite(
+			final AWritableFile                  targetFile,
+			final Iterable<? extends ByteBuffer> sources
+		)
+		{
+			// no-op by default
+		}
 
-		public void onAfterFileWrite(AWritableFile targetFile, Iterable<? extends ByteBuffer> sources, long writeTime);
+		public default void onAfterFileWrite(
+			final AWritableFile                  targetFile,
+			final Iterable<? extends ByteBuffer> sources   ,
+			final long                           writeCount
+		)
+		{
+			// no-op by default
+		}
 		
+		public default void onBeforeFileMove(
+			final AWritableFile sourceFile,
+			final AWritableFile targetFile
+		)
+		{
+			// no-op by default
+		}
 		
-		public void onBeforeFileMove(AFile fileToMove, ADirectory targetDirectory);
+		public default void onAfterFileMove(
+			final AWritableFile sourceFile,
+			final AWritableFile targetFile
+		)
+		{
+			// no-op by default
+		}
 		
-		public void onAfterFileMove(AFile movedFile, ADirectory sourceDirectory, long deletionTime);
+		public default void onBeforeFileClose(final AReadableFile fileToClose)
+		{
+			// no-op by default
+		}
 		
+		public default void onAfterFileClose(final AReadableFile closedFile, final boolean result)
+		{
+			// no-op by default
+		}
 		
-		public void onBeforeFileCloseReading(AReadableFile fileToClose);
+		public default void onBeforeFileCreate(final AWritableFile fileToCreate)
+		{
+			// no-op by default
+		}
 		
-		public void onAfterFileCloseReading(AReadableFile closedFile);
+		public default void onAfterFileCreate(final AWritableFile fileToCreate, final boolean result)
+		{
+			// no-op by default
+		}
+				
+		public default void onBeforeFileDelete(final AWritableFile fileToDelete)
+		{
+			// no-op by default
+		}
 		
-		
-		public void onBeforeFileCloseWriting(AWritableFile fileToClose);
-		
-		public void onAfterFileCloseWriting(AWritableFile closedFile);
-		
-		
-		public void onBeforeFileDelete(AFile fileToDelete);
-		
-		public void onAfterFileDelete(AFile deletedFile, long deletionTime);
+		public default void onAfterFileDelete(
+			final AWritableFile deletedFile,
+			final boolean       result
+		)
+		{
+			// no-op by default
+		}
 		
 	}
 
