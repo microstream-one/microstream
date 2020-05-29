@@ -115,5 +115,9 @@ public interface AReadableFile extends AFile.Wrapper
 	{
 		return this.actual().fileSystem().ioHandler().copyTo(this, target, sourcePosition, length);
 	}
+	
+	public boolean retire();
+	
+	public void validateIsActive();
 		
 }

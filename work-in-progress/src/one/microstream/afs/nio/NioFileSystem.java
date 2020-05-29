@@ -117,6 +117,30 @@ public interface NioFileSystem extends AFileSystem
 			return NioWritableFile.New(file, user, path);
 		}
 		
+		@Override
+		public synchronized AReadableFile convertToReading(final AWritableFile file)
+		{
+			// kind of ugly/unclean casts, but there's no acceptble way to prevent it.
+			return NioReadableFile.New(
+				file,
+				file.user(),
+				((NioWritableFile)file).path(),
+				((NioWritableFile)file).fileChannel()
+			);
+		}
+		
+		@Override
+		public synchronized AWritableFile convertToWriting(final AReadableFile file)
+		{
+			// kind of ugly/unclean casts, but there's no acceptble way to prevent it.
+			return NioWritableFile.New(
+				file,
+				file.user(),
+				((NioReadableFile)file).path(),
+				((NioReadableFile)file).fileChannel()
+			);
+		}
+		
 	}
 	
 }

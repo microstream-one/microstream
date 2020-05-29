@@ -55,9 +55,13 @@ public interface AIoHandler
 	
 	public long copyTo(AReadableFile sourceFile, AWritableFile target);
 	
-	public long copyTo(AReadableFile sourceFile, AWritableFile target, long sourcePosition);
+	public long copyTo(AReadableFile sourceFile, long sourcePosition, AWritableFile target);
 	
-	public long copyTo(AReadableFile sourceFile, AWritableFile target, long sourcePosition, long length);
+	public long copyTo(AReadableFile sourceFile, long sourcePosition, long length, AWritableFile target);
+	
+	public long copyTo(AReadableFile sourceFile, AWritableFile target, long targetPosition);
+	
+	public long copyTo(AReadableFile sourceFile, AWritableFile target, long targetPosition, long length);
 	
 	
 	
@@ -159,9 +163,13 @@ public interface AIoHandler
 		
 		protected abstract long specificCopyTo(R sourceFile, AWritableFile target);
 		
-		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long sourcePosition);
+		protected abstract long specificCopyTo(R sourceFile, long sourcePosition, AWritableFile target);
 		
-		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long sourcePosition, long length);
+		protected abstract long specificCopyTo(R sourceFile, long sourcePosition, long length, AWritableFile target);
+		
+		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long targetPosition);
+
+		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long targetPosition, long length);
 		
 		
 		protected abstract long specificWriteBytes(W targetFile, Iterable<? extends ByteBuffer> sourceBuffers);
@@ -214,6 +222,42 @@ public interface AIoHandler
 		{
 			return this.createUnhandledTypeException(subject, this.typeWritableFile, 1);
 		}
+		
+		protected boolean isHandledItem(final AItem item)
+		{
+			return this.typeItem.isInstance(item);
+		}
+		
+		protected boolean isHandledFile(final AFile file)
+		{
+			return this.typeFile.isInstance(file);
+		}
+		
+		protected boolean isHandledDirectory(final ADirectory directory)
+		{
+			return this.typeDirectory.isInstance(directory);
+		}
+		
+		protected boolean isHandledReadableFile(final AReadableFile file)
+		{
+			return this.typeReadableFile.isInstance(file);
+		}
+		
+		protected boolean isHandledWritableFile(final AWritableFile file)
+		{
+			return this.typeWritableFile.isInstance(file);
+		}
+		
+		protected W castWritableFile(final AWritableFile file)
+		{
+			if(this.isHandledWritableFile(file))
+			{
+				return this.typeWritableFile.cast(file);
+			}
+			
+			throw this.createUnhandledTypeExceptionWritableFile(file);
+		}
+		
 
 		
 		protected abstract FS toSubjectFile(final AFile file);
@@ -231,7 +275,7 @@ public interface AIoHandler
 		@Override
 		public long size(final AFile file)
 		{
-			if(this.typeFile.isInstance(file))
+			if(this.isHandledFile(file))
 			{
 				return this.specificSize(this.typeFile.cast(file));
 			}
@@ -242,7 +286,7 @@ public interface AIoHandler
 		@Override
 		public boolean exists(final AFile file)
 		{
-			if(this.typeFile.isInstance(file))
+			if(this.isHandledFile(file))
 			{
 				return this.specificExists(this.typeFile.cast(file));
 			}
@@ -253,7 +297,7 @@ public interface AIoHandler
 		@Override
 		public boolean exists(final ADirectory directory)
 		{
-			if(this.typeDirectory.isInstance(directory))
+			if(this.isHandledDirectory(directory))
 			{
 				return this.specificExists(this.typeDirectory.cast(directory));
 			}
@@ -264,7 +308,7 @@ public interface AIoHandler
 		@Override
 		public boolean openReading(final AReadableFile file)
 		{
-			if(this.typeReadableFile.isInstance(file))
+			if(this.isHandledReadableFile(file))
 			{
 				return this.specificOpenReading(this.typeReadableFile.cast(file));
 			}
@@ -275,7 +319,7 @@ public interface AIoHandler
 		@Override
 		public boolean isOpen(final AReadableFile file)
 		{
-			if(this.typeReadableFile.isInstance(file))
+			if(this.isHandledReadableFile(file))
 			{
 				return this.specificIsOpen(this.typeReadableFile.cast(file));
 			}
@@ -286,7 +330,7 @@ public interface AIoHandler
 		@Override
 		public boolean close(final AReadableFile file)
 		{
-			if(this.typeReadableFile.isInstance(file))
+			if(this.isHandledReadableFile(file))
 			{
 				file.iterateObservers(o ->
 					o.onBeforeFileClose(file)
@@ -307,7 +351,7 @@ public interface AIoHandler
 		@Override
 		public boolean openWriting(final AWritableFile file)
 		{
-			if(this.typeWritableFile.isInstance(file))
+			if(this.isHandledWritableFile(file))
 			{
 				return this.specificOpenWriting(this.typeWritableFile.cast(file));
 			}
@@ -318,7 +362,7 @@ public interface AIoHandler
 		@Override
 		public boolean create(final ADirectory directory)
 		{
-			if(this.typeDirectory.isInstance(directory))
+			if(this.isHandledDirectory(directory))
 			{
 				return this.specificCreate(this.typeDirectory.cast(directory));
 			}
@@ -329,7 +373,7 @@ public interface AIoHandler
 		@Override
 		public boolean create(final AWritableFile file)
 		{
-			if(this.typeWritableFile.isInstance(file))
+			if(this.isHandledWritableFile(file))
 			{
 				file.parent().iterateObservers(o ->
 					o.onBeforeFileCreate(file)
@@ -356,7 +400,7 @@ public interface AIoHandler
 		@Override
 		public ByteBuffer readBytes(final AReadableFile sourceFile)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
 				return this.specificReadBytes(this.typeReadableFile.cast(sourceFile));
 			}
@@ -370,7 +414,7 @@ public interface AIoHandler
 			final long          position
 		)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
 				return this.specificReadBytes(this.typeReadableFile.cast(sourceFile), position);
 			}
@@ -385,7 +429,7 @@ public interface AIoHandler
 			final long          length
 		)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
 				return this.specificReadBytes(this.typeReadableFile.cast(sourceFile), position, length);
 			}
@@ -399,7 +443,7 @@ public interface AIoHandler
 			final ByteBuffer    targetBuffer
 		)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
 				return this.specificReadBytes(this.typeReadableFile.cast(sourceFile), targetBuffer);
 			}
@@ -414,7 +458,7 @@ public interface AIoHandler
 			final long          position
 		)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
 				return this.specificReadBytes(this.typeReadableFile.cast(sourceFile), targetBuffer, position);
 			}
@@ -430,7 +474,7 @@ public interface AIoHandler
 			final long          length
 		)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
 				return this.specificReadBytes(this.typeReadableFile.cast(sourceFile), targetBuffer, position, length);
 			}
@@ -444,7 +488,7 @@ public interface AIoHandler
 			final BufferProvider bufferProvider
 		)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
 				return this.specificReadBytes(this.typeReadableFile.cast(sourceFile), bufferProvider);
 			}
@@ -459,7 +503,7 @@ public interface AIoHandler
 			final long           position
 		)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
 				return this.specificReadBytes(this.typeReadableFile.cast(sourceFile), bufferProvider, position);
 			}
@@ -475,7 +519,7 @@ public interface AIoHandler
 			final long           length
 		)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
 				return this.specificReadBytes(this.typeReadableFile.cast(sourceFile), bufferProvider, position, length);
 			}
@@ -489,24 +533,40 @@ public interface AIoHandler
 			final AWritableFile target
 		)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
 				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target);
 			}
 			
 			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
 		}
-
+		
 		@Override
 		public long copyTo(
 			final AReadableFile sourceFile    ,
-			final AWritableFile target        ,
-			final long          sourcePosition
+			final long          sourcePosition,
+			final AWritableFile target
 		)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
-				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, sourcePosition);
+				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), sourcePosition, target);
+			}
+			
+			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
+		}
+		
+		@Override
+		public long copyTo(
+			final AReadableFile sourceFile    ,
+			final long          sourcePosition,
+			final long          length        ,
+			final AWritableFile target
+		)
+		{
+			if(this.isHandledReadableFile(sourceFile))
+			{
+				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), sourcePosition, length, target);
 			}
 			
 			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
@@ -516,13 +576,28 @@ public interface AIoHandler
 		public long copyTo(
 			final AReadableFile sourceFile    ,
 			final AWritableFile target        ,
-			final long          sourcePosition,
+			final long          targetPosition
+		)
+		{
+			if(this.isHandledReadableFile(sourceFile))
+			{
+				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, targetPosition);
+			}
+			
+			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
+		}
+
+		@Override
+		public long copyTo(
+			final AReadableFile sourceFile    ,
+			final AWritableFile target        ,
+			final long          targetPosition,
 			final long          length
 		)
 		{
-			if(this.typeReadableFile.isInstance(sourceFile))
+			if(this.isHandledReadableFile(sourceFile))
 			{
-				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, sourcePosition, length);
+				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, targetPosition, length);
 			}
 			
 			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
@@ -534,7 +609,7 @@ public interface AIoHandler
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			if(this.typeWritableFile.isInstance(targetFile))
+			if(this.isHandledWritableFile(targetFile))
 			{
 				targetFile.iterateObservers(o ->
 					o.onBeforeFileWrite(targetFile, sourceBuffers)
@@ -555,13 +630,14 @@ public interface AIoHandler
 			throw this.createUnhandledTypeExceptionWritableFile(targetFile);
 		}
 
+		// (28.05.2020 TM)TODO: priv#49: call moveFile (plus unregister...? Or intentionally not?)
 		@Override
 		public void moveFile(
 			final AWritableFile sourceFile,
 			final AWritableFile targetFile
 		)
 		{
-			if(this.typeWritableFile.isInstance(sourceFile))
+			if(this.isHandledWritableFile(sourceFile))
 			{
 				targetFile.parent().iterateObservers(o ->
 				{
@@ -596,7 +672,7 @@ public interface AIoHandler
 		@Override
 		public boolean deleteFile(final AWritableFile file)
 		{
-			if(this.typeWritableFile.isInstance(file))
+			if(this.isHandledWritableFile(file))
 			{
 				file.parent().iterateObservers(o ->
 					o.onBeforeFileDelete(file)

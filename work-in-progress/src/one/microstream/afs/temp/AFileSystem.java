@@ -40,6 +40,10 @@ public interface AFileSystem extends AResolving
 	public AReadableFile wrapForReading(AFile file, Object user);
 
 	public AWritableFile wrapForWriting(AFile file, Object user);
+	
+	public AReadableFile convertToReading(AWritableFile file);
+	
+	public AWritableFile convertToWriting(AReadableFile file);
 
 	// implicitely #close PLUS the AFS-management-level aspect
 	public default ActionReport release(final AReadableFile file)
@@ -113,7 +117,7 @@ public interface AFileSystem extends AResolving
 		private final EqHashTable<String, ADirectory> rootDirectories;
 		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
-		private final AIoHandler                       ioHandler      ;
+		private final AIoHandler                      ioHandler      ;
 		
 		
 		
@@ -132,7 +136,7 @@ public interface AFileSystem extends AResolving
 		protected Abstract(
 			final String           defaultProtocol,
 			final ACreator.Creator creatorCreator ,
-			final AIoHandler        ioHandler
+			final AIoHandler       ioHandler
 		)
 		{
 			this(defaultProtocol, creatorCreator, AccessManager::New, ioHandler);
@@ -142,7 +146,7 @@ public interface AFileSystem extends AResolving
 			final String                     defaultProtocol     ,
 			final ACreator.Creator           creatorCreator      ,
 			final AccessManager.Creator      accessManagerCreator,
-			final AIoHandler                  ioHandler
+			final AIoHandler                 ioHandler
 		)
 		{
 			super();

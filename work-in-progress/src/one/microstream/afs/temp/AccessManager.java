@@ -152,21 +152,13 @@ public interface AccessManager
 		{
 			private static final AReadableFile[] NO_SHARED_USERS = new AReadableFile[0];
 		
-			private AReadableFile[] sharedUsers;
+			private AReadableFile[] sharedUsers = NO_SHARED_USERS;
 			
 			AWritableFile exclusive;
 			
-			FileEntry(final AReadableFile wrapper)
+			FileEntry()
 			{
 				super();
-				this.sharedUsers = X.Array(wrapper);
-			}
-			
-			FileEntry(final AWritableFile wrapper)
-			{
-				super();
-				this.exclusive = wrapper;
-				this.sharedUsers = NO_SHARED_USERS;
 			}
 			
 			final boolean hasSharedUsers()
@@ -174,9 +166,12 @@ public interface AccessManager
 				return this.sharedUsers != NO_SHARED_USERS;
 			}
 			
-			final boolean isSoleUser(final Object user)
+			final AReadableFile getIfSoleUser(final Object user)
 			{
-				return this.sharedUsers.length == 1 && this.sharedUsers[0].user() == user;
+				return this.sharedUsers.length == 1 && this.sharedUsers[0].user() == user
+					? this.sharedUsers[0]
+					: null
+				;
 			}
 			
 			final AReadableFile getForUser(final Object user)
@@ -444,10 +439,7 @@ public interface AccessManager
 				final FileEntry e = this.fileUsers.get(actual);
 				if(e == null)
 				{
-					final AReadableFile wrapper = this.synchRegisterReading(actual, user);
-					this.fileUsers.add(actual, new FileEntry(wrapper));
-					
-					return wrapper;
+					return this.synchRegisterReading(this.createFileEntry(actual), actual, user);
 				}
 				
 				if(e.exclusive != null)
@@ -464,12 +456,31 @@ public interface AccessManager
 				AReadableFile wrapper = e.getForUser(user);
 				if(wrapper == null)
 				{
-					wrapper = this.synchRegisterReading(actual, user);
-					e.add(wrapper);
+					wrapper = this.synchRegisterReading(e, actual, user);
 				}
 				
 				return wrapper;
 			}
+		}
+		
+		private FileEntry createFileEntry(final AFile actual)
+		{
+			final FileEntry e = new FileEntry();
+			this.fileUsers.add(actual, e);
+			
+			return e;
+		}
+		
+		private AReadableFile synchRegisterReading(
+			final FileEntry entry ,
+			final AFile     actual,
+			final Object    user
+		)
+		{
+			final AReadableFile wrapper = this.synchRegisterReading(actual, user);
+			entry.add(wrapper);
+			
+			return wrapper;
 		}
 		
 		private AReadableFile synchRegisterReading(
@@ -481,6 +492,16 @@ public interface AccessManager
 			this.incrementDirectoryUsageCount(actual.parent());
 
 			return this.fileSystem().wrapForReading(actual, user);
+		}
+		
+		private AReadableFile synchConvertToReading(
+			final AWritableFile file
+		)
+		{
+			this.checkForMutatingParents(file.actual(), file.user());
+			this.incrementDirectoryUsageCount(file.actual().parent());
+
+			return this.fileSystem().convertToReading(file);
 		}
 				
 		protected final void incrementDirectoryUsageCount(final ADirectory directory)
@@ -517,8 +538,27 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
-				// (27.05.2020 TM)FIXME: priv#49: AccessManager.Default#downgrade()
-				throw new one.microstream.meta.NotImplementedYetError();
+				file.validateIsActive();
+				
+				final AFile actual = AFile.actual(file);
+				final FileEntry e = this.fileUsers.get(actual);
+				if(e == null)
+				{
+					// (28.05.2020 TM)EXCP: proper exception
+					throw new RuntimeException();
+				}
+				if(e.exclusive != file)
+				{
+					// (28.05.2020 TM)EXCP: proper exception
+					throw new RuntimeException();
+				}
+				
+				final AReadableFile wrapper = this.synchConvertToReading(file);
+				e.add(wrapper);
+				
+				unregisterExclusive(file, e);
+				
+				return wrapper;
 			}
 		}
 		
@@ -534,10 +574,7 @@ public interface AccessManager
 				final FileEntry e = this.fileUsers.get(actual);
 				if(e == null)
 				{
-					final AWritableFile wrapper = this.synchRegisterWriting(actual, user);
-					this.fileUsers.add(actual, new FileEntry(wrapper));
-					
-					return wrapper;
+					return this.createFileEntry(actual).exclusive = this.synchRegisterWriting(actual, user);
 				}
 				
 				if(e.exclusive != null)
@@ -553,8 +590,10 @@ public interface AccessManager
 				
 				if(e.hasSharedUsers())
 				{
-					if(e.isSoleUser(user))
+					final AReadableFile soleUserFile = e.getIfSoleUser(user);
+					if(soleUserFile != null)
 					{
+						e.exclusive = this.synchConvertToWriting(soleUserFile);
 						e.removeForUser(user);
 					}
 					else
@@ -566,11 +605,12 @@ public interface AccessManager
 						);
 					}
 				}
-	
-				final AWritableFile wrapper = this.synchRegisterWriting(actual, user);
-				e.exclusive = wrapper;
+				else
+				{
+					e.exclusive = this.synchRegisterWriting(actual, user);
+				}
 				
-				return wrapper;
+				return e.exclusive;
 			}
 		}
 
@@ -584,6 +624,16 @@ public interface AccessManager
 			this.incrementDirectoryUsageCount(actual.parent());
 						
 			return this.fileSystem().wrapForWriting(actual, user);
+		}
+		
+		private AWritableFile synchConvertToWriting(
+			final AReadableFile file
+		)
+		{
+			this.checkForMutatingParents(file.actual(), file.user());
+			this.incrementDirectoryUsageCount(file.actual().parent());
+
+			return this.fileSystem().convertToWriting(file);
 		}
 		
 		private void checkForMutatingParents(final AFile actual, final Object user)
@@ -638,7 +688,6 @@ public interface AccessManager
 			this.decrementDirectoryUsageCount(actual.parent());
 			optimizeMemoryUsage(this.fileUsers);
 			
-			
 			return true;
 		}
 		
@@ -691,6 +740,8 @@ public interface AccessManager
 				return true;
 			}
 			
+			file.retire();
+			
 			return entry.remove(file);
 		}
 		
@@ -701,9 +752,15 @@ public interface AccessManager
 			{
 				return false;
 			}
-			entry.exclusive = null;
+			unregisterExclusive(file, entry);
 			
 			return true;
+		}
+		
+		protected static void unregisterExclusive(final AReadableFile file, final FileEntry entry)
+		{
+			entry.exclusive = null;
+			file.retire();
 		}
 				
 	}

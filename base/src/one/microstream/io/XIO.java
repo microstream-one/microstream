@@ -145,7 +145,7 @@ public final class XIO
 			throw UtilStackTrace.cutStacktraceByOne(new IORuntimeException(e));
 		}
 	}
-	
+		
 	public static final <C extends Closeable> C close(
 		final C         closable  ,
 		final Throwable suppressed
@@ -161,10 +161,10 @@ public final class XIO
 		{
 			closable.close();
 		}
-		catch(final IOException t)
+		catch(final IOException e)
 		{
-			t.addSuppressed(suppressed);
-			throw t;
+			e.addSuppressed(suppressed);
+			throw e;
 		}
 		
 		return closable;
@@ -185,10 +185,10 @@ public final class XIO
 		{
 			closable.close();
 		}
-		catch(final Exception t)
+		catch(final Exception e)
 		{
-			t.addSuppressed(suppressed);
-			throw t;
+			e.addSuppressed(suppressed);
+			throw e;
 		}
 		
 		return closable;
@@ -1196,19 +1196,104 @@ public final class XIO
 	 * @see FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)
 	 * @see #copyFile(Path, Path)
 	 */
-	public static long copyFile(final FileChannel sourceChannel, final FileChannel targetChannel)
+	public static long copyFile(
+		final FileChannel sourceChannel,
+		final FileChannel targetChannel
+	)
 		throws IOException
 	{
-		return targetChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+		return copyFile(sourceChannel, targetChannel, 0);
 	}
 	
+	public static long copyFile(
+		final FileChannel sourceChannel ,
+		final FileChannel targetChannel ,
+		final long        targetPosition
+	)
+		throws IOException
+	{
+		return targetChannel.transferFrom(sourceChannel, targetPosition, sourceChannel.size());
+	}
 	
+	public static long copyFile(
+		final FileChannel sourceChannel ,
+		final long        sourcePosition,
+		final FileChannel targetChannel
+	)
+		throws IOException
+	{
+		return copyFile(sourceChannel, sourcePosition, sourceChannel.size() - sourcePosition, targetChannel);
+	}
 	
+	public static long copyFile(
+		final FileChannel sourceChannel ,
+		final long        sourcePosition,
+		final long        length        ,
+		final FileChannel targetChannel
+	)
+		throws IOException
+	{
+		return sourceChannel.transferTo(sourcePosition, length, targetChannel);
+	}
 	
+	public static long copyFile(
+		final FileChannel sourceChannel ,
+		final FileChannel targetChannel ,
+		final long        targetPosition,
+		final long        length
+	)
+		throws IOException
+	{
+		return targetChannel.transferFrom(sourceChannel, targetPosition, length);
+	}
 	
 	// breaks naming conventions intentionally to indicate a modification of called methods instead of a type
 	public static final class unchecked
 	{
+		public static final <C extends Closeable> C close(
+			final C closable
+		)
+			throws IORuntimeException
+		{
+			if(closable == null)
+			{
+				return null;
+			}
+			
+			try
+			{
+				closable.close();
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+			
+			return closable;
+		}
+		
+		public static final <C extends AutoCloseable> C close(
+			final C closable
+		)
+			throws RuntimeException
+		{
+			if(closable == null)
+			{
+				return null;
+			}
+			
+			try
+			{
+				closable.close();
+			}
+			catch(final Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+			
+			return closable;
+		}
+		
 		public static final <C extends Closeable> C close(
 			final C         closable  ,
 			final Throwable suppressed
