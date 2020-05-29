@@ -3,8 +3,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 
-import org.eclipse.jetty.io.RuntimeIOException;
-
+import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.XIO;
 
 public class MainTestFileChannelOpening
@@ -26,7 +25,7 @@ public class MainTestFileChannelOpening
 	private static final FileChannel FC = uncheckedOpenFileChannelReading(SOURCE);
 	
 	private static final FileChannel uncheckedOpenFileChannelReading(final Path source)
-		throws RuntimeIOException
+		throws IORuntimeException
 	{
 		try
 		{
@@ -35,7 +34,7 @@ public class MainTestFileChannelOpening
 		catch(final IOException e)
 		{
 			// FU
-			throw new RuntimeIOException(e);
+			throw new IORuntimeException(e);
 		}
 	}
 	
