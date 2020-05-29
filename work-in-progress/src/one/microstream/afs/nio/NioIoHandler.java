@@ -6,8 +6,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.eclipse.jetty.io.RuntimeIOException;
-
 import one.microstream.afs.temp.ADirectory;
 import one.microstream.afs.temp.AFile;
 import one.microstream.afs.temp.AIoHandler;
@@ -137,10 +135,13 @@ public interface NioIoHandler extends AIoHandler
 		}
 
 		@Override
-		protected boolean specificCreate(final ADirectory file)
+		protected boolean specificCreate(final ADirectory directory)
 		{
-			// FIXME AIoHandler.Abstract<Path,Path,NioItemWrapper,NioFileWrapper,ADirectory,NioReadableFile,NioWritableFile>#specificEnsure()
-			throw new one.microstream.meta.NotImplementedYetError();
+			final Path dir = NioFileSystem.toPath(directory);
+			final boolean exists = XIO.unchecked.exists(dir);
+			XIO.unchecked.ensureDirectory(dir);
+
+			return !exists;
 		}
 
 		@Override
@@ -148,7 +149,7 @@ public interface NioIoHandler extends AIoHandler
 		{
 			try
 			{
-				// (27.05.2020 TM)FIXME: priv#49: does it create parent directories automatically?
+				// (27.05.2020 TM)FIXME: priv#49: test: does it create parent directories automatically?
 				Files.createFile(file.path());
 			}
 			catch(final FileAlreadyExistsException e)
@@ -157,7 +158,7 @@ public interface NioIoHandler extends AIoHandler
 			}
 			catch(final IOException e)
 			{
-				throw new RuntimeIOException(e);
+				throw new IORuntimeException(e);
 			}
 
 			return true;
@@ -172,7 +173,7 @@ public interface NioIoHandler extends AIoHandler
 			}
 			catch (final IOException e)
 			{
-				throw new RuntimeIOException(e);
+				throw new IORuntimeException(e);
 			}
 		}
 
@@ -459,7 +460,7 @@ public interface NioIoHandler extends AIoHandler
 			}
 			catch (final IOException e)
 			{
-				throw new RuntimeIOException(e);
+				throw new IORuntimeException(e);
 			}
 		}
 
