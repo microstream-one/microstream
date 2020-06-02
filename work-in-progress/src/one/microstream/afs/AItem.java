@@ -1,6 +1,9 @@
-package one.microstream.afs.temp;
+package one.microstream.afs;
 
 import static one.microstream.X.notNull;
+
+import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 
 public interface AItem
 {
@@ -55,6 +58,10 @@ public interface AItem
 	public boolean exists();
 		
 	
+	public static char defaultSeparator()
+	{
+		return '/';
+	}
 
 	
 	public static String[] buildItemPath(final AItem item)
@@ -69,14 +76,37 @@ public interface AItem
 		final String[] path = new String[depth];
 		for(AItem i = item; i != null; i = i.parent())
 		{
-			path[--depth] = item.identifier();
+			path[--depth] = i.identifier();
 		}
 		
 		return path;
 	}
 	
+	public static VarString assembleDebugString(final AItem item, final VarString vs)
+	{
+		XChars.addSystemString(item, vs);
+		vs.add('(').add('"');
+		XChars.appendArraySeperated(vs, AItem.defaultSeparator(), (Object[])AItem.buildItemPath(item));
+		vs.add('"').add(')');
 		
-	public abstract class Abstract implements AItem
+		return vs;
+	}
+	
+	
+	public abstract class Base implements AItem
+	{
+		
+		@Override
+		public String toString()
+		{
+			final VarString vs = VarString.New(50);
+			AItem.assembleDebugString(this, vs);
+			
+			return vs.toString();
+		}
+	}
+	
+	public abstract class Abstract extends AItem.Base
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

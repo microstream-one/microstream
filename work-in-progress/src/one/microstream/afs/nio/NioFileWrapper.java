@@ -8,7 +8,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 
-import one.microstream.afs.temp.AFile;
+import one.microstream.afs.AFile;
 import one.microstream.chars.XChars;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.XIO;
@@ -19,7 +19,7 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 	
 	public boolean retire();
 	
-	public boolean isActive();
+	public boolean isRetired();
 	
 	public boolean isChannelOpen();
 	
@@ -97,14 +97,14 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 		}
 		
 		@Override
-		public synchronized boolean isActive()
+		public synchronized boolean isRetired()
 		{
-			return this.path != null;
+			return this.path == null;
 		}
 		
-		public void validateIsActive()
+		public void validateIsNotRetired()
 		{
-			if(this.isActive())
+			if(!this.isRetired())
 			{
 				return;
 			}
@@ -138,14 +138,14 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 		@Override
 		public synchronized boolean checkChannelOpen()
 		{
-			this.validateIsActive();
+			this.validateIsNotRetired();
 			return this.isChannelOpen();
 		}
 		
 		@Override
 		public synchronized FileChannel ensureOpenChannel()
 		{
-			this.validateIsActive();
+			this.validateIsNotRetired();
 			this.openChannel();
 			
 			return this.fileChannel();

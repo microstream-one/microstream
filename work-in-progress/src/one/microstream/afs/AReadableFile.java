@@ -1,4 +1,4 @@
-package one.microstream.afs.temp;
+package one.microstream.afs;
 
 import java.nio.ByteBuffer;
 
@@ -6,6 +6,13 @@ import one.microstream.io.BufferProvider;
 
 public interface AReadableFile extends AFile.Wrapper
 {
+	/* (31.05.2020 TM)NOTE: shortcut implementations for useReading?
+	 * But beware:
+	 * - Default user is defined in the accessmanager instance, so it must be used, anyway!
+	 * - retired usage/wrapper instances might be used to create new, active ones. May not be suppressed!
+	 * - More special cases? Thus: worth it?
+	 */
+	
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public default boolean open()
 	{
@@ -118,6 +125,8 @@ public interface AReadableFile extends AFile.Wrapper
 	
 	public boolean retire();
 	
-	public void validateIsActive();
+	public boolean isRetired();
+	
+	public void validateIsNotRetired();
 		
 }

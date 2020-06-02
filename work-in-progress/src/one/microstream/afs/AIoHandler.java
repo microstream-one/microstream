@@ -1,4 +1,4 @@
-package one.microstream.afs.temp;
+package one.microstream.afs;
 
 import java.nio.ByteBuffer;
 
@@ -14,9 +14,13 @@ public interface AIoHandler
 	
 	public boolean exists(ADirectory directory);
 
-	public boolean create(ADirectory directory);
+	public void create(ADirectory directory);
 
-	public boolean create(AWritableFile file);
+	public void create(AWritableFile file);
+	
+	public boolean ensure(ADirectory directory);
+
+	public boolean ensure(AWritableFile file);
 	
 
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
@@ -136,9 +140,9 @@ public interface AIoHandler
 
 		protected abstract boolean specificClose(R file);
 
-		protected abstract boolean specificCreate(D file);
+		protected abstract void specificCreate(D file);
 
-		protected abstract boolean specificCreate(W file);
+		protected abstract void specificCreate(W file);
 		
 		protected abstract ByteBuffer specificReadBytes(R sourceFile);
 		
@@ -358,43 +362,101 @@ public interface AIoHandler
 			
 			throw this.createUnhandledTypeExceptionWritableFile(file);
 		}
-
+		
 		@Override
-		public boolean create(final ADirectory directory)
+		public void create(final ADirectory directory)
 		{
 			if(this.isHandledDirectory(directory))
 			{
-				return this.specificCreate(this.typeDirectory.cast(directory));
+				/* (31.05.2020 TM)TODO: priv#49: if ioHandler does locking, what about the other methods?
+				 * Think through locking concept and concerned instances, potential deadlocks, etc. in general.
+				 */
+				synchronized(this)
+				{
+					this.ensure(directory.parent());
+					
+					directory.iterateObservers(o ->
+						o.onBeforeDirectoryCreate(directory)
+					);
+					
+					this.specificCreate(this.typeDirectory.cast(directory));
+					
+					directory.iterateObservers(o ->
+						o.onAfterDirectoryCreate(directory)
+					);
+				}
+				
+				return;
 			}
 			
 			throw this.createUnhandledTypeExceptionDirectory(directory);
 		}
+		
 
 		@Override
-		public boolean create(final AWritableFile file)
+		public void create(final AWritableFile file)
 		{
 			if(this.isHandledWritableFile(file))
 			{
-				file.parent().iterateObservers(o ->
-					o.onBeforeFileCreate(file)
-				);
-				file.iterateObservers(o ->
-					o.onBeforeFileCreate(file)
-				);
+				synchronized(this)
+				{
+					this.ensure(file.parent());
+					
+					file.parent().iterateObservers(o ->
+						o.onBeforeFileCreate(file)
+					);
+					file.iterateObservers(o ->
+						o.onBeforeFileCreate(file)
+					);
+					
+					this.specificCreate(this.typeWritableFile.cast(file));
+					
+					file.iterateObservers(o ->
+						o.onAfterFileCreate(file)
+					);
+					file.parent().iterateObservers(o ->
+						o.onAfterFileCreate(file)
+					);
+				}
 				
-				final boolean result = this.specificCreate(this.typeWritableFile.cast(file));
-				
-				file.iterateObservers(o ->
-					o.onAfterFileCreate(file, result)
-				);
-				file.parent().iterateObservers(o ->
-					o.onAfterFileCreate(file, result)
-				);
-				
-				return result;
+				return;
 			}
 			
 			throw this.createUnhandledTypeExceptionWritableFile(file);
+		}
+		
+		@Override
+		public boolean ensure(final ADirectory directory)
+		{
+			final ADirectory actual = ADirectory.actual(directory);
+			synchronized(actual)
+			{
+				if(this.exists(directory))
+				{
+					return false;
+				}
+				
+				this.create(directory);
+				
+				return true;
+			}
+		}
+
+		@Override
+		public boolean ensure(final AWritableFile file)
+		{
+			final AFile actual = file.actual();
+			synchronized(actual)
+			{
+				if(this.exists(file))
+				{
+					return false;
+				}
+				
+				this.create(file);
+				
+				return true;
+			}
 		}
 
 		@Override
@@ -630,7 +692,9 @@ public interface AIoHandler
 			throw this.createUnhandledTypeExceptionWritableFile(targetFile);
 		}
 
-		// (28.05.2020 TM)TODO: priv#49: call moveFile (plus unregister...? Or intentionally not?)
+		/* (28.05.2020 TM)TODO: priv#49: call moveFile
+		 * But NOT automatic unregister on the abstract level, because ... it's abstract!
+		 */
 		@Override
 		public void moveFile(
 			final AWritableFile sourceFile,

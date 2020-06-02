@@ -1,4 +1,4 @@
-package one.microstream.afs.temp;
+package one.microstream.afs;
 
 import static one.microstream.X.notNull;
 
@@ -286,7 +286,7 @@ public interface ADirectory extends AItem, AResolving
 			final int      length
 		)
 		{
-			// (19.05.2020 TM)XXX: priv#49: 1 or 0? bounds? must test and comment.
+			// length 0 means no path element at all, length 1 means this is the last element on the path.
 			if(length == 1)
 			{
 				if(pathElements[offset].equals(this.identifier()))
@@ -495,7 +495,7 @@ public interface ADirectory extends AItem, AResolving
 	{
 		public void onBeforeFileCreate(AWritableFile fileToCreate);
 		
-		public void onAfterFileCreate(AWritableFile createdFile, boolean result);
+		public void onAfterFileCreate(AWritableFile createdFile);
 		
 		
 		public void onBeforeFileMove(AWritableFile fileToMove, AWritableFile targetFile);
@@ -511,7 +511,7 @@ public interface ADirectory extends AItem, AResolving
 
 		public void onBeforeDirectoryCreate(ADirectory directoryToCreate);
 		
-		public void onAfterDirectoryCreate(ADirectory createdDirectory, boolean result);
+		public void onAfterDirectoryCreate(ADirectory createdDirectory);
 		
 		
 		public void onBeforeDirectoryMove(ADirectory directoryToMove, ADirectory targetDirectory);

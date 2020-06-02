@@ -1,11 +1,10 @@
-package one.microstream.afs.temp;
+package one.microstream.afs;
 
 import static one.microstream.X.notNull;
 
 import java.util.function.Function;
 
 import one.microstream.X;
-import one.microstream.chars.XChars;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.interfaces.OptimizableCollection;
@@ -216,18 +215,17 @@ public interface AccessManager
 				// already contained
 			}
 			
-			final boolean remove(final AReadableFile file)
+			final void remove(final AReadableFile file)
 			{
 				if(this.sharedUsers.length == 1 && this.sharedUsers[0] == file)
 				{
 					this.sharedUsers = NO_SHARED_USERS;
-					return true;
 				}
 				
 				final int index = this.indexForUser(file.user());
 				if(index < 0)
 				{
-					return false;
+					Default.throwUnregisteredException(file, this);
 				}
 				
 				// should never happen since creation/registration checks for that
@@ -235,17 +233,15 @@ public interface AccessManager
 				{
 					// (13.05.2020 TM)EXCP: proper exception
 					throw new RuntimeException(
-						"Inconsistency detected: to be removed file "
-						+ AReadableFile.class.getSimpleName() + " " + XChars.systemString(file)
-						+ " is not the same as the one contained for the same user: "
-						+ AReadableFile.class.getSimpleName() + " " + XChars.systemString(this.sharedUsers[index])
-						+ "."
+						"Inconsistency detected: to be removed file \""
+						+ file
+						+ "\" is not the same as the one contained for the same user: \""
+						+ this.sharedUsers[index]
+						+ "\"."
 					);
 				}
 				
 				this.removeIndex(index);
-				
-				return true;
 			}
 			
 			final void removeForUser(final Object user)
@@ -439,7 +435,7 @@ public interface AccessManager
 				final FileEntry e = this.fileUsers.get(actual);
 				if(e == null)
 				{
-					return this.synchRegisterReading(this.createFileEntry(actual), actual, user);
+					return this.registerReading(this.createFileEntry(actual), actual, user);
 				}
 				
 				if(e.exclusive != null)
@@ -456,7 +452,7 @@ public interface AccessManager
 				AReadableFile wrapper = e.getForUser(user);
 				if(wrapper == null)
 				{
-					wrapper = this.synchRegisterReading(e, actual, user);
+					wrapper = this.registerReading(e, actual, user);
 				}
 				
 				return wrapper;
@@ -471,19 +467,19 @@ public interface AccessManager
 			return e;
 		}
 		
-		private AReadableFile synchRegisterReading(
+		private AReadableFile registerReading(
 			final FileEntry entry ,
 			final AFile     actual,
 			final Object    user
 		)
 		{
-			final AReadableFile wrapper = this.synchRegisterReading(actual, user);
+			final AReadableFile wrapper = this.registerReading(actual, user);
 			entry.add(wrapper);
 			
 			return wrapper;
 		}
 		
-		private AReadableFile synchRegisterReading(
+		private AReadableFile registerReading(
 			final AFile  actual,
 			final Object user
 		)
@@ -494,7 +490,7 @@ public interface AccessManager
 			return this.fileSystem().wrapForReading(actual, user);
 		}
 		
-		private AReadableFile synchConvertToReading(
+		private AReadableFile convertToReading(
 			final AWritableFile file
 		)
 		{
@@ -538,7 +534,7 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
-				file.validateIsActive();
+				file.validateIsNotRetired();
 				
 				final AFile actual = AFile.actual(file);
 				final FileEntry e = this.fileUsers.get(actual);
@@ -547,16 +543,12 @@ public interface AccessManager
 					// (28.05.2020 TM)EXCP: proper exception
 					throw new RuntimeException();
 				}
-				if(e.exclusive != file)
-				{
-					// (28.05.2020 TM)EXCP: proper exception
-					throw new RuntimeException();
-				}
 				
-				final AReadableFile wrapper = this.synchConvertToReading(file);
+				final AReadableFile wrapper = this.convertToReading(file);
 				e.add(wrapper);
 				
-				unregisterExclusive(file, e);
+				// may not retire file before conversion since that might need some of file's state.
+				this.unregisterExclusive(file, e);
 				
 				return wrapper;
 			}
@@ -574,7 +566,7 @@ public interface AccessManager
 				final FileEntry e = this.fileUsers.get(actual);
 				if(e == null)
 				{
-					return this.createFileEntry(actual).exclusive = this.synchRegisterWriting(actual, user);
+					return this.createFileEntry(actual).exclusive = this.registerWriting(actual, user);
 				}
 				
 				if(e.exclusive != null)
@@ -593,7 +585,7 @@ public interface AccessManager
 					final AReadableFile soleUserFile = e.getIfSoleUser(user);
 					if(soleUserFile != null)
 					{
-						e.exclusive = this.synchConvertToWriting(soleUserFile);
+						e.exclusive = this.convertToWriting(soleUserFile);
 						e.removeForUser(user);
 					}
 					else
@@ -607,7 +599,7 @@ public interface AccessManager
 				}
 				else
 				{
-					e.exclusive = this.synchRegisterWriting(actual, user);
+					e.exclusive = this.registerWriting(actual, user);
 				}
 				
 				return e.exclusive;
@@ -615,7 +607,7 @@ public interface AccessManager
 		}
 
 		
-		private AWritableFile synchRegisterWriting(
+		private AWritableFile registerWriting(
 			final AFile  actual,
 			final Object user
 		)
@@ -626,7 +618,7 @@ public interface AccessManager
 			return this.fileSystem().wrapForWriting(actual, user);
 		}
 		
-		private AWritableFile synchConvertToWriting(
+		private AWritableFile convertToWriting(
 			final AReadableFile file
 		)
 		{
@@ -640,13 +632,14 @@ public interface AccessManager
 		{
 			for(ADirectory p = actual.parent(); p != null; p = p.parent())
 			{
-				if(this.mutatingDirectories.get(p) != user)
+				final Thread mutatingThread = this.mutatingDirectories.get(p);
+				if(mutatingThread != null && mutatingThread != user)
 				{
 					// (21.05.2020 TM)EXCP: proper exception
 					throw new RuntimeException(
 						"File \"" + actual.toPathString()
 						+ "\" cannot be accessed by user \"" + user + "\" since directory \""
-						+ p.toPathString() + "\" is in the process of being changed by user \"" + user + "\"."
+						+ p.toPathString() + "\" is in the process of being changed by user thread \"" + mutatingThread + "\"."
 					);
 				}
 			}
@@ -657,6 +650,7 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
+				// logic has to cover writing case, anyway.
 				return this.internalUnregister(file);
 			}
 		}
@@ -666,7 +660,6 @@ public interface AccessManager
 		{
 			synchronized(this.mutex())
 			{
-				// logic has to cover writing case, anyway.
 				return this.internalUnregister(file);
 			}
 		}
@@ -733,31 +726,58 @@ public interface AccessManager
 		
 		protected boolean internalUnregister(final AReadableFile file, final FileEntry entry)
 		{
-			// AWritableFile "is a" AReadableFile, so it could be passed here and must be covered as well.
-			if(this.unregisterIfExclusive(file, entry))
-			{
-				// exclusive entries never have a shared entry (since they are not shared), so abort here.
-				return true;
-			}
-			
-			file.retire();
-			
-			return entry.remove(file);
-		}
-		
-		protected boolean unregisterIfExclusive(final AReadableFile file, final FileEntry entry)
-		{
-			// AWritableFile "is a" AReadableFile
-			if(entry.exclusive != file)
+			// idempotence
+			if(file.isRetired())
 			{
 				return false;
 			}
-			unregisterExclusive(file, entry);
+			
+			// AWritableFile "is a" AReadableFile, so it could be passed here and must be covered in any case.
+			if(file instanceof AWritableFile)
+			{
+				// exclusive entries never have a shared entry (since they are not shared).
+				this.unregisterExclusive((AWritableFile)file, entry);
+			}
+			else
+			{
+				this.unregisterShared(file, entry);
+			}
 			
 			return true;
 		}
 		
-		protected static void unregisterExclusive(final AReadableFile file, final FileEntry entry)
+		protected void unregisterShared(final AReadableFile file, final FileEntry entry)
+		{
+			file.retire();
+			entry.remove(file);
+		}
+		
+		protected void unregisterExclusive(final AWritableFile file, final FileEntry entry)
+		{
+			this.validateExclusive(file, entry);
+			this.removeExclusive(file, entry);
+		}
+		
+		protected void validateExclusive(final AWritableFile file, final FileEntry entry)
+		{
+			if(entry.exclusive == file)
+			{
+				return;
+			}
+			
+			throwUnregisteredException(file, entry);
+		}
+		
+		protected static void throwUnregisteredException(final AReadableFile file, final FileEntry entry)
+		{
+			// (29.05.2020 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Inconsistency detected: attempting to unregister non-retired but not registered file \""
+				+ file + "\"."
+			);
+		}
+		
+		protected void removeExclusive(final AWritableFile file, final FileEntry entry)
 		{
 			entry.exclusive = null;
 			file.retire();

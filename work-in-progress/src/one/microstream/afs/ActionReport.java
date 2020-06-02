@@ -1,4 +1,4 @@
-package one.microstream.afs.temp;
+package one.microstream.afs;
 
 public enum ActionReport
 {

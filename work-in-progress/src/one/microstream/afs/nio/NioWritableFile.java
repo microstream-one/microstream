@@ -6,8 +6,8 @@ import static one.microstream.X.notNull;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 
-import one.microstream.afs.temp.AFile;
-import one.microstream.afs.temp.AWritableFile;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AWritableFile;
 
 public interface NioWritableFile extends NioReadableFile, AWritableFile
 {

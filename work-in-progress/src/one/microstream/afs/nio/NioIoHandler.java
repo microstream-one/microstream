@@ -2,15 +2,14 @@ package one.microstream.afs.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import one.microstream.afs.temp.ADirectory;
-import one.microstream.afs.temp.AFile;
-import one.microstream.afs.temp.AIoHandler;
-import one.microstream.afs.temp.AItem;
-import one.microstream.afs.temp.AWritableFile;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AIoHandler;
+import one.microstream.afs.AItem;
+import one.microstream.afs.AWritableFile;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.BufferProvider;
 import one.microstream.io.XIO;
@@ -36,6 +35,11 @@ public interface NioIoHandler extends AIoHandler
 
 	
 	
+	
+	public static NioIoHandler New()
+	{
+		return new NioIoHandler.Default();
+	}
 	
 	public final class Default
 	extends AIoHandler.Abstract<Path, Path, NioItemWrapper, NioFileWrapper, ADirectory, NioReadableFile, NioWritableFile>
@@ -135,33 +139,24 @@ public interface NioIoHandler extends AIoHandler
 		}
 
 		@Override
-		protected boolean specificCreate(final ADirectory directory)
+		protected void specificCreate(final ADirectory directory)
 		{
 			final Path dir = NioFileSystem.toPath(directory);
-			final boolean exists = XIO.unchecked.exists(dir);
 			XIO.unchecked.ensureDirectory(dir);
-
-			return !exists;
 		}
 
 		@Override
-		protected boolean specificCreate(final NioWritableFile file)
+		protected void specificCreate(final NioWritableFile file)
 		{
 			try
 			{
-				// (27.05.2020 TM)FIXME: priv#49: test: does it create parent directories automatically?
+				// existence of parent directory has already been ensured before calling this method.
 				Files.createFile(file.path());
-			}
-			catch(final FileAlreadyExistsException e)
-			{
-				return false;
 			}
 			catch(final IOException e)
 			{
 				throw new IORuntimeException(e);
 			}
-
-			return true;
 		}
 
 		@Override
