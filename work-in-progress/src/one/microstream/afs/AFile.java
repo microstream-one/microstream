@@ -1,4 +1,4 @@
-package one.microstream.afs.temp;
+package one.microstream.afs;
 
 import static one.microstream.X.notNull;
 
@@ -281,7 +281,7 @@ public interface AFile extends AItem
 			// no-op by default
 		}
 		
-		public default void onAfterFileCreate(final AWritableFile fileToCreate, final boolean result)
+		public default void onAfterFileCreate(final AWritableFile fileToCreate)
 		{
 			// no-op by default
 		}
@@ -314,7 +314,7 @@ public interface AFile extends AItem
 		@Override
 		public AFile actual();
 		
-		public abstract class Abstract<U> implements AFile.Wrapper
+		public abstract class Abstract<U> extends AItem.Base implements AFile.Wrapper
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //

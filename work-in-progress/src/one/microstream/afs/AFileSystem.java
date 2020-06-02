@@ -1,4 +1,4 @@
-package one.microstream.afs.temp;
+package one.microstream.afs;
 
 import java.util.function.Function;
 
@@ -14,7 +14,7 @@ public interface AFileSystem extends AResolving
 	
 	public default ADirectory ensureDirectoryPath(final String... pathElements)
 	{
-		return this.resolveDirectoryPath(pathElements, 0, pathElements.length);
+		return this.ensureDirectoryPath(pathElements, 0, pathElements.length);
 	}
 
 	public ADirectory ensureDirectoryPath(String[] pathElements, int offset, int length);
@@ -214,7 +214,7 @@ public interface AFileSystem extends AResolving
 			}
 
 			// (14.05.2020 TM)EXCP: proper exception
-			throw new RuntimeException("No root directory found with identifier \"" + identifier + ".");
+			throw new RuntimeException("No root directory found with identifier \"" + identifier + "\".");
 		}
 
 		@Override
@@ -222,21 +222,7 @@ public interface AFileSystem extends AResolving
 		{
 			return this.ensureRoot(this.creator, identifier);
 		}
-		
-		private void validateNonExistingRootDirectory(final String identifier)
-		{
-			final ADirectory existing = this.rootDirectories.get(identifier);
-			if(existing == null)
-			{
-				return;
-			}
-
-			// (13.05.2020 TM)EXCP: proper exception
-			throw new RuntimeException(
-				"Root with identifier \"" + identifier + "\" already exists: " + XChars.systemString(existing)
-			);
-		}
-		
+				
 		private void validateParentFileSystem(final AItem item)
 		{
 			if(item.fileSystem() == this)
@@ -278,12 +264,16 @@ public interface AFileSystem extends AResolving
 			final String        identifier
 		)
 		{
-			this.validateNonExistingRootDirectory(identifier);
+			ADirectory root = this.rootDirectories.get(identifier);
+			if(root != null)
+			{
+				return root;
+			}
 			
-			final ADirectory created = rootCreator.createRootDirectory(this, identifier);
-			this.rootDirectories.add(identifier, created);
+			root = rootCreator.createRootDirectory(this, identifier);
+			this.rootDirectories.add(identifier, root);
 			
-			return created;
+			return root;
 		}
 
 		@Override
@@ -360,7 +350,7 @@ public interface AFileSystem extends AResolving
 				ADirectory elementDir = directory.getDirectory(pathElement);
 				if(elementDir == null)
 				{
-					elementDir = this.creator.createDirectory(directory, pathElement);
+					elementDir = directory.ensureDirectory(pathElement);
 				}
 				
 				directory = elementDir;
@@ -382,7 +372,7 @@ public interface AFileSystem extends AResolving
 			AFile file = directory.getFile(fileIdentifier);
 			if(file == null)
 			{
-				file = this.creator.createFile(directory, fileIdentifier);
+				file = directory.ensureFile(fileIdentifier);
 			}
 			
 			return file;

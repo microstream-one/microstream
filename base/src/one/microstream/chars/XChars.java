@@ -970,7 +970,7 @@ public final class XChars
 
 		for(int i = 0; i < elements.length; i++)
 		{
-			vs.add(elements[i]);
+			vs.add(elements[i]).add(separator);
 		}
 		return vs.deleteLast(separator.length());
 	}
@@ -987,7 +987,7 @@ public final class XChars
 		}
 		for(int i = 0; i < elements.length; i++)
 		{
-			vc.add(elements[i]);
+			vc.add(elements[i]).add(separator);
 		}
 		return vc.deleteLast();
 	}
@@ -2608,6 +2608,17 @@ public final class XChars
 		return instance == null
 			? null
 			: instance.getClass().getName() + '@' + Integer.toHexString(System.identityHashCode(instance))
+		;
+	}
+	
+	public static VarString addSystemString(final Object instance, final VarString vs)
+	{
+		return instance == null
+			? vs.addNull()
+			: vs
+				.add(instance.getClass().getName())
+				.add('@')
+				.add(Integer.toHexString(System.identityHashCode(instance)))
 		;
 	}
 

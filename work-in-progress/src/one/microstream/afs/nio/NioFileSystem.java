@@ -4,12 +4,12 @@ import static one.microstream.X.notNull;
 
 import java.nio.file.Path;
 
-import one.microstream.afs.temp.ADirectory;
-import one.microstream.afs.temp.AFile;
-import one.microstream.afs.temp.AFileSystem;
-import one.microstream.afs.temp.AItem;
-import one.microstream.afs.temp.AReadableFile;
-import one.microstream.afs.temp.AWritableFile;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AFileSystem;
+import one.microstream.afs.AItem;
+import one.microstream.afs.AReadableFile;
+import one.microstream.afs.AWritableFile;
 import one.microstream.chars.VarString;
 import one.microstream.io.XIO;
 
@@ -25,6 +25,17 @@ public interface NioFileSystem extends AFileSystem
 		return XIO.Path(pathElements);
 	}
 	
+	
+	// (29.05.2020 TM)FIXME: priv#49: standard protocol strings? Constants, Enums?
+	public static NioFileSystem New(
+		final String defaultProtocol
+	)
+	{
+		return New(
+			defaultProtocol,
+			NioIoHandler.New()
+		);
+	}
 	
 	public static NioFileSystem New(
 		final String       defaultProtocol,

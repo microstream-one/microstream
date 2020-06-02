@@ -43,6 +43,11 @@ public final class XIO
 		return '.';
 	}
 	
+	public static char filePathSeparator()
+	{
+		return '/';
+	}
+	
 	public static String addFileSuffix(final String fileName, final String fileSuffix)
 	{
 		return fileSuffix != null
@@ -341,7 +346,7 @@ public final class XIO
 		final CharSequence... elements
 	)
 	{
-		return XChars.assembleSeparated(vs, XIO.fileSuffixSeparator(), elements);
+		return XChars.assembleSeparated(vs, XIO.filePathSeparator(), elements);
 	}
 
 	// because the IDE-generated ", null" for their method drives one crazy when working with it.
