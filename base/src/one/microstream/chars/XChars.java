@@ -2198,7 +2198,7 @@ public final class XChars
 			return vs;
 		}
 		
-		vs.lf().add(elements[0]);
+		vs.add(elements[0]);
 		for(int i = 1; i < elements.length; i++)
 		{
 			vs.add(separator).add(elements[i]);

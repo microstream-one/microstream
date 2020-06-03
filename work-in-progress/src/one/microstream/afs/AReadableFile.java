@@ -35,10 +35,11 @@ public interface AReadableFile extends AFile.Wrapper
 	}
 
 	// implicitely #close PLUS the AFS-management-level aspect
-	public default ActionReport release()
+	public default boolean release()
 	{
-		// synchronization handled by FileSystem.
-		return this.actual().fileSystem().release(this);
+		this.close();
+		
+		return this.fileSystem().accessManager().unregister(this);
 	}
 	
 	@Override
