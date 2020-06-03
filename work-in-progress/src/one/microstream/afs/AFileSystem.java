@@ -45,26 +45,8 @@ public interface AFileSystem extends AResolving
 	
 	public AWritableFile convertToWriting(AReadableFile file);
 
-	// implicitely #close PLUS the AFS-management-level aspect
-	public default ActionReport release(final AReadableFile file)
-	{
-		synchronized(this)
-		{
-			final boolean wasClosed   = this.ioHandler().close(file);
-			final boolean wasReleased = this.accessManager().unregister(file);
-			
-			return wasClosed
-				? wasReleased
-					? ActionReport.FULL_ACTION
-					: null // impossible / inconsistent
-				: wasReleased
-					? ActionReport.PART_ACTION
-					: ActionReport.NO_ACTION
-			;
-		}
-	}
+	public ADirectory lookupRoot(String identifier);
 	
-
 	public ADirectory getRoot(String identifier);
 
 	public ADirectory ensureRoot(String identifier);
@@ -205,9 +187,15 @@ public interface AFileSystem extends AResolving
 		
 
 		@Override
+		public final synchronized ADirectory lookupRoot(final String identifier)
+		{
+			return this.rootDirectories.get(identifier);
+		}
+
+		@Override
 		public final synchronized ADirectory getRoot(final String identifier)
 		{
-			final ADirectory existing = this.rootDirectories.get(identifier);
+			final ADirectory existing = this.lookupRoot(identifier);
 			if(existing != null)
 			{
 				return existing;
@@ -257,6 +245,19 @@ public interface AFileSystem extends AResolving
 				+ XChars.systemString(registered) + " != " + XChars.systemString(rootDirectory)
 			);
 		}
+		
+		private void validateIsUnusedRootDirectory(final ADirectory rootDirectory)
+		{
+			if(!this.accessManager.isUsed(rootDirectory))
+			{
+				return;
+			}
+			
+			// (02.06.2020 TM)EXCP: proper exception
+			throw new RuntimeException(
+				"Root directory \"" + rootDirectory.identifier() + " is used an cannot be removed."
+			);
+		}
 
 		@Override
 		public final synchronized ADirectory ensureRoot(
@@ -293,7 +294,11 @@ public interface AFileSystem extends AResolving
 		@Override
 		public final synchronized ADirectory removeRoot(final String name)
 		{
-			return this.rootDirectories.removeFor(name);
+			final ADirectory rootDirectory = this.getRoot(name);
+
+			this.removeRoot(rootDirectory);
+			
+			return rootDirectory;
 		}
 		
 		@Override
@@ -303,6 +308,8 @@ public interface AFileSystem extends AResolving
 			{
 				return false;
 			}
+			
+			this.validateIsUnusedRootDirectory(rootDirectory);
 			
 			// remove only if no inconcistency was detected.
 			this.rootDirectories.removeFor(rootDirectory.identifier());

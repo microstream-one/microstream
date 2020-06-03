@@ -593,7 +593,7 @@ public interface AccessManager
 						// (30.04.2020 TM) EXCP: proper exception
 						throw new RuntimeException(
 							"File \"" + actual.toPathString()
-							+ "\" cannot be accessed in writing mode since there are multiple reading users present."
+							+ "\" cannot be accessed exlusively since there are shared users present."
 						);
 					}
 				}

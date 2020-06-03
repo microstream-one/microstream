@@ -26,7 +26,16 @@ public interface NioFileSystem extends AFileSystem
 	}
 	
 	
-	// (29.05.2020 TM)FIXME: priv#49: standard protocol strings? Constants, Enums?
+	public static NioFileSystem New()
+	{
+		/* (29.05.2020 TM)FIXME: priv#49: standard protocol strings? Constants, Enums?
+		 * (02.06.2020 TM)Note: the JDK does not define such constants.
+		 * E.g. the class FileSystems just uses a plain String "file:///".
+		 * All other search results are false positives in JavaDoc and comments.
+		 */
+		return New("file:///");
+	}
+	
 	public static NioFileSystem New(
 		final String defaultProtocol
 	)
