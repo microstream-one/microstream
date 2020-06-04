@@ -77,10 +77,22 @@ public interface AFileSystem extends AResolving
 	
 	public VarString assemblePath(ADirectory directory, VarString vs);
 	
-
-	public String[] buildPath(AFile file);
 	
-	public String[] buildPath(ADirectory directory);
+	public String[] buildPath(AItem item);
+
+	/*
+	 * Default implementation assumes items can be handled in a unified way.
+	 * If not, the interface allows for switching it around.
+	 */
+	public default String[] buildPath(final AFile file)
+	{
+		return this.buildPath((AItem)file);
+	}
+	
+	public default String[] buildPath(final ADirectory directory)
+	{
+		return this.buildPath((AItem)directory);
+	}
 	
 	
 	public String getFileName(AFile file);
@@ -400,15 +412,9 @@ public interface AFileSystem extends AResolving
 		}
 		
 		@Override
-		public String[] buildPath(final AFile file)
+		public String[] buildPath(final AItem item)
 		{
-			return AItem.buildItemPath(file);
-		}
-		
-		@Override
-		public String[] buildPath(final ADirectory directory)
-		{
-			return AItem.buildItemPath(directory);
+			return AItem.buildItemPath(item);
 		}
 
 		@Override

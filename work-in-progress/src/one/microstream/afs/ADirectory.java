@@ -63,14 +63,27 @@ public interface ADirectory extends AItem, AResolving
 	{
 		return this.contains((AItem)file);
 	}
+
+	public boolean containsDeep(AItem item);
+	
+	public default boolean containsDeep(final ADirectory directory)
+	{
+		return this.containsDeep((AItem)directory);
+	}
+	
+	public default boolean containsDeep(final AFile file)
+	{
+		return this.containsDeep((AItem)file);
+	}
+	
+	
 	
 	public boolean containsItem(String itemName);
 	
 	public boolean containsDirectory(String directoryName);
 	
 	public boolean containsFile(String fileName);
-	
-	// (20.04.2020 TM)TODO: #containsDeeps
+		
 	
 	@Override
 	public ADirectory resolveDirectoryPath(String[] pathElements, int offset, int length);
@@ -81,6 +94,13 @@ public interface ADirectory extends AItem, AResolving
 		return this.fileSystem().ioHandler().exists(this);
 	}
 	
+	/* (03.06.2020 TM)FIXME: priv#49: directory mutation:
+	 * - move directory to directory
+	 * - delete directory
+	 * - rename directory
+	 * 
+	 * each is only allowed if there are no uses for that directory
+	 */
 	
 	
 	public abstract class Abstract
@@ -197,6 +217,24 @@ public interface ADirectory extends AItem, AResolving
 			synchronized(this.mutex())
 			{
 				return item.parent() == this;
+			}
+		}
+		
+		@Override
+		public boolean containsDeep(final AItem item)
+		{
+			// cannot lock both since hierarchy order is not clear. But one is sufficient, anyway.
+			synchronized(this.mutex())
+			{
+				for(AItem i = item; (i = i.parent()) != null;)
+				{
+					if(i == this)
+					{
+						return true;
+					}
+				}
+				
+				return false;
 			}
 		}
 		

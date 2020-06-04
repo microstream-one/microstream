@@ -8,6 +8,7 @@ import one.microstream.X;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.interfaces.OptimizableCollection;
+import one.microstream.meta.XDebug;
 
 public interface AccessManager
 {
@@ -220,6 +221,8 @@ public interface AccessManager
 				if(this.sharedUsers.length == 1 && this.sharedUsers[0] == file)
 				{
 					this.sharedUsers = NO_SHARED_USERS;
+					
+					return;
 				}
 				
 				final int index = this.indexForUser(file.user());
@@ -512,7 +515,7 @@ public interface AccessManager
 				// new entry means increment usage count for parent incrementally
 				if(actual.parent() != null)
 				{
-					this.incrementDirectoryUsageCount(actual);
+					this.incrementDirectoryUsageCount(actual.parent());
 				}
 			}
 			
@@ -523,6 +526,9 @@ public interface AccessManager
 		
 		private DirEntry addUsedDirectoryEntry(final ADirectory actual)
 		{
+			// (03.06.2020 TM)FIXME: /!\ DEBUG
+			XDebug.println("Registering as used directory: " + actual);
+			
 			final DirEntry entry;
 			this.usedDirectories.add(actual, entry = new DirEntry(actual));
 			
