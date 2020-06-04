@@ -22,7 +22,7 @@ public class MainTestAfsExclusive
 		try
 		{
 			wFile2 = file.useWriting("Other user 2");
-			throw new RuntimeException("Second WritableFile has been created despite existing exclusive usage: " + wFile2);
+			new RuntimeException("Second WritableFile has been created despite existing exclusive usage: " + wFile2).printStackTrace();
 		}
 		catch(final RuntimeException e)
 		{
@@ -35,7 +35,7 @@ public class MainTestAfsExclusive
 		try
 		{
 			rFile2 = file.useReading("Other user 2");
-			throw new RuntimeException("Another ReadableFile has been created despite existing exclusive usage: " + rFile2);
+			new RuntimeException("Another ReadableFile has been created despite existing exclusive usage: " + rFile2).printStackTrace();
 		}
 		catch(final RuntimeException e)
 		{

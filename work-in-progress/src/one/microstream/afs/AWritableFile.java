@@ -59,5 +59,9 @@ public interface AWritableFile extends AReadableFile
 		// synchronization handled by IoHandler.
 		return this.actual().fileSystem().accessManager().downgrade(this);
 	}
+	
+	/* (03.06.2020 TM)FIXME: priv#49: rename file
+	 * including physical file, if exists.
+	 */
 					
 }
