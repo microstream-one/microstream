@@ -114,15 +114,15 @@ public interface AReadableFile extends AFile.Wrapper
 		return this.actual().fileSystem().ioHandler().copyTo(this, target);
 	}
 	
-	public default long copyTo(final AWritableFile target, final long sourcePosition)
-	{
-		return this.actual().fileSystem().ioHandler().copyTo(this, target, sourcePosition);
-	}
-	
-	public default long copyTo(final AWritableFile target, final long sourcePosition, final long length)
-	{
-		return this.actual().fileSystem().ioHandler().copyTo(this, target, sourcePosition, length);
-	}
+//	public default long copyTo(final AWritableFile target, final long sourcePosition)
+//	{
+//		return this.actual().fileSystem().ioHandler().copyTo(this, target, sourcePosition);
+//	}
+//
+//	public default long copyTo(final AWritableFile target, final long sourcePosition, final long length)
+//	{
+//		return this.actual().fileSystem().ioHandler().copyTo(this, target, sourcePosition, length);
+//	}
 	
 	public boolean retire();
 	

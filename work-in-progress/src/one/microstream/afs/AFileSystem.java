@@ -108,7 +108,7 @@ public interface AFileSystem extends AResolving
 		////////////////////
 		
 		private final String                          defaultProtocol;
-		private final EqHashTable<String, ADirectory> rootDirectories;
+		private final EqHashTable<String, ADirectory> rootDirectories; // ARoot or relative top-level directory
 		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
 		private final AIoHandler                      ioHandler      ;

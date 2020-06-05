@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import one.microstream.afs.AFile;
 import one.microstream.chars.XChars;
@@ -27,6 +28,8 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 	
 	public FileChannel ensureOpenChannel();
 	
+	public FileChannel ensureOpenChannel(OpenOption... options);
+		
 	public boolean openChannel() throws IORuntimeException;
 	
 	public boolean openChannel(OpenOption... options) throws IORuntimeException;
@@ -146,7 +149,19 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 		public synchronized FileChannel ensureOpenChannel()
 		{
 			this.validateIsNotRetired();
-			this.openChannel();
+			
+			// default is appending mode. Explicit options can be used as an override.
+			this.openChannel(StandardOpenOption.APPEND);
+			
+			return this.fileChannel();
+		}
+		
+
+		@Override
+		public synchronized FileChannel ensureOpenChannel(final OpenOption... options)
+		{
+			this.validateIsNotRetired();
+			this.openChannel(options);
 			
 			return this.fileChannel();
 		}

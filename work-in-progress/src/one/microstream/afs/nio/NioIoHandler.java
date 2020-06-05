@@ -392,53 +392,53 @@ public interface NioIoHandler extends AIoHandler
 			}
 		}
 
-		@Override
-		protected long specificCopyTo(
-			final NioReadableFile sourceFile    ,
-			final AWritableFile   target        ,
-			final long            targetPosition
-		)
-		{
-			final NioWritableFile handlableTarget = this.castWritableFile(target);
-			
-			try
-			{
-				return XIO.copyFile(
-					sourceFile.ensureOpenChannel(),
-					handlableTarget.ensureOpenChannel(),
-					targetPosition
-				);
-			}
-			catch(final IOException e)
-			{
-				throw new IORuntimeException(e);
-			}
-		}
+//		@Override
+//		protected long specificCopyTo(
+//			final NioReadableFile sourceFile    ,
+//			final AWritableFile   target        ,
+//			final long            targetPosition
+//		)
+//		{
+//			final NioWritableFile handlableTarget = this.castWritableFile(target);
+//
+//			try
+//			{
+//				return XIO.copyFile(
+//					sourceFile.ensureOpenChannel(),
+//					handlableTarget.ensureOpenChannel(),
+//					targetPosition
+//				);
+//			}
+//			catch(final IOException e)
+//			{
+//				throw new IORuntimeException(e);
+//			}
+//		}
 
-		@Override
-		protected long specificCopyTo(
-			final NioReadableFile sourceFile    ,
-			final AWritableFile   target        ,
-			final long            targetPosition,
-			final long            length
-		)
-		{
-			final NioWritableFile handlableTarget = this.castWritableFile(target);
-			
-			try
-			{
-				return XIO.copyFile(
-					sourceFile.ensureOpenChannel(),
-					handlableTarget.ensureOpenChannel(),
-					targetPosition,
-					length
-				);
-			}
-			catch(final IOException e)
-			{
-				throw new IORuntimeException(e);
-			}
-		}
+//		@Override
+//		protected long specificCopyTo(
+//			final NioReadableFile sourceFile    ,
+//			final AWritableFile   target        ,
+//			final long            targetPosition,
+//			final long            length
+//		)
+//		{
+//			final NioWritableFile handlableTarget = this.castWritableFile(target);
+//
+//			try
+//			{
+//				return XIO.copyFile(
+//					sourceFile.ensureOpenChannel(),
+//					handlableTarget.ensureOpenChannel(),
+//					targetPosition,
+//					length
+//				);
+//			}
+//			catch(final IOException e)
+//			{
+//				throw new IORuntimeException(e);
+//			}
+//		}
 
 		@Override
 		protected long specificWriteBytes(
