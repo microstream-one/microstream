@@ -63,9 +63,9 @@ public interface AIoHandler
 	
 	public long copyTo(AReadableFile sourceFile, long sourcePosition, long length, AWritableFile target);
 	
-	public long copyTo(AReadableFile sourceFile, AWritableFile target, long targetPosition);
-	
-	public long copyTo(AReadableFile sourceFile, AWritableFile target, long targetPosition, long length);
+//	public long copyTo(AReadableFile sourceFile, AWritableFile target, long targetPosition);
+//
+//	public long copyTo(AReadableFile sourceFile, AWritableFile target, long targetPosition, long length);
 	
 	
 	
@@ -171,9 +171,9 @@ public interface AIoHandler
 		
 		protected abstract long specificCopyTo(R sourceFile, long sourcePosition, long length, AWritableFile target);
 		
-		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long targetPosition);
-
-		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long targetPosition, long length);
+//		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long targetPosition);
+//
+//		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long targetPosition, long length);
 		
 		
 		protected abstract long specificWriteBytes(W targetFile, Iterable<? extends ByteBuffer> sourceBuffers);
@@ -373,12 +373,17 @@ public interface AIoHandler
 				 */
 				synchronized(this)
 				{
-					this.ensure(directory.parent());
+					// only handle non-root parent directories. Note that not all roots are of type ARoot
+					if(directory.parent() != null)
+					{
+						this.ensure(directory.parent());
+					}
 					
 					directory.iterateObservers(o ->
 						o.onBeforeDirectoryCreate(directory)
 					);
 					
+					// it is up to the specific implementation to decide how to handle root directories
 					this.specificCreate(this.typeDirectory.cast(directory));
 					
 					directory.iterateObservers(o ->
@@ -634,36 +639,36 @@ public interface AIoHandler
 			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
 		}
 
-		@Override
-		public long copyTo(
-			final AReadableFile sourceFile    ,
-			final AWritableFile target        ,
-			final long          targetPosition
-		)
-		{
-			if(this.isHandledReadableFile(sourceFile))
-			{
-				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, targetPosition);
-			}
-			
-			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
-		}
-
-		@Override
-		public long copyTo(
-			final AReadableFile sourceFile    ,
-			final AWritableFile target        ,
-			final long          targetPosition,
-			final long          length
-		)
-		{
-			if(this.isHandledReadableFile(sourceFile))
-			{
-				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, targetPosition, length);
-			}
-			
-			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
-		}
+//		@Override
+//		public long copyTo(
+//			final AReadableFile sourceFile    ,
+//			final AWritableFile target        ,
+//			final long          targetPosition
+//		)
+//		{
+//			if(this.isHandledReadableFile(sourceFile))
+//			{
+//				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, targetPosition);
+//			}
+//
+//			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
+//		}
+//
+//		@Override
+//		public long copyTo(
+//			final AReadableFile sourceFile    ,
+//			final AWritableFile target        ,
+//			final long          targetPosition,
+//			final long          length
+//		)
+//		{
+//			if(this.isHandledReadableFile(sourceFile))
+//			{
+//				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, targetPosition, length);
+//			}
+//
+//			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
+//		}
 
 		@Override
 		public long writeBytes(

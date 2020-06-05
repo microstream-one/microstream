@@ -15,7 +15,7 @@ import one.microstream.storage.exceptions.StorageExceptionIo;
  */
 public interface StorageFile
 {
-	/* (13.10.2018 TM)TODO: much better improved file abstraction.
+	/* (13.10.2018 TM)TODO: priv#49: much better improved file abstraction.
 	 * There has to be better file abstractions. Like:
 	 * - StorageIoItem defining a unique storage item of I/O handling (directory or file)
 	 * - StorageDirectory extends StorageIoItem defining a "space" where StorageFiles can exist
