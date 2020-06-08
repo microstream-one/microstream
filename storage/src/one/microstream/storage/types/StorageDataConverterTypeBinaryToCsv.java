@@ -39,7 +39,7 @@ import one.microstream.util.xcsv.XCsvConfiguration;
 
 public interface StorageDataConverterTypeBinaryToCsv
 {
-	public void convertDataFile(StorageLockedFile file);
+	public void convertDataFile(ZStorageLockedFile file);
 
 
 
@@ -191,7 +191,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private final StorageEntityTypeConversionFileProvider fileProvider          ;
 		private final PersistenceTypeDictionary               typeDictionary        ;
-		private       StorageLockedFile                       currentSourceFile     ;
+		private       ZStorageLockedFile                       currentSourceFile     ;
 
 		private final int                                     readBufferSize        ;
 		private final ByteBuffer                              readBufferNormal      ;
@@ -332,7 +332,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private void openChannel() throws IOException
 		{
-			final StorageLockedFile file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
+			final ZStorageLockedFile file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
 			final Path directory = XIO.Path(file.qualifier());
 			XIO.unchecked.ensureDirectory(directory);
 			this.fileChannel = file.fileChannel();
@@ -538,7 +538,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		////////////
 
 		@Override
-		public final void convertDataFile(final StorageLockedFile file)
+		public final void convertDataFile(final ZStorageLockedFile file)
 		{
 			if(file.length() == 0)
 			{

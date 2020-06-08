@@ -8,7 +8,7 @@ import one.microstream.storage.exceptions.StorageException;
 public interface StorageReaderCallback
 {
 	public void validateIncrementalRead(
-		StorageLockedFile file         ,
+		ZStorageLockedFile file         ,
 		long              filePosition ,
 		ByteBuffer        buffer       ,
 		long              lastReadCount
@@ -17,7 +17,7 @@ public interface StorageReaderCallback
 	;
 	
 	public static void staticValidateIncrementalRead(
-		final StorageLockedFile file         ,
+		final ZStorageLockedFile file         ,
 		final long              filePosition ,
 		final ByteBuffer        buffer       ,
 		final long              lastReadCount
@@ -43,7 +43,7 @@ public interface StorageReaderCallback
 
 		@Override
 		public void validateIncrementalRead(
-			final StorageLockedFile file         ,
+			final ZStorageLockedFile file         ,
 			final long              filePosition ,
 			final ByteBuffer        buffer       ,
 			final long              lastReadCount

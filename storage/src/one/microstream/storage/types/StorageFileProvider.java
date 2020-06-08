@@ -42,19 +42,19 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		PersistenceTypeDictionaryStorer writeListener
 	);
 	
-	public StorageNumberedFile provideDataFile(int channelIndex, long fileNumber);
+	public ZStorageNumberedFile provideDataFile(int channelIndex, long fileNumber);
 
-	public StorageNumberedFile provideTransactionsFile(int channelIndex);
+	public ZStorageNumberedFile provideTransactionsFile(int channelIndex);
 	
-	public StorageLockedFile provideLockFile();
+	public ZStorageLockedFile provideLockFile();
 	
-	public StorageNumberedFile provideDeletionTargetFile(StorageNumberedFile fileToBeDeleted);
+	public ZStorageNumberedFile provideDeletionTargetFile(ZStorageNumberedFile fileToBeDeleted);
 	
-	public StorageNumberedFile provideTruncationBackupTargetFile(StorageNumberedFile fileToBeTruncated, long newLength);
+	public ZStorageNumberedFile provideTruncationBackupTargetFile(ZStorageNumberedFile fileToBeTruncated, long newLength);
 
 	
 	
-	public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(P collector, int channelIndex);
+	public <P extends Consumer<ZStorageNumberedFile>> P collectDataFiles(P collector, int channelIndex);
 	
 	
 	public interface Defaults
@@ -119,7 +119,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 	public final class Static
 	{
-		public static final <C extends Consumer<? super StorageNumberedFile>>
+		public static final <C extends Consumer<? super ZStorageNumberedFile>>
 		C collectFile(
 			final C      collector       ,
 			final int    channelIndex    ,
@@ -144,7 +144,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		}
 
 		private static final void internalCollectFile(
-			final Consumer<? super StorageNumberedFile> collector   ,
+			final Consumer<? super ZStorageNumberedFile> collector   ,
 			final int                                   hashIndex   ,
 			final Path                                  file        ,
 			final String                                fileBaseName,
@@ -198,7 +198,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			}
 
 			// strictly validly named file, collect.
-			collector.accept(StorageNumberedFile.New(hashIndex, fileNumber, file));
+			collector.accept(ZStorageNumberedFile.New(hashIndex, fileNumber, file));
 		}
 
 		
@@ -722,37 +722,37 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		}
 		
 		@Override
-		public final StorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
+		public final ZStorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
 		{
 			final Path file = XIO.Path(
 				this.provideChannelDirectory(channelIndex),
 				this.provideStorageFileName(channelIndex, fileNumber)
 			);
 			
-			return StorageNumberedFile.New(channelIndex, fileNumber, file);
+			return ZStorageNumberedFile.New(channelIndex, fileNumber, file);
 		}
 
 		@Override
-		public StorageNumberedFile provideTransactionsFile(final int channelIndex)
+		public ZStorageNumberedFile provideTransactionsFile(final int channelIndex)
 		{
 			final Path file = XIO.Path(
 				this.provideChannelDirectory(channelIndex),
 				this.provideTransactionFileName(channelIndex)
 			);
 
-			return StorageNumberedFile.New(channelIndex, Storage.transactionsFileNumber(), file);
+			return ZStorageNumberedFile.New(channelIndex, Storage.transactionsFileNumber(), file);
 		}
 		
 		@Override
-		public StorageLockedFile provideLockFile()
+		public ZStorageLockedFile provideLockFile()
 		{
 			final Path lockFile = XIO.Path(this.baseDirectory(), this.lockFileName());
 			
-			return StorageLockedFile.openLockedFile(lockFile);
+			return ZStorageLockedFile.openLockedFile(lockFile);
 		}
 
 		@Override
-		public StorageNumberedFile provideDeletionTargetFile(final StorageNumberedFile fileToBeDeleted)
+		public ZStorageNumberedFile provideDeletionTargetFile(final ZStorageNumberedFile fileToBeDeleted)
 		{
 			final String deletionDirectory = this.deletionDirectory();
 			if(deletionDirectory == null)
@@ -768,12 +768,12 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				this.provideStorageFileName(channelIndex, fileNumber)
 			);
 			
-			return StorageNumberedFile.New(channelIndex, fileNumber, file);
+			return ZStorageNumberedFile.New(channelIndex, fileNumber, file);
 		}
 		
 		@Override
-		public StorageNumberedFile provideTruncationBackupTargetFile(
-			final StorageNumberedFile fileToBeTruncated,
+		public ZStorageNumberedFile provideTruncationBackupTargetFile(
+			final ZStorageNumberedFile fileToBeTruncated,
 			final long                newLength
 		)
 		{
@@ -793,11 +793,11 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				+ "_@" + System.currentTimeMillis() + ".bak"
 			);
 			
-			return StorageNumberedFile.New(channelIndex, fileNumber, file);
+			return ZStorageNumberedFile.New(channelIndex, fileNumber, file);
 		}
 
 		@Override
-		public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(
+		public <P extends Consumer<ZStorageNumberedFile>> P collectDataFiles(
 			final P   collector   ,
 			final int channelIndex
 		)

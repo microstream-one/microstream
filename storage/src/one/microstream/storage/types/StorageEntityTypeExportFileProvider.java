@@ -11,7 +11,7 @@ import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageEntityTypeExportFileProvider
 {
-	public StorageLockedFile provideExportFile(StorageEntityTypeHandler entityType);
+	public ZStorageLockedFile provideExportFile(StorageEntityTypeHandler entityType);
 
 	
 	
@@ -104,12 +104,12 @@ public interface StorageEntityTypeExportFileProvider
 		}
 
 		@Override
-		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler entityType)
+		public final ZStorageLockedFile provideExportFile(final StorageEntityTypeHandler entityType)
 		{
 			final String fileName = StorageEntityTypeExportFileProvider.toUniqueTypeFileName(entityType);
 			final Path   file     = XIO.Path(this.directory, fileName + this.cachedFileSuffix);
 			
-			return StorageLockedFile.openLockedFile(file);
+			return ZStorageLockedFile.openLockedFile(file);
 		}
 
 	}

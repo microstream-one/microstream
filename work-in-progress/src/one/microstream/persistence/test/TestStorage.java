@@ -30,9 +30,9 @@ import one.microstream.storage.types.StorageDataConverterTypeCsvToBinary;
 import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportStatistics;
-import one.microstream.storage.types.StorageFile;
+import one.microstream.storage.types.ZStorageFile;
 import one.microstream.storage.types.StorageFileProvider;
-import one.microstream.storage.types.StorageLockedFile;
+import one.microstream.storage.types.ZStorageLockedFile;
 import one.microstream.util.cql.CQL;
 
 public class TestStorage extends TestComponentProvider
@@ -118,7 +118,7 @@ public class TestStorage extends TestComponentProvider
 				continue;
 			}
 			
-			final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+			final ZStorageLockedFile storageFile = ZStorageLockedFile.openLockedFile(file);
 			try
 			{
 				converter.convertDataFile(storageFile);
@@ -143,7 +143,7 @@ public class TestStorage extends TestComponentProvider
 	protected static void convertCsvToBin(final XGettingCollection<Path> binaryFiles, final Predicate<? super Path> filter)
 	{
 		final Path directory = XIO.Path(binaryFiles.get().getParent().getParent(), "bin2");
-		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
+		final StorageDataConverterTypeCsvToBinary<ZStorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			STORAGE.typeDictionary(),
 			new StorageEntityTypeConversionFileProvider.Default(directory, "dat2")
@@ -156,7 +156,7 @@ public class TestStorage extends TestComponentProvider
 				continue;
 			}
 
-			final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+			final ZStorageLockedFile storageFile = ZStorageLockedFile.openLockedFile(file);
 			converter.convertCsv(storageFile);
 		}
 	}

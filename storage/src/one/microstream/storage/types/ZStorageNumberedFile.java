@@ -11,17 +11,17 @@ import one.microstream.io.XIO;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
-public interface StorageNumberedFile extends StorageChannelFile
+public interface ZStorageNumberedFile extends ZStorageChannelFile
 {
 	public long number();
 		
-	public StorageInventoryFile inventorize();
+	public ZStorageInventoryFile inventorize();
 	
 
 	
 	public static int orderByNumber(
-		final StorageNumberedFile file1,
-		final StorageNumberedFile file2
+		final ZStorageNumberedFile file1,
+		final ZStorageNumberedFile file2
 	)
 	{
 		return Long.compare(file1.number(), file2.number());
@@ -29,16 +29,16 @@ public interface StorageNumberedFile extends StorageChannelFile
 	
 	
 	
-	public static StorageNumberedFile New(final int channelIndex, final long number, final Path file)
+	public static ZStorageNumberedFile New(final int channelIndex, final long number, final Path file)
 	{
-		return new StorageNumberedFile.Default(
+		return new ZStorageNumberedFile.Default(
 			channelIndex ,
 			number       ,
 			notNull(file)
 		);
 	}
 	
-	public final class Default implements StorageNumberedFile
+	public final class Default implements ZStorageNumberedFile
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -122,16 +122,16 @@ public interface StorageNumberedFile extends StorageChannelFile
 		}
 		
 		@Override
-		public final StorageInventoryFile inventorize()
+		public final ZStorageInventoryFile inventorize()
 		{
-			return StorageInventoryFile.New(this.channelIndex, this.number, this.file);
+			return ZStorageInventoryFile.New(this.channelIndex, this.number, this.file);
 		}
 		
 		public final FileLock lock()
 		{
 			if(!this.hasLock())
 			{
-				this.lock = StorageLockedFile.openLockedFileChannel(this.file);
+				this.lock = ZStorageLockedFile.openLockedFileChannel(this.file);
 			}
 			
 			return this.lock;
@@ -159,18 +159,18 @@ public interface StorageNumberedFile extends StorageChannelFile
 		@Override
 		public final boolean isOpen()
 		{
-			return this.hasLock() && StorageNumberedFile.super.isOpen();
+			return this.hasLock() && ZStorageNumberedFile.super.isOpen();
 		}
 		
 		@Override
-		public final StorageFile flush()
+		public final ZStorageFile flush()
 		{
 			if(!this.hasLock())
 			{
 				return this;
 			}
 			
-			return StorageNumberedFile.super.flush();
+			return ZStorageNumberedFile.super.flush();
 		}
 
 		@Override

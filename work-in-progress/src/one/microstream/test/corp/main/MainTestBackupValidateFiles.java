@@ -10,7 +10,7 @@ import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageBackupSetup;
 import one.microstream.storage.types.StorageFileProvider;
-import one.microstream.storage.types.StorageNumberedFile;
+import one.microstream.storage.types.ZStorageNumberedFile;
 import one.microstream.util.FileContentComparer;
 
 public class MainTestBackupValidateFiles
@@ -58,24 +58,24 @@ public class MainTestBackupValidateFiles
 		final int                 channelIndex
 	)
 	{
-		final StorageNumberedFile transactionFile = storageFileProvider.provideTransactionsFile(
+		final ZStorageNumberedFile transactionFile = storageFileProvider.provideTransactionsFile(
 			channelIndex
 		);
-		final StorageNumberedFile backupTranFile = backupSetup.backupFileProvider().provideTransactionsFile(
+		final ZStorageNumberedFile backupTranFile = backupSetup.backupFileProvider().provideTransactionsFile(
 			channelIndex
 		);
 		
-		final BulkList<StorageNumberedFile> dataFiles = storageFileProvider.collectDataFiles(
+		final BulkList<ZStorageNumberedFile> dataFiles = storageFileProvider.collectDataFiles(
 			BulkList.New(), channelIndex
 		);
 		
 		final HashTable<File, File> fileMapping = HashTable.New();
 		fileMapping.add(new File(transactionFile.identifier()), new File(backupTranFile.identifier()));
 		
-		for(final StorageNumberedFile df : dataFiles)
+		for(final ZStorageNumberedFile df : dataFiles)
 		{
 			final File storageFile = new File(df.identifier());
-			final StorageNumberedFile bf = backupSetup.backupFileProvider().provideDataFile(channelIndex, df.number());
+			final ZStorageNumberedFile bf = backupSetup.backupFileProvider().provideDataFile(channelIndex, df.number());
 			final File backupFile = new File(bf.identifier());
 			fileMapping.add(storageFile, backupFile);
 		}

@@ -10,7 +10,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinition;
 
 public interface StorageEntityTypeConversionFileProvider
 {
-	public StorageLockedFile provideConversionFile(PersistenceTypeDefinition typeDescription, StorageFile sourceFile);
+	public ZStorageLockedFile provideConversionFile(PersistenceTypeDefinition typeDescription, ZStorageFile sourceFile);
 
 
 
@@ -60,9 +60,9 @@ public interface StorageEntityTypeConversionFileProvider
 		////////////
 
 		@Override
-		public StorageLockedFile provideConversionFile(
+		public ZStorageLockedFile provideConversionFile(
 			final PersistenceTypeDefinition typeDescription,
-			final StorageFile               sourceFile
+			final ZStorageFile               sourceFile
 		)
 		{
 			// TypeId must be included since only that is the unique identifier of a type.
@@ -71,7 +71,7 @@ public interface StorageEntityTypeConversionFileProvider
 			);
 			XIO.unchecked.ensureDirectory(this.directory);
 			
-			return StorageLockedFile.openLockedFile(file);
+			return ZStorageLockedFile.openLockedFile(file);
 		}
 
 	}

@@ -13,7 +13,7 @@ import one.microstream.storage.exceptions.StorageExceptionIoReading;
 public interface StorageFileEntityDataIterator
 {
 	public long iterateEntityData(
-		StorageFile                 file           ,
+		ZStorageFile                 file           ,
 		long                        fileOffset     ,
 		long                        iterationLength,
 		BinaryEntityRawDataIterator dataIterator   ,
@@ -36,7 +36,7 @@ public interface StorageFileEntityDataIterator
 	{
 		@Override
 		public default long iterateEntityData(
-			final StorageFile                 file           ,
+			final ZStorageFile                 file           ,
 			final long                        fileOffset     ,
 			final long                        iterationLength,
 			final BinaryEntityRawDataIterator dataIterator   ,
@@ -50,7 +50,7 @@ public interface StorageFileEntityDataIterator
 		
 		public default void prepareFile(
 			final StorageFileEntityDataIterator.Internal self           ,
-			final StorageFile                            file           ,
+			final ZStorageFile                            file           ,
 			final long                                   fileOffset     ,
 			final long                                   iterationLength
 		)
@@ -60,7 +60,7 @@ public interface StorageFileEntityDataIterator
 		
 		public default void wrapUpFile(
 			final StorageFileEntityDataIterator.Internal self           ,
-			final StorageFile                            file           ,
+			final ZStorageFile                            file           ,
 			final long                                   fileOffset     ,
 			final long                                   iterationLength
 		)
@@ -70,7 +70,7 @@ public interface StorageFileEntityDataIterator
 		
 		public void fillBuffer(
 			StorageFileEntityDataIterator.Internal self           ,
-			StorageFile                            file           ,
+			ZStorageFile                            file           ,
 			long                                   fileOffset     ,
 			long                                   iterationLength
 		);
@@ -83,7 +83,7 @@ public interface StorageFileEntityDataIterator
 		
 		public void validateIterationRange(
 			StorageFileEntityDataIterator.Internal self            ,
-			StorageFile                            file            ,
+			ZStorageFile                            file            ,
 			long                                   actualFileLength,
 			long                                   fileOffset      ,
 			long                                   iterationLength
@@ -153,7 +153,7 @@ public interface StorageFileEntityDataIterator
 		@Override
 		public void fillBuffer(
 			final StorageFileEntityDataIterator.Internal self           ,
-			final StorageFile                            file           ,
+			final ZStorageFile                            file           ,
 			final long                                   fileOffset     ,
 			final long                                   iterationLength
 		)
@@ -191,7 +191,7 @@ public interface StorageFileEntityDataIterator
 		@Override
 		public void validateIterationRange(
 			final StorageFileEntityDataIterator.Internal self            ,
-			final StorageFile                            file            ,
+			final ZStorageFile                            file            ,
 			final long                                   actualFileLength,
 			final long                                   fileOffset      ,
 			final long                                   iterationLength

@@ -39,7 +39,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 
 		@Override
 		public final void enqueueCopyingItem(
-			final StorageInventoryFile sourceFile    ,
+			final ZStorageInventoryFile sourceFile    ,
 			final long                 sourcePosition,
 			final long                 length
 		)
@@ -49,7 +49,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 
 		@Override
 		public final void enqueueTruncatingItem(
-			final StorageInventoryFile file     ,
+			final ZStorageInventoryFile file     ,
 			final long                 newLength
 		)
 		{
@@ -58,14 +58,14 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 		}
 		
 		@Override
-		public void enqueueDeletionItem(final StorageInventoryFile file)
+		public void enqueueDeletionItem(final ZStorageInventoryFile file)
 		{
 			// signalling with a negative length is a hack to avoid the complexity of multiple Item classes
 			this.internalEnqueueItem(file, 0, -1);
 		}
 		
 		private void internalEnqueueItem(
-			final StorageInventoryFile sourceFile    ,
+			final ZStorageInventoryFile sourceFile    ,
 			final long                 sourcePosition,
 			final long                 length
 		)
@@ -125,7 +125,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			// instance fields //
 			////////////////////
 			
-			final StorageInventoryFile sourceFile    ;
+			final ZStorageInventoryFile sourceFile    ;
 			final long                 sourcePosition;
 			final long                 length        ;
 
@@ -138,7 +138,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			/////////////////
 			
 			Item(
-				final StorageInventoryFile sourceFile    ,
+				final ZStorageInventoryFile sourceFile    ,
 				final long                 sourcePosition,
 				final long                 length
 			)

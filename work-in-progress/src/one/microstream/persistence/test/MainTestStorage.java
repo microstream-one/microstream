@@ -17,7 +17,7 @@ import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.reference.Lazy;
 import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageRawFileStatistics;
-import one.microstream.storage.types.StorageTransactionsFileAnalysis;
+import one.microstream.storage.types.StorageTransactionsAnalysis;
 import one.microstream.test.Person;
 import one.microstream.time.XTime;
 import one.microstream.typing.XTypes;
@@ -439,8 +439,8 @@ public class MainTestStorage extends TestStorage
 	static void printTransactionsFile(final Path file)
 	{
 		final VarString vs = VarString.New(file.toString()).lf();
-		StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
-		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs)
+		StorageTransactionsAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
+		final VarString s = StorageTransactionsAnalysis.Logic.parseFile(file, vs)
 			.lf().lf()
 		;
 		XDebug.println(s.toString());

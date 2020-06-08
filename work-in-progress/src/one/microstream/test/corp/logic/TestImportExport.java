@@ -15,8 +15,8 @@ import one.microstream.storage.types.StorageDataConverterTypeCsvToBinary;
 import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportStatistics;
-import one.microstream.storage.types.StorageFile;
-import one.microstream.storage.types.StorageLockedFile;
+import one.microstream.storage.types.ZStorageFile;
+import one.microstream.storage.types.ZStorageLockedFile;
 import one.microstream.storage.types.StorageTypeDictionary;
 import one.microstream.util.cql.CQL;
 
@@ -119,7 +119,7 @@ public class TestImportExport
 			}
 			try
 			{
-				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+				final ZStorageLockedFile storageFile = ZStorageLockedFile.openLockedFile(file);
 				converter.convertDataFile(storageFile);
 			}
 			catch(final Exception e)
@@ -137,7 +137,7 @@ public class TestImportExport
 		final Predicate<? super Path>   filter
 	)
 	{
-		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
+		final StorageDataConverterTypeCsvToBinary<ZStorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			typeDictionary,
 			new StorageEntityTypeConversionFileProvider.Default(
@@ -153,7 +153,7 @@ public class TestImportExport
 			}
 			try
 			{
-				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+				final ZStorageLockedFile storageFile = ZStorageLockedFile.openLockedFile(file);
 				converter.convertCsv(storageFile);
 			}
 			catch(final Exception e)

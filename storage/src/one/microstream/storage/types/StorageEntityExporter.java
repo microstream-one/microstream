@@ -3,7 +3,7 @@ package one.microstream.storage.types;
 
 public interface StorageEntityExporter<E extends StorageEntityCacheItem<E>>
 {
-	public void exportEntities(StorageEntityType<E> type, StorageLockedFile file);
+	public void exportEntities(StorageEntityType<E> type, ZStorageLockedFile file);
 
 	public void cleanup();
 
@@ -19,7 +19,7 @@ public interface StorageEntityExporter<E extends StorageEntityCacheItem<E>>
 		@Override
 		public final void exportEntities(
 			final StorageEntityType<StorageEntity.Default> type,
-			final StorageLockedFile                        file
+			final ZStorageLockedFile                        file
 		)
 		{
 			type.iterateEntities(e ->

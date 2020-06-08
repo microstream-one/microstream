@@ -8,7 +8,7 @@ import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
 import one.microstream.storage.types.StorageDataConverterTypeBinaryToCsv;
 import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
-import one.microstream.storage.types.StorageLockedFile;
+import one.microstream.storage.types.ZStorageLockedFile;
 
 @SuppressWarnings("unused")
 public class MainTestConvertTwice extends TestStorage
@@ -26,7 +26,7 @@ public class MainTestConvertTwice extends TestStorage
 			4096,
 			4096
 		);
-		final StorageLockedFile file = StorageLockedFile.openLockedFile(
+		final ZStorageLockedFile file = ZStorageLockedFile.openLockedFile(
 			XIO.Path(XIO.Path(dir, "bin"), filename + ".dat")
 		);
 		converter.convertDataFile(file);

@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.io.XIO;
-import one.microstream.storage.types.StorageTransactionsFileAnalysis;
+import one.microstream.storage.types.StorageTransactionsAnalysis;
 import one.microstream.util.cql.CQL;
 
 
@@ -73,8 +73,8 @@ public class UtilStoragePrintTransactionFiles
 	public static void printTransactionsFile(final Path file)
 	{
 		final VarString vs = VarString.New(file.toString()).lf();
-		StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
-		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs);
+		StorageTransactionsAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
+		final VarString s = StorageTransactionsAnalysis.Logic.parseFile(file, vs);
 		System.out.println(s);
 	}
 	

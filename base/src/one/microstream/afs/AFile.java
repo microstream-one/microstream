@@ -89,10 +89,35 @@ public interface AFile extends AItem
 		return this.fileSystem().accessManager().useWriting(this);
 	}
 	
+	public default AReadableFile tryUseReading(final Object user)
+	{
+		return this.fileSystem().accessManager().tryUseReading(this, user);
+	}
+	
+	public default AWritableFile tryUseWriting(final Object user)
+	{
+		return this.fileSystem().accessManager().tryUseWriting(this, user);
+	}
+	
+	public default AReadableFile tryUseReading()
+	{
+		return this.fileSystem().accessManager().tryUseReading(this);
+	}
+	
+	public default AWritableFile tryUseWriting()
+	{
+		return this.fileSystem().accessManager().tryUseWriting(this);
+	}
+	
 	@Override
 	public default boolean exists()
 	{
 		return this.fileSystem().ioHandler().exists(this);
+	}
+	
+	public default boolean isUsed()
+	{
+		return this.fileSystem().accessManager().isUsed(this);
 	}
 		
 	

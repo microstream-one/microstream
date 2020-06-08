@@ -9,7 +9,7 @@ import one.microstream.storage.exceptions.StorageException;
 public interface StorageFileReader
 {
 	public default long readStorage(
-		final StorageLockedFile     file                 ,
+		final ZStorageLockedFile     file                 ,
 		final long                  filePosition         ,
 		final ByteBuffer            targetBuffer         ,
 		final StorageReaderCallback incompleteReadCallack

@@ -19,7 +19,7 @@ import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.storage.exceptions.StorageException;
 
-public interface StorageTransactionsFileAnalysis
+public interface StorageTransactionsAnalysis
 {
 	public long headFileLastConsistentStoreLength();
 
@@ -29,7 +29,7 @@ public interface StorageTransactionsFileAnalysis
 
 	public long headFileLatestTimestamp();
 
-	public StorageInventoryFile transactionsFile();
+	public ZStorageInventoryFile transactionsFile();
 
 	public XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries();
 
@@ -391,7 +391,7 @@ public interface StorageTransactionsFileAnalysis
 					return vs;
 				}
 				
-				lock = StorageLockedFile.openLockedFileChannel(file);
+				lock = ZStorageLockedFile.openLockedFileChannel(file);
 				
 				return parseFile(lock.channel(), vs);
 			}
@@ -409,7 +409,7 @@ public interface StorageTransactionsFileAnalysis
 
 		public static VarString parseFile(final FileChannel fileChannel, final VarString vs) throws IOException
 		{
-			StorageTransactionsFileAnalysis.Logic.processInputFile(
+			StorageTransactionsAnalysis.Logic.processInputFile(
 				fileChannel,
 				new EntryAssembler(vs)
 			);
@@ -562,7 +562,7 @@ public interface StorageTransactionsFileAnalysis
 			// reset as it is no longer valid for a new file (would mess up common part calculation otherwise)
 			this.lastFileLength = 0;
 
-			this.vs.add(StorageTransactionsFile.EntryType.FILE_CREATION.typeName()).tab();
+			this.vs.add(StorageTransactionsEntries.EntryType.FILE_CREATION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -587,7 +587,7 @@ public interface StorageTransactionsFileAnalysis
 //			}
 			
 			this.vs
-			.add(StorageTransactionsFile.EntryType.DATA_STORE.typeName()).tab();
+			.add(StorageTransactionsEntries.EntryType.DATA_STORE.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -612,7 +612,7 @@ public interface StorageTransactionsFileAnalysis
 //			}
 			
 			this.vs
-			.add(StorageTransactionsFile.EntryType.DATA_TRANSFER.typeName()).tab();
+			.add(StorageTransactionsEntries.EntryType.DATA_TRANSFER.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -631,7 +631,7 @@ public interface StorageTransactionsFileAnalysis
 				return false;
 			}
 			this.vs
-			.add(StorageTransactionsFile.EntryType.FILE_TRUNCATION.typeName()).tab();
+			.add(StorageTransactionsEntries.EntryType.FILE_TRUNCATION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -654,7 +654,7 @@ public interface StorageTransactionsFileAnalysis
 //			this.lastFileLength = 2 * Logic.getFileLength(address); // a little hack :)
 
 			this.vs
-			.add(StorageTransactionsFile.EntryType.FILE_DELETION.typeName()).tab();
+			.add(StorageTransactionsEntries.EntryType.FILE_DELETION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.vs
 			.add('0').tab()
@@ -893,12 +893,12 @@ public interface StorageTransactionsFileAnalysis
 			return true;
 		}
 
-		final StorageTransactionsFileAnalysis yield(final StorageInventoryFile transactionsFile)
+		final StorageTransactionsAnalysis yield(final ZStorageInventoryFile transactionsFile)
 		{
 			// register latest file
 			this.registerCurrentFile();
 
-			return new StorageTransactionsFileAnalysis.Default(
+			return new StorageTransactionsAnalysis.Default(
 				transactionsFile                 ,
 				this.files                       ,
 				this.lastConsistentStoreLength   ,
@@ -912,13 +912,13 @@ public interface StorageTransactionsFileAnalysis
 
 
 
-	public final class Default implements StorageTransactionsFileAnalysis
+	public final class Default implements StorageTransactionsAnalysis
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final StorageInventoryFile                                       transactionsFile                    ;
+		private final ZStorageInventoryFile                                       transactionsFile                    ;
 		private final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries             ;
 		private final long                                                       headFileLastConsistentStoreLength   ;
 		private final long                                                       headFileLastConsistentStoreTimestamp;
@@ -932,7 +932,7 @@ public interface StorageTransactionsFileAnalysis
 		/////////////////
 
 		Default(
-			final StorageInventoryFile                                       transactionsFile                    ,
+			final ZStorageInventoryFile                                       transactionsFile                    ,
 			final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries             ,
 			final long                                                       headFileLastConsistentStoreLength   ,
 			final long                                                       headFileLastConsistentStoreTimestamp,
@@ -956,7 +956,7 @@ public interface StorageTransactionsFileAnalysis
 		////////////
 
 		@Override
-		public final StorageInventoryFile transactionsFile()
+		public final ZStorageInventoryFile transactionsFile()
 		{
 			return this.transactionsFile;
 		}

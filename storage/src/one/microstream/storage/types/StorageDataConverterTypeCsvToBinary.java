@@ -50,7 +50,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 
 
-	public static StorageDataConverterTypeCsvToBinary<StorageFile> New(
+	public static StorageDataConverterTypeCsvToBinary<ZStorageFile> New(
 		final StorageDataConverterCsvConfiguration    configuration ,
 		final PersistenceTypeDictionary               typeDictionary,
 		final StorageEntityTypeConversionFileProvider fileProvider
@@ -59,7 +59,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		return New(configuration, typeDictionary, fileProvider, 0);
 	}
 
-	public static StorageDataConverterTypeCsvToBinary<StorageFile> New(
+	public static StorageDataConverterTypeCsvToBinary<ZStorageFile> New(
 		final StorageDataConverterCsvConfiguration    configuration ,
 		final PersistenceTypeDictionary               typeDictionary,
 		final StorageEntityTypeConversionFileProvider fileProvider  ,
@@ -77,7 +77,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 	public final class Default
 	implements
-	StorageDataConverterTypeCsvToBinary<StorageFile>,
+	StorageDataConverterTypeCsvToBinary<ZStorageFile>,
 	XCsvSegmentsParser.Provider<_charArrayRange>,
 	XCsvSegmentsParser<_charArrayRange>,
 	XCsvRecordParserCharArray.Provider,
@@ -132,8 +132,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		final long                                    addressEntityLengthUpdateBuffer;
 		final ValueHandler                            objectIdValueHandler           ;
 
-		      StorageFile                             sourceFile                     ;
-		      StorageLockedFile                       targetFile                     ;
+		      ZStorageFile                             sourceFile                     ;
+		      ZStorageLockedFile                       targetFile                     ;
 		      FileChannel                             targetFileChannel              ;
 		      long                                    targetFileActualLength         ;
 		      PersistenceTypeDefinition               currentType                    ;
@@ -1067,7 +1067,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 		}
 
-		private void setSourceFile(final StorageFile file)
+		private void setSourceFile(final ZStorageFile file)
 		{
 			this.flushCloseClear();
 
@@ -1123,7 +1123,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		{
 			try
 			{
-				StorageFile.close(this.targetFile, suppressed);
+				ZStorageFile.close(this.targetFile, suppressed);
 			}
 			finally
 			{
@@ -1698,14 +1698,14 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		////////////
 
 		@Override
-		public void convertCsv(final StorageFile file)
+		public void convertCsv(final ZStorageFile file)
 		{
 			this.setSourceFile(file);
 			this.parseCurrentFile();
 			this.flushCloseClear();
 		}
 		
-		static final long getTypeIdFromFileName(final StorageFile file)
+		static final long getTypeIdFromFileName(final ZStorageFile file)
 		{
 			final String fileName = getSuffixlessFileName(file);
 			final long   typeId   = StorageEntityTypeExportFileProvider.getTypeIdFromUniqueTypeFileName(fileName);
@@ -1713,7 +1713,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			return typeId;
 		}
 		
-		static final String getSuffixlessFileName(final StorageFile file)
+		static final String getSuffixlessFileName(final ZStorageFile file)
 		{
 			final String filename = file.name();
 			final int    dotIndex = filename.lastIndexOf(XIO.fileSuffixSeparator());

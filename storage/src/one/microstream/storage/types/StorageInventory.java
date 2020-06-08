@@ -4,9 +4,9 @@ import one.microstream.collections.types.XGettingTable;
 
 public interface StorageInventory extends StorageHashChannelPart
 {
-	public XGettingTable<Long, StorageInventoryFile> dataFiles();
+	public XGettingTable<Long, ZStorageInventoryFile> dataFiles();
 
-	public StorageTransactionsFileAnalysis transactionsFileAnalysis();
+	public StorageTransactionsAnalysis transactionsFileAnalysis();
 
 
 
@@ -17,8 +17,8 @@ public interface StorageInventory extends StorageHashChannelPart
 		////////////////////
 
 		final int                                       channelIndex    ;
-		final XGettingTable<Long, StorageInventoryFile> dataFiles       ;
-		final StorageTransactionsFileAnalysis           transactionsFile;
+		final XGettingTable<Long, ZStorageInventoryFile> dataFiles       ;
+		final StorageTransactionsAnalysis           transactionsFile;
 
 
 
@@ -28,8 +28,8 @@ public interface StorageInventory extends StorageHashChannelPart
 
 		public Default(
 			final int                                       channelIndex    ,
-			final XGettingTable<Long, StorageInventoryFile> dataFiles       ,
-			final StorageTransactionsFileAnalysis           transactionsFile
+			final XGettingTable<Long, ZStorageInventoryFile> dataFiles       ,
+			final StorageTransactionsAnalysis           transactionsFile
 		)
 		{
 			super();
@@ -51,13 +51,13 @@ public interface StorageInventory extends StorageHashChannelPart
 		}
 
 		@Override
-		public final XGettingTable<Long, StorageInventoryFile> dataFiles()
+		public final XGettingTable<Long, ZStorageInventoryFile> dataFiles()
 		{
 			return this.dataFiles;
 		}
 
 		@Override
-		public final StorageTransactionsFileAnalysis transactionsFileAnalysis()
+		public final StorageTransactionsAnalysis transactionsFileAnalysis()
 		{
 			return this.transactionsFile;
 		}

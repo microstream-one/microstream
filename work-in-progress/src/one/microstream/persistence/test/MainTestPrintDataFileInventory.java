@@ -7,13 +7,13 @@ import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.storage.types.StorageDataFileItemIterator;
 import one.microstream.storage.types.StorageDataFileItemIterator.ItemProcessor;
-import one.microstream.storage.types.StorageLockedFile;
+import one.microstream.storage.types.ZStorageLockedFile;
 
 public class MainTestPrintDataFileInventory
 {
 	public static void main(final String[] args) throws IOException
 	{
-		final FileChannel fc = StorageLockedFile.openLockedFile(
+		final FileChannel fc = ZStorageLockedFile.openLockedFile(
 			XIO.Path("D:/Bonus25/storage_2015-03-19 ID Fehler lokal/graveyard1/channel_1_129.dat")
 		).fileChannel();
 		StorageDataFileItemIterator.Default.processInputFile(fc, new DataFileInventoryPrinter());

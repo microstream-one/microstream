@@ -3,18 +3,18 @@ package one.microstream.storage.types;
 public interface StorageBackupItemEnqueuer
 {
 	public void enqueueCopyingItem(
-		StorageInventoryFile sourceFile    ,
+		ZStorageInventoryFile sourceFile    ,
 		long                 sourcePosition,
 		long                 length
 	);
 	
 	public void enqueueTruncatingItem(
-		StorageInventoryFile file     ,
+		ZStorageInventoryFile file     ,
 		long                 newLength
 	);
 	
 	public void enqueueDeletionItem(
-		StorageInventoryFile file
+		ZStorageInventoryFile file
 	);
 	
 //	public StorageFileUser fileUser();

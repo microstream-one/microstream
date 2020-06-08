@@ -61,7 +61,7 @@ public interface StorageLockFileManager extends Runnable
 
 		// cached values
 		private transient boolean           isRunning        ;
-		private transient StorageLockedFile lockFile         ;
+		private transient ZStorageLockedFile lockFile         ;
 		private transient LockFileData      lockFileData     ;
 		private transient ByteBuffer[]      wrappedByteBuffer;
 		private transient ByteBuffer        directByteBuffer ;
@@ -338,7 +338,7 @@ public interface StorageLockFileManager extends Runnable
 		
 		@Override
 		public void validateIncrementalRead(
-			final StorageLockedFile file         ,
+			final ZStorageLockedFile file         ,
 			final long              filePosition ,
 			final ByteBuffer        buffer       ,
 			final long              lastReadCount
@@ -466,7 +466,7 @@ public interface StorageLockFileManager extends Runnable
 				return;
 			}
 			
-			StorageFile.close(this.lockFile, cause);
+			ZStorageFile.close(this.lockFile, cause);
 			this.lockFile = null;
 		}
 		

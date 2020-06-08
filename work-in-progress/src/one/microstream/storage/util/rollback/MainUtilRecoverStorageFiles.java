@@ -15,8 +15,8 @@ import one.microstream.storage.types.StorageDataFileValidator;
 import one.microstream.storage.types.StorageEntityDataValidator;
 import one.microstream.storage.types.StorageFileEntityDataIterator;
 import one.microstream.storage.types.StorageFileProvider;
-import one.microstream.storage.types.StorageNumberedFile;
-import one.microstream.storage.types.StorageTransactionsFile;
+import one.microstream.storage.types.ZStorageNumberedFile;
+import one.microstream.storage.types.StorageTransactionsEntries;
 
 public class MainUtilRecoverStorageFiles
 {
@@ -46,7 +46,7 @@ public class MainUtilRecoverStorageFiles
 			.setBaseDirectory(PATH_CORRUPTED)
 			.createFileProvider()
 		;
-		final BulkList<StorageNumberedFile> storageFiles = sfp.collectDataFiles(BulkList.New(), 0);
+		final BulkList<ZStorageNumberedFile> storageFiles = sfp.collectDataFiles(BulkList.New(), 0);
 		
 		final StorageDataFileValidator dfv = StorageDataFileValidator.DebugLogging(
 			BinaryEntityRawDataIterator.New(),
@@ -60,7 +60,7 @@ public class MainUtilRecoverStorageFiles
 			StorageFileEntityDataIterator.New()
 		);
 		
-		for(final StorageNumberedFile file : storageFiles)
+		for(final ZStorageNumberedFile file : storageFiles)
 		{
 			dfv.validateFile(file);
 		}
@@ -68,7 +68,7 @@ public class MainUtilRecoverStorageFiles
 	
 	static void printTransactionsFile()
 	{
-		final StorageTransactionsFile tf = StorageTransactionsFile.parseFile(
+		final StorageTransactionsEntries tf = StorageTransactionsEntries.parseFile(
 			XIO.Path(PATH_CORRUPTED + "/channel_0/transactions_0.sft")
 		);
 		tf.entries().iterate(System.out::println);

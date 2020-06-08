@@ -214,7 +214,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		////////////////////
 
 		final int                              lastChannelIndex;
-		final StorageLockedFile                file            ;
+		final ZStorageLockedFile                file            ;
 		final StorageEntityTypeHandler         type            ;
 		final Predicate<? super StorageEntity> predicateEntity ;
 
@@ -229,7 +229,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		ExportItem(
 			final int                              channelCount   ,
 			final StorageEntityTypeHandler         type           ,
-			final StorageLockedFile                file           ,
+			final ZStorageLockedFile                file           ,
 			final Predicate<? super StorageEntity> predicateEntity
 		)
 		{

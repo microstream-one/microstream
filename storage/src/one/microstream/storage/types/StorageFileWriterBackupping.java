@@ -39,7 +39,7 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		////////////
 			
 		@Override
-		public final long writeStore(final StorageDataFile<?> targetFile, final ByteBuffer[] byteBuffers)
+		public final long writeStore(final ZStorageDataFile<?> targetFile, final ByteBuffer[] byteBuffers)
 		{
 			final long oldTargetFileLength = targetFile.length();
 			final long byteCount = this.delegate.writeStore(targetFile, byteBuffers);
@@ -52,10 +52,10 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeImport(
-			final StorageLockedFile  sourceFile  ,
+			final ZStorageLockedFile  sourceFile  ,
 			final long               sourceOffset,
 			final long               copyLength  ,
-			final StorageDataFile<?> targetFile
+			final ZStorageDataFile<?> targetFile
 		)
 		{
 			final long oldTargetFileLength = targetFile.length();
@@ -69,10 +69,10 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransfer(
-			final StorageDataFile<?> sourceFile  ,
+			final ZStorageDataFile<?> sourceFile  ,
 			final long               sourceOffset,
 			final long               length      ,
-			final StorageDataFile<?> targetFile
+			final ZStorageDataFile<?> targetFile
 		)
 		{
 			final long oldTargetFileLength = targetFile.length();
@@ -86,9 +86,9 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransactionEntryCreate(
-			final StorageInventoryFile transactionFile,
+			final ZStorageInventoryFile transactionFile,
 			final ByteBuffer[]         byteBuffers    ,
-			final StorageDataFile<?>   dataFile
+			final ZStorageDataFile<?>   dataFile
 		)
 		{
 			final long oldLength = transactionFile.length();
@@ -106,9 +106,9 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransactionEntryStore(
-			final StorageInventoryFile transactionFile,
+			final ZStorageInventoryFile transactionFile,
 			final ByteBuffer[]         byteBuffers    ,
-			final StorageDataFile<?>   dataFile       ,
+			final ZStorageDataFile<?>   dataFile       ,
 			final long                 dataFileOffset ,
 			final long                 storeLength
 		)
@@ -130,9 +130,9 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransactionEntryTransfer(
-			final StorageInventoryFile transactionFile,
+			final ZStorageInventoryFile transactionFile,
 			final ByteBuffer[]             byteBuffers    ,
-			final StorageDataFile<?>       dataFile       ,
+			final ZStorageDataFile<?>       dataFile       ,
 			final long                     dataFileOffset ,
 			final long                     storeLength
 		)
@@ -154,9 +154,9 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransactionEntryDelete(
-			final StorageInventoryFile transactionFile,
+			final ZStorageInventoryFile transactionFile,
 			final ByteBuffer[]         byteBuffers    ,
-			final StorageDataFile<?>   dataFile
+			final ZStorageDataFile<?>   dataFile
 		)
 		{
 			final long oldLength = transactionFile.length();
@@ -174,9 +174,9 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransactionEntryTruncate(
-			final StorageInventoryFile transactionFile,
+			final ZStorageInventoryFile transactionFile,
 			final ByteBuffer[]             byteBuffers    ,
-			final StorageInventoryFile     file           ,
+			final ZStorageInventoryFile     file           ,
 			final long                     newFileLength
 		)
 		{
@@ -196,7 +196,7 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 
 		@Override
 		public final void truncate(
-			final StorageInventoryFile file               ,
+			final ZStorageInventoryFile file               ,
 			final long                 newLength          ,
 			final StorageFileProvider  storageFileProvider
 		)
@@ -207,7 +207,7 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		}
 		
 		@Override
-		public void delete(final StorageInventoryFile file, final StorageFileProvider storageFileProvider)
+		public void delete(final ZStorageInventoryFile file, final StorageFileProvider storageFileProvider)
 		{
 			// no user increment since only the identifier is required and the actual file can well be deleted.
 			this.delegate.delete(file, storageFileProvider);

@@ -3,7 +3,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import one.microstream.io.XIO;
-import one.microstream.storage.types.StorageLockedFile;
+import one.microstream.storage.types.ZStorageLockedFile;
 
 public class MainTestCopyFiles
 {
@@ -12,7 +12,7 @@ public class MainTestCopyFiles
 	{
 		final Path source = XIO.Path("source.txt");
 		final Path target = XIO.Path("target.bak");
-		final StorageLockedFile slf = StorageLockedFile.openLockedFile(source);
+		final ZStorageLockedFile slf = ZStorageLockedFile.openLockedFile(source);
 		System.out.println("LockedFile: " + slf);
 		
 //		Files.copy(source, target); // JDK crap

@@ -17,21 +17,27 @@ public interface AccessManager
 	public boolean isUsed(ADirectory directory);
 	
 	public boolean isMutating(ADirectory directory);
+	
+	public boolean isUsed(AFile file);
+	
+	public boolean isUsedReading(AFile file);
+	
+	public boolean isUsedWriting(AFile file);
+	
+	
 
-	public boolean isReading(AFile file);
+	public boolean isUsedReading(AFile file, Object user);
 	
-	public boolean isWriting(AFile file);
-	
-	
-
-	public boolean isReading(AFile file, Object user);
-	
-	public boolean isWriting(AFile file, Object user);
+	public boolean isUsedWriting(AFile file, Object user);
 	
 	
 	public AReadableFile useReading(AFile file, Object user);
 	
 	public AWritableFile useWriting(AFile file, Object user);
+	
+	public AReadableFile tryUseReading(AFile file, Object user);
+	
+	public AWritableFile tryUseWriting(AFile file, Object user);
 	
 	public AReadableFile downgrade(AWritableFile file);
 	
@@ -60,8 +66,21 @@ public interface AccessManager
 		return this.useWriting(file, this.defaultUser());
 	}
 	
-	// (29.04.2020 TM)TODO: priv#49: execute~IfPossible methods? Or coverable by execute~ methods below?
-
+	public default AReadableFile tryUseReading(final AFile file)
+	{
+		return this.useReading(file, this.defaultUser());
+	}
+	
+	public default AWritableFile tryUseWriting(final AFile file)
+	{
+		return this.useWriting(file, this.defaultUser());
+	}
+	
+	public <R> R executeMutating(
+		ADirectory                      directory,
+		Function<? super ADirectory, R> logic
+	);
+	
 	public default <R> R executeWriting(
 		final AFile                              file ,
 		final Function<? super AWritableFile, R> logic
@@ -69,11 +88,6 @@ public interface AccessManager
 	{
 		return this.executeWriting(file, this.defaultUser(), logic);
 	}
-	
-	public <R> R executeMutating(
-		ADirectory                      directory,
-		Function<? super ADirectory, R> logic
-	);
 	
 	public default <R> R executeWriting(
 		final AFile                              file ,
@@ -93,12 +107,47 @@ public interface AccessManager
 		}
 	}
 	
+	// (06.06.2020 TM)FIXME: priv#49: need waitingUse~ and waitingExecute~ as well(?).
+	
+	public default <R> R tryExecuteWriting(
+		final AFile                              file ,
+		final Function<? super AWritableFile, R> logic
+	)
+	{
+		return this.tryExecuteWriting(file, this.defaultUser(), logic);
+	}
+	
+	public default <R> R tryExecuteWriting(
+		final AFile                              file ,
+		final Object                             user,
+		final Function<? super AWritableFile, R> logic
+	)
+	{
+		// no locking needed, here since the implementation of #useWriting has to cover that
+		final AWritableFile writableFile = this.tryUseWriting(file, user);
+		if(writableFile == null)
+		{
+			return null;
+		}
+		
+		try
+		{
+			return logic.apply(writableFile);
+		}
+		finally
+		{
+			writableFile.release();
+		}
+	}
+	
+	
 	
 	@FunctionalInterface
 	public interface Creator
 	{
 		public AccessManager createAccessManager(AFileSystem parent);
 	}
+	
 	
 	
 	public static AccessManager New(final AFileSystem fileSystem)
@@ -216,13 +265,13 @@ public interface AccessManager
 				// already contained
 			}
 			
-			final void remove(final AReadableFile file)
+			final boolean removeShared(final AReadableFile file)
 			{
 				if(this.sharedUsers.length == 1 && this.sharedUsers[0] == file)
 				{
 					this.sharedUsers = NO_SHARED_USERS;
 					
-					return;
+					return true;
 				}
 				
 				final int index = this.indexForUser(file.user());
@@ -245,6 +294,8 @@ public interface AccessManager
 				}
 				
 				this.removeIndex(index);
+				
+				return false;
 			}
 			
 			final void removeForUser(final Object user)
@@ -311,9 +362,24 @@ public interface AccessManager
 				return this.mutatingDirectories.keys().contains(ADirectory.actual(directory));
 			}
 		}
+		
+		@Override
+		public boolean isUsed(final AFile file)
+		{
+			synchronized(this.mutex())
+			{
+				final FileEntry e = this.fileUsers.get(AFile.actual(file));
+				if(e == null)
+				{
+					return false;
+				}
+				
+				return e.exclusive != null || e.hasSharedUsers();
+			}
+		}
 
 		@Override
-		public boolean isReading(final AFile file)
+		public boolean isUsedReading(final AFile file)
 		{
 			synchronized(this.mutex())
 			{
@@ -328,7 +394,7 @@ public interface AccessManager
 		}
 		
 		@Override
-		public boolean isWriting(final AFile file)
+		public boolean isUsedWriting(final AFile file)
 		{
 			synchronized(this.mutex())
 			{
@@ -343,7 +409,7 @@ public interface AccessManager
 		}
 		
 		@Override
-		public boolean isReading(
+		public boolean isUsedReading(
 			final AFile  file,
 			final Object user
 		)
@@ -361,7 +427,7 @@ public interface AccessManager
 		}
 		
 		@Override
-		public boolean isWriting(
+		public boolean isUsedWriting(
 			final AFile  file,
 			final Object user
 		)
@@ -427,38 +493,38 @@ public interface AccessManager
 		}
 				
 		@Override
-		public AReadableFile useReading(
-			final AFile  file,
-			final Object user
-		)
+		public AReadableFile useReading(final AFile file, final Object user)
 		{
 			synchronized(this.mutex())
 			{
-				final AFile actual = AFile.actual(file);
-				final FileEntry e = this.fileUsers.get(actual);
-				if(e == null)
-				{
-					return this.registerReading(this.createFileEntry(actual), actual, user);
-				}
-				
-				if(e.exclusive != null)
-				{
-					if(e.exclusive.user() == user)
-					{
-						return e.exclusive;
-					}
-					
-					// (30.04.2020 TM)EXCP: proper exception
-					throw new RuntimeException("File is exclusively used: " + actual);
-				}
-				
-				AReadableFile wrapper = e.getForUser(user);
-				if(wrapper == null)
-				{
-					wrapper = this.registerReading(e, actual, user);
-				}
-				
-				return wrapper;
+				return this.internalUseReading(file, user, CONFLICT_HANDLER_EXCEPTION);
+			}
+		}
+		
+		@Override
+		public AReadableFile tryUseReading(final AFile file, final Object user)
+		{
+			synchronized(this.mutex())
+			{
+				return this.internalUseReading(file, user, CONFLICT_HANDLER_NO_OP);
+			}
+		}
+		
+		@Override
+		public AWritableFile useWriting(final AFile file, final Object user)
+		{
+			synchronized(this.mutex())
+			{
+				return this.internalUseWriting(file, user, CONFLICT_HANDLER_EXCEPTION);
+			}
+		}
+		
+		@Override
+		public AWritableFile tryUseWriting(final AFile file, final Object user)
+		{
+			synchronized(this.mutex())
+			{
+				return this.internalUseWriting(file, user, CONFLICT_HANDLER_NO_OP);
 			}
 		}
 		
@@ -560,56 +626,140 @@ public interface AccessManager
 			}
 		}
 		
-		@Override
-		public AWritableFile useWriting(
-			final AFile  file,
-			final Object user
+		protected final AReadableFile internalUseReading(
+			final AFile           file           ,
+			final Object          user           ,
+			final ConflictHandler conflictHandler
 		)
 		{
-			synchronized(this.mutex())
+			final AFile actual = AFile.actual(file);
+			final FileEntry e = this.fileUsers.get(actual);
+			if(e == null)
 			{
-				final AFile actual = AFile.actual(file);
-				final FileEntry e = this.fileUsers.get(actual);
-				if(e == null)
+				return this.registerReading(this.createFileEntry(actual), actual, user);
+			}
+			
+			if(e.exclusive != null)
+			{
+				if(e.exclusive.user() == user)
 				{
-					return this.createFileEntry(actual).exclusive = this.registerWriting(actual, user);
+					return e.exclusive;
 				}
 				
-				if(e.exclusive != null)
+				conflictHandler.handleSharedAttemptExclusiveUserConflict(actual, e);
+			}
+			
+			AReadableFile wrapper = e.getForUser(user);
+			if(wrapper == null)
+			{
+				wrapper = this.registerReading(e, actual, user);
+			}
+			
+			return wrapper;
+		}
+		
+		protected final AWritableFile internalUseWriting(
+			final AFile           file           ,
+			final Object          user           ,
+			final ConflictHandler conflictHandler
+		)
+		{
+			final AFile actual = AFile.actual(file);
+			final FileEntry e = this.fileUsers.get(actual);
+			if(e == null)
+			{
+				return this.createFileEntry(actual).exclusive = this.registerWriting(actual, user);
+			}
+			
+			if(e.exclusive != null)
+			{
+				if(e.exclusive.user() == user)
 				{
-					if(e.exclusive.user() == user)
-					{
-						return e.exclusive;
-					}
-					
-					// (30.04.2020 TM)EXCP: proper exception
-					throw new RuntimeException("File is exclusively used: " + actual);
+					return e.exclusive;
 				}
 				
-				if(e.hasSharedUsers())
+				conflictHandler.handleExclusiveAttemptConflict(actual, e);
+				
+				return null;
+			}
+			
+			if(e.hasSharedUsers())
+			{
+				final AReadableFile soleUserFile = e.getIfSoleUser(user);
+				if(soleUserFile != null)
 				{
-					final AReadableFile soleUserFile = e.getIfSoleUser(user);
-					if(soleUserFile != null)
-					{
-						e.exclusive = this.convertToWriting(soleUserFile);
-						e.removeForUser(user);
-					}
-					else
-					{
-						// (30.04.2020 TM) EXCP: proper exception
-						throw new RuntimeException(
-							"File \"" + actual.toPathString()
-							+ "\" cannot be accessed exlusively since there are shared users present."
-						);
-					}
+					e.exclusive = this.convertToWriting(soleUserFile);
+					e.removeForUser(user);
 				}
 				else
 				{
-					e.exclusive = this.registerWriting(actual, user);
+					conflictHandler.handleExclusiveAttemptSharedUsersConflict(actual, e);
 				}
-				
-				return e.exclusive;
 			}
+			else
+			{
+				e.exclusive = this.registerWriting(actual, user);
+			}
+			
+			return e.exclusive;
+		}
+		
+		private static final ConflictHandler CONFLICT_HANDLER_NO_OP = new ConflictHandler()
+		{
+			@Override
+			public void handleSharedAttemptExclusiveUserConflict(final AFile actual, final FileEntry entry)
+			{
+				// no-op
+			}
+			
+			@Override
+			public void handleExclusiveAttemptConflict(final AFile actual, final FileEntry entry)
+			{
+				// no-op
+			}
+			
+			@Override
+			public void handleExclusiveAttemptSharedUsersConflict(final AFile actual, final FileEntry entry)
+			{
+				// no-op
+			}
+		};
+		
+		private static final ConflictHandler CONFLICT_HANDLER_EXCEPTION = new ConflictHandler()
+		{
+			@Override
+			public void handleSharedAttemptExclusiveUserConflict(final AFile actual, final FileEntry entry)
+			{
+				// (30.04.2020 TM)EXCP: proper exception
+				throw new RuntimeException("File is exclusively used: " + actual);
+			}
+			
+			@Override
+			public void handleExclusiveAttemptConflict(final AFile actual, final FileEntry entry)
+			{
+				// (30.04.2020 TM)EXCP: proper exception
+				throw new RuntimeException("File is exclusively used: " + actual);
+			}
+			
+			@Override
+			public void handleExclusiveAttemptSharedUsersConflict(final AFile actual, final FileEntry entry)
+			{
+				// (30.04.2020 TM) EXCP: proper exception
+				throw new RuntimeException(
+					"File \"" + actual.toPathString()
+					+ "\" cannot be accessed exlusively since there are shared users present."
+				);
+			}
+		};
+		
+		
+		interface ConflictHandler
+		{
+			public void handleSharedAttemptExclusiveUserConflict(AFile actual, FileEntry entry);
+
+			public void handleExclusiveAttemptConflict(AFile actual, FileEntry entry);
+
+			public void handleExclusiveAttemptSharedUsersConflict(AFile actual, FileEntry entry);
 		}
 
 		
@@ -755,7 +905,12 @@ public interface AccessManager
 		protected void unregisterShared(final AReadableFile file, final FileEntry entry)
 		{
 			file.retire();
-			entry.remove(file);
+			
+			if(entry.removeShared(file) && entry.exclusive == null)
+			{
+				// if there is no more need for the entry itself, remove it.
+				this.fileUsers.removeFor(file);
+			}
 		}
 		
 		protected void unregisterExclusive(final AWritableFile file, final FileEntry entry)

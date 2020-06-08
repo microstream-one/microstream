@@ -34,7 +34,7 @@ public interface StorageFileWriter
 		);
 	}
 	
-	public default long write(final StorageLockedFile file, final ByteBuffer[] byteBuffers)
+	public default long write(final ZStorageLockedFile file, final ByteBuffer[] byteBuffers)
 	{
 		try
 		{
@@ -48,18 +48,18 @@ public interface StorageFileWriter
 	}
 
 	public default long copy(
-		final StorageLockedFile sourceFile,
-		final StorageLockedFile targetfile
+		final ZStorageLockedFile sourceFile,
+		final ZStorageLockedFile targetfile
 	)
 	{
 		return this.copyFilePart(sourceFile, 0, sourceFile.length(), targetfile);
 	}
 
 	public default long copyFilePart(
-		final StorageLockedFile sourceFile  ,
+		final ZStorageLockedFile sourceFile  ,
 		final long              sourceOffset,
 		final long              length      ,
-		final StorageLockedFile targetfile
+		final ZStorageLockedFile targetfile
 	)
 	{
 //		DEBUGStorage.println("storage copy file range");
@@ -78,7 +78,7 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeStore(
-		final StorageDataFile<?> targetFile ,
+		final ZStorageDataFile<?> targetFile ,
 		final ByteBuffer[]       byteBuffers
 	)
 	{
@@ -90,38 +90,38 @@ public interface StorageFileWriter
 	 * 
 	 */
 	public default long writeImport(
-		final StorageLockedFile  sourceFile  ,
+		final ZStorageLockedFile  sourceFile  ,
 		final long               sourceOffset,
 		final long               copyLength  ,
-		final StorageDataFile<?> targetFile
+		final ZStorageDataFile<?> targetFile
 	)
 	{
 		return this.copyFilePart(sourceFile, sourceOffset, copyLength, targetFile);
 	}
 	
 	public default long writeTransfer(
-		final StorageDataFile<?> sourceFile  ,
+		final ZStorageDataFile<?> sourceFile  ,
 		final long               sourceOffset,
 		final long               copyLength  ,
-		final StorageDataFile<?> targetFile
+		final ZStorageDataFile<?> targetFile
 	)
 	{
 		return this.copyFilePart(sourceFile, sourceOffset, copyLength, targetFile);
 	}
 	
 	public default long writeTransactionEntryCreate(
-		final StorageInventoryFile transactionFile,
+		final ZStorageInventoryFile transactionFile,
 		final ByteBuffer[]         byteBuffers    ,
-		final StorageDataFile<?>   dataFile
+		final ZStorageDataFile<?>   dataFile
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 	
 	public default long writeTransactionEntryStore(
-		final StorageInventoryFile transactionFile,
+		final ZStorageInventoryFile transactionFile,
 		final ByteBuffer[]         byteBuffers    ,
-		final StorageDataFile<?>   dataFile       ,
+		final ZStorageDataFile<?>   dataFile       ,
 		final long                 dataFileOffset ,
 		final long                 storeLength
 	)
@@ -130,9 +130,9 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryTransfer(
-		final StorageInventoryFile transactionFile,
+		final ZStorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
-		final StorageDataFile<?>       dataFile       ,
+		final ZStorageDataFile<?>       dataFile       ,
 		final long                     dataFileOffset ,
 		final long                     storeLength
 	)
@@ -141,18 +141,18 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryDelete(
-		final StorageInventoryFile transactionFile,
+		final ZStorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
-		final StorageDataFile<?>       dataFile
+		final ZStorageDataFile<?>       dataFile
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 	
 	public default long writeTransactionEntryTruncate(
-		final StorageInventoryFile transactionFile,
+		final ZStorageInventoryFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
-		final StorageInventoryFile     file           ,
+		final ZStorageInventoryFile     file           ,
 		final long                     newFileLength
 	)
 	{
@@ -160,7 +160,7 @@ public interface StorageFileWriter
 	}
 
 	public default void truncate(
-		final StorageInventoryFile file               ,
+		final ZStorageInventoryFile file               ,
 		final long                 newLength          ,
 		final StorageFileProvider  storageFileProvider
 	)
@@ -169,13 +169,13 @@ public interface StorageFileWriter
 	}
 	
 	public static void truncateFile(
-		final StorageNumberedFile file               ,
+		final ZStorageNumberedFile file               ,
 		final long                newLength          ,
 		final StorageFileProvider storageFileProvider
 	)
 	{
 //		DEBUGStorage.println("storage file truncation");
-		final StorageNumberedFile truncationTargetFile = storageFileProvider.provideTruncationBackupTargetFile(
+		final ZStorageNumberedFile truncationTargetFile = storageFileProvider.provideTruncationBackupTargetFile(
 			file,
 			newLength
 		);
@@ -195,7 +195,7 @@ public interface StorageFileWriter
 	}
 
 	public default void delete(
-		final StorageInventoryFile file               ,
+		final ZStorageInventoryFile file               ,
 		final StorageFileProvider  storageFileProvider
 	)
 	{
@@ -203,7 +203,7 @@ public interface StorageFileWriter
 	}
 	
 	public static void deleteFile(
-		final StorageNumberedFile file               ,
+		final ZStorageNumberedFile file               ,
 		final StorageFileProvider storageFileProvider
 	)
 	{
@@ -224,8 +224,8 @@ public interface StorageFileWriter
 	
 
 	public static void createFileFullCopy(
-		final StorageNumberedFile sourceFile,
-		final StorageNumberedFile targetFile
+		final ZStorageNumberedFile sourceFile,
+		final ZStorageNumberedFile targetFile
 	)
 	{
 		try
@@ -253,11 +253,11 @@ public interface StorageFileWriter
 	}
 	
 	public static boolean rescueFromDeletion(
-		final StorageNumberedFile file               ,
+		final ZStorageNumberedFile file               ,
 		final StorageFileProvider storageFileProvider
 	)
 	{
-		final StorageNumberedFile deletionTargetFile = storageFileProvider.provideDeletionTargetFile(file);
+		final ZStorageNumberedFile deletionTargetFile = storageFileProvider.provideDeletionTargetFile(file);
 		if(deletionTargetFile == null)
 		{
 			return false;
@@ -277,7 +277,7 @@ public interface StorageFileWriter
 		return true;
 	}
 	
-	public default void flush(final StorageLockedFile targetfile)
+	public default void flush(final ZStorageLockedFile targetfile)
 	{
 		try
 		{

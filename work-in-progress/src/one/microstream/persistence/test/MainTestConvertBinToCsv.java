@@ -11,7 +11,7 @@ import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
 import one.microstream.storage.types.StorageDataConverterTypeBinaryToCsv;
 import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
-import one.microstream.storage.types.StorageLockedFile;
+import one.microstream.storage.types.ZStorageLockedFile;
 
 public class MainTestConvertBinToCsv
 {
@@ -46,7 +46,7 @@ public class MainTestConvertBinToCsv
 				continue;
 			}
 			
-			final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+			final ZStorageLockedFile storageFile = ZStorageLockedFile.openLockedFile(file);
 			converter.convertDataFile(storageFile);
 		}
 	}
