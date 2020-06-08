@@ -16,15 +16,15 @@ import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
 import one.microstream.typing.XTypes;
 
-public interface StorageEntityInitializer<D extends StorageDataFile<?>>
+public interface StorageEntityInitializer<D extends ZStorageDataFile<?>>
 {
-	public D registerEntities(XGettingSequence<? extends StorageInventoryFile> files, long lastFileLength);
+	public D registerEntities(XGettingSequence<? extends ZStorageInventoryFile> files, long lastFileLength);
 	
 	
 	
-	static StorageEntityInitializer<StorageDataFile.Default> New(
+	static StorageEntityInitializer<ZStorageDataFile.Default> New(
 		final StorageEntityCache.Default                              entityCache    ,
-		final Function<StorageInventoryFile, StorageDataFile.Default> dataFileCreator
+		final Function<ZStorageInventoryFile, ZStorageDataFile.Default> dataFileCreator
 	)
 	{
 		return new StorageEntityInitializer.Default(
@@ -33,13 +33,13 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		);
 	}
 	
-	final class Default implements StorageEntityInitializer<StorageDataFile.Default>
+	final class Default implements StorageEntityInitializer<ZStorageDataFile.Default>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		private final Function<StorageInventoryFile, StorageDataFile.Default> dataFileCreator;
+		private final Function<ZStorageInventoryFile, ZStorageDataFile.Default> dataFileCreator;
 		private final StorageEntityCache.Default                              entityCache    ;
 		
 		
@@ -49,7 +49,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		/////////////////
 
 		Default(
-			final Function<StorageInventoryFile, StorageDataFile.Default> dataFileCreator,
+			final Function<ZStorageInventoryFile, ZStorageDataFile.Default> dataFileCreator,
 			final StorageEntityCache.Default                              entityCache
 		)
 		{
@@ -65,33 +65,33 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		////////////
 		
 		@Override
-		public final StorageDataFile.Default registerEntities(
-			final XGettingSequence<? extends StorageInventoryFile> files ,
+		public final ZStorageDataFile.Default registerEntities(
+			final XGettingSequence<? extends ZStorageInventoryFile> files ,
 			final long                                             lastFileLength
 		)
 		{
 			return registerEntities(this.dataFileCreator, this.entityCache, files.toReversed(), lastFileLength);
 		}
 		
-		private static StorageDataFile.Default registerEntities(
-			final Function<StorageInventoryFile, StorageDataFile.Default> fileCreator    ,
+		private static ZStorageDataFile.Default registerEntities(
+			final Function<ZStorageInventoryFile, ZStorageDataFile.Default> fileCreator    ,
 			final StorageEntityCache.Default                              entityCache    ,
-			final XGettingSequence<? extends StorageInventoryFile>        reversedFiles  ,
+			final XGettingSequence<? extends ZStorageInventoryFile>        reversedFiles  ,
 			final long                                                    lastFileLength
 		)
 		{
 			final ByteBuffer                               buffer   = allocateInitializationBuffer(reversedFiles);
-			final Iterator<? extends StorageInventoryFile> iterator = reversedFiles.iterator();
+			final Iterator<? extends ZStorageInventoryFile> iterator = reversedFiles.iterator();
 			final int[] entityOffsets = createAllFilesOffsetsArray(buffer.capacity());
 			
 			final long initTime = System.currentTimeMillis();
 			
 			// special case handling for last/head file
-			final StorageDataFile.Default headFile = setupHeadFile(fileCreator.apply(iterator.next()));
+			final ZStorageDataFile.Default headFile = setupHeadFile(fileCreator.apply(iterator.next()));
 			registerFileEntities(entityCache, initTime, headFile, lastFileLength, buffer, entityOffsets);
 			
 			// simple tail file adding iteration for all remaining (previous!) storage files
-			for(StorageDataFile.Default dataFile = headFile; iterator.hasNext();)
+			for(ZStorageDataFile.Default dataFile = headFile; iterator.hasNext();)
 			{
 				dataFile = linkTailFile(dataFile, fileCreator.apply(iterator.next()));
 				registerFileEntities(entityCache, initTime, dataFile, dataFile.length(), buffer, entityOffsets);
@@ -103,7 +103,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		final static void registerFileEntities(
 			final StorageEntityCache.Default entityCache       ,
 			final long                       initializationTime,
-			final StorageDataFile.Default    file              ,
+			final ZStorageDataFile.Default    file              ,
 			final long                       fileActualLength  ,
 			final ByteBuffer                 buffer            ,
 			final int[]                      entityOffsets
@@ -159,7 +159,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		 * @return the entity count.
 		 */
 		private static int indexEntities(
-			final StorageDataFile.Default file            ,
+			final ZStorageDataFile.Default file            ,
 			final long                    fileActualLength,
 			final ByteBuffer              buffer          ,
 			final int[]                   entityOffsets
@@ -207,8 +207,8 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		// utility methods //
 		////////////////////
 		
-		private static StorageDataFile.Default setupHeadFile(
-			final StorageDataFile.Default storageFile
+		private static ZStorageDataFile.Default setupHeadFile(
+			final ZStorageDataFile.Default storageFile
 		)
 		{
 			storageFile.next = storageFile.prev = storageFile;
@@ -216,9 +216,9 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			return storageFile;
 		}
 
-		private static StorageDataFile.Default linkTailFile(
-			final StorageDataFile.Default currentTailFile,
-			final StorageDataFile.Default nextTailFile
+		private static ZStorageDataFile.Default linkTailFile(
+			final ZStorageDataFile.Default currentTailFile,
+			final ZStorageDataFile.Default nextTailFile
 		)
 		{
 			// joined in chain after current head file and before the current first
@@ -238,7 +238,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			return new int[largestFileLength / Binary.entityHeaderLength()];
 		}
 		
-		private static ByteBuffer allocateInitializationBuffer(final Iterable<? extends StorageInventoryFile> files)
+		private static ByteBuffer allocateInitializationBuffer(final Iterable<? extends ZStorageInventoryFile> files)
 		{
 			final int largestFileSize = determineLargestFileSize(files);
 			
@@ -252,7 +252,7 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 		
 		private static void fillBuffer(
 			final ByteBuffer              buffer          ,
-			final StorageDataFile.Default file            ,
+			final ZStorageDataFile.Default file            ,
 			final long                    fileActualLength
 		)
 		{
@@ -278,11 +278,11 @@ public interface StorageEntityInitializer<D extends StorageDataFile<?>>
 			}
 		}
 		
-		private static int determineLargestFileSize(final Iterable<? extends StorageInventoryFile> files)
+		private static int determineLargestFileSize(final Iterable<? extends ZStorageInventoryFile> files)
 		{
 			int largestFileSize = -1;
 			
-			for(final StorageInventoryFile file : files)
+			for(final ZStorageInventoryFile file : files)
 			{
 				final long fileLength = file.length();
 				if(fileLength > Integer.MAX_VALUE)

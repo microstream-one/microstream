@@ -2,9 +2,9 @@ package one.microstream.storage.exceptions;
 
 import one.microstream.chars.VarString;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.storage.types.StorageBackupFile;
+import one.microstream.storage.types.ZStorageBackupFile;
 import one.microstream.storage.types.StorageInventory;
-import one.microstream.storage.types.StorageInventoryFile;
+import one.microstream.storage.types.ZStorageInventoryFile;
 
 public class StorageExceptionBackupInconsistentFileLength
 extends StorageExceptionBackupChannelIndex
@@ -14,10 +14,10 @@ extends StorageExceptionBackupChannelIndex
 	////////////////////
 	
 	private final StorageInventory                       storageInventory ;
-	private final XGettingTable<Long, StorageBackupFile> backupFiles      ;
-	private final StorageInventoryFile                   storageFile      ;
+	private final XGettingTable<Long, ZStorageBackupFile> backupFiles      ;
+	private final ZStorageInventoryFile                   storageFile      ;
 	private final long                                   storageFileLength;
-	private final StorageBackupFile                      backupFile       ;
+	private final ZStorageBackupFile                      backupFile       ;
 	private final long                                   backupFileLength ;
 
 	
@@ -28,10 +28,10 @@ extends StorageExceptionBackupChannelIndex
 
 	public StorageExceptionBackupInconsistentFileLength(
 		final StorageInventory                       storageInventory ,
-		final XGettingTable<Long, StorageBackupFile> backupFiles      ,
-		final StorageInventoryFile                   storageFile      ,
+		final XGettingTable<Long, ZStorageBackupFile> backupFiles      ,
+		final ZStorageInventoryFile                   storageFile      ,
 		final long                                   storageFileLength,
-		final StorageBackupFile                      backupFile       ,
+		final ZStorageBackupFile                      backupFile       ,
 		final long                                   backupFileLength
 	)
 	{
@@ -46,10 +46,10 @@ extends StorageExceptionBackupChannelIndex
 
 	public StorageExceptionBackupInconsistentFileLength(
 		final StorageInventory                       storageInventory ,
-		final XGettingTable<Long, StorageBackupFile> backupFiles      ,
-		final StorageInventoryFile                   storageFile      ,
+		final XGettingTable<Long, ZStorageBackupFile> backupFiles      ,
+		final ZStorageInventoryFile                   storageFile      ,
 		final long                                   storageFileLength,
-		final StorageBackupFile                      backupFile       ,
+		final ZStorageBackupFile                      backupFile       ,
 		final long                                   backupFileLength ,
 		final String                                 message
 	)
@@ -65,10 +65,10 @@ extends StorageExceptionBackupChannelIndex
 
 	public StorageExceptionBackupInconsistentFileLength(
 		final StorageInventory                       storageInventory ,
-		final XGettingTable<Long, StorageBackupFile> backupFiles      ,
-		final StorageInventoryFile                   storageFile      ,
+		final XGettingTable<Long, ZStorageBackupFile> backupFiles      ,
+		final ZStorageInventoryFile                   storageFile      ,
 		final long                                   storageFileLength,
-		final StorageBackupFile                      backupFile       ,
+		final ZStorageBackupFile                      backupFile       ,
 		final long                                   backupFileLength ,
 		final Throwable                              cause
 	)
@@ -84,10 +84,10 @@ extends StorageExceptionBackupChannelIndex
 
 	public StorageExceptionBackupInconsistentFileLength(
 		final StorageInventory                       storageInventory ,
-		final XGettingTable<Long, StorageBackupFile> backupFiles      ,
-		final StorageInventoryFile                   storageFile      ,
+		final XGettingTable<Long, ZStorageBackupFile> backupFiles      ,
+		final ZStorageInventoryFile                   storageFile      ,
 		final long                                   storageFileLength,
-		final StorageBackupFile                      backupFile       ,
+		final ZStorageBackupFile                      backupFile       ,
 		final long                                   backupFileLength ,
 		final String                                 message         ,
 		final Throwable                              cause
@@ -104,10 +104,10 @@ extends StorageExceptionBackupChannelIndex
 
 	public StorageExceptionBackupInconsistentFileLength(
 		final StorageInventory                       storageInventory ,
-		final XGettingTable<Long, StorageBackupFile> backupFiles      ,
-		final StorageInventoryFile                   storageFile      ,
+		final XGettingTable<Long, ZStorageBackupFile> backupFiles      ,
+		final ZStorageInventoryFile                   storageFile      ,
 		final long                                   storageFileLength,
-		final StorageBackupFile                      backupFile       ,
+		final ZStorageBackupFile                      backupFile       ,
 		final long                                   backupFileLength ,
 		final String                                 message           ,
 		final Throwable                              cause             ,
@@ -135,17 +135,17 @@ extends StorageExceptionBackupChannelIndex
 		return this.storageInventory;
 	}
 	
-	public final XGettingTable<Long, StorageBackupFile> backupFiles()
+	public final XGettingTable<Long, ZStorageBackupFile> backupFiles()
 	{
 		return this.backupFiles;
 	}
 	
-	public final StorageInventoryFile storageFile()
+	public final ZStorageInventoryFile storageFile()
 	{
 		return this.storageFile;
 	}
 	
-	public final StorageBackupFile backupFile()
+	public final ZStorageBackupFile backupFile()
 	{
 		return this.backupFile;
 	}

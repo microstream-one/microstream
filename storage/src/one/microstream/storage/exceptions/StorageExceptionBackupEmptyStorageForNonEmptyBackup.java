@@ -1,7 +1,7 @@
 package one.microstream.storage.exceptions;
 
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.storage.types.StorageBackupFile;
+import one.microstream.storage.types.ZStorageBackupFile;
 
 public class StorageExceptionBackupEmptyStorageForNonEmptyBackup
 extends StorageExceptionBackupChannelIndex
@@ -10,7 +10,7 @@ extends StorageExceptionBackupChannelIndex
 	// instance fields //
 	////////////////////
 	
-	private final XGettingTable<Long, StorageBackupFile> backupFiles;
+	private final XGettingTable<Long, ZStorageBackupFile> backupFiles;
 
 	
 
@@ -20,7 +20,7 @@ extends StorageExceptionBackupChannelIndex
 
 	public StorageExceptionBackupEmptyStorageForNonEmptyBackup(
 		final long                                   channelIndex,
-		final XGettingTable<Long, StorageBackupFile> backupFiles
+		final XGettingTable<Long, ZStorageBackupFile> backupFiles
 	)
 	{
 		super(channelIndex);
@@ -29,7 +29,7 @@ extends StorageExceptionBackupChannelIndex
 
 	public StorageExceptionBackupEmptyStorageForNonEmptyBackup(
 		final long                                   channelIndex,
-		final XGettingTable<Long, StorageBackupFile> backupFiles ,
+		final XGettingTable<Long, ZStorageBackupFile> backupFiles ,
 		final String                                 message
 	)
 	{
@@ -39,7 +39,7 @@ extends StorageExceptionBackupChannelIndex
 
 	public StorageExceptionBackupEmptyStorageForNonEmptyBackup(
 		final long                                   channelIndex,
-		final XGettingTable<Long, StorageBackupFile> backupFiles ,
+		final XGettingTable<Long, ZStorageBackupFile> backupFiles ,
 		final Throwable                              cause
 	)
 	{
@@ -49,7 +49,7 @@ extends StorageExceptionBackupChannelIndex
 
 	public StorageExceptionBackupEmptyStorageForNonEmptyBackup(
 		final long                                   channelIndex,
-		final XGettingTable<Long, StorageBackupFile> backupFiles ,
+		final XGettingTable<Long, ZStorageBackupFile> backupFiles ,
 		final String                                 message     ,
 		final Throwable                              cause
 	)
@@ -60,7 +60,7 @@ extends StorageExceptionBackupChannelIndex
 
 	public StorageExceptionBackupEmptyStorageForNonEmptyBackup(
 		final long                                   channelIndex      ,
-		final XGettingTable<Long, StorageBackupFile> backupFiles       ,
+		final XGettingTable<Long, ZStorageBackupFile> backupFiles       ,
 		final String                                 message           ,
 		final Throwable                              cause             ,
 		final boolean                                enableSuppression ,
@@ -77,7 +77,7 @@ extends StorageExceptionBackupChannelIndex
 	// methods //
 	////////////
 	
-	public final XGettingTable<Long, StorageBackupFile> backupFiles()
+	public final XGettingTable<Long, ZStorageBackupFile> backupFiles()
 	{
 		return this.backupFiles;
 	}

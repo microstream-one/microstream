@@ -6,33 +6,33 @@ import java.nio.channels.FileLock;
 import java.nio.file.Path;
 
 
-public interface StorageInventoryFile extends StorageLockedFile, StorageNumberedFile
+public interface ZStorageInventoryFile extends ZStorageLockedFile, ZStorageNumberedFile
 {
 	@Override
-	public default StorageInventoryFile inventorize()
+	public default ZStorageInventoryFile inventorize()
 	{
 		return this;
 	}
 	
 	
 
-	public static StorageInventoryFile New(
+	public static ZStorageInventoryFile New(
 		final int  channelIndex,
 		final long number      ,
 		final Path file
 	)
 	{
-		return new StorageInventoryFile.Default(
+		return new ZStorageInventoryFile.Default(
 			channelIndex,
 			number,
 			notNull(file),
-			StorageLockedFile.openLockedFileChannel(file)
+			ZStorageLockedFile.openLockedFileChannel(file)
 		);
 	}
 
 	public class Default
-	extends StorageLockedFile.Default
-	implements StorageInventoryFile
+	extends ZStorageLockedFile.Default
+	implements ZStorageInventoryFile
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //

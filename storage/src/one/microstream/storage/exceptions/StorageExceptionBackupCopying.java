@@ -1,8 +1,8 @@
 package one.microstream.storage.exceptions;
 
 import one.microstream.chars.VarString;
-import one.microstream.storage.types.StorageBackupFile;
-import one.microstream.storage.types.StorageInventoryFile;
+import one.microstream.storage.types.ZStorageBackupFile;
+import one.microstream.storage.types.ZStorageInventoryFile;
 
 public class StorageExceptionBackupCopying
 extends StorageExceptionBackupChannelIndex
@@ -11,10 +11,10 @@ extends StorageExceptionBackupChannelIndex
 	// instance fields //
 	////////////////////
 	
-	private final StorageInventoryFile storageFile   ;
+	private final ZStorageInventoryFile storageFile   ;
 	private final long                 sourcePosition;
 	private final long                 length        ;
-	private final StorageBackupFile    backupFile    ;
+	private final ZStorageBackupFile    backupFile    ;
 
 	
 
@@ -23,10 +23,10 @@ extends StorageExceptionBackupChannelIndex
 	/////////////////
 
 	public StorageExceptionBackupCopying(
-		final StorageInventoryFile storageFile   ,
+		final ZStorageInventoryFile storageFile   ,
 		final long                 sourcePosition,
 		final long                 length        ,
-		final StorageBackupFile    backupFile
+		final ZStorageBackupFile    backupFile
 	)
 	{
 		super(storageFile.channelIndex());
@@ -37,10 +37,10 @@ extends StorageExceptionBackupChannelIndex
 	}
 
 	public StorageExceptionBackupCopying(
-		final StorageInventoryFile storageFile   ,
+		final ZStorageInventoryFile storageFile   ,
 		final long                 sourcePosition,
 		final long                 length        ,
-		final StorageBackupFile    backupFile    ,
+		final ZStorageBackupFile    backupFile    ,
 		final String               message
 	)
 	{
@@ -52,10 +52,10 @@ extends StorageExceptionBackupChannelIndex
 	}
 
 	public StorageExceptionBackupCopying(
-		final StorageInventoryFile storageFile   ,
+		final ZStorageInventoryFile storageFile   ,
 		final long                 sourcePosition,
 		final long                 length        ,
-		final StorageBackupFile    backupFile    ,
+		final ZStorageBackupFile    backupFile    ,
 		final Throwable            cause
 	)
 	{
@@ -67,10 +67,10 @@ extends StorageExceptionBackupChannelIndex
 	}
 
 	public StorageExceptionBackupCopying(
-		final StorageInventoryFile storageFile   ,
+		final ZStorageInventoryFile storageFile   ,
 		final long                 sourcePosition,
 		final long                 length        ,
-		final StorageBackupFile    backupFile    ,
+		final ZStorageBackupFile    backupFile    ,
 		final String               message       ,
 		final Throwable            cause
 	)
@@ -83,10 +83,10 @@ extends StorageExceptionBackupChannelIndex
 	}
 
 	public StorageExceptionBackupCopying(
-		final StorageInventoryFile storageFile       ,
+		final ZStorageInventoryFile storageFile       ,
 		final long                 sourcePosition    ,
 		final long                 length            ,
-		final StorageBackupFile    backupFile        ,
+		final ZStorageBackupFile    backupFile        ,
 		final String               message           ,
 		final Throwable            cause             ,
 		final boolean              enableSuppression ,
@@ -106,7 +106,7 @@ extends StorageExceptionBackupChannelIndex
 	// methods //
 	////////////
 	
-	public final StorageInventoryFile storageFile()
+	public final ZStorageInventoryFile storageFile()
 	{
 		return this.storageFile;
 	}
@@ -121,7 +121,7 @@ extends StorageExceptionBackupChannelIndex
 		return this.length;
 	}
 	
-	public final StorageBackupFile backupFile()
+	public final ZStorageBackupFile backupFile()
 	{
 		return this.backupFile;
 	}

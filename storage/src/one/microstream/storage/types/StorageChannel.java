@@ -53,18 +53,18 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 	// (19.07.2014 TM)TODO: refactor storage typing to avoid classes in public API
 	public StorageEntityCache.Default prepareImportData();
 
-	public void importData(StorageChannelImportSourceFile importFile);
+	public void importData(ZStorageChannelImportSourceFile importFile);
 
 	public void rollbackImportData(Throwable cause);
 
 	public void commitImportData(long taskTimestamp);
 
-	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, StorageLockedFile file)
+	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, ZStorageLockedFile file)
 		throws IOException;
 
 	public KeyValue<Long, Long> exportTypeEntities(
 		StorageEntityTypeHandler         type           ,
-		StorageLockedFile                file           ,
+		ZStorageLockedFile                file           ,
 		Predicate<? super StorageEntity> predicateEntity
 	) throws IOException;
 
@@ -509,7 +509,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		}
 
 		@Override
-		public void importData(final StorageChannelImportSourceFile importFile)
+		public void importData(final ZStorageChannelImportSourceFile importFile)
 		{
 			this.fileManager.copyData(importFile);
 		}
@@ -529,7 +529,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
 			final StorageEntityTypeHandler         type           ,
-			final StorageLockedFile                file           ,
+			final ZStorageLockedFile                file           ,
 			final Predicate<? super StorageEntity> predicateEntity
 		)
 			throws IOException
@@ -564,7 +564,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
 			final StorageEntityTypeHandler type,
-			final StorageLockedFile        file
+			final ZStorageLockedFile        file
 		)
 			throws IOException
 		{

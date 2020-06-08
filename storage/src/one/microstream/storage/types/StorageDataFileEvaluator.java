@@ -18,7 +18,7 @@ import one.microstream.chars.VarString;
 public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvaluator
 {
 	@Override
-	public boolean needsDissolving(StorageDataFile<?> storageFile);
+	public boolean needsDissolving(ZStorageDataFile<?> storageFile);
 
 	public boolean needsRetirement(long fileTotalLength);
 
@@ -363,7 +363,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		}
 
 		@Override
-		public final boolean needsDissolving(final StorageDataFile<?> storageFile)
+		public final boolean needsDissolving(final ZStorageDataFile<?> storageFile)
 		{
 			/*
 			 * Dissolve file if one of three extreme cases (too small, too much gaps/overhead, too big) apply,
@@ -393,22 +393,22 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			;
 		}
 
-		private boolean isBelowMinimumSize(final StorageDataFile<?> storageFile)
+		private boolean isBelowMinimumSize(final ZStorageDataFile<?> storageFile)
 		{
 			return storageFile.totalLength() < this.fileMinimumSize();
 		}
 
-		private boolean hasTooMuchGapSpace(final StorageDataFile<?> storageFile)
+		private boolean hasTooMuchGapSpace(final ZStorageDataFile<?> storageFile)
 		{
 			return storageFile.dataFillRatio() < this.minimumUseRatio;
 		}
 
-		private boolean isAboveMaximumSize(final StorageDataFile<?> storageFile)
+		private boolean isAboveMaximumSize(final ZStorageDataFile<?> storageFile)
 		{
 			return storageFile.totalLength() > this.fileMaximumSize();
 		}
 
-		private boolean isGaplessSingleEntityFile(final StorageDataFile<?> storageFile)
+		private boolean isGaplessSingleEntityFile(final ZStorageDataFile<?> storageFile)
 		{
 			// file has only one entity and contains no further gaps
 			return storageFile.hasSingleEntity() && storageFile.dataLength() == storageFile.totalLength();

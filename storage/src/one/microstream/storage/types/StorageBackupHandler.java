@@ -27,18 +27,18 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 	public void synchronize(StorageInventory storageInventory);
 	
 	public void copyFilePart(
-		StorageInventoryFile sourceFile    ,
+		ZStorageInventoryFile sourceFile    ,
 		long                 sourcePosition,
 		long                 length
 	);
 	
 	public void truncateFile(
-		StorageInventoryFile file     ,
+		ZStorageInventoryFile file     ,
 		long                 newLength
 	);
 	
 	public void deleteFile(
-		StorageInventoryFile file
+		ZStorageInventoryFile file
 	);
 	
 	public default StorageBackupHandler start()
@@ -154,7 +154,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			return this;
 		}
 		
-		private StorageBackupFile resolveBackupTargetFile(final StorageNumberedFile sourceFile)
+		private ZStorageBackupFile resolveBackupTargetFile(final ZStorageNumberedFile sourceFile)
 		{
 			return this.channelInventories[sourceFile.channelIndex()].ensureBackupFile(sourceFile);
 		}
@@ -252,14 +252,14 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			final ChannelInventory backupInventory
 		)
 		{
-			for(final StorageInventoryFile storageFile : storageInventory.dataFiles().values())
+			for(final ZStorageInventoryFile storageFile : storageInventory.dataFiles().values())
 			{
-				final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
+				final ZStorageBackupFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
 				this.copyFile(storageFile, backupTargetFile);
 			}
 			
-			final StorageInventoryFile transactionFile = storageInventory.transactionsFileAnalysis().transactionsFile();
-			final StorageBackupFile backupTransactionFile = this.resolveBackupTargetFile(transactionFile);
+			final ZStorageInventoryFile transactionFile = storageInventory.transactionsFileAnalysis().transactionsFile();
+			final ZStorageBackupFile backupTransactionFile = this.resolveBackupTargetFile(transactionFile);
 			this.copyFile(transactionFile, backupTransactionFile);
 		}
 		
@@ -307,9 +307,9 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			this.validateBackupFileProgress(storageInventory, backupInventory);
 
 			final long lastBackupFileNumber = backupInventory.dataFiles().keys().last();
-			for(final StorageInventoryFile storageFile : storageInventory.dataFiles().values())
+			for(final ZStorageInventoryFile storageFile : storageInventory.dataFiles().values())
 			{
-				final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
+				final ZStorageBackupFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
 				
 				// non-existant files have either not been backupped, yet, or a "healable" error.
 				if(!backupTargetFile.exists())
@@ -358,13 +358,13 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		
 		private void deleteBackupTransactionFile(final ChannelInventory backupInventory)
 		{
-			final StorageBackupFile backupTransactionFile = backupInventory.ensureTransactionsFile();
+			final ZStorageBackupFile backupTransactionFile = backupInventory.ensureTransactionsFile();
 			if(!backupTransactionFile.exists())
 			{
 				return;
 			}
 			
-			final StorageNumberedFile deletionTargetFile = this.backupSetup.backupFileProvider()
+			final ZStorageNumberedFile deletionTargetFile = this.backupSetup.backupFileProvider()
 				.provideDeletionTargetFile(backupTransactionFile)
 			;
 			
@@ -384,7 +384,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			UtilPersistenceIo.move(XIO.Path(backupTransactionFile.identifier()), actualTargetFile);
 		}
 		
-		private String createDeletionFileName(final StorageBackupFile backupTransactionFile)
+		private String createDeletionFileName(final ZStorageBackupFile backupTransactionFile)
 		{
 			final String currentName = backupTransactionFile.name();
 			final int lastDotIndex = currentName.lastIndexOf(XIO.fileSuffixSeparator());
@@ -414,15 +414,15 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		)
 		{
 			// tfa null means there is no transactions file. A non-existing transactions file later on is an error.
-			final StorageTransactionsFileAnalysis tfa = storageInventory.transactionsFileAnalysis();
+			final StorageTransactionsAnalysis tfa = storageInventory.transactionsFileAnalysis();
 			if(tfa == null)
 			{
 				this.deleteBackupTransactionFile(backupInventory);
 				return;
 			}
 			
-			final StorageInventoryFile storageTransactionsFile = tfa.transactionsFile();
-			final StorageBackupFile    backupTransactionFile   = backupInventory.ensureTransactionsFile();
+			final ZStorageInventoryFile storageTransactionsFile = tfa.transactionsFile();
+			final ZStorageBackupFile    backupTransactionFile   = backupInventory.ensureTransactionsFile();
 			
 			if(!backupTransactionFile.exists())
 			{
@@ -443,18 +443,18 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		}
 				
 		private void copyFile(
-			final StorageInventoryFile storageFile     ,
-			final StorageBackupFile    backupTargetFile
+			final ZStorageInventoryFile storageFile     ,
+			final ZStorageBackupFile    backupTargetFile
 		)
 		{
 			this.copyFilePart(storageFile, 0, storageFile.length(), backupTargetFile);
 		}
 		
 		private void copyFilePart(
-			final StorageInventoryFile sourceFile      ,
+			final ZStorageInventoryFile sourceFile      ,
 			final long                 sourcePosition  ,
 			final long                 length          ,
-			final StorageBackupFile    backupTargetFile
+			final ZStorageBackupFile    backupTargetFile
 		)
 		{
 			try
@@ -498,24 +498,24 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		
 		@Override
 		public void copyFilePart(
-			final StorageInventoryFile sourceFile    ,
+			final ZStorageInventoryFile sourceFile    ,
 			final long                 sourcePosition,
 			final long                 copyLength
 		)
 		{
 			// note: the original target file of the copying is irrelevant. Only the backup target file counts.
-			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
+			final ZStorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
 			
 			this.copyFilePart(sourceFile, sourcePosition, copyLength, backupTargetFile);
 		}
 
 		@Override
 		public void truncateFile(
-			final StorageInventoryFile file     ,
+			final ZStorageInventoryFile file     ,
 			final long                 newLength
 		)
 		{
-			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
+			final ZStorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
 			
 			StorageFileWriter.truncateFile(backupTargetFile, newLength, this.backupSetup.backupFileProvider());
 			
@@ -523,9 +523,9 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		}
 		
 		@Override
-		public void deleteFile(final StorageInventoryFile file)
+		public void deleteFile(final ZStorageInventoryFile file)
 		{
-			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
+			final ZStorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
 			
 			StorageFileWriter.deleteFile(backupTargetFile, this.backupSetup.backupFileProvider());
 			
@@ -534,14 +534,14 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		
 		final void closeAllDataFiles()
 		{
-			final DisruptionCollectorExecuting<StorageBackupFile> closer = DisruptionCollectorExecuting.New(file ->
-				StorageFile.close(file, null)
+			final DisruptionCollectorExecuting<ZStorageBackupFile> closer = DisruptionCollectorExecuting.New(file ->
+				ZStorageFile.close(file, null)
 			);
 			
 			for(final ChannelInventory channel : this.channelInventories)
 			{
 				closer.executeOn(channel.transactionFile);
-				for(final StorageBackupFile dataFile : channel.dataFiles.values())
+				for(final ZStorageBackupFile dataFile : channel.dataFiles.values())
 				{
 					closer.executeOn(dataFile);
 				}
@@ -564,8 +564,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			
 			final int                                  channelIndex      ;
 			final StorageFileProvider                  backupFileProvider;
-			      StorageBackupFile                    transactionFile   ;
-			      EqHashTable<Long, StorageBackupFile> dataFiles         ;
+			      ZStorageBackupFile                    transactionFile   ;
+			      EqHashTable<Long, ZStorageBackupFile> dataFiles         ;
 			
 			
 			
@@ -595,7 +595,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				return this.channelIndex;
 			}
 			
-			public final EqHashTable<Long, StorageBackupFile> dataFiles()
+			public final EqHashTable<Long, ZStorageBackupFile> dataFiles()
 			{
 				return this.dataFiles;
 			}
@@ -608,12 +608,12 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 					return;
 				}
 				
-				final BulkList<StorageNumberedFile> collectedFiles =
+				final BulkList<ZStorageNumberedFile> collectedFiles =
 				this.backupFileProvider.collectDataFiles(
 					BulkList.New(),
 					this.channelIndex()
 				)
-				.sort(StorageNumberedFile::orderByNumber);
+				.sort(ZStorageNumberedFile::orderByNumber);
 				
 				this.dataFiles = EqHashTable.New();
 				
@@ -622,7 +622,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				this.ensureTransactionsFile();
 			}
 			
-			final StorageBackupFile ensureBackupFile(final StorageNumberedFile sourceFile)
+			final ZStorageBackupFile ensureBackupFile(final ZStorageNumberedFile sourceFile)
 			{
 				if(Storage.isTransactionFile(sourceFile))
 				{
@@ -631,10 +631,10 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				
 				// note: validation is done by the calling context, depending on its task.
 				
-				StorageBackupFile backupTargetFile = this.dataFiles.get(sourceFile.number());
+				ZStorageBackupFile backupTargetFile = this.dataFiles.get(sourceFile.number());
 				if(backupTargetFile == null)
 				{
-					final StorageNumberedFile backupRawFile = this.backupFileProvider.provideDataFile(
+					final ZStorageNumberedFile backupRawFile = this.backupFileProvider.provideDataFile(
 						this.channelIndex,
 						sourceFile.number()
 					);
@@ -644,22 +644,22 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				return backupTargetFile;
 			}
 			
-			private StorageBackupFile registerBackupFile(final StorageNumberedFile backupRawFile)
+			private ZStorageBackupFile registerBackupFile(final ZStorageNumberedFile backupRawFile)
 			{
-				final StorageBackupFile backupTargetFile = StorageBackupFile.New(backupRawFile);
+				final ZStorageBackupFile backupTargetFile = ZStorageBackupFile.New(backupRawFile);
 				this.dataFiles.add(backupTargetFile.number(), backupTargetFile);
 				
 				return backupTargetFile;
 			}
 			
-			final StorageBackupFile ensureTransactionsFile()
+			final ZStorageBackupFile ensureTransactionsFile()
 			{
 				if(this.transactionFile == null)
 				{
-					final StorageNumberedFile rawFile = this.backupFileProvider.provideTransactionsFile(
+					final ZStorageNumberedFile rawFile = this.backupFileProvider.provideTransactionsFile(
 						this.channelIndex
 					);
-					this.transactionFile = StorageBackupFile.New(rawFile);
+					this.transactionFile = ZStorageBackupFile.New(rawFile);
 				}
 				
 				return this.transactionFile;

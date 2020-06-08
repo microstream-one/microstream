@@ -514,7 +514,7 @@ public interface StorageEntity
 		}
 
 		@Override
-		public final StorageDataFile<StorageEntity.Default> storageFile()
+		public final ZStorageDataFile<StorageEntity.Default> storageFile()
 		{
 			return this.typeInFile.file;
 		}
@@ -542,7 +542,7 @@ public interface StorageEntity
 		}
 
 		@Override
-		public final long exportTo(final StorageLockedFile file)
+		public final long exportTo(final ZStorageLockedFile file)
 		{
 			return this.typeInFile.file.exportTo(file, this.storagePosition, this.length);
 		}

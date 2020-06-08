@@ -15,7 +15,7 @@ import one.microstream.io.XIO;
 import one.microstream.storage.exceptions.StorageException;
 
 
-public interface StorageLockedFile extends StorageFile //, AutoCloseable
+public interface ZStorageLockedFile extends ZStorageFile //, AutoCloseable
 {
 	// can't implement AutoCloseable because the naive resource warnings are idiotic.
 	
@@ -27,7 +27,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 
 	public boolean hasUsers();
 	
-	public boolean executeIfUnsued(Consumer<? super StorageLockedFile> action);
+	public boolean executeIfUnsued(Consumer<? super ZStorageLockedFile> action);
 	
 	public boolean registerUsage(StorageFileUser fileUser);
 	
@@ -35,12 +35,10 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 	
 	public boolean unregisterUsage(StorageFileUser fileUser);
 		
-	public boolean unregisterUsageClosing(StorageFileUser fileUser, Consumer<? super StorageLockedFile> closingAction);
+	public boolean unregisterUsageClosing(StorageFileUser fileUser, Consumer<? super ZStorageLockedFile> closingAction);
 	
 	@Override
 	public void close();
-	
-	public boolean tryClose();
 	
 		
 	
@@ -84,22 +82,22 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		return lock;
 	}
 
-	public static StorageLockedFile openLockedFile(final Path file)
+	public static ZStorageLockedFile openLockedFile(final Path file)
 	{
-		return StorageLockedFile.New(file, openLockedFileChannel(file));
+		return ZStorageLockedFile.New(file, openLockedFileChannel(file));
 	}
 
 
 
-	public static StorageLockedFile New(final Path file, final FileLock lock)
+	public static ZStorageLockedFile New(final Path file, final FileLock lock)
 	{
-		return new StorageLockedFile.Default(
+		return new ZStorageLockedFile.Default(
 			notNull(file),
 			notNull(lock)
 		);
 	}
 
-	public class Default implements StorageLockedFile
+	public class Default implements ZStorageLockedFile
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -218,20 +216,6 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 			this.internalClose();
 		}
 		
-		@Override
-		public final synchronized boolean tryClose()
-		{
-			if(this.hasUsers())
-			{
-				return false;
-			}
-			
-			this.internalClose();
-			return true;
-		}
-		
-		
-		
 		final void internalClose()
 		{
 			if(this.fileChannel.isOpen())
@@ -278,7 +262,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		}
 		
 		@Override
-		public final synchronized boolean executeIfUnsued(final Consumer<? super StorageLockedFile> action)
+		public final synchronized boolean executeIfUnsued(final Consumer<? super ZStorageLockedFile> action)
 		{
 			if(this.hasUsers())
 			{
@@ -335,7 +319,7 @@ public interface StorageLockedFile extends StorageFile //, AutoCloseable
 		@Override
 		public boolean unregisterUsageClosing(
 			final StorageFileUser                     fileUser     ,
-			final Consumer<? super StorageLockedFile> closingAction
+			final Consumer<? super ZStorageLockedFile> closingAction
 		)
 		{
 			if(this.unregisterUsage(fileUser) && !this.hasUsers())

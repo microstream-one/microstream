@@ -10,6 +10,8 @@ import one.microstream.collections.types.XGettingTable;
 
 public interface AFileSystem extends AResolving
 {
+	// (06.06.2020 TM)FIXME: priv#49: analyse all lockings and complement/change where needed.
+	
 	public String defaultProtocol();
 	
 	public default ADirectory ensureDirectoryPath(final String... pathElements)

@@ -222,7 +222,7 @@ public interface StorageEntityTypeExportStatistics
 		
 		public String typeName();
 		
-		public StorageFile file();
+		public ZStorageFile file();
 		
 			
 		
@@ -234,7 +234,7 @@ public interface StorageEntityTypeExportStatistics
 			
 			final long        typeId  ;
 			final String      typeName;
-			final StorageFile file    ;
+			final ZStorageFile file    ;
 			
 			
 			
@@ -242,7 +242,7 @@ public interface StorageEntityTypeExportStatistics
 			// constructors //
 			/////////////////
 			
-			Default(final long typeId, final String typeName, final StorageFile file)
+			Default(final long typeId, final String typeName, final ZStorageFile file)
 			{
 				super();
 				this.typeId   = typeId  ;
@@ -269,7 +269,7 @@ public interface StorageEntityTypeExportStatistics
 			}
 			
 			@Override
-			public final StorageFile file()
+			public final ZStorageFile file()
 			{
 				return this.file;
 			}

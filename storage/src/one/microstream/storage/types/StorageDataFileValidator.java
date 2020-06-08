@@ -10,12 +10,12 @@ import one.microstream.storage.exceptions.StorageException;
 public interface StorageDataFileValidator
 {
 	public void validateFile(
-		StorageNumberedFile file           ,
+		ZStorageNumberedFile file           ,
 		long                fileOffset     ,
 		long                iterationLength
 	);
 	
-	public default void validateFile(final StorageNumberedFile file)
+	public default void validateFile(final ZStorageNumberedFile file)
 	{
 		this.validateFile(file, 0, file.length());
 	}
@@ -52,7 +52,7 @@ public interface StorageDataFileValidator
 			notNull(fileIterator)
 		){
 			@Override
-			public void validateFile(final StorageNumberedFile file, final long fileOffset, final long iterationLength)
+			public void validateFile(final ZStorageNumberedFile file, final long fileOffset, final long iterationLength)
 			{
 				if(!Storage.isDataFile(file))
 				{
@@ -107,7 +107,7 @@ public interface StorageDataFileValidator
 
 		@Override
 		public void validateFile(
-			final StorageNumberedFile file           ,
+			final ZStorageNumberedFile file           ,
 			final long                fileOffset     ,
 			final long                iterationLength
 		)
@@ -148,7 +148,7 @@ public interface StorageDataFileValidator
 		}
 
 		@Override
-		public void validateFile(final StorageNumberedFile file, final long fileOffset, final long iterationLength)
+		public void validateFile(final ZStorageNumberedFile file, final long fileOffset, final long iterationLength)
 		{
 			if(!Storage.isDataFile(file))
 			{

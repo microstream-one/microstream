@@ -59,7 +59,7 @@ public final class Storage
 	/**
 	 * Returns the dummy file number for transaction files, which is the value <code>-1</code>.
 	 * <p>
-	 * Transaction files conceptually don't have a file number, but are subject to the {@link StorageNumberedFile}
+	 * Transaction files conceptually don't have a file number, but are subject to the {@link ZStorageNumberedFile}
 	 * type, so a dummy value is required. Since transaction files are planned to be replaced in the future
 	 * by meta data inlined directly in the storage files, a dummy value like this is a preferable solution
 	 * to an elaborate restructuring.
@@ -72,31 +72,31 @@ public final class Storage
 	}
 
 	/**
-	 * Checks if the passed {@link StorageNumberedFile} is a transaction file by comparing its file number to
+	 * Checks if the passed {@link ZStorageNumberedFile} is a transaction file by comparing its file number to
 	 * {@link Storage#transactionsFileNumber()}.
 	 *
-	 * @param file the {@link StorageNumberedFile} to be checked.
+	 * @param file the {@link ZStorageNumberedFile} to be checked.
 	 *
 	 * @return whether the passed file is a transactions file.
 	 *
 	 * @see Storage#transactionsFileNumber()
-	 * @see Storage#isDataFile(StorageNumberedFile)
+	 * @see Storage#isDataFile(ZStorageNumberedFile)
 	 */
-	public static final boolean isTransactionFile(final StorageNumberedFile file)
+	public static final boolean isTransactionFile(final ZStorageNumberedFile file)
 	{
 		return file.number() == TRANSACTIONS_FILE_NUMBER;
 	}
 
 	/**
-	 * Checks if the passed {@link StorageNumberedFile} is a storage data file.
+	 * Checks if the passed {@link ZStorageNumberedFile} is a storage data file.
 	 *
-	 * @param file the {@link StorageNumberedFile} to be checked.
+	 * @param file the {@link ZStorageNumberedFile} to be checked.
 	 *
 	 * @return whether the passed file is a storage data file.
 	 *
-	 * @see Storage#isTransactionFile(StorageNumberedFile)
+	 * @see Storage#isTransactionFile(ZStorageNumberedFile)
 	 */
-	public static final boolean isDataFile(final StorageNumberedFile file)
+	public static final boolean isDataFile(final ZStorageNumberedFile file)
 	{
 		return file.number() > 0;
 	}

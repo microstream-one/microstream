@@ -12,8 +12,8 @@ import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
 import one.microstream.storage.types.StorageDataConverterTypeCsvToBinary;
 import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
-import one.microstream.storage.types.StorageFile;
-import one.microstream.storage.types.StorageLockedFile;
+import one.microstream.storage.types.ZStorageFile;
+import one.microstream.storage.types.ZStorageLockedFile;
 
 public class MainTestConvertCsvToBin
 {
@@ -34,7 +34,7 @@ public class MainTestConvertCsvToBin
 		final Predicate<? super Path>   filter
 	)
 	{
-		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
+		final StorageDataConverterTypeCsvToBinary<ZStorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			typeDictionary,
 			new StorageEntityTypeConversionFileProvider.Default(
@@ -50,7 +50,7 @@ public class MainTestConvertCsvToBin
 			}
 			try
 			{
-				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+				final ZStorageLockedFile storageFile = ZStorageLockedFile.openLockedFile(file);
 				converter.convertCsv(storageFile);
 			}
 			catch(final Exception e)

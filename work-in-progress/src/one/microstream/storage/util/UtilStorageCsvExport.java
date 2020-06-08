@@ -16,7 +16,7 @@ import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportStatistics;
 import one.microstream.storage.types.StorageEntityTypeHandler;
-import one.microstream.storage.types.StorageLockedFile;
+import one.microstream.storage.types.ZStorageLockedFile;
 import one.microstream.storage.types.StorageTypeDictionary;
 
 
@@ -207,7 +207,7 @@ public class UtilStorageCsvExport
 			printAction(name, "converting", file);
 			try
 			{
-				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
+				final ZStorageLockedFile storageFile = ZStorageLockedFile.openLockedFile(file);
 				converter.convertDataFile(storageFile);
 			}
 			catch(final Exception e)

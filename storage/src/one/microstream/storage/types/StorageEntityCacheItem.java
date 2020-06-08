@@ -19,7 +19,7 @@ public interface StorageEntityCacheItem<I extends StorageEntityCacheItem<I>>
 
 	public long storagePosition();
 
-	public StorageDataFile<I> storageFile();
+	public ZStorageDataFile<I> storageFile();
 
 	public void copyCachedData(MemoryRangeReader entityDataCollector);
 
@@ -27,6 +27,6 @@ public interface StorageEntityCacheItem<I extends StorageEntityCacheItem<I>>
 
 	public boolean iterateReferenceIds(PersistenceObjectIdAcceptor referenceIdIterator);
 
-	public long exportTo(StorageLockedFile file);
+	public long exportTo(ZStorageLockedFile file);
 
 }

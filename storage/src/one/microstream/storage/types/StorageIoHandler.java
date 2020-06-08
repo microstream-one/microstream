@@ -10,9 +10,9 @@ import one.microstream.persistence.types.PersistenceTypeDictionaryStorer;
 
 public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter, StorageFileReader
 {
-	public default StorageInventoryFile copyData(final StorageDataFile<?> dataFile)
+	public default ZStorageInventoryFile copyData(final ZStorageDataFile<?> dataFile)
 	{
-		final StorageInventoryFile targetFile = this.provideDataFile(
+		final ZStorageInventoryFile targetFile = this.provideDataFile(
 			dataFile.channelIndex(),
 			dataFile.number()
 		).inventorize();
@@ -21,9 +21,9 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		return targetFile;
 	}
 
-	public default StorageInventoryFile copyTransactions(final StorageInventoryFile transactionsFile)
+	public default ZStorageInventoryFile copyTransactions(final ZStorageInventoryFile transactionsFile)
 	{
-		final StorageInventoryFile targetFile = this.provideTransactionsFile(
+		final ZStorageInventoryFile targetFile = this.provideTransactionsFile(
 			transactionsFile.channelIndex()
 		).inventorize();
 		this.copy(transactionsFile, targetFile);
@@ -76,32 +76,32 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 
 		@Override
-		public StorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
+		public ZStorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
 		{
 			return this.fileProvider.provideDataFile(channelIndex, fileNumber);
 		}
 
 		@Override
-		public StorageNumberedFile provideTransactionsFile(final int channelIndex)
+		public ZStorageNumberedFile provideTransactionsFile(final int channelIndex)
 		{
 			return this.fileProvider.provideTransactionsFile(channelIndex);
 		}
 		
 		@Override
-		public StorageLockedFile provideLockFile()
+		public ZStorageLockedFile provideLockFile()
 		{
 			return this.fileProvider.provideLockFile();
 		}
 		
 		@Override
-		public StorageNumberedFile provideDeletionTargetFile(final StorageNumberedFile fileToBeDeleted)
+		public ZStorageNumberedFile provideDeletionTargetFile(final ZStorageNumberedFile fileToBeDeleted)
 		{
 			return this.fileProvider.provideDeletionTargetFile(fileToBeDeleted);
 		}
 		
 		@Override
-		public StorageNumberedFile provideTruncationBackupTargetFile(
-			final StorageNumberedFile fileToBeTruncated,
+		public ZStorageNumberedFile provideTruncationBackupTargetFile(
+			final ZStorageNumberedFile fileToBeTruncated,
 			final long                newLength
 		)
 		{
@@ -109,7 +109,7 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 
 		@Override
-		public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(
+		public <P extends Consumer<ZStorageNumberedFile>> P collectDataFiles(
 			final P   collector   ,
 			final int channelIndex
 		)
@@ -118,31 +118,31 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 
 		@Override
-		public long write(final StorageLockedFile file, final ByteBuffer[] byteBuffers)
+		public long write(final ZStorageLockedFile file, final ByteBuffer[] byteBuffers)
 		{
 			return this.fileWriter.write(file, byteBuffers);
 		}
 
 		@Override
 		public long copyFilePart(
-			final StorageLockedFile sourceFile  ,
+			final ZStorageLockedFile sourceFile  ,
 			final long              sourceOffset,
 			final long              length      ,
-			final StorageLockedFile targetfile
+			final ZStorageLockedFile targetfile
 		)
 		{
 			return this.fileWriter.copyFilePart(sourceFile, sourceOffset, length, targetfile);
 		}
 
 		@Override
-		public void flush(final StorageLockedFile targetfile)
+		public void flush(final ZStorageLockedFile targetfile)
 		{
 			this.fileWriter.flush(targetfile);
 		}
 
 		@Override
 		public void truncate(
-			final StorageInventoryFile file               ,
+			final ZStorageInventoryFile file               ,
 			final long                 newLength          ,
 			final StorageFileProvider  storageFileProvider
 		)
@@ -151,7 +151,7 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 		
 		@Override
-		public void delete(final StorageInventoryFile file, final StorageFileProvider storageFileProvider)
+		public void delete(final ZStorageInventoryFile file, final StorageFileProvider storageFileProvider)
 		{
 			this.fileWriter.delete(file, storageFileProvider);
 		}

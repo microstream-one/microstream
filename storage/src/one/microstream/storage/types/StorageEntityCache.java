@@ -1034,7 +1034,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		final void internalPutEntities(
 			final ByteBuffer              chunk               ,
 			final long                    chunkStoragePosition,
-			final StorageDataFile.Default file
+			final ZStorageDataFile.Default file
 		)
 		{
 			final long chunkStartAddress = XMemory.getDirectByteBufferAddress(chunk);
@@ -1104,7 +1104,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		public void postStorePutEntities(
 			final ByteBuffer[]                   chunks                ,
 			final long[]                         chunksStoragePositions,
-			final StorageDataFile.Default dataFile
+			final ZStorageDataFile.Default dataFile
 		)
 			throws InterruptedException
 		{
@@ -1193,7 +1193,7 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			final StorageEntity.Default   cursor;
 			      StorageEntity.Default   tail  ;
 			      StorageEntity.Default   entity;
-			      StorageDataFile.Default file  ;
+			      ZStorageDataFile.Default file  ;
 
 			if(this.liveCursor == null || !this.liveCursor.isProper() || this.liveCursor.isDeleted())
 			{

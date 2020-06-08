@@ -37,9 +37,11 @@ public interface AReadableFile extends AFile.Wrapper
 	// implicitely #close PLUS the AFS-management-level aspect
 	public default boolean release()
 	{
-		this.close();
+		final boolean wasClosed = this.close();
 		
-		return this.fileSystem().accessManager().unregister(this);
+		this.fileSystem().accessManager().unregister(this);
+		
+		return wasClosed;
 	}
 	
 	@Override

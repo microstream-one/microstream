@@ -23,7 +23,7 @@ import one.microstream.math.XMath;
 import one.microstream.meta.XDebug;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageFileProvider;
-import one.microstream.storage.types.StorageTransactionsFileAnalysis;
+import one.microstream.storage.types.StorageTransactionsAnalysis;
 import one.microstream.test.corp.model.Address;
 import one.microstream.test.corp.model.BusinessYear;
 import one.microstream.test.corp.model.CallAddress;
@@ -310,8 +310,8 @@ public class Test
 	public static String assembleTransactionsFile(final Path file)
 	{
 		final VarString vs = VarString.New(file.toString()).lf();
-		StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
-		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs)
+		StorageTransactionsAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
+		final VarString s = StorageTransactionsAnalysis.Logic.parseFile(file, vs)
 			.lf().lf()
 		;
 		return s.toString();

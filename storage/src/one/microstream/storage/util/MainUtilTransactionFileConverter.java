@@ -7,7 +7,7 @@ import one.microstream.chars.VarString;
 import one.microstream.collections.XArrays;
 import one.microstream.concurrency.XThreads;
 import one.microstream.io.XIO;
-import one.microstream.storage.types.StorageTransactionsFileAnalysis;
+import one.microstream.storage.types.StorageTransactionsAnalysis;
 
 
 /**
@@ -42,8 +42,8 @@ public class MainUtilTransactionFileConverter
 
 		System.out.println("Converting transaction entries ...");
 		final VarString vs = VarString.New(file.toString()).lf();
-		StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
-		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs).lf().lf();
+		StorageTransactionsAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
+		final VarString s = StorageTransactionsAnalysis.Logic.parseFile(file, vs).lf().lf();
 		final String result = s.toString();
 		System.out.println("Converted String length: " + result.length());
 		

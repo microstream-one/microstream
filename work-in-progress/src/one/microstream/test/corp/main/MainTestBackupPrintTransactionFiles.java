@@ -3,7 +3,7 @@ package one.microstream.test.corp.main;
 import one.microstream.chars.VarString;
 import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageFileProvider;
-import one.microstream.storage.types.StorageTransactionsFileAnalysis;
+import one.microstream.storage.types.StorageTransactionsAnalysis;
 
 public class MainTestBackupPrintTransactionFiles
 {
@@ -26,10 +26,10 @@ public class MainTestBackupPrintTransactionFiles
 	public static void printTransactionsFiles(final String baseDirectory, final int channelCount)
 	{
 		System.out.println(baseDirectory);
-		System.out.println(StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(VarString.New(), "\t"));
+		System.out.println(StorageTransactionsAnalysis.EntryAssembler.assembleHeader(VarString.New(), "\t"));
 		for(int i = 0; i < channelCount; i++)
 		{
-			final VarString vs = StorageTransactionsFileAnalysis.Logic.parseFile(
+			final VarString vs = StorageTransactionsAnalysis.Logic.parseFile(
 				XIO.Path(baseDirectory
 					+ "/" + StorageFileProvider.Defaults.defaultChannelDirectoryPrefix() + i
 					+"/" + StorageFileProvider.Defaults.defaultTransactionFilePrefix() + i

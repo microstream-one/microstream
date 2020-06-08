@@ -18,7 +18,7 @@ import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
-import one.microstream.storage.types.StorageTransactionsFile;
+import one.microstream.storage.types.StorageTransactionsEntries;
 import one.microstream.typing.KeyValue;
 
 class StorageRollbacker
@@ -81,13 +81,13 @@ class StorageRollbacker
 		return sourceFiles;
 	}
 
-	public void rollbackTransfers(final StorageTransactionsFile tf)
+	public void rollbackTransfers(final StorageTransactionsEntries tf)
 		 throws Exception
 	{
 		final long quickNDirtyCertainlyLastFile = this.lowestFileNumber - 1;
 		
-		final XGettingSequence<StorageTransactionsFile.Entry> reversed = tf.entries().toReversed();
-		for(final StorageTransactionsFile.Entry e : reversed)
+		final XGettingSequence<StorageTransactionsEntries.Entry> reversed = tf.entries().toReversed();
+		for(final StorageTransactionsEntries.Entry e : reversed)
 		{
 			if(e.targetFileNumber() == quickNDirtyCertainlyLastFile)
 			{
@@ -430,7 +430,7 @@ class StorageRollbacker
 		return bb;
 	}
 	
-	private boolean handleTransactionsEntry(final StorageTransactionsFile.Entry e) throws Exception
+	private boolean handleTransactionsEntry(final StorageTransactionsEntries.Entry e) throws Exception
 	{
 		switch(e.type())
 		{
@@ -440,18 +440,18 @@ class StorageRollbacker
 			case FILE_TRUNCATION: return this.handleTransactionsEntryFileTruncation(e);
 			case FILE_DELETION  : return this.handleTransactionsEntryFileDeletion(e);
 			default: throw new Error(
-				"Unknown " + StorageTransactionsFile.Entry.class.getSimpleName() + ": " + e.type()
+				"Unknown " + StorageTransactionsEntries.Entry.class.getSimpleName() + ": " + e.type()
 			);
 		}
 	}
 	
-	private boolean handleTransactionsEntryFileCreation(final StorageTransactionsFile.Entry e)
+	private boolean handleTransactionsEntryFileCreation(final StorageTransactionsEntries.Entry e)
 	{
 		// file creations are not relevant for rollback
 		return true;
 	}
 	
-	private boolean handleTransactionsEntryDataStore(final StorageTransactionsFile.Entry e)
+	private boolean handleTransactionsEntryDataStore(final StorageTransactionsEntries.Entry e)
 	{
 		final StoreFile  storeFile  = this.ensureStoreFile(e.targetFileNumber());
 		final SourceFile sourceFile = this.sourceFiles.get(e.targetFileNumber());
@@ -462,7 +462,7 @@ class StorageRollbacker
 		return true;
 	}
 	
-	private boolean handleTransactionsDataTransfer(final StorageTransactionsFile.Entry e)
+	private boolean handleTransactionsDataTransfer(final StorageTransactionsEntries.Entry e)
 	{
 		// target and source must be switched for recovery files. It's a rollback!
 		final RecFile    recFile    = this.ensureRecFile(e.sourceFileNumber());
@@ -482,13 +482,13 @@ class StorageRollbacker
 		return true;
 	}
 	
-	private boolean handleTransactionsEntryFileTruncation(final StorageTransactionsFile.Entry e)
+	private boolean handleTransactionsEntryFileTruncation(final StorageTransactionsEntries.Entry e)
 	{
 		// not required in the current case
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 	
-	private boolean handleTransactionsEntryFileDeletion(final StorageTransactionsFile.Entry e) throws Exception
+	private boolean handleTransactionsEntryFileDeletion(final StorageTransactionsEntries.Entry e) throws Exception
 	{
 //		XDebug.println("Creating RecFile " + e.targetFileNumber() + " with length " + e.fileLength());
 		System.out.println("Creating RecFile " + e.targetFileNumber() + " with length " + e.fileLength());
@@ -569,14 +569,14 @@ class StorageRollbacker
 	
 	static class RecEntry
 	{
-		StorageTransactionsFile.Entry tfe         ;
+		StorageTransactionsEntries.Entry tfe         ;
 		SourceFile                    sourceFile  ;
 		long                          sourceOffset;
 		long                          length      ;
 		long                          targetOffset;
 		
 		RecEntry(
-			final StorageTransactionsFile.Entry tfe         ,
+			final StorageTransactionsEntries.Entry tfe         ,
 			final SourceFile                    sourceFile  ,
 			final long                          sourceOffset,
 			final long                          length      ,
@@ -595,13 +595,13 @@ class StorageRollbacker
 	
 	static class StoreEntry
 	{
-		StorageTransactionsFile.Entry tfe         ;
+		StorageTransactionsEntries.Entry tfe         ;
 		SourceFile                    sourceFile  ;
 		long                          sourceOffset;
 		long                          length      ;
 		
 		StoreEntry(
-			final StorageTransactionsFile.Entry tfe         ,
+			final StorageTransactionsEntries.Entry tfe         ,
 			final SourceFile                    sourceFile  ,
 			final long                          sourceOffset,
 			final long                          length
