@@ -33,6 +33,31 @@
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
+			<artifactId>filesystem.aws</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>filesystem.azure</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>filesystem.googlecloud</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>filesystem.jpa.hibernate</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>filesystem.sql</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
 			<artifactId>persistence</artifactId>
 			<version>${project.version}</version>
 		</dependency>
