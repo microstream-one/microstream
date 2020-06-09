@@ -33,6 +33,11 @@
 		<module>cache.hibernate</module>
 		<module>communication</module>
 		<module>communication.binary</module>
+		<module>filesystem.aws</module>
+		<module>filesystem.azure</module>
+		<module>filesystem.googlecloud</module>
+		<module>filesystem.jpa.hibernate</module>
+		<module>filesystem.sql</module>
 		<module>persistence</module>
 		<module>persistence.binary</module>
 		<module>persistence.binary.jdk8</module>
@@ -347,6 +352,11 @@
 				<module>cache.hibernate</module>
 				<module>communication</module>
 				<module>communication.binary</module>
+				<module>filesystem.aws</module>
+				<module>filesystem.azure</module>
+				<module>filesystem.googlecloud</module>
+				<module>filesystem.jpa.hibernate</module>
+				<module>filesystem.sql</module>
 				<module>persistence</module>
 				<module>persistence.binary</module>
 				<module>persistence.binary.jdk8</module>
@@ -371,6 +381,11 @@
 				<module>cache.hibernate</module>
 				<module>communication</module>
 				<module>communication.binary</module>
+				<module>filesystem.aws</module>
+				<module>filesystem.azure</module>
+				<module>filesystem.googlecloud</module>
+				<module>filesystem.jpa.hibernate</module>
+				<module>filesystem.sql</module>
 				<module>persistence</module>
 				<module>persistence.binary</module>
 				<module>persistence.binary.jdk8</module>
