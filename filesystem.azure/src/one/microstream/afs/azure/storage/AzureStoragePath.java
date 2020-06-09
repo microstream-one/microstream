@@ -13,7 +13,7 @@ public interface AzureStoragePath
 
 	public String[] pathElements();
 
-	public String storageContainer();
+	public String container();
 
 	public String identifier();
 
@@ -55,7 +55,7 @@ public interface AzureStoragePath
 		}
 
 		@Override
-		public String storageContainer()
+		public String container()
 		{
 			return this.pathElements[0];
 		}

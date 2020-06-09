@@ -2,8 +2,6 @@ package one.microstream.afs.sql;
 
 import static one.microstream.X.notNull;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.sql.Blob;
 import java.sql.Connection;
@@ -12,11 +10,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.function.Function;
 import java.util.function.LongFunction;
 
 import one.microstream.X;
+import one.microstream.io.ByteBufferInputStream;
+import one.microstream.io.LimitedInputStream;
 import one.microstream.reference.Reference;
 
 
@@ -453,18 +451,16 @@ public interface SqlConnector
 					: buffersLength
 				;
 
-				final ByteBuffersInputStream inputStream = new ByteBuffersInputStream(
-					sourceBuffers.iterator(),
-					batchSize
-				);
-				long offset    = this.internalFileSize(file, connection);
-				long available = buffersLength;
+				final ByteBufferInputStream inputStream = ByteBufferInputStream.New(sourceBuffers);
+				      long                  offset      = this.internalFileSize(file, connection);
+				      long                  available   = buffersLength;
 				while(available > 0)
 				{
 					final long currentBatchSize = Math.min(available, batchSize);
+
 					final Blob blob             = this.provider.createBlob(
 						connection,
-						inputStream.nextBatch(),
+						LimitedInputStream.New(inputStream, currentBatchSize),
 						currentBatchSize
 					);
 
@@ -571,85 +567,6 @@ public interface SqlConnector
 		{
 			final ByteBuffer buffer = this.readData(sourceFile, offset, length);
 			return this.writeData(targetFile, Arrays.asList(buffer));
-		}
-
-
-		static class ByteBuffersInputStream extends InputStream
-		{
-			private final Iterator<? extends ByteBuffer> sourceBuffers;
-			private       ByteBuffer                     currentBuffer;
-			private final long                           maxLength    ;
-			private       long                           bytesRead    ;
-
-			ByteBuffersInputStream(
-				final Iterator<? extends ByteBuffer> sourceBuffers,
-				final long                           maxLength
-			)
-			{
-				super();
-				this.sourceBuffers = sourceBuffers;
-				this.maxLength     = maxLength    ;
-			}
-
-			ByteBuffersInputStream nextBatch()
-			{
-				this.bytesRead = 0;
-				return this;
-			}
-
-			private int internalRead(
-				final Function<ByteBuffer, Integer> reader
-			)
-			{
-				if(this.sourceBuffers == null || this.bytesRead >= this.maxLength)
-				{
-					return -1;
-				}
-
-				while(this.currentBuffer == null || !this.currentBuffer.hasRemaining())
-				{
-					if(!this.sourceBuffers.hasNext())
-					{
-						return -1;
-					}
-					this.currentBuffer = this.sourceBuffers.next();
-				}
-
-				final int bytesRead = reader.apply(this.currentBuffer);
-				if(bytesRead >= 0L)
-				{
-					this.bytesRead += bytesRead;
-				}
-				return bytesRead;
-			}
-
-			@Override
-			public int read() throws IOException
-			{
-				return this.internalRead(
-					buffer -> buffer.get() & 0xFF
-				);
-			}
-
-			@Override
-			public int read(
-				final byte[] bytes ,
-				final int    offset,
-				final int    length
-			)
-			throws IOException
-			{
-				return this.internalRead(buffer ->
-				{
-					final int amount = Math.min(
-						X.checkArrayRange(this.maxLength - this.bytesRead),
-						Math.min(length, buffer.remaining())
-					);
-			        buffer.get(bytes, offset, amount);
-			        return amount;
-				});
-			}
-
 		}
 
 	}

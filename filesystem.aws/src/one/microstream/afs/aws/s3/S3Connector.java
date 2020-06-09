@@ -5,13 +5,11 @@ import static one.microstream.X.notNull;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.OptionalLong;
-import java.util.function.Function;
 import java.util.function.LongFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -29,6 +27,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import one.microstream.X;
 import one.microstream.exceptions.IORuntimeException;
+import one.microstream.io.ByteBufferInputStream;
 import one.microstream.reference.Reference;
 
 
@@ -422,10 +421,7 @@ public interface S3Connector
 			objectMetadata.setContentLength(totalLength);
 
 			try(final BufferedInputStream inputStream = new BufferedInputStream(
-				new ByteBuffersInputStream(
-					sourceBuffers.iterator(),
-					totalLength
-				),
+				ByteBufferInputStream.New(sourceBuffers),
 				RequestClientOptions.DEFAULT_STREAM_BUFFER_SIZE
 			))
 			{
@@ -485,76 +481,6 @@ public interface S3Connector
 		{
 			final ByteBuffer buffer = this.readData(sourceFile, offset, length);
 			return this.writeData(targetFile, Arrays.asList(buffer));
-		}
-
-
-		static class ByteBuffersInputStream extends InputStream
-		{
-			private final Iterator<? extends ByteBuffer> sourceBuffers;
-			private       ByteBuffer                     currentBuffer;
-			private final long                           sizeTotal    ;
-
-			ByteBuffersInputStream(
-				final Iterator<? extends ByteBuffer> sourceBuffers,
-				final long sizeTotal
-			)
-			{
-				super();
-				this.sourceBuffers = sourceBuffers;
-				this.sizeTotal     = sizeTotal    ;
-			}
-
-			private int internalRead(
-				final Function<ByteBuffer, Integer> reader
-			)
-			{
-				if(this.sourceBuffers == null)
-				{
-					return -1;
-				}
-
-				while(this.currentBuffer == null || !this.currentBuffer.hasRemaining())
-				{
-					if(!this.sourceBuffers.hasNext())
-					{
-						return -1;
-					}
-					this.currentBuffer = this.sourceBuffers.next();
-				}
-
-				return reader.apply(this.currentBuffer);
-			}
-
-			@Override
-			public int available() throws IOException
-			{
-				return X.checkArrayRange(this.sizeTotal);
-			}
-
-			@Override
-			public int read() throws IOException
-			{
-				return this.internalRead(
-					buffer -> buffer.get() & 0xFF
-				);
-			}
-
-			@Override
-			public int read(
-				final byte[] bytes ,
-				final int    offset,
-				final int    length
-			)
-			throws IOException
-			{
-				return this.internalRead(buffer ->
-				{
-					final int amount = Math.min(length, buffer.remaining());
-			        buffer.get(bytes, offset, amount);
-			        return amount;
-				});
-			}
-
 		}
 
 	}
