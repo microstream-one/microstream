@@ -133,8 +133,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		private final StorageBackupHandler                 backupHandler                ;
 		
 		// to avoid permanent lambda instantiation
-		private final Consumer<? super ZStorageDataFile.Default> deleter        = this::deleteFile       ;
-		private final Consumer<? super ZStorageDataFile.Default> pendingDeleter = this::deletePendingFile;
+		private final Consumer<? super StorageLiveDataFile.Default> deleter        = this::deleteFile       ;
+		private final Consumer<? super StorageLiveDataFile.Default> pendingDeleter = this::deletePendingFile;
 		
 		
 		// state 1.1: entry buffers. Don't need to be resetted. See comment in reset().
@@ -175,10 +175,10 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		// state 3.0: mutable fields. Must be cleared on reset.
 		
 		// cleared and nulled by clearTransactionsFile() / clearRegisteredFiles() / reset()
-		private ZStorageInventoryFile fileTransactions;
+		private StorageLiveTransactionsFile fileTransactions;
 		
 		// cleared and nulled by clearRegisteredFiles() / reset()
-		private ZStorageDataFile.Default fileCleanupCursor;
+		private StorageLiveDataFile.Default fileCleanupCursor;
 
 		// cleared by clearUncommittedDataLength() / reset()
 		private long uncommittedDataLength;
@@ -190,7 +190,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		// state 3.1: variable length content
 
 		// cleared and nulled by clearRegisteredFiles() / reset()
-		private ZStorageDataFile.Default headFile;
+		private StorageLiveDataFile.Default headFile;
 
 
 
@@ -237,8 +237,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		{
 			// (01.04.2016)XXX: not tested yet
 
-			final ZStorageDataFile.Default head = this.headFile;
-			ZStorageDataFile.Default file = head; // initial reference, but gets handled at the end
+			final StorageLiveDataFile.Default head = this.headFile;
+			StorageLiveDataFile.Default file = head; // initial reference, but gets handled at the end
 			do
 			{
 				file = file.next;
@@ -253,7 +253,14 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			return logic;
 		}
 
+		// (08.06.2020 TM)FIXME: priv#49: delete
+		@Deprecated
 		final boolean isHeadFile(final ZStorageDataFile.Default dataFile)
+		{
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+		
+		final boolean isHeadFile(final StorageLiveDataFile.Default dataFile)
 		{
 			return this.headFile == dataFile;
 		}
@@ -289,9 +296,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				return; // already cleared or no files in the first place
 			}
 
-			final ZStorageDataFile.Default headFile = this.headFile;
+			final StorageLiveDataFile.Default headFile = this.headFile;
 
-			ZStorageDataFile.Default file = headFile;
+			StorageLiveDataFile.Default file = headFile;
 			do
 			{
 				file.unregisterUsageClosing(this, null);
@@ -322,9 +329,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		
-		final void transferOneChainToHeadFile(final ZStorageDataFile.Default sourceFile)
+		final void transferOneChainToHeadFile(final StorageLiveDataFile.Default sourceFile)
 		{
-			final ZStorageDataFile.Default headFile = this.headFile           ;
+			final StorageLiveDataFile.Default headFile = this.headFile           ;
 			final StorageEntity.Default   first    = sourceFile.head.fileNext;
 			      StorageEntity.Default   last     = null                    ;
 			      StorageEntity.Default   current  = first                   ;
@@ -404,7 +411,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		private void appendBytesToHeadFile(
-			final ZStorageDataFile.Default sourceFile,
+			final StorageLiveDataFile.Default sourceFile,
 			final long                           copyStart ,
 			final long                           copyLength
 		)
@@ -414,7 +421,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 //				+ " from " + sourceFile + " to " + targetFile
 //			);
 			
-			final ZStorageDataFile.Default headFile = this.headFile;
+			final StorageLiveDataFile.Default headFile = this.headFile;
 
 			// do the actual file-level copying in one go at the end and validate the byte count to be sure
 			this.writer.writeTransfer(sourceFile, copyStart, copyLength, headFile);
@@ -470,10 +477,10 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 		private void registerHeadFile(final ZStorageInventoryFile file)
 		{
-			this.registerStorageHeadFile(ZStorageDataFile.Default.New(this, file));
+			this.registerStorageHeadFile(StorageLiveDataFile.Default.New(this, file));
 		}
 		
-		private void registerStorageHeadFile(final ZStorageDataFile.Default storageFile)
+		private void registerStorageHeadFile(final StorageLiveDataFile.Default storageFile)
 		{
 			if(this.headFile == null)
 			{
@@ -500,7 +507,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		@Override
-		public final ZStorageDataFile.Default currentStorageFile()
+		public final StorageLiveDataFile.Default currentStorageFile()
 		{
 			return this.headFile;
 		}
@@ -509,8 +516,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		public void iterateStorageFiles(final Consumer<? super ZStorageDataFile<?>> procedure)
 		{
 			// keep current als end marker, but start with first file, use current als last and then quit the loop
-			final ZStorageDataFile.Default current = this.headFile;
-			ZStorageDataFile.Default file = current;
+			final StorageLiveDataFile.Default current = this.headFile;
+			StorageLiveDataFile.Default file = current;
 			do
 			{
 				procedure.accept(file = file.next);
@@ -608,6 +615,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.uncommittedDataLength = 0;
 		}
 
+		// (08.06.2020 TM)FIXME: priv#49: delete
+		@Deprecated
 		final void loadData(
 			final ZStorageDataFile.Default dataFile   ,
 			final StorageEntity.Default   entity     ,
@@ -632,6 +641,35 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				this.clearBuffer(dataBuffer);
 			}
 		}
+		
+		final void loadData(
+			final StorageLiveDataFile.Default dataFile   ,
+			final StorageEntity.Default       entity     ,
+			final long                        length     ,
+			final long                        cacheChange
+		)
+		{
+//			DEBUGStorage.println(this.channelIndex + " loading entity " + entity);
+			final ByteBuffer dataBuffer = this.buffer(X.checkArrayRange(length));
+			try
+			{
+				dataFile.readBytes(dataBuffer, entity.storagePosition);
+				this.putLiveEntityData(entity, XMemory.getDirectByteBufferAddress(dataBuffer), length, cacheChange);
+			}
+			catch(final StorageExceptionIoReading e)
+			{
+				throw e;
+			}
+			catch(final Exception e)
+			{
+				// (10.12.2014 TM)EXCP: report relevant values
+				throw new StorageExceptionIoReading(e);
+			}
+			finally
+			{
+				this.clearBuffer(dataBuffer);
+			}
+		}
 
 		private void putLiveEntityData(
 			final StorageEntity.Default entity     ,
@@ -644,6 +682,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.entityCache.modifyUsedCacheSize(cacheChange);
 		}
 
+		// (08.06.2020 TM)FIXME: priv#49: remove since reading logic is a concern of IoHandler.
 		@Override
 		public void validateIncrementalRead(
 			final ZStorageLockedFile fileChannel  ,
@@ -920,9 +959,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			;
 
 			// register items (gaps and entities, with latest version of each entity replacing all previous)
-			final StorageEntityInitializer<ZStorageDataFile.Default> initializer =
+			final StorageEntityInitializer<StorageLiveDataFile.Default> initializer =
 				StorageEntityInitializer.New(this.entityCache, f ->
-					ZStorageDataFile.Default.New(this, f)
+					StorageLiveDataFile.Default.New(this, f)
 				)
 			;
 			this.headFile = initializer.registerEntities(files, lastFileLength);
@@ -1240,7 +1279,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			});
 		}
 		
-		private static FileStatistics.Default createFileStatistics(final ZStorageDataFile.Default file)
+		private static FileStatistics.Default createFileStatistics(final StorageLiveDataFile.Default file)
 		{
 			return new FileStatistics.Default(
 				file.number()    ,
@@ -1253,8 +1292,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		@Override
 		public final StorageRawFileStatistics.ChannelStatistics createRawFileStatistics()
 		{
-			ZStorageDataFile.Default file;
-			final ZStorageDataFile.Default currentFile = file = this.headFile;
+			StorageLiveDataFile.Default file;
+			final StorageLiveDataFile.Default currentFile = file = this.headFile;
 
 			long liveDataLength  = 0;
 			long totalDataLength = 0;
@@ -1305,7 +1344,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 		}
 
-		private void deletePendingFile(final ZStorageDataFile.Default file)
+		private void deletePendingFile(final StorageLiveDataFile.Default file)
 		{
 //			DEBUGStorage.println(this.channelIndex + " deleted pending file " + file);
 			if(this.pendingFileDeletes < 1)
@@ -1342,7 +1381,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 //			DEBUGStorage.println(this.channelIndex + " checks for file cleanup with budget " + (nanoTimeBudget));
 						
-			ZStorageDataFile.Default cycleAnchorFile = this.fileCleanupCursor;
+			StorageLiveDataFile.Default cycleAnchorFile = this.fileCleanupCursor;
 
 			// intentionally no minimum first loop execution as cleanup is not important if the system has heavy load
 			while(this.fileCleanupCursor != null && System.nanoTime() < nanoTimeBudgetBound)
@@ -1421,7 +1460,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		private boolean incrementalDissolveStorageFile(
-			final ZStorageDataFile.Default file               ,
+			final StorageLiveDataFile.Default file               ,
 			final long                    nanoTimeBudgetBound
 		)
 		{
@@ -1447,7 +1486,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			return false;
 		}
 
-		private void deleteFile(final ZStorageDataFile.Default file)
+		private void deleteFile(final StorageLiveDataFile.Default file)
 		{
 //			DEBUGStorage.println(this.channelIndex + " deleting " + file);
 
@@ -1474,7 +1513,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		private boolean incrementalTransferEntities(
-			final ZStorageDataFile.Default file               ,
+			final StorageLiveDataFile.Default file               ,
 			final long                    nanoTimeBudgetBound
 		)
 		{
@@ -1497,15 +1536,15 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		
 		final StorageEntity.Default getFirstEntity()
 		{
-			final ZStorageDataFile.Default currentFile = this.currentStorageFile();
+			final StorageLiveDataFile.Default currentFile = this.currentStorageFile();
 			if(currentFile == null)
 			{
 				// can occur when an exception causes a reset call during initialization
 				return null;
 			}
 			
-			final ZStorageDataFile.Default startingFile = currentFile.next;
-			ZStorageDataFile.Default file = startingFile;
+			final StorageLiveDataFile.Default startingFile = currentFile.next;
+			StorageLiveDataFile.Default file = startingFile;
 			do
 			{
 				if(file.head.fileNext != startingFile.tail)
@@ -1549,7 +1588,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 			// caching variables
 			final StorageEntityCache.Default entityCache = this.entityCache;
-			final ZStorageDataFile.Default    headFile    = this.headFile   ;
+			final StorageLiveDataFile.Default    headFile    = this.headFile   ;
 
 			final long oldTotalLength = this.headFile.totalLength();
 			      long loopFileLength = oldTotalLength;
@@ -1601,8 +1640,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				return;
 			}
 
-			final ZStorageDataFile.Default first  = this.headFile.next;
-			ZStorageDataFile.Default       doomed = this.importHelper.preImportHeadFile.next;
+			final StorageLiveDataFile.Default first  = this.headFile.next;
+			StorageLiveDataFile.Default       doomed = this.importHelper.preImportHeadFile.next;
 			this.headFile.next = null;
 			(first.prev = this.headFile = this.importHelper.preImportHeadFile).next = first;
 
@@ -1627,7 +1666,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			}
 		}
 		
-		private void terminateFile(final ZStorageDataFile.Default file)
+		private void terminateFile(final StorageLiveDataFile.Default file)
 		{
 			file.close();
 			this.writer.delete(file, this.storageFileProvider);
@@ -1635,12 +1674,12 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 		final class ImportHelper implements Consumer<StorageChannelImportBatch>
 		{
-			final ZStorageDataFile.Default             preImportHeadFile;
+			final StorageLiveDataFile.Default             preImportHeadFile;
 			final BulkList<StorageChannelImportBatch> importBatches     = BulkList.New(1000);
 			      ZStorageLockedFile                   file             ;
 
 
-			ImportHelper(final ZStorageDataFile.Default preImportHeadFile)
+			ImportHelper(final StorageLiveDataFile.Default preImportHeadFile)
 			{
 				super();
 				this.preImportHeadFile = preImportHeadFile;

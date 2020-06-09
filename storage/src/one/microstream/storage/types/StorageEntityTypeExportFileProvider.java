@@ -4,6 +4,7 @@ import static one.microstream.X.notNull;
 
 import java.nio.file.Path;
 
+import one.microstream.afs.AWritableFile;
 import one.microstream.io.XIO;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.storage.exceptions.StorageException;
@@ -11,7 +12,7 @@ import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageEntityTypeExportFileProvider
 {
-	public ZStorageLockedFile provideExportFile(StorageEntityTypeHandler entityType);
+	public AWritableFile provideExportFile(StorageEntityTypeHandler entityType);
 
 	
 	
@@ -70,6 +71,7 @@ public interface StorageEntityTypeExportFileProvider
 		// instance fields //
 		////////////////////
 
+		// (09.06.2020 TM)FIXME: priv#49: ADirectory
 		private final Path   directory ;
 		private final String fileSuffix;
 
@@ -104,7 +106,7 @@ public interface StorageEntityTypeExportFileProvider
 		}
 
 		@Override
-		public final ZStorageLockedFile provideExportFile(final StorageEntityTypeHandler entityType)
+		public final AWritableFile provideExportFile(final StorageEntityTypeHandler entityType)
 		{
 			final String fileName = StorageEntityTypeExportFileProvider.toUniqueTypeFileName(entityType);
 			final Path   file     = XIO.Path(this.directory, fileName + this.cachedFileSuffix);

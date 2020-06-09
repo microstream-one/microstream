@@ -1,6 +1,7 @@
 package one.microstream.storage.types;
 
-public interface StorageLiveTransactionsFile extends StorageTransactionsFile, StorageLiveFile
+public interface StorageLiveTransactionsFile
+extends StorageTransactionsFile, StorageLiveFile<StorageLiveTransactionsFile>
 {
 
 }

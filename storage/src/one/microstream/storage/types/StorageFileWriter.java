@@ -47,35 +47,35 @@ public interface StorageFileWriter
 		}
 	}
 
-	public default long copy(
-		final ZStorageLockedFile sourceFile,
-		final ZStorageLockedFile targetfile
-	)
-	{
-		return this.copyFilePart(sourceFile, 0, sourceFile.length(), targetfile);
-	}
-
-	public default long copyFilePart(
-		final ZStorageLockedFile sourceFile  ,
-		final long              sourceOffset,
-		final long              length      ,
-		final ZStorageLockedFile targetfile
-	)
-	{
-//		DEBUGStorage.println("storage copy file range");
-
-		try
-		{
-			final long byteCount = sourceFile.fileChannel().transferTo(sourceOffset, length, targetfile.fileChannel());
-			targetfile.fileChannel().force(false);
-			
-			return validateIoByteCount(length, byteCount);
-		}
-		catch(final IOException e)
-		{
-			throw new StorageException(e); // (01.10.2014 TM)EXCP: proper exception
-		}
-	}
+//	public default long copy(
+//		final ZStorageLockedFile sourceFile,
+//		final ZStorageLockedFile targetfile
+//	)
+//	{
+//		return this.copyFilePart(sourceFile, 0, sourceFile.length(), targetfile);
+//	}
+//
+//	public default long copyFilePart(
+//		final ZStorageLockedFile sourceFile  ,
+//		final long              sourceOffset,
+//		final long              length      ,
+//		final ZStorageLockedFile targetfile
+//	)
+//	{
+////		DEBUGStorage.println("storage copy file range");
+//
+//		try
+//		{
+//			final long byteCount = sourceFile.fileChannel().transferTo(sourceOffset, length, targetfile.fileChannel());
+//			targetfile.fileChannel().force(false);
+//
+//			return validateIoByteCount(length, byteCount);
+//		}
+//		catch(final IOException e)
+//		{
+//			throw new StorageException(e); // (01.10.2014 TM)EXCP: proper exception
+//		}
+//	}
 	
 	public default long writeStore(
 		final ZStorageDataFile<?> targetFile ,
@@ -90,20 +90,20 @@ public interface StorageFileWriter
 	 * 
 	 */
 	public default long writeImport(
-		final ZStorageLockedFile  sourceFile  ,
-		final long               sourceOffset,
-		final long               copyLength  ,
-		final ZStorageDataFile<?> targetFile
+		final StorageFile         sourceFile  ,
+		final long                sourceOffset,
+		final long                copyLength  ,
+		final StorageLiveDataFile targetFile
 	)
 	{
 		return this.copyFilePart(sourceFile, sourceOffset, copyLength, targetFile);
 	}
 	
 	public default long writeTransfer(
-		final ZStorageDataFile<?> sourceFile  ,
-		final long               sourceOffset,
-		final long               copyLength  ,
-		final ZStorageDataFile<?> targetFile
+		final StorageLiveDataFile sourceFile  ,
+		final long                sourceOffset,
+		final long                copyLength  ,
+		final StorageLiveDataFile targetFile
 	)
 	{
 		return this.copyFilePart(sourceFile, sourceOffset, copyLength, targetFile);

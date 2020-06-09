@@ -6,8 +6,15 @@ import one.microstream.chars.XChars;
 import one.microstream.io.BufferProvider;
 import one.microstream.util.UtilStackTrace;
 
+
 public interface AIoHandler
 {
+	/* (08.06.2020 TM)TODO: priv#49: JavaDoc: guaranteed completeness
+	 * guarantees that all specified bytes (where applicable) are read/written.
+	 * Any iterative, reattempting, waiting, timeouting etc. logic that is required for this must be provided
+	 * by the IoHandler implementation.
+	 */
+	
 	public long size(AFile file);
 
 	public boolean exists(AFile file);

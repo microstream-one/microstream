@@ -6,6 +6,7 @@ import java.nio.channels.FileChannel;
 
 import one.microstream.storage.exceptions.StorageException;
 
+// (08.06.2020 TM)FIXME: priv#49: remove since this is a concern of IoHandler?
 public interface StorageFileReader
 {
 	public default long readStorage(

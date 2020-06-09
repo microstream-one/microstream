@@ -3,54 +3,23 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.notNegative;
 
-import java.io.IOException;
-import java.util.function.Consumer;
-
 import one.microstream.afs.AFile;
-import one.microstream.collections.XArrays;
 import one.microstream.math.XMath;
 import one.microstream.storage.exceptions.StorageException;
 
-public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extends StorageDataFile, StorageLiveFile
+public interface StorageLiveDataFile
+extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 {
+	@Override
 	public long size();
 	
 	public void close();
 	
-	
-
-	public boolean hasUsers();
-	
-	public boolean executeIfUnsued(Consumer<? super StorageLiveDataFile<?>> action);
-	
-	public boolean registerUsage(StorageFileUser fileUser);
-	
-	public boolean clearUsages(StorageFileUser fileUser);
-	
-	public boolean unregisterUsage(StorageFileUser fileUser);
-		
-	public boolean unregisterUsageClosing(
-		StorageFileUser                          fileUser     ,
-		Consumer<? super StorageLiveDataFile<?>> closingAction
-	);
-	
-	public void prependEntry(I entry);
-	
-	public void appendEntry(I entry);
-
-	public void remove(StorageEntity.Default entity);
-
-	public void loadEntityData(I entity, long length, long cacheChange);
-
 	public long totalLength();
 
 	public long dataLength();
 
 	public double dataFillRatio();
-	
-	public long exportTo(ZStorageLockedFile file);
-
-	public long exportTo(ZStorageLockedFile file, long sourceOffset, long length);
 
 	public boolean isHeadFile();
 
@@ -66,7 +35,7 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 
 	
 	
-	public static StorageLiveDataFile<StorageEntity.Default> New(
+	public static StorageLiveDataFile.Default New(
 		final StorageFileManager.Default parent      ,
 		final AFile                      file        ,
 		final int                        channelIndex,
@@ -82,8 +51,8 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 	}
 	
 	public class Default
-	extends StorageDataFile.Abstract
-	implements StorageLiveDataFile<StorageEntity.Default>
+	extends StorageLiveFile.Abstract<StorageLiveDataFile>
+	implements StorageLiveDataFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -97,6 +66,10 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 		// instance fields //
 		////////////////////
 		
+		private final int channelIndex;
+		
+		private final long number;
+		
 		private final StorageFileManager.Default parent;
 
 		final StorageEntity.Default head = StorageEntity.Default.createDummy();
@@ -105,38 +78,12 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 		private long fileTotalLength;
 		private long fileDataLength ;
 
-		ZStorageDataFile.Default next, prev;
+		StorageLiveDataFile.Default next, prev;
 
 		private TypeInFile[] typeInFileSlots = new TypeInFile[INITIAL_TYPE_IN_FILE_ARRAY_LENGTH];
 		private int          typeInFileRange = this.typeInFileSlots.length - 1                  ;
 		private int          typeInFileCount                                                    ;
 		
-		private Usage[] usages     = new Usage[1];
-		private int     usagesSize = 0;
-		
-		static final class Usage
-		{
-			StorageFileUser user ;
-			int             count;
-			
-			Usage(final StorageFileUser user)
-			{
-				super();
-				this.user = user;
-			}
-			
-			final boolean increment()
-			{
-				return ++this.count == 1;
-			}
-			
-			final boolean decrement()
-			{
-				return --this.count == 0;
-			}
-			
-		}
-
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -150,11 +97,13 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 			final long                       number
 		)
 		{
-			super(file, channelIndex, number);
+			super(file);
 			
-			this.parent        = parent   ;
-			this.head.fileNext = this.tail;
-			this.tail.filePrev = this.head;
+			this.channelIndex  = channelIndex;
+			this.number        = number      ;
+			this.parent        = parent      ;
+			this.head.fileNext = this.tail   ;
+			this.tail.filePrev = this.head   ;
 			
 			// must register parent user before anything else can use the instance, of course.
 			this.registerUsage(parent);
@@ -164,6 +113,30 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final int channelIndex()
+		{
+			return this.channelIndex;
+		}
+		
+		@Override
+		public final long number()
+		{
+			return this.number;
+		}
+		
+		@Override
+		public long dataLength()
+		{
+			return this.fileDataLength;
+		}
+		
+		@Override
+		public long totalLength()
+		{
+			return this.fileTotalLength;
+		}
 		
 
 		final TypeInFile typeInFile(final StorageEntityType.Default type)
@@ -258,48 +231,12 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-		@Override
-		public final synchronized long size()
-		{
-			this.internalOpen();
-			
-			return this.access().size();
-		}
 		
 		@Override
 		public final synchronized void close()
 		{
 			this.internalClose();
 		}
-
-		@Override
-		public final long exportTo(final ZStorageLockedFile file)
-		{
-			return this.exportTo(file, 0, this.fileTotalLength);
-		}
-
-		@Override
-		public final long exportTo(final ZStorageLockedFile file, final long sourceOffset, final long length)
-		{
-			/*
-			 * export copies directly without detour over parent/writer.
-			 * This behavior has design reasons, e.g. an export must be always possible, even if the writer
-			 * instance is strictly read-only. It also has performance reasons as the per-type export
-			 * calls this method for every single entity, hence less pointer chasing and no channel forcing
-			 * speeds up things considerably for millions or billions of entities.
-			 */
-			try
-			{
-				return this.fileChannel().transferTo(sourceOffset, length, file.fileChannel());
-			}
-			catch(final IOException e)
-			{
-				// (23.10.2014 TM)EXCP: proper exception
-				throw new StorageException(e);
-			}
-		}
-
 
 		@Override
 		public final double dataFillRatio()
@@ -314,8 +251,7 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 			return this.head.fileNext.length == this.fileDataLength;
 		}
 
-		@Override
-		public void remove(final StorageEntity.Default entity)
+		public final void remove(final StorageEntity.Default entity)
 		{
 			// disjoin entity from chain and decrement data length
 			(entity.fileNext.filePrev = entity.filePrev).fileNext = entity.fileNext;
@@ -361,7 +297,6 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 			this.fileDataLength -= value;
 		}
 
-		@Override
 		public final void prependEntry(final StorageEntity.Default entry)
 		{
 			// moved here from StorageEntity.Default#updateStorageInformation
@@ -371,7 +306,6 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 			(entry.filePrev = this.head).fileNext = (entry.fileNext = this.head.fileNext).filePrev = entry;
 		}
 
-		@Override
 		public final void appendEntry(final StorageEntity.Default entry)
 		{
 			// moved here from StorageEntity.Default#updateStorageInformation
@@ -381,7 +315,6 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 			(entry.fileNext = this.tail).filePrev = (entry.filePrev = this.tail.filePrev).fileNext = entry;
 		}
 
-		@Override
 		public final void loadEntityData(
 			final StorageEntity.Default entity     ,
 			final long                  length     ,
@@ -395,110 +328,6 @@ public interface StorageLiveDataFile<I extends StorageEntityCacheItem<I>> extend
 		public boolean isHeadFile()
 		{
 			return this.parent.isHeadFile(this);
-		}
-
-		@Override
-		public final synchronized boolean hasUsers()
-		{
-			return this.usagesSize != 0;
-		}
-		
-		@Override
-		public final synchronized boolean executeIfUnsued(
-			final Consumer<? super StorageLiveDataFile<?>> action
-		)
-		{
-			if(this.hasUsers())
-			{
-				return false;
-			}
-			
-			action.accept(this);
-			
-			return true;
-		}
-
-		@Override
-		public final synchronized boolean registerUsage(final StorageFileUser fileUser)
-		{
-			return this.ensureEntry(fileUser).increment();
-		}
-		
-		private Usage ensureEntry(final StorageFileUser fileUser)
-		{
-			/* note: for very short arrays (~ 5 references), arrays are faster than hash tables.
-			 * The planned/expected user count for storage files should be something around 2-3.
-			 */
-			for(int i = 0; i < this.usagesSize; i++)
-			{
-				if(this.usages[i].user == fileUser)
-				{
-					return this.usages[i];
-				}
-			}
-			
-			if(this.usagesSize >= this.usages.length)
-			{
-				this.usages = XArrays.enlarge(this.usages, this.usages.length * 2);
-			}
-			
-			return this.usages[this.usagesSize++] = new Usage(fileUser);
-		}
-		
-		@Override
-		public final synchronized boolean clearUsages(final StorageFileUser fileUser)
-		{
-			for(int i = 0; i < this.usagesSize; i++)
-			{
-				if(this.usages[i].user == fileUser)
-				{
-					XArrays.removeFromIndex(this.usages, this.usagesSize--, i);
-					return true;
-				}
-			}
-			
-			return false;
-		}
-		
-		@Override
-		public final synchronized boolean unregisterUsage(final StorageFileUser fileUser)
-		{
-			for(int i = 0; i < this.usagesSize; i++)
-			{
-				if(this.usages[i].user == fileUser)
-				{
-					if(this.usages[i].decrement())
-					{
-						XArrays.removeFromIndex(this.usages, this.usagesSize--, i);
-						return true;
-					}
-					
-					return false;
-				}
-			}
-			
-			// (29.11.2019 TM)EXCP: proper exception
-			throw new StorageException(StorageFileUser.class.getSimpleName() + " not found " + fileUser);
-		}
-				
-		@Override
-		public boolean unregisterUsageClosing(
-			final StorageFileUser                          fileUser     ,
-			final Consumer<? super StorageLiveDataFile<?>> closingAction
-		)
-		{
-			if(this.unregisterUsage(fileUser) && !this.hasUsers())
-			{
-				if(closingAction != null)
-				{
-					closingAction.accept(this);
-				}
-				
-				this.internalClose();
-				return true;
-			}
-			
-			return false;
 		}
 
 		@Override

@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
 import one.microstream.X;
+import one.microstream.afs.AWritableFile;
 import one.microstream.functional.ThrowingProcedure;
 import one.microstream.functional._longProcedure;
 import one.microstream.persistence.binary.types.Chunk;
@@ -59,12 +60,12 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 	public void commitImportData(long taskTimestamp);
 
-	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, ZStorageLockedFile file)
+	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, AWritableFile file)
 		throws IOException;
 
 	public KeyValue<Long, Long> exportTypeEntities(
 		StorageEntityTypeHandler         type           ,
-		ZStorageLockedFile                file           ,
+		AWritableFile                    file           ,
 		Predicate<? super StorageEntity> predicateEntity
 	) throws IOException;
 
@@ -529,7 +530,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
 			final StorageEntityTypeHandler         type           ,
-			final ZStorageLockedFile                file           ,
+			final AWritableFile                    file           ,
 			final Predicate<? super StorageEntity> predicateEntity
 		)
 			throws IOException
@@ -564,7 +565,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
 			final StorageEntityTypeHandler type,
-			final ZStorageLockedFile        file
+			final AWritableFile            file
 		)
 			throws IOException
 		{
@@ -685,7 +686,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final void accept(final long objectId)
 		{
-			final StorageEntityCacheItem<?> entry;
+			final StorageEntity.Default entry;
 			if((entry = this.entityCache.getEntry(objectId)) == null)
 			{
 				/* (14.01.2015 TM)NOTE: this actually is an error, as every oid request comes

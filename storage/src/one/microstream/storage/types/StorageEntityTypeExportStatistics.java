@@ -1,5 +1,6 @@
 package one.microstream.storage.types;
 
+import one.microstream.afs.AFile;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqConstHashTable;
@@ -222,7 +223,7 @@ public interface StorageEntityTypeExportStatistics
 		
 		public String typeName();
 		
-		public ZStorageFile file();
+		public AFile file();
 		
 			
 		
@@ -232,9 +233,9 @@ public interface StorageEntityTypeExportStatistics
 			// instance fields //
 			////////////////////
 			
-			final long        typeId  ;
-			final String      typeName;
-			final ZStorageFile file    ;
+			final long   typeId  ;
+			final String typeName;
+			final AFile  file    ;
 			
 			
 			
@@ -242,7 +243,7 @@ public interface StorageEntityTypeExportStatistics
 			// constructors //
 			/////////////////
 			
-			Default(final long typeId, final String typeName, final ZStorageFile file)
+			Default(final long typeId, final String typeName, final AFile file)
 			{
 				super();
 				this.typeId   = typeId  ;
@@ -269,7 +270,7 @@ public interface StorageEntityTypeExportStatistics
 			}
 			
 			@Override
-			public final ZStorageFile file()
+			public final AFile file()
 			{
 				return this.file;
 			}

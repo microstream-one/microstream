@@ -1,7 +1,6 @@
 package one.microstream.storage.types;
 
 import one.microstream.afs.AFile;
-import one.microstream.afs.AWritableFile;
 
 public interface StorageChannelFile extends StorageFile, StorageHashChannelPart
 {
@@ -17,8 +16,6 @@ public interface StorageChannelFile extends StorageFile, StorageHashChannelPart
 		////////////////////
 		
 		private final int channelIndex;
-		
-		private AWritableFile access;
 
 		
 		
@@ -43,36 +40,7 @@ public interface StorageChannelFile extends StorageFile, StorageHashChannelPart
 		{
 			return this.channelIndex;
 		}
-		
-		protected final AWritableFile access()
-		{
-			return this.access;
-		}
-		
-		protected boolean internalClose()
-		{
-			if(this.access == null)
-			{
-				return false;
-			}
-			
-			// release closes implicitely.
-			final boolean result = this.access.release();
-			this.access = null;
-			
-			return result;
-		}
-		
-		protected boolean internalOpen()
-		{
-			if(this.access == null)
-			{
-				this.access = this.file().useWriting();
-			}
-			
-			return this.access.open();
-		}
-		
+				
 	}
 	
 }
