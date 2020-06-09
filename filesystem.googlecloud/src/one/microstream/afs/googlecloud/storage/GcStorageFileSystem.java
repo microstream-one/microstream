@@ -41,7 +41,7 @@ public interface GcStorageFileSystem extends AFileSystem
 	)
 	{
 		return New(
-			defaultProtocol                         ,
+			defaultProtocol,
 			GcStorageConnector.New(storage)
 		);
 	}
@@ -53,7 +53,7 @@ public interface GcStorageFileSystem extends AFileSystem
 	)
 	{
 		return New(
-			defaultProtocol                           ,
+			defaultProtocol,
 			GcStorageIoHandler.New(connector)
 		);
 	}

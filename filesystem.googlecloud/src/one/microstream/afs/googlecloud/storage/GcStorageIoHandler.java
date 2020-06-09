@@ -27,10 +27,18 @@ public interface GcStorageIoHandler extends AIoHandler
 
 
 	public static final class Default
-	extends AIoHandler.Abstract<GcStoragePath, GcStoragePath, GcStorageItemWrapper, GcStorageFileWrapper, ADirectory, GcStorageReadableFile, GcStorageWritableFile>
+	extends AIoHandler.Abstract<
+		GcStoragePath,
+		GcStoragePath,
+		GcStorageItemWrapper,
+		GcStorageFileWrapper,
+		ADirectory,
+		GcStorageReadableFile,
+		GcStorageWritableFile
+	>
 	implements GcStorageIoHandler
 	{
-		final GcStorageConnector connector;
+		private final GcStorageConnector connector;
 
 
 		///////////////////////////////////////////////////////////////////////////

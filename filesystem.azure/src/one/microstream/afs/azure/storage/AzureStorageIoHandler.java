@@ -27,10 +27,18 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 
 	public static final class Default
-	extends AIoHandler.Abstract<AzureStoragePath, AzureStoragePath, AzureStorageItemWrapper, AzureStorageFileWrapper, ADirectory, AzureStorageReadableFile, AzureStorageWritableFile>
+	extends AIoHandler.Abstract<
+		AzureStoragePath,
+		AzureStoragePath,
+		AzureStorageItemWrapper,
+		AzureStorageFileWrapper,
+		ADirectory,
+		AzureStorageReadableFile,
+		AzureStorageWritableFile
+	>
 	implements AzureStorageIoHandler
 	{
-		final AzureStorageConnector connector;
+		private final AzureStorageConnector connector;
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -42,7 +50,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 			super(
 				AzureStorageItemWrapper .class,
 				AzureStorageFileWrapper .class,
-				ADirectory    .class,
+				ADirectory              .class,
 				AzureStorageReadableFile.class,
 				AzureStorageWritableFile.class
 			);
@@ -199,7 +207,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 		@Override
 		protected ByteBuffer specificReadBytes(
 			final AzureStorageReadableFile sourceFile,
-			final long           position
+			final long                     position
 		)
 		{
 			return this.connector.readData(
@@ -212,8 +220,8 @@ public interface AzureStorageIoHandler extends AIoHandler
 		@Override
 		protected ByteBuffer specificReadBytes(
 			final AzureStorageReadableFile sourceFile,
-			final long           position  ,
-			final long           length
+			final long                     position  ,
+			final long                     length
 		)
 		{
 			return this.connector.readData(
@@ -226,7 +234,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 		@Override
 		protected long specificReadBytes(
 			final AzureStorageReadableFile sourceFile  ,
-			final ByteBuffer     targetBuffer
+			final ByteBuffer               targetBuffer
 		)
 		{
 			return this.connector.readData(
@@ -240,8 +248,8 @@ public interface AzureStorageIoHandler extends AIoHandler
 		@Override
 		protected long specificReadBytes(
 			final AzureStorageReadableFile sourceFile  ,
-			final ByteBuffer     targetBuffer,
-			final long           position
+			final ByteBuffer               targetBuffer,
+			final long                     position
 		)
 		{
 			return this.connector.readData(
@@ -255,9 +263,9 @@ public interface AzureStorageIoHandler extends AIoHandler
 		@Override
 		protected long specificReadBytes(
 			final AzureStorageReadableFile sourceFile  ,
-			final ByteBuffer     targetBuffer,
-			final long           position    ,
-			final long           length
+			final ByteBuffer               targetBuffer,
+			final long                     position    ,
+			final long                     length
 		)
 		{
 			return this.connector.readData(
@@ -271,7 +279,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 		@Override
 		protected long specificReadBytes(
 			final AzureStorageReadableFile sourceFile    ,
-			final BufferProvider bufferProvider
+			final BufferProvider           bufferProvider
 		)
 		{
 			bufferProvider.initializeOperation();
@@ -288,8 +296,8 @@ public interface AzureStorageIoHandler extends AIoHandler
 		@Override
 		protected long specificReadBytes(
 			final AzureStorageReadableFile sourceFile    ,
-			final BufferProvider bufferProvider,
-			final long           position
+			final BufferProvider           bufferProvider,
+			final long                     position
 		)
 		{
 			bufferProvider.initializeOperation();
@@ -306,9 +314,9 @@ public interface AzureStorageIoHandler extends AIoHandler
 		@Override
 		protected long specificReadBytes(
 			final AzureStorageReadableFile sourceFile    ,
-			final BufferProvider bufferProvider,
-			final long           position      ,
-			final long           length
+			final BufferProvider           bufferProvider,
+			final long                     position      ,
+			final long                     length
 		)
 		{
 			bufferProvider.initializeOperation();
@@ -324,7 +332,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificWriteBytes(
-			final AzureStorageWritableFile                 targetFile   ,
+			final AzureStorageWritableFile       targetFile   ,
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
@@ -338,8 +346,8 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected void specificMoveFile(
-			final AzureStorageWritableFile  sourceFile,
-			final AWritableFile   targetFile
+			final AzureStorageWritableFile sourceFile,
+			final AWritableFile            targetFile
 		)
 		{
 			final AzureStorageWritableFile handlableTarget = this.castWritableFile(targetFile);
@@ -351,8 +359,8 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificCopyTo(
-			final AzureStorageReadableFile  sourceFile,
-			final AWritableFile   targetFile
+			final AzureStorageReadableFile sourceFile,
+			final AWritableFile            targetFile
 		)
 		{
 			final AzureStorageWritableFile handlableTarget = this.castWritableFile(targetFile);
@@ -364,9 +372,9 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificCopyTo(
-			final AzureStorageReadableFile  sourceFile    ,
-			final long            sourcePosition,
-			final AWritableFile   targetFile
+			final AzureStorageReadableFile sourceFile    ,
+			final long                     sourcePosition,
+			final AWritableFile            targetFile
 		)
 		{
 			final AzureStorageWritableFile handlableTarget = this.castWritableFile(targetFile);
@@ -380,10 +388,10 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificCopyTo(
-			final AzureStorageReadableFile  sourceFile    ,
-			final long            sourcePosition,
-			final long            length        ,
-			final AWritableFile   targetFile
+			final AzureStorageReadableFile sourceFile    ,
+			final long                     sourcePosition,
+			final long                     length        ,
+			final AWritableFile            targetFile
 		)
 		{
 			final AzureStorageWritableFile handlableTarget = this.castWritableFile(targetFile);

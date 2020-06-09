@@ -72,11 +72,11 @@ public interface GcStorageConnector
 
 	public static class Default implements GcStorageConnector
 	{
-		final static String  NUMBER_SUFFIX_SEPARATOR      = "."                    ;
-		final static char    NUMBER_SUFFIX_SEPARATOR_CHAR = '.'                    ;
-		final static Pattern NUMBER_SUFFIX_PATTERN        = Pattern.compile("\\d+");
+		private final static String  NUMBER_SUFFIX_SEPARATOR      = "."                    ;
+		private final static char    NUMBER_SUFFIX_SEPARATOR_CHAR = '.'                    ;
+		private final static Pattern NUMBER_SUFFIX_PATTERN        = Pattern.compile("\\d+");
 
-		static String toDirectoryName(
+		private static String toDirectoryName(
 			final GcStoragePath path
 		)
 		{
@@ -87,7 +87,7 @@ public interface GcStorageConnector
 			;
 		}
 
-		static String toFileKeyPrefix(
+		private static String toFileKeyPrefix(
 			final GcStoragePath path
 		)
 		{
@@ -97,7 +97,7 @@ public interface GcStorageConnector
 			;
 		}
 
-		static boolean isFileName(
+		private static boolean isFileName(
 			final String prefix,
 			final String key
 		)
@@ -110,14 +110,14 @@ public interface GcStorageConnector
 			;
 		}
 
-		static boolean isDirectory(
+		private static boolean isDirectory(
 			final String key
 		)
 		{
 			return key.endsWith(GcStoragePath.SEPARATOR);
 		}
 
-		static boolean isFile(
+		private static boolean isFile(
 			final String key
 		)
 		{

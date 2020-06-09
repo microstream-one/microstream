@@ -27,10 +27,18 @@ public interface S3IoHandler extends AIoHandler
 
 
 	public static final class Default
-	extends AIoHandler.Abstract<S3Path, S3Path, S3ItemWrapper, S3FileWrapper, ADirectory, S3ReadableFile, S3WritableFile>
+	extends AIoHandler.Abstract<
+		S3Path,
+		S3Path,
+		S3ItemWrapper,
+		S3FileWrapper,
+		ADirectory,
+		S3ReadableFile,
+		S3WritableFile
+	>
 	implements S3IoHandler
 	{
-		final S3Connector connector;
+		private final S3Connector connector;
 
 
 		///////////////////////////////////////////////////////////////////////////

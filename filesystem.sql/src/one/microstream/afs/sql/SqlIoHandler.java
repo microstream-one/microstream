@@ -12,24 +12,32 @@ import one.microstream.io.BufferProvider;
 
 public interface SqlIoHandler extends AIoHandler
 {
-	public SqlConnector sqlConnector();
+	public SqlConnector connector();
 
 
 	public static SqlIoHandler New(
-		final SqlConnector sqlConnector
+		final SqlConnector connector
 	)
 	{
 		return new SqlIoHandler.Default(
-			notNull(sqlConnector)
+			notNull(connector)
 		);
 	}
 
 
 	public static final class Default
-	extends AIoHandler.Abstract<SqlPath, SqlPath, SqlItemWrapper, SqlFileWrapper, ADirectory, SqlReadableFile, SqlWritableFile>
+	extends AIoHandler.Abstract<
+		SqlPath,
+		SqlPath,
+		SqlItemWrapper,
+		SqlFileWrapper,
+		ADirectory,
+		SqlReadableFile,
+		SqlWritableFile
+	>
 	implements SqlIoHandler
 	{
-		final SqlConnector sqlConnector;
+		private final SqlConnector connector;
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -46,13 +54,13 @@ public interface SqlIoHandler extends AIoHandler
 				SqlWritableFile.class
 			);
 
-			this.sqlConnector = sqlConnector;
+			this.connector = sqlConnector;
 		}
 
 		@Override
-		public SqlConnector sqlConnector()
+		public SqlConnector connector()
 		{
-			return this.sqlConnector;
+			return this.connector;
 		}
 
 		@Override
@@ -76,7 +84,7 @@ public interface SqlIoHandler extends AIoHandler
 			final SqlPath file
 		)
 		{
-			return this.sqlConnector.fileSize(file);
+			return this.connector.fileSize(file);
 		}
 
 		@Override
@@ -84,7 +92,7 @@ public interface SqlIoHandler extends AIoHandler
 			final SqlPath file
 		)
 		{
-			return this.sqlConnector.fileExists(file);
+			return this.connector.fileExists(file);
 		}
 
 		@Override
@@ -155,7 +163,7 @@ public interface SqlIoHandler extends AIoHandler
 			final SqlWritableFile file
 		)
 		{
-			this.sqlConnector.ensureDirectory(file.path().parentPath());
+			this.connector.ensureDirectory(file.path().parentPath());
 
 			return file.openHandle();
 		}
@@ -185,7 +193,7 @@ public interface SqlIoHandler extends AIoHandler
 			final SqlWritableFile file
 		)
 		{
-			return this.sqlConnector.deleteFile(
+			return this.connector.deleteFile(
 				SqlFileSystem.toPath(file)
 			);
 		}
@@ -195,7 +203,7 @@ public interface SqlIoHandler extends AIoHandler
 			final SqlReadableFile sourceFile
 		)
 		{
-			return this.sqlConnector.readData(
+			return this.connector.readData(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				0,
 				-1
@@ -208,7 +216,7 @@ public interface SqlIoHandler extends AIoHandler
 			final long            position
 		)
 		{
-			return this.sqlConnector.readData(
+			return this.connector.readData(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				position,
 				-1
@@ -222,7 +230,7 @@ public interface SqlIoHandler extends AIoHandler
 			final long            length
 		)
 		{
-			return this.sqlConnector.readData(
+			return this.connector.readData(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				position,
 				length
@@ -235,7 +243,7 @@ public interface SqlIoHandler extends AIoHandler
 			final ByteBuffer      targetBuffer
 		)
 		{
-			return this.sqlConnector.readData(
+			return this.connector.readData(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				targetBuffer,
 				0,
@@ -250,7 +258,7 @@ public interface SqlIoHandler extends AIoHandler
 			final long            position
 		)
 		{
-			return this.sqlConnector.readData(
+			return this.connector.readData(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				targetBuffer,
 				position,
@@ -266,7 +274,7 @@ public interface SqlIoHandler extends AIoHandler
 			final long            length
 		)
 		{
-			return this.sqlConnector.readData(
+			return this.connector.readData(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				targetBuffer,
 				position,
@@ -336,7 +344,7 @@ public interface SqlIoHandler extends AIoHandler
 		{
 			this.openWriting(targetFile);
 
-			return this.sqlConnector.writeData(
+			return this.connector.writeData(
 				SqlFileSystem.toPath(targetFile.ensureOpenHandle()),
 				sourceBuffers
 			);
@@ -349,7 +357,7 @@ public interface SqlIoHandler extends AIoHandler
 		)
 		{
 			final SqlWritableFile handlableTarget = this.castWritableFile(targetFile);
-			this.sqlConnector.moveFile(
+			this.connector.moveFile(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				SqlFileSystem.toPath(handlableTarget.ensureOpenHandle())
 			);
@@ -362,7 +370,7 @@ public interface SqlIoHandler extends AIoHandler
 		)
 		{
 			final SqlWritableFile handlableTarget = this.castWritableFile(targetFile);
-			return this.sqlConnector.copyFile(
+			return this.connector.copyFile(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				SqlFileSystem.toPath(handlableTarget.ensureOpenHandle())
 			);
@@ -376,7 +384,7 @@ public interface SqlIoHandler extends AIoHandler
 		)
 		{
 			final SqlWritableFile handlableTarget = this.castWritableFile(targetFile);
-			return this.sqlConnector.copyFile(
+			return this.connector.copyFile(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				SqlFileSystem.toPath(handlableTarget.ensureOpenHandle()),
 				sourcePosition,
@@ -393,7 +401,7 @@ public interface SqlIoHandler extends AIoHandler
 		)
 		{
 			final SqlWritableFile handlableTarget = this.castWritableFile(targetFile);
-			return this.sqlConnector.copyFile(
+			return this.connector.copyFile(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				SqlFileSystem.toPath(handlableTarget.ensureOpenHandle()),
 				sourcePosition,

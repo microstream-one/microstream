@@ -36,30 +36,30 @@ public interface AzureStorageFileSystem extends AFileSystem
 
 
 	public static AzureStorageFileSystem New(
-		final String   defaultProtocol,
+		final String            defaultProtocol,
 		final BlobServiceClient serviceClient
 	)
 	{
 		return New(
-			defaultProtocol    ,
+			defaultProtocol,
 			AzureStorageConnector.New(serviceClient)
 		);
 	}
 
 
 	public static AzureStorageFileSystem New(
-		final String      defaultProtocol,
+		final String                defaultProtocol,
 		final AzureStorageConnector connector
 	)
 	{
 		return New(
-			defaultProtocol               ,
+			defaultProtocol,
 			AzureStorageIoHandler.New(connector)
 		);
 	}
 
 	public static AzureStorageFileSystem New(
-		final String      defaultProtocol,
+		final String                defaultProtocol,
 		final AzureStorageIoHandler ioHandler
 	)
 	{
@@ -70,14 +70,16 @@ public interface AzureStorageFileSystem extends AFileSystem
 	}
 
 
-	public static class Default extends AFileSystem.Abstract<AzureStoragePath, AzureStoragePath> implements AzureStorageFileSystem
+	public static class Default
+	extends AFileSystem.Abstract<AzureStoragePath, AzureStoragePath>
+	implements AzureStorageFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
 		protected Default(
-		final String      defaultProtocol,
+		final String                defaultProtocol,
 		final AzureStorageIoHandler ioHandler
 		)
 		{
@@ -179,8 +181,8 @@ public interface AzureStorageFileSystem extends AFileSystem
 		)
 		{
 			return AzureStorageReadableFile.New(
-				file                          ,
-				file.user()                   ,
+				file,
+				file.user(),
 				((AzureStorageWritableFile)file).path()
 			);
 		}
@@ -191,8 +193,8 @@ public interface AzureStorageFileSystem extends AFileSystem
 		)
 		{
 			return AzureStorageWritableFile.New(
-				file                          ,
-				file.user()                   ,
+				file,
+				file.user(),
 				((AzureStorageWritableFile)file).path()
 			);
 		}
