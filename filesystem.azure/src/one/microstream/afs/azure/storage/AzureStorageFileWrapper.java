@@ -29,7 +29,7 @@ public interface AzureStorageFileWrapper extends AFile.Wrapper, AzureStorageItem
 		////////////////////
 
 		private AzureStoragePath  path              ;
-		private boolean handleOpen = false;
+		private boolean           handleOpen = false;
 
 
 
@@ -38,8 +38,8 @@ public interface AzureStorageFileWrapper extends AFile.Wrapper, AzureStorageItem
 		/////////////////
 
         protected Abstract(
-			final AFile  actual ,
-			final U      user   ,
+			final AFile            actual ,
+			final U                user   ,
 			final AzureStoragePath path
         )
 		{

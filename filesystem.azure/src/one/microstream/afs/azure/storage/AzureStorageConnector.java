@@ -73,11 +73,11 @@ public interface AzureStorageConnector
 
 	public static class Default implements AzureStorageConnector
 	{
-		final static String  NUMBER_SUFFIX_SEPARATOR      = "."                    ;
-		final static char    NUMBER_SUFFIX_SEPARATOR_CHAR = '.'                    ;
-		final static Pattern NUMBER_SUFFIX_PATTERN        = Pattern.compile("\\d+");
+		private final static String  NUMBER_SUFFIX_SEPARATOR      = "."                    ;
+		private final static char    NUMBER_SUFFIX_SEPARATOR_CHAR = '.'                    ;
+		private final static Pattern NUMBER_SUFFIX_PATTERN        = Pattern.compile("\\d+");
 
-		static String toDirectoryName(
+		private static String toDirectoryName(
 			final AzureStoragePath path
 		)
 		{
@@ -88,7 +88,7 @@ public interface AzureStorageConnector
 			;
 		}
 
-		static String toFileNamePrefix(
+		private static String toFileNamePrefix(
 			final AzureStoragePath path
 		)
 		{
@@ -98,7 +98,7 @@ public interface AzureStorageConnector
 			;
 		}
 
-		static boolean isFileName(
+		private static boolean isFileName(
 			final String prefix,
 			final String name
 		)
@@ -111,14 +111,14 @@ public interface AzureStorageConnector
 			;
 		}
 
-		static boolean isDirectory(
+		private static boolean isDirectory(
 			final String key
 		)
 		{
 			return key.endsWith(AzureStoragePath.SEPARATOR);
 		}
 
-		static boolean isFile(
+		private static boolean isFile(
 			final String key
 		)
 		{
@@ -218,11 +218,11 @@ public interface AzureStorageConnector
 		}
 
 		private void readObjectData(
-			final AzureStoragePath file,
-			final BlobItem   blobItem    ,
-			final ByteBuffer targetBuffer,
-			final long       offset      ,
-			final long       length
+			final AzureStoragePath file        ,
+			final BlobItem         blobItem    ,
+			final ByteBuffer       targetBuffer,
+			final long             offset      ,
+			final long             length
 		)
 		{
 			try(ByteBufferOutputStream outputStream = ByteBufferOutputStream.New(targetBuffer))
@@ -323,10 +323,8 @@ public interface AzureStorageConnector
 			final AzureStoragePath file
 		)
 		{
-			final String prefix = toFileNamePrefix(file);
-			final BlobContainerClient containerClient = this.serviceClient.getBlobContainerClient(
-				file.container()
-			);
+			final String                  prefix          = toFileNamePrefix(file);
+			final BlobContainerClient     containerClient = this.serviceClient.getBlobContainerClient(file.container());
 			final PagedIterable<BlobItem> blobs = containerClient
 			.listBlobs(
 				new ListBlobsOptions().setPrefix(prefix),
@@ -348,8 +346,8 @@ public interface AzureStorageConnector
 		@Override
 		public ByteBuffer readData(
 			final AzureStoragePath file  ,
-			final long   offset,
-			final long   length
+			final long             offset,
+			final long             length
 		)
 		{
 			final Reference   <ByteBuffer> bufferRef      = Reference.New(null);
@@ -375,9 +373,9 @@ public interface AzureStorageConnector
 		@Override
 		public long readData(
 			final AzureStoragePath     file        ,
-			final ByteBuffer targetBuffer,
-			final long       offset      ,
-			final long       length
+			final ByteBuffer           targetBuffer,
+			final long                 offset      ,
+			final long                 length
 		)
 		{
 			final LongFunction<ByteBuffer> bufferProvider = capacity ->
@@ -491,8 +489,8 @@ public interface AzureStorageConnector
 		public long copyFile(
 			final AzureStoragePath sourceFile,
 			final AzureStoragePath targetFile,
-			final long   offset    ,
-			final long   length
+			final long             offset    ,
+			final long             length
 		)
 		{
 			final ByteBuffer buffer = this.readData(sourceFile, offset, length);

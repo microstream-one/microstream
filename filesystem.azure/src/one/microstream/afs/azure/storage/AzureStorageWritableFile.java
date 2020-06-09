@@ -9,8 +9,8 @@ public interface AzureStorageWritableFile extends AzureStorageReadableFile, AWri
 {
 
     public static AzureStorageWritableFile New(
-    	final AFile  actual,
-    	final Object user  ,
+    	final AFile            actual,
+    	final Object           user  ,
     	final AzureStoragePath path
     )
     {
@@ -25,8 +25,8 @@ public interface AzureStorageWritableFile extends AzureStorageReadableFile, AWri
 	public class Default<U> extends AzureStorageReadableFile.Default<U> implements AzureStorageWritableFile
     {
 		protected Default(
-			final AFile  actual,
-			final U      user  ,
+			final AFile            actual,
+			final U                user  ,
 			final AzureStoragePath path
 		)
 		{

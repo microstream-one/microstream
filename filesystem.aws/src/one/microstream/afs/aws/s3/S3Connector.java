@@ -1,6 +1,7 @@
 package one.microstream.afs.aws.s3;
 
 import static java.util.stream.Collectors.toList;
+import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
 import java.io.BufferedInputStream;
@@ -25,7 +26,6 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
-import one.microstream.X;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.reference.Reference;
@@ -71,11 +71,11 @@ public interface S3Connector
 
 	public static class Default implements S3Connector
 	{
-		final static String  NUMBER_SUFFIX_SEPARATOR      = "."                    ;
-		final static char    NUMBER_SUFFIX_SEPARATOR_CHAR = '.'                    ;
-		final static Pattern NUMBER_SUFFIX_PATTERN        = Pattern.compile("\\d+");
+		private final static String  NUMBER_SUFFIX_SEPARATOR      = "."                    ;
+		private final static char    NUMBER_SUFFIX_SEPARATOR_CHAR = '.'                    ;
+		private final static Pattern NUMBER_SUFFIX_PATTERN        = Pattern.compile("\\d+");
 
-		static String toDirectoryKey(
+		private static String toDirectoryKey(
 			final S3Path path
 		)
 		{
@@ -86,7 +86,7 @@ public interface S3Connector
 			;
 		}
 
-		static String toFileKeyPrefix(
+		private static String toFileKeyPrefix(
 			final S3Path path
 		)
 		{
@@ -96,7 +96,7 @@ public interface S3Connector
 			;
 		}
 
-		static boolean isFileKey(
+		private static boolean isFileKey(
 			final String prefix,
 			final String key
 		)
@@ -109,14 +109,14 @@ public interface S3Connector
 			;
 		}
 
-		static boolean isDirectory(
+		private static boolean isDirectory(
 			final String key
 		)
 		{
 			return key.endsWith(S3Path.SEPARATOR);
 		}
 
-		static boolean isFile(
+		private static boolean isFile(
 			final String key
 		)
 		{
@@ -235,7 +235,7 @@ public interface S3Connector
 					(read = inputStream.read(
 						buffer,
 						0,
-						Math.min(buffer.length, X.checkArrayRange(remaining)))
+						Math.min(buffer.length, checkArrayRange(remaining)))
 					) != -1
 				)
 				{
@@ -356,7 +356,7 @@ public interface S3Connector
 			final Reference   <ByteBuffer> bufferRef      = Reference.New(null);
 			final LongFunction<ByteBuffer> bufferProvider = capacity ->
 			{
-				final ByteBuffer buffer = ByteBuffer.allocateDirect(X.checkArrayRange(capacity));
+				final ByteBuffer buffer = ByteBuffer.allocateDirect(checkArrayRange(capacity));
 				bufferRef.set(buffer);
 				return buffer;
 			};

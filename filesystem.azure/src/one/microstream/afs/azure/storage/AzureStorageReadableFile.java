@@ -8,8 +8,8 @@ import one.microstream.afs.AReadableFile;
 public interface AzureStorageReadableFile extends AReadableFile, AzureStorageFileWrapper
 {
     public static AzureStorageReadableFile New(
-    	final AFile  actual,
-    	final Object user  ,
+    	final AFile            actual,
+    	final Object           user  ,
     	final AzureStoragePath path
     )
     {
@@ -24,8 +24,8 @@ public interface AzureStorageReadableFile extends AReadableFile, AzureStorageFil
 	public class Default<U> extends AzureStorageFileWrapper.Abstract<U> implements AzureStorageReadableFile
 	{
 		protected Default(
-			final AFile  actual,
-			final U      user  ,
+			final AFile            actual,
+			final U                user  ,
 			final AzureStoragePath path
 		)
 		{
