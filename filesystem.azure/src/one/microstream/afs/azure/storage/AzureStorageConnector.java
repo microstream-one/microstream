@@ -3,16 +3,14 @@ package one.microstream.afs.azure.storage;
 import static java.util.stream.Collectors.toList;
 import static one.microstream.X.notNull;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.OptionalLong;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 import java.util.function.LongFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -25,9 +23,13 @@ import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.models.DownloadRetryOptions;
 import com.azure.storage.blob.models.ListBlobsOptions;
+import com.azure.storage.blob.specialized.BlockBlobClient;
 
 import one.microstream.X;
 import one.microstream.exceptions.IORuntimeException;
+import one.microstream.io.ByteBufferInputStream;
+import one.microstream.io.ByteBufferOutputStream;
+import one.microstream.io.LimitedInputStream;
 import one.microstream.reference.Reference;
 
 
@@ -81,17 +83,17 @@ public interface AzureStorageConnector
 		{
 			// directories have a trailing /
 			return Arrays.stream(path.pathElements())
-				.skip(1L) // skip bucket
+				.skip(1L) // skip container
 				.collect(Collectors.joining(AzureStoragePath.SEPARATOR, "", AzureStoragePath.SEPARATOR))
 			;
 		}
 
-		static String toFileKeyPrefix(
+		static String toFileNamePrefix(
 			final AzureStoragePath path
 		)
 		{
 			return Arrays.stream(path.pathElements())
-				.skip(1L) // skip bucket
+				.skip(1L) // skip container
 				.collect(Collectors.joining(AzureStoragePath.SEPARATOR, "", NUMBER_SUFFIX_SEPARATOR))
 			;
 		}
@@ -138,9 +140,9 @@ public interface AzureStorageConnector
 			final AzureStoragePath file
 		)
 		{
-			final String prefix = toFileKeyPrefix(file);
+			final String prefix = toFileNamePrefix(file);
 			final PagedIterable<BlobItem> blobs = this.serviceClient.getBlobContainerClient(
-				file.storageContainer()
+				file.container()
 			)
 			.listBlobs(
 				new ListBlobsOptions().setPrefix(prefix),
@@ -153,7 +155,7 @@ public interface AzureStorageConnector
 		}
 
 		private long internalReadData(
-			final AzureStoragePath                   file          ,
+			final AzureStoragePath         file          ,
 			final LongFunction<ByteBuffer> bufferProvider,
 			final long                     offset        ,
 			final long                     length
@@ -223,9 +225,9 @@ public interface AzureStorageConnector
 			final long       length
 		)
 		{
-			try(ByteBufferOutputStream outputStream = new ByteBufferOutputStream(targetBuffer))
+			try(ByteBufferOutputStream outputStream = ByteBufferOutputStream.New(targetBuffer))
 			{
-				this.serviceClient.getBlobContainerClient(file.storageContainer())
+				this.serviceClient.getBlobContainerClient(file.container())
 					.getBlobClient(blobItem.getName())
 					.downloadWithResponse(
 						outputStream,
@@ -272,7 +274,7 @@ public interface AzureStorageConnector
 		{
 			final String name = toDirectoryName(directory);
 			final PagedIterable<BlobItem> blobItems = this.serviceClient.getBlobContainerClient(
-				directory.storageContainer()
+				directory.container()
 			)
 			.listBlobs(
 				new ListBlobsOptions().setPrefix(name),
@@ -321,9 +323,9 @@ public interface AzureStorageConnector
 			final AzureStoragePath file
 		)
 		{
-			final String prefix = toFileKeyPrefix(file);
+			final String prefix = toFileNamePrefix(file);
 			final BlobContainerClient containerClient = this.serviceClient.getBlobContainerClient(
-				file.storageContainer()
+				file.container()
 			);
 			final PagedIterable<BlobItem> blobs = containerClient
 			.listBlobs(
@@ -395,7 +397,7 @@ public interface AzureStorageConnector
 
 		@Override
 		public long writeData(
-			final AzureStoragePath                         file         ,
+			final AzureStoragePath               file         ,
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
@@ -403,7 +405,7 @@ public interface AzureStorageConnector
 				.mapToLong(this::getFileNr)
 				.max()
 			;
-			final long nextFileNr = maxFileNr.isPresent()
+			long nextFileNr = maxFileNr.isPresent()
 				? maxFileNr.getAsLong() + 1
 				: 0L
 			;
@@ -414,20 +416,32 @@ public interface AzureStorageConnector
 				totalLength += buffer.remaining();
 			}
 
-			try(final ByteBuffersInputStream inputStream = new ByteBuffersInputStream(
-				sourceBuffers.iterator(),
-				totalLength
-			))
+			final ByteBufferInputStream buffersInputStream = ByteBufferInputStream.New(sourceBuffers);
+			long available = totalLength;
+			while(available > 0)
 			{
-				this.serviceClient.getBlobContainerClient(file.storageContainer())
-					.getBlobClient(toFileKeyPrefix(file) + nextFileNr)
-					.getBlockBlobClient()
-					.upload(inputStream, totalLength)
-				;
-			}
-			catch(final IOException e)
-			{
-				throw new IORuntimeException(e);
+				final long currentBatchSize = Math.min(
+					available,
+					BlockBlobClient.MAX_UPLOAD_BLOB_BYTES
+				);
+
+				try(LimitedInputStream limitedInputStream = LimitedInputStream.New(
+					new BufferedInputStream(buffersInputStream),
+					currentBatchSize
+				))
+				{
+					this.serviceClient.getBlobContainerClient(file.container())
+						.getBlobClient(toFileNamePrefix(file) + nextFileNr++)
+						.getBlockBlobClient()
+						.upload(limitedInputStream, currentBatchSize)
+					;
+				}
+				catch(final IOException e)
+				{
+					throw new IORuntimeException(e);
+				}
+
+				available -= currentBatchSize;
 			}
 
 			return totalLength;
@@ -449,7 +463,26 @@ public interface AzureStorageConnector
 			final AzureStoragePath targetFile
 		)
 		{
-			// TODO
+			final BlobContainerClient sourceContainerClient = this.serviceClient.getBlobContainerClient(
+				sourceFile.container()
+			);
+			final BlobContainerClient targetContainerClient = this.serviceClient.getBlobContainerClient(
+				targetFile.container()
+			);
+			final String targetNamePrefix = toFileNamePrefix(targetFile);
+			this.blobItems(sourceFile).forEach(sourceItem ->
+			{
+				final String url = sourceContainerClient.getBlobClient(
+					sourceItem.getName()
+				)
+				.getBlobUrl();
+
+				targetContainerClient.getBlobClient(
+					targetNamePrefix + this.getFileNr(sourceItem)
+				)
+				.beginCopy(url, null)
+				.getFinalResult();
+			});
 
 			return this.fileSize(targetFile);
 		}
@@ -464,118 +497,6 @@ public interface AzureStorageConnector
 		{
 			final ByteBuffer buffer = this.readData(sourceFile, offset, length);
 			return this.writeData(targetFile, Arrays.asList(buffer));
-		}
-
-
-		static class ByteBufferOutputStream extends OutputStream
-		{
-			private final ByteBuffer targetBuffer;
-
-			ByteBufferOutputStream(final ByteBuffer targetBuffer)
-			{
-				super();
-				this.targetBuffer = targetBuffer;
-			}
-
-			@Override
-			public void write(final int b) throws IOException
-			{
-				this.targetBuffer.put((byte)b);
-			}
-
-			@Override
-			public void write(final byte[] bytes, final int offset, final int length) throws IOException
-			{
-				if(bytes == null)
-				{
-					throw new NullPointerException();
-				}
-				if(offset < 0
-				|| offset > bytes.length
-				|| length < 0
-				|| offset + length > bytes.length
-				|| offset + length < 0)
-				{
-					throw new IndexOutOfBoundsException();
-				}
-				if(length == 0)
-				{
-					return;
-				}
-
-				this.targetBuffer.put(bytes, offset, length);
-			}
-
-		}
-
-
-		static class ByteBuffersInputStream extends InputStream
-		{
-			private final Iterator<? extends ByteBuffer> sourceBuffers;
-			private       ByteBuffer                     currentBuffer;
-			private final long                           sizeTotal    ;
-
-			ByteBuffersInputStream(
-				final Iterator<? extends ByteBuffer> sourceBuffers,
-				final long sizeTotal
-			)
-			{
-				super();
-				this.sourceBuffers = sourceBuffers;
-				this.sizeTotal     = sizeTotal    ;
-			}
-
-			private int internalRead(
-				final Function<ByteBuffer, Integer> reader
-			)
-			{
-				if(this.sourceBuffers == null)
-				{
-					return -1;
-				}
-
-				while(this.currentBuffer == null || !this.currentBuffer.hasRemaining())
-				{
-					if(!this.sourceBuffers.hasNext())
-					{
-						return -1;
-					}
-					this.currentBuffer = this.sourceBuffers.next();
-				}
-
-				return reader.apply(this.currentBuffer);
-			}
-
-			@Override
-			public int available() throws IOException
-			{
-				return X.checkArrayRange(this.sizeTotal);
-			}
-
-			@Override
-			public int read() throws IOException
-			{
-				return this.internalRead(
-					buffer -> buffer.get() & 0xFF
-				);
-			}
-
-			@Override
-			public int read(
-				final byte[] bytes ,
-				final int    offset,
-				final int    length
-			)
-			throws IOException
-			{
-				return this.internalRead(buffer ->
-				{
-					final int amount = Math.min(length, buffer.remaining());
-			        buffer.get(bytes, offset, amount);
-			        return amount;
-				});
-			}
-
 		}
 
 	}
