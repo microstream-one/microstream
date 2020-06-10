@@ -269,7 +269,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 			{
 				return;
 			}
-			this.file.flush();
+			
 			if(this.file.isEmpty())
 			{
 				this.file.delete();

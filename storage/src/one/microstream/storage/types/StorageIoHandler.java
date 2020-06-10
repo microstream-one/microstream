@@ -76,19 +76,19 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		}
 
 		@Override
-		public ZStorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
+		public StorageLiveDataFile provideDataFile(final int channelIndex, final long fileNumber)
 		{
 			return this.fileProvider.provideDataFile(channelIndex, fileNumber);
 		}
 
 		@Override
-		public ZStorageNumberedFile provideTransactionsFile(final int channelIndex)
+		public StorageLiveTransactionsFile provideTransactionsFile(final int channelIndex)
 		{
 			return this.fileProvider.provideTransactionsFile(channelIndex);
 		}
 		
 		@Override
-		public ZStorageLockedFile provideLockFile()
+		public StorageLockFile provideLockFile()
 		{
 			return this.fileProvider.provideLockFile();
 		}

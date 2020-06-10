@@ -10,6 +10,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AFileSystem;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.VarString;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.XIO;
@@ -42,15 +46,15 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		PersistenceTypeDictionaryStorer writeListener
 	);
 	
-	public ZStorageNumberedFile provideDataFile(int channelIndex, long fileNumber);
+	public StorageLiveDataFile provideDataFile(int channelIndex, long fileNumber);
 
-	public ZStorageNumberedFile provideTransactionsFile(int channelIndex);
+	public StorageLiveTransactionsFile provideTransactionsFile(int channelIndex);
 	
-	public ZStorageLockedFile provideLockFile();
+	public StorageLockFile provideLockFile();
 	
-	public ZStorageNumberedFile provideDeletionTargetFile(ZStorageNumberedFile fileToBeDeleted);
+	public StorageBackupDataFile provideDeletionTargetFile(StorageLiveDataFile fileToBeDeleted);
 	
-	public ZStorageNumberedFile provideTruncationBackupTargetFile(ZStorageNumberedFile fileToBeTruncated, long newLength);
+	public StorageBackupDataFile provideTruncationBackupTargetFile(StorageLiveDataFile fileToBeTruncated, long newLength);
 
 	
 	
@@ -86,7 +90,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		
 		public static String defaultStorageFileSuffix()
 		{
-			return ".dat";
+			return "dat";
 		}
 
 		public static String defaultTransactionFilePrefix()
@@ -96,7 +100,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		
 		public static String defaultTransactionFileSuffix()
 		{
-			return ".sft"; // "storage file transactions"
+			return "sft"; // "storage file transactions"
 		}
 
 		public static String defaultTypeDictionaryFileName()
@@ -230,22 +234,31 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	 */
 	public static Builder<?> Builder()
 	{
-		return new StorageFileProvider.Builder.Default<>();
+		return Builder(NioFileSystem.New());
+	}
+	
+	public static Builder<?> Builder(final AFileSystem fileSystem)
+	{
+		return new StorageFileProvider.Builder.Default<>(
+			notNull(fileSystem)
+		);
 	}
 	
 	public interface Builder<B extends Builder<?>>
 	{
-		public String baseDirectory();
+		public AFileSystem fileSystem();
+		
+		public ADirectory baseDirectory();
 
-		public B setBaseDirectory(String baseDirectory);
+		public B setBaseDirectory(ADirectory baseDirectory);
 
-		public String deletionDirectory();
+		public ADirectory deletionDirectory();
 
-		public B setDeletionDirectory(String deletionDirectory);
+		public B setDeletionDirectory(ADirectory deletionDirectory);
 
-		public String truncationDirectory();
+		public ADirectory truncationDirectory();
 
-		public B setTruncationDirectory(String truncationDirectory);
+		public B setTruncationDirectory(ADirectory truncationDirectory);
 
 		public String channelDirectoryPrefix();
 
@@ -289,10 +302,15 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			// instance fields //
 			////////////////////
 			
+			private final AFileSystem fileSystem;
+			
+			private ADirectory
+				baseDirectory      ,
+				deletionDirectory  ,
+				truncationDirectory
+			;
+			
 			private String
-				baseDirectory         ,
-				deletionDirectory     ,
-				truncationDirectory   ,
 				channelDirectoryPrefix,
 				storageFilePrefix     ,
 				storageFileSuffix     ,
@@ -310,9 +328,10 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			// instance fields //
 			////////////////////
 			
-			Default()
+			Default(final AFileSystem fileSystem)
 			{
 				super();
+				this.fileSystem = fileSystem;
 			}
 			
 			
@@ -321,6 +340,12 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			// methods //
 			////////////
 			
+			@Override
+			public final AFileSystem fileSystem()
+			{
+				return this.fileSystem;
+			}
+			
 			@SuppressWarnings("unchecked")
 			protected final B $()
 			{
@@ -328,41 +353,41 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			}
 
 			@Override
-			public String baseDirectory()
+			public ADirectory baseDirectory()
 			{
 				return this.baseDirectory;
 			}
 
 			@Override
-			public B setBaseDirectory(final String baseDirectory)
+			public B setBaseDirectory(final ADirectory baseDirectory)
 			{
-				this.baseDirectory = baseDirectory;
+				this.baseDirectory = this.fileSystem.validateMember(baseDirectory);
 				return this.$();
 			}
 
 			@Override
-			public String deletionDirectory()
+			public ADirectory deletionDirectory()
 			{
 				return this.deletionDirectory;
 			}
 
 			@Override
-			public B setDeletionDirectory(final String deletionDirectory)
+			public B setDeletionDirectory(final ADirectory deletionDirectory)
 			{
-				this.deletionDirectory = deletionDirectory;
+				this.deletionDirectory = this.fileSystem.validateMember(deletionDirectory);
 				return this.$();
 			}
 
 			@Override
-			public String truncationDirectory()
+			public ADirectory truncationDirectory()
 			{
 				return this.truncationDirectory;
 			}
 
 			@Override
-			public B setTruncationDirectory(final String truncationDirectory)
+			public B setTruncationDirectory(final ADirectory truncationDirectory)
 			{
-				this.truncationDirectory = truncationDirectory;
+				this.truncationDirectory = this.fileSystem.validateMember(truncationDirectory);
 				return this.$();
 			}
 
@@ -470,13 +495,58 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				return this.$();
 			}
 			
+			protected ADirectory getBaseDirectory()
+			{
+				if(this.baseDirectory != null)
+				{
+					return this.baseDirectory;
+				}
+				
+				// note: relative root directory inside the current working directory
+				return this.fileSystem.ensureRoot(Defaults.defaultStorageDirectory());
+			}
+			
+			protected ADirectory getDeletionDirectory()
+			{
+				if(this.deletionDirectory != null)
+				{
+					return this.deletionDirectory;
+				}
+				
+				// Defaults method is the single location to controls behavior.
+				final String nameDeletionDirectory = Defaults.defaultDeletionDirectory();
+
+				// note: relative root directory inside the current working directory
+				return nameDeletionDirectory == null
+					? null
+					: this.fileSystem.ensureRoot(nameDeletionDirectory)
+				;
+			}
+			
+			protected ADirectory getTruncationDirectory()
+			{
+				if(this.truncationDirectory != null)
+				{
+					return this.truncationDirectory;
+				}
+				
+				// Defaults method is the single location to controls behavior.
+				final String nameTruncationDirectory = Defaults.defaultTruncationDirectory();
+
+				// note: relative root directory inside the current working directory
+				return nameTruncationDirectory == null
+					? null
+					: this.fileSystem.ensureRoot(nameTruncationDirectory)
+				;
+			}
+			
 			@Override
 			public StorageFileProvider createFileProvider()
 			{
 				return StorageFileProvider.New(
-					coalesce(this.baseDirectory         , Defaults.defaultStorageDirectory()                ),
-					coalesce(this.deletionDirectory     , Defaults.defaultDeletionDirectory()               ),
-					coalesce(this.truncationDirectory   , Defaults.defaultTruncationDirectory()             ),
+					this.getBaseDirectory(),
+					this.getDeletionDirectory(),
+					this.getTruncationDirectory(),
 					coalesce(this.channelDirectoryPrefix, Defaults.defaultChannelDirectoryPrefix()          ),
 					coalesce(this.storageFilePrefix     , Defaults.defaultStorageFilePrefix()               ),
 					coalesce(this.storageFileSuffix     , Defaults.defaultStorageFileSuffix()               ),
@@ -525,14 +595,10 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	 * @see StorageFileProvider.Builder
 	 * @see StorageFileProvider.Defaults
 	 */
-	public static StorageFileProvider New(final Path storageDirectory)
+	public static StorageFileProvider New(final ADirectory storageDirectory)
 	{
-		/* (07.05.2019 TM)NOTE: string-based paths are planned to be replaced by an abstraction of
-		 * storage files and directories that will replace any direct references to the file-system.
-		 * Since that work is not completed, yet, the string approach has been used as a working temporary solution.
-		 */
-		return Storage.FileProviderBuilder()
-			.setBaseDirectory(storageDirectory.toString())
+		return Storage.FileProviderBuilder(storageDirectory.fileSystem())
+			.setBaseDirectory(storageDirectory)
 			.createFileProvider()
 		;
 	}
@@ -552,9 +618,9 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	 * @param truncationDirectory may be null.
 	 */
 	public static StorageFileProvider.Default New(
-		final String                                       baseDirectory         ,
-		final String                                       deletionDirectory     ,
-		final String                                       truncationDirectory   ,
+		final ADirectory                                   baseDirectory         ,
+		final ADirectory                                   deletionDirectory     ,
+		final ADirectory                                   truncationDirectory   ,
 		final String                                       channelDirectoryPrefix,
 		final String                                       storageFilePrefix     ,
 		final String                                       storageFileSuffix     ,
@@ -588,10 +654,15 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		// instance fields //
 		////////////////////
 
+		private final AFileSystem fileSystem;
+		
+		private final ADirectory
+			baseDirectory      ,
+			deletionDirectory  ,
+			truncationDirectory
+		;
+
 		private final String
-			baseDirectory         ,
-			deletionDirectory     ,
-			truncationDirectory   ,
 			channelDirectoryPrefix,
 			storageFilePrefix     ,
 			storageFileSuffix     ,
@@ -610,7 +681,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		/////////////////
 
 		Default(
-			final String                                       baseDirectory         ,
+			final ADirectory                                   baseDirectory         ,
 			final String                                       channelDirectoryPrefix,
 			final String                                       storageFilePrefix     ,
 			final String                                       storageFileSuffix     ,
@@ -618,12 +689,13 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final String                                       transactionsFileSuffix,
 			final String                                       typeDictionaryFileName,
 			final String                                       lockFileName          ,
-			final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator    ,
-			final String                                       deletionDirectory     ,
-			final String                                       truncationDirectory
+			final PersistenceTypeDictionaryFileHandler.Creator dictFileHandlerCreator,
+			final ADirectory                                   deletionDirectory     ,
+			final ADirectory                                   truncationDirectory
 		)
 		{
 			super();
+			this.fileSystem             = baseDirectory.fileSystem();
 			this.baseDirectory          = baseDirectory         ;
 			this.channelDirectoryPrefix = channelDirectoryPrefix;
 			this.storageFilePrefix      = storageFilePrefix     ;
@@ -632,7 +704,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			this.transactionsFileSuffix = transactionsFileSuffix;
 			this.typeDictionaryFileName = typeDictionaryFileName;
 			this.lockFileName           = lockFileName          ;
-			this.fileHandlerCreator     = fileHandlerCreator    ;
+			this.fileHandlerCreator     = dictFileHandlerCreator;
 			this.deletionDirectory      = deletionDirectory     ;
 			this.truncationDirectory    = truncationDirectory   ;
 		}
@@ -646,20 +718,20 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		@Override
 		public String getStorageLocationIdentifier()
 		{
-			return XIO.Path(this.baseDirectory()).toAbsolutePath().toString();
+			return this.baseDirectory().toPathString();
 		}
 
-		public String baseDirectory()
+		public ADirectory baseDirectory()
 		{
 			return this.baseDirectory;
 		}
 
-		public String deletionDirectory()
+		public ADirectory deletionDirectory()
 		{
 			return this.deletionDirectory;
 		}
 
-		public String truncationDirectory()
+		public ADirectory truncationDirectory()
 		{
 			return this.truncationDirectory;
 		}
@@ -686,12 +758,12 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 		public final String provideStorageFileName(final int channelIndex, final long fileNumber)
 		{
-			return this.storageFilePrefix + channelIndex + '_' + fileNumber + this.storageFileSuffix;
+			return this.storageFilePrefix + channelIndex + '_' + fileNumber;
 		}
 
 		public final String provideTransactionFileName(final int channelIndex)
 		{
-			return this.transactionsFilePrefix + channelIndex + this.transactionsFileSuffix;
+			return this.transactionsFilePrefix + channelIndex;
 		}
 		
 		@Override
@@ -709,31 +781,38 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			return this.fileHandlerCreator.createTypeDictionaryIoHandler(file, writeListener);
 		}
 
-		public final Path provideChannelDirectory(final String parentDirectory, final int hashIndex)
+		public final ADirectory provideChannelDirectory(
+			final ADirectory parentDirectory,
+			final int        hashIndex
+		)
 		{
-			return XIO.unchecked.ensureDirectory(
-				XIO.Path(parentDirectory, this.channelDirectoryPrefix() + hashIndex)
-			);
+			final String channelDirectoryName = this.channelDirectoryPrefix() + hashIndex;
+			final ADirectory channelDirectory = parentDirectory.ensureDirectory(channelDirectoryName);
+			
+			channelDirectory.ensure();
+			
+			return channelDirectory;
 		}
 
-		public Path provideChannelDirectory(final int channelIndex)
+		public ADirectory provideChannelDirectory(final int channelIndex)
 		{
 			return this.provideChannelDirectory(this.baseDirectory(), channelIndex);
 		}
 		
 		@Override
-		public final ZStorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
+		public final StorageLiveDataFile provideDataFile(final int channelIndex, final long fileNumber)
 		{
-			final Path file = XIO.Path(
-				this.provideChannelDirectory(channelIndex),
-				this.provideStorageFileName(channelIndex, fileNumber)
-			);
+			final ADirectory channelDirectory = this.provideChannelDirectory(channelIndex);
+			final String     dataFileName     = this.provideStorageFileName(channelIndex, fileNumber);
+			final String     dataFileType     = this.storageFileSuffix;
+			final AFile      file             = channelDirectory.ensureFile(dataFileName, dataFileType);
 			
-			return ZStorageNumberedFile.New(channelIndex, fileNumber, file);
+			// (10.06.2020 TM)FIXME: priv#49: currently used by live and backup alike. Must be restructured ...
+			return StorageLiveDataFile.New(TODO, file, channelIndex, fileNumber);
 		}
 
 		@Override
-		public ZStorageNumberedFile provideTransactionsFile(final int channelIndex)
+		public StorageLiveTransactionsFile provideTransactionsFile(final int channelIndex)
 		{
 			final Path file = XIO.Path(
 				this.provideChannelDirectory(channelIndex),
@@ -744,7 +823,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		}
 		
 		@Override
-		public ZStorageLockedFile provideLockFile()
+		public StorageLockFile provideLockFile()
 		{
 			final Path lockFile = XIO.Path(this.baseDirectory(), this.lockFileName());
 			
@@ -752,7 +831,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		}
 
 		@Override
-		public ZStorageNumberedFile provideDeletionTargetFile(final ZStorageNumberedFile fileToBeDeleted)
+		public StorageBackupDataFile provideDeletionTargetFile(final StorageLiveDataFile fileToBeDeleted)
 		{
 			final String deletionDirectory = this.deletionDirectory();
 			if(deletionDirectory == null)
@@ -772,8 +851,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		}
 		
 		@Override
-		public ZStorageNumberedFile provideTruncationBackupTargetFile(
-			final ZStorageNumberedFile fileToBeTruncated,
+		public StorageBackupDataFile provideTruncationBackupTargetFile(
+			final StorageLiveDataFile fileToBeTruncated,
 			final long                newLength
 		)
 		{

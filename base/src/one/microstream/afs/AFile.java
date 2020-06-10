@@ -63,6 +63,11 @@ public interface AFile extends AItem
 		return this.fileSystem().ioHandler().size(this);
 	}
 	
+	public default boolean isEmpty()
+	{
+		return this.size() == 0;
+	}
+	
 	public boolean registerObserver(AFile.Observer observer);
 	
 	public boolean removeObserver(AFile.Observer observer);

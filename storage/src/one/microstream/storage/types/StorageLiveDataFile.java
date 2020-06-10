@@ -32,6 +32,13 @@ extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 	 * @return {@literal true} if the file containts exactely one live entity.
 	 */
 	public boolean hasSingleEntity();
+	
+	
+	public long importData(StorageFile source);
+	
+	public long importData(StorageFile source, long sourcePosition);
+	
+	public long importData(StorageFile source, long sourcePosition, long length);
 
 	
 	
@@ -322,6 +329,31 @@ extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 		)
 		{
 			this.parent.loadData(this, entity, length, cacheChange);
+		}
+		
+		@Override
+		public long importData(final StorageFile source)
+		{
+			return this.copyFrom(source);
+		}
+		
+		@Override
+		public long importData(
+			final StorageFile source        ,
+			final long        sourcePosition
+		)
+		{
+			return this.copyFrom(source, sourcePosition);
+		}
+		
+		@Override
+		public long importData(
+			final StorageFile source        ,
+			final long        sourcePosition,
+			final long        length
+		)
+		{
+			return this.copyFrom(source, sourcePosition,length);
 		}
 
 		@Override

@@ -1,5 +1,6 @@
 package one.microstream.storage.types;
 
+
 import static one.microstream.X.notNull;
 
 import java.io.IOException;
@@ -115,87 +116,9 @@ public interface StorageTransactionsEntries
 	
 	
 
-	public enum EntryType
-	{
-		FILE_CREATION  ("CREATION"  , Logic.TYPE_FILE_CREATION  , Logic.LENGTH_FILE_CREATION  ),
-		DATA_STORE     ("STORE"     , Logic.TYPE_STORE          , Logic.LENGTH_STORE          ),
-		DATA_TRANSFER  ("TRANSFER"  , Logic.TYPE_TRANSFER       , Logic.LENGTH_TRANSFER       ),
-		FILE_TRUNCATION("TRUNCATION", Logic.TYPE_FILE_TRUNCATION, Logic.LENGTH_FILE_TRUNCATION),
-		FILE_DELETION  ("DELETION"  , Logic.TYPE_FILE_DELETION  , Logic.LENGTH_FILE_DELETION  );
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-		
-		private final String typeName;
-		private final byte   code    ;
-		private final int    length  ;
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-		
-		private EntryType(final String typeName, final byte code, final int length)
-		{
-			this.typeName = typeName;
-			this.code     = code    ;
-			this.length   = length  ;
-		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-		
-		public byte code()
-		{
-			return this.code;
-		}
-		
-		public String typeName()
-		{
-			return this.typeName;
-		}
-		
-		public int length()
-		{
-			return this.length;
-		}
-		
-		@Override
-		public String toString()
-		{
-			return this.typeName + "(" + this.code + "," + this.length + ")";
-		}
-		
-		public static EntryType fromCode(final byte code)
-		{
-			switch(code)
-			{
-				case Logic.TYPE_FILE_CREATION  : return EntryType.FILE_CREATION  ;
-				case Logic.TYPE_STORE          : return EntryType.DATA_STORE     ;
-				case Logic.TYPE_TRANSFER       : return EntryType.DATA_TRANSFER  ;
-				case Logic.TYPE_FILE_TRUNCATION: return EntryType.FILE_TRUNCATION;
-				case Logic.TYPE_FILE_DELETION  : return EntryType.FILE_DELETION  ;
-				default:
-				{
-					// (02.09.2014 TM)EXCP: proper exception
-					throw new StorageException("Unknown transactions entry type: " + code);
-				}
-			}
-		}
-		
-	}
-	
-	
 	public interface Entry
 	{
-		public EntryType type();
+		public StorageTransactionsEntryType type();
 		
 		public long timestamp();
 
@@ -213,7 +136,7 @@ public interface StorageTransactionsEntries
 		
 		
 		public static Entry New(
-			final EntryType type            ,
+			final StorageTransactionsEntryType type            ,
 			final long      timestamp       ,
 			final long      fileLength      ,
 			final long      targetFileNumber,
@@ -238,7 +161,7 @@ public interface StorageTransactionsEntries
 			// instance fields //
 			////////////////////
 			
-			private final EntryType type            ;
+			private final StorageTransactionsEntryType type            ;
 			private final long      timestamp       ;
 			private final long      fileLength      ;
 			private final long      targetFileNumber;
@@ -254,7 +177,7 @@ public interface StorageTransactionsEntries
 			/////////////////
 			
 			Default(
-				final EntryType type            ,
+				final StorageTransactionsEntryType type            ,
 				final long      timestamp       ,
 				final long      fileLength      ,
 				final long      targetFileNumber,
@@ -278,7 +201,7 @@ public interface StorageTransactionsEntries
 			////////////
 
 			@Override
-			public final EntryType type()
+			public final StorageTransactionsEntryType type()
 			{
 				return this.type;
 			}
@@ -397,7 +320,7 @@ public interface StorageTransactionsEntries
 			}
 			
 			final Entry e = Entry.New(
-				EntryType.FILE_CREATION         ,
+				StorageTransactionsEntryType.FILE_CREATION         ,
 				Logic.getEntryTimestamp(address),
 				Logic.getFileLength    (address),
 				Logic.getFileNumber    (address),
@@ -428,7 +351,7 @@ public interface StorageTransactionsEntries
 			}
 			
 			final Entry e = Entry.New(
-				EntryType.DATA_STORE            ,
+				StorageTransactionsEntryType.DATA_STORE            ,
 				Logic.getEntryTimestamp(address),
 				Logic.getFileLength    (address),
 				this.currentFileNumber          ,
@@ -450,7 +373,7 @@ public interface StorageTransactionsEntries
 			}
 			
 			final Entry e = Entry.New(
-				EntryType.DATA_TRANSFER         ,
+				StorageTransactionsEntryType.DATA_TRANSFER         ,
 				Logic.getEntryTimestamp(address),
 				Logic.getFileLength    (address),
 				this.currentFileNumber          ,
@@ -470,7 +393,7 @@ public interface StorageTransactionsEntries
 			}
 			
 			final Entry e = Entry.New(
-				EntryType.FILE_TRUNCATION       ,
+				StorageTransactionsEntryType.FILE_TRUNCATION       ,
 				Logic.getEntryTimestamp(address),
 				Logic.getFileLength    (address),
 				Logic.getFileNumber    (address),
@@ -490,7 +413,7 @@ public interface StorageTransactionsEntries
 			}
 			
 			final Entry e = Entry.New(
-				EntryType.FILE_DELETION         ,
+				StorageTransactionsEntryType.FILE_DELETION         ,
 				Logic.getEntryTimestamp(address),
 				Logic.getFileLength    (address),
 				Logic.getFileNumber    (address),

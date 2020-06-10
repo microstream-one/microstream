@@ -31,7 +31,7 @@ public interface StorageTransactionsAnalysis
 
 	public ZStorageInventoryFile transactionsFile();
 
-	public XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries();
+	public XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries();
 
 	public default boolean isEmpty()
 	{
@@ -182,10 +182,32 @@ public interface StorageTransactionsAnalysis
 		{
 			return XMemory.get_byte(address + OFFSET_COMMON_LENGTH);
 		}
+		
+		public static final StorageTransactionsEntryType mapEntryType(final byte entryTypeKey)
+		{
+			switch(entryTypeKey)
+			{
+				case Logic.TYPE_FILE_CREATION  : return StorageTransactionsEntryType.FILE_CREATION  ;
+				case Logic.TYPE_STORE          : return StorageTransactionsEntryType.DATA_STORE     ;
+				case Logic.TYPE_TRANSFER       : return StorageTransactionsEntryType.DATA_TRANSFER  ;
+				case Logic.TYPE_FILE_TRUNCATION: return StorageTransactionsEntryType.FILE_TRUNCATION;
+				case Logic.TYPE_FILE_DELETION  : return StorageTransactionsEntryType.FILE_DELETION  ;
+				default:
+				{
+					// (02.09.2014 TM)EXCP: proper exception
+					throw new StorageException("Unknown transactions entry type: " + entryTypeKey);
+				}
+			}
+		}
 
 		public static byte getEntryType(final long address)
 		{
 			return XMemory.get_byte(address + OFFSET_COMMON_TYPE);
+		}
+		
+		public static StorageTransactionsEntryType resolveEntryType(final long address)
+		{
+			return mapEntryType(getEntryType(address));
 		}
 
 		public static long getEntryTimestamp(final long address)
@@ -562,7 +584,7 @@ public interface StorageTransactionsAnalysis
 			// reset as it is no longer valid for a new file (would mess up common part calculation otherwise)
 			this.lastFileLength = 0;
 
-			this.vs.add(StorageTransactionsEntries.EntryType.FILE_CREATION.typeName()).tab();
+			this.vs.add(StorageTransactionsEntryType.FILE_CREATION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -587,7 +609,7 @@ public interface StorageTransactionsAnalysis
 //			}
 			
 			this.vs
-			.add(StorageTransactionsEntries.EntryType.DATA_STORE.typeName()).tab();
+			.add(StorageTransactionsEntryType.DATA_STORE.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -612,7 +634,7 @@ public interface StorageTransactionsAnalysis
 //			}
 			
 			this.vs
-			.add(StorageTransactionsEntries.EntryType.DATA_TRANSFER.typeName()).tab();
+			.add(StorageTransactionsEntryType.DATA_TRANSFER.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -631,7 +653,7 @@ public interface StorageTransactionsAnalysis
 				return false;
 			}
 			this.vs
-			.add(StorageTransactionsEntries.EntryType.FILE_TRUNCATION.typeName()).tab();
+			.add(StorageTransactionsEntryType.FILE_TRUNCATION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -654,7 +676,7 @@ public interface StorageTransactionsAnalysis
 //			this.lastFileLength = 2 * Logic.getFileLength(address); // a little hack :)
 
 			this.vs
-			.add(StorageTransactionsEntries.EntryType.FILE_DELETION.typeName()).tab();
+			.add(StorageTransactionsEntryType.FILE_DELETION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.vs
 			.add('0').tab()
@@ -675,7 +697,7 @@ public interface StorageTransactionsAnalysis
 	
 	public final class EntryAggregator implements EntryIterator
 	{
-		private final EqHashTable<Long, StorageTransactionFileEntry.Default> files = EqHashTable.New();
+		private final EqHashTable<Long, StorageTransactionEntry.Default> files = EqHashTable.New();
 
 		private final int  hashIndex;
 
@@ -768,7 +790,7 @@ public interface StorageTransactionsAnalysis
 			}
 			this.files.add(
 				this.currentFileNumber,
-				new StorageTransactionFileEntry.Default(this.currentFileNumber, this.currentStoreLength)
+				new StorageTransactionEntry.Default(this.currentFileNumber, this.currentStoreLength)
 			);
 		}
 
@@ -882,7 +904,7 @@ public interface StorageTransactionsAnalysis
 			}
 
 			final long number = Logic.getFileNumber(address);
-			final StorageTransactionFileEntry.Default file = this.files.get(number);
+			final StorageTransactionEntry.Default file = this.files.get(number);
 			if(file == null)
 			{
 				// (03.09.2014 TM)EXCP: proper exception
@@ -919,7 +941,7 @@ public interface StorageTransactionsAnalysis
 		////////////////////
 		
 		private final ZStorageInventoryFile                                       transactionsFile                    ;
-		private final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries             ;
+		private final XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries             ;
 		private final long                                                       headFileLastConsistentStoreLength   ;
 		private final long                                                       headFileLastConsistentStoreTimestamp;
 		private final long                                                       headFileLatestLength                ;
@@ -933,7 +955,7 @@ public interface StorageTransactionsAnalysis
 
 		Default(
 			final ZStorageInventoryFile                                       transactionsFile                    ,
-			final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries             ,
+			final XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries             ,
 			final long                                                       headFileLastConsistentStoreLength   ,
 			final long                                                       headFileLastConsistentStoreTimestamp,
 			final long                                                       headFileLatestLength                ,
@@ -962,7 +984,7 @@ public interface StorageTransactionsAnalysis
 		}
 
 		@Override
-		public final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries()
+		public final XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries()
 		{
 			return this.transactionsFileEntries;
 		}

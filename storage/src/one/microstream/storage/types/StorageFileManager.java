@@ -475,9 +475,16 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.writeTransactionsEntryFileCreation(0, this.timestampProvider.currentNanoTimestamp(), fileNumber);
 		}
 
-		private void registerHeadFile(final ZStorageInventoryFile file)
+		private void registerHeadFile(final StorageDataInventoryFile iFile)
 		{
-			this.registerStorageHeadFile(StorageLiveDataFile.Default.New(this, file));
+			final StorageLiveDataFile.Default dataFile = StorageLiveDataFile.New(
+				this,
+				iFile.file(),
+				iFile.channelIndex(),
+				iFile.fileNumber()
+			);
+			
+			this.registerStorageHeadFile(dataFile);
 		}
 		
 		private void registerStorageHeadFile(final StorageLiveDataFile.Default storageFile)
@@ -772,7 +779,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			}
 
 			final XGettingSequence<ZStorageInventoryFile>    dataFiles = storageInventory.dataFiles().values();
-			final EqHashTable<Long, StorageTransactionFileEntry> fileEntries = EqHashTable.New(tFileAnalysis.transactionsFileEntries());
+			final EqHashTable<Long, StorageTransactionEntry> fileEntries = EqHashTable.New(tFileAnalysis.transactionsFileEntries());
 			final ZStorageInventoryFile                      lastFile    = dataFiles.peek();
 
 			for(final ZStorageInventoryFile file : dataFiles)
@@ -780,7 +787,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				final long actualFileLength = file.length();
 
 				// retrieve and remove (= mark as already handled) the corresponding file entry
-				final StorageTransactionFileEntry entryFile = fileEntries.removeFor(file.number());
+				final StorageTransactionEntry entryFile = fileEntries.removeFor(file.number());
 				if(entryFile == null)
 				{
 					// special case: empty file was created but not registered, can be safely ignored
@@ -821,7 +828,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			}
 
 			// check that all remaining file entries are deleted files. No non-deleted file may be missing!
-			for(final StorageTransactionFileEntry remainingFileEntry : fileEntries.values())
+			for(final StorageTransactionEntry remainingFileEntry : fileEntries.values())
 			{
 				if(remainingFileEntry.isDeleted())
 				{
@@ -1142,11 +1149,11 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		private void writeTransactionsEntryTransfer(
-			final ZStorageDataFile<?> sourceFile            ,
-			final long               sourcefileOffset      ,
-			final long               copyLength            ,
-			final long               timestamp             ,
-			final long               headNewFileTotalLength
+			final StorageLiveDataFile sourceFile            ,
+			final long                sourcefileOffset      ,
+			final long                copyLength            ,
+			final long                timestamp             ,
+			final long                headNewFileTotalLength
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " writing transfer entry "

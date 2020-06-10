@@ -78,6 +78,12 @@ public interface NioFileSystem extends AFileSystem
 		////////////
 		
 		@Override
+		public String deriveFileIdentifier(final String fileName, final String fileType)
+		{
+			return XIO.addFileSuffix(fileName, fileType);
+		}
+		
+		@Override
 		public String getFileName(final AFile file)
 		{
 			return XIO.getFilePrefix(file.identifier());
@@ -87,6 +93,27 @@ public interface NioFileSystem extends AFileSystem
 		public String getFileType(final AFile file)
 		{
 			return XIO.getFileSuffix(file.identifier());
+		}
+		
+		@Override
+		public AFile createFile(
+			final ADirectory parent    ,
+			final String     identifier,
+			final String     name      ,
+			final String     type
+		)
+		{
+			if(identifier != null)
+			{
+				return super.createFile(parent, identifier, name, type);
+			}
+			
+			if(type == null)
+			{
+				return this.createFile(parent, name);
+			}
+			
+			return this.createFile(parent, XIO.addFileSuffix(name, type));
 		}
 		
 		@Override
