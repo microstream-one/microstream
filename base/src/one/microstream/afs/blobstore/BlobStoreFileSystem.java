@@ -1,8 +1,6 @@
-package one.microstream.afs.azure.storage;
+package one.microstream.afs.blobstore;
 
 import static one.microstream.X.notNull;
-
-import com.azure.storage.blob.BlobServiceClient;
 
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFile;
@@ -14,9 +12,9 @@ import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.io.XIO;
 
-public interface AzureStorageFileSystem extends AFileSystem
+public interface BlobStoreFileSystem extends AFileSystem
 {
-	public static AzureStoragePath toPath(
+	public static BlobStorePath toPath(
 		final AItem item
 	)
 	{
@@ -25,45 +23,33 @@ public interface AzureStorageFileSystem extends AFileSystem
 		);
 	}
 
-	public static AzureStoragePath toPath(
+	public static BlobStorePath toPath(
 		final String... pathElements
 	)
 	{
-		return AzureStoragePath.New(
+		return BlobStorePath.New(
 			notNull(pathElements)
 		);
 	}
 
 
-	public static AzureStorageFileSystem New(
-		final String            defaultProtocol,
-		final BlobServiceClient serviceClient
+	public static BlobStoreFileSystem New(
+		final String             defaultProtocol,
+		final BlobStoreConnector connector
 	)
 	{
 		return New(
 			defaultProtocol,
-			AzureStorageConnector.New(serviceClient)
+			BlobStoreIoHandler.New(connector)
 		);
 	}
 
-
-	public static AzureStorageFileSystem New(
-		final String                defaultProtocol,
-		final AzureStorageConnector connector
+	public static BlobStoreFileSystem New(
+		final String             defaultProtocol,
+		final BlobStoreIoHandler ioHandler
 	)
 	{
-		return New(
-			defaultProtocol,
-			AzureStorageIoHandler.New(connector)
-		);
-	}
-
-	public static AzureStorageFileSystem New(
-		final String                defaultProtocol,
-		final AzureStorageIoHandler ioHandler
-	)
-	{
-		return new AzureStorageFileSystem.Default(
+		return new BlobStoreFileSystem.Default(
 			notNull(defaultProtocol),
 			notNull(ioHandler)
 		);
@@ -71,16 +57,16 @@ public interface AzureStorageFileSystem extends AFileSystem
 
 
 	public static class Default
-	extends AFileSystem.Abstract<AzureStoragePath, AzureStoragePath>
-	implements AzureStorageFileSystem
+	extends    AFileSystem.Abstract<BlobStorePath, BlobStorePath>
+	implements BlobStoreFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
 		protected Default(
-		final String                defaultProtocol,
-		final AzureStorageIoHandler ioHandler
+		final String             defaultProtocol,
+		final BlobStoreIoHandler ioHandler
 		)
 		{
 			super(
@@ -112,7 +98,7 @@ public interface AzureStorageFileSystem extends AFileSystem
 
 		@Override
 		public String[] resolveDirectoryToPath(
-			final AzureStoragePath directory
+			final BlobStorePath directory
 		)
 		{
 			return directory.pathElements();
@@ -120,26 +106,26 @@ public interface AzureStorageFileSystem extends AFileSystem
 
 		@Override
 		public String[] resolveFileToPath(
-			final AzureStoragePath file
+			final BlobStorePath file
 		)
 		{
 			return file.pathElements();
 		}
 
 		@Override
-		public AzureStoragePath resolve(
+		public BlobStorePath resolve(
 			final ADirectory directory
 		)
 		{
-			return AzureStorageFileSystem.toPath(directory);
+			return BlobStoreFileSystem.toPath(directory);
 		}
 
 		@Override
-		public AzureStoragePath resolve(
+		public BlobStorePath resolve(
 			final AFile file
 		)
 		{
-			return AzureStorageFileSystem.toPath(file);
+			return BlobStoreFileSystem.toPath(file);
 		}
 
 		@Override
@@ -150,7 +136,7 @@ public interface AzureStorageFileSystem extends AFileSystem
 		{
 			return XChars.assembleSeparated(
 				vs,
-				AzureStoragePath.SEPARATOR_CAHR,
+				BlobStorePath.SEPARATOR_CHAR,
 				item.toPath()
 			);
 		}
@@ -161,8 +147,8 @@ public interface AzureStorageFileSystem extends AFileSystem
 			final Object user
 		)
 		{
-			final AzureStoragePath path = this.resolve(file);
-			return AzureStorageReadableFile.New(file, user, path);
+			final BlobStorePath path = this.resolve(file);
+			return BlobStoreReadableFile.New(file, user, path);
 		}
 
 		@Override
@@ -171,8 +157,8 @@ public interface AzureStorageFileSystem extends AFileSystem
 			final Object user
 		)
 		{
-			final AzureStoragePath path = this.resolve(file);
-			return AzureStorageWritableFile.New(file, user, path);
+			final BlobStorePath path = this.resolve(file);
+			return BlobStoreWritableFile.New(file, user, path);
 		}
 
 		@Override
@@ -180,10 +166,10 @@ public interface AzureStorageFileSystem extends AFileSystem
 			final AWritableFile file
 		)
 		{
-			return AzureStorageReadableFile.New(
+			return BlobStoreReadableFile.New(
 				file,
 				file.user(),
-				((AzureStorageWritableFile)file).path()
+				((BlobStoreWritableFile)file).path()
 			);
 		}
 
@@ -192,10 +178,10 @@ public interface AzureStorageFileSystem extends AFileSystem
 			final AReadableFile file
 		)
 		{
-			return AzureStorageWritableFile.New(
+			return BlobStoreWritableFile.New(
 				file,
 				file.user(),
-				((AzureStorageWritableFile)file).path()
+				((BlobStoreWritableFile)file).path()
 			);
 		}
 

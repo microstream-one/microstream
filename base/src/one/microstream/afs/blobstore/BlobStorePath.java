@@ -1,4 +1,4 @@
-package one.microstream.afs.googlecloud.storage;
+package one.microstream.afs.blobstore;
 
 import static java.util.stream.Collectors.joining;
 
@@ -6,23 +6,23 @@ import java.util.Arrays;
 
 import one.microstream.collections.XArrays;
 
-public interface GcStoragePath
+public interface BlobStorePath
 {
-	final static String SEPARATOR      = "/";
-	final static char   SEPARATOR_CAHR = '/';
+	public final static String SEPARATOR      = "/";
+	public final static char   SEPARATOR_CHAR = '/';
 
 	public String[] pathElements();
 
-	public String bucket();
+	public String container();
 
 	public String identifier();
 
 	public String fullQualifiedName();
 
-	public GcStoragePath parentPath();
+	public BlobStorePath parentPath();
 
 
-	public static GcStoragePath New(
+	public static BlobStorePath New(
 		final String... pathElements
 	)
 	{
@@ -35,7 +35,7 @@ public interface GcStoragePath
 	}
 
 
-	public final static class Default implements GcStoragePath
+	public final static class Default implements BlobStorePath
 	{
 		private final String[] pathElements     ;
 		private       String   fullQualifiedName;
@@ -55,7 +55,7 @@ public interface GcStoragePath
 		}
 
 		@Override
-		public String bucket()
+		public String container()
 		{
 			return this.pathElements[0];
 		}
@@ -71,9 +71,11 @@ public interface GcStoragePath
 		{
 			if(this.fullQualifiedName == null)
 			{
-				this.fullQualifiedName = Arrays
-					.stream(this.pathElements)
-					.collect(joining(SEPARATOR))
+				this.fullQualifiedName = this.pathElements.length == 1
+					? this.pathElements[0]
+					: Arrays
+						.stream(this.pathElements)
+						.collect(joining(SEPARATOR))
 				;
 			}
 
@@ -81,10 +83,10 @@ public interface GcStoragePath
 		}
 
 		@Override
-		public GcStoragePath parentPath()
+		public BlobStorePath parentPath()
 		{
 			return this.pathElements.length > 1
-				? new GcStoragePath.Default(
+				? new BlobStorePath.Default(
 					XArrays.copyRange(this.pathElements, 0, this.pathElements.length - 1)
 				)
 				: null;

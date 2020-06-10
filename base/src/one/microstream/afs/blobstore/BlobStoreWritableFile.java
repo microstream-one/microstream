@@ -1,20 +1,20 @@
-package one.microstream.afs.googlecloud.storage;
+package one.microstream.afs.blobstore;
 
 import static one.microstream.X.notNull;
 
 import one.microstream.afs.AFile;
 import one.microstream.afs.AWritableFile;
 
-public interface GcStorageWritableFile extends GcStorageReadableFile, AWritableFile
+public interface BlobStoreWritableFile extends BlobStoreReadableFile, AWritableFile
 {
 
-    public static GcStorageWritableFile New(
+    public static BlobStoreWritableFile New(
     	final AFile         actual,
     	final Object        user  ,
-    	final GcStoragePath path
+    	final BlobStorePath path
     )
     {
-        return new GcStorageWritableFile.Default<>(
+        return new BlobStoreWritableFile.Default<>(
             notNull(actual),
             notNull(user)  ,
             notNull(path)
@@ -22,12 +22,12 @@ public interface GcStorageWritableFile extends GcStorageReadableFile, AWritableF
     }
 
 
-	public class Default<U> extends GcStorageReadableFile.Default<U> implements GcStorageWritableFile
+	public class Default<U> extends BlobStoreReadableFile.Default<U> implements BlobStoreWritableFile
     {
 		protected Default(
 			final AFile         actual,
 			final U             user  ,
-			final GcStoragePath path
+			final BlobStorePath path
 		)
 		{
 			super(actual, user, path);

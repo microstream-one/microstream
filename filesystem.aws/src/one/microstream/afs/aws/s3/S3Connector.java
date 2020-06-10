@@ -1,18 +1,12 @@
 package one.microstream.afs.aws.s3;
 
-import static java.util.stream.Collectors.toList;
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.OptionalLong;
-import java.util.function.LongFunction;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,104 +20,29 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
+import one.microstream.afs.blobstore.BlobStoreConnector;
+import one.microstream.afs.blobstore.BlobStorePath;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
-import one.microstream.reference.Reference;
 
 
-public interface S3Connector
+public interface S3Connector extends BlobStoreConnector
 {
-	public long fileSize(S3Path file);
-
-	public boolean directoryExists(S3Path directory);
-
-	public boolean fileExists(S3Path file);
-
-	public boolean createDirectory(S3Path directory);
-
-	public boolean createFile(S3Path file);
-
-	public boolean deleteFile(S3Path file);
-
-	public ByteBuffer readData(S3Path file, long offset, long length);
-
-	public long readData(S3Path file, ByteBuffer targetBuffer, long offset, long length);
-
-	public long writeData(S3Path file, Iterable<? extends ByteBuffer> sourceBuffers);
-
-	public void moveFile(S3Path sourceFile, S3Path targetFile);
-
-	public long copyFile(S3Path sourceFile, S3Path targetFile);
-
-	public long copyFile(S3Path sourceFile, S3Path targetFile, long offset, long length);
-
-
 
 	public static S3Connector New(
 		final AmazonS3 s3
 	)
 	{
-		return new Default(
+		return new S3Connector.Default(
 			notNull(s3)
 		);
 	}
 
 
-	public static class Default implements S3Connector
+	public static class Default
+	extends    BlobStoreConnector.Abstract<S3ObjectSummary>
+	implements S3Connector
 	{
-		private final static String  NUMBER_SUFFIX_SEPARATOR      = "."                    ;
-		private final static char    NUMBER_SUFFIX_SEPARATOR_CHAR = '.'                    ;
-		private final static Pattern NUMBER_SUFFIX_PATTERN        = Pattern.compile("\\d+");
-
-		private static String toDirectoryKey(
-			final S3Path path
-		)
-		{
-			// directories have a trailing /
-			return Arrays.stream(path.pathElements())
-				.skip(1L) // skip bucket
-				.collect(Collectors.joining(S3Path.SEPARATOR, "", S3Path.SEPARATOR))
-			;
-		}
-
-		private static String toFileKeyPrefix(
-			final S3Path path
-		)
-		{
-			return Arrays.stream(path.pathElements())
-				.skip(1L) // skip bucket
-				.collect(Collectors.joining(S3Path.SEPARATOR, "", NUMBER_SUFFIX_SEPARATOR))
-			;
-		}
-
-		private static boolean isFileKey(
-			final String prefix,
-			final String key
-		)
-		{
-			return isFile(key)
-				&& key.length() > prefix.length()
-				&& key.startsWith(prefix)
-				&& key.indexOf(S3Path.SEPARATOR_CAHR, prefix.length()) == -1
-				&& NUMBER_SUFFIX_PATTERN.matcher(key.substring(prefix.length())).matches()
-			;
-		}
-
-		private static boolean isDirectory(
-			final String key
-		)
-		{
-			return key.endsWith(S3Path.SEPARATOR);
-		}
-
-		private static boolean isFile(
-			final String key
-		)
-		{
-			return !isDirectory(key);
-		}
-
-
 		private final AmazonS3 s3;
 
 		Default(
@@ -134,94 +53,49 @@ public interface S3Connector
 			this.s3 = s3;
 		}
 
-		private Stream<S3ObjectSummary> fileObjectSummaries(
-			final S3Path file
+		@Override
+		protected String key(
+			final S3ObjectSummary blob
 		)
 		{
-			final String prefix = toFileKeyPrefix(file);
+			return blob.getKey();
+		}
+
+		@Override
+		protected long size(
+			final S3ObjectSummary blob
+		)
+		{
+			return blob.getSize();
+		}
+
+		@Override
+		protected Stream<S3ObjectSummary> blobs(final BlobStorePath file)
+		{
+			final String prefix = toBlobKeyPrefix(file);
 			return this.s3.listObjectsV2(
-				file.bucket(),
+				file.container(),
 				prefix
 			)
 			.getObjectSummaries().stream()
-			.filter(summary -> isFileKey(prefix, summary.getKey()))
-			.sorted((s1, s2) -> Long.compare(this.getFileNr(s1), this.getFileNr(s2)))
+			.filter(summary -> isBlobKey(prefix, summary.getKey()))
+			.sorted((s1, s2) -> Long.compare(this.getBlobNr(s1), this.getBlobNr(s2)))
 			;
 		}
 
-		private long internalReadData(
-			final S3Path                   file          ,
-			final LongFunction<ByteBuffer> bufferProvider,
-			final long                     offset        ,
-			final long                     length
-		)
-		{
-			final List<S3ObjectSummary>     objectSummaries = this.fileObjectSummaries(file).collect(toList());
-			final long                      sizeTotal       = objectSummaries.stream()
-				.mapToLong(S3ObjectSummary::getSize)
-				.sum()
-			;
-			final Iterator<S3ObjectSummary> iterator        = objectSummaries.iterator();
-		          long                      remaining       = length > 0L
-		        	  ? length
-		        	  : sizeTotal - offset
-		          ;
-		          long                      readTotal       = 0L;
-		          long                      skipped         = 0L;
-		          ByteBuffer                targetBuffer    = null;
-			while(remaining > 0 && iterator.hasNext())
-			{
-				final S3ObjectSummary objectSummary = iterator.next();
-				final long            objectSize    = objectSummary.getSize();
-				if(skipped + objectSize <= offset)
-				{
-					skipped += objectSize;
-					continue;
-				}
-
-				if(targetBuffer == null)
-				{
-					targetBuffer = bufferProvider.apply(remaining);
-				}
-
-				final long objectOffset;
-				if(skipped < offset)
-				{
-					objectOffset = offset - skipped;
-					skipped = offset;
-				}
-				else
-				{
-					objectOffset = 0L;
-				}
-				final long amount = Math.min(
-					objectSize - objectOffset,
-					remaining
-				);
-				this.readObjectData(
-					objectSummary,
-					targetBuffer,
-					objectOffset,
-					amount
-				);
-				remaining -= amount;
-				readTotal += amount;
-			}
-
-			return readTotal;
-		}
-
-		private void readObjectData(
-			final S3ObjectSummary objectSummary,
-			final ByteBuffer      targetBuffer ,
-			final long            offset       ,
+		@Override
+		protected void readBlobData(
+			final BlobStorePath   file        ,
+			final S3ObjectSummary blob        ,
+			final ByteBuffer      targetBuffer,
+			final long            offset      ,
 			final long            length
 		)
 		{
 			final S3Object            object      = this.s3.getObject(
 				new GetObjectRequest(
-					objectSummary.getBucketName(),
-					objectSummary.getKey()
+					blob.getBucketName(),
+					blob.getKey()
 				)
 				.withRange(offset, offset + length - 1)
 			);
@@ -261,82 +135,43 @@ public interface S3Connector
 			}
 		}
 
-		private long getFileNr(
-			final S3ObjectSummary objectSummary
-		)
-		{
-			final String key            = objectSummary.getKey();
-			final int    separatorIndex = key.lastIndexOf(NUMBER_SUFFIX_SEPARATOR_CHAR);
-			return Long.parseLong(key.substring(separatorIndex + 1));
-		}
-
-		@Override
-		public long fileSize(
-			final S3Path file
-		)
-		{
-			return this.fileObjectSummaries(file)
-				.mapToLong(S3ObjectSummary::getSize)
-				.sum()
-			;
-		}
-
 		@Override
 		public boolean directoryExists(
-			final S3Path directory
+			final BlobStorePath directory
 		)
 		{
 			return this.s3.doesObjectExist(
-				directory.bucket(),
-				toDirectoryKey(directory)
+				directory.container(),
+				toContainerKey(directory)
 			);
 		}
 
 		@Override
-		public boolean fileExists(
-			final S3Path file
-		)
-		{
-			return this.fileObjectSummaries(file)
-				.findAny()
-				.isPresent()
-			;
-		}
-
-		@Override
 		public boolean createDirectory(
-			final S3Path directory
+			final BlobStorePath directory
 		)
 		{
 			this.s3.putObject(
-				directory.bucket(),
-				toDirectoryKey(directory),
+				directory.container(),
+				toContainerKey(directory),
 				""
 			);
 			return true;
 		}
 
 		@Override
-		public boolean createFile(
-			final S3Path file
-		)
-		{
-			return true;
-		}
-
-		@Override
 		public boolean deleteFile(
-			final S3Path file
+			final BlobStorePath file
 		)
 		{
-			final List<KeyVersion> keys = this.fileObjectSummaries(file)
+			final List<KeyVersion> keys = this.blobs(file)
 				.map(summary -> new KeyVersion(summary.getKey()))
 				.collect(Collectors.toList())
 			;
 			if(keys.size() > 0)
 			{
 				this.s3.deleteObjects(
-					new DeleteObjectsRequest(file.bucket())
+					new DeleteObjectsRequest(file.container())
 						.withKeys(keys)
 				);
 
@@ -347,78 +182,16 @@ public interface S3Connector
 		}
 
 		@Override
-		public ByteBuffer readData(
-			final S3Path file  ,
-			final long   offset,
-			final long   length
-		)
-		{
-			final Reference   <ByteBuffer> bufferRef      = Reference.New(null);
-			final LongFunction<ByteBuffer> bufferProvider = capacity ->
-			{
-				final ByteBuffer buffer = ByteBuffer.allocateDirect(checkArrayRange(capacity));
-				bufferRef.set(buffer);
-				return buffer;
-			};
-
-			this.internalReadData(file, bufferProvider, offset, length);
-
-			final ByteBuffer buffer = bufferRef.get();
-			if(buffer != null)
-			{
-				buffer.flip();
-				return buffer;
-			}
-
-			return ByteBuffer.allocateDirect(0);
-		}
-
-		@Override
-		public long readData(
-			final S3Path     file        ,
-			final ByteBuffer targetBuffer,
-			final long       offset      ,
-			final long       length
-		)
-		{
-			final LongFunction<ByteBuffer> bufferProvider = capacity ->
-			{
-				if(targetBuffer.remaining() < capacity)
-				{
-					// (07.06.2020 FH)EXCP: proper exception
-					throw new IllegalArgumentException(
-						"Provided target buffer has not enough space remaining to load the content: "
-						+ targetBuffer.remaining() + " < " + capacity
-					);
-				}
-				return targetBuffer;
-			};
-			return this.internalReadData(file, bufferProvider, offset, length);
-		}
-
-		@Override
 		public long writeData(
-			final S3Path                         file         ,
+			final BlobStorePath                  file         ,
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			final OptionalLong maxFileNr = this.fileObjectSummaries(file)
-				.mapToLong(this::getFileNr)
-				.max()
-			;
-			final long nextFileNr = maxFileNr.isPresent()
-				? maxFileNr.getAsLong() + 1
-				: 0L
-			;
-
-			long totalLength = 0L;
-			for(final ByteBuffer buffer : sourceBuffers)
-			{
-				totalLength += buffer.remaining();
-			}
+			final long nextBlobNr = this.nextBlobNr(file);
+			final long totalSize  = this.totalSize(sourceBuffers);
 
 			final ObjectMetadata objectMetadata = new ObjectMetadata();
-			objectMetadata.setContentLength(totalLength);
+			objectMetadata.setContentLength(totalSize);
 
 			try(final BufferedInputStream inputStream = new BufferedInputStream(
 				ByteBufferInputStream.New(sourceBuffers),
@@ -426,8 +199,8 @@ public interface S3Connector
 			))
 			{
 				this.s3.putObject(
-					file.bucket(),
-					toFileKeyPrefix(file) + nextFileNr,
+					file.container(),
+					toBlobKeyPrefix(file) + nextBlobNr,
 					inputStream,
 					objectMetadata
 				);
@@ -437,50 +210,28 @@ public interface S3Connector
 				throw new IORuntimeException(e);
 			}
 
-			return totalLength;
-		}
-
-		@Override
-		public void moveFile(
-			final S3Path sourceFile,
-			final S3Path targetFile
-		)
-		{
-			this.copyFile(sourceFile, targetFile);
-			this.deleteFile(sourceFile);
+			return totalSize;
 		}
 
 		@Override
 		public long copyFile(
-			final S3Path sourceFile,
-			final S3Path targetFile
+			final BlobStorePath sourceFile,
+			final BlobStorePath targetFile
 		)
 		{
-			final String targetKeyPrefix = toFileKeyPrefix(targetFile);
-			this.fileObjectSummaries(sourceFile).forEach(sourceFileSummary ->
+			final String targetKeyPrefix = toBlobKeyPrefix(targetFile);
+			this.blobs(sourceFile).forEach(sourceFileSummary ->
 			{
-				final long fileNr = this.getFileNr(sourceFileSummary);
+				final long fileNr = this.getBlobNr(sourceFileSummary);
 				this.s3.copyObject(
-					 sourceFile.bucket(),
+					 sourceFile.container(),
 					 sourceFileSummary.getKey(),
-					 targetFile.bucket(),
+					 targetFile.container(),
 					 targetKeyPrefix + fileNr
 				);
 			});
 
 			return this.fileSize(targetFile);
-		}
-
-		@Override
-		public long copyFile(
-			final S3Path sourceFile,
-			final S3Path targetFile,
-			final long   offset    ,
-			final long   length
-		)
-		{
-			final ByteBuffer buffer = this.readData(sourceFile, offset, length);
-			return this.writeData(targetFile, Arrays.asList(buffer));
 		}
 
 	}
