@@ -211,6 +211,30 @@ public interface StorageFile
 			}
 		}
 		
+		protected final synchronized long copyFrom(
+			final StorageFile source
+		)
+		{
+			return source.copyTo(this.access);
+		}
+		
+		protected final synchronized long copyFrom(
+			final StorageFile source        ,
+			final long        sourcePosition
+		)
+		{
+			return source.copyTo(this.access, sourcePosition);
+		}
+		
+		protected final synchronized long copyFrom(
+			final StorageFile source        ,
+			final long        sourcePosition,
+			final long        length
+		)
+		{
+			return source.copyTo(this.access, sourcePosition, length);
+		}
+		
 		protected synchronized AReadableFile ensureReading()
 		{
 			return this.ensureWritable();

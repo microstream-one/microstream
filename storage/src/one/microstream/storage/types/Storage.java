@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import one.microstream.afs.AFileSystem;
 import one.microstream.persistence.types.Persistence;
 
 
@@ -160,6 +161,11 @@ public final class Storage
 	public static final StorageFileProvider.Builder<?> FileProviderBuilder()
 	{
 		return StorageFileProvider.Builder();
+	}
+	
+	public static final StorageFileProvider.Builder<?> FileProviderBuilder(final AFileSystem fileSystem)
+	{
+		return StorageFileProvider.Builder(fileSystem);
 	}
 
 	/**

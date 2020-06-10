@@ -130,7 +130,7 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryTransfer(
-		final ZStorageInventoryFile transactionFile,
+		final StorageTransactionsFile transactionFile,
 		final ByteBuffer[]             byteBuffers    ,
 		final ZStorageDataFile<?>       dataFile       ,
 		final long                     dataFileOffset ,

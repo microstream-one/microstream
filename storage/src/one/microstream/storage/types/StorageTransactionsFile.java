@@ -4,3 +4,4 @@ public interface StorageTransactionsFile extends StorageChannelFile
 {
 
 }
+

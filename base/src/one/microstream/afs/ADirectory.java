@@ -40,9 +40,24 @@ public interface ADirectory extends AItem, AResolving
 	
 	public <C extends Consumer<? super ADirectory.Observer>> C iterateObservers(C logic);
 	
+	public default boolean ensure()
+	{
+		return this.fileSystem().ioHandler().ensure(this);
+	}
+	
 	public ADirectory ensureDirectory(String identifier);
 	
-	public AFile ensureFile(String identifier);
+	public default AFile ensureFile(final String identifier)
+	{
+		return this.ensureFile(identifier, null, null);
+	}
+	
+	public default AFile ensureFile(final String name, final String type)
+	{
+		return this.ensureFile(null, name, type);
+	}
+	
+	public AFile ensureFile(String identifier, String name, String type);
 		
 	public AItem getItem(String identifier);
 		
@@ -302,15 +317,20 @@ public interface ADirectory extends AItem, AResolving
 		}
 		
 		@Override
-		public final AFile ensureFile(final String identifier)
+		public final AFile ensureFile(final String identifier, final String name, final String type)
 		{
+			final String effIdentifier = identifier != null
+				? identifier
+				: this.fileSystem().deriveFileIdentifier(name, type)
+			;
+			
 			synchronized(this.mutex())
 			{
-				AFile file = this.files.get(identifier);
+				AFile file = this.files.get(effIdentifier);
 				if(file == null)
 				{
-					file = this.fileSystem().creator().createFile(this, identifier);
-					this.register(identifier, file);
+					file = this.fileSystem().creator().createFile(this, effIdentifier, name, type);
+					this.register(effIdentifier, file);
 				}
 				
 				return file;
