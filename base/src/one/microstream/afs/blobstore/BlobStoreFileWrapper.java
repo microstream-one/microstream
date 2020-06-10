@@ -1,11 +1,11 @@
-package one.microstream.afs.azure.storage;
+package one.microstream.afs.blobstore;
 
 import static one.microstream.X.notNull;
 
 import one.microstream.afs.AFile;
 import one.microstream.chars.XChars;
 
-public interface AzureStorageFileWrapper extends AFile.Wrapper, AzureStorageItemWrapper
+public interface BlobStoreFileWrapper extends AFile.Wrapper, BlobStoreItemWrapper
 {
 	public boolean retire();
 
@@ -19,17 +19,17 @@ public interface AzureStorageFileWrapper extends AFile.Wrapper, AzureStorageItem
 
 	public boolean closeHandle();
 
-	public AzureStorageFileWrapper ensureOpenHandle();
+	public BlobStoreFileWrapper ensureOpenHandle();
 
 
-	public abstract class Abstract<U> extends AFile.Wrapper.Abstract<U> implements AzureStorageFileWrapper
+	public abstract class Abstract<U> extends AFile.Wrapper.Abstract<U> implements BlobStoreFileWrapper
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		private AzureStoragePath  path              ;
-		private boolean           handleOpen = false;
+		private BlobStorePath  path              ;
+		private boolean        handleOpen = false;
 
 
 
@@ -38,9 +38,9 @@ public interface AzureStorageFileWrapper extends AFile.Wrapper, AzureStorageItem
 		/////////////////
 
         protected Abstract(
-			final AFile            actual ,
-			final U                user   ,
-			final AzureStoragePath path
+			final AFile         actual,
+			final U             user  ,
+			final BlobStorePath path
         )
 		{
 			super(actual, user);
@@ -54,7 +54,7 @@ public interface AzureStorageFileWrapper extends AFile.Wrapper, AzureStorageItem
 		////////////
 
 		@Override
-		public AzureStoragePath path()
+		public BlobStorePath path()
 		{
 			return this.path;
 		}
@@ -130,7 +130,7 @@ public interface AzureStorageFileWrapper extends AFile.Wrapper, AzureStorageItem
 		}
 
 		@Override
-		public AzureStorageFileWrapper ensureOpenHandle()
+		public BlobStoreFileWrapper ensureOpenHandle()
 		{
 			this.validateIsNotRetired();
 			this.openHandle();

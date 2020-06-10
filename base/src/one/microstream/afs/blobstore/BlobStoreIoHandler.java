@@ -1,4 +1,4 @@
-package one.microstream.afs.azure.storage;
+package one.microstream.afs.blobstore;
 
 import static one.microstream.X.notNull;
 
@@ -10,17 +10,17 @@ import one.microstream.afs.AIoHandler;
 import one.microstream.afs.AWritableFile;
 import one.microstream.io.BufferProvider;
 
-public interface AzureStorageIoHandler extends AIoHandler
+public interface BlobStoreIoHandler extends AIoHandler
 {
-	public AzureStorageConnector connector();
+	public BlobStoreConnector connector();
 
 
 
-	public static AzureStorageIoHandler New(
-		final AzureStorageConnector connector
+	public static BlobStoreIoHandler New(
+		final BlobStoreConnector connector
 	)
 	{
-		return new AzureStorageIoHandler.Default(
+		return new BlobStoreIoHandler.Default(
 			notNull(connector)
 		);
 	}
@@ -28,61 +28,61 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 	public static final class Default
 	extends AIoHandler.Abstract<
-		AzureStoragePath,
-		AzureStoragePath,
-		AzureStorageItemWrapper,
-		AzureStorageFileWrapper,
+		BlobStorePath,
+		BlobStorePath,
+		BlobStoreItemWrapper,
+		BlobStoreFileWrapper,
 		ADirectory,
-		AzureStorageReadableFile,
-		AzureStorageWritableFile
+		BlobStoreReadableFile,
+		BlobStoreWritableFile
 	>
-	implements AzureStorageIoHandler
+	implements BlobStoreIoHandler
 	{
-		private final AzureStorageConnector connector;
+		private final BlobStoreConnector connector;
 
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		Default(final AzureStorageConnector connector)
+		Default(final BlobStoreConnector connector)
 		{
 			super(
-				AzureStorageItemWrapper .class,
-				AzureStorageFileWrapper .class,
-				ADirectory              .class,
-				AzureStorageReadableFile.class,
-				AzureStorageWritableFile.class
+				BlobStoreItemWrapper .class,
+				BlobStoreFileWrapper .class,
+				ADirectory           .class,
+				BlobStoreReadableFile.class,
+				BlobStoreWritableFile.class
 			);
 
 			this.connector = connector;
 		}
 
 		@Override
-		public AzureStorageConnector connector()
+		public BlobStoreConnector connector()
 		{
 			return this.connector;
 		}
 
 		@Override
-		protected AzureStoragePath toSubjectFile(
+		protected BlobStorePath toSubjectFile(
 			final AFile file
 		)
 		{
-			return AzureStorageFileSystem.toPath(file);
+			return BlobStoreFileSystem.toPath(file);
 		}
 
 		@Override
-		protected AzureStoragePath toSubjectDirectory(
+		protected BlobStorePath toSubjectDirectory(
 			final ADirectory directory
 		)
 		{
-			return AzureStorageFileSystem.toPath(directory);
+			return BlobStoreFileSystem.toPath(directory);
 		}
 
 		@Override
 		protected long subjectFileSize(
-			final AzureStoragePath file
+			final BlobStorePath file
 		)
 		{
 			return this.connector.fileSize(file);
@@ -90,7 +90,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected boolean subjectFileExists(
-			final AzureStoragePath file
+			final BlobStorePath file
 		)
 		{
 			return this.connector.fileExists(file);
@@ -98,7 +98,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected boolean subjectDirectoryExists(
-			final AzureStoragePath directory
+			final BlobStorePath directory
 		)
 		{
 			return this.connector.directoryExists(directory);
@@ -106,7 +106,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificSize(
-			final AzureStorageFileWrapper file
+			final BlobStoreFileWrapper file
 		)
 		{
 			return this.subjectFileSize(file.path());
@@ -114,7 +114,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected boolean specificExists(
-			final AzureStorageFileWrapper file
+			final BlobStoreFileWrapper file
 		)
 		{
 			return this.subjectFileExists(file.path());
@@ -132,7 +132,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected boolean specificOpenReading(
-			final AzureStorageReadableFile file
+			final BlobStoreReadableFile file
 		)
 		{
 			return file.openHandle();
@@ -140,7 +140,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected boolean specificIsOpen(
-			final AzureStorageReadableFile file
+			final BlobStoreReadableFile file
 		)
 		{
 			return file.isHandleOpen();
@@ -148,7 +148,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected boolean specificClose(
-			final AzureStorageReadableFile file
+			final BlobStoreReadableFile file
 		)
 		{
 			return file.closeHandle();
@@ -156,7 +156,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected boolean specificOpenWriting(
-			final AzureStorageWritableFile file
+			final BlobStoreWritableFile file
 		)
 		{
 			return file.openHandle();
@@ -174,7 +174,7 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected void specificCreate(
-			final AzureStorageWritableFile file
+			final BlobStoreWritableFile file
 		)
 		{
 			this.connector.createFile(
@@ -184,21 +184,21 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected boolean specificDeleteFile(
-			final AzureStorageWritableFile file
+			final BlobStoreWritableFile file
 		)
 		{
 			return this.connector.deleteFile(
-				AzureStorageFileSystem.toPath(file)
+				BlobStoreFileSystem.toPath(file)
 			);
 		}
 
 		@Override
 		protected ByteBuffer specificReadBytes(
-			final AzureStorageReadableFile sourceFile
+			final BlobStoreReadableFile sourceFile
 		)
 		{
 			return this.connector.readData(
-				AzureStorageFileSystem.toPath(sourceFile.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				0,
 				-1
 			);
@@ -206,12 +206,12 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected ByteBuffer specificReadBytes(
-			final AzureStorageReadableFile sourceFile,
-			final long                     position
+			final BlobStoreReadableFile sourceFile,
+			final long                  position
 		)
 		{
 			return this.connector.readData(
-				AzureStorageFileSystem.toPath(sourceFile.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				position,
 				-1
 			);
@@ -219,13 +219,13 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected ByteBuffer specificReadBytes(
-			final AzureStorageReadableFile sourceFile,
-			final long                     position  ,
-			final long                     length
+			final BlobStoreReadableFile sourceFile,
+			final long                  position  ,
+			final long                  length
 		)
 		{
 			return this.connector.readData(
-				AzureStorageFileSystem.toPath(sourceFile.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				position,
 				length
 			);
@@ -233,12 +233,12 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificReadBytes(
-			final AzureStorageReadableFile sourceFile  ,
-			final ByteBuffer               targetBuffer
+			final BlobStoreReadableFile sourceFile  ,
+			final ByteBuffer            targetBuffer
 		)
 		{
 			return this.connector.readData(
-				AzureStorageFileSystem.toPath(sourceFile.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				targetBuffer,
 				0,
 				-1
@@ -247,13 +247,13 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificReadBytes(
-			final AzureStorageReadableFile sourceFile  ,
-			final ByteBuffer               targetBuffer,
-			final long                     position
+			final BlobStoreReadableFile sourceFile  ,
+			final ByteBuffer            targetBuffer,
+			final long                  position
 		)
 		{
 			return this.connector.readData(
-				AzureStorageFileSystem.toPath(sourceFile.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				targetBuffer,
 				position,
 				-1
@@ -262,14 +262,14 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificReadBytes(
-			final AzureStorageReadableFile sourceFile  ,
-			final ByteBuffer               targetBuffer,
-			final long                     position    ,
-			final long                     length
+			final BlobStoreReadableFile sourceFile  ,
+			final ByteBuffer            targetBuffer,
+			final long                  position    ,
+			final long                  length
 		)
 		{
 			return this.connector.readData(
-				AzureStorageFileSystem.toPath(sourceFile.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				targetBuffer,
 				position,
 				length
@@ -278,8 +278,8 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificReadBytes(
-			final AzureStorageReadableFile sourceFile    ,
-			final BufferProvider           bufferProvider
+			final BlobStoreReadableFile sourceFile    ,
+			final BufferProvider        bufferProvider
 		)
 		{
 			bufferProvider.initializeOperation();
@@ -295,9 +295,9 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificReadBytes(
-			final AzureStorageReadableFile sourceFile    ,
-			final BufferProvider           bufferProvider,
-			final long                     position
+			final BlobStoreReadableFile sourceFile    ,
+			final BufferProvider        bufferProvider,
+			final long                  position
 		)
 		{
 			bufferProvider.initializeOperation();
@@ -313,10 +313,10 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificReadBytes(
-			final AzureStorageReadableFile sourceFile    ,
-			final BufferProvider           bufferProvider,
-			final long                     position      ,
-			final long                     length
+			final BlobStoreReadableFile sourceFile    ,
+			final BufferProvider        bufferProvider,
+			final long                  position      ,
+			final long                  length
 		)
 		{
 			bufferProvider.initializeOperation();
@@ -332,55 +332,55 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificWriteBytes(
-			final AzureStorageWritableFile       targetFile   ,
+			final BlobStoreWritableFile          targetFile   ,
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
 			this.openWriting(targetFile);
 
 			return this.connector.writeData(
-				AzureStorageFileSystem.toPath(targetFile.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(targetFile.ensureOpenHandle()),
 				sourceBuffers
 			);
 		}
 
 		@Override
 		protected void specificMoveFile(
-			final AzureStorageWritableFile sourceFile,
-			final AWritableFile            targetFile
+			final BlobStoreWritableFile sourceFile,
+			final AWritableFile         targetFile
 		)
 		{
-			final AzureStorageWritableFile handlableTarget = this.castWritableFile(targetFile);
+			final BlobStoreWritableFile handlableTarget = this.castWritableFile(targetFile);
 			this.connector.moveFile(
-				AzureStorageFileSystem.toPath(sourceFile.ensureOpenHandle()),
-				AzureStorageFileSystem.toPath(handlableTarget.ensureOpenHandle())
+				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(handlableTarget.ensureOpenHandle())
 			);
 		}
 
 		@Override
 		protected long specificCopyTo(
-			final AzureStorageReadableFile sourceFile,
-			final AWritableFile            targetFile
+			final BlobStoreReadableFile sourceFile,
+			final AWritableFile         targetFile
 		)
 		{
-			final AzureStorageWritableFile handlableTarget = this.castWritableFile(targetFile);
+			final BlobStoreWritableFile handlableTarget = this.castWritableFile(targetFile);
 			return this.connector.copyFile(
-				AzureStorageFileSystem.toPath(sourceFile.ensureOpenHandle()),
-				AzureStorageFileSystem.toPath(handlableTarget.ensureOpenHandle())
+				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(handlableTarget.ensureOpenHandle())
 			);
 		}
 
 		@Override
 		protected long specificCopyTo(
-			final AzureStorageReadableFile sourceFile    ,
-			final long                     sourcePosition,
-			final AWritableFile            targetFile
+			final BlobStoreReadableFile sourceFile    ,
+			final long                  sourcePosition,
+			final AWritableFile         targetFile
 		)
 		{
-			final AzureStorageWritableFile handlableTarget = this.castWritableFile(targetFile);
+			final BlobStoreWritableFile handlableTarget = this.castWritableFile(targetFile);
 			return this.connector.copyFile(
-				AzureStorageFileSystem.toPath(sourceFile.ensureOpenHandle()),
-				AzureStorageFileSystem.toPath(handlableTarget.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(handlableTarget.ensureOpenHandle()),
 				sourcePosition,
 				-1L
 			);
@@ -388,16 +388,16 @@ public interface AzureStorageIoHandler extends AIoHandler
 
 		@Override
 		protected long specificCopyTo(
-			final AzureStorageReadableFile sourceFile    ,
-			final long                     sourcePosition,
-			final long                     length        ,
-			final AWritableFile            targetFile
+			final BlobStoreReadableFile sourceFile    ,
+			final long                  sourcePosition,
+			final long                  length        ,
+			final AWritableFile         targetFile
 		)
 		{
-			final AzureStorageWritableFile handlableTarget = this.castWritableFile(targetFile);
+			final BlobStoreWritableFile handlableTarget = this.castWritableFile(targetFile);
 			return this.connector.copyFile(
-				AzureStorageFileSystem.toPath(sourceFile.ensureOpenHandle()),
-				AzureStorageFileSystem.toPath(handlableTarget.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(handlableTarget.ensureOpenHandle()),
 				sourcePosition,
 				length
 			);
