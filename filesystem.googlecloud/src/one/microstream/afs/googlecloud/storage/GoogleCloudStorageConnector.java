@@ -152,7 +152,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 		}
 
 		@Override
-		public boolean directoryExists(
+		protected boolean internalDirectoryExists(
 			final BlobStorePath directory
 		)
 		{
@@ -182,7 +182,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 		}
 
 		@Override
-		public boolean deleteFile(
+		protected boolean internalDeleteFile(
 			final BlobStorePath file
 		)
 		{
@@ -201,7 +201,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 		}
 
 		@Override
-		public long writeData(
+		protected long internalWriteData(
 			final BlobStorePath                  file         ,
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
@@ -234,7 +234,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 		}
 
 		@Override
-		public long copyFile(
+		protected long internalCopyFile(
 			final BlobStorePath sourceFile,
 			final BlobStorePath targetFile
 		)
