@@ -6,7 +6,7 @@ import one.microstream.afs.AFile;
 import one.microstream.collections.XArrays;
 import one.microstream.storage.exceptions.StorageException;
 
-public interface StorageLiveFile<S extends StorageLiveFile<S>> extends StorageFile
+public interface StorageLiveFile<S extends StorageLiveFile<S>> extends StorageClosableFile
 {
 	public boolean hasUsers();
 	
@@ -201,7 +201,7 @@ public interface StorageLiveFile<S extends StorageLiveFile<S>> extends StorageFi
 					closingAction.accept(this.$());
 				}
 				
-				this.internalClose();
+				this.close();
 				return true;
 			}
 			
