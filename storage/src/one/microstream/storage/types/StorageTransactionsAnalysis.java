@@ -29,7 +29,7 @@ public interface StorageTransactionsAnalysis
 
 	public long headFileLatestTimestamp();
 
-	public ZStorageInventoryFile transactionsFile();
+	public StorageTransactionsFile transactionsFile();
 
 	public XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries();
 
@@ -915,7 +915,7 @@ public interface StorageTransactionsAnalysis
 			return true;
 		}
 
-		final StorageTransactionsAnalysis yield(final ZStorageInventoryFile transactionsFile)
+		final StorageTransactionsAnalysis yield(final StorageTransactionsFile transactionsFile)
 		{
 			// register latest file
 			this.registerCurrentFile();
@@ -940,12 +940,12 @@ public interface StorageTransactionsAnalysis
 		// instance fields //
 		////////////////////
 		
-		private final ZStorageInventoryFile                                       transactionsFile                    ;
+		private final StorageTransactionsFile                                transactionsFile                    ;
 		private final XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries             ;
-		private final long                                                       headFileLastConsistentStoreLength   ;
-		private final long                                                       headFileLastConsistentStoreTimestamp;
-		private final long                                                       headFileLatestLength                ;
-		private final long                                                       headFileLatestTimestamp             ;
+		private final long                                                   headFileLastConsistentStoreLength   ;
+		private final long                                                   headFileLastConsistentStoreTimestamp;
+		private final long                                                   headFileLatestLength                ;
+		private final long                                                   headFileLatestTimestamp             ;
 
 
 		
@@ -954,12 +954,12 @@ public interface StorageTransactionsAnalysis
 		/////////////////
 
 		Default(
-			final ZStorageInventoryFile                                       transactionsFile                    ,
+			final StorageTransactionsFile                                transactionsFile                    ,
 			final XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries             ,
-			final long                                                       headFileLastConsistentStoreLength   ,
-			final long                                                       headFileLastConsistentStoreTimestamp,
-			final long                                                       headFileLatestLength                ,
-			final long                                                       headFileLatestTimestamp
+			final long                                                   headFileLastConsistentStoreLength   ,
+			final long                                                   headFileLastConsistentStoreTimestamp,
+			final long                                                   headFileLatestLength                ,
+			final long                                                   headFileLatestTimestamp
 		)
 		{
 			super();
@@ -978,7 +978,7 @@ public interface StorageTransactionsAnalysis
 		////////////
 
 		@Override
-		public final ZStorageInventoryFile transactionsFile()
+		public final StorageTransactionsFile transactionsFile()
 		{
 			return this.transactionsFile;
 		}

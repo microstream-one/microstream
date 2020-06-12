@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFileSystem;
 import one.microstream.persistence.types.Persistence;
 
@@ -145,6 +146,14 @@ public final class Storage
 	 * @see StorageFileProvider.Defaults
 	 */
 	public static final StorageFileProvider FileProvider(final Path storageDirectory)
+	{
+//		return StorageFileProvider.New(NioFileSystem.New().);
+		
+		// (12.06.2020 TM)FIXME: priv#49: Storage#FileProvider() and convenient Path conversion way.
+		throw new one.microstream.meta.NotImplementedYetError();
+	}
+	
+	public static final StorageFileProvider FileProvider(final ADirectory storageDirectory)
 	{
 		return StorageFileProvider.New(storageDirectory);
 	}

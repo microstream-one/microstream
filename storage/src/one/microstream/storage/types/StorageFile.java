@@ -16,6 +16,8 @@ public interface StorageFile
 	public AFile file();
 	
 	public long size();
+
+	public boolean exists();
 	
 	
 	public long readBytes(final ByteBuffer targetBuffer);
@@ -39,7 +41,7 @@ public interface StorageFile
 	public long copyTo(AWritableFile target, long sourcePosition, long length);
 	
 	
-	
+		
 	public static VarString assembleNameAndSize(final VarString vs, final StorageFile file)
 	{
 		return vs.add(file.file().identifier() + "[" + file.file().size() + "]");
@@ -85,6 +87,12 @@ public interface StorageFile
 			this.internalOpen();
 			
 			return this.access.size();
+		}
+		
+		@Override
+		public final synchronized boolean exists()
+		{
+			return this.file.exists();
 		}
 		
 		@Override
@@ -247,6 +255,11 @@ public interface StorageFile
 			return this.access;
 		}
 		
+		protected synchronized boolean internalIsOpen()
+		{
+			return this.access != null && this.access.isOpen();
+		}
+
 		protected synchronized boolean internalClose()
 		{
 			if(this.access == null)

@@ -10,11 +10,6 @@ import one.microstream.storage.exceptions.StorageException;
 public interface StorageLiveDataFile
 extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 {
-	@Override
-	public long size();
-	
-	public void close();
-	
 	public long totalLength();
 
 	public long dataLength();
@@ -240,9 +235,15 @@ extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 		////////////
 		
 		@Override
-		public final synchronized void close()
+		public final synchronized boolean isOpen()
 		{
-			this.internalClose();
+			return this.internalIsOpen();
+		}
+		
+		@Override
+		public final synchronized boolean close()
+		{
+			return this.internalClose();
 		}
 
 		@Override
