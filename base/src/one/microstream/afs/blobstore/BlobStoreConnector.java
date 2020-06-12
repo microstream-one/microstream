@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.OptionalLong;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.LongFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -16,7 +17,7 @@ import java.util.stream.Stream;
 import one.microstream.reference.Reference;
 
 
-public interface BlobStoreConnector
+public interface BlobStoreConnector extends AutoCloseable
 {
 	public long fileSize(BlobStorePath file);
 
@@ -42,6 +43,8 @@ public interface BlobStoreConnector
 
 	public long copyFile(BlobStorePath sourceFile, BlobStorePath targetFile, long offset, long length);
 
+	@Override
+	public void close();
 
 
 	/**
@@ -104,6 +107,8 @@ public interface BlobStoreConnector
 		}
 
 
+		private final AtomicBoolean open = new AtomicBoolean(true);
+
 		protected Abstract()
 		{
 			super();
@@ -115,6 +120,8 @@ public interface BlobStoreConnector
 
 		protected abstract Stream<B> blobs(BlobStorePath file);
 
+		protected abstract boolean internalDeleteFile(BlobStorePath file);
+
 		protected abstract void readBlobData(
 			BlobStorePath file        ,
 			B             blob        ,
@@ -122,6 +129,149 @@ public interface BlobStoreConnector
 			long          offset      ,
 			long          length
 		);
+
+		protected abstract long internalWriteData(
+			BlobStorePath                  file         ,
+			Iterable<? extends ByteBuffer> sourceBuffers
+		);
+
+		protected abstract long internalCopyFile(
+			final BlobStorePath sourceFile,
+			final BlobStorePath targetFile
+		);
+
+		protected long internalFileSize(
+			final BlobStorePath file
+		)
+		{
+			return this.blobs(file)
+				.mapToLong(this::size)
+				.sum()
+			;
+		}
+
+		protected boolean internalDirectoryExists(
+			final BlobStorePath directory
+		)
+		{
+			return true;
+		}
+
+		protected boolean internalFileExists(
+			final BlobStorePath file
+		)
+		{
+			return this.blobs(file)
+				.findAny()
+				.isPresent()
+			;
+		}
+
+		protected boolean internalCreateDirectory(
+			final BlobStorePath directory
+		)
+		{
+			// 'directories' are just parent paths of existing blobs
+
+			return true;
+		}
+
+		protected boolean internalCreateFile(
+			final BlobStorePath file
+		)
+		{
+			// 'files' consist of blobs, they are created with the first write
+
+			return true;
+		}
+
+		protected ByteBuffer internalReadData(
+			final BlobStorePath file  ,
+			final long          offset,
+			final long          length
+		)
+		{
+			final Reference   <ByteBuffer> bufferRef      = Reference.New(null);
+			final LongFunction<ByteBuffer> bufferProvider = capacity ->
+			{
+				final ByteBuffer buffer = ByteBuffer.allocateDirect(checkArrayRange(capacity));
+				bufferRef.set(buffer);
+				return buffer;
+			};
+
+			this.internalReadData(file, bufferProvider, offset, length);
+
+			final ByteBuffer buffer = bufferRef.get();
+			if(buffer != null)
+			{
+				buffer.flip();
+				return buffer;
+			}
+
+			return ByteBuffer.allocateDirect(0);
+		}
+
+		protected long internalReadData(
+			final BlobStorePath file        ,
+			final ByteBuffer    targetBuffer,
+			final long          offset      ,
+			final long          length
+		)
+		{
+			final LongFunction<ByteBuffer> bufferProvider = capacity ->
+			{
+				if(targetBuffer.remaining() < capacity)
+				{
+					// (10.06.2020 FH)EXCP: proper exception
+					throw new IllegalArgumentException(
+						"Provided target buffer has not enough space remaining to load the content: "
+						+ targetBuffer.remaining() + " < " + capacity
+					);
+				}
+				return targetBuffer;
+			};
+			return this.internalReadData(file, bufferProvider, offset, length);
+		}
+
+		protected void internalMoveFile(
+			final BlobStorePath sourceFile,
+			final BlobStorePath targetFile
+		)
+		{
+			this.internalCopyFile(sourceFile, targetFile);
+			this.internalDeleteFile(sourceFile);
+		}
+
+		protected long internalCopyFile(
+			final BlobStorePath sourceFile,
+			final BlobStorePath targetFile,
+			final long          offset    ,
+			final long          length
+		)
+		{
+			if(offset == 0
+			&& length > 0
+			&& length == this.fileSize(sourceFile))
+			{
+				return this.copyFile(sourceFile, targetFile);
+			}
+
+			final ByteBuffer buffer = this.readData(sourceFile, offset, length);
+			return this.writeData(targetFile, Arrays.asList(buffer));
+		}
+
+		protected final void ensureOpen()
+		{
+			if(!this.open.get())
+			{
+				throw new IllegalStateException("Connector is closed");
+			}
+		}
+
+		protected void internalClose()
+		{
+			// no-op by default
+		}
 
 		protected long getBlobNr(
 			final B blob
@@ -222,122 +372,143 @@ public interface BlobStoreConnector
 		}
 
 		@Override
-		public boolean createDirectory(
+		public final long fileSize(
+			final BlobStorePath file
+		)
+		{
+			this.ensureOpen();
+
+			return this.internalFileSize(file);
+		}
+
+		@Override
+		public final boolean directoryExists(final BlobStorePath directory)
+		{
+			this.ensureOpen();
+
+			return this.internalDirectoryExists(directory);
+		}
+
+		@Override
+		public final boolean fileExists(
+			final BlobStorePath file
+		)
+		{
+			this.ensureOpen();
+
+			return this.internalFileExists(file);
+		}
+
+		@Override
+		public final boolean createDirectory(
 			final BlobStorePath directory
 		)
 		{
-			// 'directories' are just parent paths of existing blobs
-			return true;
+			this.ensureOpen();
+
+			return this.internalCreateDirectory(directory);
 		}
 
 		@Override
-		public boolean createFile(
+		public final boolean createFile(
 			final BlobStorePath file
 		)
 		{
-			// 'files' consist of blobs, they are created with the first write
-			return true;
+			this.ensureOpen();
+
+			return this.internalCreateFile(file);
 		}
 
 		@Override
-		public long fileSize(
+		public final boolean deleteFile(
 			final BlobStorePath file
 		)
 		{
-			return this.blobs(file)
-				.mapToLong(this::size)
-				.sum()
-			;
+			this.ensureOpen();
+
+			return this.internalDeleteFile(file);
 		}
 
 		@Override
-		public boolean fileExists(
-			final BlobStorePath file
-		)
-		{
-			return this.blobs(file)
-				.findAny()
-				.isPresent()
-			;
-		}
-
-		@Override
-		public ByteBuffer readData(
+		public final ByteBuffer readData(
 			final BlobStorePath file  ,
 			final long          offset,
 			final long          length
 		)
 		{
-			final Reference   <ByteBuffer> bufferRef      = Reference.New(null);
-			final LongFunction<ByteBuffer> bufferProvider = capacity ->
-			{
-				final ByteBuffer buffer = ByteBuffer.allocateDirect(checkArrayRange(capacity));
-				bufferRef.set(buffer);
-				return buffer;
-			};
+			this.ensureOpen();
 
-			this.internalReadData(file, bufferProvider, offset, length);
-
-			final ByteBuffer buffer = bufferRef.get();
-			if(buffer != null)
-			{
-				buffer.flip();
-				return buffer;
-			}
-
-			return ByteBuffer.allocateDirect(0);
+			return this.internalReadData(file, offset, length);
 		}
 
 		@Override
-		public long readData(
+		public final long readData(
 			final BlobStorePath file        ,
 			final ByteBuffer    targetBuffer,
 			final long          offset      ,
 			final long          length
 		)
 		{
-			final LongFunction<ByteBuffer> bufferProvider = capacity ->
-			{
-				if(targetBuffer.remaining() < capacity)
-				{
-					// (10.06.2020 FH)EXCP: proper exception
-					throw new IllegalArgumentException(
-						"Provided target buffer has not enough space remaining to load the content: "
-						+ targetBuffer.remaining() + " < " + capacity
-					);
-				}
-				return targetBuffer;
-			};
-			return this.internalReadData(file, bufferProvider, offset, length);
+			this.ensureOpen();
+
+			return this.internalReadData(file, targetBuffer, offset, length);
 		}
 
 		@Override
-		public long copyFile(
+		public final long writeData(
+			final BlobStorePath                  file         ,
+			final Iterable<? extends ByteBuffer> sourceBuffers
+		)
+		{
+			this.ensureOpen();
+
+			return this.internalWriteData(file, sourceBuffers);
+		}
+
+		@Override
+		public final void moveFile(
+			final BlobStorePath sourceFile,
+			final BlobStorePath targetFile
+		)
+		{
+			this.ensureOpen();
+
+			this.internalMoveFile(sourceFile, targetFile);
+		}
+
+		@Override
+		public final long copyFile(
+			final BlobStorePath sourceFile,
+			final BlobStorePath targetFile
+		)
+		{
+			this.ensureOpen();
+
+			return this.internalCopyFile(sourceFile, targetFile);
+		}
+
+		@Override
+		public final long copyFile(
 			final BlobStorePath sourceFile,
 			final BlobStorePath targetFile,
 			final long          offset    ,
 			final long          length
 		)
 		{
-			if(offset == 0
-			&& length > 0
-			&& length == this.fileSize(sourceFile))
-			{
-				return this.copyFile(sourceFile, targetFile);
-			}
+			this.ensureOpen();
 
-			final ByteBuffer buffer = this.readData(sourceFile, offset, length);
-			return this.writeData(targetFile, Arrays.asList(buffer));
+			return this.internalCopyFile(sourceFile, targetFile, offset, length);
 		}
 
 		@Override
-		public void moveFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
+		public final void close()
 		{
-			this.copyFile(sourceFile, targetFile);
-			this.deleteFile(sourceFile);
+			if(!this.open.get())
+			{
+				this.open.set(false);
+
+				this.internalClose();
+			}
 		}
 
 	}
