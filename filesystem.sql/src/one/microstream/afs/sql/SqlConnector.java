@@ -1,5 +1,6 @@
 package one.microstream.afs.sql;
 
+import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
@@ -8,14 +9,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.function.LongFunction;
 
-import one.microstream.X;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
 import one.microstream.reference.Reference;
+import one.microstream.typing.KeyValue;
 
 
 public interface SqlConnector
@@ -117,9 +119,13 @@ public interface SqlConnector
 				statement.setString(1, file.identifier());
 				try(final ResultSet result = statement.executeQuery())
 				{
-					return result.next()
-						? result.getLong(1) + 1
-						: -1L;
+					result.next();
+					final long count = result.getLong(1);
+					final long max   = result.getLong(2);
+					return count > 0
+						? max + 1L
+						: -1L
+					;
 				}
 			}
 		}
@@ -133,176 +139,284 @@ public interface SqlConnector
 		{
 			return this.provider.execute(connection ->
 			{
-				if(offset == 0 && length <= 0)
-				{
-					// read all
-
-					final String sql = this.provider.readDataQuery(
-						file.parentPath().fullQualifiedName()
-					);
-					try(final PreparedStatement statement = connection.prepareStatement(
-						sql,
-						ResultSet.TYPE_SCROLL_INSENSITIVE,
-						ResultSet.CONCUR_READ_ONLY
-					))
-					{
-						statement.setString(1, file.identifier());
-						try(final ResultSet result = statement.executeQuery())
-						{
-							long capacity = 0L;
-							if(result.last())
-							{
-								capacity = result.getLong(END_COLUMN_INDEX) + 1;
-							}
-
-							if(capacity > 0L && result.first())
-							{
-								final ByteBuffer targetBuffer = bufferProvider.apply(capacity);
-								do
-								{
-									final Blob   blob  = result.getBlob(DATA_COLUMN_INDEX);
-									final byte[] bytes = blob.getBytes(1, X.checkArrayRange(blob.length()));
-									blob.free();
-									targetBuffer.put(bytes);
-								}
-								while(result.next());
-							}
-
-							return capacity;
-						}
-					}
-				}
-
-				if(offset == 0 && length > 0)
-				{
-					// read from beginning up to length
-
-					final String sql = this.provider.readDataQueryWithLength(
-						file.parentPath().fullQualifiedName()
-					);
-					try(final PreparedStatement statement = connection.prepareStatement(
-						sql                        ,
-						ResultSet.TYPE_FORWARD_ONLY,
-						ResultSet.CONCUR_READ_ONLY
-					))
-					{
-						statement.setString(1, file.identifier());
-						statement.setLong  (2, length);
-						try(final ResultSet result = statement.executeQuery())
-						{
-							ByteBuffer targetBuffer = null;
-							long       remaining    = length;
-							while(remaining > 0 && result.next())
-							{
-								final Blob   blob       = result.getBlob(DATA_COLUMN_INDEX);
-								final long   blobLength = blob.length();
-								final long   amount     = Math.min(blobLength, remaining);
-								final byte[] bytes      = blob.getBytes(1, X.checkArrayRange(amount));
-								blob.free();
-
-								if(targetBuffer == null)
-								{
-									targetBuffer = bufferProvider.apply(length);
-								}
-								targetBuffer.put(bytes);
-								remaining -= amount;
-							}
-
-							return length;
-						}
-					}
-				}
-
-				if(offset > 0 && length <= 0)
-				{
-					// read all from offset on
-
-					final String sql = this.provider.readDataQueryWithOffset(
-						file.parentPath().fullQualifiedName()
-					);
-					try(final PreparedStatement statement = connection.prepareStatement(
-						sql,
-						ResultSet.TYPE_SCROLL_INSENSITIVE,
-						ResultSet.CONCUR_READ_ONLY
-					))
-					{
-						statement.setString(1, file.identifier());
-						statement.setLong  (2, offset           );
-						try(final ResultSet result = statement.executeQuery())
-						{
-							long capacity = 0L;
-							if(result.last())
-							{
-								capacity = Math.max(0L, result.getLong(END_COLUMN_INDEX) - offset + 1);
-							}
-
-							if(capacity > 0L && result.first())
-							{
-								final ByteBuffer targetBuffer = bufferProvider.apply(capacity);
-								      Blob       blob         = result.getBlob(DATA_COLUMN_INDEX);
-								final long       start        = offset - result.getLong(START_COLUMN_INDEX);
-								final long       amount       = blob.length() - start;
-								      byte[]     bytes        = blob.getBytes(start + 1, X.checkArrayRange(amount));
-								blob.free();
-								targetBuffer.put(bytes);
-
-								while(result.next())
-								{
-									blob  = result.getBlob(DATA_COLUMN_INDEX);
-									bytes = blob.getBytes(1, X.checkArrayRange(blob.length()));
-									blob.free();
-									targetBuffer.put(bytes);
-								}
-							}
-
-							return capacity;
-						}
-					}
-				}
-
-				// read segment
-
-				final String sql = this.provider.readDataQueryWithRange(
-					file.parentPath().fullQualifiedName()
+				final KeyValue<ByteBuffer, Long> kv = this.internalReadData(
+					file,
+					bufferProvider,
+					offset,
+					length,
+					connection
 				);
-				try(final PreparedStatement statement = connection.prepareStatement(
-					sql,
-					ResultSet.TYPE_FORWARD_ONLY,
-					ResultSet.CONCUR_READ_ONLY
-				))
+				final ByteBuffer targetBuffer = kv.key();
+				final long       amount       = kv.value();
+				if(targetBuffer != null)
 				{
-					statement.setString(1, file.identifier()  );
-					statement.setLong  (2, offset             );
-					statement.setLong  (3, offset + length - 1);
-					try(final ResultSet result = statement.executeQuery())
-					{
-						ByteBuffer targetBuffer = null;
-						long       remaining    = length;
-						while(remaining > 0 && result.next())
-						{
-							final Blob   blob     = result.getBlob(DATA_COLUMN_INDEX);
-							final long   rowStart = result.getLong(START_COLUMN_INDEX);
-							final long   rowEnd   = result.getLong(END_COLUMN_INDEX);
-							final long   start    = rowStart < offset
-								? offset - rowStart
-								: 0
-							;
-							final long   amount   = Math.min(remaining, rowEnd - rowStart - start + 1);
-							final byte[] bytes    = blob.getBytes(start + 1, X.checkArrayRange(amount));
-							blob.free();
+					/*
+					 * Buffer is filled in reverse, see below.
+					 */
+					targetBuffer.position(checkArrayRange(amount));
+				}
 
-							if(targetBuffer == null)
-							{
-								targetBuffer = bufferProvider.apply(length);
-							}
-							targetBuffer.put(bytes);
-							remaining -= amount;
+				return amount;
+			});
+		}
+
+		/*
+		 *  Results are ordered in reverse, so the first row's end index equals the overall size.
+		 *  This is done that way because some JDBC drivers don't support scrollable resultsets.
+		 */
+		private KeyValue<ByteBuffer, Long> internalReadData(
+			final SqlPath                  file          ,
+			final LongFunction<ByteBuffer> bufferProvider,
+			final long                     offset        ,
+			final long                     length        ,
+			final Connection               connection
+		)
+		throws SQLException
+		{
+			if(offset == 0 && length <= 0)
+			{
+				return this.readDataFull(file, bufferProvider, connection);
+			}
+			if(offset == 0 && length > 0)
+			{
+				return this.readDataBeginning(file, bufferProvider, length, connection);
+			}
+			if(offset > 0 && length <= 0)
+			{
+				return this.readDataEnd(file, bufferProvider, offset, connection);
+			}
+			return this.readDataSegment(file, bufferProvider, offset, length, connection);
+		}
+
+		private KeyValue<ByteBuffer, Long> readDataFull(
+			final SqlPath                  file          ,
+			final LongFunction<ByteBuffer> bufferProvider,
+			final Connection               connection
+		)
+		throws SQLException
+		{
+			final String sql = this.provider.readDataQuery(
+				file.parentPath().fullQualifiedName()
+			);
+			try(final PreparedStatement statement = connection.prepareStatement(sql))
+			{
+				statement.setString(1, file.identifier());
+				try(final ResultSet result = statement.executeQuery())
+				{
+					ByteBuffer targetBuffer = null;
+					long       capacity     = 0L;
+					while(result.next())
+					{
+						if(targetBuffer == null)
+						{
+							capacity     = result.getLong(END_COLUMN_INDEX) + 1L;
+							targetBuffer = bufferProvider.apply(capacity);
+							targetBuffer.position(checkArrayRange(capacity));
 						}
 
-						return length;
+						final long rowStart   = result.getLong(START_COLUMN_INDEX);
+						final long rowEnd     = result.getLong(END_COLUMN_INDEX);
+						final long blobLength = rowEnd - rowStart + 1L;
+
+						this.readBlob(
+							result,
+							DATA_COLUMN_INDEX,
+							0,
+							blobLength,
+							targetBuffer
+						);
 					}
+
+					return KeyValue.New(targetBuffer, capacity);
 				}
-			});
+			}
+		}
+
+		private KeyValue<ByteBuffer, Long> readDataBeginning(
+			final SqlPath                  file          ,
+			final LongFunction<ByteBuffer> bufferProvider,
+			final long                     length        ,
+			final Connection               connection
+		)
+		throws SQLException
+		{
+			final String sql = this.provider.readDataQueryWithLength(
+				file.parentPath().fullQualifiedName()
+			);
+			try(final PreparedStatement statement = connection.prepareStatement(sql))
+			{
+				statement.setString(1, file.identifier());
+				statement.setLong  (2, length);
+				try(final ResultSet result = statement.executeQuery())
+				{
+					ByteBuffer targetBuffer = null;
+					while(result.next())
+					{
+						if(targetBuffer == null)
+						{
+							targetBuffer = bufferProvider.apply(length);
+							targetBuffer.position(checkArrayRange(length));
+						}
+
+						final long rowStart   = result.getLong(START_COLUMN_INDEX);
+						final long rowEnd     = result.getLong(END_COLUMN_INDEX);
+						final long blobLength = Math.min(rowEnd + 1L, length) - rowStart;
+						this.readBlob(
+							result,
+							DATA_COLUMN_INDEX,
+							0,
+							blobLength,
+							targetBuffer
+						);
+					}
+
+					return KeyValue.New(targetBuffer, length);
+				}
+			}
+		}
+
+		private KeyValue<ByteBuffer, Long> readDataEnd(
+			final SqlPath                  file          ,
+			final LongFunction<ByteBuffer> bufferProvider,
+			final long                     offset        ,
+			final Connection               connection
+		)
+		throws SQLException
+		{
+			final String sql = this.provider.readDataQueryWithOffset(
+				file.parentPath().fullQualifiedName()
+			);
+			try(final PreparedStatement statement = connection.prepareStatement(sql))
+			{
+				statement.setString(1, file.identifier());
+				statement.setLong  (2, offset           );
+				try(final ResultSet result = statement.executeQuery())
+				{
+					ByteBuffer targetBuffer = null;
+					long       capacity     = 0L;
+					while(result.next())
+					{
+						if(targetBuffer == null)
+						{
+							capacity     = result.getLong(END_COLUMN_INDEX) - offset + 1L;
+							targetBuffer = bufferProvider.apply(capacity);
+							targetBuffer.position(checkArrayRange(capacity));
+						}
+
+						final long rowStart   = result.getLong(START_COLUMN_INDEX);
+						final long rowEnd     = result.getLong(END_COLUMN_INDEX);
+						final long blobOffset = rowStart < offset
+							? offset - rowStart
+							: 0L
+						;
+						final long blobLength = rowEnd - rowStart - blobOffset + 1L;
+
+						this.readBlob(
+							result,
+							DATA_COLUMN_INDEX,
+							blobOffset,
+							blobLength,
+							targetBuffer
+						);
+					}
+
+					return KeyValue.New(targetBuffer, capacity);
+				}
+			}
+		}
+
+		private KeyValue<ByteBuffer, Long> readDataSegment(
+			final SqlPath                  file          ,
+			final LongFunction<ByteBuffer> bufferProvider,
+			final long                     offset        ,
+			final long                     length        ,
+			final Connection               connection
+		)
+		throws SQLException
+		{
+			final String sql = this.provider.readDataQueryWithRange(
+				file.parentPath().fullQualifiedName()
+			);
+			try(final PreparedStatement statement = connection.prepareStatement(sql))
+			{
+				statement.setString(1, file.identifier()  );
+				statement.setLong  (2, offset             );
+				statement.setLong  (3, offset + length - 1);
+				try(final ResultSet result = statement.executeQuery())
+				{
+					ByteBuffer targetBuffer = null;
+					while(result.next())
+					{
+						if(targetBuffer == null)
+						{
+							targetBuffer = bufferProvider.apply(length);
+							targetBuffer.position(checkArrayRange(length));
+						}
+
+						final long rowStart   = result.getLong(START_COLUMN_INDEX);
+						final long rowEnd     = result.getLong(END_COLUMN_INDEX);
+						final long blobOffset = rowStart < offset
+							? offset - rowStart
+							: 0
+						;
+						final long maxEnd     = offset + length - 1L;
+						final long blobLength = Math.min(maxEnd, rowEnd) - rowStart - blobOffset + 1L;
+
+						this.readBlob(
+							result,
+							DATA_COLUMN_INDEX,
+							blobOffset,
+							blobLength,
+							targetBuffer
+						);
+					}
+
+					return KeyValue.New(targetBuffer, length);
+				}
+			}
+		}
+
+		private void readBlob(
+			final ResultSet  result             ,
+			final int        columnIndex        ,
+			final long       offset             ,
+			final long       length             ,
+			final ByteBuffer reverseTargetBuffer
+		)
+		throws SQLException
+		{
+			try
+			{
+				final Blob blob = result.getBlob(columnIndex);
+				try
+				{
+					final byte[] bytes    = blob.getBytes(
+						offset + 1,
+						checkArrayRange(length)
+					);
+					final int    position = reverseTargetBuffer.position() - bytes.length;
+					reverseTargetBuffer.position(position);
+					reverseTargetBuffer.put(bytes);
+					reverseTargetBuffer.position(position);
+				}
+				finally
+				{
+					blob.free();
+				}
+			}
+			catch(final SQLFeatureNotSupportedException e)
+			{
+				final byte[] bytes    = result.getBytes(columnIndex);
+				final int    amount   = checkArrayRange(length);
+				final int    position = reverseTargetBuffer.position() - amount;
+				reverseTargetBuffer.position(position);
+				reverseTargetBuffer.put(
+					bytes,
+					checkArrayRange(offset),
+					amount
+				);
+				reverseTargetBuffer.position(position);
+			}
 		}
 
 		@Override
@@ -388,7 +502,7 @@ public interface SqlConnector
 			final Reference   <ByteBuffer> bufferRef      = Reference.New(null);
 			final LongFunction<ByteBuffer> bufferProvider = capacity ->
 			{
-				final ByteBuffer buffer = ByteBuffer.allocateDirect(X.checkArrayRange(capacity));
+				final ByteBuffer buffer = ByteBuffer.allocateDirect(checkArrayRange(capacity));
 				bufferRef.set(buffer);
 				return buffer;
 			};
@@ -452,24 +566,22 @@ public interface SqlConnector
 				;
 
 				final ByteBufferInputStream inputStream = ByteBufferInputStream.New(sourceBuffers);
-				      long                  offset      = this.internalFileSize(file, connection);
+				      long                  offset      = Math.max(0L, this.internalFileSize(file, connection));
 				      long                  available   = buffersLength;
 				while(available > 0)
 				{
-					final long currentBatchSize = Math.min(available, batchSize);
-
-					final Blob blob             = this.provider.createBlob(
+					final long        currentBatchSize = Math.min(available, batchSize);
+					final SqlBlobData blobData         = this.provider.createBlobData(
 						connection,
 						LimitedInputStream.New(inputStream, currentBatchSize),
 						currentBatchSize
 					);
-
 					try(final PreparedStatement statement = connection.prepareStatement(sql))
 					{
 						statement.setString(IDENTIFIER_COLUMN_INDEX, file.identifier()            );
 						statement.setLong  (START_COLUMN_INDEX     , offset                       );
 						statement.setLong  (END_COLUMN_INDEX       , offset + currentBatchSize - 1);
-						statement.setBlob  (DATA_COLUMN_INDEX      , blob                         );
+						blobData.setAsParameter(statement, DATA_COLUMN_INDEX);
 						statement.executeUpdate();
 					}
 

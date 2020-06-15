@@ -1,7 +1,6 @@
 package one.microstream.afs.jpa.hibernate;
 
 import java.io.InputStream;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -26,6 +25,7 @@ import org.hibernate.sql.Update;
 import org.hibernate.tool.schema.internal.StandardTableExporter;
 import org.hibernate.type.StandardBasicTypes;
 
+import one.microstream.afs.sql.SqlBlobData;
 import one.microstream.afs.sql.SqlOperation;
 import one.microstream.afs.sql.SqlProvider;
 import one.microstream.chars.XChars;
@@ -93,7 +93,7 @@ public interface HibernateProvider extends SqlProvider
 			select.setOrderByClause(this.context.dialect().renderOrderByElement(
 				table.startColumnSqlName(),
 				null,
-				"asc",
+				"desc",
 				NullPrecedence.NONE
 			));
 			return select;
@@ -143,17 +143,19 @@ public interface HibernateProvider extends SqlProvider
 		}
 
 		@Override
-		public Blob createBlob(
+		public SqlBlobData createBlobData(
 			final Connection  connection ,
 			final InputStream inputStream,
 			final long        length
 		)
 		{
-			return Hibernate.getLobCreator(
-				this.entityManager().unwrap(Session.class)
-			).createBlob(
-				inputStream,
-				length
+			return SqlBlobData.New(
+				Hibernate.getLobCreator(
+					this.entityManager().unwrap(Session.class)
+				).createBlob(
+					inputStream,
+					length
+				)
 			);
 		}
 
@@ -165,7 +167,7 @@ public interface HibernateProvider extends SqlProvider
 			final Table  table  = this.table(tableName);
 			final Select select = new Select(table);
 			select.setFromClause(table.sqlName());
-			select.setSelectClause("max(" + table.endColumnSqlName() + ")");
+			select.setSelectClause("count(*), max(" + table.endColumnSqlName() + ")");
 			select.setWhereClause(table.identifierColumnSqlName() + "=?");
 			return select.toStatementString();
 		}
