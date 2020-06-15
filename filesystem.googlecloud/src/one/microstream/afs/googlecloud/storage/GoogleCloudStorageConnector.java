@@ -92,7 +92,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 			}
 			return blobs.stream()
 				.filter(blob -> isBlobKey(prefix, blob.getName()))
-				.sorted((s1, s2) -> Long.compare(this.getBlobNr(s1), this.getBlobNr(s2)))
+				.sorted(this.blobComparator())
 			;
 		}
 

@@ -36,6 +36,7 @@
 		<module>filesystem.aws</module>
 		<module>filesystem.azure</module>
 		<module>filesystem.googlecloud</module>
+		<module>filesystem.hazelcast</module>
 		<module>filesystem.jpa.hibernate</module>
 		<module>filesystem.kafka</module>
 		<module>filesystem.sql</module>
@@ -356,6 +357,7 @@
 				<module>filesystem.aws</module>
 				<module>filesystem.azure</module>
 				<module>filesystem.googlecloud</module>
+				<module>filesystem.hazelcast</module>
 				<module>filesystem.jpa.hibernate</module>
 				<module>filesystem.kafka</module>
 				<module>filesystem.sql</module>
@@ -386,6 +388,7 @@
 				<module>filesystem.aws</module>
 				<module>filesystem.azure</module>
 				<module>filesystem.googlecloud</module>
+				<module>filesystem.hazelcast</module>
 				<module>filesystem.jpa.hibernate</module>
 				<module>filesystem.kafka</module>
 				<module>filesystem.sql</module>
