@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.google.api.gax.paging.Page;
@@ -74,9 +75,10 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 			final BlobStorePath file
 		)
 		{
-			final List<Blob> blobs  = new ArrayList<>();
-			final String     prefix = toBlobKeyPrefix(file);
-			      Page<Blob> page   = this.storage.list(
+			final List<Blob> blobs   = new ArrayList<>();
+			final String     prefix  = toBlobKeyPrefix(file);
+			final Pattern    pattern = Pattern.compile(blobKeyRegex(prefix));
+			      Page<Blob> page    = this.storage.list(
 				file.container(),
 				BlobListOption.currentDirectory(),
 				BlobListOption.prefix(prefix)
@@ -91,7 +93,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 				;
 			}
 			return blobs.stream()
-				.filter(blob -> isBlobKey(prefix, blob.getName()))
+				.filter(blob -> pattern.matcher(blob.getName()).matches())
 				.sorted(this.blobComparator())
 			;
 		}
@@ -211,7 +213,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 
 			final BlobInfo blobInfo = BlobInfo.newBuilder(
 				file.container(),
-				toBlobKeyPrefix(file) + nextBlobNr
+				toBlobKey(file, nextBlobNr)
 			)
 			.build();
 
@@ -239,12 +241,14 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 			final BlobStorePath targetFile
 		)
 		{
-			final String targetKeyPrefix = toBlobKeyPrefix(targetFile);
 			this.blobs(sourceFile).forEach(sourceBlob ->
 			{
 				final BlobInfo targetBlobInfo = BlobInfo.newBuilder(
 					targetFile.container(),
-					targetKeyPrefix + this.getBlobNr(sourceBlob)
+					toBlobKey(
+						targetFile,
+						this.getBlobNr(sourceBlob)
+					)
 				)
 				.build();
 				this.storage.copy(

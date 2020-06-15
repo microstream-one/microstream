@@ -7,6 +7,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -72,13 +73,14 @@ public interface S3Connector extends BlobStoreConnector
 		@Override
 		protected Stream<S3ObjectSummary> blobs(final BlobStorePath file)
 		{
-			final String prefix = toBlobKeyPrefix(file);
+			final String  prefix  = toBlobKeyPrefix(file);
+			final Pattern pattern = Pattern.compile(blobKeyRegex(prefix));
 			return this.s3.listObjectsV2(
 				file.container(),
 				prefix
 			)
 			.getObjectSummaries().stream()
-			.filter(summary -> isBlobKey(prefix, summary.getKey()))
+			.filter(summary -> pattern.matcher(summary.getKey()).matches())
 			.sorted(this.blobComparator())
 			;
 		}
@@ -200,7 +202,7 @@ public interface S3Connector extends BlobStoreConnector
 			{
 				this.s3.putObject(
 					file.container(),
-					toBlobKeyPrefix(file) + nextBlobNr,
+					toBlobKey(file, nextBlobNr),
 					inputStream,
 					objectMetadata
 				);
@@ -219,15 +221,16 @@ public interface S3Connector extends BlobStoreConnector
 			final BlobStorePath targetFile
 		)
 		{
-			final String targetKeyPrefix = toBlobKeyPrefix(targetFile);
 			this.blobs(sourceFile).forEach(sourceFileSummary ->
 			{
-				final long fileNr = this.getBlobNr(sourceFileSummary);
 				this.s3.copyObject(
 					 sourceFile.container(),
 					 sourceFileSummary.getKey(),
 					 targetFile.container(),
-					 targetKeyPrefix + fileNr
+					 toBlobKey(
+						 targetFile,
+						 this.getBlobNr(sourceFileSummary)
+					)
 				);
 			});
 

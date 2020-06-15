@@ -6,6 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.azure.core.http.rest.PagedIterable;
@@ -73,8 +74,9 @@ public interface AzureStorageConnector extends BlobStoreConnector
 			final BlobStorePath file
 		)
 		{
-			final String                  prefix = toBlobKeyPrefix(file);
-			final PagedIterable<BlobItem> blobs  = this.serviceClient.getBlobContainerClient(
+			final String                  prefix  = toBlobKeyPrefix(file);
+			final Pattern                 pattern = Pattern.compile(blobKeyRegex(prefix));
+			final PagedIterable<BlobItem> blobs   = this.serviceClient.getBlobContainerClient(
 				file.container()
 			)
 			.listBlobs(
@@ -82,7 +84,7 @@ public interface AzureStorageConnector extends BlobStoreConnector
 				null
 			);
 			return blobs.stream()
-				.filter(summary -> isBlobKey(prefix, summary.getName()))
+				.filter(summary -> pattern.matcher(summary.getName()).matches())
 				.sorted(this.blobComparator())
 			;
 		}
@@ -148,6 +150,7 @@ public interface AzureStorageConnector extends BlobStoreConnector
 		)
 		{
 			final String                  prefix          = toBlobKeyPrefix(file);
+			final Pattern                 pattern         = Pattern.compile(blobKeyRegex(prefix));
 			final BlobContainerClient     containerClient = this.serviceClient.getBlobContainerClient(
 				file.container()
 			);
@@ -158,7 +161,7 @@ public interface AzureStorageConnector extends BlobStoreConnector
 			);
 			final AtomicBoolean           deleted         = new AtomicBoolean(false);
 			blobs.stream()
-				.filter(summary -> isBlobKey(prefix, summary.getName()))
+				.filter(summary -> pattern.matcher(summary.getName()).matches())
 				.forEach(blobItem ->
 				{
 					containerClient.getBlobClient(blobItem.getName()).delete();
@@ -193,7 +196,7 @@ public interface AzureStorageConnector extends BlobStoreConnector
 				))
 				{
 					this.serviceClient.getBlobContainerClient(file.container())
-						.getBlobClient(toBlobKeyPrefix(file) + nextBlobNr++)
+						.getBlobClient(toBlobKey(file, nextBlobNr++))
 						.getBlockBlobClient()
 						.upload(limitedInputStream, currentBatchSize)
 					;
@@ -221,7 +224,6 @@ public interface AzureStorageConnector extends BlobStoreConnector
 			final BlobContainerClient targetContainerClient = this.serviceClient.getBlobContainerClient(
 				targetFile.container()
 			);
-			final String targetKeyPrefix = toBlobKeyPrefix(targetFile);
 			this.blobs(sourceFile).forEach(sourceItem ->
 			{
 				final String url = sourceContainerClient.getBlobClient(
@@ -230,7 +232,10 @@ public interface AzureStorageConnector extends BlobStoreConnector
 				.getBlobUrl();
 
 				targetContainerClient.getBlobClient(
-					targetKeyPrefix + this.getBlobNr(sourceItem)
+					toBlobKey(
+						targetFile,
+						this.getBlobNr(sourceItem)
+					)
 				)
 				.beginCopy(url, null)
 				.getFinalResult();

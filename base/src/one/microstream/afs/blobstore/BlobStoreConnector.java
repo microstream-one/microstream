@@ -57,8 +57,6 @@ public interface BlobStoreConnector extends AutoCloseable
 		protected final static String  NUMBER_SUFFIX_SEPARATOR      = ".";
 		protected final static char    NUMBER_SUFFIX_SEPARATOR_CHAR = '.';
 		protected final static String  NUMBER_SUFFIX_REGEX          = "\\d+";
-		protected final static Pattern NUMBER_SUFFIX_PATTERN        = Pattern.compile(NUMBER_SUFFIX_REGEX);
-
 
 		protected static String toContainerKey(
 			final BlobStorePath directory
@@ -71,6 +69,14 @@ public interface BlobStoreConnector extends AutoCloseable
 			;
 		}
 
+		protected static String toBlobKey(
+			final BlobStorePath file,
+			final long          nr
+		)
+		{
+			return toBlobKeyPrefix(file).concat(Long.toString(nr));
+		}
+
 		protected static String toBlobKeyPrefix(
 			final BlobStorePath file
 		)
@@ -81,17 +87,10 @@ public interface BlobStoreConnector extends AutoCloseable
 			;
 		}
 
-		protected static boolean isBlobKey(
-			final String prefix,
-			final String key
-		)
+		protected static String blobKeyRegex(
+			final String prefix)
 		{
-			return isBlobKey(key)
-				&& key.length() > prefix.length()
-				&& key.startsWith(prefix)
-				&& key.indexOf(BlobStorePath.SEPARATOR_CHAR, prefix.length()) == -1
-				&& NUMBER_SUFFIX_PATTERN.matcher(key.substring(prefix.length())).matches()
-			;
+			return Pattern.quote(prefix).concat(NUMBER_SUFFIX_REGEX);
 		}
 
 		protected static boolean isBlobKey(
