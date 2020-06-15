@@ -67,6 +67,10 @@ public interface ADirectory extends AItem, AResolving
 	
 	public <C extends Consumer<? super AItem>> C iterateItems(C iterator);
 	
+	public <C extends Consumer<? super ADirectory>> C iterateDirectories(C iterator);
+	
+	public <C extends Consumer<? super AFile>> C iterateFiles(C iterator);
+	
 	public boolean contains(AItem item);
 	
 	public default boolean contains(final ADirectory directory)
@@ -219,6 +223,28 @@ public interface ADirectory extends AItem, AResolving
 			synchronized(this.mutex())
 			{
 				this.directories.values().iterate(iterator);
+				this.files.values().iterate(iterator);
+			}
+					
+			return iterator;
+		}
+		
+		@Override
+		public <C extends Consumer<? super ADirectory>> C iterateDirectories(final C iterator)
+		{
+			synchronized(this.mutex())
+			{
+				this.directories.values().iterate(iterator);
+			}
+					
+			return iterator;
+		}
+		
+		@Override
+		public <C extends Consumer<? super AFile>> C iterateFiles(final C iterator)
+		{
+			synchronized(this.mutex())
+			{
 				this.files.values().iterate(iterator);
 			}
 					

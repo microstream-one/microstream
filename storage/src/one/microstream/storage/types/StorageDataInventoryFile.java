@@ -5,6 +5,8 @@ import static one.microstream.math.XMath.notNegative;
 
 import one.microstream.afs.AFile;
 
+
+// (15.06.2020 TM)FIXME: priv#49: delete if really not necessary
 public interface StorageDataInventoryFile extends StorageHashChannelPart
 {
 	public AFile file();

@@ -11,6 +11,7 @@ import java.nio.channels.FileChannel;
 import java.util.function.Consumer;
 
 import one.microstream.X;
+import one.microstream.afs.AFile;
 import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
@@ -450,42 +451,57 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 	
+		final StorageLiveDataFile.Default createLiveDataFile(
+			final AFile file        ,
+			final int   channelIndex,
+			final long  number
+		)
+		{
+			return new StorageLiveDataFile.Default(
+				            this         ,
+				    notNull(file)        ,
+				notNegative(channelIndex),
+				notNegative(number)
+			);
+		}
 
 		private void createNewStorageFile(final long fileNumber)
 		{
 //			DEBUGStorage.println(this.channelIndex + " creating new head file " + fileNumber);
 
-			final ZStorageInventoryFile file = this.storageFileProvider.provideDataFile(
+			final StorageLiveDataFile.Default file = this.storageFileProvider.provideDataFile(
+				this::createLiveDataFile,
 				this.channelIndex(),
 				fileNumber
-			).inventorize();
+			);
 
 			/*
 			 * File#length is incredibly slow compared to FileChannel#size (although irrelevant here),
 			 * but still the file length has to be checked before the channel is created, etc.
 			 */
-			if(file.length() != 0)
+			if(!file.file().isEmpty())
 			{
 				// (29.05.2014 TM)EXCP: proper exception
 				throw new StorageException("New storage file is not empty: " + file);
 			}
 
 			// create and register StorageFile instance with an attached channel
-			this.registerHeadFile(file);
+			this.registerStorageHeadFile(file);
 			this.writeTransactionsEntryFileCreation(0, this.timestampProvider.currentNanoTimestamp(), fileNumber);
 		}
 
-		private void registerHeadFile(final StorageDataInventoryFile iFile)
-		{
-			final StorageLiveDataFile.Default dataFile = StorageLiveDataFile.New(
-				this,
-				iFile.file(),
-				iFile.channelIndex(),
-				iFile.fileNumber()
-			);
-			
-			this.registerStorageHeadFile(dataFile);
-		}
+		// (15.06.2020 TM)FIXME: priv#49: remove if really not used
+//		private void registerHeadFile(final StorageDataInventoryFile iFile)
+//		{
+//			final StorageLiveDataFile.Default dataFile = StorageLiveDataFile.New(
+//				this,
+//				iFile.file(),
+//				iFile.channelIndex(),
+//				iFile.fileNumber()
+//			);
+//
+//			this.registerStorageHeadFile(dataFile);
+//		}
 		
 		private void registerStorageHeadFile(final StorageLiveDataFile.Default storageFile)
 		{

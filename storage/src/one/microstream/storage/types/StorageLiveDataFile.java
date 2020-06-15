@@ -1,8 +1,5 @@
 package one.microstream.storage.types;
 
-import static one.microstream.X.notNull;
-import static one.microstream.math.XMath.notNegative;
-
 import one.microstream.afs.AFile;
 import one.microstream.math.XMath;
 import one.microstream.storage.exceptions.StorageException;
@@ -37,20 +34,20 @@ extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 
 	
 	
-	public static StorageLiveDataFile.Default New(
-		final StorageFileManager.Default parent      ,
-		final AFile                      file        ,
-		final int                        channelIndex,
-		final long                       number
-	)
-	{
-		return new StorageLiveDataFile.Default(
-		        notNull(parent)      ,
-			    notNull(file)        ,
-			notNegative(channelIndex),
-			notNegative(number)
-		);
-	}
+//	public static StorageLiveDataFile.Default New(
+//		final StorageFileManager.Default parent      ,
+//		final AFile                      file        ,
+//		final int                        channelIndex,
+//		final long                       number
+//	)
+//	{
+//		return new StorageLiveDataFile.Default(
+//		        notNull(parent)      ,
+//			    notNull(file)        ,
+//			notNegative(channelIndex),
+//			notNegative(number)
+//		);
+//	}
 	
 	public class Default
 	extends StorageLiveFile.Abstract<StorageLiveDataFile>

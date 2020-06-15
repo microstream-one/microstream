@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 
 import one.microstream.X;
+import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.io.XIO;
@@ -152,6 +153,22 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		{
 			this.running = running;
 			return this;
+		}
+		
+		
+		protected StorageBackupFile resolveBackupTargetFile(final StorageFile sourceFile)
+		{
+			if(sourceFile instanceof StorageLiveDataFile)
+			{
+				return this.resolveBackupTargetFile((StorageLiveDataFile)sourceFile);
+			}
+			if(sourceFile instanceof StorageLiveTransactionsFile)
+			{
+				return this.resolveBackupTargetFile((StorageLiveTransactionsFile)sourceFile);
+			}
+			
+			// (15.06.2020 TM)EXCP: proper exception
+			throw new RuntimeException("Unhandled File Type: " + XChars.systemString(sourceFile));
 		}
 		
 		private StorageBackupDataFile resolveBackupTargetFile(final StorageLiveDataFile sourceFile)
@@ -509,7 +526,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		)
 		{
 			// note: the original target file of the copying is irrelevant. Only the backup target file counts.
-			final ZStorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
+			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
 			
 			this.copyFilePart(sourceFile, sourcePosition, copyLength, backupTargetFile);
 		}
@@ -613,8 +630,9 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 					return;
 				}
 				
-				final BulkList<ZStorageNumberedFile> collectedFiles =
+				final BulkList<StorageBackupDataFile> collectedFiles =
 				this.backupFileProvider.collectDataFiles(
+					StorageBackupDataFile::New,
 					BulkList.New(),
 					this.channelIndex()
 				)
@@ -637,35 +655,28 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			{
 				// note: validation is done by the calling context, depending on its task.
 				
-				StorageBackupDataFile backupTargetFile = this.dataFiles.get(sourceFile.number());
-				if(backupTargetFile == null)
+				StorageBackupDataFile backupFile = this.dataFiles.get(sourceFile.number());
+				if(backupFile == null)
 				{
-					final ZStorageNumberedFile backupRawFile = this.backupFileProvider.provideDataFile(
+					backupFile = this.backupFileProvider.provideDataFile(
+						StorageBackupDataFile::New,
 						this.channelIndex,
 						sourceFile.number()
 					);
-					backupTargetFile = this.registerBackupFile(backupRawFile);
+					this.dataFiles.add(backupFile.number(), backupFile);
 				}
 				
-				return backupTargetFile;
-			}
-			
-			private ZStorageBackupFile registerBackupFile(final ZStorageNumberedFile backupRawFile)
-			{
-				final ZStorageBackupFile backupTargetFile = ZStorageBackupFile.New(backupRawFile);
-				this.dataFiles.add(backupTargetFile.number(), backupTargetFile);
-				
-				return backupTargetFile;
+				return backupFile;
 			}
 			
 			final StorageBackupTransactionsFile ensureTransactionsFile()
 			{
 				if(this.transactionFile == null)
 				{
-					final ZStorageNumberedFile rawFile = this.backupFileProvider.provideTransactionsFile(
+					this.transactionFile = this.backupFileProvider.provideTransactionsFile(
+						StorageBackupTransactionsFile::New,
 						this.channelIndex
 					);
-					this.transactionFile = StorageBackupTransactionsFile.New(rawFile);
 				}
 				
 				return this.transactionFile;

@@ -3,6 +3,8 @@ package one.microstream.storage.types;
 import java.io.File;
 import java.nio.file.Path;
 
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.io.XIO;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
@@ -106,6 +108,15 @@ public final class EmbeddedStorage
 	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final Path directory
+	)
+	{
+		return ConnectionFoundation(
+			NioFileSystem.New().ensureDirectory(directory)
+		);
+	}
+	
+	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
+		final ADirectory directory
 	)
 	{
 		return ConnectionFoundation(

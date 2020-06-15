@@ -3,18 +3,19 @@ package one.microstream.persistence.internal;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AWritableFile;
 import one.microstream.concurrency.XThreads;
-import one.microstream.io.XIO;
 import one.microstream.persistence.types.PersistenceTypeDictionaryStorer;
 
 
 public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTypeDictionaryFileHandler
 {
 	public static PersistenceTypeDictionaryFileHandlerArchiving New(
-		final Path                            file         ,
+		final AFile                           file         ,
 		final PersistenceTypeDictionaryStorer writeListener
 	)
 	{
@@ -30,8 +31,8 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	// instance fields //
 	////////////////////
 	
-	private final Path   directory ;
-	private final Path   tdArchive ;
+	private final ADirectory directory ;
+	private final ADirectory tdArchive ;
 	private final String filePrefix;
 	private final String fileSuffix;
 	
@@ -42,27 +43,15 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	/////////////////
 
 	PersistenceTypeDictionaryFileHandlerArchiving(
-		final Path                            file         ,
+		final AFile                           file         ,
 		final PersistenceTypeDictionaryStorer writeListener
 	)
 	{
 		super(file, writeListener);
-		this.directory = file.getParent();
-		this.tdArchive = XIO.Path(this.directory, "TypeDictionaryArchive");
-		
-		final String fileName = XIO.getFileName(file);
-		final int dotIndex = fileName.lastIndexOf(XIO.fileSuffixSeparator());
-		
-		if(dotIndex < 0)
-		{
-			this.filePrefix = fileName;
-			this.fileSuffix = "";
-		}
-		else
-		{
-			this.filePrefix = fileName.substring(0, dotIndex);
-			this.fileSuffix = fileName.substring(dotIndex);
-		}
+		this.directory  = file.parent();
+		this.tdArchive  = this.directory.ensureDirectory("TypeDictionaryArchive");
+		this.filePrefix = file.name();
+		this.fileSuffix = file.type();
 	}
 	
 	
@@ -71,13 +60,14 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	// methods //
 	////////////
 	
-	private Path buildArchiveFile()
+	private AFile buildArchiveFile()
 	{
 		final SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss_SSS");
 		final String fileName = this.filePrefix + sdf.format(System.currentTimeMillis()) + this.fileSuffix;
 		
-		final Path file = XIO.Path(this.tdArchive, fileName);
-		if(XIO.unchecked.exists(file))
+		final AFile file = this.tdArchive.ensureFile(fileName);
+		
+		if(file.exists())
 		{
 			// yes, it's weird, but it actually happened during testing. Multiple updates and moves per ms.
 			XThreads.sleep(1); // crucial to prevent hundreds or even thousands of retries.
@@ -89,15 +79,37 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	
 	private void moveCurrentFileToArchive()
 	{
-		XIO.unchecked.ensureDirectory(this.tdArchive);
-		UtilPersistenceIo.move(this.file(), this.buildArchiveFile());
+		this.tdArchive.ensure();
+		
+		final AFile targetFile = this.buildArchiveFile();
+		
+		final AWritableFile wSourceFile = this.file().useWriting();
+		final AWritableFile wTargetFile = targetFile.useWriting();
+		
+		try
+		{
+			try
+			{
+//				wSourceFile.move(wTargetFile);
+				// (15.06.2020 TM)FIXME: priv#49: AWritableFile#move?
+				throw new one.microstream.meta.NotImplementedYetError();
+			}
+			finally
+			{
+				wTargetFile.release();
+			}
+		}
+		finally
+		{
+			wSourceFile.release();
+		}
 	}
 	
 	@Override
 	protected synchronized void writeTypeDictionary(final String typeDictionaryString)
 	{
 		// there is no file to be moved on the first call.
-		if(XIO.unchecked.exists(this.file()))
+		if(this.file().exists())
 		{
 			this.moveCurrentFileToArchive();
 		}
