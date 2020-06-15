@@ -4,9 +4,6 @@ import static one.microstream.X.coalesce;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
@@ -15,8 +12,6 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.AFileSystem;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.VarString;
-import one.microstream.exceptions.IORuntimeException;
-import one.microstream.io.XIO;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionaryIoHandler;
@@ -46,9 +41,16 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		PersistenceTypeDictionaryStorer writeListener
 	);
 	
-	public StorageLiveDataFile provideDataFile(int channelIndex, long fileNumber);
+	public <F extends StorageDataFile> F provideDataFile(
+		StorageDataFile.Creator<F> creator     ,
+		int                        channelIndex,
+		long                       fileNumber
+	);
 
-	public StorageLiveTransactionsFile provideTransactionsFile(int channelIndex);
+	public <F extends StorageTransactionsFile> F provideTransactionsFile(
+		StorageTransactionsFile.Creator<F> creator     ,
+		int                                channelIndex
+	);
 	
 	public StorageLockFile provideLockFile();
 	
@@ -58,7 +60,11 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 	
 	
-	public <P extends Consumer<ZStorageNumberedFile>> P collectDataFiles(P collector, int channelIndex);
+	public <F extends StorageDataFile, P extends Consumer<F>> P collectDataFiles(
+		StorageDataFile.Creator<F> creator     ,
+		P                          collector   ,
+		int                        channelIndex
+	);
 	
 	
 	public interface Defaults
@@ -123,49 +129,39 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 	public final class Static
 	{
-		public static final <C extends Consumer<? super ZStorageNumberedFile>>
+		public static final <F extends StorageDataFile, C extends Consumer<? super F>>
 		C collectFile(
-			final C      collector       ,
-			final int    channelIndex    ,
-			final Path   storageDirectory,
-			final String fileBaseName    ,
-			final String suffix
+			final StorageDataFile.Creator<F> fileCreator     ,
+			final C                          collector       ,
+			final int                        channelIndex    ,
+			final ADirectory                 storageDirectory,
+			final String                     fileBaseName    ,
+			final String                     suffix
 		)
 		{
-			try(DirectoryStream<Path> stream = Files.newDirectoryStream(storageDirectory))
+			storageDirectory.iterateFiles(f ->
 			{
-		        for(final Path file : stream)
-		        {
-		        	internalCollectFile(collector, channelIndex, file, fileBaseName, suffix);
-		        }
-		    }
-			catch(final IOException e)
-			{
-				throw new IORuntimeException(e);
-			}
+				internalCollectDataFile(fileCreator, collector, channelIndex, f, fileBaseName, suffix);
+			});
 			
 			return collector;
 		}
 
-		private static final void internalCollectFile(
-			final Consumer<? super ZStorageNumberedFile> collector   ,
-			final int                                   hashIndex   ,
-			final Path                                  file        ,
-			final String                                fileBaseName,
-			final String                                suffix
+		private static final <F extends StorageDataFile> void internalCollectDataFile(
+			final StorageDataFile.Creator<F> fileCreator ,
+			final Consumer<? super F>        collector   ,
+			final int                        hashIndex   ,
+			final AFile                      file        ,
+			final String                     fileBaseName,
+			final String                     suffix
 		)
 		{
-			if(XIO.unchecked.isDirectory(file))
-			{
-				return;
-			}
-
-			final String filename = XIO.getFileName(file);
+			final String filename = file.name();
 			if(!filename.startsWith(fileBaseName))
 			{
 				return;
 			}
-			if(!filename.endsWith(suffix))
+			if(!suffix.equals(file.type()))
 			{
 				return;
 			}
@@ -202,7 +198,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			}
 
 			// strictly validly named file, collect.
-			collector.accept(ZStorageNumberedFile.New(hashIndex, fileNumber, file));
+			collector.accept(fileCreator.createDataFile(file, hashIndex, fileNumber));
 		}
 
 		
@@ -653,8 +649,6 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-
-		private final AFileSystem fileSystem;
 		
 		private final ADirectory
 			baseDirectory      ,
@@ -664,8 +658,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 		private final String
 			channelDirectoryPrefix,
-			storageFilePrefix     ,
-			storageFileSuffix     ,
+			dataFilePrefix        ,
+			dataFileSuffix        ,
 			transactionsFilePrefix,
 			transactionsFileSuffix,
 			typeDictionaryFileName,
@@ -683,8 +677,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		Default(
 			final ADirectory                                   baseDirectory         ,
 			final String                                       channelDirectoryPrefix,
-			final String                                       storageFilePrefix     ,
-			final String                                       storageFileSuffix     ,
+			final String                                       dataFilePrefix        ,
+			final String                                       dataFileSuffix        ,
 			final String                                       transactionsFilePrefix,
 			final String                                       transactionsFileSuffix,
 			final String                                       typeDictionaryFileName,
@@ -695,11 +689,10 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		)
 		{
 			super();
-			this.fileSystem             = baseDirectory.fileSystem();
 			this.baseDirectory          = baseDirectory         ;
 			this.channelDirectoryPrefix = channelDirectoryPrefix;
-			this.storageFilePrefix      = storageFilePrefix     ;
-			this.storageFileSuffix      = storageFileSuffix     ;
+			this.dataFilePrefix         = dataFilePrefix        ;
+			this.dataFileSuffix         = dataFileSuffix        ;
 			this.transactionsFilePrefix = transactionsFilePrefix;
 			this.transactionsFileSuffix = transactionsFileSuffix;
 			this.typeDictionaryFileName = typeDictionaryFileName;
@@ -743,7 +736,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		
 		public String storageFileSuffix()
 		{
-			return this.storageFileSuffix;
+			return this.dataFileSuffix;
 		}
 		
 		public String typeDictionaryFileName()
@@ -758,7 +751,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 
 		public final String provideStorageFileName(final int channelIndex, final long fileNumber)
 		{
-			return this.storageFilePrefix + channelIndex + '_' + fileNumber;
+			return this.dataFilePrefix + channelIndex + '_' + fileNumber;
 		}
 
 		public final String provideTransactionFileName(final int channelIndex)
@@ -771,13 +764,15 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final PersistenceTypeDictionaryStorer writeListener
 		)
 		{
-			/* (04.03.2019 TM)TODO: forced delegating API is not a clean solution.
+			/*
+			 * (04.03.2019 TM)TODO: forced delegating API is not a clean solution.
 			 * This is only a temporary solution. See the task containing "PersistenceDataFile".
 			 */
-			final Path directory = XIO.Path(this.baseDirectory());
-			XIO.unchecked.ensureDirectory(directory);
+			final ADirectory directory = this.baseDirectory();
+			directory.ensure();
 			
-			final Path file = XIO.Path(directory, this.typeDictionaryFileName());
+			final AFile file = directory.ensureFile(this.typeDictionaryFileName());
+			
 			return this.fileHandlerCreator.createTypeDictionaryIoHandler(file, writeListener);
 		}
 
@@ -800,40 +795,46 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		}
 		
 		@Override
-		public final StorageLiveDataFile provideDataFile(final int channelIndex, final long fileNumber)
+		public <F extends StorageDataFile> F provideDataFile(
+			final StorageDataFile.Creator<F> creator     ,
+			final int                        channelIndex,
+			final long                       fileNumber
+		)
 		{
 			final ADirectory channelDirectory = this.provideChannelDirectory(channelIndex);
 			final String     dataFileName     = this.provideStorageFileName(channelIndex, fileNumber);
-			final String     dataFileType     = this.storageFileSuffix;
+			final String     dataFileType     = this.dataFileSuffix;
 			final AFile      file             = channelDirectory.ensureFile(dataFileName, dataFileType);
 			
-			// (10.06.2020 TM)FIXME: priv#49: currently used by live and backup alike. Must be restructured ...
-			return StorageLiveDataFile.New(TODO, file, channelIndex, fileNumber);
+			return creator.createDataFile(file, channelIndex, fileNumber);
 		}
 
 		@Override
-		public StorageLiveTransactionsFile provideTransactionsFile(final int channelIndex)
+		public <F extends StorageTransactionsFile> F provideTransactionsFile(
+			final StorageTransactionsFile.Creator<F> creator     ,
+			final int                                channelIndex
+		)
 		{
-			final Path file = XIO.Path(
-				this.provideChannelDirectory(channelIndex),
-				this.provideTransactionFileName(channelIndex)
-			);
-
-			return ZStorageNumberedFile.New(channelIndex, Storage.transactionsFileNumber(), file);
+			final ADirectory channelDirectory = this.provideChannelDirectory(channelIndex);
+			final String     dataFileName     = this.provideTransactionFileName(channelIndex);
+			final String     dataFileType     = this.transactionsFileSuffix;
+			final AFile      file             = channelDirectory.ensureFile(dataFileName, dataFileType);
+			
+			return creator.createTransactionsFile(file, channelIndex);
 		}
 		
 		@Override
 		public StorageLockFile provideLockFile()
 		{
-			final Path lockFile = XIO.Path(this.baseDirectory(), this.lockFileName());
+			final AFile lockFile = this.baseDirectory().ensureFile(this.lockFileName());
 			
-			return ZStorageLockedFile.openLockedFile(lockFile);
+			return StorageLockFile.New(lockFile);
 		}
 
 		@Override
 		public StorageBackupDataFile provideDeletionTargetFile(final StorageLiveDataFile fileToBeDeleted)
 		{
-			final String deletionDirectory = this.deletionDirectory();
+			final ADirectory deletionDirectory = this.deletionDirectory();
 			if(deletionDirectory == null)
 			{
 				return null;
@@ -842,12 +843,11 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final int  channelIndex = fileToBeDeleted.channelIndex();
 			final long fileNumber   = fileToBeDeleted.number();
 			
-			final Path file = XIO.Path(
-				this.provideChannelDirectory(deletionDirectory, channelIndex),
-				this.provideStorageFileName(channelIndex, fileNumber)
-			);
-			
-			return ZStorageNumberedFile.New(channelIndex, fileNumber, file);
+			final ADirectory deletionChannelDir = this.provideChannelDirectory(deletionDirectory, channelIndex);
+			final String     deletionFileName   = this.provideStorageFileName(channelIndex, fileNumber);
+			final AFile      backupFile         = deletionChannelDir.ensureFile(deletionFileName);
+						
+			return StorageBackupDataFile.New(backupFile, channelIndex, fileNumber);
 		}
 		
 		@Override
@@ -856,7 +856,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final long                newLength
 		)
 		{
-			final String truncationDirectory = this.truncationDirectory();
+			final ADirectory truncationDirectory = this.truncationDirectory();
 			if(truncationDirectory == null)
 			{
 				return null;
@@ -865,23 +865,26 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final int  channelIndex = fileToBeTruncated.channelIndex();
 			final long fileNumber   = fileToBeTruncated.number();
 			
-			final Path file = XIO.Path(
-				this.provideChannelDirectory(truncationDirectory, channelIndex),
-				this.provideStorageFileName(channelIndex, fileNumber)
-				+ "_truncated_from_" + fileToBeTruncated.length() + "_to_" + newLength
+			final ADirectory truncationChannelDir = this.provideChannelDirectory(truncationDirectory, channelIndex);
+			final String     truncationFileName   = this.provideStorageFileName(channelIndex, fileNumber)
+				+ "_truncated_from_" + fileToBeTruncated.size() + "_to_" + newLength
 				+ "_@" + System.currentTimeMillis() + ".bak"
-			);
+			;
+			final AFile truncationBackupFile = truncationChannelDir.ensureFile(truncationFileName);
 			
-			return ZStorageNumberedFile.New(channelIndex, fileNumber, file);
+			return StorageBackupDataFile.New(truncationBackupFile, channelIndex, fileNumber);
 		}
 
 		@Override
-		public <P extends Consumer<ZStorageNumberedFile>> P collectDataFiles(
-			final P   collector   ,
-			final int channelIndex
+
+		public <F extends StorageDataFile, P extends Consumer<F>> P collectDataFiles(
+			final StorageDataFile.Creator<F> creator     ,
+			final P                          collector   ,
+			final int                        channelIndex
 		)
 		{
 			return Static.collectFile(
+				creator,
 				collector,
 				channelIndex,
 				this.provideChannelDirectory(channelIndex),
@@ -898,8 +901,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				.blank().add("base directory"          ).tab().add('=').blank().add(this.baseDirectory         ).lf()
 				.blank().add("deletion directory"      ).tab().add('=').blank().add(this.deletionDirectory     ).lf()
 				.blank().add("channel directory prefix").tab().add('=').blank().add(this.channelDirectoryPrefix).lf()
-				.blank().add("storage file prefix"     ).tab().add('=').blank().add(this.storageFilePrefix     ).lf()
-				.blank().add("file suffix"             ).tab().add('=').blank().add(this.storageFileSuffix     ).lf()
+				.blank().add("storage file prefix"     ).tab().add('=').blank().add(this.dataFilePrefix     ).lf()
+				.blank().add("file suffix"             ).tab().add('=').blank().add(this.dataFileSuffix     ).lf()
 				.blank().add("lockFileName"            ).tab().add('=').blank().add(this.lockFileName          )
 				.toString()
 			;

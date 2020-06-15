@@ -9,11 +9,12 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.AFileSystem;
 import one.microstream.afs.AItem;
 import one.microstream.afs.AReadableFile;
+import one.microstream.afs.AResolver;
 import one.microstream.afs.AWritableFile;
 import one.microstream.chars.VarString;
 import one.microstream.io.XIO;
 
-public interface NioFileSystem extends AFileSystem
+public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 {
 	public static Path toPath(final AItem item)
 	{
@@ -24,8 +25,7 @@ public interface NioFileSystem extends AFileSystem
 	{
 		return XIO.Path(pathElements);
 	}
-	
-	
+		
 	public static NioFileSystem New()
 	{
 		/* (29.05.2020 TM)FIXME: priv#49: standard protocol strings? Constants, Enums?
@@ -141,7 +141,7 @@ public interface NioFileSystem extends AFileSystem
 			// does not need synchronization since it only reads immutable state and creates only thread local state.
 			return NioFileSystem.toPath(file);
 		}
-		
+				
 		@Override
 		protected VarString assembleItemPath(final AItem item, final VarString vs)
 		{

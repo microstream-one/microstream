@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFileSystem;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.persistence.types.Persistence;
 
 
@@ -58,6 +59,8 @@ public final class Storage
 		return milliseconds / ONE_MILLION;
 	}
 
+
+	// (15.06.2020 TM)FIXME: priv#49: delete when not used anymore
 	/**
 	 * Returns the dummy file number for transaction files, which is the value <code>-1</code>.
 	 * <p>
@@ -147,10 +150,10 @@ public final class Storage
 	 */
 	public static final StorageFileProvider FileProvider(final Path storageDirectory)
 	{
-//		return StorageFileProvider.New(NioFileSystem.New().);
+		final NioFileSystem nfs = NioFileSystem.New();
+		final ADirectory    dir = nfs.resolveDirectory(storageDirectory);
 		
-		// (12.06.2020 TM)FIXME: priv#49: Storage#FileProvider() and convenient Path conversion way.
-		throw new one.microstream.meta.NotImplementedYetError();
+		return StorageFileProvider.New(dir);
 	}
 	
 	public static final StorageFileProvider FileProvider(final ADirectory storageDirectory)

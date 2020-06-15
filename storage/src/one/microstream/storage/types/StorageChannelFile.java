@@ -9,7 +9,9 @@ public interface StorageChannelFile extends StorageFile, StorageHashChannelPart
 	
 	
 	
-	public abstract class Abstract extends StorageFile.Abstract implements StorageChannelFile
+	public abstract class Abstract
+	extends StorageFile.Abstract
+	implements StorageChannelFile, StorageClosableFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -39,6 +41,18 @@ public interface StorageChannelFile extends StorageFile, StorageHashChannelPart
 		public final int channelIndex()
 		{
 			return this.channelIndex;
+		}
+		
+		@Override
+		public synchronized boolean isOpen()
+		{
+			return this.internalIsOpen();
+		}
+		
+		@Override
+		public synchronized boolean close()
+		{
+			return this.internalClose();
 		}
 				
 	}
