@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -104,7 +103,7 @@ public interface HazelcastConnector extends BlobStoreConnector
 			return (Long)metadata.get(2);
 		}
 
-		private final static long       MAX_UPLOAD_BLOB_BYTES     = 10_000_000L;
+		private final static long MAX_UPLOAD_BLOB_BYTES = 10_000_000L;
 
 		private final HazelcastInstance hazelcast;
 
@@ -148,7 +147,7 @@ public interface HazelcastConnector extends BlobStoreConnector
 				),
 				Predicates.regex(
 					QueryConstants.KEY_ATTRIBUTE_NAME.value(),
-					Pattern.quote(toBlobKeyPrefix(file)) + NUMBER_SUFFIX_REGEX
+					blobKeyRegex(toBlobKeyPrefix(file))
 				)
 			)
 			.stream()
@@ -224,7 +223,7 @@ public interface HazelcastConnector extends BlobStoreConnector
 					}
 					while(read < batchSize);
 
-					final String       identifier = toBlobKeyPrefix(file) + nextBlobNr++;
+					final String       identifier = toBlobKey(file, nextBlobNr++);
 					final List<Object> blob       = createBlob(
 						identifier,
 						offset,
@@ -286,7 +285,7 @@ public interface HazelcastConnector extends BlobStoreConnector
 		)
 		{
 			final List<Object> blob             = sourceMap.get(identifier(metadata));
-			final String       targetIdentifier = toBlobKeyPrefix(targetFile) + nr.getAndIncrement();
+			final String       targetIdentifier = toBlobKey(targetFile, nr.getAndIncrement());
 			final List<Object> newBlob          = createBlob(
 				targetIdentifier,
 				start(metadata),
