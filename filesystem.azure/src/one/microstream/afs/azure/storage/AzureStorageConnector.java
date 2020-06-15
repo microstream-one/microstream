@@ -83,7 +83,7 @@ public interface AzureStorageConnector extends BlobStoreConnector
 			);
 			return blobs.stream()
 				.filter(summary -> isBlobKey(prefix, summary.getName()))
-				.sorted((s1, s2) -> Long.compare(this.getBlobNr(s1), this.getBlobNr(s2)))
+				.sorted(this.blobComparator())
 			;
 		}
 

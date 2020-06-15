@@ -48,6 +48,11 @@
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
+			<artifactId>filesystem.hazelcast</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
 			<artifactId>filesystem.jpa.hibernate</artifactId>
 			<version>${project.version}</version>
 		</dependency>

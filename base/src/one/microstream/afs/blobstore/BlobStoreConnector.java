@@ -5,6 +5,7 @@ import static one.microstream.X.checkArrayRange;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.OptionalLong;
@@ -53,9 +54,10 @@ public interface BlobStoreConnector extends AutoCloseable
 	 */
 	public static abstract class Abstract<B> implements BlobStoreConnector
 	{
-		protected final static String  NUMBER_SUFFIX_SEPARATOR      = "."                    ;
-		protected final static char    NUMBER_SUFFIX_SEPARATOR_CHAR = '.'                    ;
-		protected final static Pattern NUMBER_SUFFIX_PATTERN        = Pattern.compile("\\d+");
+		protected final static String  NUMBER_SUFFIX_SEPARATOR      = ".";
+		protected final static char    NUMBER_SUFFIX_SEPARATOR_CHAR = '.';
+		protected final static String  NUMBER_SUFFIX_REGEX          = "\\d+";
+		protected final static Pattern NUMBER_SUFFIX_PATTERN        = Pattern.compile(NUMBER_SUFFIX_REGEX);
 
 
 		protected static String toContainerKey(
@@ -271,6 +273,11 @@ public interface BlobStoreConnector extends AutoCloseable
 		protected void internalClose()
 		{
 			// no-op by default
+		}
+
+		protected Comparator<B> blobComparator()
+		{
+			return (b1, b2) -> Long.compare(this.getBlobNr(b1), this.getBlobNr(b2));
 		}
 
 		protected long getBlobNr(

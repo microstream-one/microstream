@@ -79,7 +79,7 @@ public interface S3Connector extends BlobStoreConnector
 			)
 			.getObjectSummaries().stream()
 			.filter(summary -> isBlobKey(prefix, summary.getKey()))
-			.sorted((s1, s2) -> Long.compare(this.getBlobNr(s1), this.getBlobNr(s2)))
+			.sorted(this.blobComparator())
 			;
 		}
 
