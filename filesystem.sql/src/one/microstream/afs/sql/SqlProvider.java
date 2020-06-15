@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Types;
 
 import javax.sql.DataSource;
@@ -40,28 +41,118 @@ public interface SqlProvider
 
 	public <T> T execute(SqlOperation<T> operation);
 
-	public Blob createBlob(Connection connection, InputStream inputStream, long length);
+	public SqlBlobData createBlobData(Connection connection, InputStream inputStream, long length);
 
+	/**
+	 * <pre>
+	 * select count(*), max('end')
+	 * from [tableName]
+	 * where 'identifier' = ?
+	 * </pre>
+	 */
 	public String fileSizeQuery(String tableName);
 
+	/**
+	 * <pre>
+	 * select *
+	 * from [tableName]
+	 * where 'identifier' = ?
+	 * order by 'end' desc
+	 * </pre>
+	 */
 	public String readDataQuery(String tableName);
 
+	/**
+	 * <pre>
+	 * select *
+	 * from [tableName]
+	 * where 'identifier' = ?
+	 * and 'start' < ?
+	 * order by 'end' desc
+	 * </pre>
+	 */
 	public String readDataQueryWithLength(String tableName);
 
+	/**
+	 * <pre>
+	 * select *
+	 * from [tableName]
+	 * where 'identifier' = ?
+	 * and 'end' >= ?
+	 * order by 'end' desc
+	 * </pre>
+	 */
 	public String readDataQueryWithOffset(String tableName);
 
+	/**
+	 * <pre>
+	 * select *
+	 * from [tableName]
+	 * where 'identifier' = ?
+	 * and 'end' >= ?
+	 * and 'start' <= ?
+	 * order by 'end' desc
+	 * </pre>
+	 */
 	public String readDataQueryWithRange(String tableName);
 
+	/**
+	 * <pre>
+	 * select count(*)
+	 * from [tableName]
+	 * where 'identifier' = ?
+	 * </pre>
+	 */
 	public String fileExistsQuery(String tableName);
 
+	/**
+	 * <pre>
+	 * create table [tableName] (
+	 * 'identifier' varchar(IDENTIFIER_COLUMN_LENGTH) not null,
+	 * 'start' bigint not null,
+	 * 'end' bigint not null,
+	 * 'blob' not null,
+	 * primary key ('identifier', 'start')
+	 * )
+	 * </pre>
+	 */
 	public Iterable<String> createDirectoryQueries(String tableName);
 
+	/**
+	 * <pre>
+	 * delete from [tableName]
+	 * where 'identifier' = ?
+	 * </pre>
+	 */
 	public String deleteFileQuery(String tableName);
 
+	/**
+	 * <pre>
+	 * insert into [tableName]
+	 * ('identifier', 'start', 'end', 'data')
+	 * values (?, ?, ?, ?)
+	 * </pre>
+	 */
 	public String writeDataQuery(String tableName);
 
+	/**
+	 * <pre>
+	 * update [tableName]
+	 * set 'identifier' = ?
+	 * where 'identifier' = ?
+	 * </pre>
+	 */
 	public String moveFileQuerySameParent(String tableName);
 
+	/**
+	 * <pre>
+	 * insert into [targetTableName]
+	 * ('identifier', 'start', 'end', 'data')
+	 * select ?, 'start', 'end', 'data'
+	 * from [sourceTableName]
+	 * where 'identifier' = ?
+	 * </pre>
+	 */
 	public String copyFileQuery(String sourceTableName, String targetTableName);
 
 
@@ -134,8 +225,8 @@ public interface SqlProvider
 			}
 
 			vs.add(" order by ");
-			this.addSqlColumnName(vs, START_COLUMN_NAME);
-			vs.add(" asc");
+			this.addSqlColumnName(vs, END_COLUMN_NAME);
+			vs.add(" desc");
 
 			return vs.toString();
 		}
@@ -169,7 +260,7 @@ public interface SqlProvider
 		}
 
 		@Override
-		public Blob createBlob(
+		public SqlBlobData createBlobData(
 			final Connection  connection ,
 			final InputStream inputStream,
 			final long        length
@@ -177,31 +268,43 @@ public interface SqlProvider
 		{
 			try
 			{
-				final Blob blob = connection.createBlob();
-				try(final OutputStream outputStream = blob.setBinaryStream(1L))
+				try
 				{
-					int          remaining = X.checkArrayRange(length);
-					final byte[] buffer    = new byte[Math.min(remaining, 8096)];
-					while(remaining > 0)
+					final Blob blob = connection.createBlob();
+					try(final OutputStream outputStream = blob.setBinaryStream(1L))
 					{
-						final int read = inputStream.read(
-							buffer,
-							0,
-							Math.min(remaining, buffer.length)
-						);
-						outputStream.write(buffer, 0, read);
-						remaining -= read;
+						int          remaining = X.checkArrayRange(length);
+						final byte[] buffer    = new byte[Math.min(remaining, 8096)];
+						while(remaining > 0)
+						{
+							final int read = inputStream.read(
+								buffer,
+								0,
+								Math.min(remaining, buffer.length)
+							);
+							outputStream.write(buffer, 0, read);
+							remaining -= read;
+						}
 					}
-				}
 
-				return blob;
+					return SqlBlobData.New(blob);
+				}
+				catch(final SQLFeatureNotSupportedException e)
+				{
+					final byte[] bytes = new byte[X.checkArrayRange(length)];
+					int offset = 0;
+					while(offset < bytes.length - 1)
+					{
+						offset += inputStream.read(bytes, offset, bytes.length - offset);
+					}
+					return SqlBlobData.New(bytes);
+				}
 			}
 			catch(final SQLException | IOException e)
 			{
 				// TODO: proper exception
 				throw new RuntimeException(e);
 			}
-
 		}
 
 		@Override
@@ -211,7 +314,7 @@ public interface SqlProvider
 		{
 			final VarString vs = VarString.New();
 
-			vs.add("select max(");
+			vs.add("select count(*), max(");
 			this.addSqlColumnName(vs, END_COLUMN_NAME);
 			vs.add(") from ");
 			this.addSqlTableName(vs, tableName);
