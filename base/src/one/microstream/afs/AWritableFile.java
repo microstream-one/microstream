@@ -60,6 +60,12 @@ public interface AWritableFile extends AReadableFile
 		return this.actual().fileSystem().accessManager().downgrade(this);
 	}
 	
+	public default void truncate(final long newSize)
+	{
+		// synchronization handled by IoHandler.
+		this.actual().fileSystem().ioHandler().truncate(this, newSize);
+	}
+	
 	/* (03.06.2020 TM)FIXME: priv#49: rename file
 	 * including physical file, if exists.
 	 */

@@ -11,6 +11,16 @@ public interface StorageDataFile extends StorageChannelFile, StorageClosableFile
 	
 	
 	
+	public static int orderByNumber(
+		final StorageDataFile file1,
+		final StorageDataFile file2
+	)
+	{
+		return Long.compare(file1.number(), file2.number());
+	}
+	
+	
+	
 	@FunctionalInterface
 	public interface Creator<F extends StorageDataFile>
 	{

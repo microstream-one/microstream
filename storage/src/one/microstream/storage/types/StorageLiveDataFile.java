@@ -7,6 +7,8 @@ import one.microstream.storage.exceptions.StorageException;
 public interface StorageLiveDataFile
 extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 {
+	public long actualLength();
+	
 	public long totalLength();
 
 	public long dataLength();
@@ -26,11 +28,13 @@ extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 	public boolean hasSingleEntity();
 	
 	
-	public long importData(StorageFile source);
+	public long copyFrom(StorageFile source);
 	
-	public long importData(StorageFile source, long sourcePosition);
+	public long copyFrom(StorageFile source, long sourcePosition);
 	
-	public long importData(StorageFile source, long sourcePosition, long length);
+	public long copyFrom(StorageFile source, long sourcePosition, long length);
+	
+	public void truncate(long newLength);
 
 	
 	
@@ -125,6 +129,12 @@ extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 			return this.number;
 		}
 		
+		@Override
+		public long actualLength()
+		{
+			return this.file().size();
+		}
+	
 		@Override
 		public long dataLength()
 		{
@@ -329,31 +339,6 @@ extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 			this.parent.loadData(this, entity, length, cacheChange);
 		}
 		
-		@Override
-		public long importData(final StorageFile source)
-		{
-			return this.copyFrom(source);
-		}
-		
-		@Override
-		public long importData(
-			final StorageFile source        ,
-			final long        sourcePosition
-		)
-		{
-			return this.copyFrom(source, sourcePosition);
-		}
-		
-		@Override
-		public long importData(
-			final StorageFile source        ,
-			final long        sourcePosition,
-			final long        length
-		)
-		{
-			return this.copyFrom(source, sourcePosition,length);
-		}
-
 		@Override
 		public boolean isHeadFile()
 		{

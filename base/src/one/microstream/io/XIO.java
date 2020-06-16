@@ -731,6 +731,14 @@ public final class XIO
 		);
 	}
 	
+	public static void truncate(final Path file, final long newSize)
+		throws IOException
+	{
+		writeOneShot(file, fc ->
+			fc.truncate(newSize)
+		);
+	}
+	
 	
 	
 	public static final long writePositioned(final Path file, final long filePosition, final String string)
