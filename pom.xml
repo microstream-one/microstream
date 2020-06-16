@@ -39,6 +39,7 @@
 		<module>filesystem.hazelcast</module>
 		<module>filesystem.jpa.hibernate</module>
 		<module>filesystem.kafka</module>
+		<module>filesystem.redis</module>
 		<module>filesystem.sql</module>
 		<module>persistence</module>
 		<module>persistence.binary</module>
@@ -360,6 +361,7 @@
 				<module>filesystem.hazelcast</module>
 				<module>filesystem.jpa.hibernate</module>
 				<module>filesystem.kafka</module>
+				<module>filesystem.redis</module>
 				<module>filesystem.sql</module>
 				<module>persistence</module>
 				<module>persistence.binary</module>
@@ -391,6 +393,7 @@
 				<module>filesystem.hazelcast</module>
 				<module>filesystem.jpa.hibernate</module>
 				<module>filesystem.kafka</module>
+				<module>filesystem.redis</module>
 				<module>filesystem.sql</module>
 				<module>persistence</module>
 				<module>persistence.binary</module>
