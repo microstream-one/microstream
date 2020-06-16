@@ -34,17 +34,9 @@ public interface StorageFileWriter
 		);
 	}
 	
-	public default long write(final ZStorageLockedFile file, final ByteBuffer[] byteBuffers)
+	public default long write(final StorageFile file, final Iterable<? extends ByteBuffer> buffers)
 	{
-		try
-		{
-			return XIO.appendAllGuaranteed(file.fileChannel(), byteBuffers);
-		}
-		catch(final IOException e)
-		{
-			// (01.10.2014 TM)EXCP: proper exception
-			throw new StorageException(e);
-		}
+		return file.writeBytes(buffers);
 	}
 
 //	public default long copy(
@@ -78,8 +70,8 @@ public interface StorageFileWriter
 //	}
 	
 	public default long writeStore(
-		final ZStorageDataFile<?> targetFile ,
-		final ByteBuffer[]       byteBuffers
+		final StorageLiveDataFile            targetFile ,
+		final Iterable<? extends ByteBuffer> byteBuffers
 	)
 	{
 		return this.write(targetFile, byteBuffers);
@@ -87,7 +79,6 @@ public interface StorageFileWriter
 	
 	/**
 	 * Logically the same as a store, but technically the same as a transfer with an external source file.
-	 * 
 	 */
 	public default long writeImport(
 		final StorageFile         sourceFile  ,
@@ -96,7 +87,7 @@ public interface StorageFileWriter
 		final StorageLiveDataFile targetFile
 	)
 	{
-		return this.copyFilePart(sourceFile, sourceOffset, copyLength, targetFile);
+		return targetFile.copyFrom(sourceFile, sourceOffset, copyLength);
 	}
 	
 	public default long writeTransfer(
@@ -106,76 +97,76 @@ public interface StorageFileWriter
 		final StorageLiveDataFile targetFile
 	)
 	{
-		return this.copyFilePart(sourceFile, sourceOffset, copyLength, targetFile);
+		return targetFile.copyFrom(sourceFile, sourceOffset, copyLength);
 	}
 	
 	public default long writeTransactionEntryCreate(
-		final ZStorageInventoryFile transactionFile,
-		final ByteBuffer[]         byteBuffers    ,
-		final ZStorageDataFile<?>   dataFile
+		final StorageTransactionsFile        transactionFile,
+		final Iterable<? extends ByteBuffer> byteBuffers    ,
+		final StorageLiveDataFile            dataFile
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 	
 	public default long writeTransactionEntryStore(
-		final ZStorageInventoryFile transactionFile,
-		final ByteBuffer[]         byteBuffers    ,
-		final ZStorageDataFile<?>   dataFile       ,
-		final long                 dataFileOffset ,
-		final long                 storeLength
+		final StorageTransactionsFile        transactionFile,
+		final Iterable<? extends ByteBuffer> byteBuffers    ,
+		final StorageLiveDataFile            dataFile       ,
+		final long                           dataFileOffset ,
+		final long                           storeLength
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 	
 	public default long writeTransactionEntryTransfer(
-		final StorageTransactionsFile transactionFile,
-		final ByteBuffer[]             byteBuffers    ,
-		final ZStorageDataFile<?>       dataFile       ,
-		final long                     dataFileOffset ,
-		final long                     storeLength
+		final StorageTransactionsFile        transactionFile,
+		final Iterable<? extends ByteBuffer> byteBuffers    ,
+		final StorageLiveDataFile            dataFile       ,
+		final long                           dataFileOffset ,
+		final long                           storeLength
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 	
 	public default long writeTransactionEntryDelete(
-		final ZStorageInventoryFile transactionFile,
-		final ByteBuffer[]             byteBuffers    ,
-		final ZStorageDataFile<?>       dataFile
+		final StorageTransactionsFile        transactionFile,
+		final Iterable<? extends ByteBuffer> byteBuffers    ,
+		final StorageLiveDataFile            dataFile
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 	
 	public default long writeTransactionEntryTruncate(
-		final ZStorageInventoryFile transactionFile,
-		final ByteBuffer[]             byteBuffers    ,
-		final ZStorageInventoryFile     file           ,
-		final long                     newFileLength
+		final StorageTransactionsFile        transactionFile,
+		final Iterable<? extends ByteBuffer> byteBuffers    ,
+		final StorageLiveDataFile            dataFile       ,
+		final long                           newFileLength
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 
 	public default void truncate(
-		final ZStorageInventoryFile file               ,
-		final long                 newLength          ,
-		final StorageFileProvider  storageFileProvider
+		final StorageLiveDataFile file               ,
+		final long                newLength          ,
+		final StorageFileProvider storageFileProvider
 	)
 	{
 		truncateFile(file, newLength, storageFileProvider);
 	}
 	
 	public static void truncateFile(
-		final ZStorageNumberedFile file               ,
+		final StorageLiveDataFile file               ,
 		final long                newLength          ,
 		final StorageFileProvider storageFileProvider
 	)
 	{
 //		DEBUGStorage.println("storage file truncation");
-		final ZStorageNumberedFile truncationTargetFile = storageFileProvider.provideTruncationBackupTargetFile(
+		final StorageBackupDataFile truncationTargetFile = storageFileProvider.provideTruncationBackupTargetFile(
 			file,
 			newLength
 		);
@@ -186,24 +177,25 @@ public interface StorageFileWriter
 
 		try
 		{
-			file.fileChannel().truncate(newLength);
+			file.truncate(newLength);
 		}
 		catch(final IOException e)
 		{
-			throw new StorageException(e); // (01.10.2014 TM)EXCP: proper exception
+			// (01.10.2014 TM)EXCP: proper exception
+			throw new StorageException(e);
 		}
 	}
 
 	public default void delete(
-		final ZStorageInventoryFile file               ,
-		final StorageFileProvider  storageFileProvider
+		final StorageLiveDataFile file               ,
+		final StorageFileProvider storageFileProvider
 	)
 	{
 		deleteFile(file, storageFileProvider);
 	}
 	
 	public static void deleteFile(
-		final ZStorageNumberedFile file               ,
+		final StorageLiveDataFile file               ,
 		final StorageFileProvider storageFileProvider
 	)
 	{
@@ -213,6 +205,8 @@ public interface StorageFileWriter
 		{
 			return;
 		}
+		
+		// (16.06.2020 TM)FIXME: priv#49: delete
 		
 		if(file.delete())
 		{
@@ -253,15 +247,17 @@ public interface StorageFileWriter
 	}
 	
 	public static boolean rescueFromDeletion(
-		final ZStorageNumberedFile file               ,
+		final StorageLiveDataFile file               ,
 		final StorageFileProvider storageFileProvider
 	)
 	{
-		final ZStorageNumberedFile deletionTargetFile = storageFileProvider.provideDeletionTargetFile(file);
+		final StorageBackupDataFile deletionTargetFile = storageFileProvider.provideDeletionTargetFile(file);
 		if(deletionTargetFile == null)
 		{
 			return false;
 		}
+		
+		// (15.06.2020 TM)FIXME: priv#49: move file
 		
 		try
 		{

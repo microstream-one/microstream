@@ -54,9 +54,14 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	
 	public StorageLockFile provideLockFile();
 	
-	public StorageBackupDataFile provideDeletionTargetFile(StorageLiveDataFile fileToBeDeleted);
+	public StorageBackupDataFile provideDeletionTargetFile(
+		StorageLiveDataFile fileToBeDeleted
+	);
 	
-	public StorageBackupDataFile provideTruncationBackupTargetFile(StorageLiveDataFile fileToBeTruncated, long newLength);
+	public StorageBackupDataFile provideTruncationBackupTargetFile(
+		StorageLiveDataFile fileToBeTruncated,
+		long                newLength
+	);
 
 	
 	

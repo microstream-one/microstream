@@ -34,6 +34,9 @@ public interface StorageFile
 	public long readBytes(BufferProvider bufferProvider, long position, long length);
 	
 	
+	public long writeBytes(Iterable<? extends ByteBuffer> buffers);
+	
+	
 	public long copyTo(AWritableFile target);
 	
 	public long copyTo(AWritableFile target, long sourcePosition);
@@ -84,9 +87,7 @@ public interface StorageFile
 		@Override
 		public final synchronized long size()
 		{
-			this.internalOpen();
-			
-			return this.access.size();
+			return this.ensureReadable().size();
 		}
 		
 		@Override
@@ -100,7 +101,7 @@ public interface StorageFile
 		{
 			try
 			{
-				return this.ensureReading().readBytes(targetBuffer);
+				return this.ensureReadable().readBytes(targetBuffer);
 			}
 			catch(final Exception e)
 			{
@@ -113,7 +114,7 @@ public interface StorageFile
 		{
 			try
 			{
-				return this.ensureReading().readBytes(targetBuffer, position);
+				return this.ensureReadable().readBytes(targetBuffer, position);
 			}
 			catch(final Exception e)
 			{
@@ -126,7 +127,7 @@ public interface StorageFile
 		{
 			try
 			{
-				return this.ensureReading().readBytes(targetBuffer, position, length);
+				return this.ensureReadable().readBytes(targetBuffer, position, length);
 			}
 			catch(final Exception e)
 			{
@@ -139,7 +140,7 @@ public interface StorageFile
 		{
 			try
 			{
-				return this.ensureReading().readBytes(bufferProvider);
+				return this.ensureReadable().readBytes(bufferProvider);
 			}
 			catch(final Exception e)
 			{
@@ -155,7 +156,7 @@ public interface StorageFile
 		{
 			try
 			{
-				return this.ensureReading().readBytes(bufferProvider, position);
+				return this.ensureReadable().readBytes(bufferProvider, position);
 			}
 			catch(final Exception e)
 			{
@@ -172,7 +173,21 @@ public interface StorageFile
 		{
 			try
 			{
-				return this.ensureReading().readBytes(bufferProvider, position, length);
+				return this.ensureReadable().readBytes(bufferProvider, position, length);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageExceptionIoReading(e);
+			}
+		}
+		
+
+		@Override
+		public final synchronized long writeBytes(final Iterable<? extends ByteBuffer> buffers)
+		{
+			try
+			{
+				return this.ensureWritable().writeBytes(buffers);
 			}
 			catch(final Exception e)
 			{
@@ -185,7 +200,7 @@ public interface StorageFile
 		{
 			try
 			{
-				return this.ensureReading().copyTo(target);
+				return this.ensureReadable().copyTo(target);
 			}
 			catch(final Exception e)
 			{
@@ -198,7 +213,7 @@ public interface StorageFile
 		{
 			try
 			{
-				return this.ensureReading().copyTo(target, sourcePosition);
+				return this.ensureReadable().copyTo(target, sourcePosition);
 			}
 			catch(final Exception e)
 			{
@@ -211,7 +226,7 @@ public interface StorageFile
 		{
 			try
 			{
-				return this.ensureReading().copyTo(target, sourcePosition, length);
+				return this.ensureReadable().copyTo(target, sourcePosition, length);
 			}
 			catch(final Exception e)
 			{
@@ -219,31 +234,36 @@ public interface StorageFile
 			}
 		}
 		
-		protected final synchronized long copyFrom(
+		public final synchronized long copyFrom(
 			final StorageFile source
 		)
 		{
-			return source.copyTo(this.access);
+			return source.copyTo(this.ensureWritable());
 		}
 		
-		protected final synchronized long copyFrom(
+		public final synchronized long copyFrom(
 			final StorageFile source        ,
 			final long        sourcePosition
 		)
 		{
-			return source.copyTo(this.access, sourcePosition);
+			return source.copyTo(this.ensureWritable(), sourcePosition);
 		}
 		
-		protected final synchronized long copyFrom(
+		public final synchronized long copyFrom(
 			final StorageFile source        ,
 			final long        sourcePosition,
 			final long        length
 		)
 		{
-			return source.copyTo(this.access, sourcePosition, length);
+			return source.copyTo(this.ensureWritable(), sourcePosition, length);
 		}
 		
-		protected synchronized AReadableFile ensureReading()
+		public final synchronized void truncate(final long newLength)
+		{
+			this.ensureWritable().truncate(newLength);
+		}
+		
+		protected synchronized AReadableFile ensureReadable()
 		{
 			return this.ensureWritable();
 		}

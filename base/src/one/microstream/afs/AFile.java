@@ -315,6 +315,16 @@ public interface AFile extends AItem
 		{
 			// no-op by default
 		}
+		
+		public default void onBeforeFileTruncation(final AWritableFile fileToTruncate, final long newSize)
+		{
+			// no-op by default
+		}
+		
+		public default void onAfterFileTruncation(final AWritableFile truncatedFile, final long newSize)
+		{
+			// no-op by default
+		}
 				
 		public default void onBeforeFileDelete(final AWritableFile fileToDelete)
 		{

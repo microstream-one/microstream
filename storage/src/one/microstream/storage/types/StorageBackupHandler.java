@@ -453,8 +453,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				return;
 			}
 
-			final long storageFileLength      = storageTransactionsFile.length();
-			final long backupTargetFileLength = backupTransactionFile.length();
+			final long storageFileLength      = storageTransactionsFile.actualLength();
+			final long backupTargetFileLength = backupTransactionFile.actualLength();
 			
 			if(backupTargetFileLength != storageFileLength)
 			{
@@ -624,24 +624,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			
 			final void ensureRegisteredFiles()
 			{
-				if(this.dataFiles != null)
-				{
-					// files already registered
-					return;
-				}
-				
-				final BulkList<StorageBackupDataFile> collectedFiles =
-				this.backupFileProvider.collectDataFiles(
-					StorageBackupDataFile::New,
-					BulkList.New(),
-					this.channelIndex()
-				)
-				.sort(ZStorageNumberedFile::orderByNumber);
-				
-				this.dataFiles = EqHashTable.New();
-				
-				collectedFiles.iterate(this::registerBackupFile);
-				
+				this.ensureDataFiles();
 				this.ensureTransactionsFile();
 			}
 			
@@ -663,10 +646,38 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 						this.channelIndex,
 						sourceFile.number()
 					);
-					this.dataFiles.add(backupFile.number(), backupFile);
+					this.registerBackupFile(backupFile);
 				}
 				
 				return backupFile;
+			}
+			
+			private StorageBackupDataFile registerBackupFile(final StorageBackupDataFile backupFile)
+			{
+				this.dataFiles.add(backupFile.number(), backupFile);
+				
+				return backupFile;
+			}
+			
+			final void ensureDataFiles()
+			{
+				if(this.dataFiles != null)
+				{
+					// files already registered
+					return;
+				}
+				
+				final BulkList<StorageBackupDataFile> collectedFiles =
+				this.backupFileProvider.collectDataFiles(
+					StorageBackupDataFile::New,
+					BulkList.New(),
+					this.channelIndex()
+				)
+				.sort(StorageDataFile::orderByNumber);
+				
+				this.dataFiles = EqHashTable.New();
+				
+				collectedFiles.iterate(this::registerBackupFile);
 			}
 			
 			final StorageBackupTransactionsFile ensureTransactionsFile()

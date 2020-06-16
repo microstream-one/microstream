@@ -67,9 +67,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		StorageChannel   parent
 	);
 
-	public ZStorageDataFile<?> currentStorageFile();
+	public StorageLiveDataFile currentStorageFile();
 
-	public void iterateStorageFiles(Consumer<? super ZStorageDataFile<?>> procedure);
+	public void iterateStorageFiles(Consumer<? super StorageLiveDataFile> procedure);
 
 	public boolean incrementalFileCleanupCheck(long nanoTimeBudgetBound);
 
@@ -536,7 +536,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		@Override
-		public void iterateStorageFiles(final Consumer<? super ZStorageDataFile<?>> procedure)
+		public void iterateStorageFiles(final Consumer<? super StorageLiveDataFile> procedure)
 		{
 			// keep current als end marker, but start with first file, use current als last and then quit the loop
 			final StorageLiveDataFile.Default current = this.headFile;
@@ -563,7 +563,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		
 		private long ensureHeadFileTotalLength()
 		{
-			final long physicalLength = this.headFile.length();
+			final long physicalLength = this.headFile.actualLength();
 			final long expectedLength = this.headFile.totalLength();
 			
 			if(physicalLength != expectedLength)
@@ -594,7 +594,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			final long   writeCount       = this.writer.writeStore(this.headFile, dataBuffers);
 			final long   newTotalLength   = oldTotalLength + writeCount;
 			
-			if(newTotalLength != this.headFile.length())
+			if(newTotalLength != this.headFile.actualLength())
 			{
 				throwImpossibleStoreLengthException(timestamp, oldTotalLength, writeCount, dataBuffers);
 			}
@@ -739,11 +739,12 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				throw new StorageException(this.channelIndex() + " already initialized");
 			}
 
-			final StorageTransactionsAnalysis         transactionsFile = this.readTransactionsFile();
-			final EqHashTable<Long, ZStorageInventoryFile> storageFiles     = EqHashTable.New();
+			final StorageTransactionsAnalysis            transactionsFile = this.readTransactionsFile();
+			final EqHashTable<Long, StorageLiveDataFile> storageFiles     = EqHashTable.New();
 			this.storageFileProvider.collectDataFiles(
+				this::createLiveDataFile,
 				f ->
-					storageFiles.add(f.number(), f.inventorize()),
+					storageFiles.add(f.number(), f),
 				this.channelIndex()
 			);
 			storageFiles.keys().sort(XSort::compare);
@@ -1017,7 +1018,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				 * if no transactions file was present, it must be assumed that the last file is consistent
 				 * (e.g. user manually deleted the transactions file in a consistent database)
 				 */
-				return storageInventory.dataFiles().values().last().length();
+				return storageInventory.dataFiles().values().last().actualLength();
 			}
 			else if(tFileAnalysis.headFileLatestTimestamp() == consistentStoreTimestamp)
 			{
@@ -1142,11 +1143,11 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		private void writeTransactionsEntryStore(
-			final ZStorageDataFile<?> dataFile              ,
-			final long               dataFileOffset        ,
-			final long               storeLength           ,
-			final long               timestamp             ,
-			final long               headFileNewTotalLength
+			final StorageLiveDataFile dataFile              ,
+			final long                dataFileOffset        ,
+			final long                storeLength           ,
+			final long                timestamp             ,
+			final long                headFileNewTotalLength
 		)
 		{
 			this.entryBufferStore[0].clear();

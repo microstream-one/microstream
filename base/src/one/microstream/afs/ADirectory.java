@@ -590,7 +590,6 @@ public interface ADirectory extends AItem, AResolving
 		public void onBeforeFileDelete(AWritableFile fileToDelete);
 		
 		public void onAfterFileDelete(AWritableFile deletedFile, boolean result);
-		
 
 
 		public void onBeforeDirectoryCreate(ADirectory directoryToCreate);

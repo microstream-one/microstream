@@ -158,6 +158,19 @@ public interface NioIoHandler extends AIoHandler
 				throw new IORuntimeException(e);
 			}
 		}
+		
+		@Override
+		protected void specificTruncateFile(final NioWritableFile file, final long newSize)
+		{
+			try
+			{
+				XIO.truncate(file.path(), newSize);
+			}
+			catch (final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
 
 		@Override
 		protected boolean specificDeleteFile(final NioWritableFile file)
