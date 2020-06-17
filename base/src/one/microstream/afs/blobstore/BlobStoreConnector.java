@@ -119,7 +119,7 @@ public interface BlobStoreConnector extends AutoCloseable
 
 		protected abstract long size(B blob);
 
-		protected abstract Stream<B> blobs(BlobStorePath file);
+		protected abstract Stream<? extends B> blobs(BlobStorePath file);
 
 		protected abstract boolean internalDeleteFile(BlobStorePath file);
 
