@@ -2,7 +2,7 @@ package one.microstream.storage.types;
 
 import one.microstream.afs.AFile;
 
-public interface StorageDataFile extends StorageChannelFile, StorageClosableFile
+public interface StorageDataFile extends StorageChannelFile, StorageClosableFile, StorageCreatableFile
 {
 	@Override
 	public int channelIndex();

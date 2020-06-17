@@ -39,9 +39,9 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 
 		@Override
 		public final void enqueueCopyingItem(
-			final ZStorageInventoryFile sourceFile    ,
-			final long                 sourcePosition,
-			final long                 length
+			final StorageLiveFile<?> sourceFile    ,
+			final long               sourcePosition,
+			final long               length
 		)
 		{
 			this.internalEnqueueItem(sourceFile, sourcePosition, length);
@@ -49,8 +49,8 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 
 		@Override
 		public final void enqueueTruncatingItem(
-			final ZStorageInventoryFile file     ,
-			final long                 newLength
+			final StorageLiveFile<?> file     ,
+			final long               newLength
 		)
 		{
 			// signalling with a null sourceFile is a hack to avoid the complexity of multiple Item classes
@@ -58,16 +58,18 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 		}
 		
 		@Override
-		public void enqueueDeletionItem(final ZStorageInventoryFile file)
+		public void enqueueDeletionItem(
+			final StorageLiveFile<?> file
+		)
 		{
 			// signalling with a negative length is a hack to avoid the complexity of multiple Item classes
 			this.internalEnqueueItem(file, 0, -1);
 		}
 		
 		private void internalEnqueueItem(
-			final ZStorageInventoryFile sourceFile    ,
-			final long                 sourcePosition,
-			final long                 length
+			final StorageLiveFile<?> sourceFile    ,
+			final long               sourcePosition,
+			final long               length
 		)
 		{
 			sourceFile.registerUsage(this);
@@ -125,9 +127,9 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			// instance fields //
 			////////////////////
 			
-			final ZStorageInventoryFile sourceFile    ;
-			final long                 sourcePosition;
-			final long                 length        ;
+			final StorageLiveFile<?> sourceFile    ;
+			final long               sourcePosition;
+			final long               length        ;
 
 			Item next;
 
@@ -138,9 +140,9 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			/////////////////
 			
 			Item(
-				final ZStorageInventoryFile sourceFile    ,
-				final long                 sourcePosition,
-				final long                 length
+				final StorageLiveFile<?> sourceFile    ,
+				final long               sourcePosition,
+				final long               length
 			)
 			{
 				super();

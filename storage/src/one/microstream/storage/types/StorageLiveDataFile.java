@@ -7,8 +7,6 @@ import one.microstream.storage.exceptions.StorageException;
 public interface StorageLiveDataFile
 extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 {
-	public long actualLength();
-	
 	public long totalLength();
 
 	public long dataLength();
@@ -26,14 +24,7 @@ extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 	 * @return {@literal true} if the file containts exactely one live entity.
 	 */
 	public boolean hasSingleEntity();
-	
-	
-	public long copyFrom(StorageFile source);
-	
-	public long copyFrom(StorageFile source, long sourcePosition);
-	
-	public long copyFrom(StorageFile source, long sourcePosition, long length);
-	
+		
 	public void truncate(long newLength);
 
 	
@@ -127,12 +118,6 @@ extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 		public final long number()
 		{
 			return this.number;
-		}
-		
-		@Override
-		public long actualLength()
-		{
-			return this.file().size();
 		}
 	
 		@Override
@@ -251,6 +236,30 @@ extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
 		public final synchronized boolean close()
 		{
 			return this.internalClose();
+		}
+		
+		@Override
+		protected synchronized boolean internalOpen()
+		{
+			final boolean wasNewlyOpened = super.internalOpen();
+			if(!wasNewlyOpened)
+			{
+				return false;
+			}
+
+			final long expectedSize = this.totalLength();
+			final long actualSize = this.ensureReadable().size();
+			
+			if(actualSize != expectedSize)
+			{
+				// (16.06.2020 TM)EXCP: proper exception
+				throw new RuntimeException(
+					"Reopened file has inconsistent size: Expected size " + expectedSize
+					+ " != actual size " + actualSize + "."
+				);
+			}
+			
+			return true;
 		}
 
 		@Override

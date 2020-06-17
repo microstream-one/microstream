@@ -1,20 +1,20 @@
 package one.microstream.storage.exceptions;
 
 import one.microstream.chars.VarString;
-import one.microstream.storage.types.ZStorageBackupFile;
-import one.microstream.storage.types.ZStorageInventoryFile;
+import one.microstream.storage.types.StorageBackupFile;
+import one.microstream.storage.types.StorageLiveFile;
 
 public class StorageExceptionBackupCopying
-extends StorageExceptionBackupChannelIndex
+extends StorageExceptionBackup
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
 	
-	private final ZStorageInventoryFile storageFile   ;
-	private final long                 sourcePosition;
-	private final long                 length        ;
-	private final ZStorageBackupFile    backupFile    ;
+	private final StorageLiveFile<?> liveDataFile   ;
+	private final long               sourcePosition;
+	private final long               length        ;
+	private final StorageBackupFile  backupFile    ;
 
 	
 
@@ -23,78 +23,78 @@ extends StorageExceptionBackupChannelIndex
 	/////////////////
 
 	public StorageExceptionBackupCopying(
-		final ZStorageInventoryFile storageFile   ,
-		final long                 sourcePosition,
-		final long                 length        ,
-		final ZStorageBackupFile    backupFile
+		final StorageLiveFile<?> storageFile   ,
+		final long               sourcePosition,
+		final long               length        ,
+		final StorageBackupFile  backupFile
 	)
 	{
-		super(storageFile.channelIndex());
-		this.storageFile    = storageFile   ;
+		super();
+		this.liveDataFile    = storageFile   ;
 		this.sourcePosition = sourcePosition;
 		this.length         = length        ;
 		this.backupFile     = backupFile    ;
 	}
 
 	public StorageExceptionBackupCopying(
-		final ZStorageInventoryFile storageFile   ,
-		final long                 sourcePosition,
-		final long                 length        ,
-		final ZStorageBackupFile    backupFile    ,
-		final String               message
+		final StorageLiveFile<?> storageFile   ,
+		final long               sourcePosition,
+		final long               length        ,
+		final StorageBackupFile  backupFile    ,
+		final String             message
 	)
 	{
-		super(storageFile.channelIndex(), message);
-		this.storageFile    = storageFile   ;
+		super(message);
+		this.liveDataFile    = storageFile   ;
 		this.sourcePosition = sourcePosition;
 		this.length         = length        ;
 		this.backupFile     = backupFile    ;
 	}
 
 	public StorageExceptionBackupCopying(
-		final ZStorageInventoryFile storageFile   ,
-		final long                 sourcePosition,
-		final long                 length        ,
-		final ZStorageBackupFile    backupFile    ,
-		final Throwable            cause
+		final StorageLiveFile<?> storageFile   ,
+		final long               sourcePosition,
+		final long               length        ,
+		final StorageBackupFile  backupFile    ,
+		final Throwable          cause
 	)
 	{
-		super(storageFile.channelIndex(), cause);
-		this.storageFile    = storageFile   ;
+		super(cause);
+		this.liveDataFile    = storageFile   ;
 		this.sourcePosition = sourcePosition;
 		this.length         = length        ;
 		this.backupFile     = backupFile    ;
 	}
 
 	public StorageExceptionBackupCopying(
-		final ZStorageInventoryFile storageFile   ,
-		final long                 sourcePosition,
-		final long                 length        ,
-		final ZStorageBackupFile    backupFile    ,
-		final String               message       ,
-		final Throwable            cause
+		final StorageLiveFile<?> storageFile   ,
+		final long               sourcePosition,
+		final long               length        ,
+		final StorageBackupFile  backupFile    ,
+		final String             message       ,
+		final Throwable          cause
 	)
 	{
-		super(storageFile.channelIndex(), message, cause);
-		this.storageFile    = storageFile   ;
+		super(message, cause);
+		this.liveDataFile    = storageFile   ;
 		this.sourcePosition = sourcePosition;
 		this.length         = length        ;
 		this.backupFile     = backupFile    ;
 	}
 
 	public StorageExceptionBackupCopying(
-		final ZStorageInventoryFile storageFile       ,
-		final long                 sourcePosition    ,
-		final long                 length            ,
-		final ZStorageBackupFile    backupFile        ,
-		final String               message           ,
-		final Throwable            cause             ,
-		final boolean              enableSuppression ,
-		final boolean              writableStackTrace
+		final StorageLiveFile<?> storageFile       ,
+		final long               sourcePosition    ,
+		final long               length            ,
+		final StorageBackupFile  backupFile        ,
+		final String             message           ,
+		final Throwable          cause             ,
+		final boolean            enableSuppression ,
+		final boolean            writableStackTrace
 	)
 	{
-		super(storageFile.channelIndex(), message, cause, enableSuppression, writableStackTrace);
-		this.storageFile    = storageFile   ;
+		super(message, cause, enableSuppression, writableStackTrace);
+		this.liveDataFile   = storageFile   ;
 		this.sourcePosition = sourcePosition;
 		this.length         = length        ;
 		this.backupFile     = backupFile    ;
@@ -106,9 +106,9 @@ extends StorageExceptionBackupChannelIndex
 	// methods //
 	////////////
 	
-	public final ZStorageInventoryFile storageFile()
+	public final StorageLiveFile<?> liveDataFile()
 	{
-		return this.storageFile;
+		return this.liveDataFile;
 	}
 	
 	public final long sourcePosition()
@@ -121,7 +121,7 @@ extends StorageExceptionBackupChannelIndex
 		return this.length;
 	}
 	
-	public final ZStorageBackupFile backupFile()
+	public final StorageBackupFile backupFile()
 	{
 		return this.backupFile;
 	}
@@ -130,7 +130,7 @@ extends StorageExceptionBackupChannelIndex
 	public String assembleDetailString()
 	{
 		return VarString.New()
-			.add(this.storageFile.identifier()).add('@').add(this.sourcePosition).add('+').add(this.length)
+			.add(this.liveDataFile.identifier()).add('@').add(this.sourcePosition).add('+').add(this.length)
 			.add(" -> ")
 			.add(this.backupFile.identifier())
 			.toString()

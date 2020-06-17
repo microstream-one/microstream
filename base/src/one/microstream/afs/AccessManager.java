@@ -8,7 +8,6 @@ import one.microstream.X;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.interfaces.OptimizableCollection;
-import one.microstream.meta.XDebug;
 
 public interface AccessManager
 {
@@ -592,9 +591,6 @@ public interface AccessManager
 		
 		private DirEntry addUsedDirectoryEntry(final ADirectory actual)
 		{
-			// (03.06.2020 TM)FIXME: /!\ DEBUG
-			XDebug.println("Registering as used directory: " + actual);
-			
 			final DirEntry entry;
 			this.usedDirectories.add(actual, entry = new DirEntry(actual));
 			

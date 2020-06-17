@@ -60,14 +60,14 @@ public interface StorageLockFileManager extends Runnable
 		private final StorageFileWriter          writer             ;
 
 		// cached values
-		private transient boolean           isRunning        ;
-		private transient ZStorageLockedFile lockFile         ;
-		private transient LockFileData      lockFileData     ;
-		private transient ByteBuffer[]      wrappedByteBuffer;
-		private transient ByteBuffer        directByteBuffer ;
-		private transient byte[]            stringReadBuffer ;
-		private transient byte[]            stringWriteBuffer;
-		private transient VarString         vs;
+		private transient boolean         isRunning        ;
+		private transient StorageLockFile lockFile         ;
+		private transient LockFileData    lockFileData     ;
+		private transient ByteBuffer[]    wrappedByteBuffer;
+		private transient ByteBuffer      directByteBuffer ;
+		private transient byte[]          stringReadBuffer ;
+		private transient byte[]          stringWriteBuffer;
+		private transient VarString       vs;
 		
 		
 		
@@ -247,7 +247,7 @@ public interface StorageLockFileManager extends Runnable
 		
 		private void fillReadBufferFromFile()
 		{
-			final int fileLength = X.checkArrayRange(this.lockFile.length());
+			final int fileLength = X.checkArrayRange(this.lockFile.size());
 			this.reader.readStorage(this.lockFile, 0, this.ensureReadingBuffer(fileLength), this);
 			XMemory.copyRangeToArray(XMemory.getDirectByteBufferAddress(this.directByteBuffer), this.stringReadBuffer);
 		}
@@ -353,7 +353,7 @@ public interface StorageLockFileManager extends Runnable
 			final StorageFileProvider fileProvider = this.setup.lockFileProvider();
 			this.lockFile = fileProvider.provideLockFile();
 			
-			if(this.lockFile.exists() && this.lockFile.length() > 0)
+			if(this.lockFile.exists() && this.lockFile.size() > 0)
 			{
 				this.validateExistingLockFileData(true);
 			}

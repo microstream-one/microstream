@@ -1,6 +1,5 @@
 package one.microstream.storage.types;
 
-import one.microstream.afs.AWritableFile;
 import one.microstream.functional.ThrowingProcedure;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
@@ -66,7 +65,7 @@ public interface StorageEntity
 
 	public boolean iterateReferenceIds(PersistenceObjectIdAcceptor referenceIdIterator);
 
-	public long exportTo(AWritableFile file);
+	public long exportTo(StorageFile file);
 
 
 
@@ -555,7 +554,7 @@ public interface StorageEntity
 		}
 
 		@Override
-		public final long exportTo(final AWritableFile file)
+		public final long exportTo(final StorageFile file)
 		{
 			return this.typeInFile.file.copyTo(file, this.storagePosition, this.length);
 		}
