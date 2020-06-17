@@ -13,6 +13,11 @@ import one.microstream.storage.exceptions.StorageExceptionIoReading;
 
 public interface StorageFile
 {
+	public default String identifier()
+	{
+		return this.file().toPathString();
+	}
+	
 	public AFile file();
 	
 	public long size();
@@ -37,11 +42,26 @@ public interface StorageFile
 	public long writeBytes(Iterable<? extends ByteBuffer> buffers);
 	
 	
-	public long copyTo(AWritableFile target);
+	public void pull(AWritableFile fileToMove);
 	
-	public long copyTo(AWritableFile target, long sourcePosition);
+	
+	public long copyTo(StorageFile target);
+	
+	public long copyTo(StorageFile target, long sourcePosition);
 
-	public long copyTo(AWritableFile target, long sourcePosition, long length);
+	public long copyTo(StorageFile target, long sourcePosition, long length);
+	
+	
+	public long copyFrom(AReadableFile source);
+	
+	public long copyFrom(AReadableFile source, long sourcePosition);
+
+	public long copyFrom(AReadableFile source, long sourcePosition, long length);
+	
+	
+	public boolean delete();
+
+	public void moveTo(StorageFile target);
 	
 	
 		
@@ -87,7 +107,7 @@ public interface StorageFile
 		@Override
 		public final synchronized long size()
 		{
-			return this.ensureReadable().size();
+			return this.file().size();
 		}
 		
 		@Override
@@ -196,11 +216,53 @@ public interface StorageFile
 		}
 		
 		@Override
-		public final synchronized long copyTo(final AWritableFile target)
+		public final synchronized void pull(final AWritableFile fileToMove)
 		{
 			try
 			{
-				return this.ensureReadable().copyTo(target);
+				fileToMove.moveTo(this.ensureWritable());
+			}
+			catch(final Exception e)
+			{
+				throw new StorageExceptionIoReading(e);
+			}
+		}
+				
+		@Override
+		public final synchronized long copyTo(
+			final StorageFile target
+		)
+		{
+			return target.copyFrom(this.ensureReadable());
+		}
+		
+		@Override
+		public final synchronized long copyTo(
+			final StorageFile target        ,
+			final long        sourcePosition
+		)
+		{
+			return target.copyFrom(this.ensureReadable(), sourcePosition);
+		}
+
+		@Override
+		public final synchronized long copyTo(
+			final StorageFile target        ,
+			final long        sourcePosition,
+			final long        length
+		)
+		{
+			return target.copyFrom(this.ensureReadable(), sourcePosition, length);
+		}
+				
+		@Override
+		public final synchronized long copyFrom(
+			final AReadableFile source
+		)
+		{
+			try
+			{
+				return source.copyTo(this.ensureWritable());
 			}
 			catch(final Exception e)
 			{
@@ -209,11 +271,14 @@ public interface StorageFile
 		}
 		
 		@Override
-		public final synchronized long copyTo(final AWritableFile target, final long sourcePosition)
+		public final synchronized long copyFrom(
+			final AReadableFile source        ,
+			final long          sourcePosition
+		)
 		{
 			try
 			{
-				return this.ensureReadable().copyTo(target, sourcePosition);
+				return source.copyTo(this.ensureWritable(), sourcePosition);
 			}
 			catch(final Exception e)
 			{
@@ -222,45 +287,37 @@ public interface StorageFile
 		}
 
 		@Override
-		public final synchronized long copyTo(final AWritableFile target, final long sourcePosition, final long length)
+		public final synchronized long copyFrom(
+			final AReadableFile source        ,
+			final long          sourcePosition,
+			final long          length
+		)
 		{
 			try
 			{
-				return this.ensureReadable().copyTo(target, sourcePosition, length);
+				return source.copyTo(this.ensureWritable(), sourcePosition, length);
 			}
 			catch(final Exception e)
 			{
 				throw new StorageException(e);
 			}
 		}
-		
-		public final synchronized long copyFrom(
-			final StorageFile source
-		)
-		{
-			return source.copyTo(this.ensureWritable());
-		}
-		
-		public final synchronized long copyFrom(
-			final StorageFile source        ,
-			final long        sourcePosition
-		)
-		{
-			return source.copyTo(this.ensureWritable(), sourcePosition);
-		}
-		
-		public final synchronized long copyFrom(
-			final StorageFile source        ,
-			final long        sourcePosition,
-			final long        length
-		)
-		{
-			return source.copyTo(this.ensureWritable(), sourcePosition, length);
-		}
-		
+				
 		public final synchronized void truncate(final long newLength)
 		{
 			this.ensureWritable().truncate(newLength);
+		}
+		
+		@Override
+		public final synchronized boolean delete()
+		{
+			return this.ensureWritable().delete();
+		}
+		
+		@Override
+		public final synchronized void moveTo(final StorageFile target)
+		{
+			target.pull(this.ensureWritable());
 		}
 		
 		protected synchronized AReadableFile ensureReadable()

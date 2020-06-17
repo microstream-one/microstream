@@ -563,7 +563,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		
 		private long ensureHeadFileTotalLength()
 		{
-			final long physicalLength = this.headFile.actualLength();
+			final long physicalLength = this.headFile.size();
 			final long expectedLength = this.headFile.totalLength();
 			
 			if(physicalLength != expectedLength)
@@ -594,7 +594,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			final long   writeCount       = this.writer.writeStore(this.headFile, dataBuffers);
 			final long   newTotalLength   = oldTotalLength + writeCount;
 			
-			if(newTotalLength != this.headFile.actualLength())
+			if(newTotalLength != this.headFile.size())
 			{
 				throwImpossibleStoreLengthException(timestamp, oldTotalLength, writeCount, dataBuffers);
 			}
@@ -1018,7 +1018,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				 * if no transactions file was present, it must be assumed that the last file is consistent
 				 * (e.g. user manually deleted the transactions file in a consistent database)
 				 */
-				return storageInventory.dataFiles().values().last().actualLength();
+				return storageInventory.dataFiles().values().last().size();
 			}
 			else if(tFileAnalysis.headFileLatestTimestamp() == consistentStoreTimestamp)
 			{

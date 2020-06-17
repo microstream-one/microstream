@@ -29,7 +29,7 @@ public interface StorageTransactionsAnalysis
 
 	public long headFileLatestTimestamp();
 
-	public StorageTransactionsFile transactionsFile();
+	public StorageLiveTransactionsFile transactionsFile();
 
 	public XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries();
 
@@ -915,7 +915,7 @@ public interface StorageTransactionsAnalysis
 			return true;
 		}
 
-		final StorageTransactionsAnalysis yield(final StorageTransactionsFile transactionsFile)
+		final StorageTransactionsAnalysis yield(final StorageLiveTransactionsFile transactionsFile)
 		{
 			// register latest file
 			this.registerCurrentFile();
@@ -940,7 +940,7 @@ public interface StorageTransactionsAnalysis
 		// instance fields //
 		////////////////////
 		
-		private final StorageTransactionsFile                                transactionsFile                    ;
+		private final StorageLiveTransactionsFile                            transactionsFile                    ;
 		private final XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries             ;
 		private final long                                                   headFileLastConsistentStoreLength   ;
 		private final long                                                   headFileLastConsistentStoreTimestamp;
@@ -954,7 +954,7 @@ public interface StorageTransactionsAnalysis
 		/////////////////
 
 		Default(
-			final StorageTransactionsFile                                transactionsFile                    ,
+			final StorageLiveTransactionsFile                            transactionsFile                    ,
 			final XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries             ,
 			final long                                                   headFileLastConsistentStoreLength   ,
 			final long                                                   headFileLastConsistentStoreTimestamp,
@@ -978,7 +978,7 @@ public interface StorageTransactionsAnalysis
 		////////////
 
 		@Override
-		public final StorageTransactionsFile transactionsFile()
+		public final StorageLiveTransactionsFile transactionsFile()
 		{
 			return this.transactionsFile;
 		}

@@ -2,16 +2,10 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-
 import one.microstream.X;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
-import one.microstream.io.XIO;
-import one.microstream.persistence.internal.UtilPersistenceIo;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionBackupCopying;
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
@@ -28,18 +22,18 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 	public void synchronize(StorageInventory storageInventory);
 	
 	public void copyFilePart(
-		StorageFile sourceFile    ,
-		long        sourcePosition,
-		long        length
+		StorageLiveFile<?> sourceFile    ,
+		long               sourcePosition,
+		long               length
 	);
 	
 	public void truncateFile(
-		StorageFile file     ,
-		long        newLength
+		StorageLiveFile<?> file     ,
+		long               newLength
 	);
 	
 	public void deleteFile(
-		StorageFile file
+		StorageLiveFile<?> file
 	);
 	
 	public default StorageBackupHandler start()
@@ -156,7 +150,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		}
 		
 		
-		protected StorageBackupFile resolveBackupTargetFile(final StorageFile sourceFile)
+		protected StorageBackupFile resolveBackupTargetFile(final StorageLiveFile<?> sourceFile)
 		{
 			if(sourceFile instanceof StorageLiveDataFile)
 			{
@@ -274,14 +268,14 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			final ChannelInventory backupInventory
 		)
 		{
-			for(final ZStorageInventoryFile storageFile : storageInventory.dataFiles().values())
+			for(final StorageLiveDataFile storageFile : storageInventory.dataFiles().values())
 			{
-				final ZStorageBackupFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
+				final StorageBackupDataFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
 				this.copyFile(storageFile, backupTargetFile);
 			}
 			
-			final ZStorageInventoryFile transactionFile = storageInventory.transactionsFileAnalysis().transactionsFile();
-			final ZStorageBackupFile backupTransactionFile = this.resolveBackupTargetFile(transactionFile);
+			final StorageLiveTransactionsFile transactionFile = storageInventory.transactionsFileAnalysis().transactionsFile();
+			final StorageBackupTransactionsFile backupTransactionFile = this.resolveBackupTargetFile(transactionFile);
 			this.copyFile(transactionFile, backupTransactionFile);
 		}
 		
@@ -329,20 +323,20 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			this.validateBackupFileProgress(storageInventory, backupInventory);
 
 			final long lastBackupFileNumber = backupInventory.dataFiles().keys().last();
-			for(final ZStorageInventoryFile storageFile : storageInventory.dataFiles().values())
+			for(final StorageLiveDataFile dataFile : storageInventory.dataFiles().values())
 			{
-				final ZStorageBackupFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
+				final StorageBackupDataFile backupTargetFile = this.resolveBackupTargetFile(dataFile);
 				
 				// non-existant files have either not been backupped, yet, or a "healable" error.
 				if(!backupTargetFile.exists())
 				{
 					// in any case, the storage file is simply copied (backed up)
-					this.copyFile(storageFile, backupTargetFile);
+					this.copyFile(dataFile, backupTargetFile);
 					continue;
 				}
 				
-				final long storageFileLength      = storageFile.length();
-				final long backupTargetFileLength = backupTargetFile.length();
+				final long storageFileLength      = dataFile.size();
+				final long backupTargetFileLength = backupTargetFile.size();
 				
 				// existing file with matching length means everything is fine
 				if(storageFileLength == backupTargetFileLength)
@@ -356,7 +350,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				{
 					// missing length is copied to update the backup file
 					this.copyFilePart(
-						storageFile,
+						dataFile,
 						backupTargetFileLength,
 						storageFileLength - backupTargetFileLength,
 						backupTargetFile
@@ -368,7 +362,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				throw new StorageExceptionBackupInconsistentFileLength(
 					storageInventory           ,
 					backupInventory.dataFiles(),
-					storageFile                ,
+					dataFile                ,
 					storageFileLength          ,
 					backupTargetFile           ,
 					backupTargetFileLength
@@ -380,55 +374,27 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		
 		private void deleteBackupTransactionFile(final ChannelInventory backupInventory)
 		{
-			final ZStorageBackupFile backupTransactionFile = backupInventory.ensureTransactionsFile();
+			final StorageBackupTransactionsFile backupTransactionFile = backupInventory.ensureTransactionsFile();
 			if(!backupTransactionFile.exists())
 			{
 				return;
 			}
 			
-			final ZStorageNumberedFile deletionTargetFile = this.backupSetup.backupFileProvider()
+			final StorageBackupTransactionsFile deletionTargetFile = this.backupSetup.backupFileProvider()
 				.provideDeletionTargetFile(backupTransactionFile)
 			;
 			
 			if(deletionTargetFile == null)
 			{
-				if(backupTransactionFile.delete())
-				{
-					return;
-				}
-
-				// (02.10.2014 TM)EXCP: proper exception
-				throw new StorageException("Could not delete file " + backupTransactionFile);
-			}
-			
-			final String movedTargetFileName = this.createDeletionFileName(backupTransactionFile);
-			final Path actualTargetFile = XIO.Path(deletionTargetFile.qualifier(), movedTargetFileName) ;
-			UtilPersistenceIo.move(XIO.Path(backupTransactionFile.identifier()), actualTargetFile);
-		}
-		
-		private String createDeletionFileName(final ZStorageBackupFile backupTransactionFile)
-		{
-			final String currentName = backupTransactionFile.name();
-			final int lastDotIndex = currentName.lastIndexOf(XIO.fileSuffixSeparator());
-			
-			final String namePrefix;
-			final String nameSuffix;
-			if(lastDotIndex >= 0)
-			{
-				namePrefix = currentName.substring(0, lastDotIndex);
-				nameSuffix = currentName.substring(lastDotIndex);
+				backupTransactionFile.delete();
 			}
 			else
 			{
-				namePrefix = currentName;
-				nameSuffix = "";
+				backupTransactionFile.moveTo(deletionTargetFile);
 			}
-			
-			final SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss_SSS");
-			final String newFileName = namePrefix + sdf.format(System.currentTimeMillis()) + nameSuffix;
-			
-			return newFileName;
 		}
+		
+		
 		
 		private void synchronizeTransactionFile(
 			final StorageInventory storageInventory,
@@ -443,7 +409,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				return;
 			}
 			
-			final StorageTransactionsFile       storageTransactionsFile = tfa.transactionsFile();
+			final StorageLiveTransactionsFile       storageTransactionsFile = tfa.transactionsFile();
 			final StorageBackupTransactionsFile backupTransactionFile   = backupInventory.ensureTransactionsFile();
 			
 			if(!backupTransactionFile.exists())
@@ -453,8 +419,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				return;
 			}
 
-			final long storageFileLength      = storageTransactionsFile.actualLength();
-			final long backupTargetFileLength = backupTransactionFile.actualLength();
+			final long storageFileLength      = storageTransactionsFile.size();
+			final long backupTargetFileLength = backupTransactionFile.size();
 			
 			if(backupTargetFileLength != storageFileLength)
 			{
@@ -465,43 +431,33 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		}
 				
 		private void copyFile(
-			final ZStorageInventoryFile storageFile     ,
-			final ZStorageBackupFile    backupTargetFile
+			final StorageLiveFile<?> storageFile     ,
+			final StorageBackupFile  backupTargetFile
 		)
 		{
-			this.copyFilePart(storageFile, 0, storageFile.length(), backupTargetFile);
+			storageFile.copyTo(backupTargetFile);
 		}
 		
 		private void copyFilePart(
-			final StorageFile       sourceFile      ,
-			final long              sourcePosition  ,
-			final long              length          ,
-			final StorageBackupFile backupTargetFile
+			final StorageLiveFile<?> sourceFile      ,
+			final long               sourcePosition  ,
+			final long               length          ,
+			final StorageBackupFile  backupTargetFile
 		)
 		{
 			try
 			{
-				final FileChannel sourceChannel = sourceFile.fileChannel();
-				final FileChannel targetChannel = backupTargetFile.fileChannel();
+				final long oldBackupFileLength = backupTargetFile.size();
 				
-				final long oldBackupFileLength = targetChannel.size();
-								
 				try
 				{
-					final long byteCount = sourceChannel.transferTo(sourcePosition, length, targetChannel);
-					StorageFileWriter.validateIoByteCount(length, byteCount);
-					targetChannel.force(false);
+					sourceFile.copyTo(backupTargetFile, sourcePosition, length);
 					
-//					if(Storage.isDataFile(sourceFile))
-//					{
-//						XDebug.println(
-//							"\nBackup copy:"
-//							+ "\nSource File: " + sourceFile.identifier()       + "(" + sourcePosition + " + " + length + " -> " + (sourcePosition + length) + ")"
-//							+ "\nBackup File: " + backupTargetFile.identifier() + "(" + oldBackupFileLength + " -> " + targetChannel.size() + ")"
-//						);
-//					}
-					
-					this.validator.validateFile(backupTargetFile, oldBackupFileLength, length);
+					// (16.06.2020 TM)TODO: nasty instanceof
+					if(backupTargetFile instanceof StorageBackupDataFile)
+					{
+						this.validator.validateFile((StorageBackupDataFile)backupTargetFile, oldBackupFileLength, length);
+					}
 				}
 				catch(final Exception e)
 				{
@@ -520,9 +476,9 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		
 		@Override
 		public void copyFilePart(
-			final StorageFile sourceFile    ,
-			final long        sourcePosition,
-			final long        copyLength
+			final StorageLiveFile<?> sourceFile    ,
+			final long               sourcePosition,
+			final long               copyLength
 		)
 		{
 			// note: the original target file of the copying is irrelevant. Only the backup target file counts.
@@ -533,11 +489,11 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 
 		@Override
 		public void truncateFile(
-			final StorageFile file     ,
-			final long  newLength
+			final StorageLiveFile<?> file     ,
+			final long               newLength
 		)
 		{
-			final ZStorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
+			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
 			
 			StorageFileWriter.truncateFile(backupTargetFile, newLength, this.backupSetup.backupFileProvider());
 			
@@ -545,9 +501,9 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		}
 		
 		@Override
-		public void deleteFile(final StorageFile file)
+		public void deleteFile(final StorageLiveFile<?> file)
 		{
-			final ZStorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
+			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
 			
 			StorageFileWriter.deleteFile(backupTargetFile, this.backupSetup.backupFileProvider());
 			

@@ -4,6 +4,9 @@ import static one.microstream.X.notNull;
 
 import java.nio.file.Path;
 
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.nio.NioFileSystem;
+
 public interface StorageBackupSetup
 {
 	public StorageFileProvider backupFileProvider();
@@ -34,9 +37,16 @@ public interface StorageBackupSetup
 	 */
 	public static StorageBackupSetup New(final Path backupDirectory)
 	{
+		final ADirectory dir = NioFileSystem.New().ensureDirectory(backupDirectory);
+		
+		return New(dir);
+	}
+	
+	public static StorageBackupSetup New(final ADirectory backupDirectory)
+	{
 		final StorageFileProvider backupFileProvider = Storage
 			.FileProviderBuilder()
-			.setBaseDirectory(backupDirectory.toString())
+			.setBaseDirectory(backupDirectory)
 			.createFileProvider()
 		;
 		return New(backupFileProvider);

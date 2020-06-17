@@ -1186,6 +1186,8 @@ public final class XIO
 	)
 		throws IOException
 	{
+		
+		// (20.02.2020 TM)NOTE: Files#copy is bugged as it recognizes the process's file locks as foreign (rofl).
 		try(
 			final FileChannel sourceChannel = openFileChannelReading(sourceFile);
 			final FileChannel targetChannel = openFileChannelWriting(targetFile, targetChannelOpenOptions);

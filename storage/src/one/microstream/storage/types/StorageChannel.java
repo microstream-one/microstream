@@ -8,7 +8,6 @@ import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
 import one.microstream.X;
-import one.microstream.afs.AWritableFile;
 import one.microstream.functional.ThrowingProcedure;
 import one.microstream.functional._longProcedure;
 import one.microstream.persistence.binary.types.Chunk;
@@ -60,12 +59,12 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 	public void commitImportData(long taskTimestamp);
 
-	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, AWritableFile file)
+	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, StorageFile file)
 		throws IOException;
 
 	public KeyValue<Long, Long> exportTypeEntities(
 		StorageEntityTypeHandler         type           ,
-		AWritableFile                    file           ,
+		StorageFile                      file           ,
 		Predicate<? super StorageEntity> predicateEntity
 	) throws IOException;
 
@@ -108,6 +107,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			this::houseKeepingCheckFileCleanup ,
 			this::houseKeepingGarbageCollection,
 			this::houseKeepingLiveCheck
+			// (16.06.2020 TM)FIXME: priv#49: housekeeping task that closes data files after a timeout.
 		};
 		private int nextHouseKeepingIndex;
 
@@ -530,7 +530,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
 			final StorageEntityTypeHandler         type           ,
-			final AWritableFile                    file           ,
+			final StorageFile                      file           ,
 			final Predicate<? super StorageEntity> predicateEntity
 		)
 			throws IOException
@@ -565,7 +565,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
 			final StorageEntityTypeHandler type,
-			final AWritableFile            file
+			final StorageFile              file
 		)
 			throws IOException
 		{

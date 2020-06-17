@@ -54,6 +54,14 @@ public interface AWritableFile extends AReadableFile
 		return this.actual().fileSystem().ioHandler().deleteFile(this);
 	}
 	
+	public default boolean moveTo(final AWritableFile targetFile)
+	{
+		this.actual().fileSystem().ioHandler().moveFile(this, targetFile);
+		
+		// hardly reasonable to pass through the return value since it must always be true; maybe for bug hunting.
+		return this.release();
+	}
+	
 	public default AReadableFile downgrade()
 	{
 		// synchronization handled by IoHandler.

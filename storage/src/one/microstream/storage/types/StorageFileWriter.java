@@ -2,12 +2,7 @@ package one.microstream.storage.types;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
-import one.microstream.io.XIO;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
@@ -87,7 +82,7 @@ public interface StorageFileWriter
 		final StorageLiveDataFile targetFile
 	)
 	{
-		return targetFile.copyFrom(sourceFile, sourceOffset, copyLength);
+		return sourceFile.copyTo(targetFile, sourceOffset, copyLength);
 	}
 	
 	public default long writeTransfer(
@@ -97,11 +92,11 @@ public interface StorageFileWriter
 		final StorageLiveDataFile targetFile
 	)
 	{
-		return targetFile.copyFrom(sourceFile, sourceOffset, copyLength);
+		return sourceFile.copyTo(targetFile, sourceOffset, copyLength);
 	}
 	
 	public default long writeTransactionEntryCreate(
-		final StorageTransactionsFile        transactionFile,
+		final StorageLiveTransactionsFile    transactionFile,
 		final Iterable<? extends ByteBuffer> byteBuffers    ,
 		final StorageLiveDataFile            dataFile
 	)
@@ -110,7 +105,7 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryStore(
-		final StorageTransactionsFile        transactionFile,
+		final StorageLiveTransactionsFile    transactionFile,
 		final Iterable<? extends ByteBuffer> byteBuffers    ,
 		final StorageLiveDataFile            dataFile       ,
 		final long                           dataFileOffset ,
@@ -121,7 +116,7 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryTransfer(
-		final StorageTransactionsFile        transactionFile,
+		final StorageLiveTransactionsFile    transactionFile,
 		final Iterable<? extends ByteBuffer> byteBuffers    ,
 		final StorageLiveDataFile            dataFile       ,
 		final long                           dataFileOffset ,
@@ -132,7 +127,7 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryDelete(
-		final StorageTransactionsFile        transactionFile,
+		final StorageLiveTransactionsFile    transactionFile,
 		final Iterable<? extends ByteBuffer> byteBuffers    ,
 		final StorageLiveDataFile            dataFile
 	)
@@ -141,7 +136,7 @@ public interface StorageFileWriter
 	}
 	
 	public default long writeTransactionEntryTruncate(
-		final StorageTransactionsFile        transactionFile,
+		final StorageLiveTransactionsFile    transactionFile,
 		final Iterable<? extends ByteBuffer> byteBuffers    ,
 		final StorageLiveDataFile            dataFile       ,
 		final long                           newFileLength
@@ -179,10 +174,10 @@ public interface StorageFileWriter
 		{
 			file.truncate(newLength);
 		}
-		catch(final IOException e)
+		catch(final Exception e)
 		{
 			// (01.10.2014 TM)EXCP: proper exception
-			throw new StorageException(e);
+			throw new StorageExceptionIo(e);
 		}
 	}
 
@@ -218,27 +213,23 @@ public interface StorageFileWriter
 	
 
 	public static void createFileFullCopy(
-		final ZStorageNumberedFile sourceFile,
-		final ZStorageNumberedFile targetFile
+		final StorageFile          sourceFile,
+		final StorageCreatableFile targetFile
 	)
 	{
 		try
 		{
-			final Path source = Paths.get(sourceFile.identifier());
-			final Path target = Paths.get(targetFile.identifier());
-			if(!Files.exists(source))
+			if(!sourceFile.exists())
 			{
-				throw new IOException("Copying source file does not exist: " + sourceFile.identifier());
+				throw new IOException("Copying source file does not exist: " + sourceFile);
 			}
-			if(Files.exists(target))
+			if(targetFile.exists())
 			{
-				throw new IOException("Copying target already exist: " + targetFile.identifier());
+				throw new IOException("Copying target already exist: " + targetFile);
 			}
 			
-			XIO.copyFile(source, target, StandardOpenOption.CREATE_NEW);
-			
-			// (20.02.2020 TM)NOTE: Files#copy is bugged as it recognizes the process's file locks as foreign (rofl).
-//			Files.copy(source, target);
+			targetFile.ensure();
+			sourceFile.copyTo(targetFile);
 		}
 		catch(final Exception e)
 		{
@@ -257,18 +248,7 @@ public interface StorageFileWriter
 			return false;
 		}
 		
-		// (15.06.2020 TM)FIXME: priv#49: move file
-		
-		try
-		{
-			final Path source = Paths.get(file.identifier());
-			final Path target = Paths.get(deletionTargetFile.identifier());
-			Files.move(source, target);
-		}
-		catch(final Exception e)
-		{
-			throw new StorageExceptionIo(e); // (04.03.2015 TM)EXCP: proper exception
-		}
+		file.moveTo(deletionTargetFile);
 		
 		return true;
 	}
