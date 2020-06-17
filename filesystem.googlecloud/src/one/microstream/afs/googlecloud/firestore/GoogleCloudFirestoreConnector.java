@@ -1,0 +1,336 @@
+package one.microstream.afs.googlecloud.firestore;
+
+import static one.microstream.X.checkArrayRange;
+import static one.microstream.X.notNull;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import com.google.api.core.ApiFutures;
+import com.google.cloud.firestore.Blob;
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.Query;
+import com.google.cloud.firestore.WriteBatch;
+import com.google.cloud.firestore.WriteResult;
+import com.google.protobuf.UnsafeByteOperations;
+
+import one.microstream.afs.blobstore.BlobStoreConnector;
+import one.microstream.afs.blobstore.BlobStorePath;
+import one.microstream.chars.VarString;
+import one.microstream.exceptions.IORuntimeException;
+import one.microstream.io.ByteBufferInputStream;
+import one.microstream.io.LimitedInputStream;
+
+
+public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
+{
+	public static GoogleCloudFirestoreConnector New(
+		final Firestore firestore
+	)
+	{
+		return new GoogleCloudFirestoreConnector.Default(
+			notNull(firestore)
+		);
+	}
+
+
+	public static class Default
+	extends    BlobStoreConnector.Abstract<DocumentSnapshot>
+	implements GoogleCloudFirestoreConnector
+	{
+		private final static String FIELD_KEY     = "key" ;
+		private final static String FIELD_SIZE    = "size";
+		private final static String FIELD_DATA    = "data";
+
+		// https://firebase.google.com/docs/firestore/quotas
+		private final static long MAX_BLOB_SIZE    =  1_000_000L;
+		private final static long MAX_REQUEST_SIZE = 10_000_000L;
+
+		private final Firestore firestore;
+
+		Default(
+			final Firestore firestore
+		)
+		{
+			super();
+			this.firestore = firestore;
+		}
+
+		private CollectionReference collection(
+			final BlobStorePath file
+		)
+		{
+			return this.firestore.collection(file.container());
+		}
+
+		private Stream<? extends DocumentSnapshot> blobs(
+			final BlobStorePath file    ,
+			final boolean       withData
+		)
+		{
+			try
+			{
+				final String prefix = toBlobKeyPrefix(file);
+				final Pattern pattern = Pattern.compile(blobKeyRegex(prefix));
+				Query query = this.collection(file)
+					.whereGreaterThan(FIELD_KEY, prefix);
+				if(!withData)
+				{
+					query = query.select(FIELD_KEY, FIELD_SIZE);
+				}
+				return StreamSupport.stream(
+					query.get().get().spliterator(),
+					false
+				)
+				.filter(document -> pattern.matcher(document.getString(FIELD_KEY)).matches())
+				.sorted(this.blobComparator())
+				;
+			}
+			catch(final Exception e)
+			{
+				// TODO Proper exception
+				throw new RuntimeException(e);
+			}
+		}
+
+		private String documentPath(
+			final BlobStorePath file  ,
+			final long          blobNr
+		)
+		{
+			return VarString.New()
+				.add(file.container())
+				.add("/")
+				.add(
+					Arrays.stream(file.pathElements())
+						.skip(1L)
+						.collect(Collectors.joining("_"))
+				)
+				.add(NUMBER_SUFFIX_SEPARATOR_CHAR)
+				.add(blobNr)
+				.toString();
+		}
+
+		@Override
+		protected String key(
+			final DocumentSnapshot blob
+		)
+		{
+			return blob.getString(FIELD_KEY);
+		}
+
+		@Override
+		protected long size(
+			final DocumentSnapshot blob
+		)
+		{
+			return blob.getLong(FIELD_SIZE);
+		}
+
+		@Override
+		protected Stream<? extends DocumentSnapshot> blobs(
+			final BlobStorePath file
+		)
+		{
+			return this.blobs(file, false);
+		}
+
+		@Override
+		protected void readBlobData(
+			final BlobStorePath    file        ,
+			final DocumentSnapshot blob        ,
+			final ByteBuffer       targetBuffer,
+			final long             offset      ,
+			final long             length
+		)
+		{
+			try
+			{
+				/*
+				 *  Fetch blob again with data.
+				 *  Per default they are loaded without it.
+				 */
+				final DocumentSnapshot fullBlob = this.firestore.document(blob.getReference()
+					.getPath()).get().get();
+				final byte[]           bytes    = fullBlob.getBlob(FIELD_DATA).toBytes();
+				targetBuffer.put(
+					bytes,
+					checkArrayRange(offset),
+					checkArrayRange(length)
+				);
+			}
+			catch(final Exception e)
+			{
+				// TODO Proper exception
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		protected boolean internalDeleteFile(
+			final BlobStorePath file
+		)
+		{
+			try
+			{
+				final List<WriteResult> results = ApiFutures.allAsList(
+					this.blobs(file)
+						.map(blob -> blob.getReference().delete())
+						.collect(Collectors.toList())
+				)
+				.get();
+
+				return !results.isEmpty();
+			}
+			catch(final Exception e)
+			{
+				// TODO Proper exception
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		protected long internalWriteData(
+			final BlobStorePath                  file         ,
+			final Iterable<? extends ByteBuffer> sourceBuffers
+		)
+		{
+			try
+			{
+				      WriteBatch            writeBatch         = this.firestore.batch();
+				final long                  totalSize          = this.totalSize(sourceBuffers);
+				final ByteBufferInputStream buffersInputStream = ByteBufferInputStream.New(sourceBuffers);
+			          long                  nextBlobNr         = this.nextBlobNr(file);
+				      long                  available          = totalSize;
+				while(available > 0)
+				{
+					final long currentBatchSize = Math.min(
+						available,
+						MAX_BLOB_SIZE
+					);
+					try(LimitedInputStream limitedInputStream = LimitedInputStream.New(
+						new BufferedInputStream(buffersInputStream),
+						currentBatchSize))
+					{
+						final byte[] batch = new byte[checkArrayRange(currentBatchSize)];
+							  int    remaining = batch.length;
+					          int    read;
+						while(remaining > 0 &&
+							(read = limitedInputStream.read(
+								batch,
+								0,
+								Math.min(batch.length, remaining))
+							) != -1
+						)
+						{
+							remaining -= read;
+						}
+
+						final Map<String, Object> map = new HashMap<>();
+						map.put(FIELD_KEY, toBlobKey(file, nextBlobNr++));
+						map.put(FIELD_SIZE, currentBatchSize);
+						map.put(FIELD_DATA, Blob.fromByteString(
+							// unsafe wrap is enough because batch is already a copy
+							UnsafeByteOperations.unsafeWrap(batch)
+						));
+
+						writeBatch.set(
+							this.firestore.document(
+								this.documentPath(file, nextBlobNr++)
+							),
+							map
+						);
+
+						if(writeBatch.getMutationsSize() * MAX_BLOB_SIZE >= MAX_REQUEST_SIZE)
+						{
+							writeBatch.commit().get();
+							writeBatch = this.firestore.batch();
+						}
+					}
+					catch(final IOException e)
+					{
+						throw new IORuntimeException(e);
+					}
+
+					available -= currentBatchSize;
+				}
+
+				if(writeBatch.getMutationsSize() > 0)
+				{
+					writeBatch.commit().get();
+				}
+
+				return totalSize;
+			}
+			catch(final Exception e)
+			{
+				// TODO Proper exception
+				throw new RuntimeException(e);
+			}
+		}
+
+		// TODO batch
+		@Override
+		protected long internalCopyFile(
+			final BlobStorePath sourceFile,
+			final BlobStorePath targetFile
+		)
+		{
+			try
+			{
+				WriteBatch writeBatch = this.firestore.batch();
+				long       amount     = 0L;
+				for(final DocumentSnapshot blob : this.blobs(sourceFile, true).collect(Collectors.toList()))
+				{
+					final long                blobNr = this.getBlobNr(blob);
+					final String              newKey = toBlobKey(targetFile, blobNr);
+					final long                size   = blob.getLong(FIELD_SIZE);
+					final Map<String, Object> map    = new HashMap<>();
+					map.put(FIELD_KEY , newKey              );
+					map.put(FIELD_SIZE, size                );
+					map.put(FIELD_DATA, blob.get(FIELD_DATA));
+
+					writeBatch.set(
+						this.firestore.document(
+							this.documentPath(targetFile, blobNr)
+						),
+						map
+					);
+
+					if(writeBatch.getMutationsSize() * MAX_BLOB_SIZE >= MAX_REQUEST_SIZE)
+					{
+						writeBatch.commit().get();
+						writeBatch = this.firestore.batch();
+					}
+
+					amount += size;
+				}
+
+				if(writeBatch.getMutationsSize() > 0)
+				{
+					writeBatch.commit().get();
+				}
+
+				return amount;
+			}
+			catch(final Exception e)
+			{
+				// TODO Proper exception
+				throw new RuntimeException(e);
+			}
+		}
+
+	}
+
+}
