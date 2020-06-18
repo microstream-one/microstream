@@ -174,9 +174,15 @@ public interface SqlProvider
 			this.dataSource = notNull(dataSource);
 		}
 
-		protected abstract char quoteOpen();
+		protected char quoteOpen()
+		{
+			return '"';
+		}
 
-		protected abstract char quoteClose();
+		protected char quoteClose()
+		{
+			return '"';
+		}
 
 		protected VarString addSqlTableName(
 			final VarString vs       ,

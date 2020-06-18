@@ -49,18 +49,6 @@ public interface SqlProviderPostgres extends SqlProvider
 		}
 
 		@Override
-		protected char quoteOpen()
-		{
-			return '"';
-		}
-
-		@Override
-		protected char quoteClose()
-		{
-			return '"';
-		}
-
-		@Override
 		protected VarString addSqlTableName(final VarString vs, final String tableName)
 		{
 			final String schema = this.schema();
