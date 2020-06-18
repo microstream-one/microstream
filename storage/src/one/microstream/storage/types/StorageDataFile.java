@@ -8,6 +8,12 @@ public interface StorageDataFile extends StorageChannelFile, StorageClosableFile
 	public int channelIndex();
 	
 	public long number();
+
+	@Override
+	public default StorageBackupDataFile createBackupFile(final StorageBackupFileProvider creator)
+	{
+		return creator.provideBackupDataFile(this);
+	}
 	
 	
 	

@@ -35,7 +35,7 @@ public class MainTestBackupStoring
 				StorageBackupSetup.New(
 					Storage
 					.FileProviderBuilder()
-					.setBaseDirectory(DIRECTORY_BACKUP)
+					.setBackupDirectory(DIRECTORY_BACKUP)
 					.setDeletionDirectory(DIRECTORY_DELETED)
 					.setTruncationDirectory(DIRECTORY_TRUNCATED)
 					.setFileHandlerCreator(PersistenceTypeDictionaryFileHandlerArchiving::New)

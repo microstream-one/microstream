@@ -79,7 +79,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	
 	private void moveCurrentFileToArchive()
 	{
-		this.tdArchive.ensure();
+		this.tdArchive.ensureExists();
 		
 		final AFile targetFile = this.buildArchiveFile();
 		

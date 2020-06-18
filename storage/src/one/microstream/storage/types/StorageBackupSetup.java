@@ -9,7 +9,7 @@ import one.microstream.afs.nio.NioFileSystem;
 
 public interface StorageBackupSetup
 {
-	public StorageFileProvider backupFileProvider();
+	public StorageBackupFileProvider backupFileProvider();
 	
 	public StorageFileWriter.Provider setupWriterProvider(
 		StorageFileWriter.Provider writerProvider
@@ -44,10 +44,9 @@ public interface StorageBackupSetup
 	
 	public static StorageBackupSetup New(final ADirectory backupDirectory)
 	{
-		final StorageFileProvider backupFileProvider = Storage
-			.FileProviderBuilder()
-			.setBaseDirectory(backupDirectory)
-			.createFileProvider()
+		final StorageBackupFileProvider backupFileProvider = StorageBackupFileProvider.Builder()
+			.setBackupDirectory(backupDirectory)
+			.createBackupFileProvider()
 		;
 		return New(backupFileProvider);
 	}
@@ -58,14 +57,14 @@ public interface StorageBackupSetup
 	 * <p>
 	 * A StorageBackupSetup basically defines where the backup files will be located by the {@link StorageBackupHandler}.
 	 * 
-	 * @param backupFileProvider the {@link StorageFileProvider} to define where the backup files will be located.
+	 * @param backupFileProvider the {@link StorageBackupFileProvider} to define where the backup files will be located.
 	 * 
 	 * @return a new {@link StorageBackupSetup} instance.
 	 * 
 	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupHandler
 	 */
-	public static StorageBackupSetup New(final StorageFileProvider backupFileProvider)
+	public static StorageBackupSetup New(final StorageBackupFileProvider backupFileProvider)
 	{
 		return new StorageBackupSetup.Default(
 			notNull(backupFileProvider) ,
@@ -79,8 +78,8 @@ public interface StorageBackupSetup
 		// instance fields //
 		////////////////////
 		
-		private final StorageFileProvider    backupFileProvider;
-		private final StorageBackupItemQueue itemQueue         ;
+		private final StorageBackupFileProvider backupFileProvider;
+		private final StorageBackupItemQueue    itemQueue         ;
 		
 		
 		
@@ -89,8 +88,8 @@ public interface StorageBackupSetup
 		/////////////////
 		
 		Default(
-			final StorageFileProvider    backupFileProvider,
-			final StorageBackupItemQueue itemQueue
+			final StorageBackupFileProvider backupFileProvider,
+			final StorageBackupItemQueue    itemQueue
 		)
 		{
 			super();
@@ -105,7 +104,7 @@ public interface StorageBackupSetup
 		////////////
 
 		@Override
-		public final StorageFileProvider backupFileProvider()
+		public final StorageBackupFileProvider backupFileProvider()
 		{
 			return this.backupFileProvider;
 		}

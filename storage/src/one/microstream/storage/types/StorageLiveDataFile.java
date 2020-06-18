@@ -5,7 +5,7 @@ import one.microstream.math.XMath;
 import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageLiveDataFile
-extends StorageDataFile, StorageLiveFile<StorageLiveDataFile>
+extends StorageDataFile, StorageLiveChannelFile<StorageLiveDataFile>
 {
 	public long totalLength();
 

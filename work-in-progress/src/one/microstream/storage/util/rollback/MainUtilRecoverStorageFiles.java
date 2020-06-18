@@ -43,7 +43,7 @@ public class MainUtilRecoverStorageFiles
 	{
 		final StorageFileProvider sfp = StorageFileProvider
 			.Builder()
-			.setBaseDirectory(PATH_CORRUPTED)
+			.setBackupDirectory(PATH_CORRUPTED)
 			.createFileProvider()
 		;
 		final BulkList<ZStorageNumberedFile> storageFiles = sfp.collectDataFiles(BulkList.New(), 0);

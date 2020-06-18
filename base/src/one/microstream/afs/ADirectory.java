@@ -40,9 +40,9 @@ public interface ADirectory extends AItem, AResolving
 	
 	public <C extends Consumer<? super ADirectory.Observer>> C iterateObservers(C logic);
 	
-	public default boolean ensure()
+	public default boolean ensureExists()
 	{
-		return this.fileSystem().ioHandler().ensure(this);
+		return this.fileSystem().ioHandler().ensureExists(this);
 	}
 	
 	public ADirectory ensureDirectory(String identifier);
