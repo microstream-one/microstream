@@ -48,18 +48,6 @@ public interface SqlProviderSqlite extends SqlProvider
 		}
 
 		@Override
-		protected char quoteOpen()
-		{
-			return '"';
-		}
-
-		@Override
-		protected char quoteClose()
-		{
-			return '"';
-		}
-
-		@Override
 		public Iterable<String> createDirectoryQueries(
 			final String tableName
 		)
