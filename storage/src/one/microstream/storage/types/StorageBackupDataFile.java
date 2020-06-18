@@ -5,7 +5,7 @@ import static one.microstream.math.XMath.notNegative;
 
 import one.microstream.afs.AFile;
 
-public interface StorageBackupDataFile extends StorageDataFile, StorageBackupFile
+public interface StorageBackupDataFile extends StorageDataFile, StorageBackupChannelFile
 {
 	public static StorageBackupDataFile New(
 		final AFile file        ,

@@ -22,7 +22,7 @@ public class MainTestBackupValidateFiles
 				StorageBackupSetup.New(
 					Storage
 					.FileProviderBuilder()
-					.setBaseDirectory("storage/backup")
+					.setBackupDirectory("storage/backup")
 					.setDeletionDirectory("storage/backup/deleted")
 					.setTruncationDirectory("storage/backup/truncated")
 					.setFileHandlerCreator(PersistenceTypeDictionaryFileHandlerArchiving::New)

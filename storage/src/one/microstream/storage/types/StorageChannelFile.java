@@ -7,6 +7,8 @@ public interface StorageChannelFile extends StorageFile, StorageHashChannelPart
 	@Override
 	public int channelIndex();
 	
+	public StorageBackupChannelFile createBackupFile(StorageBackupFileProvider creator);
+	
 	
 	
 	public abstract class Abstract

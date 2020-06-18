@@ -5,7 +5,6 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.function.Consumer;
 
 import one.microstream.afs.ADirectory;
@@ -20,16 +19,6 @@ import one.microstream.persistence.types.PersistenceTypeDictionaryStorer;
 
 public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.Provider
 {
-	/* (03.03.2019 TM)TODO: proper file abstraction
-	 * An abstraction on the persistence layer is required with types like
-	 * - PersistenceDataItem (Folder or File)
-	 * - PersistenceDataLocation extends PersistenceDataItem (Folder, has n PersistenceDataItems, each with unique name)
-	 * - PersistenceDataFile extends PersistenceDataItem (File, must always be Folder + String name)
-	 * 
-	 * Then this type here will no longer extend PersistenceTypeDictionaryIoHandler.Provider,
-	 * but just a PersistenceTypeDictionaryDataFileProvider
-	 */
-	
 	/**
 	 * Returns a String that uniquely identifies the storage location.
 	 * 
@@ -55,20 +44,9 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	
 	public StorageLockFile provideLockFile();
 	
-	public StorageBackupDataFile provideDeletionTargetFile(
-		StorageLiveDataFile fileToBeDeleted
-	);
-	
-	public StorageBackupTransactionsFile provideDeletionTargetFile(
-		StorageTransactionsFile fileToBeDeleted
-		
-	);
-	
-	public StorageBackupDataFile provideTruncationBackupTargetFile(
-		StorageLiveDataFile fileToBeTruncated,
-		long                newLength
-	);
 
+
+	// (18.06.2020 TM)FIXME: priv#49: remove all backup-related parts (deletion, truncation)
 	
 	
 	public <F extends StorageDataFile, P extends Consumer<F>> P collectDataFiles(
@@ -520,7 +498,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 					return this.deletionDirectory;
 				}
 				
-				// Defaults method is the single location to controls behavior.
+				// Defaults method is the single location to control behavior.
 				final String nameDeletionDirectory = Defaults.defaultDeletionDirectory();
 
 				// note: relative root directory inside the current working directory
@@ -537,7 +515,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 					return this.truncationDirectory;
 				}
 				
-				// Defaults method is the single location to controls behavior.
+				// Defaults method is the single location to control behavior.
 				final String nameTruncationDirectory = Defaults.defaultTruncationDirectory();
 
 				// note: relative root directory inside the current working directory
@@ -780,7 +758,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			 * This is only a temporary solution. See the task containing "PersistenceDataFile".
 			 */
 			final ADirectory directory = this.baseDirectory();
-			directory.ensure();
+			directory.ensureExists();
 			
 			final AFile file = directory.ensureFile(this.typeDictionaryFileName());
 			
@@ -795,7 +773,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			final String channelDirectoryName = this.channelDirectoryPrefix() + hashIndex;
 			final ADirectory channelDirectory = parentDirectory.ensureDirectory(channelDirectoryName);
 			
-			channelDirectory.ensure();
+			channelDirectory.ensureExists();
 			
 			return channelDirectory;
 		}
@@ -842,88 +820,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			return StorageLockFile.New(lockFile);
 		}
 
-		@Override
-		public StorageBackupDataFile provideDeletionTargetFile(final StorageLiveDataFile fileToBeDeleted)
-		{
-			final ADirectory deletionDirectory = this.deletionDirectory();
-			if(deletionDirectory == null)
-			{
-				return null;
-			}
-			
-			final int  channelIndex = fileToBeDeleted.channelIndex();
-			final long fileNumber   = fileToBeDeleted.number();
-			
-			final ADirectory delChannelDir  = this.provideChannelDirectory(deletionDirectory, channelIndex);
-			final String     delFileNameRaw = this.provideStorageFileName(channelIndex, fileNumber);
-			final String     delFileName    = addDeletionFileNameTag(delFileNameRaw);
-			final AFile      backupFile     = delChannelDir.ensureFile(delFileName, fileToBeDeleted.file().type());
-						
-			return StorageBackupDataFile.New(backupFile, channelIndex, fileNumber);
-		}
-		
-		@Override
-		public StorageBackupTransactionsFile provideDeletionTargetFile(
-			final StorageTransactionsFile fileToBeDeleted
-		)
-		{
-			final ADirectory deletionDirectory = this.deletionDirectory();
-			if(deletionDirectory == null)
-			{
-				return null;
-			}
-			
-			final int channelIndex = fileToBeDeleted.channelIndex();
-			
-			final ADirectory delChannelDir  = this.provideChannelDirectory(deletionDirectory, channelIndex);
-			final String     delFileNameRaw = this.provideTransactionFileName(channelIndex);
-			final String     delFileName    = addDeletionFileNameTag(delFileNameRaw);
-			final AFile      backupFile     = delChannelDir.ensureFile(delFileName, fileToBeDeleted.file().type());
-						
-			return StorageBackupTransactionsFile.New(backupFile, channelIndex);
-		}
-		
-		protected static String addDeletionFileNameTag(final String currentName)
-		{
-			final SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss_SSS");
-			final String newFileName = currentName + sdf.format(System.currentTimeMillis());
-			
-			return newFileName;
-		}
-		
-		@Override
-		public StorageBackupDataFile provideTruncationBackupTargetFile(
-			final StorageLiveDataFile fileToBeTruncated,
-			final long                newLength
-		)
-		{
-			final ADirectory truncationDirectory = this.truncationDirectory();
-			if(truncationDirectory == null)
-			{
-				return null;
-			}
-			
-			final int  channelIndex = fileToBeTruncated.channelIndex();
-			final long fileNumber   = fileToBeTruncated.number();
-			
-			final ADirectory trcChannelDir  = this.provideChannelDirectory(truncationDirectory, channelIndex);
-			final String     trcFileNameRaw = this.provideStorageFileName(channelIndex, fileNumber);
-			final String     trcFileName    = addTruncationFileNameTag(trcFileNameRaw, fileToBeTruncated.size(), newLength);
-			final AFile      trcBackupFile  = trcChannelDir.ensureFile(trcFileName, "bak");
-			
-			return StorageBackupDataFile.New(trcBackupFile, channelIndex, fileNumber);
-		}
-		
-		protected static String addTruncationFileNameTag(
-			final String truncationFileNameRaw,
-			final long   oldLength            ,
-			final long   newLength
-		)
-		{
-			return truncationFileNameRaw + "_truncated_from_" + oldLength + "_to_" + newLength
-				+ "_@" + System.currentTimeMillis()
-			;
-		}
+
 
 		@Override
 		public <F extends StorageDataFile, P extends Consumer<F>> P collectDataFiles(

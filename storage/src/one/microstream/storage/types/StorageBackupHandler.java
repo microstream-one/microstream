@@ -65,7 +65,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		final StorageDataFileValidator   validator
 	)
 	{
-		final StorageFileProvider backupFileProvider = backupSetup.backupFileProvider();
+		final StorageBackupFileProvider backupFileProvider = backupSetup.backupFileProvider();
 		
 		final ChannelInventory[] cis = X.Array(ChannelInventory.class, channelCount, i ->
 		{
@@ -409,24 +409,24 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				return;
 			}
 			
-			final StorageLiveTransactionsFile       storageTransactionsFile = tfa.transactionsFile();
-			final StorageBackupTransactionsFile backupTransactionFile   = backupInventory.ensureTransactionsFile();
+			final StorageLiveTransactionsFile   liveTransactionsFile  = tfa.transactionsFile();
+			final StorageBackupTransactionsFile backupTransactionFile = backupInventory.ensureTransactionsFile();
 			
 			if(!backupTransactionFile.exists())
 			{
 				// if the backup transaction file does not exist, yet, the actual file is simply copied.
-				this.copyFile(storageTransactionsFile, backupTransactionFile);
+				this.copyFile(liveTransactionsFile, backupTransactionFile);
 				return;
 			}
 
-			final long storageFileLength      = storageTransactionsFile.size();
+			final long storageFileLength      = liveTransactionsFile.size();
 			final long backupTargetFileLength = backupTransactionFile.size();
 			
 			if(backupTargetFileLength != storageFileLength)
 			{
 				// on any mismatch, the backup transaction file is deleted (potentially moved&renamed) and rebuilt.
 				this.deleteBackupTransactionFile(backupInventory);
-				this.copyFile(storageTransactionsFile, backupTransactionFile);
+				this.copyFile(liveTransactionsFile, backupTransactionFile);
 			}
 		}
 				
@@ -541,7 +541,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			////////////////////
 			
 			final int                                      channelIndex      ;
-			final StorageFileProvider                      backupFileProvider;
+			final StorageBackupFileProvider                backupFileProvider;
 			      StorageBackupTransactionsFile            transactionFile   ;
 			      EqHashTable<Long, StorageBackupDataFile> dataFiles         ;
 			
@@ -552,8 +552,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			/////////////////
 			
 			ChannelInventory(
-				final int                 channelIndex      ,
-				final StorageFileProvider backupFileProvider
+				final int                       channelIndex      ,
+				final StorageBackupFileProvider backupFileProvider
 			)
 			{
 				super();
@@ -586,7 +586,12 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			
 			final StorageBackupTransactionsFile ensureBackupFile(final StorageLiveTransactionsFile sourceFile)
 			{
-				return this.ensureTransactionsFile();
+				if(this.transactionFile == null)
+				{
+					this.transactionFile = this.backupFileProvider.provideBackupFile(sourceFile);
+				}
+				
+				return this.transactionFile;
 			}
 			
 			
@@ -597,11 +602,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				StorageBackupDataFile backupFile = this.dataFiles.get(sourceFile.number());
 				if(backupFile == null)
 				{
-					backupFile = this.backupFileProvider.provideDataFile(
-						StorageBackupDataFile::New,
-						this.channelIndex,
-						sourceFile.number()
-					);
+					backupFile = this.backupFileProvider.provideBackupFile(sourceFile);
 					this.registerBackupFile(backupFile);
 				}
 				
@@ -636,18 +637,6 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				collectedFiles.iterate(this::registerBackupFile);
 			}
 			
-			final StorageBackupTransactionsFile ensureTransactionsFile()
-			{
-				if(this.transactionFile == null)
-				{
-					this.transactionFile = this.backupFileProvider.provideTransactionsFile(
-						StorageBackupTransactionsFile::New,
-						this.channelIndex
-					);
-				}
-				
-				return this.transactionFile;
-			}
 			
 		}
 		

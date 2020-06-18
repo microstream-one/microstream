@@ -190,7 +190,7 @@ public interface StorageFileWriter
 	}
 	
 	public static void deleteFile(
-		final StorageLiveDataFile file               ,
+		final StorageDataFile     file               ,
 		final StorageFileProvider storageFileProvider
 	)
 	{
@@ -238,7 +238,7 @@ public interface StorageFileWriter
 	}
 	
 	public static boolean rescueFromDeletion(
-		final StorageLiveDataFile file               ,
+		final StorageDataFile     file               ,
 		final StorageFileProvider storageFileProvider
 	)
 	{

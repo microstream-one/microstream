@@ -25,7 +25,7 @@ public interface AIoHandler
 
 	public void create(AWritableFile file);
 	
-	public boolean ensure(ADirectory directory);
+	public boolean ensureExists(ADirectory directory);
 
 	public boolean ensure(AWritableFile file);
 	
@@ -412,7 +412,7 @@ public interface AIoHandler
 				// only handle non-root parent directories. Note that not all roots are of type ARoot
 				if(directory.parent() != null)
 				{
-					this.ensure(directory.parent());
+					this.ensureExists(directory.parent());
 				}
 				
 				directory.iterateObservers(o ->
@@ -436,7 +436,7 @@ public interface AIoHandler
 			
 			synchronized(this)
 			{
-				this.ensure(file.parent());
+				this.ensureExists(file.parent());
 				
 				file.parent().iterateObservers(o ->
 					o.onBeforeFileCreate(file)
@@ -457,7 +457,7 @@ public interface AIoHandler
 		}
 		
 		@Override
-		public boolean ensure(final ADirectory directory)
+		public boolean ensureExists(final ADirectory directory)
 		{
 			final ADirectory actual = ADirectory.actual(directory);
 			synchronized(actual)
