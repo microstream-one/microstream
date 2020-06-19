@@ -43,6 +43,11 @@
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
+			<artifactId>filesystem.coherence</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
 			<artifactId>filesystem.googlecloud</artifactId>
 			<version>${project.version}</version>
 		</dependency>

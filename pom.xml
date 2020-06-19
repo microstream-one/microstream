@@ -35,6 +35,7 @@
 		<module>communication.binary</module>
 		<module>filesystem.aws</module>
 		<module>filesystem.azure</module>
+		<module>filesystem.coherence</module>
 		<module>filesystem.googlecloud</module>
 		<module>filesystem.hazelcast</module>
 		<module>filesystem.jpa.hibernate</module>
@@ -358,6 +359,7 @@
 				<module>communication.binary</module>
 				<module>filesystem.aws</module>
 				<module>filesystem.azure</module>
+				<module>filesystem.coherence</module>
 				<module>filesystem.googlecloud</module>
 				<module>filesystem.hazelcast</module>
 				<module>filesystem.jpa.hibernate</module>
@@ -391,6 +393,7 @@
 				<module>communication.binary</module>
 				<module>filesystem.aws</module>
 				<module>filesystem.azure</module>
+				<module>filesystem.coherence</module>
 				<module>filesystem.googlecloud</module>
 				<module>filesystem.hazelcast</module>
 				<module>filesystem.jpa.hibernate</module>
