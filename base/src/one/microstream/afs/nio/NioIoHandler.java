@@ -291,7 +291,7 @@ public interface NioIoHandler extends AIoHandler
 			bufferProvider.initializeOperation();
 			try
 			{
-				return this.specificReadBytes(sourceFile, bufferProvider.provideNextBuffer());
+				return this.specificReadBytes(sourceFile, bufferProvider.provideBuffer());
 			}
 			finally
 			{
@@ -309,7 +309,7 @@ public interface NioIoHandler extends AIoHandler
 			bufferProvider.initializeOperation();
 			try
 			{
-				return this.specificReadBytes(sourceFile, bufferProvider.provideNextBuffer(), position);
+				return this.specificReadBytes(sourceFile, bufferProvider.provideBuffer(), position);
 			}
 			finally
 			{
@@ -328,7 +328,7 @@ public interface NioIoHandler extends AIoHandler
 			bufferProvider.initializeOperation();
 			try
 			{
-				return this.specificReadBytes(sourceFile, bufferProvider.provideNextBuffer(), position, length);
+				return this.specificReadBytes(sourceFile, bufferProvider.provideBuffer(length), position, length);
 			}
 			finally
 			{

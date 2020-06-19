@@ -3,7 +3,6 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 
 import one.microstream.X;
-import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.storage.exceptions.StorageException;
@@ -81,7 +80,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		);
 	}
 	
-	public final class Default implements StorageBackupHandler
+	public final class Default implements StorageBackupHandler, StorageBackupInventory
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -149,32 +148,17 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			return this;
 		}
 		
-		
-		protected StorageBackupFile resolveBackupTargetFile(final StorageLiveFile<?> sourceFile)
+		@Override
+		public StorageBackupDataFile ensureDataFile(final StorageLiveDataFile file)
 		{
-			if(sourceFile instanceof StorageLiveDataFile)
-			{
-				return this.resolveBackupTargetFile((StorageLiveDataFile)sourceFile);
-			}
-			if(sourceFile instanceof StorageLiveTransactionsFile)
-			{
-				return this.resolveBackupTargetFile((StorageLiveTransactionsFile)sourceFile);
-			}
-			
-			// (15.06.2020 TM)EXCP: proper exception
-			throw new RuntimeException("Unhandled File Type: " + XChars.systemString(sourceFile));
+			return this.channelInventories[file.channelIndex()].ensureBackupFile(file);
 		}
 		
-		private StorageBackupDataFile resolveBackupTargetFile(final StorageLiveDataFile sourceFile)
+		@Override
+		public StorageBackupTransactionsFile ensureTransactionsFile(final StorageLiveTransactionsFile file)
 		{
-			return this.channelInventories[sourceFile.channelIndex()].ensureBackupFile(sourceFile);
+			return this.channelInventories[file.channelIndex()].ensureBackupFile(file);
 		}
-		
-		private StorageBackupTransactionsFile resolveBackupTargetFile(final StorageLiveTransactionsFile sourceFile)
-		{
-			return this.channelInventories[sourceFile.channelIndex()].ensureBackupFile(sourceFile);
-		}
-		
 
 		@Override
 		public void initialize(final int channelIndex)
@@ -270,12 +254,12 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		{
 			for(final StorageLiveDataFile storageFile : storageInventory.dataFiles().values())
 			{
-				final StorageBackupDataFile backupTargetFile = this.resolveBackupTargetFile(storageFile);
+				final StorageBackupDataFile backupTargetFile = storageFile.ensureBackupFile(this);
 				this.copyFile(storageFile, backupTargetFile);
 			}
 			
 			final StorageLiveTransactionsFile transactionFile = storageInventory.transactionsFileAnalysis().transactionsFile();
-			final StorageBackupTransactionsFile backupTransactionFile = this.resolveBackupTargetFile(transactionFile);
+			final StorageBackupTransactionsFile backupTransactionFile = transactionFile.ensureBackupFile(this);
 			this.copyFile(transactionFile, backupTransactionFile);
 		}
 		
@@ -325,7 +309,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			final long lastBackupFileNumber = backupInventory.dataFiles().keys().last();
 			for(final StorageLiveDataFile dataFile : storageInventory.dataFiles().values())
 			{
-				final StorageBackupDataFile backupTargetFile = this.resolveBackupTargetFile(dataFile);
+				final StorageBackupDataFile backupTargetFile = dataFile.ensureBackupFile(this);
 				
 				// non-existant files have either not been backupped, yet, or a "healable" error.
 				if(!backupTargetFile.exists())
@@ -374,8 +358,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		
 		private void deleteBackupTransactionFile(final ChannelInventory backupInventory)
 		{
-			final StorageBackupTransactionsFile backupTransactionFile = backupInventory.ensureTransactionsFile();
-			if(!backupTransactionFile.exists())
+			final StorageBackupTransactionsFile backupTransactionFile = backupInventory.transactionFile;
+			if(backupTransactionFile == null || !backupTransactionFile.exists())
 			{
 				return;
 			}
@@ -410,7 +394,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			}
 			
 			final StorageLiveTransactionsFile   liveTransactionsFile  = tfa.transactionsFile();
-			final StorageBackupTransactionsFile backupTransactionFile = backupInventory.ensureTransactionsFile();
+			final StorageBackupTransactionsFile backupTransactionFile = liveTransactionsFile.ensureBackupFile(this);
 			
 			if(!backupTransactionFile.exists())
 			{
@@ -482,7 +466,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		)
 		{
 			// note: the original target file of the copying is irrelevant. Only the backup target file counts.
-			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(sourceFile);
+			final StorageBackupFile backupTargetFile = sourceFile.ensureBackupFile(this);
 			
 			this.copyFilePart(sourceFile, sourcePosition, copyLength, backupTargetFile);
 		}
@@ -493,7 +477,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			final long               newLength
 		)
 		{
-			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
+			final StorageBackupFile backupTargetFile = file.ensureBackupFile(this);
 			
 			StorageFileWriter.truncateFile(backupTargetFile, newLength, this.backupSetup.backupFileProvider());
 			
@@ -503,7 +487,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		@Override
 		public void deleteFile(final StorageLiveFile<?> file)
 		{
-			final StorageBackupFile backupTargetFile = this.resolveBackupTargetFile(file);
+			final StorageBackupFile backupTargetFile = file.ensureBackupFile(this);
 			
 			StorageFileWriter.deleteFile(backupTargetFile, this.backupSetup.backupFileProvider());
 			

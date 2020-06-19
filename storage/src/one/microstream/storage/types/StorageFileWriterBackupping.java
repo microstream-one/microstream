@@ -199,21 +199,24 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 
 		@Override
 		public final void truncate(
-			final StorageLiveDataFile file               ,
-			final long                newLength          ,
-			final StorageFileProvider storageFileProvider
+			final StorageLiveDataFile       file              ,
+			final long                      newLength         ,
+			final StorageBackupFileProvider backupFileProvider
 		)
 		{
 			// no user increment since only the identifier is required and the actual file can well be deleted.
-			this.delegate.truncate(file, newLength, storageFileProvider);
+			this.delegate.truncate(file, newLength, backupFileProvider);
 			this.itemEnqueuer.enqueueTruncatingItem(file, newLength);
 		}
 		
 		@Override
-		public void delete(final StorageLiveDataFile file, final StorageFileProvider storageFileProvider)
+		public void delete(
+			final StorageLiveDataFile       file              ,
+			final StorageBackupFileProvider backupFileProvider
+		)
 		{
 			// no user increment since only the identifier is required and the actual file can well be deleted.
-			this.delegate.delete(file, storageFileProvider);
+			this.delegate.delete(file, backupFileProvider);
 			this.itemEnqueuer.enqueueDeletionItem(file);
 		}
 		

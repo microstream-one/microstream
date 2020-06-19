@@ -6,7 +6,9 @@ public interface BufferProvider
 {
 	public void initializeOperation();
 	
-	public ByteBuffer provideNextBuffer();
+	public ByteBuffer provideBuffer();
+	
+	public ByteBuffer provideBuffer(long size);
 	
 	public void completeOperation();
 }

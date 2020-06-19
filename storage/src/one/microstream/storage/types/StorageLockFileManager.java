@@ -248,7 +248,7 @@ public interface StorageLockFileManager extends Runnable
 		private void fillReadBufferFromFile()
 		{
 			final int fileLength = X.checkArrayRange(this.lockFile.size());
-			this.reader.readStorage(this.lockFile, 0, this.ensureReadingBuffer(fileLength), this);
+			this.lockFile.readBytes(this.ensureReadingBuffer(fileLength), 0, fileLength);
 			XMemory.copyRangeToArray(XMemory.getDirectByteBufferAddress(this.directByteBuffer), this.stringReadBuffer);
 		}
 						
@@ -443,7 +443,7 @@ public interface StorageLockFileManager extends Runnable
 			
 			XMemory.copyArrayToAddress(bytes, XMemory.getDirectByteBufferAddress(this.directByteBuffer));
 			
-			this.writer.write(this.lockFile, bb);
+			this.lockFile.writeBytes(X.List(bb));
 		}
 				
 		private void updateFile()
@@ -466,7 +466,7 @@ public interface StorageLockFileManager extends Runnable
 				return;
 			}
 			
-			ZStorageFile.close(this.lockFile, cause);
+			StorageClosableFile.close(this.lockFile, cause);
 			this.lockFile = null;
 		}
 		

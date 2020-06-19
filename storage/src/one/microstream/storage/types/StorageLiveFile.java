@@ -6,7 +6,7 @@ import one.microstream.afs.AFile;
 import one.microstream.collections.XArrays;
 import one.microstream.storage.exceptions.StorageException;
 
-public interface StorageLiveFile<S extends StorageLiveFile<S>> extends StorageClosableFile
+public interface StorageLiveFile<S extends StorageLiveFile<S>> extends StorageClosableFile, StorageBackupableFile
 {
 	public boolean hasUsers();
 	
