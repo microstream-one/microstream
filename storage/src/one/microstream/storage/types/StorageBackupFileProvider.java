@@ -5,12 +5,14 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.text.SimpleDateFormat;
+import java.util.function.Consumer;
 
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFile;
 import one.microstream.afs.AFileSystem;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.storage.types.StorageFileProvider.Defaults;
+import one.microstream.storage.types.StorageFileProvider.Static;
 
 
 public interface StorageBackupFileProvider
@@ -24,12 +26,11 @@ public interface StorageBackupFileProvider
 	);
 	
 	public StorageBackupDataFile provideDeletionTargetFile(
-		StorageDataFile fileToBeDeleted
+		StorageLiveDataFile fileToBeDeleted
 	);
 	
 	public StorageBackupTransactionsFile provideDeletionTargetFile(
 		StorageTransactionsFile fileToBeDeleted
-		
 	);
 	
 	public StorageBackupDataFile provideTruncationBackupTargetFile(
@@ -37,19 +38,28 @@ public interface StorageBackupFileProvider
 		long            newLength
 	);
 	
+	public <F extends StorageDataFile, P extends Consumer<F>> P collectDataFiles(
+		StorageDataFile.Creator<F> creator     ,
+		P                          collector   ,
+		int                        channelIndex
+	);
+	
+	
 	
 	public static StorageBackupFileProvider New(
 		final ADirectory                        backupDirectory    ,
 		final ADirectory                        deletionDirectory  ,
 		final ADirectory                        truncationDirectory,
-		final StorageDirectoryStructureProvider structureProvider
+		final StorageDirectoryStructureProvider structureProvider  ,
+		final StorageFileNameProvider           fileNameProvider
 	)
 	{
 		return new StorageBackupFileProvider.Default(
 			notNull(backupDirectory),
 			mayNull(deletionDirectory),
 			mayNull(truncationDirectory),
-			notNull(structureProvider)
+			notNull(structureProvider),
+			notNull(fileNameProvider)
 		);
 	}
 	
@@ -67,6 +77,8 @@ public interface StorageBackupFileProvider
 		
 		private final StorageDirectoryStructureProvider structureProvider;
 		
+		private final StorageFileNameProvider fileNameProvider;
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -77,7 +89,8 @@ public interface StorageBackupFileProvider
 			final ADirectory                        backupDirectory    ,
 			final ADirectory                        deletionDirectory  ,
 			final ADirectory                        truncationDirectory,
-			final StorageDirectoryStructureProvider structureProvider
+			final StorageDirectoryStructureProvider structureProvider  ,
+			final StorageFileNameProvider           fileNameProvider
 		)
 		{
 			super();
@@ -85,6 +98,7 @@ public interface StorageBackupFileProvider
 			this.deletionDirectory   = deletionDirectory  ;
 			this.truncationDirectory = truncationDirectory;
 			this.structureProvider   = structureProvider  ;
+			this.fileNameProvider    = fileNameProvider   ;
 		}
 		
 		
@@ -93,11 +107,15 @@ public interface StorageBackupFileProvider
 		// methods //
 		////////////
 		
-		private ADirectory provideDirectory(final ADirectory baseDirectory, final StorageChannelFile dataFile)
+		private ADirectory provideDirectory(
+			final ADirectory         baseDirectory,
+			final StorageChannelFile dataFile
+		)
 		{
 			return this.structureProvider.provideChannelDirectory(
 				baseDirectory,
-				dataFile.channelIndex()
+				dataFile.channelIndex(),
+				this.fileNameProvider
 			);
 		}
 		
@@ -173,7 +191,7 @@ public interface StorageBackupFileProvider
 
 		@Override
 		public StorageBackupDataFile provideDeletionTargetFile(
-			final StorageDataFile fileToBeDeleted
+			final StorageLiveDataFile fileToBeDeleted
 		)
 		{
 			// maybe null, indicating to not backup the file
@@ -243,6 +261,28 @@ public interface StorageBackupFileProvider
 			;
 		}
 		
+		@Override
+		public <F extends StorageDataFile, P extends Consumer<F>> P collectDataFiles(
+			final StorageDataFile.Creator<F> creator     ,
+			final P                          collector   ,
+			final int                        channelIndex
+		)
+		{
+			final ADirectory directory = this.structureProvider.provideChannelDirectory(
+				this.backupDirectory,
+				channelIndex,
+				this.fileNameProvider
+			);
+			
+			return Static.collectFile(
+				creator,
+				collector,
+				channelIndex,
+				directory,
+				this.fileNameProvider
+			);
+		}
+		
 	}
 	
 	public static StorageBackupFileProvider.Builder<?> Builder()
@@ -294,6 +334,8 @@ public interface StorageBackupFileProvider
 			;
 			
 			private StorageDirectoryStructureProvider structureProvider;
+			
+			private StorageFileNameProvider fileNameProvider;
 			
 			
 
@@ -391,36 +433,14 @@ public interface StorageBackupFileProvider
 			
 			protected ADirectory getDeletionDirectory()
 			{
-				if(this.deletionDirectory != null)
-				{
-					return this.deletionDirectory;
-				}
-				
-				// Defaults method is the single location to control behavior.
-				final String nameDeletionDirectory = Defaults.defaultDeletionDirectory();
-
-				// note: relative root directory inside the current working directory
-				return nameDeletionDirectory == null
-					? null
-					: this.fileSystem.ensureRoot(nameDeletionDirectory)
-				;
+				// no default / default is null
+				return this.deletionDirectory;
 			}
 			
 			protected ADirectory getTruncationDirectory()
 			{
-				if(this.truncationDirectory != null)
-				{
-					return this.truncationDirectory;
-				}
-				
-				// Defaults method is the single location to control behavior.
-				final String nameTruncationDirectory = Defaults.defaultTruncationDirectory();
-
-				// note: relative root directory inside the current working directory
-				return nameTruncationDirectory == null
-					? null
-					: this.fileSystem.ensureRoot(nameTruncationDirectory)
-				;
+				// no default / default is null
+				return this.truncationDirectory;
 			}
 			
 			protected StorageDirectoryStructureProvider getDirectoryStructureProvider()
@@ -433,6 +453,14 @@ public interface StorageBackupFileProvider
 				return StorageDirectoryStructureProvider.New();
 			}
 			
+			protected StorageFileNameProvider getFileNameProvider()
+			{
+				return this.fileNameProvider != null
+					? this.fileNameProvider
+					: StorageFileNameProvider.Defaults.defaultFileNameProvider()
+				;
+			}
+			
 			@Override
 			public StorageBackupFileProvider createBackupFileProvider()
 			{
@@ -440,7 +468,8 @@ public interface StorageBackupFileProvider
 					this.getBaseDirectory(),
 					this.getDeletionDirectory(),
 					this.getTruncationDirectory(),
-					this.getDirectoryStructureProvider()
+					this.getDirectoryStructureProvider(),
+					this.getFileNameProvider()
 				);
 			}
 			

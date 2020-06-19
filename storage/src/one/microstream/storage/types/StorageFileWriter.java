@@ -146,22 +146,22 @@ public interface StorageFileWriter
 	}
 
 	public default void truncate(
-		final StorageLiveDataFile file               ,
-		final long                newLength          ,
-		final StorageFileProvider storageFileProvider
+		final StorageLiveDataFile       file              ,
+		final long                      newLength         ,
+		final StorageBackupFileProvider backupFileProvider
 	)
 	{
-		truncateFile(file, newLength, storageFileProvider);
+		truncateFile(file, newLength, backupFileProvider);
 	}
 	
 	public static void truncateFile(
-		final StorageLiveDataFile file               ,
-		final long                newLength          ,
-		final StorageFileProvider storageFileProvider
+		final StorageTruncatableFile     file              ,
+		final long                       newLength         ,
+		final StorageBackupFileProvider  backupFileProvider
 	)
 	{
 //		DEBUGStorage.println("storage file truncation");
-		final StorageBackupDataFile truncationTargetFile = storageFileProvider.provideTruncationBackupTargetFile(
+		final StorageBackupDataFile truncationTargetFile = backupFileProvider.provideTruncationBackupTargetFile(
 			file,
 			newLength
 		);
@@ -182,21 +182,21 @@ public interface StorageFileWriter
 	}
 
 	public default void delete(
-		final StorageLiveDataFile file               ,
-		final StorageFileProvider storageFileProvider
+		final StorageLiveDataFile       file              ,
+		final StorageBackupFileProvider backupFileProvider
 	)
 	{
-		deleteFile(file, storageFileProvider);
+		deleteFile(file, backupFileProvider);
 	}
 	
 	public static void deleteFile(
-		final StorageDataFile     file               ,
-		final StorageFileProvider storageFileProvider
+		final StorageFile               file              ,
+		final StorageBackupFileProvider backupFileProvider
 	)
 	{
 //		DEBUGStorage.println("storage file deletion");
 
-		if(rescueFromDeletion(file, storageFileProvider))
+		if(rescueFromDeletion(file, backupFileProvider))
 		{
 			return;
 		}
@@ -238,11 +238,11 @@ public interface StorageFileWriter
 	}
 	
 	public static boolean rescueFromDeletion(
-		final StorageDataFile     file               ,
-		final StorageFileProvider storageFileProvider
+		final StorageFile               file              ,
+		final StorageBackupFileProvider backupFileProvider
 	)
 	{
-		final StorageBackupDataFile deletionTargetFile = storageFileProvider.provideDeletionTargetFile(file);
+		final StorageBackupDataFile deletionTargetFile = backupFileProvider.provideDeletionTargetFile(file);
 		if(deletionTargetFile == null)
 		{
 			return false;

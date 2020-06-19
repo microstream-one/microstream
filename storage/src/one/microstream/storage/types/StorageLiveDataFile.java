@@ -5,7 +5,7 @@ import one.microstream.math.XMath;
 import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageLiveDataFile
-extends StorageDataFile, StorageLiveChannelFile<StorageLiveDataFile>
+extends StorageDataFile, StorageTruncatableFile, StorageLiveChannelFile<StorageLiveDataFile>
 {
 	public long totalLength();
 
@@ -24,9 +24,12 @@ extends StorageDataFile, StorageLiveChannelFile<StorageLiveDataFile>
 	 * @return {@literal true} if the file containts exactely one live entity.
 	 */
 	public boolean hasSingleEntity();
-		
-	public void truncate(long newLength);
 
+	@Override
+	public default StorageBackupDataFile ensureBackupFile(final StorageBackupInventory backupInventory)
+	{
+		return backupInventory.ensureDataFile(this);
+	}
 	
 	
 //	public static StorageLiveDataFile.Default New(

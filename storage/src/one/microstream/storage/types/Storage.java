@@ -392,7 +392,9 @@ public final class Storage
 	 */
 	public static final StorageBackupSetup BackupSetup(final Path backupDirectory)
 	{
-		return StorageBackupSetup.New(backupDirectory);
+		final ADirectory dir = NioFileSystem.New().ensureDirectory(backupDirectory);
+		
+		return StorageBackupSetup.New(dir);
 	}
 
 	/**
@@ -408,7 +410,7 @@ public final class Storage
 	 */
 	public static final StorageBackupSetup BackupSetup(final String backupDirectoryPath)
 	{
-		return StorageBackupSetup.New(Paths.get(backupDirectoryPath));
+		return BackupSetup(Paths.get(backupDirectoryPath));
 	}
 
 	/**
@@ -421,7 +423,7 @@ public final class Storage
 	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupHandler
 	 */
-	public static final StorageBackupSetup BackupSetup(final StorageFileProvider backupFileProvider)
+	public static final StorageBackupSetup BackupSetup(final StorageBackupFileProvider backupFileProvider)
 	{
 		return StorageBackupSetup.New(backupFileProvider);
 	}

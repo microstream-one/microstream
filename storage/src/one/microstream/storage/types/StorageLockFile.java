@@ -4,7 +4,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.afs.AFile;
 
-public interface StorageLockFile extends StorageFile
+public interface StorageLockFile extends StorageClosableFile
 {
 	// (10.06.2020 TM)FIXME: priv#49: StorageLockFile
 	
@@ -26,6 +26,24 @@ public interface StorageLockFile extends StorageFile
 		protected Default(final AFile file)
 		{
 			super(file);
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final synchronized boolean isOpen()
+		{
+			return this.internalIsOpen();
+		}
+		
+		@Override
+		public final synchronized boolean close()
+		{
+			return this.internalClose();
 		}
 		
 	}

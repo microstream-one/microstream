@@ -62,7 +62,7 @@ public interface StorageFile
 	public boolean delete();
 
 	public void moveTo(StorageFile target);
-	
+		
 	
 		
 	public static VarString assembleNameAndSize(final VarString vs, final StorageFile file)
