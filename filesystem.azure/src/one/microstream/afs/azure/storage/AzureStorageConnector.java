@@ -49,24 +49,11 @@ public interface AzureStorageConnector extends BlobStoreConnector
 			final BlobServiceClient serviceClient
 		)
 		{
-			super();
+			super(
+				BlobItem::getName,
+				b -> b.getProperties().getContentLength()
+			);
 			this.serviceClient = serviceClient;
-		}
-
-		@Override
-		protected String key(
-			final BlobItem blob
-		)
-		{
-			return blob.getName();
-		}
-
-		@Override
-		protected long size(
-			final BlobItem blob
-		)
-		{
-			return blob.getProperties().getContentLength();
 		}
 
 		@Override
@@ -90,7 +77,7 @@ public interface AzureStorageConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected void readBlobData(
+		protected void internalReadBlobData(
 			final BlobStorePath file        ,
 			final BlobItem      blob        ,
 			final ByteBuffer    targetBuffer,
@@ -234,7 +221,7 @@ public interface AzureStorageConnector extends BlobStoreConnector
 				targetContainerClient.getBlobClient(
 					toBlobKey(
 						targetFile,
-						this.getBlobNr(sourceItem)
+						this.blobNr(sourceItem)
 					)
 				)
 				.beginCopy(url, null)

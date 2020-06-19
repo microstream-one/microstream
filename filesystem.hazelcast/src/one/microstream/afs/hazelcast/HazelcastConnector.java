@@ -42,32 +42,29 @@ public interface HazelcastConnector extends BlobStoreConnector
 
 
 	public static class Default
-	extends    BlobStoreConnector.Abstract<List<Object>>
+	extends    BlobStoreConnector.Abstract<BlobMetadata>
 	implements HazelcastConnector
 	{
 		/*
-		 * Blobs are managed as Lists:
+		 * Blobs are stored as Lists:
 		 * LinkedList[                // needed to get projection working ("this.getFirst")
 		 *     ArrayList[             // metadata
-		 *         String identifier
-		 *         Long   start
-		 *         Long   end
+		 *         String key
+		 *         Long   size
 		 *     ],
 		 *     byte[] data
 		 * ]
 		 */
 
-		private static List<Object> createBlob(
+		private static List<Object> createBlobList(
 			final String identifier,
-			final Long   start     ,
-			final Long   end       ,
+			final Long   size      ,
 			final byte[] data
 		)
 		{
 			final List<Object> metadata = new ArrayList<>(3);
 			metadata.add(identifier);
-			metadata.add(start);
-			metadata.add(end);
+			metadata.add(size);
 
 			final List<Object> blob = new LinkedList<>();
 			blob.add(metadata);
@@ -76,31 +73,10 @@ public interface HazelcastConnector extends BlobStoreConnector
 		}
 
 		private static byte[] data(
-			final List<Object> blob
+			final List<Object> blobList
 		)
 		{
-			return (byte[])blob.get(1);
-		}
-
-		private static String identifier(
-			final List<Object> metadata
-		)
-		{
-			return (String)metadata.get(0);
-		}
-
-		private static Long start(
-			final List<Object> metadata
-		)
-		{
-			return (Long)metadata.get(1);
-		}
-
-		private static Long end(
-			final List<Object> metadata
-		)
-		{
-			return (Long)metadata.get(2);
+			return (byte[])blobList.get(1);
 		}
 
 		private final static long MAX_UPLOAD_BLOB_BYTES = 10_000_000L;
@@ -111,7 +87,10 @@ public interface HazelcastConnector extends BlobStoreConnector
 			final HazelcastInstance hazelcast
 		)
 		{
-			super();
+			super(
+				BlobMetadata::key,
+				BlobMetadata::size
+			);
 			this.hazelcast = hazelcast;
 		}
 
@@ -121,23 +100,7 @@ public interface HazelcastConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected String key(
-			final List<Object> metadata
-		)
-		{
-			return identifier(metadata);
-		}
-
-		@Override
-		protected long size(
-			final List<Object> metadata
-		)
-		{
-			return end(metadata) - start(metadata) + 1L;
-		}
-
-		@Override
-		protected Stream<List<Object>> blobs(
+		protected Stream<BlobMetadata> blobs(
 			final BlobStorePath file
 		)
 		{
@@ -151,21 +114,22 @@ public interface HazelcastConnector extends BlobStoreConnector
 				)
 			)
 			.stream()
+			.map(list -> BlobMetadata.New((String)list.get(0), (Long)list.get(1)))
 			.sorted(this.blobComparator())
 			;
 		}
 
 		@Override
-		protected void readBlobData(
+		protected void internalReadBlobData(
 			final BlobStorePath file        ,
-			final List<Object>  metadata    ,
+			final BlobMetadata  metadata    ,
 			final ByteBuffer    targetBuffer,
 			final long          offset      ,
 			final long          length
 		)
 		{
 			final byte[] data = data(
-				this.map(file).get(identifier(metadata))
+				this.map(file).get(metadata.key())
 			);
 			targetBuffer.put(
 				data,
@@ -183,7 +147,7 @@ public interface HazelcastConnector extends BlobStoreConnector
 			final AtomicBoolean deleted = new AtomicBoolean();
 			this.blobs(file).forEach(
 				metadata -> {
-					map.delete(identifier(metadata));
+					map.delete(metadata.key());
 					deleted.set(true);
 				}
 			);
@@ -200,7 +164,6 @@ public interface HazelcastConnector extends BlobStoreConnector
 			final long                       totalSize          = this.totalSize(sourceBuffers);
 			final IMap<String, List<Object>> map                = this.map(file);
 			final ByteBufferInputStream      buffersInputStream = ByteBufferInputStream.New(sourceBuffers);
-			      long                       offset             = this.fileSize(file);
 			      long                       available          = totalSize;
 			while(available > 0)
 			{
@@ -224,10 +187,9 @@ public interface HazelcastConnector extends BlobStoreConnector
 					while(read < batchSize);
 
 					final String       identifier = toBlobKey(file, nextBlobNr++);
-					final List<Object> blob       = createBlob(
+					final List<Object> blob       = createBlobList(
 						identifier,
-						offset,
-						offset + currentBatchSize - 1,
+						currentBatchSize,
 						batch
 					);
 					map.set(identifier, blob);
@@ -237,7 +199,6 @@ public interface HazelcastConnector extends BlobStoreConnector
 					throw new IORuntimeException(e);
 				}
 
-				offset    += currentBatchSize;
 				available -= currentBatchSize;
 			}
 
@@ -255,7 +216,7 @@ public interface HazelcastConnector extends BlobStoreConnector
 			final AtomicInteger              nr        = new AtomicInteger();
 			this.blobs(sourceFile).forEach(metadata -> {
 				this.copyBlob(metadata, targetFile, sourceMap, targetMap, nr);
-				sourceMap.delete(identifier(metadata));
+				sourceMap.delete(metadata.key());
 			});
 		}
 
@@ -271,34 +232,27 @@ public interface HazelcastConnector extends BlobStoreConnector
 			final AtomicLong                 size      = new AtomicLong();
 			this.blobs(sourceFile).forEach(metadata ->{
 				this.copyBlob(metadata, targetFile, sourceMap, targetMap, nr);
-				size.addAndGet(this.size(metadata));
+				size.addAndGet(metadata.size());
 			});
 			return size.get();
 		}
 
 		private void copyBlob(
-			final List<Object>               metadata  ,
+			final BlobMetadata               metadata  ,
 			final BlobStorePath              targetFile,
 			final IMap<String, List<Object>> sourceMap ,
 			final IMap<String, List<Object>> targetMap ,
 			final AtomicInteger              nr
 		)
 		{
-			final List<Object> blob             = sourceMap.get(identifier(metadata));
+			final List<Object> blob             = sourceMap.get(metadata.key());
 			final String       targetIdentifier = toBlobKey(targetFile, nr.getAndIncrement());
-			final List<Object> newBlob          = createBlob(
+			final List<Object> newBlob          = createBlobList(
 				targetIdentifier,
-				start(metadata),
-				end(metadata),
+				metadata.size(),
 				data(blob)
 			);
 			targetMap.put(targetIdentifier, newBlob);
-		}
-
-		@Override
-		protected synchronized void internalClose()
-		{
-			this.hazelcast.shutdown();
 		}
 
 	}

@@ -52,7 +52,10 @@ public interface RedisConnector extends BlobStoreConnector
 			final RedisClient client
 		)
 		{
-			super();
+			super(
+				Blob::key,
+				Blob::size
+			);
 			this.client = client;
 		}
 
@@ -80,22 +83,6 @@ public interface RedisConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected String key(
-			final Blob blob
-		)
-		{
-			return blob.key();
-		}
-
-		@Override
-		protected long size(
-			final Blob blob
-		)
-		{
-			return blob.size();
-		}
-
-		@Override
 		protected Stream<Blob> blobs(
 			final BlobStorePath file
 		)
@@ -107,16 +94,17 @@ public interface RedisConnector extends BlobStoreConnector
 				.stream()
 				.filter(key -> pattern.matcher(key).matches())
 				.map(key ->
-				Blob.New(
-					key,
-					commands.strlen(key)
-				))
+					Blob.New(
+						key,
+						commands.strlen(key)
+					)
+				)
 				.sorted(this.blobComparator())
 			;
 		}
 
 		@Override
-		protected void readBlobData(
+		protected void internalReadBlobData(
 			final BlobStorePath   file        ,
 			final Blob            blob        ,
 			final ByteBuffer      targetBuffer,
@@ -131,22 +119,6 @@ public interface RedisConnector extends BlobStoreConnector
 					offset + length - 1L
 				)
 			);
-		}
-
-		@Override
-		protected boolean internalDirectoryExists(
-			final BlobStorePath directory
-		)
-		{
-			return true;
-		}
-
-		@Override
-		protected boolean internalCreateDirectory(
-			final BlobStorePath directory
-		)
-		{
-			return true;
 		}
 
 		@Override
@@ -194,7 +166,7 @@ public interface RedisConnector extends BlobStoreConnector
 			{
 				final long       size   = blob.size();
 				final ByteBuffer buffer = ByteBuffer.allocateDirect(checkArrayRange(size));
-				this.readBlobData(
+				this.internalReadBlobData(
 					sourceFile,
 					blob,
 					buffer,
@@ -205,7 +177,7 @@ public interface RedisConnector extends BlobStoreConnector
 				this.commands().set(
 					toBlobKey(
 						 targetFile,
-						 this.getBlobNr(blob)
+						 this.blobNr(blob)
 					),
 					buffer
 				);

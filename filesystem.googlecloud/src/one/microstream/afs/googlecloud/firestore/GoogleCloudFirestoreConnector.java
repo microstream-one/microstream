@@ -63,7 +63,10 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 			final Firestore firestore
 		)
 		{
-			super();
+			super(
+				blob -> blob.getString(FIELD_KEY ),
+				blob -> blob.getLong  (FIELD_SIZE)
+			);
 			this.firestore = firestore;
 		}
 
@@ -123,22 +126,6 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected String key(
-			final DocumentSnapshot blob
-		)
-		{
-			return blob.getString(FIELD_KEY);
-		}
-
-		@Override
-		protected long size(
-			final DocumentSnapshot blob
-		)
-		{
-			return blob.getLong(FIELD_SIZE);
-		}
-
-		@Override
 		protected Stream<? extends DocumentSnapshot> blobs(
 			final BlobStorePath file
 		)
@@ -147,7 +134,7 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected void readBlobData(
+		protected void internalReadBlobData(
 			final BlobStorePath    file        ,
 			final DocumentSnapshot blob        ,
 			final ByteBuffer       targetBuffer,
@@ -293,7 +280,7 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 				long       amount     = 0L;
 				for(final DocumentSnapshot blob : this.blobs(sourceFile, true).collect(Collectors.toList()))
 				{
-					final long                blobNr = this.getBlobNr(blob);
+					final long                blobNr = this.blobNr(blob);
 					final String              newKey = toBlobKey(targetFile, blobNr);
 					final long                size   = blob.getLong(FIELD_SIZE);
 					final Map<String, Object> map    = new HashMap<>();
