@@ -10,7 +10,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.OptionalLong;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.function.LongFunction;
+import java.util.function.ToLongFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -108,22 +110,26 @@ public interface BlobStoreConnector extends AutoCloseable
 		}
 
 
-		private final AtomicBoolean open = new AtomicBoolean(true);
+		private final Function<B, String> blobKeyProvider ;
+		private final ToLongFunction<B>   blobSizeProvider;
+		private final AtomicBoolean       open            ;
 
-		protected Abstract()
+		protected Abstract(
+			final Function<B, String> blobKeyProvider ,
+			final ToLongFunction<B>   blobSizeProvider
+		)
 		{
 			super();
+			this.blobKeyProvider  = blobKeyProvider        ;
+			this.blobSizeProvider = blobSizeProvider       ;
+			this.open             = new AtomicBoolean(true);
 		}
-
-		protected abstract String key(B blob);
-
-		protected abstract long size(B blob);
 
 		protected abstract Stream<? extends B> blobs(BlobStorePath file);
 
 		protected abstract boolean internalDeleteFile(BlobStorePath file);
 
-		protected abstract void readBlobData(
+		protected abstract void internalReadBlobData(
 			BlobStorePath file        ,
 			B             blob        ,
 			ByteBuffer    targetBuffer,
@@ -146,7 +152,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			return this.blobs(file)
-				.mapToLong(this::size)
+				.mapToLong(this.blobSizeProvider)
 				.sum()
 			;
 		}
@@ -276,14 +282,14 @@ public interface BlobStoreConnector extends AutoCloseable
 
 		protected Comparator<B> blobComparator()
 		{
-			return (b1, b2) -> Long.compare(this.getBlobNr(b1), this.getBlobNr(b2));
+			return (b1, b2) -> Long.compare(this.blobNr(b1), this.blobNr(b2));
 		}
 
-		protected long getBlobNr(
+		protected long blobNr(
 			final B blob
 		)
 		{
-			final String key            = this.key(blob);
+			final String key            = this.blobKeyProvider.apply(blob);
 			final int    separatorIndex = key.lastIndexOf(NUMBER_SUFFIX_SEPARATOR_CHAR);
 			return Long.parseLong(key.substring(separatorIndex + 1));
 		}
@@ -293,7 +299,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			final OptionalLong maxBlobNr = this.blobs(file)
-				.mapToLong(this::getBlobNr)
+				.mapToLong(this::blobNr)
 				.max()
 			;
 			return maxBlobNr.isPresent()
@@ -311,7 +317,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		{
 			final List<B>     blobs        = this.blobs(file).collect(toList());
 			final long        sizeTotal    = blobs.stream()
-				.mapToLong(this::size)
+				.mapToLong(this.blobSizeProvider)
 				.sum()
 			;
 			final Iterator<B> iterator     = blobs.iterator();
@@ -325,7 +331,7 @@ public interface BlobStoreConnector extends AutoCloseable
 			while(remaining > 0 && iterator.hasNext())
 			{
 				final B    blob     = iterator.next();
-				final long blobSize = this.size(blob);
+				final long blobSize = this.blobSizeProvider.applyAsLong(blob);
 				if(skipped + blobSize <= offset)
 				{
 					skipped += blobSize;
@@ -351,7 +357,7 @@ public interface BlobStoreConnector extends AutoCloseable
 					blobSize - blobOffset,
 					remaining
 				);
-				this.readBlobData(
+				this.internalReadBlobData(
 					file,
 					blob,
 					targetBuffer,

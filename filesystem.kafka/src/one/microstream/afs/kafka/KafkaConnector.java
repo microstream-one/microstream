@@ -69,7 +69,10 @@ public interface KafkaConnector extends BlobStoreConnector
 			final Properties kafkaProperties
 		)
 		{
-			super();
+			super(
+				Blob::key,
+				Blob::size
+			);
 			this.kafkaProperties = kafkaProperties  ;
 			this.indices         = EqHashTable.New();
 			this.kafkaConsumers  = EqHashTable.New();
@@ -135,22 +138,6 @@ public interface KafkaConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected String key(
-			final Blob blob
-		)
-		{
-			return blob.key();
-		}
-
-		@Override
-		protected long size(
-			final Blob blob
-		)
-		{
-			return blob.size();
-		}
-
-		@Override
 		protected Stream<Blob> blobs(
 			final BlobStorePath file
 		)
@@ -163,7 +150,7 @@ public interface KafkaConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected void readBlobData(
+		protected void internalReadBlobData(
 			final BlobStorePath file        ,
 			final Blob          blob        ,
 			final ByteBuffer    targetBuffer,

@@ -100,24 +100,11 @@ public interface CoherenceConnector extends BlobStoreConnector
 			final NamedCache cache
 		)
 		{
-			super();
+			super(
+				BlobMetadata::key,
+				BlobMetadata::size
+			);
 			this.cache = cache;
-		}
-
-		@Override
-		protected String key(
-			final BlobMetadata metadata
-		)
-		{
-			return metadata.key();
-		}
-
-		@Override
-		protected long size(
-			final BlobMetadata metadata
-		)
-		{
-			return metadata.size();
 		}
 
 		@Override
@@ -160,7 +147,7 @@ public interface CoherenceConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected void readBlobData(
+		protected void internalReadBlobData(
 			final BlobStorePath file        ,
 			final BlobMetadata  metadata    ,
 			final ByteBuffer    targetBuffer,
@@ -249,7 +236,7 @@ public interface CoherenceConnector extends BlobStoreConnector
 			final AtomicInteger nr = new AtomicInteger();
 			this.blobs(sourceFile).forEach(metadata -> {
 				this.copyBlob(metadata, targetFile, nr);
-				this.cache.remove(this.key(metadata));
+				this.cache.remove(metadata.key());
 			});
 		}
 
@@ -263,7 +250,7 @@ public interface CoherenceConnector extends BlobStoreConnector
 			final AtomicLong    size = new AtomicLong();
 			this.blobs(sourceFile).forEach(metadata ->{
 				this.copyBlob(metadata, targetFile, nr);
-				size.addAndGet(this.size(metadata));
+				size.addAndGet(metadata.size());
 			});
 			return size.get();
 		}

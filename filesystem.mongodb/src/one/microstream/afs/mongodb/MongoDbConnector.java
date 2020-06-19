@@ -79,7 +79,10 @@ public interface MongoDbConnector extends BlobStoreConnector
 			final MongoDatabase database
 		)
 		{
-			super();
+			super(
+				blob -> blob.getString(FIELD_KEY ),
+				blob -> blob.getLong  (FIELD_SIZE)
+			);
 			this.database    = database       ;
 			this.collections = new HashMap<>();
 		}
@@ -165,22 +168,6 @@ public interface MongoDbConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected String key(
-			final Document blob
-		)
-		{
-			return blob.getString(FIELD_KEY);
-		}
-
-		@Override
-		protected long size(
-			final Document blob
-		)
-		{
-			return blob.getLong(FIELD_SIZE);
-		}
-
-		@Override
 		protected Stream<Document> blobs(
 			final BlobStorePath file
 		)
@@ -199,7 +186,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected void readBlobData(
+		protected void internalReadBlobData(
 			final BlobStorePath file        ,
 			final Document      blob        ,
 			final ByteBuffer    targetBuffer,
@@ -300,7 +287,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 			{
 				final String   newKey   = toBlobKey(
 					targetFile,
-					this.getBlobNr(blob)
+					this.blobNr(blob)
 				);
 				final long     size     = blob.getLong(FIELD_SIZE);
 				final Document document = new Document();
@@ -329,7 +316,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 				{
 					final Bson update = Updates.set(
 						FIELD_KEY,
-						toBlobKey(sourceFile, this.getBlobNr(blob))
+						toBlobKey(sourceFile, this.blobNr(blob))
 					);
 					this.collection(sourceFile).updateOne(
 						this.filterFor(blob),
@@ -366,7 +353,10 @@ public interface MongoDbConnector extends BlobStoreConnector
 			final MongoDatabase database
 		)
 		{
-			super();
+			super(
+				GridFSFile::getFilename,
+				GridFSFile::getLength
+			);
 			this.database = database       ;
 			this.buckets  = new HashMap<>();
 		}
@@ -382,22 +372,6 @@ public interface MongoDbConnector extends BlobStoreConnector
 					name -> GridFSBuckets.create(this.database, name)
 				);
 			}
-		}
-
-		@Override
-		protected String key(
-			final GridFSFile blob
-		)
-		{
-			return blob.getFilename();
-		}
-
-		@Override
-		protected long size(
-			final GridFSFile blob
-		)
-		{
-			return blob.getLength();
 		}
 
 		@Override
@@ -417,7 +391,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected void readBlobData(
+		protected void internalReadBlobData(
 			final BlobStorePath file        ,
 			final GridFSFile    blob        ,
 			final ByteBuffer    targetBuffer,
@@ -502,7 +476,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 			{
 				final long       size   = blob.getLength();
 				final ByteBuffer buffer = ByteBuffer.allocateDirect(checkArrayRange(size));
-				this.readBlobData(
+				this.internalReadBlobData(
 					sourceFile,
 					blob,
 					buffer,
@@ -517,7 +491,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 					this.bucket(targetFile).uploadFromStream(
 						toBlobKey(
 							targetFile,
-							this.getBlobNr(blob)
+							this.blobNr(blob)
 						),
 						inputStream
 					);
@@ -546,7 +520,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 						blob.getObjectId(),
 						toBlobKey(
 							targetFile,
-							this.getBlobNr(blob)
+							this.blobNr(blob)
 						)
 					);
 				});

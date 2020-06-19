@@ -81,7 +81,10 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			final AmazonDynamoDB client
 		)
 		{
-			super();
+			super(
+				blob -> blob.getString(FIELD_KEY ),
+				blob -> blob.getLong  (FIELD_SIZE)
+			);
 			this.client   = client              ;
 			this.dynamoDB = new DynamoDB(client);
 			this.tables   = new HashMap<>();
@@ -171,23 +174,7 @@ public interface DynamoDbConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected String key(
-			final Item blob
-		)
-		{
-			return blob.getString(FIELD_KEY);
-		}
-
-		@Override
-		protected long size(
-			final Item blob
-		)
-		{
-			return blob.getLong(FIELD_SIZE);
-		}
-
-		@Override
-		protected long getBlobNr(final Item blob)
+		protected long blobNr(final Item blob)
 		{
 			return blob.getLong(FIELD_SEQ);
 		}
@@ -216,7 +203,7 @@ public interface DynamoDbConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected void readBlobData(
+		protected void internalReadBlobData(
 			final BlobStorePath file        ,
 			final Item          blob        ,
 			final ByteBuffer    targetBuffer,
@@ -230,7 +217,7 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			 */
 			final Item fullBlob = this.table(file).getItem(
 				FIELD_KEY, file.fullQualifiedName(),
-				FIELD_SEQ, this.getBlobNr(blob)
+				FIELD_SEQ, this.blobNr(blob)
 			);
 			targetBuffer.put(
 				fullBlob.getBinary(FIELD_DATA),
@@ -349,7 +336,7 @@ public interface DynamoDbConnector extends BlobStoreConnector
 				final long size = blob.getLong(FIELD_SIZE);
 				final Item item = new Item()
 					.withPrimaryKey(FIELD_KEY, targetFile.fullQualifiedName())
-					.withKeyComponent(FIELD_SEQ, this.getBlobNr(blob))
+					.withKeyComponent(FIELD_SEQ, this.blobNr(blob))
 					.withNumber(FIELD_SIZE, size)
 					.withBinary(FIELD_DATA, blob.getBinary(FIELD_DATA))
 				;

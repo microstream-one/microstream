@@ -50,24 +50,11 @@ public interface S3Connector extends BlobStoreConnector
 			final AmazonS3 s3
 		)
 		{
-			super();
+			super(
+				S3ObjectSummary::getKey,
+				S3ObjectSummary::getSize
+			);
 			this.s3 = s3;
-		}
-
-		@Override
-		protected String key(
-			final S3ObjectSummary blob
-		)
-		{
-			return blob.getKey();
-		}
-
-		@Override
-		protected long size(
-			final S3ObjectSummary blob
-		)
-		{
-			return blob.getSize();
 		}
 
 		@Override
@@ -86,7 +73,7 @@ public interface S3Connector extends BlobStoreConnector
 		}
 
 		@Override
-		protected void readBlobData(
+		protected void internalReadBlobData(
 			final BlobStorePath   file        ,
 			final S3ObjectSummary blob        ,
 			final ByteBuffer      targetBuffer,
@@ -229,7 +216,7 @@ public interface S3Connector extends BlobStoreConnector
 					 targetFile.container(),
 					 toBlobKey(
 						 targetFile,
-						 this.getBlobNr(sourceFileSummary)
+						 this.blobNr(sourceFileSummary)
 					)
 				);
 			});

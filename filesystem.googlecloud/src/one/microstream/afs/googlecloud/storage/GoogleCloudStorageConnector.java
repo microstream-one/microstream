@@ -50,24 +50,11 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 			final Storage storage
 		)
 		{
-			super();
+			super(
+				Blob::getName,
+				Blob::getSize
+			);
 			this.storage = storage;
-		}
-
-		@Override
-		protected String key(
-			final Blob blob
-		)
-		{
-			return blob.getName();
-		}
-
-		@Override
-		protected long size(
-			final Blob blob
-		)
-		{
-			return blob.getSize();
 		}
 
 		@Override
@@ -99,7 +86,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected void readBlobData(
+		protected void internalReadBlobData(
 			final BlobStorePath file        ,
 			final Blob          blob        ,
 			final ByteBuffer    targetBuffer,
@@ -247,7 +234,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 					targetFile.container(),
 					toBlobKey(
 						targetFile,
-						this.getBlobNr(sourceBlob)
+						this.blobNr(sourceBlob)
 					)
 				)
 				.build();
