@@ -44,8 +44,8 @@ public interface StorageTaskBroker
 	
 
 	public StorageRequestTask enqueueExportChannelsTask(
-		StorageIoHandler fileHandler             ,
-		boolean          performGarbageCollection
+		StorageLiveFileProvider fileProvider             ,
+		boolean             performGarbageCollection
 	)
 		throws InterruptedException;
 
@@ -259,14 +259,14 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageRequestTask enqueueExportChannelsTask(
-			final StorageIoHandler fileHandler             ,
-			final boolean          performGarbageCollection
+			final StorageLiveFileProvider fileProvider             ,
+			final boolean             performGarbageCollection
 		)
 			throws InterruptedException
 		{
 			final StorageRequestTaskExportChannels task = this.taskCreator.createTaskExportChannels(
 				this.channelCount,
-				fileHandler
+				fileProvider
 			);
 
 			/*

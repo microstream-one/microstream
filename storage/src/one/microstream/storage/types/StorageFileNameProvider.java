@@ -17,6 +17,8 @@ public interface StorageFileNameProvider
 	public String dataFileSuffix();
 	
 	public String transactionsFileSuffix();
+
+	public String rescuedFileSuffix();
 	
 	public String typeDictionaryFileName();
 
@@ -69,6 +71,11 @@ public interface StorageFileNameProvider
 		{
 			return "sft"; // "storage file transactions"
 		}
+		
+		public static String defaultRescuedFileSuffix()
+		{
+			return "bak"; // "backup" - although admittedly, that might be a bit confusing with the BackupFile concept.
+		}
 
 		public static String defaultTypeDictionaryFileName()
 		{
@@ -95,6 +102,7 @@ public interface StorageFileNameProvider
 		final String dataFileSuffix        ,
 		final String transactionsFilePrefix,
 		final String transactionsFileSuffix,
+		final String rescuedFileSuffix     ,
 		final String typeDictionaryFileName,
 		final String lockFileName
 	)
@@ -105,6 +113,7 @@ public interface StorageFileNameProvider
 			notNull(dataFileSuffix)        ,
 			notNull(transactionsFilePrefix),
 			notNull(transactionsFileSuffix),
+			notNull(rescuedFileSuffix)     ,
 			notNull(typeDictionaryFileName),
 			notNull(lockFileName)
 		);
@@ -122,6 +131,7 @@ public interface StorageFileNameProvider
 			Defaults.defaultDataFileSuffix        (),
 			Defaults.defaultTransactionsFilePrefix(),
 			Defaults.defaultTransactionsFileSuffix(),
+			Defaults.defaultRescuedFileSuffix()     ,
 			Defaults.defaultTypeDictionaryFileName(),
 			Defaults.defaultLockFileName          ()
 		);
@@ -138,6 +148,7 @@ public interface StorageFileNameProvider
 			dataFileSuffix        ,
 			transactionsFilePrefix,
 			transactionsFileSuffix,
+			rescuedFileSuffix     ,
 			typeDictionaryFileName,
 			lockFileName
 		;
@@ -154,6 +165,7 @@ public interface StorageFileNameProvider
 			final String dataFileSuffix        ,
 			final String transactionsFilePrefix,
 			final String transactionsFileSuffix,
+			final String rescuedFileSuffix     ,
 			final String typeDictionaryFileName,
 			final String lockFileName
 		)
@@ -164,6 +176,7 @@ public interface StorageFileNameProvider
 			this.dataFileSuffix         = dataFileSuffix        ;
 			this.transactionsFilePrefix = transactionsFilePrefix;
 			this.transactionsFileSuffix = transactionsFileSuffix;
+			this.rescuedFileSuffix      = rescuedFileSuffix     ;
 			this.typeDictionaryFileName = typeDictionaryFileName;
 			this.lockFileName           = lockFileName          ;
 		}
@@ -193,6 +206,12 @@ public interface StorageFileNameProvider
 		public String transactionsFileSuffix()
 		{
 			return this.transactionsFileSuffix;
+		}
+		
+		@Override
+		public String rescuedFileSuffix()
+		{
+			return this.rescuedFileSuffix;
 		}
 		
 		@Override
@@ -309,6 +328,10 @@ public interface StorageFileNameProvider
 
 		public B setTransactionsFileSuffix(String transactionsFileSuffix);
 
+		public String rescuedFileSuffix();
+
+		public B setRescuedFileSuffix(String rescuedFileSuffix);
+
 		public String typeDictionaryFileName();
 
 		public B setTypeDictionaryFileName(String typeDictionaryFileName);
@@ -337,6 +360,7 @@ public interface StorageFileNameProvider
 			final String storageFileSuffix     ,
 			final String transactionsFilePrefix,
 			final String transactionsFileSuffix,
+			final String rescuedFileSuffix     ,
 			final String typeDictionaryFileName,
 			final String lockFileName
 		)
@@ -347,6 +371,7 @@ public interface StorageFileNameProvider
 				notNull(storageFileSuffix)     ,
 				notNull(transactionsFilePrefix),
 				notNull(transactionsFileSuffix),
+				notNull(rescuedFileSuffix)     ,
 				notNull(typeDictionaryFileName),
 				notNull(lockFileName)
 			);
@@ -361,10 +386,11 @@ public interface StorageFileNameProvider
 			
 			private String
 				channelDirectoryPrefix,
-				dataFilePrefix     ,
-				dataFileSuffix     ,
+				dataFilePrefix        ,
+				dataFileSuffix        ,
 				transactionsFilePrefix,
 				transactionsFileSuffix,
+				rescuedFileSuffix     ,
 				typeDictionaryFileName,
 				lockFileName
 			;
@@ -458,6 +484,19 @@ public interface StorageFileNameProvider
 			}
 
 			@Override
+			public String rescuedFileSuffix()
+			{
+				return this.rescuedFileSuffix;
+			}
+
+			@Override
+			public B setRescuedFileSuffix(final String rescuedFileSuffix)
+			{
+				this.rescuedFileSuffix = rescuedFileSuffix;
+				return this.$();
+			}
+
+			@Override
 			public String typeDictionaryFileName()
 			{
 				return this.typeDictionaryFileName;
@@ -493,6 +532,7 @@ public interface StorageFileNameProvider
 					coalesce(this.dataFileSuffix        , Defaults.defaultDataFileSuffix()        ),
 					coalesce(this.transactionsFilePrefix, Defaults.defaultTransactionsFilePrefix()),
 					coalesce(this.transactionsFileSuffix, Defaults.defaultTransactionsFileSuffix()),
+					coalesce(this.rescuedFileSuffix     , Defaults.defaultRescuedFileSuffix()     ),
 					coalesce(this.typeDictionaryFileName, Defaults.defaultTypeDictionaryFileName()),
 					coalesce(this.lockFileName          , Defaults.defaultLockFileName()          )
 				);

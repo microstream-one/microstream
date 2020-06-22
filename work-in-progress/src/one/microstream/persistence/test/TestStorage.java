@@ -31,7 +31,7 @@ import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportStatistics;
 import one.microstream.storage.types.ZStorageFile;
-import one.microstream.storage.types.StorageFileProvider;
+import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.storage.types.ZStorageLockedFile;
 import one.microstream.util.cql.CQL;
 
@@ -79,7 +79,7 @@ public class TestStorage extends TestComponentProvider
 		System.out.println("done");
 	}
 
-	static final StorageFileProvider createTestFileProvider()
+	static final StorageLiveFileProvider createTestFileProvider()
 	{
 		return Storage.FileProvider(TEST_DIRECTORY);
 	}

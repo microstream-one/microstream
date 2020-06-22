@@ -22,7 +22,7 @@ import one.microstream.io.XIO;
 import one.microstream.math.XMath;
 import one.microstream.meta.XDebug;
 import one.microstream.storage.types.EmbeddedStorageManager;
-import one.microstream.storage.types.StorageFileProvider;
+import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.storage.types.StorageTransactionsAnalysis;
 import one.microstream.test.corp.model.Address;
 import one.microstream.test.corp.model.BusinessYear;
@@ -217,7 +217,7 @@ public class Test
 	
 	public static void clearDefaultStorageDirectory(final boolean output)
 	{
-		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), output);
+		XDebug.deleteAllFiles(XIO.Path(StorageLiveFileProvider.Defaults.defaultStorageDirectory()), output);
 	}
 
 	public static ClientCorporation generateModelData(final int entityAmount)

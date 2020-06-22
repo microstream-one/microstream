@@ -62,13 +62,13 @@ public final class Storage
 	 * @return {@linkDoc StorageFileProvider#New()@return}
 	 *
 	 * @see Storage#FileProvider(Path)
-	 * @see StorageFileProvider#New()
-	 * @see StorageFileProvider.Builder
-	 * @see StorageFileProvider.Defaults
+	 * @see StorageLiveFileProvider#New()
+	 * @see StorageLiveFileProvider.Builder
+	 * @see StorageLiveFileProvider.Defaults
 	 */
-	public static final StorageFileProvider FileProvider()
+	public static final StorageLiveFileProvider FileProvider()
 	{
-		return StorageFileProvider.New();
+		return StorageLiveFileProvider.New();
 	}
 
 	/**
@@ -81,7 +81,7 @@ public final class Storage
 	 * @deprecated replaced by {@link #FileProvider(Path)}
 	 */
 	@Deprecated
-	public static final StorageFileProvider FileProvider(final File storageDirectory)
+	public static final StorageLiveFileProvider FileProvider(final File storageDirectory)
 	{
 		return FileProvider(storageDirectory.toPath());
 	}
@@ -94,21 +94,21 @@ public final class Storage
 	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
 	 *
 	 * @see Storage#FileProvider()
-	 * @see StorageFileProvider#New(Path)
-	 * @see StorageFileProvider.Builder
-	 * @see StorageFileProvider.Defaults
+	 * @see StorageLiveFileProvider#New(Path)
+	 * @see StorageLiveFileProvider.Builder
+	 * @see StorageLiveFileProvider.Defaults
 	 */
-	public static final StorageFileProvider FileProvider(final Path storageDirectory)
+	public static final StorageLiveFileProvider FileProvider(final Path storageDirectory)
 	{
 		final NioFileSystem nfs = NioFileSystem.New();
 		final ADirectory    dir = nfs.resolveDirectory(storageDirectory);
 		
-		return StorageFileProvider.New(dir);
+		return StorageLiveFileProvider.New(dir);
 	}
 	
-	public static final StorageFileProvider FileProvider(final ADirectory storageDirectory)
+	public static final StorageLiveFileProvider FileProvider(final ADirectory storageDirectory)
 	{
-		return StorageFileProvider.New(storageDirectory);
+		return StorageLiveFileProvider.New(storageDirectory);
 	}
 
 	/**
@@ -118,16 +118,16 @@ public final class Storage
 	 *
 	 * @see Storage#FileProvider()
 	 * @see Storage#FileProvider(Path)
-	 * @see StorageFileProvider.Builder
+	 * @see StorageLiveFileProvider.Builder
 	 */
-	public static final StorageFileProvider.Builder<?> FileProviderBuilder()
+	public static final StorageLiveFileProvider.Builder<?> FileProviderBuilder()
 	{
-		return StorageFileProvider.Builder();
+		return StorageLiveFileProvider.Builder();
 	}
 	
-	public static final StorageFileProvider.Builder<?> FileProviderBuilder(final AFileSystem fileSystem)
+	public static final StorageLiveFileProvider.Builder<?> FileProviderBuilder(final AFileSystem fileSystem)
 	{
-		return StorageFileProvider.Builder(fileSystem);
+		return StorageLiveFileProvider.Builder(fileSystem);
 	}
 
 	/**
@@ -135,7 +135,7 @@ public final class Storage
 	 *
 	 * @return {@linkDoc StorageConfiguration#New()@return}
 	 *
-	 * @see Storage#Configuration(StorageFileProvider)
+	 * @see Storage#Configuration(StorageLiveFileProvider)
 	 * @see StorageConfiguration#New()
 	 * @see StorageConfiguration.Builder
 	 */
@@ -152,11 +152,11 @@ public final class Storage
 	 * @return {@linkDoc StorageConfiguration#New(StorageFileProvider)@return}
 	 *
 	 * @see Storage#Configuration()
-	 * @see StorageConfiguration#New(StorageFileProvider)
+	 * @see StorageConfiguration#New(StorageLiveFileProvider)
 	 * @see StorageConfiguration.Builder
 	 */
 	public static final StorageConfiguration Configuration(
-		final StorageFileProvider fileProvider
+		final StorageLiveFileProvider fileProvider
 	)
 	{
 		return StorageConfiguration.New(fileProvider);
@@ -168,7 +168,7 @@ public final class Storage
 	 * @return {@linkDoc StorageConfiguration#Builder()@return}
 	 *
 	 * @see Storage#Configuration()
-	 * @see Storage#Configuration(StorageFileProvider)
+	 * @see Storage#Configuration(StorageLiveFileProvider)
 	 * @see StorageConfiguration#Builder()
 	 * @see StorageConfiguration.Builder
 	 */
@@ -387,7 +387,7 @@ public final class Storage
 	 *
 	 * @return {@linkDoc StorageBackupSetup#New(Path)@return}
 	 *
-	 * @see StorageBackupSetup#New(StorageFileProvider)
+	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final Path backupDirectory)
@@ -405,7 +405,7 @@ public final class Storage
 	 * @return {@linkDoc StorageBackupSetup#New(Path)@return}
 	 *
 	 * @see StorageBackupSetup#New(Path)
-	 * @see StorageBackupSetup#New(StorageFileProvider)
+	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final String backupDirectoryPath)

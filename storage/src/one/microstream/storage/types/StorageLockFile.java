@@ -27,25 +27,7 @@ public interface StorageLockFile extends StorageClosableFile
 		{
 			super(file);
 		}
-		
-		
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-		
-		@Override
-		public final synchronized boolean isOpen()
-		{
-			return this.internalIsOpen();
-		}
-		
-		@Override
-		public final synchronized boolean close()
-		{
-			return this.internalClose();
-		}
-		
+				
 	}
 	
 }

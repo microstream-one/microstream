@@ -8,7 +8,7 @@ import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageBackupSetup;
 import one.microstream.storage.types.StorageConfiguration;
-import one.microstream.storage.types.StorageFileProvider;
+import one.microstream.storage.types.StorageLiveFileProvider;
 
 
 // derived from https://forum.microstream.one/?qa=23/storagefoundation-doesnt-default-storageconnfoundation
@@ -30,7 +30,7 @@ public class MainTestOnDemandStorageConnection
 			.setConfiguration(
 				StorageConfiguration.Builder()
 					.setBackupSetup(StorageBackupSetup.New(backupPath))
-					.setStorageFileProvider(StorageFileProvider.New(dbPath))
+					.setStorageFileProvider(StorageLiveFileProvider.New(dbPath))
 					.createConfiguration()
 			)
 			.createEmbeddedStorageManager()

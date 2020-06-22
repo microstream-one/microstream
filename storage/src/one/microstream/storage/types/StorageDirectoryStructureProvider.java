@@ -12,6 +12,14 @@ public interface StorageDirectoryStructureProvider
 	);
 	
 	
+	public interface Defaults
+	{
+		public static StorageDirectoryStructureProvider defaultDirectoryStructureProvider()
+		{
+			return Default.DEFAULT;
+		}
+	}
+	
 		
 	public static StorageDirectoryStructureProvider New()
 	{
@@ -20,6 +28,14 @@ public interface StorageDirectoryStructureProvider
 	
 	public final class Default implements StorageDirectoryStructureProvider
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// constants //
+		//////////////
+		
+		static final StorageDirectoryStructureProvider.Default DEFAULT = new StorageDirectoryStructureProvider.Default();
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////

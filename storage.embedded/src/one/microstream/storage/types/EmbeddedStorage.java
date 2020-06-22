@@ -73,7 +73,7 @@ public final class EmbeddedStorage
 			: null
 		;
 
-		final StorageFileProvider fileProvider = configuration.fileProvider();
+		final StorageLiveFileProvider fileProvider = configuration.fileProvider();
 		final PersistenceTypeDictionaryIoHandler tdih = fileProvider.provideTypeDictionaryIoHandler(btdih);
 
 		return ConnectionFoundation(tdih, typeEvaluatorPersistable);
@@ -151,13 +151,13 @@ public final class EmbeddedStorage
 
 	/**
 	 * Returns the default storage directory in the current working directory and with a filename defined by
-	 * {@link StorageFileProvider.Defaults#defaultStorageDirectory}.
+	 * {@link StorageLiveFileProvider.Defaults#defaultStorageDirectory}.
 	 *
 	 * @return the default storage directory located in the current working directory.
 	 */
 	public static Path defaultStorageDirectory()
 	{
-		return XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory());
+		return XIO.Path(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
 	}
 
 

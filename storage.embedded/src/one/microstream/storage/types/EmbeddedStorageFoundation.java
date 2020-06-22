@@ -436,7 +436,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		protected String ensureDatabaseName()
 		{
 			final StorageConfiguration config       = this.getConfiguration();
-			final StorageFileProvider  fileProvider = config.fileProvider();
+			final StorageLiveFileProvider  fileProvider = config.fileProvider();
 			final String               defaultName  = Persistence.engineName()
 				+ "@" + fileProvider.getStorageLocationIdentifier()
 			;

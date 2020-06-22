@@ -9,7 +9,7 @@ import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageBackupSetup;
-import one.microstream.storage.types.StorageFileProvider;
+import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.storage.types.ZStorageNumberedFile;
 import one.microstream.util.FileContentComparer;
 
@@ -53,7 +53,7 @@ public class MainTestBackupValidateFiles
 	}
 	
 	static void validateChannelFiles(
-		final StorageFileProvider storageFileProvider,
+		final StorageLiveFileProvider storageFileProvider,
 		final StorageBackupSetup  backupSetup        ,
 		final int                 channelIndex
 	)

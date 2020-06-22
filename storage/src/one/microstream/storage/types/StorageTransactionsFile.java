@@ -2,13 +2,14 @@ package one.microstream.storage.types;
 
 import one.microstream.afs.AFile;
 
-public interface StorageTransactionsFile extends StorageChannelFile
+public interface StorageTransactionsFile extends StorageChannelFile, StorageBackupableFile
 {
 	@Override
-	public default StorageBackupTransactionsFile createBackupFile(final StorageBackupFileProvider creator)
+	public default StorageBackupTransactionsFile ensureBackupFile(final StorageBackupInventory creator)
 	{
-		return creator.provideBackupTransactionsFile(this);
+		return creator.ensureTransactionsFile(this);
 	}
+	
 	
 	
 	@FunctionalInterface

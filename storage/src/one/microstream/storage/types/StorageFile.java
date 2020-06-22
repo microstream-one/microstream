@@ -42,7 +42,7 @@ public interface StorageFile
 	public long writeBytes(Iterable<? extends ByteBuffer> buffers);
 	
 	
-	public void pull(AWritableFile fileToMove);
+//	public void pull(AWritableFile fileToMove);
 	
 	
 	public long copyTo(StorageFile target);
@@ -50,6 +50,13 @@ public interface StorageFile
 	public long copyTo(StorageFile target, long sourcePosition);
 
 	public long copyTo(StorageFile target, long sourcePosition, long length);
+	
+	
+	public long copyTo(AWritableFile target);
+	
+	public long copyTo(AWritableFile target, long sourcePosition);
+
+	public long copyTo(AWritableFile target, long sourcePosition, long length);
 	
 	
 	public long copyFrom(AReadableFile source);
@@ -61,9 +68,9 @@ public interface StorageFile
 	
 	public boolean delete();
 
-	public void moveTo(StorageFile target);
-		
+	public void moveTo(AWritableFile target);
 	
+		
 		
 	public static VarString assembleNameAndSize(final VarString vs, final StorageFile file)
 	{
@@ -116,6 +123,7 @@ public interface StorageFile
 			return this.file.exists();
 		}
 		
+			
 		@Override
 		public final synchronized long readBytes(final ByteBuffer targetBuffer)
 		{
@@ -215,18 +223,18 @@ public interface StorageFile
 			}
 		}
 		
-		@Override
-		public final synchronized void pull(final AWritableFile fileToMove)
-		{
-			try
-			{
-				fileToMove.moveTo(this.ensureWritable());
-			}
-			catch(final Exception e)
-			{
-				throw new StorageExceptionIoReading(e);
-			}
-		}
+//		@Override
+//		public final synchronized void pull(final AWritableFile fileToMove)
+//		{
+//			try
+//			{
+//				fileToMove.moveTo(this.ensureWritable());
+//			}
+//			catch(final Exception e)
+//			{
+//				throw new StorageExceptionIoReading(e);
+//			}
+//		}
 				
 		@Override
 		public final synchronized long copyTo(
@@ -253,6 +261,54 @@ public interface StorageFile
 		)
 		{
 			return target.copyFrom(this.ensureReadable(), sourcePosition, length);
+		}
+		
+		@Override
+		public final synchronized long copyTo(
+			final AWritableFile target
+		)
+		{
+			try
+			{
+				return target.copyFrom(this.ensureReadable());
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(e);
+			}
+		}
+		
+		@Override
+		public final synchronized long copyTo(
+			final AWritableFile target        ,
+			final long          sourcePosition
+		)
+		{
+			try
+			{
+				return target.copyFrom(this.ensureReadable(), sourcePosition);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(e);
+			}
+		}
+
+		@Override
+		public final synchronized long copyTo(
+			final AWritableFile target        ,
+			final long          sourcePosition,
+			final long          length
+		)
+		{
+			try
+			{
+				return target.copyFrom(this.ensureReadable(), sourcePosition, length);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(e);
+			}
 		}
 				
 		@Override
@@ -315,9 +371,9 @@ public interface StorageFile
 		}
 		
 		@Override
-		public final synchronized void moveTo(final StorageFile target)
+		public final synchronized void moveTo(final AWritableFile target)
 		{
-			target.pull(this.ensureWritable());
+			this.ensureWritable().moveTo(target);
 		}
 		
 		protected synchronized AReadableFile ensureReadable()
@@ -332,12 +388,12 @@ public interface StorageFile
 			return this.access;
 		}
 		
-		protected synchronized boolean internalIsOpen()
+		public synchronized boolean isOpen()
 		{
 			return this.access != null && this.access.isOpen();
 		}
 
-		protected synchronized boolean internalClose()
+		public synchronized boolean close()
 		{
 			if(this.access == null)
 			{

@@ -74,7 +74,7 @@ public interface StorageRequestAcceptor
 	;
 	
 
-	public void exportChannels(StorageIoHandler fileHandler, boolean performGarbageCollection)
+	public void exportChannels(StorageLiveFileProvider fileProvider, boolean performGarbageCollection)
 		throws InterruptedException;
 
 	public void importFiles(XGettingEnum<Path> importFiles) throws InterruptedException;
@@ -216,12 +216,12 @@ public interface StorageRequestAcceptor
 
 		@Override
 		public final void exportChannels(
-			final StorageIoHandler fileHandler             ,
-			final boolean          performGarbageCollection
+			final StorageLiveFileProvider fileProvider           ,
+			final boolean             performGarbageCollection
 		)
 			throws InterruptedException
 		{
-			waitOnTask(this.taskBroker.enqueueExportChannelsTask(fileHandler, performGarbageCollection));
+			waitOnTask(this.taskBroker.enqueueExportChannelsTask(fileProvider, performGarbageCollection));
 		}
 
 		@Override

@@ -3,6 +3,8 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 
 import one.microstream.X;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.storage.exceptions.StorageException;
@@ -21,18 +23,18 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 	public void synchronize(StorageInventory storageInventory);
 	
 	public void copyFilePart(
-		StorageLiveFile<?> sourceFile    ,
-		long               sourcePosition,
-		long               length
+		StorageLiveChannelFile<?> sourceFile    ,
+		long                      sourcePosition,
+		long                      length
 	);
 	
 	public void truncateFile(
-		StorageLiveFile<?> file     ,
-		long               newLength
+		StorageLiveChannelFile<?> file     ,
+		long                      newLength
 	);
 	
 	public void deleteFile(
-		StorageLiveFile<?> file
+		StorageLiveChannelFile<?> file
 	);
 	
 	public default StorageBackupHandler start()
@@ -149,15 +151,16 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		}
 		
 		@Override
-		public StorageBackupDataFile ensureDataFile(final StorageLiveDataFile file)
+		public StorageBackupDataFile ensureDataFile(final StorageDataFile file)
 		{
 			return this.channelInventories[file.channelIndex()].ensureBackupFile(file);
 		}
 		
 		@Override
-		public StorageBackupTransactionsFile ensureTransactionsFile(final StorageLiveTransactionsFile file)
+		public StorageBackupTransactionsFile ensureTransactionsFile(final StorageTransactionsFile file)
 		{
-			return this.channelInventories[file.channelIndex()].ensureBackupFile(file);
+			// "There can be only one..." (per channel)
+			return this.channelInventories[file.channelIndex()].ensureTransactionsFile();
 		}
 
 		@Override
@@ -252,7 +255,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			final ChannelInventory backupInventory
 		)
 		{
-			for(final StorageLiveDataFile storageFile : storageInventory.dataFiles().values())
+			for(final StorageDataInventoryFile storageFile : storageInventory.dataFiles().values())
 			{
 				final StorageBackupDataFile backupTargetFile = storageFile.ensureBackupFile(this);
 				this.copyFile(storageFile, backupTargetFile);
@@ -307,7 +310,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			this.validateBackupFileProgress(storageInventory, backupInventory);
 
 			final long lastBackupFileNumber = backupInventory.dataFiles().keys().last();
-			for(final StorageLiveDataFile dataFile : storageInventory.dataFiles().values())
+			for(final StorageDataInventoryFile dataFile : storageInventory.dataFiles().values())
 			{
 				final StorageBackupDataFile backupTargetFile = dataFile.ensureBackupFile(this);
 				
@@ -364,7 +367,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				return;
 			}
 			
-			final StorageBackupTransactionsFile deletionTargetFile = this.backupSetup.backupFileProvider()
+			final AFile deletionTargetFile = this.backupSetup.backupFileProvider()
 				.provideDeletionTargetFile(backupTransactionFile)
 			;
 			
@@ -374,7 +377,11 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			}
 			else
 			{
-				backupTransactionFile.moveTo(deletionTargetFile);
+				AFS.executeWriting(deletionTargetFile, (wf) ->
+				{
+					backupTransactionFile.moveTo(wf);
+					return null;
+				});
 			}
 		}
 		
@@ -415,15 +422,15 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		}
 				
 		private void copyFile(
-			final StorageLiveFile<?> storageFile     ,
-			final StorageBackupFile  backupTargetFile
+			final StorageFile       storageFile     ,
+			final StorageBackupFile backupTargetFile
 		)
 		{
 			storageFile.copyTo(backupTargetFile);
 		}
 		
 		private void copyFilePart(
-			final StorageLiveFile<?> sourceFile      ,
+			final StorageChannelFile sourceFile      ,
 			final long               sourcePosition  ,
 			final long               length          ,
 			final StorageBackupFile  backupTargetFile
@@ -460,9 +467,9 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		
 		@Override
 		public void copyFilePart(
-			final StorageLiveFile<?> sourceFile    ,
-			final long               sourcePosition,
-			final long               copyLength
+			final StorageLiveChannelFile<?> sourceFile    ,
+			final long                      sourcePosition,
+			final long                      copyLength
 		)
 		{
 			// note: the original target file of the copying is irrelevant. Only the backup target file counts.
@@ -473,11 +480,11 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 
 		@Override
 		public void truncateFile(
-			final StorageLiveFile<?> file     ,
-			final long               newLength
+			final StorageLiveChannelFile<?> file     ,
+			final long                      newLength
 		)
 		{
-			final StorageBackupFile backupTargetFile = file.ensureBackupFile(this);
+			final StorageBackupChannelFile backupTargetFile = file.ensureBackupFile(this);
 			
 			StorageFileWriter.truncateFile(backupTargetFile, newLength, this.backupSetup.backupFileProvider());
 			
@@ -485,9 +492,9 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		}
 		
 		@Override
-		public void deleteFile(final StorageLiveFile<?> file)
+		public void deleteFile(final StorageLiveChannelFile<?> file)
 		{
-			final StorageBackupFile backupTargetFile = file.ensureBackupFile(this);
+			final StorageBackupChannelFile backupTargetFile = file.ensureBackupFile(this);
 			
 			StorageFileWriter.deleteFile(backupTargetFile, this.backupSetup.backupFileProvider());
 			
@@ -568,25 +575,25 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				this.ensureTransactionsFile();
 			}
 			
-			final StorageBackupTransactionsFile ensureBackupFile(final StorageLiveTransactionsFile sourceFile)
+			final StorageBackupTransactionsFile ensureTransactionsFile()
 			{
 				if(this.transactionFile == null)
 				{
-					this.transactionFile = this.backupFileProvider.provideBackupFile(sourceFile);
+					this.transactionFile = this.backupFileProvider.provideBackupTransactionsFile(this.channelIndex());
 				}
 				
 				return this.transactionFile;
 			}
 			
 			
-			final StorageBackupDataFile ensureBackupFile(final StorageLiveDataFile sourceFile)
+			final StorageBackupDataFile ensureBackupFile(final StorageDataFile sourceFile)
 			{
 				// note: validation is done by the calling context, depending on its task.
 				
 				StorageBackupDataFile backupFile = this.dataFiles.get(sourceFile.number());
 				if(backupFile == null)
 				{
-					backupFile = this.backupFileProvider.provideBackupFile(sourceFile);
+					backupFile = this.backupFileProvider.provideBackupDataFile(sourceFile);
 					this.registerBackupFile(backupFile);
 				}
 				
@@ -620,8 +627,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				
 				collectedFiles.iterate(this::registerBackupFile);
 			}
-			
-			
+						
 		}
 		
 	}

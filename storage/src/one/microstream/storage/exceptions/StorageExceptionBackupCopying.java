@@ -2,7 +2,7 @@ package one.microstream.storage.exceptions;
 
 import one.microstream.chars.VarString;
 import one.microstream.storage.types.StorageBackupFile;
-import one.microstream.storage.types.StorageLiveFile;
+import one.microstream.storage.types.StorageChannelFile;
 
 public class StorageExceptionBackupCopying
 extends StorageExceptionBackup
@@ -11,7 +11,7 @@ extends StorageExceptionBackup
 	// instance fields //
 	////////////////////
 	
-	private final StorageLiveFile<?> liveDataFile   ;
+	private final StorageChannelFile sourceFile    ;
 	private final long               sourcePosition;
 	private final long               length        ;
 	private final StorageBackupFile  backupFile    ;
@@ -23,21 +23,21 @@ extends StorageExceptionBackup
 	/////////////////
 
 	public StorageExceptionBackupCopying(
-		final StorageLiveFile<?> storageFile   ,
+		final StorageChannelFile sourceFile    ,
 		final long               sourcePosition,
 		final long               length        ,
 		final StorageBackupFile  backupFile
 	)
 	{
 		super();
-		this.liveDataFile    = storageFile   ;
+		this.sourceFile     = sourceFile    ;
 		this.sourcePosition = sourcePosition;
 		this.length         = length        ;
 		this.backupFile     = backupFile    ;
 	}
 
 	public StorageExceptionBackupCopying(
-		final StorageLiveFile<?> storageFile   ,
+		final StorageChannelFile sourceFile   ,
 		final long               sourcePosition,
 		final long               length        ,
 		final StorageBackupFile  backupFile    ,
@@ -45,14 +45,14 @@ extends StorageExceptionBackup
 	)
 	{
 		super(message);
-		this.liveDataFile    = storageFile   ;
+		this.sourceFile     = sourceFile    ;
 		this.sourcePosition = sourcePosition;
 		this.length         = length        ;
 		this.backupFile     = backupFile    ;
 	}
 
 	public StorageExceptionBackupCopying(
-		final StorageLiveFile<?> storageFile   ,
+		final StorageChannelFile sourceFile   ,
 		final long               sourcePosition,
 		final long               length        ,
 		final StorageBackupFile  backupFile    ,
@@ -60,14 +60,14 @@ extends StorageExceptionBackup
 	)
 	{
 		super(cause);
-		this.liveDataFile    = storageFile   ;
+		this.sourceFile     = sourceFile    ;
 		this.sourcePosition = sourcePosition;
 		this.length         = length        ;
 		this.backupFile     = backupFile    ;
 	}
 
 	public StorageExceptionBackupCopying(
-		final StorageLiveFile<?> storageFile   ,
+		final StorageChannelFile sourceFile    ,
 		final long               sourcePosition,
 		final long               length        ,
 		final StorageBackupFile  backupFile    ,
@@ -76,14 +76,14 @@ extends StorageExceptionBackup
 	)
 	{
 		super(message, cause);
-		this.liveDataFile    = storageFile   ;
+		this.sourceFile     = sourceFile    ;
 		this.sourcePosition = sourcePosition;
 		this.length         = length        ;
 		this.backupFile     = backupFile    ;
 	}
 
 	public StorageExceptionBackupCopying(
-		final StorageLiveFile<?> storageFile       ,
+		final StorageChannelFile sourceFile        ,
 		final long               sourcePosition    ,
 		final long               length            ,
 		final StorageBackupFile  backupFile        ,
@@ -94,7 +94,7 @@ extends StorageExceptionBackup
 	)
 	{
 		super(message, cause, enableSuppression, writableStackTrace);
-		this.liveDataFile   = storageFile   ;
+		this.sourceFile     = sourceFile    ;
 		this.sourcePosition = sourcePosition;
 		this.length         = length        ;
 		this.backupFile     = backupFile    ;
@@ -106,9 +106,9 @@ extends StorageExceptionBackup
 	// methods //
 	////////////
 	
-	public final StorageLiveFile<?> liveDataFile()
+	public final StorageChannelFile sourceFile()
 	{
-		return this.liveDataFile;
+		return this.sourceFile;
 	}
 	
 	public final long sourcePosition()
@@ -130,7 +130,7 @@ extends StorageExceptionBackup
 	public String assembleDetailString()
 	{
 		return VarString.New()
-			.add(this.liveDataFile.identifier()).add('@').add(this.sourcePosition).add('+').add(this.length)
+			.add(this.sourceFile.identifier()).add('@').add(this.sourcePosition).add('+').add(this.length)
 			.add(" -> ")
 			.add(this.backupFile.identifier())
 			.toString()

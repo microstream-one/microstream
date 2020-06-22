@@ -11,13 +11,13 @@ import one.microstream.storage.types.StorageBackupSetup;
 import one.microstream.storage.types.StorageDataChunkValidator;
 import one.microstream.storage.types.StorageDataFileValidator;
 import one.microstream.storage.types.StorageEntityDataValidator;
-import one.microstream.storage.types.StorageFileProvider;
+import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.test.corp.logic.Test;
 
 
 public class MainTestBackupStoring
 {
-	static final String DIRECTORY_STORAGE   = StorageFileProvider.Defaults.defaultStorageDirectory();
+	static final String DIRECTORY_STORAGE   = StorageLiveFileProvider.Defaults.defaultStorageDirectory();
 	static final String DIRECTORY_BACKUP    = DIRECTORY_STORAGE + "/backup";
 	static final String DIRECTORY_DELETED   = DIRECTORY_BACKUP  + "/deleted";
 	static final String DIRECTORY_TRUNCATED = DIRECTORY_BACKUP  + "/truncated";

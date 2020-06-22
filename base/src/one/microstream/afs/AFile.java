@@ -124,6 +124,11 @@ public interface AFile extends AItem
 	{
 		return this.fileSystem().accessManager().isUsed(this);
 	}
+	
+	public default Object defaultUser()
+	{
+		return this.fileSystem().accessManager().defaultUser();
+	}
 		
 	
 	

@@ -3,8 +3,8 @@ package one.microstream.storage.exceptions;
 import one.microstream.chars.VarString;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.storage.types.StorageBackupDataFile;
+import one.microstream.storage.types.StorageDataFile;
 import one.microstream.storage.types.StorageInventory;
-import one.microstream.storage.types.StorageLiveDataFile;
 
 public class StorageExceptionBackupInconsistentFileLength
 extends StorageExceptionBackupChannelIndex
@@ -15,7 +15,7 @@ extends StorageExceptionBackupChannelIndex
 	
 	private final StorageInventory                           storageInventory ;
 	private final XGettingTable<Long, StorageBackupDataFile> backupDataFiles  ;
-	private final StorageLiveDataFile                        liveDataFile     ;
+	private final StorageDataFile                            dataFile         ;
 	private final long                                       storageFileLength;
 	private final StorageBackupDataFile                      backupDataFile   ;
 	private final long                                       backupFileLength ;
@@ -29,7 +29,7 @@ extends StorageExceptionBackupChannelIndex
 	public StorageExceptionBackupInconsistentFileLength(
 		final StorageInventory                           storageInventory ,
 		final XGettingTable<Long, StorageBackupDataFile> backupDataFiles  ,
-		final StorageLiveDataFile                        liveDataFile     ,
+		final StorageDataFile                            dataFile         ,
 		final long                                       storageFileLength,
 		final StorageBackupDataFile                      backupDataFile   ,
 		final long                                       backupFileLength
@@ -38,7 +38,7 @@ extends StorageExceptionBackupChannelIndex
 		super(storageInventory.channelIndex());
 		this.storageInventory  = storageInventory ;
 		this.backupDataFiles   = backupDataFiles  ;
-		this.liveDataFile      = liveDataFile     ;
+		this.dataFile          = dataFile         ;
 		this.storageFileLength = storageFileLength;
 		this.backupDataFile    = backupDataFile   ;
 		this.backupFileLength  = backupFileLength ;
@@ -47,7 +47,7 @@ extends StorageExceptionBackupChannelIndex
 	public StorageExceptionBackupInconsistentFileLength(
 		final StorageInventory                           storageInventory ,
 		final XGettingTable<Long, StorageBackupDataFile> backupDataFiles  ,
-		final StorageLiveDataFile                        liveDataFile     ,
+		final StorageDataFile                            dataFile         ,
 		final long                                       storageFileLength,
 		final StorageBackupDataFile                      backupDataFile   ,
 		final long                                       backupFileLength ,
@@ -57,7 +57,7 @@ extends StorageExceptionBackupChannelIndex
 		super(storageInventory.channelIndex(), message);
 		this.storageInventory  = storageInventory ;
 		this.backupDataFiles   = backupDataFiles  ;
-		this.liveDataFile      = liveDataFile     ;
+		this.dataFile          = dataFile         ;
 		this.storageFileLength = storageFileLength;
 		this.backupDataFile    = backupDataFile   ;
 		this.backupFileLength  = backupFileLength ;
@@ -66,7 +66,7 @@ extends StorageExceptionBackupChannelIndex
 	public StorageExceptionBackupInconsistentFileLength(
 		final StorageInventory                           storageInventory ,
 		final XGettingTable<Long, StorageBackupDataFile> backupDataFiles  ,
-		final StorageLiveDataFile                        liveDataFile     ,
+		final StorageDataFile                            dataFile         ,
 		final long                                       storageFileLength,
 		final StorageBackupDataFile                      backupDataFile   ,
 		final long                                       backupFileLength ,
@@ -76,7 +76,7 @@ extends StorageExceptionBackupChannelIndex
 		super(storageInventory.channelIndex(), cause);
 		this.storageInventory  = storageInventory ;
 		this.backupDataFiles   = backupDataFiles  ;
-		this.liveDataFile      = liveDataFile     ;
+		this.dataFile          = dataFile         ;
 		this.storageFileLength = storageFileLength;
 		this.backupDataFile    = backupDataFile   ;
 		this.backupFileLength  = backupFileLength ;
@@ -85,7 +85,7 @@ extends StorageExceptionBackupChannelIndex
 	public StorageExceptionBackupInconsistentFileLength(
 		final StorageInventory                           storageInventory ,
 		final XGettingTable<Long, StorageBackupDataFile> backupDataFiles  ,
-		final StorageLiveDataFile                        liveDataFile     ,
+		final StorageDataFile                            dataFile         ,
 		final long                                       storageFileLength,
 		final StorageBackupDataFile                      backupDataFile   ,
 		final long                                       backupFileLength ,
@@ -96,7 +96,7 @@ extends StorageExceptionBackupChannelIndex
 		super(storageInventory.channelIndex(), message, cause);
 		this.storageInventory  = storageInventory ;
 		this.backupDataFiles   = backupDataFiles  ;
-		this.liveDataFile      = liveDataFile     ;
+		this.dataFile          = dataFile         ;
 		this.storageFileLength = storageFileLength;
 		this.backupDataFile    = backupDataFile   ;
 		this.backupFileLength  = backupFileLength ;
@@ -105,7 +105,7 @@ extends StorageExceptionBackupChannelIndex
 	public StorageExceptionBackupInconsistentFileLength(
 		final StorageInventory                           storageInventory  ,
 		final XGettingTable<Long, StorageBackupDataFile> backupDataFiles   ,
-		final StorageLiveDataFile                        liveDataFile      ,
+		final StorageDataFile                            dataFile          ,
 		final long                                       storageFileLength ,
 		final StorageBackupDataFile                      backupDataFile    ,
 		final long                                       backupFileLength  ,
@@ -118,7 +118,7 @@ extends StorageExceptionBackupChannelIndex
 		super(storageInventory.channelIndex(), message, cause, enableSuppression, writableStackTrace);
 		this.storageInventory  = storageInventory ;
 		this.backupDataFiles   = backupDataFiles  ;
-		this.liveDataFile      = liveDataFile     ;
+		this.dataFile          = dataFile         ;
 		this.storageFileLength = storageFileLength;
 		this.backupDataFile    = backupDataFile   ;
 		this.backupFileLength  = backupFileLength ;
@@ -140,9 +140,9 @@ extends StorageExceptionBackupChannelIndex
 		return this.backupDataFiles;
 	}
 	
-	public final StorageLiveDataFile storageFile()
+	public final StorageDataFile dataFile()
 	{
-		return this.liveDataFile;
+		return this.dataFile;
 	}
 	
 	public final StorageBackupDataFile backupFile()
@@ -154,7 +154,7 @@ extends StorageExceptionBackupChannelIndex
 	public String assembleDetailString()
 	{
 		return VarString.New()
-			.add(this.liveDataFile.identifier()).add('[').add(this.storageFileLength).add(']')
+			.add(this.dataFile.identifier()).add('[').add(this.storageFileLength).add(']')
 			.add(" <-> ")
 			.add(this.backupDataFile.identifier()).add('[').add(this.backupFileLength).add(']')
 			.toString()

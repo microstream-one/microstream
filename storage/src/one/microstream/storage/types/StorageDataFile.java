@@ -2,12 +2,20 @@ package one.microstream.storage.types;
 
 import one.microstream.afs.AFile;
 
-public interface StorageDataFile extends StorageChannelFile, StorageClosableFile, StorageCreatableFile
+public interface StorageDataFile extends StorageChannelFile, StorageBackupableFile //, StorageClosableFile, StorageCreatableFile
 {
 	@Override
 	public int channelIndex();
 	
 	public long number();
+	
+	
+	
+	@Override
+	public default StorageBackupDataFile ensureBackupFile(final StorageBackupInventory backupInventory)
+	{
+		return backupInventory.ensureDataFile(this);
+	}
 	
 	
 	
@@ -61,17 +69,17 @@ public interface StorageDataFile extends StorageChannelFile, StorageClosableFile
 			return this.number;
 		}
 		
-		@Override
-		public synchronized boolean isOpen()
-		{
-			return this.internalIsOpen();
-		}
-		
-		@Override
-		public synchronized boolean close()
-		{
-			return this.internalClose();
-		}
+//		@Override
+//		public synchronized boolean isOpen()
+//		{
+//			return this.internalIsOpen();
+//		}
+//
+//		@Override
+//		public synchronized boolean close()
+//		{
+//			return this.internalClose();
+//		}
 		
 	}
 	
