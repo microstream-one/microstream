@@ -41,6 +41,7 @@
 		<module>filesystem.jpa.hibernate</module>
 		<module>filesystem.kafka</module>
 		<module>filesystem.mongodb</module>
+		<module>filesystem.oraclecloud</module>
 		<module>filesystem.oraclenosql</module>
 		<module>filesystem.redis</module>
 		<module>filesystem.sql</module>
@@ -366,6 +367,7 @@
 				<module>filesystem.jpa.hibernate</module>
 				<module>filesystem.kafka</module>
 				<module>filesystem.mongodb</module>
+				<module>filesystem.oraclecloud</module>
 				<module>filesystem.oraclenosql</module>
 				<module>filesystem.redis</module>
 				<module>filesystem.sql</module>
@@ -401,6 +403,7 @@
 				<module>filesystem.jpa.hibernate</module>
 				<module>filesystem.kafka</module>
 				<module>filesystem.mongodb</module>
+				<module>filesystem.oraclecloud</module>
 				<module>filesystem.oraclenosql</module>
 				<module>filesystem.redis</module>
 				<module>filesystem.sql</module>
