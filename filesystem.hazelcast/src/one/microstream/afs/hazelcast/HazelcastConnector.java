@@ -160,7 +160,7 @@ public interface HazelcastConnector extends BlobStoreConnector
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			      long                       nextBlobNr         = this.nextBlobNr(file);
+			      long                       nextBlobNumber     = this.nextBlobNumber(file);
 			final long                       totalSize          = this.totalSize(sourceBuffers);
 			final IMap<String, List<Object>> map                = this.map(file);
 			final ByteBufferInputStream      buffersInputStream = ByteBufferInputStream.New(sourceBuffers);
@@ -186,7 +186,7 @@ public interface HazelcastConnector extends BlobStoreConnector
 					}
 					while(read < batchSize);
 
-					final String       identifier = toBlobKey(file, nextBlobNr++);
+					final String       identifier = toBlobKey(file, nextBlobNumber++);
 					final List<Object> blob       = createBlobList(
 						identifier,
 						currentBatchSize,

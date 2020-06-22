@@ -282,10 +282,10 @@ public interface BlobStoreConnector extends AutoCloseable
 
 		protected Comparator<B> blobComparator()
 		{
-			return (b1, b2) -> Long.compare(this.blobNr(b1), this.blobNr(b2));
+			return (b1, b2) -> Long.compare(this.blobNumber(b1), this.blobNumber(b2));
 		}
 
-		protected long blobNr(
+		protected long blobNumber(
 			final B blob
 		)
 		{
@@ -294,16 +294,16 @@ public interface BlobStoreConnector extends AutoCloseable
 			return Long.parseLong(key.substring(separatorIndex + 1));
 		}
 
-		protected long nextBlobNr(
+		protected long nextBlobNumber(
 			final BlobStorePath file
 		)
 		{
-			final OptionalLong maxBlobNr = this.blobs(file)
-				.mapToLong(this::blobNr)
+			final OptionalLong maxBlobNumber = this.blobs(file)
+				.mapToLong(this::blobNumber)
 				.max()
 			;
-			return maxBlobNr.isPresent()
-				? maxBlobNr.getAsLong() + 1
+			return maxBlobNumber.isPresent()
+				? maxBlobNumber.getAsLong() + 1
 				: 0L
 			;
 		}

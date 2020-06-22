@@ -176,8 +176,8 @@ public interface S3Connector extends BlobStoreConnector
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			final long nextBlobNr = this.nextBlobNr(file);
-			final long totalSize  = this.totalSize(sourceBuffers);
+			final long nextBlobNumber = this.nextBlobNumber(file);
+			final long totalSize      = this.totalSize(sourceBuffers);
 
 			final ObjectMetadata objectMetadata = new ObjectMetadata();
 			objectMetadata.setContentLength(totalSize);
@@ -189,7 +189,7 @@ public interface S3Connector extends BlobStoreConnector
 			{
 				this.s3.putObject(
 					file.container(),
-					toBlobKey(file, nextBlobNr),
+					toBlobKey(file, nextBlobNumber),
 					inputStream,
 					objectMetadata
 				);
@@ -216,7 +216,7 @@ public interface S3Connector extends BlobStoreConnector
 					 targetFile.container(),
 					 toBlobKey(
 						 targetFile,
-						 this.blobNr(sourceFileSummary)
+						 this.blobNumber(sourceFileSummary)
 					)
 				);
 			});

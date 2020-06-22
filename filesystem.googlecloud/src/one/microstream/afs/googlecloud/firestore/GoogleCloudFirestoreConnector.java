@@ -198,7 +198,7 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 				      WriteBatch            writeBatch         = this.firestore.batch();
 				final long                  totalSize          = this.totalSize(sourceBuffers);
 				final ByteBufferInputStream buffersInputStream = ByteBufferInputStream.New(sourceBuffers);
-			          long                  nextBlobNr         = this.nextBlobNr(file);
+			          long                  nextBlobNumber     = this.nextBlobNumber(file);
 				      long                  available          = totalSize;
 				while(available > 0)
 				{
@@ -225,7 +225,7 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 						}
 
 						final Map<String, Object> map = new HashMap<>();
-						map.put(FIELD_KEY, toBlobKey(file, nextBlobNr++));
+						map.put(FIELD_KEY, toBlobKey(file, nextBlobNumber++));
 						map.put(FIELD_SIZE, currentBatchSize);
 						map.put(FIELD_DATA, Blob.fromByteString(
 							// unsafe wrap is enough because batch is already a copy
@@ -234,7 +234,7 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 
 						writeBatch.set(
 							this.firestore.document(
-								this.documentPath(file, nextBlobNr++)
+								this.documentPath(file, nextBlobNumber++)
 							),
 							map
 						);
@@ -280,17 +280,17 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 				long       amount     = 0L;
 				for(final DocumentSnapshot blob : this.blobs(sourceFile, true).collect(Collectors.toList()))
 				{
-					final long                blobNr = this.blobNr(blob);
-					final String              newKey = toBlobKey(targetFile, blobNr);
-					final long                size   = blob.getLong(FIELD_SIZE);
-					final Map<String, Object> map    = new HashMap<>();
+					final long                blobNumber = this.blobNumber(blob);
+					final String              newKey     = toBlobKey(targetFile, blobNumber);
+					final long                size       = blob.getLong(FIELD_SIZE);
+					final Map<String, Object> map        = new HashMap<>();
 					map.put(FIELD_KEY , newKey              );
 					map.put(FIELD_SIZE, size                );
 					map.put(FIELD_DATA, blob.get(FIELD_DATA));
 
 					writeBatch.set(
 						this.firestore.document(
-							this.documentPath(targetFile, blobNr)
+							this.documentPath(targetFile, blobNumber)
 						),
 						map
 					);

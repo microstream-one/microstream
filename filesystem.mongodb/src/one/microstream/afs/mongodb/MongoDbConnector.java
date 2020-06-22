@@ -228,7 +228,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 		)
 		{
 			final List<Document>        documents          = new ArrayList<>();
-			      long                  nextBlobNr         = this.nextBlobNr(file);
+			      long                  nextBlobNumber     = this.nextBlobNumber(file);
 			final long                  totalSize          = this.totalSize(sourceBuffers);
 			final ByteBufferInputStream buffersInputStream = ByteBufferInputStream.New(sourceBuffers);
 			      long                  available          = totalSize;
@@ -257,7 +257,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 						remaining -= read;
 					}
 					final Document document = new Document();
-					document.put(FIELD_KEY, toBlobKey(file, nextBlobNr++));
+					document.put(FIELD_KEY, toBlobKey(file, nextBlobNumber++));
 					document.put(FIELD_SIZE, currentBatchSize);
 					document.put(FIELD_DATA, new Binary(batch));
 					documents.add(document);
@@ -287,7 +287,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 			{
 				final String   newKey   = toBlobKey(
 					targetFile,
-					this.blobNr(blob)
+					this.blobNumber(blob)
 				);
 				final long     size     = blob.getLong(FIELD_SIZE);
 				final Document document = new Document();
@@ -316,7 +316,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 				{
 					final Bson update = Updates.set(
 						FIELD_KEY,
-						toBlobKey(sourceFile, this.blobNr(blob))
+						toBlobKey(sourceFile, this.blobNumber(blob))
 					);
 					this.collection(sourceFile).updateOne(
 						this.filterFor(blob),
@@ -445,15 +445,15 @@ public interface MongoDbConnector extends BlobStoreConnector
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			final long nextBlobNr = this.nextBlobNr(file);
-			final long totalSize  = this.totalSize(sourceBuffers);
+			final long nextBlobNumber = this.nextBlobNumber(file);
+			final long totalSize      = this.totalSize(sourceBuffers);
 
 			try(final BufferedInputStream inputStream = new BufferedInputStream(
 				ByteBufferInputStream.New(sourceBuffers)
 			))
 			{
 				this.bucket(file).uploadFromStream(
-					toBlobKey(file, nextBlobNr),
+					toBlobKey(file, nextBlobNumber),
 					inputStream
 				);
 			}
@@ -491,7 +491,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 					this.bucket(targetFile).uploadFromStream(
 						toBlobKey(
 							targetFile,
-							this.blobNr(blob)
+							this.blobNumber(blob)
 						),
 						inputStream
 					);
@@ -520,7 +520,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 						blob.getObjectId(),
 						toBlobKey(
 							targetFile,
-							this.blobNr(blob)
+							this.blobNumber(blob)
 						)
 					);
 				});

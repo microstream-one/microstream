@@ -140,15 +140,15 @@ public interface RedisConnector extends BlobStoreConnector
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			final long       nextBlobNr = this.nextBlobNr(file);
-			final long       totalSize  = this.totalSize(sourceBuffers);
+			final long nextBlobNumber = this.nextBlobNumber(file);
+			final long totalSize      = this.totalSize(sourceBuffers);
 
-			final ByteBuffer buffer     = ByteBuffer.allocateDirect(checkArrayRange(totalSize));
+			final ByteBuffer buffer = ByteBuffer.allocateDirect(checkArrayRange(totalSize));
 			sourceBuffers.forEach(sourceBuffer -> buffer.put(sourceBuffer));
 			buffer.flip();
 
 			this.commands().set(
-				toBlobKey(file, nextBlobNr),
+				toBlobKey(file, nextBlobNumber),
 				buffer
 			);
 
@@ -177,7 +177,7 @@ public interface RedisConnector extends BlobStoreConnector
 				this.commands().set(
 					toBlobKey(
 						 targetFile,
-						 this.blobNr(blob)
+						 this.blobNumber(blob)
 					),
 					buffer
 				);
