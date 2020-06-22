@@ -80,65 +80,6 @@ public interface AccessManager
 		Function<? super ADirectory, R> logic
 	);
 	
-	public default <R> R executeWriting(
-		final AFile                              file ,
-		final Function<? super AWritableFile, R> logic
-	)
-	{
-		return this.executeWriting(file, this.defaultUser(), logic);
-	}
-	
-	public default <R> R executeWriting(
-		final AFile                              file ,
-		final Object                             user,
-		final Function<? super AWritableFile, R> logic
-	)
-	{
-		// no locking needed, here since the implementation of #useWriting has to cover that
-		final AWritableFile writableFile = this.useWriting(file, user);
-		try
-		{
-			return logic.apply(writableFile);
-		}
-		finally
-		{
-			writableFile.release();
-		}
-	}
-	
-	// (06.06.2020 TM)FIXME: priv#49: need waitingUse~ and waitingExecute~ as well(?).
-	
-	public default <R> R tryExecuteWriting(
-		final AFile                              file ,
-		final Function<? super AWritableFile, R> logic
-	)
-	{
-		return this.tryExecuteWriting(file, this.defaultUser(), logic);
-	}
-	
-	public default <R> R tryExecuteWriting(
-		final AFile                              file ,
-		final Object                             user,
-		final Function<? super AWritableFile, R> logic
-	)
-	{
-		// no locking needed, here since the implementation of #useWriting has to cover that
-		final AWritableFile writableFile = this.tryUseWriting(file, user);
-		if(writableFile == null)
-		{
-			return null;
-		}
-		
-		try
-		{
-			return logic.apply(writableFile);
-		}
-		finally
-		{
-			writableFile.release();
-		}
-	}
-	
 	
 	
 	@FunctionalInterface

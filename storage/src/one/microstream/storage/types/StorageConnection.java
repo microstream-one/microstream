@@ -212,27 +212,27 @@ public interface StorageConnection extends Persister
 	 */
 	
 	/**
-	 * Exports the data of all channels in the storage by using the passed {@link StorageIoHandler} instance.<br>
+	 * Exports the data of all channels in the storage by using the passed {@link StorageLiveFileProvider} instance.<br>
 	 * This is basically a simple file copy applied to all files in the storage, however with the guaranteed safety
 	 * of no other task / access to the storage's files intervening with the ongoing process. This is useful to
 	 * safely create a complete copy of the storage, e.g. a full backup.
 	 * 
-	 * @param ioHandler the {@link StorageIoHandler} logic to be used for the export.
+	 * @param fileProvider the {@link StorageLiveFileProvider} logic to be used for the export.
 	 * @param performGarbageCollection whether a {@link #issueFullGarbageCollection()} shall be issued before
 	 *        performing the export.
 	 */
-	public void exportChannels(StorageIoHandler ioHandler, boolean performGarbageCollection);
+	public void exportChannels(StorageLiveFileProvider fileProvider, boolean performGarbageCollection);
 
 	/**
 	 * Alias for {@code this.exportChannels(fileHandler, true);}.
 	 * 
-	 * @param ioHandler the {@link StorageIoHandler} logic to be used for the export.
+	 * @param fileProvider the {@link StorageLiveFileProvider} logic to be used for the export.
 	 * 
-	 * @see #exportChannels(StorageIoHandler, boolean)
+	 * @see #exportChannels(StorageLiveFileProvider, boolean)
 	 */
-	public default void exportChannels(final StorageIoHandler ioHandler)
+	public default void exportChannels(final StorageLiveFileProvider fileProvider)
 	{
-		this.exportChannels(ioHandler, true);
+		this.exportChannels(fileProvider, true);
 	}
 	
 	/**
@@ -474,11 +474,11 @@ public interface StorageConnection extends Persister
 		}
 
 		@Override
-		public void exportChannels(final StorageIoHandler fileHandler, final boolean performGarbageCollection)
+		public void exportChannels(final StorageLiveFileProvider fileProvider, final boolean performGarbageCollection)
 		{
 			try
 			{
-				this.connectionRequestAcceptor.exportChannels(fileHandler, performGarbageCollection);
+				this.connectionRequestAcceptor.exportChannels(fileProvider, performGarbageCollection);
 			}
 			catch(final InterruptedException e)
 			{

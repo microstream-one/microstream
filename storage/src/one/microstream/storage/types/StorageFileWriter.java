@@ -3,6 +3,9 @@ package one.microstream.storage.types;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AReadableFile;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
@@ -33,36 +36,6 @@ public interface StorageFileWriter
 	{
 		return file.writeBytes(buffers);
 	}
-
-//	public default long copy(
-//		final ZStorageLockedFile sourceFile,
-//		final ZStorageLockedFile targetfile
-//	)
-//	{
-//		return this.copyFilePart(sourceFile, 0, sourceFile.length(), targetfile);
-//	}
-//
-//	public default long copyFilePart(
-//		final ZStorageLockedFile sourceFile  ,
-//		final long              sourceOffset,
-//		final long              length      ,
-//		final ZStorageLockedFile targetfile
-//	)
-//	{
-////		DEBUGStorage.println("storage copy file range");
-//
-//		try
-//		{
-//			final long byteCount = sourceFile.fileChannel().transferTo(sourceOffset, length, targetfile.fileChannel());
-//			targetfile.fileChannel().force(false);
-//
-//			return validateIoByteCount(length, byteCount);
-//		}
-//		catch(final IOException e)
-//		{
-//			throw new StorageException(e); // (01.10.2014 TM)EXCP: proper exception
-//		}
-//	}
 	
 	public default long writeStore(
 		final StorageLiveDataFile            targetFile ,
@@ -76,13 +49,13 @@ public interface StorageFileWriter
 	 * Logically the same as a store, but technically the same as a transfer with an external source file.
 	 */
 	public default long writeImport(
-		final StorageFile         sourceFile  ,
+		final AReadableFile       sourceFile  ,
 		final long                sourceOffset,
 		final long                copyLength  ,
 		final StorageLiveDataFile targetFile
 	)
 	{
-		return sourceFile.copyTo(targetFile, sourceOffset, copyLength);
+		return targetFile.copyFrom(sourceFile, sourceOffset, copyLength);
 	}
 	
 	public default long writeTransfer(
@@ -146,22 +119,22 @@ public interface StorageFileWriter
 	}
 
 	public default void truncate(
-		final StorageLiveDataFile       file              ,
-		final long                      newLength         ,
-		final StorageBackupFileProvider backupFileProvider
+		final StorageLiveChannelFile<?> file        ,
+		final long                      newLength   ,
+		final StorageFileProvider       fileProvider
 	)
 	{
-		truncateFile(file, newLength, backupFileProvider);
+		truncateFile(file, newLength, fileProvider);
 	}
 	
 	public static void truncateFile(
-		final StorageTruncatableFile     file              ,
-		final long                       newLength         ,
-		final StorageBackupFileProvider  backupFileProvider
+		final StorageTruncatableChannelFile file        ,
+		final long                          newLength   ,
+		final StorageFileProvider           fileProvider
 	)
 	{
 //		DEBUGStorage.println("storage file truncation");
-		final StorageBackupDataFile truncationTargetFile = backupFileProvider.provideTruncationBackupTargetFile(
+		final AFile truncationTargetFile = fileProvider.provideTruncationTargetFile(
 			file,
 			newLength
 		);
@@ -182,21 +155,21 @@ public interface StorageFileWriter
 	}
 
 	public default void delete(
-		final StorageLiveDataFile       file              ,
-		final StorageBackupFileProvider backupFileProvider
+		final StorageLiveDataFile file        ,
+		final StorageFileProvider fileProvider
 	)
 	{
-		deleteFile(file, backupFileProvider);
+		deleteFile(file, fileProvider);
 	}
 	
 	public static void deleteFile(
-		final StorageFile               file              ,
-		final StorageBackupFileProvider backupFileProvider
+		final StorageChannelFile  file        ,
+		final StorageFileProvider fileProvider
 	)
 	{
 //		DEBUGStorage.println("storage file deletion");
 
-		if(rescueFromDeletion(file, backupFileProvider))
+		if(rescueFromDeletion(file, fileProvider))
 		{
 			return;
 		}
@@ -213,8 +186,8 @@ public interface StorageFileWriter
 	
 
 	public static void createFileFullCopy(
-		final StorageFile          sourceFile,
-		final StorageCreatableFile targetFile
+		final StorageFile sourceFile,
+		final AFile       targetFile
 	)
 	{
 		try
@@ -228,8 +201,12 @@ public interface StorageFileWriter
 				throw new IOException("Copying target already exist: " + targetFile);
 			}
 			
-			targetFile.ensure();
-			sourceFile.copyTo(targetFile);
+			AFS.executeWriting(targetFile, wf ->
+			{
+				wf.ensure();
+				sourceFile.copyTo(wf);
+				return null;
+			});
 		}
 		catch(final Exception e)
 		{
@@ -238,33 +215,33 @@ public interface StorageFileWriter
 	}
 	
 	public static boolean rescueFromDeletion(
-		final StorageFile               file              ,
-		final StorageBackupFileProvider backupFileProvider
+		final StorageChannelFile  file        ,
+		final StorageFileProvider fileProvider
 	)
 	{
-		final StorageBackupDataFile deletionTargetFile = backupFileProvider.provideDeletionTargetFile(file);
+		final AFile deletionTargetFile = fileProvider.provideDeletionTargetFile(file);
 		if(deletionTargetFile == null)
 		{
 			return false;
 		}
 		
-		file.moveTo(deletionTargetFile);
+		try
+		{
+			AFS.executeWriting(deletionTargetFile, wf ->
+			{
+				wf.ensure();
+				file.moveTo(wf);
+				return null;
+			});
+		}
+		catch(final Exception e)
+		{
+			throw new StorageExceptionIo(e); // (04.03.2015 TM)EXCP: proper exception
+		}
 		
 		return true;
 	}
 	
-	public default void flush(final ZStorageLockedFile targetfile)
-	{
-		try
-		{
-			targetfile.fileChannel().force(false);
-		}
-		catch(final IOException e)
-		{
-			throw new StorageException(e); // (01.10.2014 TM)EXCP: proper exception
-		}
-	}
-
 	public final class Default implements StorageFileWriter
 	{
 		// since default methods, interfaces should be directly instantiable :(

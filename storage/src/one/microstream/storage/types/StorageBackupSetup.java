@@ -25,28 +25,28 @@ public interface StorageBackupSetup
 	 * Pseudo-constructor method to create a new {@link StorageBackupSetup} instance
 	 * using the passed directory as the backup location.
 	 * <p>
-	 * For explanations and customizing values, see {@link StorageBackupSetup#New(StorageFileProvider)}.
+	 * For explanations and customizing values, see {@link StorageBackupSetup#New(StorageLiveFileProvider)}.
 	 * 
 	 * @param backupDirectory the directory where the backup shall be located.
 	 * 
 	 * @return {@linkDoc StorageBackupSetup#New(StorageFileProvider)@return}
 	 * 
-	 * @see StorageBackupSetup#New(StorageFileProvider)
+	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	
 	public static StorageBackupSetup New(final ADirectory backupDirectory)
 	{
 		final StorageBackupFileProvider backupFileProvider = StorageBackupFileProvider.Builder()
-			.setBackupDirectory(backupDirectory)
-			.createBackupFileProvider()
+			.setBaseDirectory(backupDirectory)
+			.createFileProvider()
 		;
 		return New(backupFileProvider);
 	}
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageBackupSetup} instance
-	 * using the passed {@link StorageFileProvider}.
+	 * using the passed {@link StorageLiveFileProvider}.
 	 * <p>
 	 * A StorageBackupSetup basically defines where the backup files will be located by the {@link StorageBackupHandler}.
 	 * 

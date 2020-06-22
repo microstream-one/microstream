@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
 import one.microstream.X;
+import one.microstream.afs.AWritableFile;
 import one.microstream.functional.ThrowingProcedure;
 import one.microstream.functional._longProcedure;
 import one.microstream.persistence.binary.types.Chunk;
@@ -48,7 +49,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 	public boolean issuedCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
 
-	public void exportData(StorageIoHandler fileHandler);
+	public void exportData(StorageLiveFileProvider fileProvider);
 
 	// (19.07.2014 TM)TODO: refactor storage typing to avoid classes in public API
 	public StorageEntityCache.Default prepareImportData();
@@ -59,12 +60,12 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 	public void commitImportData(long taskTimestamp);
 
-	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, StorageFile file)
+	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, AWritableFile file)
 		throws IOException;
 
 	public KeyValue<Long, Long> exportTypeEntities(
 		StorageEntityTypeHandler         type           ,
-		StorageFile                      file           ,
+		AWritableFile                    file           ,
 		Predicate<? super StorageEntity> predicateEntity
 	) throws IOException;
 
@@ -497,9 +498,9 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		}
 
 		@Override
-		public final void exportData(final StorageIoHandler fileHandler)
+		public final void exportData(final StorageLiveFileProvider fileProvider)
 		{
-			this.fileManager.exportData(fileHandler);
+			this.fileManager.exportData(fileProvider);
 		}
 
 		@Override
@@ -530,7 +531,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
 			final StorageEntityTypeHandler         type           ,
-			final StorageFile                      file           ,
+			final AWritableFile                    file           ,
 			final Predicate<? super StorageEntity> predicateEntity
 		)
 			throws IOException
@@ -565,7 +566,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
 			final StorageEntityTypeHandler type,
-			final StorageFile              file
+			final AWritableFile            file
 		)
 			throws IOException
 		{

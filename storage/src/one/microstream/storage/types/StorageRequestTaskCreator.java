@@ -39,8 +39,8 @@ public interface StorageRequestTaskCreator
 	);
 
 	public StorageRequestTaskExportChannels createTaskExportChannels(
-		int                channelCount,
-		StorageIoHandler fileHandler
+		int                 channelCount,
+		StorageLiveFileProvider fileProvider
 	);
 
 	public StorageRequestTaskCreateStatistics createCreateRawFileStatisticsTask(int channelCount);
@@ -176,14 +176,14 @@ public interface StorageRequestTaskCreator
 
 		@Override
 		public StorageRequestTaskExportChannels createTaskExportChannels(
-			final int              channelCount,
-			final StorageIoHandler fileHandler
+			final int                 channelCount,
+			final StorageLiveFileProvider fileProvider
 		)
 		{
 			return new StorageRequestTaskExportChannels.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount,
-				fileHandler
+				fileProvider
 			);
 		}
 

@@ -12,7 +12,7 @@ import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageFileWriter;
-import one.microstream.storage.types.StorageIoHandler;
+import one.microstream.storage.types.ZStorageIoHandler;
 
 
 public final class StorageBackupHelper
@@ -58,7 +58,7 @@ public final class StorageBackupHelper
 	{
 		// export (= copy) all channels' data files to the target directory (= "create backup")
 		storageManager.exportChannels(
-			new StorageIoHandler.Default(
+			new ZStorageIoHandler.Default(
 				Storage.FileProvider(targetDirectory),
 				new StorageFileWriter.Default()
 			),

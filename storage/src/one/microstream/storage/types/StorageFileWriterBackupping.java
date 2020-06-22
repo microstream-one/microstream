@@ -4,6 +4,8 @@ import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
 
+import one.microstream.afs.AReadableFile;
+
 
 public interface StorageFileWriterBackupping extends StorageFileWriter
 {
@@ -55,7 +57,7 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeImport(
-			final StorageFile         sourceFile  ,
+			final AReadableFile       sourceFile  ,
 			final long                sourceOffset,
 			final long                copyLength  ,
 			final StorageLiveDataFile targetFile
@@ -199,24 +201,24 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 
 		@Override
 		public final void truncate(
-			final StorageLiveDataFile       file              ,
-			final long                      newLength         ,
-			final StorageBackupFileProvider backupFileProvider
+			final StorageLiveChannelFile<?> file        ,
+			final long                      newLength   ,
+			final StorageFileProvider       fileProvider
 		)
 		{
 			// no user increment since only the identifier is required and the actual file can well be deleted.
-			this.delegate.truncate(file, newLength, backupFileProvider);
+			this.delegate.truncate(file, newLength, fileProvider);
 			this.itemEnqueuer.enqueueTruncatingItem(file, newLength);
 		}
 		
 		@Override
 		public void delete(
-			final StorageLiveDataFile       file              ,
-			final StorageBackupFileProvider backupFileProvider
+			final StorageLiveDataFile file        ,
+			final StorageFileProvider fileProvider
 		)
 		{
 			// no user increment since only the identifier is required and the actual file can well be deleted.
-			this.delegate.delete(file, backupFileProvider);
+			this.delegate.delete(file, fileProvider);
 			this.itemEnqueuer.enqueueDeletionItem(file);
 		}
 		

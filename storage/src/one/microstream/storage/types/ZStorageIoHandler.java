@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import one.microstream.persistence.types.PersistenceTypeDictionaryIoHandler;
 import one.microstream.persistence.types.PersistenceTypeDictionaryStorer;
 
-public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter, StorageFileReader
+public interface ZStorageIoHandler extends StorageLiveFileProvider, StorageFileWriter, StorageFileReader
 {
 	public default ZStorageInventoryFile copyData(final ZStorageDataFile<?> dataFile)
 	{
@@ -33,13 +33,13 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 
 
 
-	public final class Default implements StorageIoHandler
+	public final class Default implements ZStorageIoHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		final StorageFileProvider fileProvider;
+		final StorageLiveFileProvider fileProvider;
 		final StorageFileWriter   fileWriter  ;
 
 
@@ -48,7 +48,7 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		// constructors //
 		/////////////////
 
-		public Default(final StorageFileProvider fileProvider, final StorageFileWriter fileWriter)
+		public Default(final StorageLiveFileProvider fileProvider, final StorageFileWriter fileWriter)
 		{
 			super();
 			this.fileProvider = notNull(fileProvider);
@@ -144,14 +144,14 @@ public interface StorageIoHandler extends StorageFileProvider, StorageFileWriter
 		public void truncate(
 			final ZStorageInventoryFile file               ,
 			final long                 newLength          ,
-			final StorageFileProvider  storageFileProvider
+			final StorageLiveFileProvider  storageFileProvider
 		)
 		{
 			this.fileWriter.truncate(file, newLength, storageFileProvider);
 		}
 		
 		@Override
-		public void delete(final ZStorageInventoryFile file, final StorageFileProvider storageFileProvider)
+		public void delete(final ZStorageInventoryFile file, final StorageLiveFileProvider storageFileProvider)
 		{
 			this.fileWriter.delete(file, storageFileProvider);
 		}

@@ -1,11 +1,16 @@
 package one.microstream.storage.types;
 
+import static one.microstream.X.notNull;
+import static one.microstream.math.XMath.notNegative;
+
+import java.util.function.Consumer;
+
 import one.microstream.afs.AFile;
 import one.microstream.math.XMath;
 import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageLiveDataFile
-extends StorageDataFile, StorageTruncatableFile, StorageLiveChannelFile<StorageLiveDataFile>
+extends StorageDataFile, StorageLiveChannelFile<StorageLiveDataFile>, StorageCreatableFile
 {
 	public long totalLength();
 
@@ -24,28 +29,25 @@ extends StorageDataFile, StorageTruncatableFile, StorageLiveChannelFile<StorageL
 	 * @return {@literal true} if the file containts exactely one live entity.
 	 */
 	public boolean hasSingleEntity();
-
+	
 	@Override
 	public default StorageBackupDataFile ensureBackupFile(final StorageBackupInventory backupInventory)
 	{
 		return backupInventory.ensureDataFile(this);
 	}
 	
-	
-//	public static StorageLiveDataFile.Default New(
-//		final StorageFileManager.Default parent      ,
-//		final AFile                      file        ,
-//		final int                        channelIndex,
-//		final long                       number
-//	)
-//	{
-//		return new StorageLiveDataFile.Default(
-//		        notNull(parent)      ,
-//			    notNull(file)        ,
-//			notNegative(channelIndex),
-//			notNegative(number)
-//		);
-//	}
+	public static StorageLiveDataFile.Default New(
+		final StorageFileManager.Default parent       ,
+		final StorageDataInventoryFile   inventoryFile
+	)
+	{
+		return new StorageLiveDataFile.Default(
+		        notNull(parent)                      ,
+			    notNull(inventoryFile.file())        ,
+			notNegative(inventoryFile.channelIndex()),
+			notNegative(inventoryFile.number())
+		);
+	}
 	
 	public class Default
 	extends StorageLiveFile.Abstract<StorageLiveDataFile>
@@ -223,22 +225,22 @@ extends StorageDataFile, StorageTruncatableFile, StorageLiveChannelFile<StorageL
 			this.fileDataLength  += byteCount;
 		}
 
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-		
-		@Override
-		public final synchronized boolean isOpen()
+		public boolean executeIfUnsuedData(final Consumer<? super StorageLiveDataFile.Default> action)
 		{
-			return this.internalIsOpen();
+			// cheat :D
+			return this.executeIfUnsued(file ->
+				action.accept(this)
+			);
 		}
 		
-		@Override
-		public final synchronized boolean close()
+		public final boolean unregisterUsageClosingData(
+			final StorageFileUser                               fileUser     ,
+			final Consumer<? super StorageLiveDataFile.Default> closingAction
+		)
 		{
-			return this.internalClose();
+			return this.unregisterUsageClosing(fileUser, file ->
+				closingAction.accept(this)
+			);
 		}
 		
 		@Override

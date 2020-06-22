@@ -2,13 +2,13 @@ package one.microstream.test.corp.main;
 
 import one.microstream.chars.VarString;
 import one.microstream.io.XIO;
-import one.microstream.storage.types.StorageFileProvider;
+import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.storage.types.StorageTransactionsAnalysis;
 
 public class MainTestBackupPrintTransactionFiles
 {
 	// local copy to prevent storage starting caused by referencing a constant in MainTestBackupStoring (crazy! :D)
-	static final String DIRECTORY_STORAGE = StorageFileProvider.Defaults.defaultStorageDirectory();
+	static final String DIRECTORY_STORAGE = StorageLiveFileProvider.Defaults.defaultStorageDirectory();
 	static final String DIRECTORY_BACKUP  = DIRECTORY_STORAGE + "/backup";
 	
 	
@@ -31,9 +31,9 @@ public class MainTestBackupPrintTransactionFiles
 		{
 			final VarString vs = StorageTransactionsAnalysis.Logic.parseFile(
 				XIO.Path(baseDirectory
-					+ "/" + StorageFileProvider.Defaults.defaultChannelDirectoryPrefix() + i
-					+"/" + StorageFileProvider.Defaults.defaultTransactionFilePrefix() + i
-					+ StorageFileProvider.Defaults.defaultTransactionFileSuffix()
+					+ "/" + StorageLiveFileProvider.Defaults.defaultChannelDirectoryPrefix() + i
+					+"/" + StorageLiveFileProvider.Defaults.defaultTransactionFilePrefix() + i
+					+ StorageLiveFileProvider.Defaults.defaultTransactionFileSuffix()
 				)
 			);
 			System.out.println(vs);

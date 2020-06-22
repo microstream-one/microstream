@@ -3,17 +3,13 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.Path;
-
 import one.microstream.X;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AReadableFile;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XCollection;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.exceptions.IORuntimeException;
-import one.microstream.io.XIO;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.types.StorageTransactionsAnalysis.EntryIterator;
 import one.microstream.storage.types.StorageTransactionsAnalysis.Logic;
@@ -24,45 +20,29 @@ public interface StorageTransactionsEntries
 	
 	
 	
-	public static StorageTransactionsEntries parseFile(final FileChannel fileChannel) throws IOException
+	public static StorageTransactionsEntries parseFileContent(final AReadableFile file)
 	{
+		if(!file.exists())
+		{
+			return StorageTransactionsEntries.New();
+		}
+		
 		final BulkList<Entry> entries = BulkList.New();
 		
 		StorageTransactionsAnalysis.Logic.processInputFile(
-			fileChannel,
+			file,
 			new EntryCollector(entries)
 		);
 		
 		return StorageTransactionsEntries.New(entries);
 	}
 	
-	public static StorageTransactionsEntries parseFile(final Path file) throws IORuntimeException
+	public static StorageTransactionsEntries parseFile(final AFile file)
 	{
-		      FileLock    lock    = null;
-		final FileChannel channel = null;
-		
-		Throwable suppressed = null;
-		try
+		return AFS.execute(file, rf ->
 		{
-			if(!XIO.exists(file))
-			{
-				return StorageTransactionsEntries.New();
-			}
-			
-			lock = ZStorageLockedFile.openLockedFileChannel(file);
-			
-			return parseFile(lock.channel());
-		}
-		catch(final IOException e)
-		{
-			suppressed = e;
-			throw new IORuntimeException(e);
-		}
-		finally
-		{
-			XIO.unchecked.close(lock, suppressed);
-			XIO.unchecked.close(channel, suppressed);
-		}
+			return parseFileContent(rf);
+		});
 	}
 		
 	

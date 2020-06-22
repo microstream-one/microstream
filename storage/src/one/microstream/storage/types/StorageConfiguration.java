@@ -17,7 +17,7 @@ public interface StorageConfiguration
 	/* (10.12.2014 TM)TODO: consolidate StorageConfiguration#fileProvider with FileWriter and FileReader
 	 * either move both here as well or move fileProvider out of here.
 	 */
-	public StorageFileProvider fileProvider();
+	public StorageLiveFileProvider fileProvider();
 
 	public StorageDataFileEvaluator dataFileEvaluator();
 	
@@ -32,7 +32,7 @@ public interface StorageConfiguration
 	 * 
 	 * @return {@linkDoc StorageConfiguration#New(StorageFileProvider)@return}
 	 * 
-	 * @see StorageConfiguration#New(StorageFileProvider)
+	 * @see StorageConfiguration#New(StorageLiveFileProvider)
 	 * @see StorageConfiguration.Builder
 	 */
 	public static StorageConfiguration New()
@@ -44,12 +44,12 @@ public interface StorageConfiguration
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageConfiguration} instance
-	 * using the passed {@link StorageFileProvider}, {@code null} as the {@link StorageBackupSetup} part
+	 * using the passed {@link StorageLiveFileProvider}, {@code null} as the {@link StorageBackupSetup} part
 	 * and default instances for everything else.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
 	 * 
-	 * @param fileProvider the {@link StorageFileProvider} to provide directory and file names.
+	 * @param fileProvider the {@link StorageLiveFileProvider} to provide directory and file names.
 	 * 
 	 * @return a new {@link StorageConfiguration} instance.
 	 * 
@@ -57,7 +57,7 @@ public interface StorageConfiguration
 	 * @see StorageConfiguration.Builder
 	 */
 	public static StorageConfiguration New(
-		final StorageFileProvider fileProvider
+		final StorageLiveFileProvider fileProvider
 	)
 	{
 		return StorageConfiguration.Builder()
@@ -69,7 +69,7 @@ public interface StorageConfiguration
 	public static StorageConfiguration New(
 		final StorageChannelCountProvider   channelCountProvider  ,
 		final StorageHousekeepingController housekeepingController,
-		final StorageFileProvider           fileProvider          ,
+		final StorageLiveFileProvider           fileProvider          ,
 		final StorageDataFileEvaluator      dataFileEvaluator     ,
 		final StorageEntityCacheEvaluator   entityCacheEvaluator  ,
 		final StorageBackupSetup            backupSetup
@@ -93,7 +93,7 @@ public interface StorageConfiguration
 
 		private final StorageChannelCountProvider   channelCountProvider  ;
 		private final StorageHousekeepingController housekeepingController;
-		private final StorageFileProvider           fileProvider          ;
+		private final StorageLiveFileProvider           fileProvider          ;
 		private final StorageDataFileEvaluator      dataFileEvaluator     ;
 		private final StorageEntityCacheEvaluator   entityCacheEvaluator  ;
 		private final StorageBackupSetup            backupSetup           ;
@@ -107,7 +107,7 @@ public interface StorageConfiguration
 		Default(
 			final StorageChannelCountProvider   channelCountProvider  ,
 			final StorageHousekeepingController housekeepingController,
-			final StorageFileProvider           fileProvider          ,
+			final StorageLiveFileProvider           fileProvider          ,
 			final StorageDataFileEvaluator      dataFileEvaluator     ,
 			final StorageEntityCacheEvaluator   entityCacheEvaluator  ,
 			final StorageBackupSetup            backupSetup
@@ -147,7 +147,7 @@ public interface StorageConfiguration
 		}
 
 		@Override
-		public StorageFileProvider fileProvider()
+		public StorageLiveFileProvider fileProvider()
 		{
 			return this.fileProvider;
 		}
@@ -206,9 +206,9 @@ public interface StorageConfiguration
 		
 		public B setHousekeepingController(StorageHousekeepingController housekeepingController);
 		
-		public StorageFileProvider storagefileProvider();
+		public StorageLiveFileProvider storagefileProvider();
 		
-		public B setStorageFileProvider(StorageFileProvider storageFileProvider);
+		public B setStorageFileProvider(StorageLiveFileProvider storageFileProvider);
 		
 		public StorageBackupSetup backupSetup();
 		
@@ -234,7 +234,7 @@ public interface StorageConfiguration
 
 			private StorageChannelCountProvider   channelCountProvider   = Storage.ChannelCountProvider()  ;
 			private StorageHousekeepingController housekeepingController = Storage.HousekeepingController();
-			private StorageFileProvider           storageFileProvider    = Storage.FileProvider()          ;
+			private StorageLiveFileProvider           storageFileProvider    = Storage.FileProvider()          ;
 			private StorageDataFileEvaluator      dataFileEvaluator      = Storage.DataFileEvaluator()     ;
 			private StorageEntityCacheEvaluator   entityCacheEvaluator   = Storage.EntityCacheEvaluator()  ;
 			private StorageBackupSetup            backupSetup           ; // optional
@@ -295,13 +295,13 @@ public interface StorageConfiguration
 			}
 			
 			@Override
-			public StorageFileProvider storagefileProvider()
+			public StorageLiveFileProvider storagefileProvider()
 			{
 				return this.storageFileProvider;
 			}
 			
 			@Override
-			public B setStorageFileProvider(final StorageFileProvider storageFileProvider)
+			public B setStorageFileProvider(final StorageLiveFileProvider storageFileProvider)
 			{
 				this.storageFileProvider = storageFileProvider == null
 					? Storage.FileProvider()

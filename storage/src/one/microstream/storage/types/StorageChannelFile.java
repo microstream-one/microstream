@@ -44,17 +44,17 @@ public interface StorageChannelFile extends StorageFile, StorageHashChannelPart
 			return this.channelIndex;
 		}
 		
-		@Override
-		public synchronized boolean isOpen()
-		{
-			return this.internalIsOpen();
-		}
-		
-		@Override
-		public synchronized boolean close()
-		{
-			return this.internalClose();
-		}
+//		@Override
+//		public synchronized boolean isOpen()
+//		{
+//			return this.internalIsOpen();
+//		}
+//
+//		@Override
+//		public synchronized boolean close()
+//		{
+//			return this.internalClose();
+//		}
 				
 	}
 	

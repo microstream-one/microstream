@@ -4,18 +4,17 @@ import static one.microstream.X.notNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AReadableFile;
 import one.microstream.chars.VarString;
 import one.microstream.collections.ConstList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.storage.exceptions.StorageException;
 
@@ -273,23 +272,21 @@ public interface StorageTransactionsAnalysis
 		}
 
 		public static <P extends EntryIterator> P processInputFile(
-			final FileChannel fileChannel   ,
-			final P           entryProcessor
+			final AReadableFile file          ,
+			final P             entryProcessor
 		)
-			throws IOException
 		{
-			return processInputFile(fileChannel, 0, fileChannel.size(), entryProcessor);
+			return processInputFile(file, 0, file.size(), entryProcessor);
 		}
 
 		public static <P extends EntryIterator> P processInputFile(
-			final FileChannel fileChannel   ,
-			final long        startPosition ,
-			final long        length        ,
-			final P           entryProcessor
+			final AReadableFile file          ,
+			final long          startPosition ,
+			final long          length        ,
+			final P             entryProcessor
 		)
-			throws IOException
 		{
-			final long actualFileLength    = fileChannel.size()    ;
+			final long actualFileLength    = file.size()    ;
 			final long boundPosition       = startPosition + length;
 		          long currentFilePosition = startPosition         ;
 
@@ -301,8 +298,6 @@ public interface StorageTransactionsAnalysis
 			{
 				throw new IllegalArgumentException(); // (10.06.2014 TM)EXCP: proper exception
 			}
-
-			fileChannel.position(startPosition);
 
 			final ByteBuffer buffer  = XMemory.allocateDirectNativeDefault();
 			final long       address = XMemory.getDirectByteBufferAddress(buffer);
@@ -320,35 +315,23 @@ public interface StorageTransactionsAnalysis
 				}
 
 				// loop is guaranteed to terminate as it depends on the buffer capacity and the file length
-				do
-				{
-					fileChannel.read(buffer);
-				}
-				while(buffer.hasRemaining());
+				file.readBytes(buffer, currentFilePosition);
 
 				// buffer is guaranteed to be filled exactely to its limit in any case
-				processBufferedEntities(
-					address,
-					buffer.limit(),
-					fileChannel,
-					entryProcessor
-				);
-				currentFilePosition = fileChannel.position();
+				currentFilePosition += processBufferedEntities(address, buffer.limit(), entryProcessor);
 			}
 
 			return entryProcessor;
 		}
 
-		private static void processBufferedEntities(
-			final long           startAddress    ,
-			final long           bufferDataLength,
-			final FileChannel    fileChannel     ,
+		private static long processBufferedEntities(
+			final long          startAddress    ,
+			final long          bufferDataLength,
 			final EntryIterator entityProcessor
 		)
-			throws IOException
 		{
 			// bufferBound is the bounding address (exclusive) of the data available in the buffer
-			final long bufferBound      = startAddress + bufferDataLength;
+			final long bufferBound = startAddress + bufferDataLength;
 
 			// every entity start must be at least one long size before the actual bound to safely read its length
 			final long entityStartBound = bufferBound - LENGTH_ENTRY_LENGTH;
@@ -368,7 +351,7 @@ public interface StorageTransactionsAnalysis
 				if(entryLength == 0)
 				{
 					// entity length may never be 0 or the iteration will hang forever
-					throw new StorageException("Zero length transaction entry."); // (29.08.2014 TM)EXCP: proper exception
+					throw new StorageException("Zero length transactions entry."); // (29.08.2014 TM)EXCP: proper exception
 				}
 
 //				DEBUGStorage.println(
@@ -380,42 +363,36 @@ public interface StorageTransactionsAnalysis
 				// depending on the processor logic, incomplete entity data can still be enough (e.g. only needs header)
 				if(!entityProcessor.accept(address, bufferBound - address))
 				{
-					// revert fileChannel position to start of current incomplete entity, return its length
-					fileChannel.position(fileChannel.position() + address - bufferBound); // current address!
-					return;
+					// only advance to start of current incomplete entity
+					return address - startAddress;
 				}
 
 				// advance iteration and check for end of current buffered data
 				if((address += Math.abs(entryLength)) > entityStartBound)
 				{
-					// revert fileChannel position to start of next item (of currently unknowable length)
-					fileChannel.position(fileChannel.position() + address - bufferBound);
-					return;
+					// only advance to start of next item (of currently unknowable length)
+					return address - startAddress;
 				}
 			}
 		}
 
-		public static VarString parseFile(final Path file)
+		public static VarString parseFile(final AFile file)
 		{
 			return parseFile(file, VarString.New());
 		}
 
-		public static VarString parseFile(final Path file, final VarString vs)
+		public static VarString parseFile(final AFile file, final VarString vs)
 		{
-			      FileLock    lock    = null;
-			final FileChannel channel = null;
-			
 			Throwable suppressed = null;
+			final AReadableFile rFile = file.useReading();
 			try
 			{
-				if(!XIO.exists(file))
+				if(!rFile.exists())
 				{
 					return vs;
 				}
 				
-				lock = ZStorageLockedFile.openLockedFileChannel(file);
-				
-				return parseFile(lock.channel(), vs);
+				return parseFile(rFile, vs);
 			}
 			catch(final IOException e)
 			{
@@ -424,17 +401,17 @@ public interface StorageTransactionsAnalysis
 			}
 			finally
 			{
-				XIO.unchecked.close(lock, suppressed);
-				XIO.unchecked.close(channel, suppressed);
+				AFS.close(rFile, suppressed);
 			}
 		}
 
-		public static VarString parseFile(final FileChannel fileChannel, final VarString vs) throws IOException
+		public static VarString parseFile(final AReadableFile file, final VarString vs) throws IOException
 		{
 			StorageTransactionsAnalysis.Logic.processInputFile(
-				fileChannel,
+				file,
 				new EntryAssembler(vs)
 			);
+			
 			return vs;
 		}
 

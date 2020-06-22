@@ -29,6 +29,21 @@ public interface AWritableFile extends AReadableFile
 	{
 		return this.fileSystem().accessManager().useWriting(this);
 	}
+	
+	public default long copyFrom(final AReadableFile source)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(source, this);
+	}
+	
+	public default long copyFrom(final AReadableFile source, final long sourcePosition)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(source, sourcePosition, this);
+	}
+
+	public default long copyFrom(final AReadableFile source, final long sourcePosition, final long length)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(source, sourcePosition, length, this);
+	}
 		
 	public default long writeBytes(final Iterable<? extends ByteBuffer> sources)
 	{

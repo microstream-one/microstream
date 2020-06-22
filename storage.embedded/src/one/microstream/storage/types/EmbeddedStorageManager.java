@@ -473,11 +473,11 @@ public interface EmbeddedStorageManager extends StorageManager
 
 		@Override
 		public final void exportChannels(
-			final StorageIoHandler fileHandler             ,
-			final boolean          performGarbageCollection
+			final StorageLiveFileProvider fileProvider             ,
+			final boolean             performGarbageCollection
 		)
 		{
-			this.singletonConnection().exportChannels(fileHandler, performGarbageCollection);
+			this.singletonConnection().exportChannels(fileProvider, performGarbageCollection);
 		}
 
 		@Override

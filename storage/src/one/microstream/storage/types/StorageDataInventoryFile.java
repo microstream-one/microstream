@@ -6,78 +6,50 @@ import static one.microstream.math.XMath.notNegative;
 import one.microstream.afs.AFile;
 
 
-// (15.06.2020 TM)FIXME: priv#49: delete if really not necessary
-public interface StorageDataInventoryFile extends StorageHashChannelPart
+public interface StorageDataInventoryFile extends StorageDataFile
 {
+	@Override
 	public AFile file();
 	
 	@Override
 	public int channelIndex();
 	
-	public long fileNumber();
+	@Override
+	public long number();
 	
+	
+	
+	@FunctionalInterface
+	public interface Creator extends StorageDataFile.Creator<StorageDataInventoryFile>
+	{
+		@Override
+		public StorageDataInventoryFile createDataFile(AFile file, int channelIndex, long number);
+	}
 	
 	
 	public static StorageDataInventoryFile New(
 		final AFile file        ,
 		final int   channelIndex,
-		final long  fileNumber
+		final long  number
 	)
 	{
 		return new StorageDataInventoryFile.Default(
 			    notNull(file),
 			notNegative(channelIndex),
-			notNegative(fileNumber)
+			notNegative(number)
 		);
 	}
 	
-	public class Default implements StorageDataInventoryFile
+	public class Default extends StorageDataFile.Abstract implements StorageDataInventoryFile
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-		
-		AFile file        ;
-		int   channelIndex;
-		long  fileNumber  ;
-		
-		
-		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		protected Default(final AFile file, final int channelIndex, final long fileNumber)
+		protected Default(final AFile file, final int channelIndex, final long number)
 		{
-			super();
-			this.file         = file        ;
-			this.channelIndex = channelIndex;
-			this.fileNumber   = fileNumber  ;
+			super(file, channelIndex, number);
 		}
-		
-
-		
-		///////////////////////////////////////////////////////////////////////////
-		// methods //
-		////////////
-
-		@Override
-		public AFile file()
-		{
-			return this.file;
-		}
-
-		@Override
-		public int channelIndex()
-		{
-			return this.channelIndex;
-		}
-
-		@Override
-		public long fileNumber()
-		{
-			return this.fileNumber;
-		}
-		
+				
 	}
 }

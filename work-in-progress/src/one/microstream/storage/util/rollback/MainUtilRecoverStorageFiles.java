@@ -14,7 +14,7 @@ import one.microstream.persistence.types.Persistence;
 import one.microstream.storage.types.StorageDataFileValidator;
 import one.microstream.storage.types.StorageEntityDataValidator;
 import one.microstream.storage.types.StorageFileEntityDataIterator;
-import one.microstream.storage.types.StorageFileProvider;
+import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.storage.types.StorageTransactionsEntries;
 import one.microstream.storage.types.ZStorageNumberedFile;
 
@@ -41,7 +41,7 @@ public class MainUtilRecoverStorageFiles
 //	1000000000000087529
 	static void validateDataFiles()
 	{
-		final StorageFileProvider sfp = StorageFileProvider
+		final StorageLiveFileProvider sfp = StorageLiveFileProvider
 			.Builder()
 			.setBackupDirectory(PATH_CORRUPTED)
 			.createFileProvider()

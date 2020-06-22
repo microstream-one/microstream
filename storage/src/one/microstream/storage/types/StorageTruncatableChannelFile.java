@@ -1,6 +1,6 @@
 package one.microstream.storage.types;
 
-public interface StorageTruncatableFile extends StorageBackupableFile
+public interface StorageTruncatableChannelFile extends StorageChannelFile
 {
 	public void truncate(long newLength);
 }

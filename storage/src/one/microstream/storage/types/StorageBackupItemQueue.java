@@ -39,7 +39,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 
 		@Override
 		public final void enqueueCopyingItem(
-			final StorageLiveFile<?> sourceFile    ,
+			final StorageLiveChannelFile<?> sourceFile    ,
 			final long               sourcePosition,
 			final long               length
 		)
@@ -49,7 +49,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 
 		@Override
 		public final void enqueueTruncatingItem(
-			final StorageLiveFile<?> file     ,
+			final StorageLiveChannelFile<?> file     ,
 			final long               newLength
 		)
 		{
@@ -59,7 +59,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 		
 		@Override
 		public void enqueueDeletionItem(
-			final StorageLiveFile<?> file
+			final StorageLiveChannelFile<?> file
 		)
 		{
 			// signalling with a negative length is a hack to avoid the complexity of multiple Item classes
@@ -67,9 +67,9 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 		}
 		
 		private void internalEnqueueItem(
-			final StorageLiveFile<?> sourceFile    ,
-			final long               sourcePosition,
-			final long               length
+			final StorageLiveChannelFile<?> sourceFile    ,
+			final long                      sourcePosition,
+			final long                      length
 		)
 		{
 			sourceFile.registerUsage(this);
@@ -127,9 +127,9 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			// instance fields //
 			////////////////////
 			
-			final StorageLiveFile<?> sourceFile    ;
-			final long               sourcePosition;
-			final long               length        ;
+			final StorageLiveChannelFile<?> sourceFile    ;
+			final long                      sourcePosition;
+			final long                      length        ;
 
 			Item next;
 
@@ -140,9 +140,9 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			/////////////////
 			
 			Item(
-				final StorageLiveFile<?> sourceFile    ,
-				final long               sourcePosition,
-				final long               length
+				final StorageLiveChannelFile<?> sourceFile    ,
+				final long                      sourcePosition,
+				final long                      length
 			)
 			{
 				super();
