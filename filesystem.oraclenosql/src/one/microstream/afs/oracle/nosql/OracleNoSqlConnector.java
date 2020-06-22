@@ -144,7 +144,7 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected long blobNr(
+		protected long blobNumber(
 			final BlobMetadata blob
 		)
 		{
@@ -243,7 +243,7 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 		{
 			final Table                 table              = this.table(file);
 			final List<TableOperation>  tableOperations    = new ArrayList<>();
-			      long                  nextBlobNr         = this.nextBlobNr(file);
+			      long                  nextBlobNumber     = this.nextBlobNumber(file);
 			final long                  totalSize          = this.totalSize(sourceBuffers);
 			final ByteBufferInputStream buffersInputStream = ByteBufferInputStream.New(sourceBuffers);
 			      long                  available          = totalSize;
@@ -261,7 +261,7 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 				{
 					final Row row = table.createRow();
 					row.put(KEY , file.fullQualifiedName());
-					row.put(SEQ , nextBlobNr);
+					row.put(SEQ , nextBlobNumber);
 					row.put(SIZE, currentBatchSize);
 					tableOperations.add(this.kvstore.getTableAPI().getTableOperationFactory().createPut(
 						row,
@@ -270,7 +270,7 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 					));
 
 					this.kvstore.putLOB(
-						this.key(file, nextBlobNr++),
+						this.key(file, nextBlobNumber++),
 						limitedInputStream,
 						null,
 						0L,

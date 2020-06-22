@@ -195,12 +195,12 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			final long nextBlobNr = this.nextBlobNr(file);
-			final long totalSize  = this.totalSize(sourceBuffers);
+			final long nextBlobNumber = this.nextBlobNumber(file);
+			final long totalSize      = this.totalSize(sourceBuffers);
 
 			final BlobInfo blobInfo = BlobInfo.newBuilder(
 				file.container(),
-				toBlobKey(file, nextBlobNr)
+				toBlobKey(file, nextBlobNumber)
 			)
 			.build();
 
@@ -234,7 +234,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 					targetFile.container(),
 					toBlobKey(
 						targetFile,
-						this.blobNr(sourceBlob)
+						this.blobNumber(sourceBlob)
 					)
 				)
 				.build();

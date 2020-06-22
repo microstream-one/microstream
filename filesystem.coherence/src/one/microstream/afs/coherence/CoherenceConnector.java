@@ -180,7 +180,7 @@ public interface CoherenceConnector extends BlobStoreConnector
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			      long                  nextBlobNr         = this.nextBlobNr(file);
+			      long                  nextBlobNumber     = this.nextBlobNumber(file);
 			final long                  totalSize          = this.totalSize(sourceBuffers);
 			final ByteBufferInputStream buffersInputStream = ByteBufferInputStream.New(sourceBuffers);
 			      long                  available          = totalSize;
@@ -205,7 +205,7 @@ public interface CoherenceConnector extends BlobStoreConnector
 					}
 					while(read < batchSize);
 
-					final String              key  = toBlobKey(file, nextBlobNr++);
+					final String              key  = toBlobKey(file, nextBlobNumber++);
 					final Map<String, Object> blob = createBlobValue(
 						currentBatchSize,
 						batch

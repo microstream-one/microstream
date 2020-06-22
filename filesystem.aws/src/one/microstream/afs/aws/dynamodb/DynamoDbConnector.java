@@ -174,7 +174,7 @@ public interface DynamoDbConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected long blobNr(final Item blob)
+		protected long blobNumber(final Item blob)
 		{
 			return blob.getLong(FIELD_SEQ);
 		}
@@ -217,7 +217,7 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			 */
 			final Item fullBlob = this.table(file).getItem(
 				FIELD_KEY, file.fullQualifiedName(),
-				FIELD_SEQ, this.blobNr(blob)
+				FIELD_SEQ, this.blobNumber(blob)
 			);
 			targetBuffer.put(
 				fullBlob.getBinary(FIELD_DATA),
@@ -272,7 +272,7 @@ public interface DynamoDbConnector extends BlobStoreConnector
 		)
 		{
 			final BatchWrite            batchWrite         = new BatchWrite(this.dynamoDB, file.container());
-			      long                  nextBlobNr         = this.nextBlobNr(file);
+			      long                  nextBlobNumber     = this.nextBlobNumber(file);
 			final long                  totalSize          = this.totalSize(sourceBuffers);
 			final ByteBufferInputStream buffersInputStream = ByteBufferInputStream.New(sourceBuffers);
 			      long                  available          = totalSize;
@@ -304,7 +304,7 @@ public interface DynamoDbConnector extends BlobStoreConnector
 
 					final Item item = new Item()
 						.withPrimaryKey(FIELD_KEY, file.fullQualifiedName())
-						.withKeyComponent(FIELD_SEQ, nextBlobNr++)
+						.withKeyComponent(FIELD_SEQ, nextBlobNumber++)
 						.withNumber(FIELD_SIZE, currentBatchSize)
 						.withBinary(FIELD_DATA, batch)
 					;
@@ -336,7 +336,7 @@ public interface DynamoDbConnector extends BlobStoreConnector
 				final long size = blob.getLong(FIELD_SIZE);
 				final Item item = new Item()
 					.withPrimaryKey(FIELD_KEY, targetFile.fullQualifiedName())
-					.withKeyComponent(FIELD_SEQ, this.blobNr(blob))
+					.withKeyComponent(FIELD_SEQ, this.blobNumber(blob))
 					.withNumber(FIELD_SIZE, size)
 					.withBinary(FIELD_DATA, blob.getBinary(FIELD_DATA))
 				;
