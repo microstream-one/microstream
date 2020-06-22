@@ -73,6 +73,11 @@
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
+			<artifactId>filesystem.oraclenosql</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
 			<artifactId>filesystem.redis</artifactId>
 			<version>${project.version}</version>
 		</dependency>
