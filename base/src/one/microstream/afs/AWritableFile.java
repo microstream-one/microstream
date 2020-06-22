@@ -2,6 +2,8 @@ package one.microstream.afs;
 
 import java.nio.ByteBuffer;
 
+import one.microstream.X;
+
 public interface AWritableFile extends AReadableFile
 {
 	@Override
@@ -44,7 +46,12 @@ public interface AWritableFile extends AReadableFile
 	{
 		return this.actual().fileSystem().ioHandler().copyTo(source, sourcePosition, length, this);
 	}
-		
+	
+	public default long writeBytes(final ByteBuffer source)
+	{
+		return this.writeBytes(X.Constant(source));
+	}
+	
 	public default long writeBytes(final Iterable<? extends ByteBuffer> sources)
 	{
 		// synchronization handled by IoHandler.
@@ -57,10 +64,10 @@ public interface AWritableFile extends AReadableFile
 		this.actual().fileSystem().ioHandler().create(this);
 	}
 	
-	public default boolean ensure()
+	public default boolean ensureExists()
 	{
 		// synchronization handled by IoHandler.
-		return this.actual().fileSystem().ioHandler().ensure(this);
+		return this.actual().fileSystem().ioHandler().ensureExists(this);
 	}
 	
 	public default boolean delete()

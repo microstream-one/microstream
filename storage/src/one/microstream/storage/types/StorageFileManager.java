@@ -258,13 +258,6 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 			return logic;
 		}
-
-		// (08.06.2020 TM)FIXME: priv#49: delete
-		@Deprecated
-		final boolean isHeadFile(final ZStorageDataFile.Default dataFile)
-		{
-			throw new one.microstream.meta.NotImplementedYetError();
-		}
 		
 		final boolean isHeadFile(final StorageLiveDataFile.Default dataFile)
 		{
@@ -1576,8 +1569,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 //			DEBUGStorage.println(this.channelIndex + " committing import data (entity registering)");
 
 			// caching variables
-			final StorageEntityCache.Default entityCache = this.entityCache;
-			final StorageLiveDataFile.Default    headFile    = this.headFile   ;
+			final StorageEntityCache.Default  entityCache = this.entityCache;
+			final StorageLiveDataFile.Default headFile    = this.headFile   ;
 
 			final long oldTotalLength = this.headFile.totalLength();
 			      long loopFileLength = oldTotalLength;

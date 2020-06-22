@@ -19,10 +19,10 @@ public class MainTestAfsCreateFiles
 		System.out.println(file.parent());
 		
 		final AWritableFile wFile = file.useWriting();
-		final boolean created1 = wFile.ensure();
+		final boolean created1 = wFile.ensureExists();
 		System.out.println(file + " created: " + created1);
 		
-		final boolean created2 = wFile.ensure();
+		final boolean created2 = wFile.ensureExists();
 		System.out.println(file + " created: " + created2);
 	}
 }
