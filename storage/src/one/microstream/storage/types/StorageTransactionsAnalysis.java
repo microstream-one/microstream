@@ -318,7 +318,8 @@ public interface StorageTransactionsAnalysis
 				file.readBytes(buffer, currentFilePosition);
 
 				// buffer is guaranteed to be filled exactely to its limit in any case
-				currentFilePosition += processBufferedEntities(address, buffer.limit(), entryProcessor);
+				final long progress = processBufferedEntities(address, buffer.limit(), entryProcessor);
+				currentFilePosition += progress;
 			}
 
 			return entryProcessor;

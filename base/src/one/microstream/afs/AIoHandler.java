@@ -27,7 +27,7 @@ public interface AIoHandler
 	
 	public boolean ensureExists(ADirectory directory);
 
-	public boolean ensure(AWritableFile file);
+	public boolean ensureExists(AWritableFile file);
 	
 
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
@@ -474,7 +474,7 @@ public interface AIoHandler
 		}
 
 		@Override
-		public boolean ensure(final AWritableFile file)
+		public boolean ensureExists(final AWritableFile file)
 		{
 			final AFile actual = file.actual();
 			synchronized(actual)

@@ -899,7 +899,6 @@ public final class XIO
 	}
 	
 	public static final ByteBuffer wrapInDirectByteBuffer(final byte[] bytes)
-		throws IOException
 	{
 		final ByteBuffer dbb = ByteBuffer.allocateDirect(bytes.length);
 		dbb.put(bytes);

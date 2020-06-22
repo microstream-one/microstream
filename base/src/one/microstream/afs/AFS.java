@@ -1,9 +1,56 @@
 package one.microstream.afs;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.function.Function;
+
+import one.microstream.chars.XChars;
+import one.microstream.io.XIO;
+import one.microstream.memory.XMemory;
 
 public class AFS
 {
+	public static String readString(final AFile file)
+	{
+		return readString(file, XChars.standardCharset());
+	}
+	
+	public static String readString(final AFile file, final Charset charSet)
+	{
+		final byte[] bytes = read_bytes(file);
+		
+		return XChars.String(bytes, charSet);
+	}
+	
+	public static byte[] read_bytes(final AFile file)
+	{
+		final ByteBuffer content = execute(file, f -> f.readBytes());
+		final byte[]     bytes   = XMemory.toArray(content);
+		XMemory.deallocateDirectByteBuffer(content);
+		
+		return bytes;
+	}
+	
+	public static final long writeString(final AFile file, final String string)
+	{
+		return writeString(file, string, XChars.standardCharset());
+	}
+	
+	public static final long writeString(final AFile file, final String string, final Charset charset)
+	{
+		final byte[] bytes = string.getBytes(charset);
+
+		return write_bytes(file, bytes);
+	}
+	
+	public static final long write_bytes(final AFile file, final byte[] bytes)
+	{
+		final ByteBuffer dbb = XIO.wrapInDirectByteBuffer(bytes);
+		final Long writeCount = writeBytes(file, dbb);
+		XMemory.deallocateDirectByteBuffer(dbb);
+		
+		return writeCount;
+	}
 
 	public static <R> R execute(
 		final AFile                      file ,
@@ -18,6 +65,22 @@ public class AFS
 		finally
 		{
 			rFile.release();
+		}
+	}
+	
+	public static long writeBytes(
+		final AFile      file ,
+		final ByteBuffer bytes
+	)
+	{
+		final AWritableFile wFile = file.useWriting();
+		try
+		{
+			return wFile.writeBytes(bytes);
+		}
+		finally
+		{
+			wFile.release();
 		}
 	}
 	

@@ -203,7 +203,7 @@ public interface StorageFileWriter
 			
 			AFS.executeWriting(targetFile, wf ->
 			{
-				wf.ensure();
+				wf.ensureExists();
 				sourceFile.copyTo(wf);
 				return null;
 			});
@@ -229,7 +229,7 @@ public interface StorageFileWriter
 		{
 			AFS.executeWriting(deletionTargetFile, wf ->
 			{
-				wf.ensure();
+				wf.ensureExists();
 				file.moveTo(wf);
 				return null;
 			});

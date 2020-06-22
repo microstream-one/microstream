@@ -120,7 +120,7 @@ public interface ZStorageIoHandler extends StorageLiveFileProvider, StorageFileW
 		@Override
 		public long write(final ZStorageLockedFile file, final ByteBuffer[] byteBuffers)
 		{
-			return this.fileWriter.write(file, byteBuffers);
+			return this.fileWriter.writeString(file, byteBuffers);
 		}
 
 		@Override
