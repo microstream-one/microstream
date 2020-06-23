@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
@@ -139,19 +138,16 @@ public interface HazelcastConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected boolean internalDeleteFile(
-			final BlobStorePath file
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath                file ,
+			final List<? extends BlobMetadata> blobs
 		)
 		{
 			final IMap<String, List<Object>> map = this.map(file);
-			final AtomicBoolean deleted = new AtomicBoolean();
-			this.blobs(file).forEach(
-				metadata -> {
-					map.delete(metadata.key());
-					deleted.set(true);
-				}
+			blobs.forEach(
+				metadata -> map.delete(metadata.key())
 			);
-			return deleted.get();
+			return true;
 		}
 
 		@Override

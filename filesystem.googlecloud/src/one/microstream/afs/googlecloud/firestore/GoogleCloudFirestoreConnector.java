@@ -165,20 +165,21 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected boolean internalDeleteFile(
-			final BlobStorePath file
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath                    file ,
+			final List<? extends DocumentSnapshot> blobs
 		)
 		{
 			try
 			{
 				final List<WriteResult> results = ApiFutures.allAsList(
-					this.blobs(file)
+					blobs.stream()
 						.map(blob -> blob.getReference().delete())
 						.collect(Collectors.toList())
 				)
 				.get();
 
-				return !results.isEmpty();
+				return results.size() == blobs.size();
 			}
 			catch(final Exception e)
 			{

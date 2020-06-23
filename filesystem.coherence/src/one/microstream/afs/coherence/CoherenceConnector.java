@@ -1,5 +1,6 @@
 package one.microstream.afs.coherence;
 
+import static java.util.stream.Collectors.toSet;
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
@@ -7,6 +8,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -20,6 +22,7 @@ import com.tangosol.util.ValueExtractor;
 import com.tangosol.util.aggregator.LongSum;
 import com.tangosol.util.extractor.KeyExtractor;
 import com.tangosol.util.extractor.ReflectionExtractor;
+import com.tangosol.util.filter.InFilter;
 import com.tangosol.util.filter.RegexFilter;
 import com.tangosol.util.processor.ExtractorProcessor;
 
@@ -91,6 +94,18 @@ public interface CoherenceConnector extends BlobStoreConnector
 			return new RegexFilter(
 				new KeyExtractor(),
 				blobKeyRegex(toBlobKeyPrefix(file))
+			);
+		}
+
+		private static Filter blobsFilter(
+			final List<? extends BlobMetadata> blobs
+		)
+		{
+			return new InFilter(
+				new KeyExtractor(),
+				blobs.stream()
+					.map(BlobMetadata::key)
+					.collect(toSet())
 			);
 		}
 
@@ -169,6 +184,19 @@ public interface CoherenceConnector extends BlobStoreConnector
 		{
 			return !this.cache.invokeAll(
 				fileFilter(file),
+				new DeleteProcessor()
+			)
+			.isEmpty();
+		}
+
+		@Override
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath                file ,
+			final List<? extends BlobMetadata> blobs
+		)
+		{
+			return !this.cache.invokeAll(
+				blobsFilter(blobs),
 				new DeleteProcessor()
 			)
 			.isEmpty();

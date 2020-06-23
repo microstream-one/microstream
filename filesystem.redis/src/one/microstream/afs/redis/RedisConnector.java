@@ -6,6 +6,7 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.nio.ByteBuffer;
 import java.time.Duration;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -41,7 +42,7 @@ public interface RedisConnector extends BlobStoreConnector
 
 
 	public static class Default
-	extends    BlobStoreConnector.Abstract<Blob>
+	extends    BlobStoreConnector.Abstract<BlobMetadata>
 	implements RedisConnector
 	{
 		private final RedisClient                                 client    ;
@@ -53,8 +54,8 @@ public interface RedisConnector extends BlobStoreConnector
 		)
 		{
 			super(
-				Blob::key,
-				Blob::size
+				BlobMetadata::key,
+				BlobMetadata::size
 			);
 			this.client = client;
 		}
@@ -83,7 +84,7 @@ public interface RedisConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected Stream<Blob> blobs(
+		protected Stream<BlobMetadata> blobs(
 			final BlobStorePath file
 		)
 		{
@@ -94,7 +95,7 @@ public interface RedisConnector extends BlobStoreConnector
 				.stream()
 				.filter(key -> pattern.matcher(key).matches())
 				.map(key ->
-					Blob.New(
+					BlobMetadata.New(
 						key,
 						commands.strlen(key)
 					)
@@ -106,7 +107,7 @@ public interface RedisConnector extends BlobStoreConnector
 		@Override
 		protected void internalReadBlobData(
 			final BlobStorePath   file        ,
-			final Blob            blob        ,
+			final BlobMetadata            blob        ,
 			final ByteBuffer      targetBuffer,
 			final long            offset      ,
 			final long            length
@@ -122,16 +123,19 @@ public interface RedisConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected boolean internalDeleteFile(
-			final BlobStorePath file
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath                file ,
+			final List<? extends BlobMetadata> blobs
 		)
 		{
-			final String[] keys = this.blobs(file)
-				.map(Blob::key)
+			final String[] keys   = blobs.stream()
+				.map(BlobMetadata::key)
 				.toArray(String[]::new)
 			;
-			final Long amount = this.commands.del(keys);
-			return amount != null && amount > 0L;
+			final Long     result = this.commands.del(keys);
+			return result != null
+				&& result.intValue() == blobs.size()
+			;
 		}
 
 		@Override

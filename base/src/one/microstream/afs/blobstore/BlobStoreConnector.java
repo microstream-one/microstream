@@ -46,6 +46,8 @@ public interface BlobStoreConnector extends AutoCloseable
 
 	public long copyFile(BlobStorePath sourceFile, BlobStorePath targetFile, long offset, long length);
 
+	public void truncateFile(BlobStorePath file, long newLength);
+
 	@Override
 	public void close();
 
@@ -127,7 +129,7 @@ public interface BlobStoreConnector extends AutoCloseable
 
 		protected abstract Stream<? extends B> blobs(BlobStorePath file);
 
-		protected abstract boolean internalDeleteFile(BlobStorePath file);
+		protected abstract boolean internalDeleteBlobs(BlobStorePath file, List<? extends B> blobs);
 
 		protected abstract void internalReadBlobData(
 			BlobStorePath file        ,
@@ -190,6 +192,17 @@ public interface BlobStoreConnector extends AutoCloseable
 			// 'files' consist of blobs, they are created with the first write
 
 			return true;
+		}
+
+		protected boolean internalDeleteFile(
+			final BlobStorePath file
+		)
+		{
+			final List<? extends B> blobs = this.blobs(file).collect(toList());
+			return blobs.isEmpty()
+				? false
+				: this.internalDeleteBlobs(file, blobs)
+			;
 		}
 
 		protected ByteBuffer internalReadData(
@@ -265,6 +278,60 @@ public interface BlobStoreConnector extends AutoCloseable
 
 			final ByteBuffer buffer = this.readData(sourceFile, offset, length);
 			return this.writeData(targetFile, Arrays.asList(buffer));
+		}
+
+		protected void internalTruncateFile(
+			final BlobStorePath file     ,
+			final long          newLength
+		)
+		{
+			final List<? extends B> blobs = this.blobs(file).collect(toList());
+			      long              offset = 0L;
+			      B                 blob   = null;
+			for(final B b : blobs)
+			{
+				final long size  = this.blobSizeProvider.applyAsLong(b);
+				final long start = offset;
+				final long end   = offset + size - 1L;
+				if(start <= newLength && end >= newLength)
+				{
+					blob = b;
+					break;
+				}
+				offset += size;
+			}
+
+			final long blobStart = offset;
+			final long blobEnd   = this.blobSizeProvider.applyAsLong(blob) - 1L;
+			if(blobStart == newLength)
+			{
+				this.internalDeleteBlobs(
+					file,
+					blobs.subList(blobs.indexOf(blob), blobs.size())
+				);
+			}
+			else if(blobEnd == newLength - 1)
+			{
+				this.internalDeleteBlobs(
+					file,
+					blobs.subList(blobs.indexOf(blob) + 1, blobs.size())
+				);
+			}
+			else
+			{
+				final long       newBlobLength = newLength - blobStart;
+				final ByteBuffer buffer        = ByteBuffer.allocateDirect(
+					checkArrayRange(newBlobLength)
+				);
+				this.internalReadBlobData(file, blob, buffer, 0L, newBlobLength);
+
+				this.internalDeleteBlobs(
+					file,
+					blobs.subList(blobs.indexOf(blob), blobs.size())
+				);
+
+				this.internalWriteData(file, Arrays.asList(buffer));
+			}
 		}
 
 		protected final void ensureOpen()
@@ -510,6 +577,17 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 
 			return this.internalCopyFile(sourceFile, targetFile, offset, length);
+		}
+
+		@Override
+		public void truncateFile(
+			final BlobStorePath file     ,
+			final long          newLength
+		)
+		{
+			this.ensureOpen();
+
+			this.internalTruncateFile(file, newLength);
 		}
 
 		@Override

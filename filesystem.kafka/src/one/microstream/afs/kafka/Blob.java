@@ -2,6 +2,8 @@ package one.microstream.afs.kafka;
 
 import static one.microstream.chars.XChars.notEmpty;
 
+import java.util.Objects;
+
 public interface Blob
 {
 	public String key();
@@ -103,6 +105,40 @@ public interface Blob
 		{
 			return this.end - this.start + 1;
 		}
+
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(
+				this.key,
+				this.partition,
+				this.offset,
+				this.start,
+				this.end
+			);
+		}
+
+		@Override
+		public boolean equals(final Object obj)
+		{
+			if(this == obj)
+			{
+				return true;
+			}
+			if(!(obj instanceof Default))
+			{
+				return false;
+			}
+			final Default other = (Default)obj;
+			return Objects.equals(this.key, other.key)
+				&& this.partition == other.partition
+				&& this.offset    == other.offset
+				&& this.start     == other.start
+				&& this.end       == other.end
+			;
+		}
+
+
 
 	}
 

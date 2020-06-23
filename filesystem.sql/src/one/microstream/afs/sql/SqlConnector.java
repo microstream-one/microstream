@@ -42,6 +42,8 @@ public interface SqlConnector
 
 	public long copyFile(SqlPath sourceFile, SqlPath targetFile, long offset, long length);
 
+	public void truncateFile(SqlPath file, long newLength);
+
 
 	public static SqlConnector New(
 		final SqlProvider provider
@@ -679,6 +681,107 @@ public interface SqlConnector
 		{
 			final ByteBuffer buffer = this.readData(sourceFile, offset, length);
 			return this.writeData(targetFile, Arrays.asList(buffer));
+		}
+
+		@Override
+		public void truncateFile(
+			final SqlPath file   ,
+			final long    newLength
+		)
+		{
+			this.provider.execute(connection ->
+			{
+				final long currentLength = this.internalFileSize(file, connection);
+				if(newLength >= currentLength)
+				{
+					throw new IllegalArgumentException(
+						"New size must be smaller than current size: " +
+						newLength + " >= " + currentLength
+					);
+				}
+
+				final String tableName = file.parentPath().fullQualifiedName();
+			          long   segmentStart;
+				      long   segmentEnd  ;
+				try(final PreparedStatement statement = connection.prepareStatement(
+					this.provider.readMetadataQuerySingleSegment(tableName)
+				))
+				{
+					statement.setString(1, file.identifier());
+					statement.setLong(2, newLength);
+					statement.setLong(3, newLength);
+					try(final ResultSet result = statement.executeQuery())
+					{
+						result.next();
+						segmentStart = result.getLong(1);
+						segmentEnd = result.getLong(2);
+					}
+				}
+
+				if(segmentStart == newLength)
+				{
+					try(final PreparedStatement statement = connection.prepareStatement(
+						this.provider.deleteFileQueryFromStart(tableName)
+					))
+					{
+						statement.setString(1, file.identifier());
+						statement.setLong(2, newLength);
+						statement.executeUpdate();
+					}
+				}
+				else if(segmentEnd == newLength - 1)
+				{
+					try(final PreparedStatement statement = connection.prepareStatement(
+						this.provider.deleteFileQueryFromEnd(tableName)
+					))
+					{
+						statement.setString(1, file.identifier());
+						statement.setLong(2, newLength);
+						statement.executeUpdate();
+					}
+				}
+				else
+				{
+					final long       newSegmentLength = newLength - segmentStart;
+					final ByteBuffer buffer           = ByteBuffer.allocateDirect(
+						checkArrayRange(newSegmentLength)
+					);
+					this.internalReadData(
+						file,
+						size -> buffer,
+						0L,
+						newSegmentLength,
+						connection
+					);
+
+					try(final PreparedStatement statement = connection.prepareStatement(
+						this.provider.deleteFileQueryFromStart(tableName)
+					))
+					{
+						statement.setString(1, file.identifier());
+						statement.setLong(2, segmentStart);
+						statement.executeUpdate();
+					}
+
+					final SqlBlobData blobData = this.provider.createBlobData(
+						connection,
+						ByteBufferInputStream.New(buffer),
+						newSegmentLength
+					);
+					try(final PreparedStatement statement = connection.prepareStatement(
+						this.provider.writeDataQuery(tableName)
+					))
+					{
+						statement.setString(IDENTIFIER_COLUMN_INDEX, file.identifier()                  );
+						statement.setLong  (START_COLUMN_INDEX     , segmentStart                       );
+						statement.setLong  (END_COLUMN_INDEX       , segmentStart + newSegmentLength - 1);
+						blobData.setAsParameter(statement, DATA_COLUMN_INDEX);
+						statement.executeUpdate();
+					}
+				}
+
+				return null;
+			});
 		}
 
 	}

@@ -3,26 +3,26 @@ package one.microstream.afs.redis;
 import static one.microstream.chars.XChars.notEmpty;
 import static one.microstream.math.XMath.notNegative;
 
-public interface Blob
+public interface BlobMetadata
 {
 	public String key();
 
 	public long size();
 
 
-	public static Blob New(
+	public static BlobMetadata New(
 		final String key ,
 		final long   size
 	)
 	{
-		return new Blob.Default(
+		return new BlobMetadata.Default(
 			notEmpty(key),
 			notNegative(size)
 		);
 	}
 
 
-	public static class Default implements Blob
+	public static class Default implements BlobMetadata
 	{
 		private final String key ;
 		private final long   size;

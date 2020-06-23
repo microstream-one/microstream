@@ -1,18 +1,26 @@
 package one.microstream.afs.kafka;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.summarizingLong;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.kafka.clients.admin.KafkaAdminClient;
+import org.apache.kafka.clients.admin.RecordsToDelete;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -216,7 +224,72 @@ public interface KafkaConnector extends BlobStoreConnector
 			}
 			catch(final Exception e)
 			{
-				return false;
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath        file ,
+			final List<? extends Blob> blobs
+		)
+		{
+			/*
+			 * Writes remaining blobs into topic and then deletes all before current offsets.
+			 * Unfortunately there's no other way to get partial deletion done.
+			 */
+
+			/*
+			 * First, remember current partition offsets.
+			 */
+			final String                               topicName   = topicName(file);
+			final Map<TopicPartition, RecordsToDelete> deletionMap = blobs.stream()
+				.collect(groupingBy(
+					Blob::partition,
+					summarizingLong(Blob::offset)
+				))
+				.entrySet()
+				.stream()
+				.collect(toMap(
+					kv -> new TopicPartition(topicName, kv.getKey()),
+					kv -> RecordsToDelete.beforeOffset(kv.getValue().getMax() + 1L)
+				))
+			;
+
+			/*
+			 * Write remaining blobs into topic.
+			 */
+			final List<ByteBuffer> buffers        = new ArrayList<>();
+			final List<Blob>       remainingBlobs = this.blobs(file).collect(toList());
+			remainingBlobs.removeAll(blobs);
+			for(final Blob blob : remainingBlobs)
+			{
+				final ByteBuffer buffer = ByteBuffer.allocateDirect(checkArrayRange(blob.size()));
+				this.internalReadBlobData(file, blob, buffer, 0L, blob.size());
+				buffer.flip();
+				buffers.add(buffer);
+			}
+			synchronized(this)
+			{
+				Optional.ofNullable(this.indices.removeFor(topicName)).ifPresent(Index::close);
+			}
+			this.internalWriteData(file, buffers);
+
+			/*
+			 * Delete old data
+			 */
+			try
+			{
+				KafkaAdminClient.create(this.kafkaProperties)
+					.deleteRecords(deletionMap)
+					.all()
+					.get();
+
+				return true;
+			}
+			catch(final Exception e)
+			{
+				throw new RuntimeException(e);
 			}
 		}
 
