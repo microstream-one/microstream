@@ -227,13 +227,14 @@ public interface DynamoDbConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected boolean internalDeleteFile(
-			final BlobStorePath file
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath        file ,
+			final List<? extends Item> blobs
 		)
 		{
 			boolean                       deleted = false;
 			final List<TransactWriteItem> deletes = new ArrayList<>();
-			for(final Item item : this.blobs(file).collect(toList()))
+			for(final Item item : blobs)
 			{
 				final Map<String, AttributeValue> key = new HashMap<>();
 		        key.put(FIELD_KEY, new AttributeValue(item.getString(FIELD_KEY)));

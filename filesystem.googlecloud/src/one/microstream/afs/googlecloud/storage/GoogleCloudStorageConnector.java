@@ -171,22 +171,19 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected boolean internalDeleteFile(
-			final BlobStorePath file
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath        file ,
+			final List<? extends Blob> blobs
 		)
 		{
-			final List<BlobId> blobIds = this.blobs(file)
+			final List<BlobId>  blobIds = blobs.stream()
 				.map(Blob::getBlobId)
 				.collect(toList())
 			;
-			if(blobIds.size() > 0)
-			{
-				this.storage.delete(blobIds);
-
-				return true;
-			}
-
-			return false;
+			final List<Boolean> results = this.storage.delete(blobIds);
+			return !results.stream()
+				.anyMatch(b -> b.booleanValue() == false)
+			;
 		}
 
 		@Override

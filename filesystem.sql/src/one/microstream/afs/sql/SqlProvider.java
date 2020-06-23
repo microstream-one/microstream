@@ -54,6 +54,25 @@ public interface SqlProvider
 
 	/**
 	 * <pre>
+	 * select 'start', 'end'
+	 * from [tableName]
+	 * where 'identifier' = ?
+	 * </pre>
+	 */
+	public String readMetadataQuery(String tableName);
+
+	/**
+	 * <pre>
+	 * select 'start', 'end'
+	 * from [tableName]
+	 * where 'identifier' = ?
+	 * and start <= ? and end >= ?
+	 * </pre>
+	 */
+	public String readMetadataQuerySingleSegment(String tableName);
+
+	/**
+	 * <pre>
 	 * select *
 	 * from [tableName]
 	 * where 'identifier' = ?
@@ -125,6 +144,24 @@ public interface SqlProvider
 	 * </pre>
 	 */
 	public String deleteFileQuery(String tableName);
+
+	/**
+	 * <pre>
+	 * delete from [tableName]
+	 * where 'identifier' = ?
+	 * and 'start' >= ?
+	 * </pre>
+	 */
+	public String deleteFileQueryFromStart(String tableName);
+
+	/**
+	 * <pre>
+	 * delete from [tableName]
+	 * where 'identifier' = ?
+	 * and 'end' >= ?
+	 * </pre>
+	 */
+	public String deleteFileQueryFromEnd(String tableName);
 
 	/**
 	 * <pre>
@@ -332,6 +369,50 @@ public interface SqlProvider
 		}
 
 		@Override
+		public String readMetadataQuery(
+			final String tableName
+		)
+		{
+			final VarString vs = VarString.New();
+
+			vs.add("select ");
+			this.addSqlColumnName(vs, START_COLUMN_NAME);
+			vs.add(", ");
+			this.addSqlColumnName(vs, END_COLUMN_NAME);
+			vs.add(" from ");
+			this.addSqlTableName(vs, tableName);
+			vs.add(" where ");
+			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
+			vs.add("=?");
+
+			return vs.toString();
+		}
+
+		@Override
+		public String readMetadataQuerySingleSegment(
+			final String tableName
+		)
+		{
+			final VarString vs = VarString.New();
+
+			vs.add("select ");
+			this.addSqlColumnName(vs, START_COLUMN_NAME);
+			vs.add(", ");
+			this.addSqlColumnName(vs, END_COLUMN_NAME);
+			vs.add(" from ");
+			this.addSqlTableName(vs, tableName);
+			vs.add(" where ");
+			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
+			vs.add("=? and ");
+			this.addSqlColumnName(vs, START_COLUMN_NAME);
+			vs.add("<=? and ");
+			this.addSqlColumnName(vs, END_COLUMN_NAME);
+			vs.add(">=?");
+
+			return vs.toString();
+		}
+
+		@Override
 		public String readDataQuery(
 			final String tableName
 		)
@@ -401,6 +482,42 @@ public interface SqlProvider
 			vs.add(" where ");
 			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
 			vs.add("=?");
+
+			return vs.toString();
+		}
+
+		@Override
+		public String deleteFileQueryFromStart(
+			final String tableName
+		)
+		{
+			final VarString vs = VarString.New();
+
+			vs.add("delete from ");
+			this.addSqlTableName(vs, tableName);
+			vs.add(" where ");
+			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
+			vs.add("=? and ");
+			this.addSqlColumnName(vs, START_COLUMN_NAME);
+			vs.add(">=?");
+
+			return vs.toString();
+		}
+
+		@Override
+		public String deleteFileQueryFromEnd(
+			final String tableName
+		)
+		{
+			final VarString vs = VarString.New();
+
+			vs.add("delete from ");
+			this.addSqlTableName(vs, tableName);
+			vs.add(" where ");
+			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
+			vs.add("=? and ");
+			this.addSqlColumnName(vs, END_COLUMN_NAME);
+			vs.add(">=?");
 
 			return vs.toString();
 		}

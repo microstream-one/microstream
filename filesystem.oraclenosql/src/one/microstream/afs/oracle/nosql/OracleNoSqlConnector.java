@@ -1,5 +1,6 @@
 package one.microstream.afs.oracle.nosql;
 
+import static java.util.stream.Collectors.toList;
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
@@ -220,19 +221,51 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 				return false;
 			}
 
-			this.blobs(file).forEach(metadata ->
+			for(final BlobMetadata metadata : this.blobs(file).collect(toList()))
 			{
-				this.kvstore.deleteLOB(
-					this.key(file, metadata.seq()),
-					null,
-					0L,
-					null
-				);
-			});
+				final Key key = this.key(file, metadata.seq());
+				if(!this.kvstore.deleteLOB(key, null, 0L, null))
+				{
+					return false;
+				}
+			}
 
 			final PrimaryKey pk = table.createPrimaryKey();
 			pk.put(KEY, file.fullQualifiedName());
 			return tapi.multiDelete(pk, null, null) > 0;
+		}
+
+		@Override
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath                file ,
+			final List<? extends BlobMetadata> blobs
+		)
+		{
+			final TableAPI tapi  = this.kvstore.getTableAPI();
+			final Table    table = tapi.getTable(file.container());
+			if(table == null)
+			{
+				return false;
+			}
+
+			for(final BlobMetadata metadata : blobs)
+			{
+				final Key key = this.key(file, metadata.seq());
+				if(!this.kvstore.deleteLOB(key, null, 0L, null))
+				{
+					return false;
+				}
+
+				final PrimaryKey pk = table.createPrimaryKey();
+				pk.put(KEY, file.fullQualifiedName());
+				pk.put(SEQ, metadata.seq());
+				if(!tapi.delete(pk, null, null))
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		@Override

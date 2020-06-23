@@ -1,5 +1,6 @@
 package one.microstream.afs.mongodb;
 
+import static java.util.stream.Collectors.toList;
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -139,6 +139,18 @@ public interface MongoDbConnector extends BlobStoreConnector
 		}
 
 		private Bson filterFor(
+			final List<? extends Document> blobs
+		)
+		{
+			return Filters.in(
+				FIELD_KEY,
+				blobs.stream()
+					.map(blob -> blob.getString(FIELD_KEY))
+					.collect(toList())
+			);
+		}
+
+		private Bson filterFor(
 			final Document blob
 		)
 		{
@@ -214,11 +226,27 @@ public interface MongoDbConnector extends BlobStoreConnector
 			final BlobStorePath file
 		)
 		{
-			final long deletedCount = this.collection(file)
-				.deleteMany(this.filterFor(file))
+			final MongoCollection<Document> collection   = this.collection(file);
+			final Bson                      filter       = this.filterFor(file);
+			final long                      count        = collection.countDocuments(filter);
+			final long                      deletedCount = collection
+				.deleteMany(filter)
 				.getDeletedCount()
 			;
-			return deletedCount > 0L;
+			return deletedCount == count;
+		}
+
+		@Override
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath            file ,
+			final List<? extends Document> blobs
+		)
+		{
+			final long deletedCount = this.collection(file)
+				.deleteMany(this.filterFor(blobs))
+				.getDeletedCount()
+			;
+			return deletedCount == blobs.size();
 		}
 
 		@Override
@@ -425,18 +453,16 @@ public interface MongoDbConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected boolean internalDeleteFile(
-			final BlobStorePath file
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath              file ,
+			final List<? extends GridFSFile> blobs
 		)
 		{
-			final AtomicBoolean deleted = new AtomicBoolean(false);
-			this.blobs(file).forEach(blob ->
-			{
-				this.bucket(file).delete(blob.getObjectId());
-				deleted.set(true);
-			});
+			blobs.forEach(
+				blob -> this.bucket(file).delete(blob.getObjectId())
+			);
 
-			return deleted.get();
+			return true;
 		}
 
 		@Override

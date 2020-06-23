@@ -173,6 +173,36 @@ public interface HibernateProvider extends SqlProvider
 		}
 
 		@Override
+		public String readMetadataQuery(
+			final String tableName
+		)
+		{
+			final Table  table  = this.table(tableName);
+			final Select select = new Select(table);
+			select.setFromClause(table.sqlName());
+			select.setSelectClause(table.startColumnSqlName() + ", " + table.endColumnSqlName());
+			select.setWhereClause(table.identifierColumnSqlName() + "=?");
+			return select.toStatementString();
+		}
+
+		@Override
+		public String readMetadataQuerySingleSegment(
+			final String tableName
+		)
+		{
+			final Table  table  = this.table(tableName);
+			final Select select = new Select(table);
+			select.setFromClause(table.sqlName());
+			select.setSelectClause(table.startColumnSqlName() + ", " + table.endColumnSqlName());
+			select.setWhereClause(
+				table.identifierColumnSqlName() + "=? and " +
+				table.startColumnSqlName() + "<=? and " +
+				table.endColumnSqlName() + ">=?"
+			);
+			return select.toStatementString();
+		}
+
+		@Override
 		public String readDataQuery(
 			final String tableName
 		)
@@ -252,6 +282,30 @@ public interface HibernateProvider extends SqlProvider
 			final Delete delete = new Delete();
 			delete.setTableName(table.sqlName());
 			delete.setWhere(table.identifierColumnSqlName() + "=?");
+			return delete.toStatementString();
+		}
+
+		@Override
+		public String deleteFileQueryFromStart(
+			final String tableName
+		)
+		{
+			final Table  table  = this.table(tableName);
+			final Delete delete = new Delete();
+			delete.setTableName(table.sqlName());
+			delete.setWhere(table.identifierColumnSqlName() + "=? and " + table.startColumnSqlName() + ">=?");
+			return delete.toStatementString();
+		}
+
+		@Override
+		public String deleteFileQueryFromEnd(
+			final String tableName
+		)
+		{
+			final Table  table  = this.table(tableName);
+			final Delete delete = new Delete();
+			delete.setTableName(table.sqlName());
+			delete.setWhere(table.identifierColumnSqlName() + "=? and " + table.endColumnSqlName() + ">=?");
 			return delete.toStatementString();
 		}
 

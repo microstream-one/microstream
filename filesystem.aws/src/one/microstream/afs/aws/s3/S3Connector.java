@@ -1,5 +1,6 @@
 package one.microstream.afs.aws.s3;
 
+import static java.util.stream.Collectors.toList;
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
@@ -8,13 +9,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.amazonaws.RequestClientOptions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
+import com.amazonaws.services.s3.model.DeleteObjectsResult;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
@@ -149,25 +150,20 @@ public interface S3Connector extends BlobStoreConnector
 		}
 
 		@Override
-		protected boolean internalDeleteFile(
-			final BlobStorePath file
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath                   file,
+			final List<? extends S3ObjectSummary> blobs
 		)
 		{
-			final List<KeyVersion> keys = this.blobs(file)
+			final List<KeyVersion>    keys   = blobs.stream()
 				.map(summary -> new KeyVersion(summary.getKey()))
-				.collect(Collectors.toList())
+				.collect(toList())
 			;
-			if(keys.size() > 0)
-			{
-				this.s3.deleteObjects(
-					new DeleteObjectsRequest(file.container())
-						.withKeys(keys)
-				);
-
-				return true;
-			}
-
-			return false;
+			final DeleteObjectsResult result = this.s3.deleteObjects(
+				new DeleteObjectsRequest(file.container())
+					.withKeys(keys)
+			);
+			return result.getDeletedObjects().size() == blobs.size();
 		}
 
 		@Override

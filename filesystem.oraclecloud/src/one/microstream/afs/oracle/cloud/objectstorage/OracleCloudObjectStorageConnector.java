@@ -8,6 +8,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -52,8 +53,8 @@ public interface OracleCloudObjectStorageConnector extends BlobStoreConnector
 	{
 		private final static long MAX_BLOB_SIZE = 53_687_091_200L; // 50 GiB
 
-		private final ObjectStorageClient                   client;
-		private String                                      namespaceName;
+		private final ObjectStorageClient client;
+		private String                    namespaceName;
 
 		Default(
 			final ObjectStorageClient client
@@ -153,12 +154,13 @@ public interface OracleCloudObjectStorageConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected boolean internalDeleteFile(
-			final BlobStorePath file
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath                 file ,
+			final List<? extends ObjectSummary> blobs
 		)
 		{
 			final AtomicBoolean deleted = new AtomicBoolean(false);
-			this.blobs(file).forEach(summary ->
+			blobs.forEach(summary ->
 			{
 				this.client.deleteObject(
 					DeleteObjectRequest.builder()

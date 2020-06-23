@@ -5,7 +5,7 @@ import static one.microstream.X.notNull;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -132,31 +132,18 @@ public interface AzureStorageConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected boolean internalDeleteFile(
-			final BlobStorePath file
+		protected boolean internalDeleteBlobs(
+			final BlobStorePath            file ,
+			final List<? extends BlobItem> blobs
 		)
 		{
-			final String                  prefix          = toBlobKeyPrefix(file);
-			final Pattern                 pattern         = Pattern.compile(blobKeyRegex(prefix));
-			final BlobContainerClient     containerClient = this.serviceClient.getBlobContainerClient(
+			final BlobContainerClient containerClient = this.serviceClient.getBlobContainerClient(
 				file.container()
 			);
-			final PagedIterable<BlobItem> blobs           = containerClient
-			.listBlobs(
-				new ListBlobsOptions().setPrefix(prefix),
-				null
+			blobs.forEach(
+				blobItem -> containerClient.getBlobClient(blobItem.getName()).delete()
 			);
-			final AtomicBoolean           deleted         = new AtomicBoolean(false);
-			blobs.stream()
-				.filter(summary -> pattern.matcher(summary.getName()).matches())
-				.forEach(blobItem ->
-				{
-					containerClient.getBlobClient(blobItem.getName()).delete();
-					deleted.set(true);
-				})
-			;
-
-			return deleted.get();
+			return true;
 		}
 
 		@Override
