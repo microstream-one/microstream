@@ -11,12 +11,14 @@ import static one.microstream.X.shorts;
 import static one.microstream.X.strings;
 
 import java.math.BigInteger;
-import java.nio.file.Path;
 
 import one.microstream.X;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XSequence;
-import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageConnection;
 
 
@@ -65,15 +67,15 @@ public class MainTestStorageExport extends TestStorage
 
 	static void testExport()
 	{
-		final Path directory = XIO.unchecked.ensureDirectory(XIO.Path("C:/Files/export/bin"));
+		final ADirectory directory = AFS.ensureExists(NioFileSystem.Directory("C:/Files/export/bin"));
 		
 		final StorageConnection storageConnection = STORAGE.createConnection();
-		final XSequence<Path> exportFiles = exportTypes(
+		final XSequence<AFile> exportFiles = exportTypes(
 			storageConnection,
 			directory,
 			"dat"
 		);
-		convertBinToCsv(exportFiles, file -> XIO.getFileName(file).endsWith(".dat"));
+		convertBinToCsv(exportFiles, file -> file.identifier().endsWith(".dat"));
 	}
 }
 

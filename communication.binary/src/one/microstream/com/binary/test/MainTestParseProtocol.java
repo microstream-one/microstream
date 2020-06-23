@@ -20,7 +20,7 @@ public class MainTestParseProtocol
 	{
 		final BinaryPersistenceFoundation<?> pf = BinaryPersistence.Foundation()
 			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirectory(
-				NioFileSystem.New().ensureDirectory(
+				NioFileSystem.Directory(
 					XIO.unchecked.ensureDirectory(XIO.Path("TypeDictionary"))
 				)
 			))

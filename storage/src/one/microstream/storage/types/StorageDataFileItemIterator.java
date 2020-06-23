@@ -11,6 +11,11 @@ import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageDataFileItemIterator
 {
+	public default void iterateStoredItems(final AReadableFile file)
+	{
+		this.iterateStoredItems(file, 0, file.size());
+	}
+	
 	public void iterateStoredItems(AReadableFile file, long startPosition, final long length);
 
 

@@ -16,6 +16,28 @@ import one.microstream.io.XIO;
 
 public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 {
+	public static ADirectory Directory(final Path path)
+	{
+		return NioFileSystem.New().ensureDirectory(path);
+	}
+	
+	public static ADirectory Directory(final String path)
+	{
+		return Directory(XIO.Path(path));
+	}
+	
+	public static AFile File(final Path path)
+	{
+		return NioFileSystem.New().ensureFile(path);
+	}
+	
+	public static AFile File(final String path)
+	{
+		return File(XIO.Path(path));
+	}
+	
+	
+	
 	public static Path toPath(final AItem item)
 	{
 		return NioFileSystem.toPath(item.toPath());

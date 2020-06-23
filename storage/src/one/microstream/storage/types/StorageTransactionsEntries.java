@@ -39,7 +39,7 @@ public interface StorageTransactionsEntries
 	
 	public static StorageTransactionsEntries parseFile(final AFile file)
 	{
-		return AFS.execute(file, rf ->
+		return AFS.apply(file, rf ->
 		{
 			return parseFileContent(rf);
 		});
