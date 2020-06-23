@@ -8,8 +8,10 @@ import java.util.function.Function;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
+import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XArrays;
+import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
 
 public interface ADirectory extends AItem, AResolving
@@ -70,6 +72,21 @@ public interface ADirectory extends AItem, AResolving
 	public <C extends Consumer<? super ADirectory>> C iterateDirectories(C iterator);
 	
 	public <C extends Consumer<? super AFile>> C iterateFiles(C iterator);
+	
+	public default XGettingCollection<AItem> listItems()
+	{
+		return this.iterateItems(BulkList.New());
+	}
+	
+	public default XGettingCollection<ADirectory> listDirectories()
+	{
+		return this.iterateDirectories(BulkList.New());
+	}
+	
+	public default XGettingCollection<AFile> listFiles()
+	{
+		return this.iterateFiles(BulkList.New());
+	}
 	
 	public boolean contains(AItem item);
 	

@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import one.microstream.X;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.concurrency.XThreads;
@@ -36,7 +38,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		// instance fields //
 		////////////////////
 
-		private final XGettingEnum<Path>            importFiles           ;
+		private final XGettingEnum<AFile>           importFiles           ;
 		private final StorageEntityCache.Default[]  entityCaches          ;
 		private final StorageObjectIdRangeEvaluator objectIdRangeEvaluator;
 		
@@ -60,7 +62,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			final long                          timestamp             ,
 			final int                           channelCount          ,
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
-			final XGettingEnum<Path>            importFiles
+			final XGettingEnum<AFile>           importFiles
 		)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
@@ -119,16 +121,13 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				itemReader
 			);
 
-			for(final Path file : this.importFiles)
+			for(final AFile file : this.importFiles)
 			{
 //				DEBUGStorage.println("Reader reading source file " + file);
 				try
 				{
-					// channel must be closed by StorageChannel after copying has been completed.
-					final FileLock fileLock = ZStorageLockedFile.openLockedFileChannel(file);
-					itemReader.setSourceFile(file, fileLock);
-					final FileChannel channel = fileLock.channel();
-					iterator.iterateStoredItems(channel, 0, channel.size());
+					itemReader.setSourceFile(file);
+					AFS.execute(file, rf -> iterator.iterateStoredItems(rf));
 					itemReader.completeCurrentSourceFile();
 				}
 				catch(final Exception e)
@@ -153,8 +152,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			private final SourceFileSlice[]            sourceFileHeads          ;
 			private final ChannelItem[]                channelItems             ;
 			private final int                          channelHash              ;
-			private       Path                         file                     ;
-			private       FileLock                     fileLock                 ;
+			private       AFile                        file                     ;
 			private       int                          currentBatchChannel      ;
 			private       long                         currentSourceFilePosition;
 			private       long                         maxObjectId              ;
@@ -284,13 +282,12 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				item.tailBatch.batchLength += length;
 			}
 
-			final void setSourceFile(final Path file, final FileLock fileLock)
+			final void setSourceFile(final AFile file)
 			{
 				// next source file is set up
-				this.currentBatchChannel       =       -1; // invalid value to guarantee change on first entity.
-				this.currentSourceFilePosition =        0; // source file starts at 0, of course.
-				this.file                      =     file;
-				this.fileLock                  = fileLock; // keep file lock&channel reference.
+				this.currentBatchChannel       =   -1; // invalid value to guarantee change on first entity.
+				this.currentSourceFilePosition =    0; // source file starts at 0, of course.
+				this.file                      = file;
 			}
 
 			final void completeCurrentSourceFile()
@@ -299,11 +296,11 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				final ChannelItem[]      channelItems    = this.channelItems   ;
 				for(int i = 0; i < sourceFileHeads.length; i++)
 				{
-					final SourceFileSlice  oldSourceFileHead = sourceFileHeads[i];
-					final ChannelItem currentItem       = channelItems[i];
+					final SourceFileSlice oldSourceFileHead = sourceFileHeads[i];
+					final ChannelItem     currentItem       = channelItems[i];
 
 					sourceFileHeads[i] = sourceFileHeads[i].next =
-						new SourceFileSlice(i, this.file, this.fileLock, currentItem.headBatch.batchNext)
+						new SourceFileSlice(i, this.file, currentItem.headBatch.batchNext)
 					;
 					currentItem.resetChains();
 

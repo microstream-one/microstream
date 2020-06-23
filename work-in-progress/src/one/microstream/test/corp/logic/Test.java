@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.function.Function;
 
 import one.microstream.X;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
@@ -299,15 +301,15 @@ public class Test
 	}
 
 
-	public static void printTransactionsFiles(final Path... files)
+	public static void printTransactionsFiles(final AFile... files)
 	{
-		for(final Path file : files)
+		for(final AFile file : files)
 		{
 			printTransactionsFile(file);
 		}
 	}
 
-	public static String assembleTransactionsFile(final Path file)
+	public static String assembleTransactionsFile(final AFile file)
 	{
 		final VarString vs = VarString.New(file.toString()).lf();
 		StorageTransactionsAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
@@ -317,19 +319,19 @@ public class Test
 		return s.toString();
 	}
 	
-	public static void printTransactionsFile(final Path file)
+	public static void printTransactionsFile(final AFile file)
 	{
 		final String s = assembleTransactionsFile(file);
 		System.out.println(s.toString());
 	}
 
-	public static void printTransactionsFiles(final Path storageDirectory, final int channelCount)
+	public static void printTransactionsFiles(final ADirectory storageDirectory, final int channelCount)
 	{
-		final Path[] files = new Path[channelCount];
+		final AFile[] files = new AFile[channelCount];
 
 		for(int i = 0; i < files.length; i++)
 		{
-			files[i] = XIO.Path(XIO.Path(storageDirectory, "channel_"+i), "transactions_"+i+".sft");
+			files[i] = storageDirectory.ensureDirectory("channel_"+i).ensureFile("transactions_"+i+".sft");
 		}
 		printTransactionsFiles(files);
 	}

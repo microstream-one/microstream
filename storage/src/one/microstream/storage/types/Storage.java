@@ -392,7 +392,7 @@ public final class Storage
 	 */
 	public static final StorageBackupSetup BackupSetup(final Path backupDirectory)
 	{
-		final ADirectory dir = NioFileSystem.New().ensureDirectory(backupDirectory);
+		final ADirectory dir = NioFileSystem.Directory(backupDirectory);
 		
 		return StorageBackupSetup.New(dir);
 	}

@@ -1,9 +1,8 @@
 package one.microstream.storage.test;
 
-import java.nio.file.Path;
-
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.XChars;
-import one.microstream.io.XIO;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageBackupSetup;
@@ -17,14 +16,14 @@ public class MainTestOnDemandStorageConnection
 	public static void main(final String[] args)
 	{
 		final EmbeddedStorageManager storageManager = createEmbeddedStorageManager(
-			XIO.Path("testStorage"),
-			XIO.Path("testBackup")
+			NioFileSystem.Directory("testStorage"),
+			NioFileSystem.Directory("testBackup")
 		);
 		
 		System.out.println("Created: " + XChars.systemString(storageManager));
 	}
 	
-	static EmbeddedStorageManager createEmbeddedStorageManager(final Path backupPath, final Path dbPath)
+	static EmbeddedStorageManager createEmbeddedStorageManager(final ADirectory backupPath, final ADirectory dbPath)
 	{
 		final EmbeddedStorageManager storageManager = EmbeddedStorageFoundation.New()
 			.setConfiguration(

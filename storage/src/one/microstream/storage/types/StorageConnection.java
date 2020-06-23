@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 
+import one.microstream.afs.AFile;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceManager;
@@ -211,6 +212,8 @@ public interface StorageConnection extends Persister
 	 * Should not be to complicated as the phase check already is a task
 	 */
 	
+	// (23.06.2020 TM)FIXME: priv#49: switch #exportChannels to ExportFileProvider or such
+	
 	/**
 	 * Exports the data of all channels in the storage by using the passed {@link StorageLiveFileProvider} instance.<br>
 	 * This is basically a simple file copy applied to all files in the storage, however with the guaranteed safety
@@ -282,7 +285,7 @@ public interface StorageConnection extends Persister
 	 * 
 	 * @param importFiles the files whose native binary content shall be imported.
 	 */
-	public void importFiles(XGettingEnum<Path> importFiles);
+	public void importFiles(XGettingEnum<AFile> importFiles);
 
 	/* (13.07.2015 TM)TODO: load by type somehow
 	 * Query by typeId already implemented. Question is how to best provide it to the user.
@@ -505,7 +508,7 @@ public interface StorageConnection extends Persister
 		}
 
 		@Override
-		public void importFiles(final XGettingEnum<Path> importFiles)
+		public void importFiles(final XGettingEnum<AFile> importFiles)
 		{
 			try
 			{

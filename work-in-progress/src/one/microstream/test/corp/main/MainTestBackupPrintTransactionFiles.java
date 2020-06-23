@@ -2,6 +2,7 @@ package one.microstream.test.corp.main;
 
 import one.microstream.chars.VarString;
 import one.microstream.io.XIO;
+import one.microstream.storage.types.StorageFileNameProvider;
 import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.storage.types.StorageTransactionsAnalysis;
 
@@ -31,9 +32,9 @@ public class MainTestBackupPrintTransactionFiles
 		{
 			final VarString vs = StorageTransactionsAnalysis.Logic.parseFile(
 				XIO.Path(baseDirectory
-					+ "/" + StorageLiveFileProvider.Defaults.defaultChannelDirectoryPrefix() + i
-					+"/" + StorageLiveFileProvider.Defaults.defaultTransactionFilePrefix() + i
-					+ StorageLiveFileProvider.Defaults.defaultTransactionFileSuffix()
+					+ "/" + StorageFileNameProvider.Defaults.defaultChannelDirectoryPrefix() + i
+					+"/" + StorageFileNameProvider.Defaults.defaultTransactionsFilePrefix() + i
+					+ StorageFileNameProvider.Defaults.defaultTransactionsFileSuffix()
 				)
 			);
 			System.out.println(vs);

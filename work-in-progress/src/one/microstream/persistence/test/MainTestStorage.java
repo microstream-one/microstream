@@ -1,10 +1,11 @@
 package one.microstream.persistence.test;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Date;
 
 import one.microstream.X;
+import one.microstream.afs.AFile;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
@@ -234,11 +235,9 @@ public class MainTestStorage extends TestStorage
 	{
 		final StorageConnection         connection = STORAGE.createConnection();
 		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
-			XIO.Path("C:/FilesImport/PersistenceTypeDictionary.ptd")
+			NioFileSystem.File("C:/FilesImport/PersistenceTypeDictionary.ptd")
 		);
-		final XEnum<Path>               dataFiles  = XIO.unchecked.listEntries(
-			XIO.Path("C:/FilesImport/channel_0"), HashEnum.New()
-		)
+		final XEnum<AFile> dataFiles  = NioFileSystem.Directory("C:/FilesImport/channel_0").iterateFiles(HashEnum.New())
 			.sort((f1, f2) -> Long.compare(parseStorageFileNumber(f1), parseStorageFileNumber(f2)))
 		;
 
@@ -246,9 +245,9 @@ public class MainTestStorage extends TestStorage
 		connection.importFiles(dataFiles);
 	}
 
-	static long parseStorageFileNumber(final Path file)
+	static long parseStorageFileNumber(final AFile file)
 	{
-		final String filename = XIO.getFileName(file);
+		final String filename = file.name();
 		return Long.valueOf(
 			filename.substring(
 				filename.lastIndexOf('_') + 1,
@@ -428,15 +427,15 @@ public class MainTestStorage extends TestStorage
 		return array;
 	}
 
-	static void printTransactionsFiles(final Path... files)
+	static void printTransactionsFiles(final AFile... files)
 	{
-		for(final Path file : files)
+		for(final AFile file : files)
 		{
 			printTransactionsFile(file);
 		}
 	}
 
-	static void printTransactionsFile(final Path file)
+	static void printTransactionsFile(final AFile file)
 	{
 		final VarString vs = VarString.New(file.toString()).lf();
 		StorageTransactionsAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();

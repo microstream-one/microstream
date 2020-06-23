@@ -111,7 +111,7 @@ public final class EmbeddedStorage
 	)
 	{
 		return ConnectionFoundation(
-			NioFileSystem.New().ensureDirectory(directory)
+			NioFileSystem.Directory(directory)
 		);
 	}
 	

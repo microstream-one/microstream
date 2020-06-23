@@ -2,6 +2,7 @@ package one.microstream.afs;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import one.microstream.chars.XChars;
@@ -10,6 +11,17 @@ import one.microstream.memory.XMemory;
 
 public class AFS
 {
+	public static <D extends ADirectory> D ensureExists(final D directory)
+	{
+		if(!directory.exists())
+		{
+			directory.ensureExists();
+		}
+		
+		return directory;
+	}
+	
+	
 	public static String readString(final AFile file)
 	{
 		return readString(file, XChars.standardCharset());
@@ -24,7 +36,7 @@ public class AFS
 	
 	public static byte[] read_bytes(final AFile file)
 	{
-		final ByteBuffer content = execute(file, f -> f.readBytes());
+		final ByteBuffer content = apply(file, f -> f.readBytes());
 		final byte[]     bytes   = XMemory.toArray(content);
 		XMemory.deallocateDirectByteBuffer(content);
 		
@@ -52,15 +64,31 @@ public class AFS
 		return writeCount;
 	}
 
-	public static <R> R execute(
-		final AFile                      file ,
-		final Function<AReadableFile, R> logic
+	public static <R> R apply(
+		final AFile                              file ,
+		final Function<? super AReadableFile, R> logic
 	)
 	{
 		final AReadableFile rFile = file.useReading();
 		try
 		{
 			return logic.apply(rFile);
+		}
+		finally
+		{
+			rFile.release();
+		}
+	}
+	
+	public static void execute(
+		final AFile                           file ,
+		final Consumer<? super AReadableFile> logic
+	)
+	{
+		final AReadableFile rFile = file.useReading();
+		try
+		{
+			logic.accept(rFile);
 		}
 		finally
 		{
@@ -81,6 +109,32 @@ public class AFS
 		finally
 		{
 			wFile.release();
+		}
+	}
+	
+	public static void applyWriting(
+		final AFile                           file ,
+		final Consumer<? super AWritableFile> logic
+	)
+	{
+		applyWriting(file, file.defaultUser(), logic);
+	}
+	
+	public static void applyWriting(
+		final AFile                           file ,
+		final Object                          user ,
+		final Consumer<? super AWritableFile> logic
+	)
+	{
+		// no locking needed, here since the implementation of #useWriting has to cover that
+		final AWritableFile writableFile = file.useWriting(user);
+		try
+		{
+			logic.accept(writableFile);
+		}
+		finally
+		{
+			writableFile.release();
 		}
 	}
 	
