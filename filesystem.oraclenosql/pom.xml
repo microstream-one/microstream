@@ -25,7 +25,6 @@
 			<groupId>com.oracle.kv</groupId>
 			<artifactId>oracle-nosql-client</artifactId>
 			<version>18.3.10</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
