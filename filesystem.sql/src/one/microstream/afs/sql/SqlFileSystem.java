@@ -34,34 +34,28 @@ public interface SqlFileSystem extends AFileSystem
 
 
 	public static SqlFileSystem New(
-		final String       defaultProtocol,
 		final SqlProvider  provider
 	)
 	{
 		return New(
-			defaultProtocol              ,
 			SqlConnector.New(provider)
 		);
 	}
 
 	public static SqlFileSystem New(
-		final String       defaultProtocol,
 		final SqlConnector connector
 	)
 	{
 		return New(
-			defaultProtocol               ,
 			SqlIoHandler.New(connector)
 		);
 	}
 
 	public static SqlFileSystem New(
-		final String       defaultProtocol,
 		final SqlIoHandler ioHandler
 	)
 	{
 		return new SqlFileSystem.Default(
-			notNull(defaultProtocol),
 			notNull(ioHandler)
 		);
 	}
@@ -74,12 +68,11 @@ public interface SqlFileSystem extends AFileSystem
 		/////////////////
 
 		protected Default(
-		final String       defaultProtocol,
-		final SqlIoHandler ioHandler
+			final SqlIoHandler ioHandler
 		)
 		{
 			super(
-				defaultProtocol,
+				"jdbc:",
 				ioHandler
 			);
 		}
