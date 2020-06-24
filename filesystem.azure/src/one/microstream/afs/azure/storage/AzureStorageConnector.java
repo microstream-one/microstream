@@ -51,7 +51,8 @@ public interface AzureStorageConnector extends BlobStoreConnector
 		{
 			super(
 				BlobItem::getName,
-				b -> b.getProperties().getContentLength()
+				b -> b.getProperties().getContentLength(),
+				AzureStoragePathValidator.New()
 			);
 			this.serviceClient = serviceClient;
 		}

@@ -52,7 +52,8 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 		{
 			super(
 				Blob::getName,
-				Blob::getSize
+				Blob::getSize,
+				GoogleCloudStoragePathValidator.New()
 			);
 			this.storage = storage;
 		}

@@ -8,6 +8,19 @@ import one.microstream.collections.XArrays;
 
 public interface BlobStorePath
 {
+	@FunctionalInterface
+	public static interface Validator
+	{
+		public final static Validator NO_OP = path ->
+		{
+			// no-op
+		};
+
+
+		public void validate(BlobStorePath path);
+	}
+
+
 	public final static String SEPARATOR      = "/";
 	public final static char   SEPARATOR_CHAR = '/';
 
@@ -29,6 +42,13 @@ public interface BlobStorePath
 		if(pathElements.length == 0)
 		{
 			throw new IllegalArgumentException("empty path");
+		}
+		for(final String element : pathElements)
+		{
+			if(element.isEmpty())
+			{
+				throw new IllegalArgumentException("empty path element");
+			}
 		}
 
 		return new Default(pathElements);
