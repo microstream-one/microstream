@@ -25,7 +25,6 @@
 			<groupId>com.oracle.coherence</groupId>
 			<artifactId>coherence</artifactId>
 			<version>12.1.3-0-0</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
