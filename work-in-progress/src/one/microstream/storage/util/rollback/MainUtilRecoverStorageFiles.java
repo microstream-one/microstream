@@ -43,7 +43,7 @@ public class MainUtilRecoverStorageFiles
 	{
 		final StorageLiveFileProvider sfp = StorageLiveFileProvider
 			.Builder()
-			.setBaseDirectory(PATH_CORRUPTED)
+			.setDirectory(PATH_CORRUPTED)
 			.createFileProvider()
 		;
 		final BulkList<StorageDataInventoryFile> storageFiles = sfp.collectDataFiles(

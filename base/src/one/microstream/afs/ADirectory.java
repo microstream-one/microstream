@@ -73,6 +73,8 @@ public interface ADirectory extends AItem, AResolving
 	
 	public <C extends Consumer<? super AFile>> C iterateFiles(C iterator);
 	
+	// (23.06.2020 TM)FIXME: priv#49: consolidate list~ methods with those in AFS.
+	
 	public default XGettingCollection<AItem> listItems()
 	{
 		return this.iterateItems(BulkList.New());

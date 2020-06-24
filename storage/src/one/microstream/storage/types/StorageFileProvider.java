@@ -36,9 +36,9 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 	{
 		public AFileSystem fileSystem();
 		
-		public ADirectory baseDirectory();
+		public ADirectory directory();
 
-		public B setBaseDirectory(ADirectory baseDirectory);
+		public B setDirectory(ADirectory directory);
 		
 		public ADirectory deletionDirectory();
 
@@ -74,7 +74,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			private final AFileSystem fileSystem;
 			
 			private ADirectory
-				baseDirectory      ,
+				directory      ,
 				deletionDirectory  ,
 				truncationDirectory
 			;
@@ -116,15 +116,15 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			}
 
 			@Override
-			public ADirectory baseDirectory()
+			public ADirectory directory()
 			{
-				return this.baseDirectory;
+				return this.directory;
 			}
 
 			@Override
-			public B setBaseDirectory(final ADirectory baseDirectory)
+			public B setDirectory(final ADirectory baseDirectory)
 			{
-				this.baseDirectory = this.fileSystem.validateMember(baseDirectory);
+				this.directory = this.fileSystem.validateMember(baseDirectory);
 				return this.$();
 			}
 			

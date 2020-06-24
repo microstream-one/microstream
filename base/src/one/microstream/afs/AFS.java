@@ -4,13 +4,41 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import one.microstream.chars.XChars;
+import one.microstream.collections.BulkList;
+import one.microstream.collections.types.XGettingList;
 import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 
 public class AFS
 {
+	public static XGettingList<AFile> listFiles(
+		final ADirectory               directory,
+		final Predicate<? super AFile> selector
+	)
+	{
+		return listFiles(directory, selector, BulkList.New());
+	}
+	
+	public static <C extends Consumer<? super AFile>> C listFiles(
+		final ADirectory               directory,
+		final Predicate<? super AFile> selector ,
+		final C                        collector
+	)
+	{
+		directory.iterateFiles(f ->
+		{
+			if(selector.test(f))
+			{
+				collector.accept(f);
+			}
+		});
+
+		return collector;
+	}
+	
 	public static <D extends ADirectory> D ensureExists(final D directory)
 	{
 		if(!directory.exists())
