@@ -34,23 +34,19 @@ public interface BlobStoreFileSystem extends AFileSystem
 
 
 	public static BlobStoreFileSystem New(
-		final String             defaultProtocol,
 		final BlobStoreConnector connector
 	)
 	{
 		return New(
-			defaultProtocol,
 			BlobStoreIoHandler.New(connector)
 		);
 	}
 
 	public static BlobStoreFileSystem New(
-		final String             defaultProtocol,
 		final BlobStoreIoHandler ioHandler
 	)
 	{
 		return new BlobStoreFileSystem.Default(
-			notNull(defaultProtocol),
 			notNull(ioHandler)
 		);
 	}
@@ -65,12 +61,11 @@ public interface BlobStoreFileSystem extends AFileSystem
 		/////////////////
 
 		protected Default(
-		final String             defaultProtocol,
-		final BlobStoreIoHandler ioHandler
+			final BlobStoreIoHandler ioHandler
 		)
 		{
 			super(
-				defaultProtocol,
+				"http://",
 				ioHandler
 			);
 		}
