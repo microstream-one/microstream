@@ -75,7 +75,7 @@ public interface StorageLiveFileProvider extends StorageFileProvider
 	public static StorageLiveFileProvider New(final ADirectory storageDirectory)
 	{
 		return Storage.FileProviderBuilder(storageDirectory.fileSystem())
-			.setBaseDirectory(storageDirectory)
+			.setDirectory(storageDirectory)
 			.createFileProvider()
 		;
 	}
@@ -192,9 +192,9 @@ public interface StorageLiveFileProvider extends StorageFileProvider
 			@Override
 			protected ADirectory getBaseDirectory()
 			{
-				if(this.baseDirectory() != null)
+				if(this.directory() != null)
 				{
-					return this.baseDirectory();
+					return this.directory();
 				}
 				
 				// note: relative root directory inside the current working directory

@@ -30,8 +30,20 @@ public interface StorageBackupFileProvider extends StorageFileProvider
 	
 	
 	
+	public static StorageBackupFileProvider New()
+	{
+		return Storage.BackupFileProviderBuilder()
+			.createFileProvider()
+		;
+	}
 	
-	
+	public static StorageBackupFileProvider New(final ADirectory storageDirectory)
+	{
+		return Storage.BackupFileProviderBuilder(storageDirectory.fileSystem())
+			.setDirectory(storageDirectory)
+			.createFileProvider()
+		;
+	}
 	
 	public static StorageBackupFileProvider.Default New(
 		final ADirectory                                   baseDirectory      ,
@@ -151,9 +163,9 @@ public interface StorageBackupFileProvider extends StorageFileProvider
 			@Override
 			protected ADirectory getBaseDirectory()
 			{
-				if(this.baseDirectory() != null)
+				if(this.directory() != null)
 				{
-					return this.baseDirectory();
+					return this.directory();
 				}
 				
 				// no idea how to prevent this a little more ... elegantly

@@ -129,6 +129,47 @@ public final class Storage
 	{
 		return StorageLiveFileProvider.Builder(fileSystem);
 	}
+	
+	
+	
+	
+	public static final StorageBackupFileProvider BackupFileProvider()
+	{
+		return StorageBackupFileProvider.New();
+	}
+
+	@Deprecated
+	public static final StorageBackupFileProvider BackupFileProvider(final File storageDirectory)
+	{
+		return BackupFileProvider(storageDirectory.toPath());
+	}
+
+	public static final StorageBackupFileProvider BackupFileProvider(final Path storageDirectory)
+	{
+		final NioFileSystem nfs = NioFileSystem.New();
+		final ADirectory    dir = nfs.resolveDirectory(storageDirectory);
+		
+		return StorageBackupFileProvider.New(dir);
+	}
+	
+	public static final StorageBackupFileProvider BackupFileProvider(final ADirectory storageDirectory)
+	{
+		return StorageBackupFileProvider.New(storageDirectory);
+	}
+
+	public static final StorageBackupFileProvider.Builder<?> BackupFileProviderBuilder()
+	{
+		return StorageBackupFileProvider.Builder();
+	}
+	
+	public static final StorageBackupFileProvider.Builder<?> BackupFileProviderBuilder(final AFileSystem fileSystem)
+	{
+		return StorageBackupFileProvider.Builder(fileSystem);
+	}
+	
+	
+	
+	
 
 	/**
 	 * {@linkDoc StorageConfiguration#New()}

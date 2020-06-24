@@ -38,7 +38,7 @@ public interface StorageBackupSetup
 	public static StorageBackupSetup New(final ADirectory backupDirectory)
 	{
 		final StorageBackupFileProvider backupFileProvider = StorageBackupFileProvider.Builder()
-			.setBaseDirectory(backupDirectory)
+			.setDirectory(backupDirectory)
 			.createFileProvider()
 		;
 		return New(backupFileProvider);

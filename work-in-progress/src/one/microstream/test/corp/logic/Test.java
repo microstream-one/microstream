@@ -2,7 +2,6 @@ package one.microstream.test.corp.logic;
 
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -290,12 +289,12 @@ public class Test
 		System.out.println(TIME_FORMAT.format(XTime.now())+": "+object);
 	}
 
-	public static Path provideTimestampedDirectory(final Path directory, final String prefix)
+	public static ADirectory provideTimestampedDirectory(final ADirectory directory, final String prefix)
 	{
-		return XIO.Path(directory, prefix + "_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.S").format(new Date()));
+		return directory.ensureDirectory(prefix + "_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.S").format(new Date()));
 	}
 
-	public static Path provideTimestampedDirectory(final String prefix)
+	public static ADirectory provideTimestampedDirectory(final String prefix)
 	{
 		return provideTimestampedDirectory(null, prefix);
 	}
