@@ -53,7 +53,8 @@ public interface S3Connector extends BlobStoreConnector
 		{
 			super(
 				S3ObjectSummary::getKey,
-				S3ObjectSummary::getSize
+				S3ObjectSummary::getSize,
+				S3PathValidator.New()
 			);
 			this.s3 = s3;
 		}

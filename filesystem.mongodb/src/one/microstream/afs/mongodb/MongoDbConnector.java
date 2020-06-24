@@ -81,7 +81,8 @@ public interface MongoDbConnector extends BlobStoreConnector
 		{
 			super(
 				blob -> blob.getString(FIELD_KEY ),
-				blob -> blob.getLong  (FIELD_SIZE)
+				blob -> blob.getLong  (FIELD_SIZE),
+				MongoDbPathValidator.New()
 			);
 			this.database    = database       ;
 			this.collections = new HashMap<>();

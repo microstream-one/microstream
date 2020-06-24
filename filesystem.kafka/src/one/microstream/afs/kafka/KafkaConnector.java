@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -64,9 +65,11 @@ public interface KafkaConnector extends BlobStoreConnector
 			final BlobStorePath file
 		)
 		{
-			return file.fullQualifiedName().replace(BlobStorePath.SEPARATOR_CHAR, '_');
+			return Pattern.compile("[^a-zA-Z0-9\\._\\-]")
+				.matcher(file.fullQualifiedName().replace(BlobStorePath.SEPARATOR_CHAR, '_'))
+				.replaceAll("_")
+			;
 		}
-
 
 		private final Properties                                         kafkaProperties;
 		private final EqHashTable<String, Index>                         indices        ;
@@ -79,7 +82,8 @@ public interface KafkaConnector extends BlobStoreConnector
 		{
 			super(
 				Blob::key,
-				Blob::size
+				Blob::size,
+				KafkaPathValidator.New()
 			);
 			this.kafkaProperties = kafkaProperties  ;
 			this.indices         = EqHashTable.New();

@@ -68,7 +68,8 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 		{
 			super(
 				BlobMetadata::key,
-				BlobMetadata::size
+				BlobMetadata::size,
+				OracleNoSqlPathValidator.New()
 			);
 			this.kvstore = kvstore;
 			this.tables  = new HashMap<>();

@@ -65,7 +65,8 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 		{
 			super(
 				blob -> blob.getString(FIELD_KEY ),
-				blob -> blob.getLong  (FIELD_SIZE)
+				blob -> blob.getLong  (FIELD_SIZE),
+				GoogleCloudFirestorePathValidator.New()
 			);
 			this.firestore = firestore;
 		}

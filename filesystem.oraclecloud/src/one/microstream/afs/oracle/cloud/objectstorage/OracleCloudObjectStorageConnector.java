@@ -62,7 +62,8 @@ public interface OracleCloudObjectStorageConnector extends BlobStoreConnector
 		{
 			super(
 				ObjectSummary::getName,
-				ObjectSummary::getSize
+				ObjectSummary::getSize,
+				OracleCloudObjectStoragePathValidator.New()
 			);
 			this.client = client;
 		}

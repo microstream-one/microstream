@@ -2,6 +2,7 @@ package one.microstream.afs.blobstore;
 
 import static java.util.stream.Collectors.toList;
 import static one.microstream.X.checkArrayRange;
+import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -112,19 +113,37 @@ public interface BlobStoreConnector extends AutoCloseable
 		}
 
 
-		private final Function<B, String> blobKeyProvider ;
-		private final ToLongFunction<B>   blobSizeProvider;
-		private final AtomicBoolean       open            ;
+		private final Function<B, String>     blobKeyProvider       ;
+		private final ToLongFunction<B>       blobSizeProvider      ;
+		private final BlobStorePath.Validator blobStorePathValidator;
+		private final AtomicBoolean           open                  ;
 
 		protected Abstract(
 			final Function<B, String> blobKeyProvider ,
 			final ToLongFunction<B>   blobSizeProvider
 		)
 		{
+			this(
+				blobKeyProvider,
+				blobSizeProvider,
+				null
+			);
+		}
+
+		protected Abstract(
+			final Function<B, String>     blobKeyProvider       ,
+			final ToLongFunction<B>       blobSizeProvider      ,
+			final BlobStorePath.Validator blobStorePathValidator
+		)
+		{
 			super();
-			this.blobKeyProvider  = blobKeyProvider        ;
-			this.blobSizeProvider = blobSizeProvider       ;
-			this.open             = new AtomicBoolean(true);
+			this.blobKeyProvider  = notNull(blobKeyProvider) ;
+			this.blobSizeProvider = notNull(blobSizeProvider);
+			this.blobStorePathValidator = blobStorePathValidator != null
+				? blobStorePathValidator
+				: BlobStorePath.Validator.NO_OP
+			;
+			this.open             = new AtomicBoolean(true)  ;
 		}
 
 		protected abstract Stream<? extends B> blobs(BlobStorePath file);
@@ -456,6 +475,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(file);
 
 			return this.internalFileSize(file);
 		}
@@ -464,6 +484,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		public final boolean directoryExists(final BlobStorePath directory)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(directory);
 
 			return this.internalDirectoryExists(directory);
 		}
@@ -474,6 +495,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(file);
 
 			return this.internalFileExists(file);
 		}
@@ -484,6 +506,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(directory);
 
 			return this.internalCreateDirectory(directory);
 		}
@@ -494,6 +517,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(file);
 
 			return this.internalCreateFile(file);
 		}
@@ -504,6 +528,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(file);
 
 			return this.internalDeleteFile(file);
 		}
@@ -516,6 +541,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(file);
 
 			return this.internalReadData(file, offset, length);
 		}
@@ -529,6 +555,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(file);
 
 			return this.internalReadData(file, targetBuffer, offset, length);
 		}
@@ -540,6 +567,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(file);
 
 			return this.internalWriteData(file, sourceBuffers);
 		}
@@ -551,6 +579,8 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(sourceFile);
+			this.blobStorePathValidator.validate(targetFile);
 
 			this.internalMoveFile(sourceFile, targetFile);
 		}
@@ -562,6 +592,8 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(sourceFile);
+			this.blobStorePathValidator.validate(targetFile);
 
 			return this.internalCopyFile(sourceFile, targetFile);
 		}
@@ -575,6 +607,8 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(sourceFile);
+			this.blobStorePathValidator.validate(targetFile);
 
 			return this.internalCopyFile(sourceFile, targetFile, offset, length);
 		}
@@ -586,6 +620,7 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			this.ensureOpen();
+			this.blobStorePathValidator.validate(file);
 
 			this.internalTruncateFile(file, newLength);
 		}
