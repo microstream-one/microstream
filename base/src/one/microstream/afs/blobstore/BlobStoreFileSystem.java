@@ -76,6 +76,15 @@ public interface BlobStoreFileSystem extends AFileSystem
 		////////////
 
 		@Override
+		public String deriveFileIdentifier(
+			final String fileName,
+			final String fileType
+		)
+		{
+			return XIO.addFileSuffix(fileName, fileType);
+		}
+
+		@Override
 		public String getFileName(
 			final AFile file
 		)
