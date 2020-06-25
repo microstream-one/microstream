@@ -406,8 +406,8 @@ public final class XArrays
 	public static <T> T[] remove(final T[] array, final int i)
 	{
 		final T[] newArray = ArrayOfSameType(array, array.length - 1);
-		System.arraycopy(array, 0, newArray, 0, i                   );
-		System.arraycopy(array, i, newArray, i, array.length - i - 1);
+		System.arraycopy(array, 0    , newArray, 0, i                   );
+		System.arraycopy(array, i + 1, newArray, i, array.length - i - 1);
 		
 		return newArray;
 	}
