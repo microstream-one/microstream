@@ -137,18 +137,23 @@ public interface BlobStoreConnector extends AutoCloseable
 		)
 		{
 			super();
-			this.blobKeyProvider  = notNull(blobKeyProvider) ;
-			this.blobSizeProvider = notNull(blobSizeProvider);
+			this.blobKeyProvider        = notNull(blobKeyProvider) ;
+			this.blobSizeProvider       = notNull(blobSizeProvider);
 			this.blobStorePathValidator = blobStorePathValidator != null
 				? blobStorePathValidator
 				: BlobStorePath.Validator.NO_OP
 			;
-			this.open             = new AtomicBoolean(true)  ;
+			this.open                   = new AtomicBoolean(true);
 		}
 
-		protected abstract Stream<? extends B> blobs(BlobStorePath file);
+		protected abstract Stream<? extends B> blobs(
+			BlobStorePath file
+		);
 
-		protected abstract boolean internalDeleteBlobs(BlobStorePath file, List<? extends B> blobs);
+		protected abstract boolean internalDeleteBlobs(
+			BlobStorePath     file ,
+			List<? extends B> blobs
+		);
 
 		protected abstract void internalReadBlobData(
 			BlobStorePath file        ,
