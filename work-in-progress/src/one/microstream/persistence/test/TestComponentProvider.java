@@ -20,7 +20,7 @@ public class TestComponentProvider extends InvocationLogging
 	// constants //
 	//////////////
 
-	protected static final ADirectory TEST_DIRECTORY = NioFileSystem.Directory("c:/Files/");
+	protected static final ADirectory TEST_DIRECTORY = NioFileSystem.directory("c:/Files/");
 
 	// application- (test-) specific components //
 	protected static final TestComponentProvider TEST = new TestComponentProvider(

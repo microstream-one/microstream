@@ -306,6 +306,12 @@ public interface StorageFileNameProvider
 		
 	}
 	
+	
+	public static StorageFileNameProvider.Builder<?> Builder()
+	{
+		return new StorageFileNameProvider.Builder.Default<>();
+	}
+	
 	public interface Builder<B extends Builder<?>>
 	{
 		public String channelDirectoryPrefix();

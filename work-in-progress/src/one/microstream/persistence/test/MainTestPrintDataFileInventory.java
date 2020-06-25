@@ -12,7 +12,7 @@ public class MainTestPrintDataFileInventory
 {
 	public static void main(final String[] args) throws IOException
 	{
-		final AReadableFile rFile = NioFileSystem.File(
+		final AReadableFile rFile = NioFileSystem.file(
 			"D:/Bonus25/storage_2015-03-19 ID Fehler lokal/graveyard1/channel_1_129.dat"
 		).useReading();
 		StorageDataFileItemIterator.Default.processInputFile(rFile, new DataFileInventoryPrinter());

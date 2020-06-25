@@ -20,9 +20,9 @@ public class MainTestConvertCsvToBin
 	public static void main(final String[] args)
 	{
 		convertCsvToBin(
-			BinaryPersistence.provideTypeDictionaryFromFile(NioFileSystem.File("C:/Files/PersistenceTypeDictionary.ptd")),
-			X.List(NioFileSystem.File("C:/Files/export/csv/ExportTest.csv")),
-			NioFileSystem.Directory("C:/Files/export/bin2"),
+			BinaryPersistence.provideTypeDictionaryFromFile(NioFileSystem.file("C:/Files/PersistenceTypeDictionary.ptd")),
+			X.List(NioFileSystem.file("C:/Files/export/csv/ExportTest.csv")),
+			NioFileSystem.directory("C:/Files/export/bin2"),
 			XFunc.all()
 		);
 	}

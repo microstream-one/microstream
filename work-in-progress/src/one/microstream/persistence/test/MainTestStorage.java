@@ -235,9 +235,9 @@ public class MainTestStorage extends TestStorage
 	{
 		final StorageConnection         connection = STORAGE.createConnection();
 		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
-			NioFileSystem.File("C:/FilesImport/PersistenceTypeDictionary.ptd")
+			NioFileSystem.file("C:/FilesImport/PersistenceTypeDictionary.ptd")
 		);
-		final XEnum<AFile> dataFiles  = NioFileSystem.Directory("C:/FilesImport/channel_0").iterateFiles(HashEnum.New())
+		final XEnum<AFile> dataFiles  = NioFileSystem.directory("C:/FilesImport/channel_0").iterateFiles(HashEnum.New())
 			.sort((f1, f2) -> Long.compare(parseStorageFileNumber(f1), parseStorageFileNumber(f2)))
 		;
 

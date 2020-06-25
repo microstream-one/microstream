@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import one.microstream.X;
 import one.microstream.afs.AFS;
 import one.microstream.afs.AFile;
-import one.microstream.afs.AReadableFile;
 import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
@@ -500,19 +499,6 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.registerStorageHeadFile(dataFile);
 			this.writeTransactionsEntryFileCreation(0, this.timestampProvider.currentNanoTimestamp(), fileNumber);
 		}
-
-		// (15.06.2020 TM)FIXME: priv#49: remove if really not used
-//		private void registerHeadFile(final StorageDataInventoryFile iFile)
-//		{
-//			final StorageLiveDataFile.Default dataFile = StorageLiveDataFile.New(
-//				this,
-//				iFile.file(),
-//				iFile.channelIndex(),
-//				iFile.fileNumber()
-//			);
-//
-//			this.registerStorageHeadFile(dataFile);
-//		}
 		
 		private void registerStorageHeadFile(final StorageLiveDataFile.Default storageFile)
 		{
@@ -1558,7 +1544,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			}
 		}
 
-		public void copyData(final ZStorageChannelImportSourceFile importFile)
+		public void copyData(final StorageImportSourceFile importFile)
 		{
 //			DEBUGStorage.println(this.channelIndex + " processing import source file " + importFile);
 			importFile.iterateBatches(this.importHelper.setFile(importFile));
@@ -1601,7 +1587,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.importHelper = null;
 		}
 
-		final void importBatch(final AReadableFile file, final long position, final long length)
+		final void importBatch(final StorageFile file, final long position, final long length)
 		{
 			// ignore dummy batches (e.g. transfer file continuation head dummy) and no-op batches in general
 			if(length == 0)
@@ -1658,7 +1644,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		{
 			final StorageLiveDataFile.Default         preImportHeadFile;
 			final BulkList<StorageChannelImportBatch> importBatches     = BulkList.New(1000);
-			AReadableFile                             file             ;
+			StorageFile                               file             ;
 
 
 			ImportHelper(final StorageLiveDataFile.Default preImportHeadFile)
@@ -1674,7 +1660,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				StorageFileManager.Default.this.importBatch(this.file, batch.fileOffset(), batch.fileLength());
 			}
 
-			final ImportHelper setFile(final AReadableFile file)
+			final ImportHelper setFile(final StorageFile file)
 			{
 				this.file = file;
 				return this;

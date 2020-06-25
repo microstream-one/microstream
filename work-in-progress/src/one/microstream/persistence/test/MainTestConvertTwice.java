@@ -12,7 +12,7 @@ import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
 @SuppressWarnings("unused")
 public class MainTestConvertTwice extends TestStorage
 {
-	static final ADirectory dir      = NioFileSystem.Directory("D:/zStorageConversionBug");
+	static final ADirectory dir      = NioFileSystem.directory("D:/zStorageConversionBug");
 	static final String     filename = "java.lang.String";
 
 	public static void main(final String[] args)

@@ -39,7 +39,7 @@ public class MainTestStorageImportData
 	
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
 	
-	static final ADirectory EXPORT_DIRECTORY = NioFileSystem.Directory("export"); // root is working directory
+	static final ADirectory EXPORT_DIRECTORY = NioFileSystem.directory("export"); // root is working directory
 	
 	static final int ID_OFFSET = 0; // change to 1000 or so
 

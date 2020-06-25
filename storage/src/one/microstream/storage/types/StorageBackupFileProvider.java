@@ -129,7 +129,7 @@ public interface StorageBackupFileProvider extends StorageFileProvider
 	 */
 	public static StorageBackupFileProvider.Builder<?> Builder()
 	{
-		return Builder(NioFileSystem.New());
+		return Builder(NioFileSystem.get());
 	}
 	
 	public static StorageBackupFileProvider.Builder<?> Builder(final AFileSystem fileSystem)

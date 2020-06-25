@@ -11,7 +11,7 @@ import one.microstream.storage.types.StorageTransactionsAnalysis;
 public class MainTestBackupPrintTransactionFiles
 {
 	// local copy to prevent storage starting caused by referencing a constant in MainTestBackupStoring (crazy! :D)
-	static final ADirectory DIRECTORY_STORAGE = NioFileSystem.Directory(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
+	static final ADirectory DIRECTORY_STORAGE = NioFileSystem.directory(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
 	static final ADirectory DIRECTORY_BACKUP  = DIRECTORY_STORAGE.ensureDirectory("backup");
 	
 	

@@ -17,7 +17,7 @@ public class MainTestStorageExampleMore
 {
 	// root of the application's data model graph
 	static final Reference<ClientCorporation> ROOT          = Reference.New(null);
-	static final ADirectory                   DIRECTORY     = NioFileSystem.Directory("C:/StorageTest");
+	static final ADirectory                   DIRECTORY     = NioFileSystem.directory("C:/StorageTest");
 	static final int                          CHANNEL_COUNT = 4;
 
 	// create a storage manager, link the root, start the "embedded" database

@@ -100,8 +100,7 @@ public final class Storage
 	 */
 	public static final StorageLiveFileProvider FileProvider(final Path storageDirectory)
 	{
-		final NioFileSystem nfs = NioFileSystem.New();
-		final ADirectory    dir = nfs.resolveDirectory(storageDirectory);
+		final ADirectory dir = NioFileSystem.directory(storageDirectory);
 		
 		return StorageLiveFileProvider.New(dir);
 	}
@@ -146,7 +145,7 @@ public final class Storage
 
 	public static final StorageBackupFileProvider BackupFileProvider(final Path storageDirectory)
 	{
-		final NioFileSystem nfs = NioFileSystem.New();
+		final NioFileSystem nfs = NioFileSystem.get();
 		final ADirectory    dir = nfs.resolveDirectory(storageDirectory);
 		
 		return StorageBackupFileProvider.New(dir);
@@ -433,7 +432,7 @@ public final class Storage
 	 */
 	public static final StorageBackupSetup BackupSetup(final Path backupDirectory)
 	{
-		final ADirectory dir = NioFileSystem.Directory(backupDirectory);
+		final ADirectory dir = NioFileSystem.directory(backupDirectory);
 		
 		return StorageBackupSetup.New(dir);
 	}

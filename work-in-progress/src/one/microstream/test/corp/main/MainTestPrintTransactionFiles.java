@@ -8,6 +8,6 @@ public class MainTestPrintTransactionFiles
 {
 	public static void main(final String[] args)
 	{
-		Test.printTransactionsFiles(NioFileSystem.Directory(XIO.Path("d:/StorageTest")), 4);
+		Test.printTransactionsFiles(NioFileSystem.directory(XIO.Path("d:/StorageTest")), 4);
 	}
 }

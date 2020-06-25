@@ -9,7 +9,7 @@ public class MainTestTypeDictionaryParser
 	public static void main(final String[] args)
 	{
 		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
-			NioFileSystem.File("c:/Files/StateDefinitions.txt")
+			NioFileSystem.file("c:/Files/StateDefinitions.txt")
 		);
 		System.out.println(dictionary);
 	}

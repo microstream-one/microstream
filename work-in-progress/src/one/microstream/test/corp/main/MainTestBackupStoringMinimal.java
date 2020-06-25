@@ -10,6 +10,7 @@ import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageBackupSetup;
+import one.microstream.storage.types.StorageFileNameProvider;
 import one.microstream.test.corp.logic.Test;
 
 
@@ -31,19 +32,22 @@ public class MainTestBackupStoringMinimal
 			// priv#227: proper way to set the type dictionary file name
 			.setStorageFileProvider(
 				Storage.FileProviderBuilder()
-				// (24.06.2020 TM)FIXME: priv#49: setTypeDictionaryFileName??
-				.setTypeDictionaryFileName("ExplicitTypeDictionary.ptd")
+				.setFileNameProvider(
+					StorageFileNameProvider.Builder()
+					.setTypeDictionaryFileName("ExplicitTypeDictionary.ptd")
+					.createFileNameProvider()
+				)
 				.createFileProvider()
 			)
 			.setBackupSetup(
 				// the only necessary part to activate and configure backupping.
-				StorageBackupSetup.New(NioFileSystem.Directory("storageBackup"))
+				StorageBackupSetup.New(NioFileSystem.directory("storageBackup"))
 			)
 		)
 		// priv#227: Warning: doing this replaces the properly setup TypeDictionaryIoHandler and causes unwanted behavior.
 		.onConnectionFoundation(cf ->
 			cf.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.New(
-				XIO.Path("storage", "ExplicitTypeDictionary.ptd")
+				NioFileSystem.directory("storage").ensureFile("ExplicitTypeDictionary.ptd")
 			))
 		)
 		.start()

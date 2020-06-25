@@ -17,7 +17,7 @@ public class MainTestStoragePrintTransactions
 		for(int i = 0; i < channelCount; i++)
 		{
 			final VarString vs = StorageTransactionsAnalysis.Logic.parseFile(
-				NioFileSystem.File("storage/channel_"+i+"/transactions_"+i+".sft")
+				NioFileSystem.file("storage/channel_"+i+"/transactions_"+i+".sft")
 			);
 			System.out.println(vs);
 		}
