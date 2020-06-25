@@ -10,6 +10,8 @@ import one.microstream.collections.types.XGettingTable;
 
 public interface AFileSystem extends AResolving
 {
+	// (06.06.2020 TM)FIXME: priv#49: analyse all lockings and complement/change where needed.
+	
 	public String defaultProtocol();
 	
 	public default ADirectory ensureDirectoryPath(final String... pathElements)
@@ -61,6 +63,7 @@ public interface AFileSystem extends AResolving
 	
 	public <R> R accessRoots(Function<? super XGettingTable<String, ADirectory>, R> logic);
 		
+	public <I extends AItem> I validateMember(I item);
 	
 	public default String assemblePath(final AFile file)
 	{
@@ -71,6 +74,8 @@ public interface AFileSystem extends AResolving
 	{
 		return this.assemblePath(directory, VarString.New()).toString();
 	}
+	
+	public String deriveFileIdentifier(String fileName, String fileType);
 	
 
 	public VarString assemblePath(AFile file, VarString vs);
@@ -223,11 +228,12 @@ public interface AFileSystem extends AResolving
 			return this.ensureRoot(this.creator, identifier);
 		}
 				
-		private void validateParentFileSystem(final AItem item)
+		@Override
+		public final synchronized <I extends AItem> I validateMember(final I item)
 		{
 			if(item.fileSystem() == this)
 			{
-				return;
+				return item;
 			}
 
 			// (14.05.2020 TM)EXCP: proper exception
@@ -292,7 +298,7 @@ public interface AFileSystem extends AResolving
 		@Override
 		public final synchronized boolean addRoot(final ADirectory rootDirectory)
 		{
-			this.validateParentFileSystem(rootDirectory);
+			this.validateMember(rootDirectory);
 			
 			// validate and check for already registerd (abort condition)
 			if(this.validateRegisteredRootDirectory(rootDirectory))

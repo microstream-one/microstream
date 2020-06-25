@@ -1,5 +1,6 @@
 package one.microstream.storage.types;
 
+import one.microstream.afs.AWritableFile;
 import one.microstream.functional.ThrowingProcedure;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
@@ -55,10 +56,22 @@ public interface StorageEntity
 	 */
 	public long lastTouched();
 
+	public long storagePosition();
+
+	public StorageLiveDataFile storageFile();
+
+	public void copyCachedData(MemoryRangeReader entityDataCollector);
+
+	public long clearCache();
+
+	public boolean iterateReferenceIds(PersistenceObjectIdAcceptor referenceIdIterator);
+
+	public long exportTo(AWritableFile file);
+
 
 
 	// (27.07.2015 TM)TODO: move internal/default  StorageEntity implementation to StorageEntityCacheItem
-	public final class Default implements StorageEntityCacheItem<StorageEntity.Default>, StorageEntity
+	public final class Default implements StorageEntity
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -514,7 +527,7 @@ public interface StorageEntity
 		}
 
 		@Override
-		public final StorageDataFile<StorageEntity.Default> storageFile()
+		public final StorageLiveDataFile storageFile()
 		{
 			return this.typeInFile.file;
 		}
@@ -542,9 +555,9 @@ public interface StorageEntity
 		}
 
 		@Override
-		public final long exportTo(final StorageLockedFile file)
+		public final long exportTo(final AWritableFile file)
 		{
-			return this.typeInFile.file.exportTo(file, this.storagePosition, this.length);
+			return this.typeInFile.file.copyTo(file, this.storagePosition, this.length);
 		}
 
 		@Override

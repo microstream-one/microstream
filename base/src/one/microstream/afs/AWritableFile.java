@@ -2,6 +2,8 @@ package one.microstream.afs;
 
 import java.nio.ByteBuffer;
 
+import one.microstream.X;
+
 public interface AWritableFile extends AReadableFile
 {
 	@Override
@@ -29,7 +31,27 @@ public interface AWritableFile extends AReadableFile
 	{
 		return this.fileSystem().accessManager().useWriting(this);
 	}
-		
+	
+	public default long copyFrom(final AReadableFile source)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(source, this);
+	}
+	
+	public default long copyFrom(final AReadableFile source, final long sourcePosition)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(source, sourcePosition, this);
+	}
+
+	public default long copyFrom(final AReadableFile source, final long sourcePosition, final long length)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(source, sourcePosition, length, this);
+	}
+	
+	public default long writeBytes(final ByteBuffer source)
+	{
+		return this.writeBytes(X.Constant(source));
+	}
+	
 	public default long writeBytes(final Iterable<? extends ByteBuffer> sources)
 	{
 		// synchronization handled by IoHandler.
@@ -42,10 +64,10 @@ public interface AWritableFile extends AReadableFile
 		this.actual().fileSystem().ioHandler().create(this);
 	}
 	
-	public default boolean ensure()
+	public default boolean ensureExists()
 	{
 		// synchronization handled by IoHandler.
-		return this.actual().fileSystem().ioHandler().ensure(this);
+		return this.actual().fileSystem().ioHandler().ensureExists(this);
 	}
 	
 	public default boolean delete()
@@ -54,10 +76,24 @@ public interface AWritableFile extends AReadableFile
 		return this.actual().fileSystem().ioHandler().deleteFile(this);
 	}
 	
+	public default boolean moveTo(final AWritableFile targetFile)
+	{
+		this.actual().fileSystem().ioHandler().moveFile(this, targetFile);
+		
+		// hardly reasonable to pass through the return value since it must always be true; maybe for bug hunting.
+		return this.release();
+	}
+	
 	public default AReadableFile downgrade()
 	{
 		// synchronization handled by IoHandler.
 		return this.actual().fileSystem().accessManager().downgrade(this);
+	}
+	
+	public default void truncate(final long newSize)
+	{
+		// synchronization handled by IoHandler.
+		this.actual().fileSystem().ioHandler().truncate(this, newSize);
 	}
 	
 	/* (03.06.2020 TM)FIXME: priv#49: rename file

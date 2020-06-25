@@ -1,30 +1,33 @@
 package one.microstream.test.corp.main;
 
-import java.io.File;
-
+import one.microstream.afs.AFile;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.HashTable;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandlerArchiving;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.Storage;
+import one.microstream.storage.types.StorageBackupDataFile;
 import one.microstream.storage.types.StorageBackupSetup;
-import one.microstream.storage.types.StorageFileProvider;
-import one.microstream.storage.types.StorageNumberedFile;
+import one.microstream.storage.types.StorageBackupTransactionsFile;
+import one.microstream.storage.types.StorageDataInventoryFile;
+import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.util.FileContentComparer;
 
 public class MainTestBackupValidateFiles
 {
+	static final NioFileSystem FS = NioFileSystem.New();
 	static final EmbeddedStorageFoundation<?> FOUNDATION = EmbeddedStorage
 		.Foundation(
 			Storage.ConfigurationBuilder()
 			.setBackupSetup(
 				StorageBackupSetup.New(
 					Storage
-					.FileProviderBuilder()
-					.setBaseDirectory("storage/backup")
-					.setDeletionDirectory("storage/backup/deleted")
-					.setTruncationDirectory("storage/backup/truncated")
+					.BackupFileProviderBuilder()
+					.setDirectory(FS.ensureDirectoryPath("storage", "backup"))
+					.setDeletionDirectory(FS.ensureDirectoryPath("storag", "backup", "deleted"))
+					.setTruncationDirectory(FS.ensureDirectoryPath("storage", "backup", "truncated"))
 					.setFileHandlerCreator(PersistenceTypeDictionaryFileHandlerArchiving::New)
 					.createFileProvider()
 				)
@@ -53,31 +56,29 @@ public class MainTestBackupValidateFiles
 	}
 	
 	static void validateChannelFiles(
-		final StorageFileProvider storageFileProvider,
+		final StorageLiveFileProvider storageFileProvider,
 		final StorageBackupSetup  backupSetup        ,
 		final int                 channelIndex
 	)
 	{
-		final StorageNumberedFile transactionFile = storageFileProvider.provideTransactionsFile(
+		final AFile transactionFile = storageFileProvider.provideTransactionsFile(
 			channelIndex
 		);
-		final StorageNumberedFile backupTranFile = backupSetup.backupFileProvider().provideTransactionsFile(
+		final StorageBackupTransactionsFile backupTFile = backupSetup.backupFileProvider().provideBackupTransactionsFile(
 			channelIndex
 		);
 		
-		final BulkList<StorageNumberedFile> dataFiles = storageFileProvider.collectDataFiles(
-			BulkList.New(), channelIndex
+		final BulkList<StorageDataInventoryFile> dataFiles = storageFileProvider.collectDataFiles(
+			StorageDataInventoryFile::New, BulkList.New(), channelIndex
 		);
 		
-		final HashTable<File, File> fileMapping = HashTable.New();
-		fileMapping.add(new File(transactionFile.identifier()), new File(backupTranFile.identifier()));
+		final HashTable<AFile, AFile> fileMapping = HashTable.New();
+		fileMapping.add(transactionFile, backupTFile.file());
 		
-		for(final StorageNumberedFile df : dataFiles)
+		for(final StorageDataInventoryFile df : dataFiles)
 		{
-			final File storageFile = new File(df.identifier());
-			final StorageNumberedFile bf = backupSetup.backupFileProvider().provideDataFile(channelIndex, df.number());
-			final File backupFile = new File(bf.identifier());
-			fileMapping.add(storageFile, backupFile);
+			final StorageBackupDataFile bf = backupSetup.backupFileProvider().provideBackupDataFile(channelIndex, df.number());
+			fileMapping.add(df.file(), bf.file());
 		}
 			
 		final FileContentComparer fcc = FileContentComparer.New();

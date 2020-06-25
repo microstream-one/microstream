@@ -2,9 +2,9 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
 import java.util.function.Predicate;
 
+import one.microstream.afs.AFile;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceIdSet;
@@ -44,12 +44,12 @@ public interface StorageTaskBroker
 	
 
 	public StorageRequestTask enqueueExportChannelsTask(
-		StorageIoHandler fileHandler             ,
-		boolean          performGarbageCollection
+		StorageLiveFileProvider fileProvider             ,
+		boolean             performGarbageCollection
 	)
 		throws InterruptedException;
 
-	public StorageRequestTask enqueueImportFromFilesTask(XGettingEnum<Path> importFiles)
+	public StorageRequestTask enqueueImportFromFilesTask(XGettingEnum<AFile> importFiles)
 		throws InterruptedException;
 
 	public StorageRequestTaskCreateStatistics enqueueCreateRawFileStatisticsTask()
@@ -259,14 +259,14 @@ public interface StorageTaskBroker
 
 		@Override
 		public final synchronized StorageRequestTask enqueueExportChannelsTask(
-			final StorageIoHandler fileHandler             ,
-			final boolean          performGarbageCollection
+			final StorageLiveFileProvider fileProvider             ,
+			final boolean             performGarbageCollection
 		)
 			throws InterruptedException
 		{
 			final StorageRequestTaskExportChannels task = this.taskCreator.createTaskExportChannels(
 				this.channelCount,
-				fileHandler
+				fileProvider
 			);
 
 			/*
@@ -297,7 +297,7 @@ public interface StorageTaskBroker
 		}
 
 		@Override
-		public StorageRequestTask enqueueImportFromFilesTask(final XGettingEnum<Path> importFiles)
+		public StorageRequestTask enqueueImportFromFilesTask(final XGettingEnum<AFile> importFiles)
 			throws InterruptedException
 		{
 			// always use the internal evaluator to match live operation

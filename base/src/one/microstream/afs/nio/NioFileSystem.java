@@ -9,12 +9,40 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.AFileSystem;
 import one.microstream.afs.AItem;
 import one.microstream.afs.AReadableFile;
+import one.microstream.afs.AResolver;
 import one.microstream.afs.AWritableFile;
 import one.microstream.chars.VarString;
 import one.microstream.io.XIO;
 
-public interface NioFileSystem extends AFileSystem
+public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 {
+	public static ADirectory directory(final Path path)
+	{
+		return NioFileSystem.get().ensureDirectory(path);
+	}
+	
+	public static ADirectory directory(final String path)
+	{
+		return directory(XIO.Path(path));
+	}
+	
+	public static AFile file(final Path path)
+	{
+		return NioFileSystem.get().ensureFile(path);
+	}
+	
+	public static AFile file(final String path)
+	{
+		return file(XIO.Path(path));
+	}
+	
+	public static NioFileSystem get()
+	{
+		return Default.SINGLETON;
+	}
+	
+	
+	
 	public static Path toPath(final AItem item)
 	{
 		return NioFileSystem.toPath(item.toPath());
@@ -24,8 +52,7 @@ public interface NioFileSystem extends AFileSystem
 	{
 		return XIO.Path(pathElements);
 	}
-	
-	
+		
 	public static NioFileSystem New()
 	{
 		/* (29.05.2020 TM)FIXME: priv#49: standard protocol strings? Constants, Enums?
@@ -60,6 +87,14 @@ public interface NioFileSystem extends AFileSystem
 	public class Default extends AFileSystem.Abstract<Path, Path> implements NioFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// constants        //
+		/////////////////////
+		
+		static final NioFileSystem SINGLETON = NioFileSystem.New();
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
@@ -78,6 +113,12 @@ public interface NioFileSystem extends AFileSystem
 		////////////
 		
 		@Override
+		public String deriveFileIdentifier(final String fileName, final String fileType)
+		{
+			return XIO.addFileSuffix(fileName, fileType);
+		}
+		
+		@Override
 		public String getFileName(final AFile file)
 		{
 			return XIO.getFilePrefix(file.identifier());
@@ -87,6 +128,27 @@ public interface NioFileSystem extends AFileSystem
 		public String getFileType(final AFile file)
 		{
 			return XIO.getFileSuffix(file.identifier());
+		}
+		
+		@Override
+		public AFile createFile(
+			final ADirectory parent    ,
+			final String     identifier,
+			final String     name      ,
+			final String     type
+		)
+		{
+			if(identifier != null)
+			{
+				return super.createFile(parent, identifier, name, type);
+			}
+			
+			if(type == null)
+			{
+				return this.createFile(parent, name);
+			}
+			
+			return this.createFile(parent, XIO.addFileSuffix(name, type));
 		}
 		
 		@Override
@@ -114,7 +176,7 @@ public interface NioFileSystem extends AFileSystem
 			// does not need synchronization since it only reads immutable state and creates only thread local state.
 			return NioFileSystem.toPath(file);
 		}
-		
+				
 		@Override
 		protected VarString assembleItemPath(final AItem item, final VarString vs)
 		{

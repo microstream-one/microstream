@@ -8,8 +8,10 @@ import java.util.function.Function;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
+import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XArrays;
+import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
 
 public interface ADirectory extends AItem, AResolving
@@ -40,9 +42,24 @@ public interface ADirectory extends AItem, AResolving
 	
 	public <C extends Consumer<? super ADirectory.Observer>> C iterateObservers(C logic);
 	
+	public default boolean ensureExists()
+	{
+		return this.fileSystem().ioHandler().ensureExists(this);
+	}
+	
 	public ADirectory ensureDirectory(String identifier);
 	
-	public AFile ensureFile(String identifier);
+	public default AFile ensureFile(final String identifier)
+	{
+		return this.ensureFile(identifier, null, null);
+	}
+	
+	public default AFile ensureFile(final String name, final String type)
+	{
+		return this.ensureFile(null, name, type);
+	}
+	
+	public AFile ensureFile(String identifier, String name, String type);
 		
 	public AItem getItem(String identifier);
 		
@@ -51,6 +68,27 @@ public interface ADirectory extends AItem, AResolving
 	public AFile getFile(String identifier);
 	
 	public <C extends Consumer<? super AItem>> C iterateItems(C iterator);
+	
+	public <C extends Consumer<? super ADirectory>> C iterateDirectories(C iterator);
+	
+	public <C extends Consumer<? super AFile>> C iterateFiles(C iterator);
+	
+	// (23.06.2020 TM)FIXME: priv#49: consolidate list~ methods with those in AFS.
+	
+	public default XGettingCollection<AItem> listItems()
+	{
+		return this.iterateItems(BulkList.New());
+	}
+	
+	public default XGettingCollection<ADirectory> listDirectories()
+	{
+		return this.iterateDirectories(BulkList.New());
+	}
+	
+	public default XGettingCollection<AFile> listFiles()
+	{
+		return this.iterateFiles(BulkList.New());
+	}
 	
 	public boolean contains(AItem item);
 	
@@ -211,6 +249,28 @@ public interface ADirectory extends AItem, AResolving
 		}
 		
 		@Override
+		public <C extends Consumer<? super ADirectory>> C iterateDirectories(final C iterator)
+		{
+			synchronized(this.mutex())
+			{
+				this.directories.values().iterate(iterator);
+			}
+					
+			return iterator;
+		}
+		
+		@Override
+		public <C extends Consumer<? super AFile>> C iterateFiles(final C iterator)
+		{
+			synchronized(this.mutex())
+			{
+				this.files.values().iterate(iterator);
+			}
+					
+			return iterator;
+		}
+		
+		@Override
 		public final boolean contains(final AItem item)
 		{
 			// cannot lock both since hierarchy order is not clear. But one is sufficient, anyway.
@@ -302,15 +362,20 @@ public interface ADirectory extends AItem, AResolving
 		}
 		
 		@Override
-		public final AFile ensureFile(final String identifier)
+		public final AFile ensureFile(final String identifier, final String name, final String type)
 		{
+			final String effIdentifier = identifier != null
+				? identifier
+				: this.fileSystem().deriveFileIdentifier(name, type)
+			;
+			
 			synchronized(this.mutex())
 			{
-				AFile file = this.files.get(identifier);
+				AFile file = this.files.get(effIdentifier);
 				if(file == null)
 				{
-					file = this.fileSystem().creator().createFile(this, identifier);
-					this.register(identifier, file);
+					file = this.fileSystem().creator().createFile(this, effIdentifier, name, type);
+					this.register(effIdentifier, file);
 				}
 				
 				return file;
@@ -544,7 +609,6 @@ public interface ADirectory extends AItem, AResolving
 		public void onBeforeFileDelete(AWritableFile fileToDelete);
 		
 		public void onAfterFileDelete(AWritableFile deletedFile, boolean result);
-		
 
 
 		public void onBeforeDirectoryCreate(ADirectory directoryToCreate);

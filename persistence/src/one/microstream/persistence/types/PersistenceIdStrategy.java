@@ -2,9 +2,8 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
-
-import one.microstream.io.XIO;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
 import one.microstream.persistence.internal.FileObjectIdStrategy;
 import one.microstream.persistence.internal.FileTypeIdStrategy;
 
@@ -40,7 +39,7 @@ public interface PersistenceIdStrategy extends PersistenceObjectIdStrategy, Pers
 	
 	
 	
-	public static PersistenceIdStrategy NewInDirectory(final Path directory)
+	public static PersistenceIdStrategy NewInDirectory(final ADirectory directory)
 	{
 		return NewFromFiles(
 			directory                             ,
@@ -50,18 +49,18 @@ public interface PersistenceIdStrategy extends PersistenceObjectIdStrategy, Pers
 	}
 	
 	public static PersistenceIdStrategy NewFromFiles(
-		final Path   directory       ,
-		final String objectIdFilename,
-		final String typeIdFilename
+		final ADirectory directory       ,
+		final String     objectIdFilename,
+		final String     typeIdFilename
 	)
 	{
 		return NewFromFiles(
-			XIO.Path(directory, objectIdFilename),
-			XIO.Path(directory, typeIdFilename)
+			directory.ensureFile(objectIdFilename),
+			directory.ensureFile(typeIdFilename)
 		);
 	}
 	
-	public static PersistenceIdStrategy NewFromFiles(final Path objectIdFile, final Path typeIdFile)
+	public static PersistenceIdStrategy NewFromFiles(final AFile objectIdFile, final AFile typeIdFile)
 	{
 		return new PersistenceIdStrategy.Default(
 			FileObjectIdStrategy.New(objectIdFile),

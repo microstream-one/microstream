@@ -22,8 +22,8 @@ public interface ConfigurationPropertyParser
 		Map<String, String> properties,
 		Configuration       configuration
 	);
-	
-	
+
+
 	public static ConfigurationPropertyParser New()
 	{
 		return new ConfigurationPropertyParser.Default(
@@ -31,7 +31,7 @@ public interface ConfigurationPropertyParser
 			FileSizeParser.Default()
 		);
 	}
-		
+
 	public static ConfigurationPropertyParser New(
 		final DurationParser durationParser,
 		final FileSizeParser fileSizeParser
@@ -42,27 +42,27 @@ public interface ConfigurationPropertyParser
 			notNull(fileSizeParser)
 		);
 	}
-	
-	
+
+
 	public static class Default implements ConfigurationPropertyParser, ConfigurationPropertyNames
 	{
 		private final DurationParser durationParser;
 		private final FileSizeParser fileSizeParser;
-		
+
 		Default(
 			final DurationParser durationParser,
 			final FileSizeParser fileSizeParser
 		)
 		{
 			super();
-			
+
 			this.durationParser = durationParser;
 			this.fileSizeParser = fileSizeParser;
 		}
-		
+
 		@Override
 		public void parseProperties(
-			final Map<String, String> properties, 
+			final Map<String, String> properties,
 			final Configuration       configuration
 		)
 		{
@@ -70,7 +70,7 @@ public interface ConfigurationPropertyParser
 				this.parseProperty(kv.getKey(), kv.getValue(), configuration)
 			);
 		}
-		
+
 		@SuppressWarnings("deprecation") // keeps parsing deprecated properties
 		protected void parseProperty(
 			final String name                ,
@@ -93,7 +93,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-					
+
 					case DELETION_DIRECTORY:
 					{
 						configuration.setDeletionDirectory(
@@ -101,7 +101,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-					
+
 					case TRUNCATION_DIRECTORY:
 					{
 						configuration.setTruncationDirectory(
@@ -109,7 +109,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-					
+
 					case BACKUP_DIRECTORY:
 					{
 						this.parseDirectoryPath(
@@ -119,7 +119,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-					
+
 					case CHANNEL_COUNT:
 					{
 						configuration.setChannelCount(
@@ -127,7 +127,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case CHANNEL_DIRECTORY_PREFIX:
 					{
 						configuration.setChannelDirectoryPrefix(
@@ -135,7 +135,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case DATA_FILE_PREFIX:
 					{
 						configuration.setDataFilePrefix(
@@ -143,7 +143,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case DATA_FILE_SUFFIX:
 					{
 						configuration.setDataFileSuffix(
@@ -151,7 +151,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case TRANSACTION_FILE_PREFIX:
 					{
 						configuration.setTransactionFilePrefix(
@@ -159,7 +159,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case TRANSACTION_FILE_SUFFIX:
 					{
 						configuration.setTransactionFileSuffix(
@@ -167,7 +167,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case TYPE_DICTIONARY_FILENAME:
 					{
 						configuration.setTypeDictionaryFilename(
@@ -175,7 +175,23 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
+					case RESCUED_FILE_SUFFIX:
+					{
+						configuration.setRescuedFileSuffix(
+							notEmpty(value)
+						);
+					}
+					break;
+
+					case LOCK_FILE_NAME:
+					{
+						configuration.setLockFileName(
+							notEmpty(value)
+						);
+					}
+					break;
+
 					case HOUSEKEEPING_INTERVAL:
 					case HOUSEKEEPING_INTERVAL_MS:
 					{
@@ -184,7 +200,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case HOUSEKEEPING_NANO_TIME_BUDGET:
 					case HOUSEKEEPING_TIME_BUDGET_NS:
 					{
@@ -193,7 +209,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case ENTITY_CACHE_THRESHOLD:
 					{
 						configuration.setEntityCacheThreshold(
@@ -201,7 +217,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case ENTITY_CACHE_TIMEOUT:
 					case ENTITY_CACHE_TIMEOUT_MS:
 					{
@@ -210,7 +226,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case DATA_FILE_MIN_SIZE:
 					case DATA_FILE_MINIMUM_SIZE:
 					{
@@ -219,7 +235,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case DATA_FILE_MAX_SIZE:
 					case DATA_FILE_MAXIMUM_SIZE:
 					{
@@ -228,7 +244,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					case DATA_FILE_DISSOLVE_RATIO:
 					case DATA_FILE_MINIMUM_USE_RATIO:
 					{
@@ -237,7 +253,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-					
+
 					case DATA_FILE_CLEANUP_HEAD_FILE:
 					{
 						configuration.setDataFileCleanupHeadFile(
@@ -245,7 +261,7 @@ public interface ConfigurationPropertyParser
 						);
 					}
 					break;
-				
+
 					default:
 						throw new InvalidStorageConfigurationException("Unsupported property: " + name);
 				}
@@ -256,7 +272,7 @@ public interface ConfigurationPropertyParser
 						"Invalid value for property " + name + ": " + value,nfe);
 			}
 		}
-		
+
 		protected void parseDirectoryPath(
 			final String           value,
 			final Consumer<String> defaultPathConsumer,
@@ -281,10 +297,10 @@ public interface ConfigurationPropertyParser
 			{
 				throw new InvalidStorageConfigurationException("Invalid file size: " + value);
 			}
-			
+
 			return (int)fileSize;
 		}
-		
+
 	}
-	
+
 }

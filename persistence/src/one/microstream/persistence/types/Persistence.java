@@ -27,6 +27,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import one.microstream.X;
+import one.microstream.afs.AFile;
 import one.microstream.chars.StringTable;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
@@ -1075,6 +1076,13 @@ public class Persistence
 	}
 	
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final Path file)
+	{
+		final StringTable stringTable = XCSV.readFromFile(file);
+		
+		return parseRefactoringMappings(stringTable);
+	}
+	
+	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final AFile file)
 	{
 		final StringTable stringTable = XCSV.readFromFile(file);
 		

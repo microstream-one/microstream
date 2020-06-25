@@ -6,11 +6,12 @@ import static one.microstream.chars.MemoryCharConversionUTF8.toSingleByte;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Path;
 
 import one.microstream.X;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AReadableFile;
+import one.microstream.afs.AWritableFile;
 import one.microstream.chars.CharConversion_float;
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.MemoryCharConversionIntegersUTF8;
@@ -18,12 +19,11 @@ import one.microstream.chars.MemoryCharConversionUTF8;
 import one.microstream.chars.MemoryCharConversion_doubleUTF8;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.collections.Constant;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.io.FileException;
-import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -39,7 +39,7 @@ import one.microstream.util.xcsv.XCsvConfiguration;
 
 public interface StorageDataConverterTypeBinaryToCsv
 {
-	public void convertDataFile(StorageLockedFile file);
+	public void convertDataFile(AReadableFile file);
 
 
 
@@ -142,25 +142,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 		}
 
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// static methods //
-		///////////////////
-
-		static final FileChannel createFileChannel(final Path file) throws StorageException
-		{
-			try
-			{
-				return XIO.openFileChannelWriting(file);
-			}
-			catch(FileException | IOException e)
-			{
-				throw new StorageException(e);
-			}
-		}
-
-
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -191,7 +173,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private final StorageEntityTypeConversionFileProvider fileProvider          ;
 		private final PersistenceTypeDictionary               typeDictionary        ;
-		private       StorageLockedFile                       currentSourceFile     ;
+		private       AFile                                   currentSourceFile     ;
 
 		private final int                                     readBufferSize        ;
 		private final ByteBuffer                              readBufferNormal      ;
@@ -199,6 +181,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private final int                                     writeBufferSize       ;
 		private final ByteBuffer                              writeBuffer           ;
+		private final Constant<ByteBuffer>                    wrappedWriteBuffer    ;
 		private final long                                    writeStart            ;
 		private final long                                    writeBound            ;
 		private final long                                    flushBound            ;
@@ -210,7 +193,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 		private       long                                    typeId          =   -1;
 		private       PersistenceTypeDefinition               typeDescription;
 		private       ValueWriter[]                           valueWriters   ;
-		private       FileChannel                             fileChannel    ;
+		private       AWritableFile                           targetFile     ;
 
 		private EqConstHashTable<String, ValueWriter> initializeValueWriterMapping()
 		{
@@ -300,11 +283,12 @@ public interface StorageDataConverterTypeBinaryToCsv
 			this.readBufferLarge         = XMemory.allocateDirectNative(0); // don't squander memory if normal size is already huge
 
 			this.writeBufferSize         = writeBufferSize(writeBufferSize);
-			this.writeBuffer             = XMemory.allocateDirectNative(this.writeBufferSize)   ;
+			this.writeBuffer             = XMemory.allocateDirectNative(this.writeBufferSize)  ;
 			this.writeStart              = XMemory.getDirectByteBufferAddress(this.writeBuffer);
 			this.writeBound              = this.writeAddress + this.writeBuffer.capacity()     ;
 			this.flushBound              = this.writeBound - FLUSH_BUFFER_RANGE                ;
 			this.writeAddress            = this.writeStart                                     ;
+			this.wrappedWriteBuffer      = X.Constant(this.writeBuffer)                        ;
 		}
 
 
@@ -332,10 +316,9 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private void openChannel() throws IOException
 		{
-			final StorageLockedFile file = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
-			final Path directory = XIO.Path(file.qualifier());
-			XIO.unchecked.ensureDirectory(directory);
-			this.fileChannel = file.fileChannel();
+			final AWritableFile targetFile = this.fileProvider.provideConversionFile(this.typeDescription, this.currentSourceFile);
+			targetFile.ensureExists();
+			this.targetFile = targetFile;
 		}
 
 		private ValueWriter deriveOtherValueWriter(final PersistenceTypeDescriptionMember field)
@@ -538,20 +521,19 @@ public interface StorageDataConverterTypeBinaryToCsv
 		////////////
 
 		@Override
-		public final void convertDataFile(final StorageLockedFile file)
+		public final void convertDataFile(final AReadableFile file)
 		{
-			if(file.length() == 0)
+			if(file.isEmpty())
 			{
 				return;
 			}
 
-			// (13.10.2018 TM)FIXME: replace autoclose by external closing
-			try(SeekableByteChannel inputChannel = (this.currentSourceFile = file).fileChannel())
+			try
 			{
 				Throwable suppressed = null;
 				try
 				{
-					StorageDataFileItemIterator.Default.processInputFile(inputChannel, this, this, 0, inputChannel.size());
+					StorageDataFileItemIterator.Default.processInputFile(file, this, this, 0, file.size());
 					this.flushWriteBuffer(); // make sure to flush the buffer at the end to write all
 				}
 				catch(final WriteException e)
@@ -591,10 +573,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 
 			this.writeBuffer.limit(X.checkArrayRange(writeAddress - this.writeStart));
-			while(this.writeBuffer.hasRemaining())
-			{
-				this.fileChannel.write(this.writeBuffer);
-			}
+			this.targetFile.writeBytes(this.wrappedWriteBuffer);
 			this.writeBuffer.clear();
 			return this.writeStart;
 		}
@@ -603,14 +582,14 @@ public interface StorageDataConverterTypeBinaryToCsv
 		{
 			try
 			{
-				XIO.close(this.fileChannel, suppressed);
+				AFS.close(this.targetFile, suppressed);
 			}
 			finally
 			{
 				this.typeId          =   -1;
 				this.typeDescription = null;
 				this.valueWriters    = null;
-				this.fileChannel     = null;
+				this.targetFile     = null;
 			}
 		}
 

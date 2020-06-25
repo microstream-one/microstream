@@ -1,6 +1,8 @@
 package one.microstream.test.corp.main;
 
 import one.microstream.X;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.concurrency.XThreads;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandlerArchiving;
@@ -11,16 +13,16 @@ import one.microstream.storage.types.StorageBackupSetup;
 import one.microstream.storage.types.StorageDataChunkValidator;
 import one.microstream.storage.types.StorageDataFileValidator;
 import one.microstream.storage.types.StorageEntityDataValidator;
-import one.microstream.storage.types.StorageFileProvider;
+import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.test.corp.logic.Test;
 
 
 public class MainTestBackupStoring
 {
-	static final String DIRECTORY_STORAGE   = StorageFileProvider.Defaults.defaultStorageDirectory();
-	static final String DIRECTORY_BACKUP    = DIRECTORY_STORAGE + "/backup";
-	static final String DIRECTORY_DELETED   = DIRECTORY_BACKUP  + "/deleted";
-	static final String DIRECTORY_TRUNCATED = DIRECTORY_BACKUP  + "/truncated";
+	static final ADirectory DIRECTORY_STORAGE   = NioFileSystem.directory(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
+	static final ADirectory DIRECTORY_BACKUP    = DIRECTORY_STORAGE.ensureDirectory("backup");
+	static final ADirectory DIRECTORY_DELETED   = DIRECTORY_BACKUP.ensureDirectory("deleted");
+	static final ADirectory DIRECTORY_TRUNCATED = DIRECTORY_BACKUP.ensureDirectory("truncated");
 	
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
@@ -34,8 +36,8 @@ public class MainTestBackupStoring
 				// the only necessary part to activate and configure backupping.
 				StorageBackupSetup.New(
 					Storage
-					.FileProviderBuilder()
-					.setBaseDirectory(DIRECTORY_BACKUP)
+					.BackupFileProviderBuilder()
+					.setDirectory(DIRECTORY_BACKUP)
 					.setDeletionDirectory(DIRECTORY_DELETED)
 					.setTruncationDirectory(DIRECTORY_TRUNCATED)
 					.setFileHandlerCreator(PersistenceTypeDictionaryFileHandlerArchiving::New)

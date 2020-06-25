@@ -1,147 +1,435 @@
 package one.microstream.storage.types;
 
-import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.nio.ByteBuffer;
 
+import one.microstream.afs.AFile;
+import one.microstream.afs.AReadableFile;
+import one.microstream.afs.AWritableFile;
 import one.microstream.chars.VarString;
-import one.microstream.storage.exceptions.StorageExceptionIo;
+import one.microstream.chars.XChars;
+import one.microstream.io.BufferProvider;
+import one.microstream.storage.exceptions.StorageException;
+import one.microstream.storage.exceptions.StorageExceptionIoReading;
 
-
-/**
- * Type that symbolizes any entity that allows physically persisting and reading a randomly accessible sequence
- * of bytes. This might typically be a file system file entity, but not necessarily.
- * 
- * @author Thomas Münz
- */
 public interface StorageFile
 {
-	/* (13.10.2018 TM)TODO: priv#49: much better improved file abstraction.
-	 * There has to be better file abstractions. Like:
-	 * - StorageIoItem defining a unique storage item of I/O handling (directory or file)
-	 * - StorageDirectory extends StorageIoItem defining a "space" where StorageFiles can exist
-	 * - StorageFile extends StorageIoItem with a parent StorageDirectory that contains a continous block of bytes.
-	 * 
-	 * A StorageDirectory can be:
-	 * - A file system directory
-	 * - A qualifing part of a RDBMS table primary key identifying a BLOB (just a crazy example)
-	 * - A qualifing part for some mysterious cloud binary storage whathaveyou.
-	 * 
-	 * A StorageFile can be:
-	 * - A file system file
-	 * - A row in an RDBMS table containing a BLOB.
-	 * - A full qualified mysterious cloud binary storage whathaveyou item
-	 * 
-	 * Directories can be used not just for channel directories, but also for import/export locations, etc.
-	 * 
-	 * Including
-	 * - StorageInputChannel
-	 * - StorageOutputChannel
-	 * - StorageIoChannel extends StorageInputChannel, StorageOutputChannel
-	 * plus implementations wrapping specific means (e.g. a FileChannel)
-	 * because the idiotic nio interfaces and exceptions make me sick.
-	 * (seriously: how hard can it be for the "elite" java developers themselves to properly harness the
-	 * language's basic typing concept?)
-	 * 
-	 * Not yet clear:
-	 * Should StorageDirectory-s be recursive like file system directories?
-	 * Why should they have to be?
-	 */
-	
-	
-	/**
-	 * Returns a string that gives {@link #name()} a unique identity.
-	 * Example: The parent directory path of a file.
-	 * 
-	 */
-	public String qualifier();
-	
-	/**
-	 * Returns a string uniquely identifying the file represented by this instance.
-	 * 
-	 * @return this file's unique identifier.
-	 * @see #name()
-	 */
-	public String identifier();
-	
-	/**
-	 * Return a compact string containing a specific, but not necessarily unique
-	 * name of the file represented by this instance. Might be the same string
-	 * returned by {@link #identifier()}.
-	 * 
-	 * @return this file's name.
-	 * @see #identifier()
-	 */
-	public String name();
-	
-	public long length();
-	
-	public default boolean isEmpty()
+	public default String identifier()
 	{
-		return this.length() == 0;
+		return this.file().toPathString();
 	}
 	
-	public boolean delete();
+	public AFile file();
 	
+	public long size();
+
 	public boolean exists();
 	
-	public FileChannel fileChannel();
-
-	public default boolean isOpen()
-	{
-		return this.fileChannel().isOpen();
-	}
 	
-	public default StorageFile flush()
-	{
-		try
-		{
-			this.fileChannel().force(false);
-			return this;
-		}
-		catch(final IOException e)
-		{
-			throw new StorageExceptionIo(e); // damned checked exception
-		}
-	}
-
-	public default void close()
-	{
-		try
-		{
-			this.fileChannel().close();
-		}
-		catch(final IOException e)
-		{
-			throw new StorageExceptionIo(e); // damned checked exception
-		}
-	}
+	public long readBytes(final ByteBuffer targetBuffer);
 	
-	// (02.12.2019 TM)NOTE: intentionally no single-argument alternative to hint to proper cause handling :).
-	public static void close(final StorageFile file, final Throwable cause)
-	{
-		if(file == null)
-		{
-			return;
-		}
+	public long readBytes(final ByteBuffer targetBuffer, final long position);
+	
+	public long readBytes(final ByteBuffer targetBuffer, final long position, final long length);
+	
+	
+	public long readBytes(BufferProvider bufferProvider);
+	
+	public long readBytes(BufferProvider bufferProvider, long position);
+	
+	public long readBytes(BufferProvider bufferProvider, long position, long length);
+	
+	
+	public long writeBytes(Iterable<? extends ByteBuffer> buffers);
+	
+	
+//	public void pull(AWritableFile fileToMove);
+	
+	
+	public long copyTo(StorageFile target);
+	
+	public long copyTo(StorageFile target, long sourcePosition);
+
+	public long copyTo(StorageFile target, long sourcePosition, long length);
+	
+	
+	public long copyTo(AWritableFile target);
+	
+	public long copyTo(AWritableFile target, long sourcePosition);
+
+	public long copyTo(AWritableFile target, long sourcePosition, long length);
+	
+	
+	public long copyFrom(AReadableFile source);
+	
+	public long copyFrom(AReadableFile source, long sourcePosition);
+
+	public long copyFrom(AReadableFile source, long sourcePosition, long length);
+	
+	
+	public boolean delete();
+
+	public void moveTo(AWritableFile target);
+	
 		
-		try
-		{
-			file.close();
-		}
-		catch(final Throwable t)
-		{
-			if(cause != null)
-			{
-				t.addSuppressed(cause);
-			}
-			throw t;
-		}
-	}
-	
-	
+		
 	public static VarString assembleNameAndSize(final VarString vs, final StorageFile file)
 	{
-		return vs.add(file.identifier() + "[" + file.length() + "]");
+		return vs.add(file.file().identifier() + "[" + file.file().size() + "]");
+	}
+	
+	public abstract class Abstract implements StorageFile
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final AFile file;
+		
+		private AWritableFile access;
+
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		protected Abstract(final AFile file)
+		{
+			super();
+			this.file = file;
+		}
+		
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public AFile file()
+		{
+			return this.file;
+		}
+		
+		@Override
+		public final synchronized long size()
+		{
+			return this.file().size();
+		}
+		
+		@Override
+		public final synchronized boolean exists()
+		{
+			return this.file.exists();
+		}
+		
+			
+		@Override
+		public final synchronized long readBytes(final ByteBuffer targetBuffer)
+		{
+			try
+			{
+				return this.ensureReadable().readBytes(targetBuffer);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageExceptionIoReading(e);
+			}
+		}
+		
+		@Override
+		public final synchronized long readBytes(final ByteBuffer targetBuffer, final long position)
+		{
+			try
+			{
+				return this.ensureReadable().readBytes(targetBuffer, position);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageExceptionIoReading(e);
+			}
+		}
+		
+		@Override
+		public final synchronized long readBytes(final ByteBuffer targetBuffer, final long position, final long length)
+		{
+			try
+			{
+				return this.ensureReadable().readBytes(targetBuffer, position, length);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageExceptionIoReading(e);
+			}
+		}
+		
+		@Override
+		public final synchronized long readBytes(final BufferProvider bufferProvider)
+		{
+			try
+			{
+				return this.ensureReadable().readBytes(bufferProvider);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageExceptionIoReading(e);
+			}
+		}
+		
+		@Override
+		public final synchronized long readBytes(
+			final BufferProvider bufferProvider,
+			final long           position
+		)
+		{
+			try
+			{
+				return this.ensureReadable().readBytes(bufferProvider, position);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageExceptionIoReading(e);
+			}
+		}
+		
+		@Override
+		public final synchronized long readBytes(
+			final BufferProvider bufferProvider,
+			final long           position      ,
+			final long           length
+		)
+		{
+			try
+			{
+				return this.ensureReadable().readBytes(bufferProvider, position, length);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageExceptionIoReading(e);
+			}
+		}
+		
+
+		@Override
+		public final synchronized long writeBytes(final Iterable<? extends ByteBuffer> buffers)
+		{
+			try
+			{
+				return this.ensureWritable().writeBytes(buffers);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageExceptionIoReading(e);
+			}
+		}
+		
+//		@Override
+//		public final synchronized void pull(final AWritableFile fileToMove)
+//		{
+//			try
+//			{
+//				fileToMove.moveTo(this.ensureWritable());
+//			}
+//			catch(final Exception e)
+//			{
+//				throw new StorageExceptionIoReading(e);
+//			}
+//		}
+				
+		@Override
+		public final synchronized long copyTo(
+			final StorageFile target
+		)
+		{
+			return target.copyFrom(this.ensureReadable());
+		}
+		
+		@Override
+		public final synchronized long copyTo(
+			final StorageFile target        ,
+			final long        sourcePosition
+		)
+		{
+			return target.copyFrom(this.ensureReadable(), sourcePosition);
+		}
+
+		@Override
+		public final synchronized long copyTo(
+			final StorageFile target        ,
+			final long        sourcePosition,
+			final long        length
+		)
+		{
+			return target.copyFrom(this.ensureReadable(), sourcePosition, length);
+		}
+		
+		@Override
+		public final synchronized long copyTo(
+			final AWritableFile target
+		)
+		{
+			try
+			{
+				return target.copyFrom(this.ensureReadable());
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(e);
+			}
+		}
+		
+		@Override
+		public final synchronized long copyTo(
+			final AWritableFile target        ,
+			final long          sourcePosition
+		)
+		{
+			try
+			{
+				return target.copyFrom(this.ensureReadable(), sourcePosition);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(e);
+			}
+		}
+
+		@Override
+		public final synchronized long copyTo(
+			final AWritableFile target        ,
+			final long          sourcePosition,
+			final long          length
+		)
+		{
+			try
+			{
+				return target.copyFrom(this.ensureReadable(), sourcePosition, length);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(e);
+			}
+		}
+				
+		@Override
+		public final synchronized long copyFrom(
+			final AReadableFile source
+		)
+		{
+			try
+			{
+				return source.copyTo(this.ensureWritable());
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(e);
+			}
+		}
+		
+		@Override
+		public final synchronized long copyFrom(
+			final AReadableFile source        ,
+			final long          sourcePosition
+		)
+		{
+			try
+			{
+				return source.copyTo(this.ensureWritable(), sourcePosition);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(e);
+			}
+		}
+
+		@Override
+		public final synchronized long copyFrom(
+			final AReadableFile source        ,
+			final long          sourcePosition,
+			final long          length
+		)
+		{
+			try
+			{
+				return source.copyTo(this.ensureWritable(), sourcePosition, length);
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(e);
+			}
+		}
+				
+		public final synchronized void truncate(final long newLength)
+		{
+			this.ensureWritable().truncate(newLength);
+		}
+		
+		@Override
+		public final synchronized boolean delete()
+		{
+			return this.ensureWritable().delete();
+		}
+		
+		@Override
+		public final synchronized void moveTo(final AWritableFile target)
+		{
+			this.ensureWritable().moveTo(target);
+		}
+		
+		protected synchronized AReadableFile ensureReadable()
+		{
+			return this.ensureWritable();
+		}
+		
+		protected synchronized AWritableFile ensureWritable()
+		{
+			this.internalOpen();
+			
+			return this.access;
+		}
+		
+		public synchronized boolean isOpen()
+		{
+			return this.access != null && this.access.isOpen();
+		}
+
+		public synchronized boolean close()
+		{
+			if(this.access == null)
+			{
+				return false;
+			}
+			
+			// release closes implicitely.
+			final boolean result = this.access.release();
+			this.access = null;
+			
+			return result;
+		}
+		
+		protected synchronized boolean internalOpen()
+		{
+			try
+			{
+				if(this.access == null)
+				{
+					this.access = this.file().useWriting();
+				}
+				
+				return this.access.open();
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(e);
+			}
+		}
+		
+		@Override
+		public String toString()
+		{
+			return XChars.systemString(this) + " (" + this.file + ")";
+		}
+		
 	}
 	
 }
