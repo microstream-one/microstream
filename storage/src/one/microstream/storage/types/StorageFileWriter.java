@@ -2,12 +2,9 @@ package one.microstream.storage.types;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
-import one.microstream.io.XIO;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
@@ -34,52 +31,14 @@ public interface StorageFileWriter
 		);
 	}
 	
-	public default long write(final StorageLockedFile file, final ByteBuffer[] byteBuffers)
+	public default long write(final StorageFile file, final Iterable<? extends ByteBuffer> buffers)
 	{
-		try
-		{
-			return XIO.appendAllGuaranteed(file.fileChannel(), byteBuffers);
-		}
-		catch(final IOException e)
-		{
-			// (01.10.2014 TM)EXCP: proper exception
-			throw new StorageException(e);
-		}
-	}
-
-	public default long copy(
-		final StorageLockedFile sourceFile,
-		final StorageLockedFile targetfile
-	)
-	{
-		return this.copyFilePart(sourceFile, 0, sourceFile.length(), targetfile);
-	}
-
-	public default long copyFilePart(
-		final StorageLockedFile sourceFile  ,
-		final long              sourceOffset,
-		final long              length      ,
-		final StorageLockedFile targetfile
-	)
-	{
-//		DEBUGStorage.println("storage copy file range");
-
-		try
-		{
-			final long byteCount = sourceFile.fileChannel().transferTo(sourceOffset, length, targetfile.fileChannel());
-			targetfile.fileChannel().force(false);
-			
-			return validateIoByteCount(length, byteCount);
-		}
-		catch(final IOException e)
-		{
-			throw new StorageException(e); // (01.10.2014 TM)EXCP: proper exception
-		}
+		return file.writeBytes(buffers);
 	}
 	
 	public default long writeStore(
-		final StorageDataFile<?> targetFile ,
-		final ByteBuffer[]       byteBuffers
+		final StorageLiveDataFile            targetFile ,
+		final Iterable<? extends ByteBuffer> byteBuffers
 	)
 	{
 		return this.write(targetFile, byteBuffers);
@@ -87,95 +46,94 @@ public interface StorageFileWriter
 	
 	/**
 	 * Logically the same as a store, but technically the same as a transfer with an external source file.
-	 * 
 	 */
 	public default long writeImport(
-		final StorageLockedFile  sourceFile  ,
-		final long               sourceOffset,
-		final long               copyLength  ,
-		final StorageDataFile<?> targetFile
+		final StorageFile         sourceFile  ,
+		final long                sourceOffset,
+		final long                copyLength  ,
+		final StorageLiveDataFile targetFile
 	)
 	{
-		return this.copyFilePart(sourceFile, sourceOffset, copyLength, targetFile);
+		return sourceFile.copyTo(targetFile, sourceOffset, copyLength);
 	}
 	
 	public default long writeTransfer(
-		final StorageDataFile<?> sourceFile  ,
-		final long               sourceOffset,
-		final long               copyLength  ,
-		final StorageDataFile<?> targetFile
+		final StorageLiveDataFile sourceFile  ,
+		final long                sourceOffset,
+		final long                copyLength  ,
+		final StorageLiveDataFile targetFile
 	)
 	{
-		return this.copyFilePart(sourceFile, sourceOffset, copyLength, targetFile);
+		return sourceFile.copyTo(targetFile, sourceOffset, copyLength);
 	}
 	
 	public default long writeTransactionEntryCreate(
-		final StorageInventoryFile transactionFile,
-		final ByteBuffer[]         byteBuffers    ,
-		final StorageDataFile<?>   dataFile
+		final StorageLiveTransactionsFile    transactionFile,
+		final Iterable<? extends ByteBuffer> byteBuffers    ,
+		final StorageLiveDataFile            dataFile
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 	
 	public default long writeTransactionEntryStore(
-		final StorageInventoryFile transactionFile,
-		final ByteBuffer[]         byteBuffers    ,
-		final StorageDataFile<?>   dataFile       ,
-		final long                 dataFileOffset ,
-		final long                 storeLength
+		final StorageLiveTransactionsFile    transactionFile,
+		final Iterable<? extends ByteBuffer> byteBuffers    ,
+		final StorageLiveDataFile            dataFile       ,
+		final long                           dataFileOffset ,
+		final long                           storeLength
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 	
 	public default long writeTransactionEntryTransfer(
-		final StorageInventoryFile transactionFile,
-		final ByteBuffer[]             byteBuffers    ,
-		final StorageDataFile<?>       dataFile       ,
-		final long                     dataFileOffset ,
-		final long                     storeLength
+		final StorageLiveTransactionsFile    transactionFile,
+		final Iterable<? extends ByteBuffer> byteBuffers    ,
+		final StorageLiveDataFile            dataFile       ,
+		final long                           dataFileOffset ,
+		final long                           storeLength
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 	
 	public default long writeTransactionEntryDelete(
-		final StorageInventoryFile transactionFile,
-		final ByteBuffer[]             byteBuffers    ,
-		final StorageDataFile<?>       dataFile
+		final StorageLiveTransactionsFile    transactionFile,
+		final Iterable<? extends ByteBuffer> byteBuffers    ,
+		final StorageLiveDataFile            dataFile
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 	
 	public default long writeTransactionEntryTruncate(
-		final StorageInventoryFile transactionFile,
-		final ByteBuffer[]             byteBuffers    ,
-		final StorageInventoryFile     file           ,
-		final long                     newFileLength
+		final StorageLiveTransactionsFile    transactionFile,
+		final Iterable<? extends ByteBuffer> byteBuffers    ,
+		final StorageLiveDataFile            dataFile       ,
+		final long                           newFileLength
 	)
 	{
 		return this.write(transactionFile, byteBuffers);
 	}
 
 	public default void truncate(
-		final StorageInventoryFile file               ,
-		final long                 newLength          ,
-		final StorageFileProvider  storageFileProvider
+		final StorageLiveChannelFile<?> file        ,
+		final long                      newLength   ,
+		final StorageFileProvider       fileProvider
 	)
 	{
-		truncateFile(file, newLength, storageFileProvider);
+		truncateFile(file, newLength, fileProvider);
 	}
 	
 	public static void truncateFile(
-		final StorageNumberedFile file               ,
-		final long                newLength          ,
-		final StorageFileProvider storageFileProvider
+		final StorageTruncatableChannelFile file        ,
+		final long                          newLength   ,
+		final StorageFileProvider           fileProvider
 	)
 	{
 //		DEBUGStorage.println("storage file truncation");
-		final StorageNumberedFile truncationTargetFile = storageFileProvider.provideTruncationBackupTargetFile(
+		final AFile truncationTargetFile = fileProvider.provideTruncationTargetFile(
 			file,
 			newLength
 		);
@@ -186,65 +144,61 @@ public interface StorageFileWriter
 
 		try
 		{
-			file.fileChannel().truncate(newLength);
+			file.truncate(newLength);
 		}
-		catch(final IOException e)
+		catch(final Exception e)
 		{
-			throw new StorageException(e); // (01.10.2014 TM)EXCP: proper exception
+			// (01.10.2014 TM)EXCP: proper exception
+			throw new StorageExceptionIo(e);
 		}
 	}
 
 	public default void delete(
-		final StorageInventoryFile file               ,
-		final StorageFileProvider  storageFileProvider
+		final StorageLiveDataFile file        ,
+		final StorageFileProvider fileProvider
 	)
 	{
-		deleteFile(file, storageFileProvider);
+		deleteFile(file, fileProvider);
 	}
 	
 	public static void deleteFile(
-		final StorageNumberedFile file               ,
-		final StorageFileProvider storageFileProvider
+		final StorageChannelFile  file        ,
+		final StorageFileProvider fileProvider
 	)
 	{
 //		DEBUGStorage.println("storage file deletion");
 
-		if(rescueFromDeletion(file, storageFileProvider))
+		if(rescueFromDeletion(file, fileProvider))
 		{
 			return;
 		}
 		
-		if(file.delete())
-		{
-			return;
-		}
-		
-		throw new StorageException("Could not delete file " + file); // (02.10.2014 TM)EXCP: proper exception
+		file.delete();
 	}
 	
 
 	public static void createFileFullCopy(
-		final StorageNumberedFile sourceFile,
-		final StorageNumberedFile targetFile
+		final StorageFile sourceFile,
+		final AFile       targetFile
 	)
 	{
 		try
 		{
-			final Path source = Paths.get(sourceFile.identifier());
-			final Path target = Paths.get(targetFile.identifier());
-			if(!Files.exists(source))
+			if(!sourceFile.exists())
 			{
-				throw new IOException("Copying source file does not exist: " + sourceFile.identifier());
+				throw new IOException("Copying source file does not exist: " + sourceFile);
 			}
-			if(Files.exists(target))
+			if(targetFile.exists())
 			{
-				throw new IOException("Copying target already exist: " + targetFile.identifier());
+				throw new IOException("Copying target already exist: " + targetFile);
 			}
 			
-			XIO.copyFile(source, target, StandardOpenOption.CREATE_NEW);
-			
-			// (20.02.2020 TM)NOTE: Files#copy is bugged as it recognizes the process's file locks as foreign (rofl).
-//			Files.copy(source, target);
+			AFS.executeWriting(targetFile, wf ->
+			{
+				wf.ensureExists();
+				sourceFile.copyTo(wf);
+				return null;
+			});
 		}
 		catch(final Exception e)
 		{
@@ -253,11 +207,11 @@ public interface StorageFileWriter
 	}
 	
 	public static boolean rescueFromDeletion(
-		final StorageNumberedFile file               ,
-		final StorageFileProvider storageFileProvider
+		final StorageChannelFile  file        ,
+		final StorageFileProvider fileProvider
 	)
 	{
-		final StorageNumberedFile deletionTargetFile = storageFileProvider.provideDeletionTargetFile(file);
+		final AFile deletionTargetFile = fileProvider.provideDeletionTargetFile(file);
 		if(deletionTargetFile == null)
 		{
 			return false;
@@ -265,9 +219,12 @@ public interface StorageFileWriter
 		
 		try
 		{
-			final Path source = Paths.get(file.identifier());
-			final Path target = Paths.get(deletionTargetFile.identifier());
-			Files.move(source, target);
+			AFS.executeWriting(deletionTargetFile, wf ->
+			{
+				wf.ensureExists();
+				file.moveTo(wf);
+				return null;
+			});
 		}
 		catch(final Exception e)
 		{
@@ -277,18 +234,6 @@ public interface StorageFileWriter
 		return true;
 	}
 	
-	public default void flush(final StorageLockedFile targetfile)
-	{
-		try
-		{
-			targetfile.fileChannel().force(false);
-		}
-		catch(final IOException e)
-		{
-			throw new StorageException(e); // (01.10.2014 TM)EXCP: proper exception
-		}
-	}
-
 	public final class Default implements StorageFileWriter
 	{
 		// since default methods, interfaces should be directly instantiable :(

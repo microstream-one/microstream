@@ -3,12 +3,14 @@ package one.microstream.persistence.test;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.file.Path;
 import java.util.Date;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import one.microstream.X;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
@@ -16,7 +18,6 @@ import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XSequence;
 import one.microstream.functional.XFunc;
-import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -30,9 +31,7 @@ import one.microstream.storage.types.StorageDataConverterTypeCsvToBinary;
 import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportStatistics;
-import one.microstream.storage.types.StorageFile;
-import one.microstream.storage.types.StorageFileProvider;
-import one.microstream.storage.types.StorageLockedFile;
+import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.util.cql.CQL;
 
 public class TestStorage extends TestComponentProvider
@@ -79,7 +78,7 @@ public class TestStorage extends TestComponentProvider
 		System.out.println("done");
 	}
 
-	static final StorageFileProvider createTestFileProvider()
+	static final StorageLiveFileProvider createTestFileProvider()
 	{
 		return Storage.FileProvider(TEST_DIRECTORY);
 	}
@@ -89,19 +88,22 @@ public class TestStorage extends TestComponentProvider
 		return TEST.initialize(EmbeddedStorageConnectionFoundation.New());
 	}
 
-	protected static Path convertBinToCsv(final Path... binaryFiles)
+	protected static ADirectory convertBinToCsv(final AFile... binaryFiles)
 	{
 		return convertBinToCsv(EqHashEnum.New(binaryFiles));
 	}
 
-	protected static Path convertBinToCsv(final XGettingCollection<Path> binaryFiles)
+	protected static ADirectory convertBinToCsv(final XGettingCollection<AFile> binaryFiles)
 	{
 		return convertBinToCsv(binaryFiles, XFunc.all());
 	}
 
-	protected static Path convertBinToCsv(final XGettingCollection<Path> binaryFiles, final Predicate<? super Path> filter)
+	protected static ADirectory convertBinToCsv(
+		final XGettingCollection<AFile> binaryFiles,
+		final Predicate<? super AFile>  filter
+	)
 	{
-		final Path dir = XIO.Path(binaryFiles.get().getParent().getParent(), "csv");
+		final ADirectory dir = binaryFiles.get().parent().parent().ensureDirectory("csv");
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			new StorageEntityTypeConversionFileProvider.Default(dir, "csv"),
@@ -111,59 +113,49 @@ public class TestStorage extends TestComponentProvider
 			4096
 		);
 
-		for(final Path file : binaryFiles)
+		for(final AFile file : binaryFiles)
 		{
 			if(!filter.test(file))
 			{
 				continue;
 			}
 			
-			final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
-			try
-			{
-				converter.convertDataFile(storageFile);
-			}
-			catch(final Exception e)
-			{
-				throw new RuntimeException("Exception while converting file " + file, e);
-			}
-			finally
-			{
-				storageFile.close();
-			}
+			AFS.execute(file, rf -> converter.convertDataFile(rf));
 		}
 		return dir;
 	}
 
-	protected static void convertCsvToBin(final Path... binaryFiles)
+	protected static void convertCsvToBin(final AFile... binaryFiles)
 	{
 		convertCsvToBin(X.List(binaryFiles), XFunc.all());
 	}
 
-	protected static void convertCsvToBin(final XGettingCollection<Path> binaryFiles, final Predicate<? super Path> filter)
+	protected static void convertCsvToBin(
+		final XGettingCollection<AFile> binaryFiles,
+		final Predicate<? super AFile> filter
+	)
 	{
-		final Path directory = XIO.Path(binaryFiles.get().getParent().getParent(), "bin2");
-		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
+		final ADirectory directory = binaryFiles.get().parent().parent().ensureDirectory("bin2");
+		final StorageDataConverterTypeCsvToBinary<AFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			STORAGE.typeDictionary(),
 			new StorageEntityTypeConversionFileProvider.Default(directory, "dat2")
 		);
 
-		for(final Path file : binaryFiles)
+		for(final AFile file : binaryFiles)
 		{
 			if(!filter.test(file))
 			{
 				continue;
 			}
 
-			final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
-			converter.convertCsv(storageFile);
+			AFS.execute(file, rf -> converter.convertCsv(rf));
 		}
 	}
 
-	static final XSequence<Path> exportTypes(
+	static final XSequence<AFile> exportTypes(
 		final StorageConnection storageConnection,
-		final Path              targetDirectory  ,
+		final ADirectory        targetDirectory  ,
 		final String            fileSuffix
 )
 	{
@@ -172,9 +164,9 @@ public class TestStorage extends TestComponentProvider
 		);
 		System.out.println(result);
 
-		final XSequence<Path> exportFiles = CQL
+		final XSequence<AFile> exportFiles = CQL
 			.from(result.typeStatistics().values())
-			.project(s -> XIO.Path(s.file().identifier()))
+			.project(s -> s.file())
 			.execute()
 		;
 

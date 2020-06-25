@@ -4,22 +4,21 @@ import static one.microstream.X.notNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AReadableFile;
 import one.microstream.chars.VarString;
 import one.microstream.collections.ConstList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.storage.exceptions.StorageException;
 
-public interface StorageTransactionsFileAnalysis
+public interface StorageTransactionsAnalysis
 {
 	public long headFileLastConsistentStoreLength();
 
@@ -29,9 +28,9 @@ public interface StorageTransactionsFileAnalysis
 
 	public long headFileLatestTimestamp();
 
-	public StorageInventoryFile transactionsFile();
+	public StorageLiveTransactionsFile transactionsFile();
 
-	public XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries();
+	public XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries();
 
 	public default boolean isEmpty()
 	{
@@ -182,10 +181,32 @@ public interface StorageTransactionsFileAnalysis
 		{
 			return XMemory.get_byte(address + OFFSET_COMMON_LENGTH);
 		}
+		
+		public static final StorageTransactionsEntryType mapEntryType(final byte entryTypeKey)
+		{
+			switch(entryTypeKey)
+			{
+				case Logic.TYPE_FILE_CREATION  : return StorageTransactionsEntryType.FILE_CREATION  ;
+				case Logic.TYPE_STORE          : return StorageTransactionsEntryType.DATA_STORE     ;
+				case Logic.TYPE_TRANSFER       : return StorageTransactionsEntryType.DATA_TRANSFER  ;
+				case Logic.TYPE_FILE_TRUNCATION: return StorageTransactionsEntryType.FILE_TRUNCATION;
+				case Logic.TYPE_FILE_DELETION  : return StorageTransactionsEntryType.FILE_DELETION  ;
+				default:
+				{
+					// (02.09.2014 TM)EXCP: proper exception
+					throw new StorageException("Unknown transactions entry type: " + entryTypeKey);
+				}
+			}
+		}
 
 		public static byte getEntryType(final long address)
 		{
 			return XMemory.get_byte(address + OFFSET_COMMON_TYPE);
+		}
+		
+		public static StorageTransactionsEntryType resolveEntryType(final long address)
+		{
+			return mapEntryType(getEntryType(address));
 		}
 
 		public static long getEntryTimestamp(final long address)
@@ -251,23 +272,21 @@ public interface StorageTransactionsFileAnalysis
 		}
 
 		public static <P extends EntryIterator> P processInputFile(
-			final FileChannel fileChannel   ,
-			final P           entryProcessor
+			final AReadableFile file          ,
+			final P             entryProcessor
 		)
-			throws IOException
 		{
-			return processInputFile(fileChannel, 0, fileChannel.size(), entryProcessor);
+			return processInputFile(file, 0, file.size(), entryProcessor);
 		}
 
 		public static <P extends EntryIterator> P processInputFile(
-			final FileChannel fileChannel   ,
-			final long        startPosition ,
-			final long        length        ,
-			final P           entryProcessor
+			final AReadableFile file          ,
+			final long          startPosition ,
+			final long          length        ,
+			final P             entryProcessor
 		)
-			throws IOException
 		{
-			final long actualFileLength    = fileChannel.size()    ;
+			final long actualFileLength    = file.size()    ;
 			final long boundPosition       = startPosition + length;
 		          long currentFilePosition = startPosition         ;
 
@@ -279,8 +298,6 @@ public interface StorageTransactionsFileAnalysis
 			{
 				throw new IllegalArgumentException(); // (10.06.2014 TM)EXCP: proper exception
 			}
-
-			fileChannel.position(startPosition);
 
 			final ByteBuffer buffer  = XMemory.allocateDirectNativeDefault();
 			final long       address = XMemory.getDirectByteBufferAddress(buffer);
@@ -298,35 +315,24 @@ public interface StorageTransactionsFileAnalysis
 				}
 
 				// loop is guaranteed to terminate as it depends on the buffer capacity and the file length
-				do
-				{
-					fileChannel.read(buffer);
-				}
-				while(buffer.hasRemaining());
+				file.readBytes(buffer, currentFilePosition);
 
 				// buffer is guaranteed to be filled exactely to its limit in any case
-				processBufferedEntities(
-					address,
-					buffer.limit(),
-					fileChannel,
-					entryProcessor
-				);
-				currentFilePosition = fileChannel.position();
+				final long progress = processBufferedEntities(address, buffer.limit(), entryProcessor);
+				currentFilePosition += progress;
 			}
 
 			return entryProcessor;
 		}
 
-		private static void processBufferedEntities(
-			final long           startAddress    ,
-			final long           bufferDataLength,
-			final FileChannel    fileChannel     ,
+		private static long processBufferedEntities(
+			final long          startAddress    ,
+			final long          bufferDataLength,
 			final EntryIterator entityProcessor
 		)
-			throws IOException
 		{
 			// bufferBound is the bounding address (exclusive) of the data available in the buffer
-			final long bufferBound      = startAddress + bufferDataLength;
+			final long bufferBound = startAddress + bufferDataLength;
 
 			// every entity start must be at least one long size before the actual bound to safely read its length
 			final long entityStartBound = bufferBound - LENGTH_ENTRY_LENGTH;
@@ -346,7 +352,7 @@ public interface StorageTransactionsFileAnalysis
 				if(entryLength == 0)
 				{
 					// entity length may never be 0 or the iteration will hang forever
-					throw new StorageException("Zero length transaction entry."); // (29.08.2014 TM)EXCP: proper exception
+					throw new StorageException("Zero length transactions entry."); // (29.08.2014 TM)EXCP: proper exception
 				}
 
 //				DEBUGStorage.println(
@@ -358,42 +364,36 @@ public interface StorageTransactionsFileAnalysis
 				// depending on the processor logic, incomplete entity data can still be enough (e.g. only needs header)
 				if(!entityProcessor.accept(address, bufferBound - address))
 				{
-					// revert fileChannel position to start of current incomplete entity, return its length
-					fileChannel.position(fileChannel.position() + address - bufferBound); // current address!
-					return;
+					// only advance to start of current incomplete entity
+					return address - startAddress;
 				}
 
 				// advance iteration and check for end of current buffered data
 				if((address += Math.abs(entryLength)) > entityStartBound)
 				{
-					// revert fileChannel position to start of next item (of currently unknowable length)
-					fileChannel.position(fileChannel.position() + address - bufferBound);
-					return;
+					// only advance to start of next item (of currently unknowable length)
+					return address - startAddress;
 				}
 			}
 		}
 
-		public static VarString parseFile(final Path file)
+		public static VarString parseFile(final AFile file)
 		{
 			return parseFile(file, VarString.New());
 		}
 
-		public static VarString parseFile(final Path file, final VarString vs)
+		public static VarString parseFile(final AFile file, final VarString vs)
 		{
-			      FileLock    lock    = null;
-			final FileChannel channel = null;
-			
 			Throwable suppressed = null;
+			final AReadableFile rFile = file.useReading();
 			try
 			{
-				if(!XIO.exists(file))
+				if(!rFile.exists())
 				{
 					return vs;
 				}
 				
-				lock = StorageLockedFile.openLockedFileChannel(file);
-				
-				return parseFile(lock.channel(), vs);
+				return parseFile(rFile, vs);
 			}
 			catch(final IOException e)
 			{
@@ -402,17 +402,17 @@ public interface StorageTransactionsFileAnalysis
 			}
 			finally
 			{
-				XIO.unchecked.close(lock, suppressed);
-				XIO.unchecked.close(channel, suppressed);
+				AFS.close(rFile, suppressed);
 			}
 		}
 
-		public static VarString parseFile(final FileChannel fileChannel, final VarString vs) throws IOException
+		public static VarString parseFile(final AReadableFile file, final VarString vs) throws IOException
 		{
-			StorageTransactionsFileAnalysis.Logic.processInputFile(
-				fileChannel,
+			StorageTransactionsAnalysis.Logic.processInputFile(
+				file,
 				new EntryAssembler(vs)
 			);
+			
 			return vs;
 		}
 
@@ -562,7 +562,7 @@ public interface StorageTransactionsFileAnalysis
 			// reset as it is no longer valid for a new file (would mess up common part calculation otherwise)
 			this.lastFileLength = 0;
 
-			this.vs.add(StorageTransactionsFile.EntryType.FILE_CREATION.typeName()).tab();
+			this.vs.add(StorageTransactionsEntryType.FILE_CREATION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -587,7 +587,7 @@ public interface StorageTransactionsFileAnalysis
 //			}
 			
 			this.vs
-			.add(StorageTransactionsFile.EntryType.DATA_STORE.typeName()).tab();
+			.add(StorageTransactionsEntryType.DATA_STORE.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -612,7 +612,7 @@ public interface StorageTransactionsFileAnalysis
 //			}
 			
 			this.vs
-			.add(StorageTransactionsFile.EntryType.DATA_TRANSFER.typeName()).tab();
+			.add(StorageTransactionsEntryType.DATA_TRANSFER.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -631,7 +631,7 @@ public interface StorageTransactionsFileAnalysis
 				return false;
 			}
 			this.vs
-			.add(StorageTransactionsFile.EntryType.FILE_TRUNCATION.typeName()).tab();
+			.add(StorageTransactionsEntryType.FILE_TRUNCATION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.addCommonFileLengthDifference(address);
 			this.addCommonCurrentHeadFile();
@@ -654,7 +654,7 @@ public interface StorageTransactionsFileAnalysis
 //			this.lastFileLength = 2 * Logic.getFileLength(address); // a little hack :)
 
 			this.vs
-			.add(StorageTransactionsFile.EntryType.FILE_DELETION.typeName()).tab();
+			.add(StorageTransactionsEntryType.FILE_DELETION.typeName()).tab();
 			this.addCommonTimestampPart(address);
 			this.vs
 			.add('0').tab()
@@ -675,7 +675,7 @@ public interface StorageTransactionsFileAnalysis
 	
 	public final class EntryAggregator implements EntryIterator
 	{
-		private final EqHashTable<Long, StorageTransactionFileEntry.Default> files = EqHashTable.New();
+		private final EqHashTable<Long, StorageTransactionEntry.Default> files = EqHashTable.New();
 
 		private final int  hashIndex;
 
@@ -768,7 +768,7 @@ public interface StorageTransactionsFileAnalysis
 			}
 			this.files.add(
 				this.currentFileNumber,
-				new StorageTransactionFileEntry.Default(this.currentFileNumber, this.currentStoreLength)
+				new StorageTransactionEntry.Default(this.currentFileNumber, this.currentStoreLength)
 			);
 		}
 
@@ -882,7 +882,7 @@ public interface StorageTransactionsFileAnalysis
 			}
 
 			final long number = Logic.getFileNumber(address);
-			final StorageTransactionFileEntry.Default file = this.files.get(number);
+			final StorageTransactionEntry.Default file = this.files.get(number);
 			if(file == null)
 			{
 				// (03.09.2014 TM)EXCP: proper exception
@@ -893,12 +893,12 @@ public interface StorageTransactionsFileAnalysis
 			return true;
 		}
 
-		final StorageTransactionsFileAnalysis yield(final StorageInventoryFile transactionsFile)
+		final StorageTransactionsAnalysis yield(final StorageLiveTransactionsFile transactionsFile)
 		{
 			// register latest file
 			this.registerCurrentFile();
 
-			return new StorageTransactionsFileAnalysis.Default(
+			return new StorageTransactionsAnalysis.Default(
 				transactionsFile                 ,
 				this.files                       ,
 				this.lastConsistentStoreLength   ,
@@ -912,18 +912,18 @@ public interface StorageTransactionsFileAnalysis
 
 
 
-	public final class Default implements StorageTransactionsFileAnalysis
+	public final class Default implements StorageTransactionsAnalysis
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final StorageInventoryFile                                       transactionsFile                    ;
-		private final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries             ;
-		private final long                                                       headFileLastConsistentStoreLength   ;
-		private final long                                                       headFileLastConsistentStoreTimestamp;
-		private final long                                                       headFileLatestLength                ;
-		private final long                                                       headFileLatestTimestamp             ;
+		private final StorageLiveTransactionsFile                            transactionsFile                    ;
+		private final XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries             ;
+		private final long                                                   headFileLastConsistentStoreLength   ;
+		private final long                                                   headFileLastConsistentStoreTimestamp;
+		private final long                                                   headFileLatestLength                ;
+		private final long                                                   headFileLatestTimestamp             ;
 
 
 		
@@ -932,12 +932,12 @@ public interface StorageTransactionsFileAnalysis
 		/////////////////
 
 		Default(
-			final StorageInventoryFile                                       transactionsFile                    ,
-			final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries             ,
-			final long                                                       headFileLastConsistentStoreLength   ,
-			final long                                                       headFileLastConsistentStoreTimestamp,
-			final long                                                       headFileLatestLength                ,
-			final long                                                       headFileLatestTimestamp
+			final StorageLiveTransactionsFile                            transactionsFile                    ,
+			final XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries             ,
+			final long                                                   headFileLastConsistentStoreLength   ,
+			final long                                                   headFileLastConsistentStoreTimestamp,
+			final long                                                   headFileLatestLength                ,
+			final long                                                   headFileLatestTimestamp
 		)
 		{
 			super();
@@ -956,13 +956,13 @@ public interface StorageTransactionsFileAnalysis
 		////////////
 
 		@Override
-		public final StorageInventoryFile transactionsFile()
+		public final StorageLiveTransactionsFile transactionsFile()
 		{
 			return this.transactionsFile;
 		}
 
 		@Override
-		public final XGettingTable<Long, ? extends StorageTransactionFileEntry> transactionsFileEntries()
+		public final XGettingTable<Long, ? extends StorageTransactionEntry> transactionsFileEntries()
 		{
 			return this.transactionsFileEntries;
 		}

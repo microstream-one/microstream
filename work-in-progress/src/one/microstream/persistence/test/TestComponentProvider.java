@@ -2,9 +2,9 @@ package one.microstream.persistence.test;
 
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
-
-import one.microstream.io.XIO;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFS;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.persistence.binary.internal.BinaryFileStorage;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.internal.CompositeIdProvider;
@@ -20,11 +20,11 @@ public class TestComponentProvider extends InvocationLogging
 	// constants //
 	//////////////
 
-	protected static final Path TEST_DIRECTORY = XIO.Path("c:/Files/");
+	protected static final ADirectory TEST_DIRECTORY = NioFileSystem.directory("c:/Files/");
 
 	// application- (test-) specific components //
 	protected static final TestComponentProvider TEST = new TestComponentProvider(
-		 XIO.unchecked.ensureDirectory(TEST_DIRECTORY)
+		 AFS.ensureExists(TEST_DIRECTORY)
 		,Persistence.defaultFilenameTypeDictionary()
 		,FileObjectIdStrategy.defaultFilename()
 		,FileTypeIdStrategy.defaultFilename()
@@ -42,10 +42,10 @@ public class TestComponentProvider extends InvocationLogging
 	// instance fields //
 	////////////////////
 
-	private final Path   directory;
-	private final String filenameTypeDictionary;
-	private final String filenameTypeId;
-	private final String filenameObjectId;
+	private final ADirectory directory;
+	private final String     filenameTypeDictionary;
+	private final String     filenameTypeId;
+	private final String     filenameObjectId;
 
 	private String filenameData;
 
@@ -65,10 +65,10 @@ public class TestComponentProvider extends InvocationLogging
 	}
 
 	protected TestComponentProvider(
-		final Path   directory,
-		final String filenameTypeDictionary,
-		final String filenameTypeId,
-		final String filenameObjectId
+		final ADirectory directory,
+		final String     filenameTypeDictionary,
+		final String     filenameTypeId,
+		final String     filenameObjectId
 	)
 	{
 		this(
@@ -81,11 +81,11 @@ public class TestComponentProvider extends InvocationLogging
 	}
 
 	TestComponentProvider(
-		final Path directory,
-		final String filenameTypeDictionary,
-		final String filenameTypeId,
-		final String filenameObjectId,
-		final String filenameData
+		final ADirectory directory,
+		final String     filenameTypeDictionary,
+		final String     filenameTypeId,
+		final String     filenameObjectId,
+		final String     filenameData
 	)
 	{
 		super();
@@ -108,8 +108,8 @@ public class TestComponentProvider extends InvocationLogging
 		if(this.idProvider == null)
 		{
 			this.idProvider = CompositeIdProvider.New(
-				dispatch(FileTypeIdStrategy.New  (XIO.Path(this.directory, this.filenameTypeId  )).createTypeIdProvider()),
-				dispatch(FileObjectIdStrategy.New(XIO.Path(this.directory, this.filenameObjectId)).createObjectIdProvider())
+				dispatch(FileTypeIdStrategy.New  (this.directory.ensureFile(this.filenameTypeId  )).createTypeIdProvider()),
+				dispatch(FileObjectIdStrategy.New(this.directory.ensureFile(this.filenameObjectId)).createObjectIdProvider())
 			).initialize();
 		}
 		return this.idProvider;
@@ -120,8 +120,8 @@ public class TestComponentProvider extends InvocationLogging
 		if(this.persistenceStorage == null && this.filenameData != null)
 		{
 			this.persistenceStorage = new BinaryFileStorage(
-				dispatch(new DEBUG_BinaryFileSource(System.out, XIO.Path(this.directory, this.filenameData))),
-				dispatch(new DEBUG_BinaryFileTarget(System.out, XIO.Path(this.directory, this.filenameData)))
+				dispatch(new DEBUG_BinaryFileSource(System.out, this.directory.ensureFile(this.filenameData))),
+				dispatch(new DEBUG_BinaryFileTarget(System.out, this.directory.ensureFile(this.filenameData)))
 			);
 		}
 		return this.persistenceStorage;
@@ -132,7 +132,9 @@ public class TestComponentProvider extends InvocationLogging
 		if(this.dictionaryStorage == null)
 		{
 			this.dictionaryStorage = dispatch(
-				PersistenceTypeDictionaryFileHandler.New(XIO.Path(this.directory, this.filenameTypeDictionary))
+				PersistenceTypeDictionaryFileHandler.New(
+					this.directory.ensureFile(this.filenameTypeDictionary)
+				)
 			);
 		}
 		return this.dictionaryStorage;

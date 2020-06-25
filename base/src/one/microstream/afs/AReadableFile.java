@@ -37,9 +37,11 @@ public interface AReadableFile extends AFile.Wrapper
 	// implicitely #close PLUS the AFS-management-level aspect
 	public default boolean release()
 	{
-		this.close();
+		final boolean wasClosed = this.close();
 		
-		return this.fileSystem().accessManager().unregister(this);
+		this.fileSystem().accessManager().unregister(this);
+		
+		return wasClosed;
 	}
 	
 	@Override
@@ -114,15 +116,15 @@ public interface AReadableFile extends AFile.Wrapper
 		return this.actual().fileSystem().ioHandler().copyTo(this, target);
 	}
 	
-//	public default long copyTo(final AWritableFile target, final long sourcePosition)
-//	{
-//		return this.actual().fileSystem().ioHandler().copyTo(this, target, sourcePosition);
-//	}
-//
-//	public default long copyTo(final AWritableFile target, final long sourcePosition, final long length)
-//	{
-//		return this.actual().fileSystem().ioHandler().copyTo(this, target, sourcePosition, length);
-//	}
+	public default long copyTo(final AWritableFile target, final long sourcePosition)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(this, sourcePosition, target);
+	}
+
+	public default long copyTo(final AWritableFile target, final long sourcePosition, final long length)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(this, sourcePosition, length, target);
+	}
 	
 	public boolean retire();
 	

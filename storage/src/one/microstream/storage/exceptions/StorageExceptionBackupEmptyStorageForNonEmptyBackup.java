@@ -1,7 +1,7 @@
 package one.microstream.storage.exceptions;
 
 import one.microstream.collections.types.XGettingTable;
-import one.microstream.storage.types.StorageBackupFile;
+import one.microstream.storage.types.StorageBackupDataFile;
 
 public class StorageExceptionBackupEmptyStorageForNonEmptyBackup
 extends StorageExceptionBackupChannelIndex
@@ -10,7 +10,7 @@ extends StorageExceptionBackupChannelIndex
 	// instance fields //
 	////////////////////
 	
-	private final XGettingTable<Long, StorageBackupFile> backupFiles;
+	private final XGettingTable<Long, StorageBackupDataFile> backupFiles;
 
 	
 
@@ -19,8 +19,8 @@ extends StorageExceptionBackupChannelIndex
 	/////////////////
 
 	public StorageExceptionBackupEmptyStorageForNonEmptyBackup(
-		final long                                   channelIndex,
-		final XGettingTable<Long, StorageBackupFile> backupFiles
+		final long                                       channelIndex,
+		final XGettingTable<Long, StorageBackupDataFile> backupFiles
 	)
 	{
 		super(channelIndex);
@@ -28,9 +28,9 @@ extends StorageExceptionBackupChannelIndex
 	}
 
 	public StorageExceptionBackupEmptyStorageForNonEmptyBackup(
-		final long                                   channelIndex,
-		final XGettingTable<Long, StorageBackupFile> backupFiles ,
-		final String                                 message
+		final long                                       channelIndex,
+		final XGettingTable<Long, StorageBackupDataFile> backupFiles ,
+		final String                                     message
 	)
 	{
 		super(channelIndex, message);
@@ -38,9 +38,9 @@ extends StorageExceptionBackupChannelIndex
 	}
 
 	public StorageExceptionBackupEmptyStorageForNonEmptyBackup(
-		final long                                   channelIndex,
-		final XGettingTable<Long, StorageBackupFile> backupFiles ,
-		final Throwable                              cause
+		final long                                       channelIndex,
+		final XGettingTable<Long, StorageBackupDataFile> backupFiles ,
+		final Throwable                                  cause
 	)
 	{
 		super(channelIndex, cause);
@@ -48,10 +48,10 @@ extends StorageExceptionBackupChannelIndex
 	}
 
 	public StorageExceptionBackupEmptyStorageForNonEmptyBackup(
-		final long                                   channelIndex,
-		final XGettingTable<Long, StorageBackupFile> backupFiles ,
-		final String                                 message     ,
-		final Throwable                              cause
+		final long                                       channelIndex,
+		final XGettingTable<Long, StorageBackupDataFile> backupFiles ,
+		final String                                     message     ,
+		final Throwable                                  cause
 	)
 	{
 		super(channelIndex, message, cause);
@@ -59,12 +59,12 @@ extends StorageExceptionBackupChannelIndex
 	}
 
 	public StorageExceptionBackupEmptyStorageForNonEmptyBackup(
-		final long                                   channelIndex      ,
-		final XGettingTable<Long, StorageBackupFile> backupFiles       ,
-		final String                                 message           ,
-		final Throwable                              cause             ,
-		final boolean                                enableSuppression ,
-		final boolean                                writableStackTrace
+		final long                                       channelIndex      ,
+		final XGettingTable<Long, StorageBackupDataFile> backupFiles       ,
+		final String                                     message           ,
+		final Throwable                                  cause             ,
+		final boolean                                    enableSuppression ,
+		final boolean                                    writableStackTrace
 	)
 	{
 		super(channelIndex, message, cause, enableSuppression, writableStackTrace);
@@ -77,7 +77,7 @@ extends StorageExceptionBackupChannelIndex
 	// methods //
 	////////////
 	
-	public final XGettingTable<Long, StorageBackupFile> backupFiles()
+	public final XGettingTable<Long, StorageBackupDataFile> backupFiles()
 	{
 		return this.backupFiles;
 	}

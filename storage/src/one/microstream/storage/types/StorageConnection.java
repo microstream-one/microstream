@@ -2,9 +2,9 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
 import java.util.function.Predicate;
 
+import one.microstream.afs.AFile;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceManager;
@@ -211,28 +211,30 @@ public interface StorageConnection extends Persister
 	 * Should not be to complicated as the phase check already is a task
 	 */
 	
+	// (23.06.2020 TM)FIXME: priv#49: switch #exportChannels to ExportFileProvider or such
+	
 	/**
-	 * Exports the data of all channels in the storage by using the passed {@link StorageIoHandler} instance.<br>
+	 * Exports the data of all channels in the storage by using the passed {@link StorageLiveFileProvider} instance.<br>
 	 * This is basically a simple file copy applied to all files in the storage, however with the guaranteed safety
 	 * of no other task / access to the storage's files intervening with the ongoing process. This is useful to
 	 * safely create a complete copy of the storage, e.g. a full backup.
 	 * 
-	 * @param ioHandler the {@link StorageIoHandler} logic to be used for the export.
+	 * @param fileProvider the {@link StorageLiveFileProvider} logic to be used for the export.
 	 * @param performGarbageCollection whether a {@link #issueFullGarbageCollection()} shall be issued before
 	 *        performing the export.
 	 */
-	public void exportChannels(StorageIoHandler ioHandler, boolean performGarbageCollection);
+	public void exportChannels(StorageLiveFileProvider fileProvider, boolean performGarbageCollection);
 
 	/**
 	 * Alias for {@code this.exportChannels(fileHandler, true);}.
 	 * 
-	 * @param ioHandler the {@link StorageIoHandler} logic to be used for the export.
+	 * @param fileProvider the {@link StorageLiveFileProvider} logic to be used for the export.
 	 * 
-	 * @see #exportChannels(StorageIoHandler, boolean)
+	 * @see #exportChannels(StorageLiveFileProvider, boolean)
 	 */
-	public default void exportChannels(final StorageIoHandler ioHandler)
+	public default void exportChannels(final StorageLiveFileProvider fileProvider)
 	{
-		this.exportChannels(ioHandler, true);
+		this.exportChannels(fileProvider, true);
 	}
 	
 	/**
@@ -273,7 +275,7 @@ public interface StorageConnection extends Persister
 	}
 
 	/**
-	 * Imports all files specified by the passed Enum (ordered set) of {@link Path} in order.<br>
+	 * Imports all files specified by the passed Enum (ordered set) of {@link AFile} in order.<br>
 	 * The files are assumed to be in the native binary format used internally by the storage.<br>
 	 * All entities contained in the specified files will be imported. If they already exist in the storage
 	 * (identified by their ObjectId), their current data will be replaced by the imported data.<br>
@@ -282,7 +284,7 @@ public interface StorageConnection extends Persister
 	 * 
 	 * @param importFiles the files whose native binary content shall be imported.
 	 */
-	public void importFiles(XGettingEnum<Path> importFiles);
+	public void importFiles(XGettingEnum<AFile> importFiles);
 
 	/* (13.07.2015 TM)TODO: load by type somehow
 	 * Query by typeId already implemented. Question is how to best provide it to the user.
@@ -474,11 +476,11 @@ public interface StorageConnection extends Persister
 		}
 
 		@Override
-		public void exportChannels(final StorageIoHandler fileHandler, final boolean performGarbageCollection)
+		public void exportChannels(final StorageLiveFileProvider fileProvider, final boolean performGarbageCollection)
 		{
 			try
 			{
-				this.connectionRequestAcceptor.exportChannels(fileHandler, performGarbageCollection);
+				this.connectionRequestAcceptor.exportChannels(fileProvider, performGarbageCollection);
 			}
 			catch(final InterruptedException e)
 			{
@@ -505,7 +507,7 @@ public interface StorageConnection extends Persister
 		}
 
 		@Override
-		public void importFiles(final XGettingEnum<Path> importFiles)
+		public void importFiles(final XGettingEnum<AFile> importFiles)
 		{
 			try
 			{

@@ -63,6 +63,11 @@ public interface AFile extends AItem
 		return this.fileSystem().ioHandler().size(this);
 	}
 	
+	public default boolean isEmpty()
+	{
+		return this.size() == 0;
+	}
+	
 	public boolean registerObserver(AFile.Observer observer);
 	
 	public boolean removeObserver(AFile.Observer observer);
@@ -89,10 +94,40 @@ public interface AFile extends AItem
 		return this.fileSystem().accessManager().useWriting(this);
 	}
 	
+	public default AReadableFile tryUseReading(final Object user)
+	{
+		return this.fileSystem().accessManager().tryUseReading(this, user);
+	}
+	
+	public default AWritableFile tryUseWriting(final Object user)
+	{
+		return this.fileSystem().accessManager().tryUseWriting(this, user);
+	}
+	
+	public default AReadableFile tryUseReading()
+	{
+		return this.fileSystem().accessManager().tryUseReading(this);
+	}
+	
+	public default AWritableFile tryUseWriting()
+	{
+		return this.fileSystem().accessManager().tryUseWriting(this);
+	}
+	
 	@Override
 	public default boolean exists()
 	{
 		return this.fileSystem().ioHandler().exists(this);
+	}
+	
+	public default boolean isUsed()
+	{
+		return this.fileSystem().accessManager().isUsed(this);
+	}
+	
+	public default Object defaultUser()
+	{
+		return this.fileSystem().accessManager().defaultUser();
 	}
 		
 	
@@ -282,6 +317,16 @@ public interface AFile extends AItem
 		}
 		
 		public default void onAfterFileCreate(final AWritableFile fileToCreate)
+		{
+			// no-op by default
+		}
+		
+		public default void onBeforeFileTruncation(final AWritableFile fileToTruncate, final long newSize)
+		{
+			// no-op by default
+		}
+		
+		public default void onAfterFileTruncation(final AWritableFile truncatedFile, final long newSize)
 		{
 			// no-op by default
 		}

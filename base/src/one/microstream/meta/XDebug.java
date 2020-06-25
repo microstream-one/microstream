@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import one.microstream.X;
+import one.microstream.afs.ADirectory;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
@@ -457,6 +458,17 @@ public final class XDebug
 	{
 		deleteAllFiles(target, output);
 		copyFile(source, source, target);
+	}
+	
+	public static final void deleteAllFiles(final ADirectory directory)
+	{
+		deleteAllFiles(directory, true);
+	}
+	
+	public static final void deleteAllFiles(final ADirectory directory, final boolean output)
+	{
+		// (24.06.2020 TM)FIXME: priv#49: XDebug#deleteAllFiles()
+		throw new one.microstream.meta.NotImplementedYetError();
 	}
 	
 	public static final void deleteAllFiles(final Path directory)

@@ -9,7 +9,7 @@ public class MainTestAfsCreateFiles
 {
 	public static void main(final String[] args)
 	{
-		final NioFileSystem fs = NioFileSystem.New();
+		final NioFileSystem fs = NioFileSystem.get();
 		
 		final ADirectory dir  = fs.ensureDirectoryPath(AfsTest.TEST_DIRECTORY_PATH);
 		final AFile      file = fs.ensureFilePath(AfsTest.TEST_FILE_PATH);
@@ -19,10 +19,10 @@ public class MainTestAfsCreateFiles
 		System.out.println(file.parent());
 		
 		final AWritableFile wFile = file.useWriting();
-		final boolean created1 = wFile.ensure();
+		final boolean created1 = wFile.ensureExists();
 		System.out.println(file + " created: " + created1);
 		
-		final boolean created2 = wFile.ensure();
+		final boolean created2 = wFile.ensureExists();
 		System.out.println(file + " created: " + created2);
 	}
 }

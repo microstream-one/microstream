@@ -297,21 +297,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
 	 */
 	public StorageObjectIdRangeEvaluator getObjectIdRangeEvaluator();
-	
-	/**
-	 * Returns the currently set {@link StorageFileReader.Provider} instance.
-	 * <p>
-	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
-	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
-	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
-	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
-	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
-	 */
-	public StorageFileReader.Provider getReaderProvider();
-	
+		
 	/**
 	 * Returns the currently set {@link StorageFileWriter.Provider} instance.
 	 * <p>
@@ -659,16 +645,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
 	 */
 	public F setObjectIdRangeEvaluator(StorageObjectIdRangeEvaluator objectIdRangeEvaluator);
-	
-	/**
-	 * Sets the {@link StorageFileReader.Provider} instance to be used for the assembly.
-	 * 
-	 * @param readerProvider the instance to be used.
-	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
-	 */
-	public F setReaderProvider(StorageFileReader.Provider readerProvider);
-	
+		
 	/**
 	 * Sets the {@link StorageFileWriter.Provider} instance to be used for the assembly.
 	 * 
@@ -829,7 +806,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageRootTypeIdProvider             rootTypeIdProvider           ;
 		private StorageTimestampProvider              timestampProvider            ;
 		private StorageObjectIdRangeEvaluator         objectIdRangeEvaluator       ;
-		private StorageFileReader.Provider            readerProvider               ;
 		private StorageFileWriter.Provider            writerProvider               ;
 		private StorageGCZombieOidHandler             gCZombieOidHandler           ;
 		private StorageRootOidSelector.Provider       rootOidSelectorProvider      ;
@@ -986,11 +962,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		protected StorageObjectIdRangeEvaluator ensureObjectIdRangeEvaluator()
 		{
 			return new StorageObjectIdRangeEvaluator.Default();
-		}
-
-		protected StorageFileReader.Provider ensureReaderProvider()
-		{
-			return new StorageFileReader.Provider.Default();
 		}
 
 		protected StorageFileWriter.Provider ensureWriterProvider()
@@ -1270,16 +1241,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 
 		@Override
-		public StorageFileReader.Provider getReaderProvider()
-		{
-			if(this.readerProvider == null)
-			{
-				this.readerProvider = this.dispatch(this.ensureReaderProvider());
-			}
-			return this.readerProvider;
-		}
-
-		@Override
 		public StorageGCZombieOidHandler getGCZombieOidHandler()
 		{
 			if(this.gCZombieOidHandler == null)
@@ -1540,13 +1501,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		}
 
 		@Override
-		public F setReaderProvider(final StorageFileReader.Provider readerProvider)
-		{
-			this.readerProvider = readerProvider;
-			return this.$();
-		}
-
-		@Override
 		public F setWriterProvider(final Provider writerProvider)
 		{
 			this.writerProvider = writerProvider;
@@ -1690,7 +1644,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.getOperationControllerCreator()   ,
 				this.getDataFileValidatorCreator()     ,
 				this.getWriterProvider()               ,
-				this.getReaderProvider()               ,
 				this.getInitialDataFileNumberProvider(),
 				this.getRequestAcceptorCreator()       ,
 				this.getTaskBrokerCreator()            ,

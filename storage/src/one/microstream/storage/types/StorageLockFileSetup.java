@@ -10,7 +10,7 @@ import one.microstream.util.ProcessIdentityProvider;
 
 public interface StorageLockFileSetup
 {
-	public StorageFileProvider lockFileProvider();
+	public StorageLiveFileProvider lockFileProvider();
 
 	public Charset charset();
 
@@ -35,7 +35,7 @@ public interface StorageLockFileSetup
 	}
 
 	public static StorageLockFileSetup New(
-		final StorageFileProvider     lockFileProvider       ,
+		final StorageLiveFileProvider     lockFileProvider       ,
 		final ProcessIdentityProvider processIdentityProvider
 	)
 	{
@@ -48,7 +48,7 @@ public interface StorageLockFileSetup
 	}
 
 	public static StorageLockFileSetup New(
-		final StorageFileProvider     lockFileProvider       ,
+		final StorageLiveFileProvider     lockFileProvider       ,
 		final ProcessIdentityProvider processIdentityProvider,
 		final Charset                 charset                ,
 		final long                    updateInterval
@@ -68,7 +68,7 @@ public interface StorageLockFileSetup
 		// instance fields //
 		////////////////////
 
-		private final StorageFileProvider     lockFileProvider       ;
+		private final StorageLiveFileProvider     lockFileProvider       ;
 		private final ProcessIdentityProvider processIdentityProvider;
 		private final Charset                 charset                ;
 		private final long                    updateInterval         ;
@@ -80,7 +80,7 @@ public interface StorageLockFileSetup
 		/////////////////
 
 		Default(
-			final StorageFileProvider     lockFileProvider       ,
+			final StorageLiveFileProvider     lockFileProvider       ,
 			final ProcessIdentityProvider processIdentityProvider,
 			final Charset                 charset                ,
 			final long                    updateInterval
@@ -100,7 +100,7 @@ public interface StorageLockFileSetup
 		////////////
 
 		@Override
-		public final StorageFileProvider lockFileProvider()
+		public final StorageLiveFileProvider lockFileProvider()
 		{
 			return this.lockFileProvider;
 		}

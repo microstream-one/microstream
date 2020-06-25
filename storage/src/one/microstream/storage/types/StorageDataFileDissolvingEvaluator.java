@@ -16,5 +16,5 @@ package one.microstream.storage.types;
 @FunctionalInterface
 public interface StorageDataFileDissolvingEvaluator
 {
-	public boolean needsDissolving(StorageDataFile<?> storageFile);
+	public boolean needsDissolving(StorageLiveDataFile storageFile);
 }

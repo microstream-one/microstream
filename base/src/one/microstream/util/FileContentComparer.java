@@ -1,12 +1,10 @@
 package one.microstream.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 import one.microstream.X;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
 import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingList;
@@ -21,22 +19,15 @@ public class FileContentComparer
 	// static methods //
 	///////////////////
 	
-	private static ByteBuffer readFile(final File file, final ByteBuffer buffer) throws IOException
+	private static ByteBuffer readFile(final AFile file, final ByteBuffer buffer)
 	{
-		try(RandomAccessFile raf = new RandomAccessFile(file, "r"))
+		return AFS.apply(file, rf ->
 		{
-			final FileChannel channel = raf.getChannel();
-			final long        length        = channel.size();
-			
-			final ByteBuffer effectiveBuffer = ensureByteBuffer(X.checkArrayRange(length), buffer);
-			
-			while(effectiveBuffer.hasRemaining())
-			{
-				channel.read(effectiveBuffer);
-			}
+			final ByteBuffer effectiveBuffer = ensureByteBuffer(X.checkArrayRange(rf.size()), buffer);
+			rf.readBytes(effectiveBuffer);
 			
 			return effectiveBuffer;
-		}
+		});
 	}
 	
 	private static ByteBuffer ensureByteBuffer(
@@ -57,7 +48,7 @@ public class FileContentComparer
 		return buffer;
 	}
 	
-	public static String compareFilesAndAssembleResult(final XGettingTable<File, File> files)
+	public static String compareFilesAndAssembleResult(final XGettingTable<AFile, AFile> files)
 	{
 		final FileContentComparer fcc = FileContentComparer.New();
 		fcc.compareFiles(files);
@@ -76,8 +67,8 @@ public class FileContentComparer
 	// instance fields //
 	////////////////////
 	
-	private File  currentSourceFile;
-	private File  currentTargetFile;
+	private AFile currentSourceFile;
+	private AFile currentTargetFile;
 	private ByteBuffer sourceBuffer;
 	private ByteBuffer targetBuffer;
 	
@@ -115,10 +106,10 @@ public class FileContentComparer
 		this.targetBufferAddress = XMemory.getDirectByteBufferAddress(targetBuffer);
 	}
 	
-	public void compareFiles(final XGettingTable<File, File> files)
+	public void compareFiles(final XGettingTable<AFile, AFile> files)
 	{
 		this.entries = BulkList.New();
-		for(final KeyValue<File, File> kv : files)
+		for(final KeyValue<AFile, AFile> kv : files)
 		{
 			this.compare(kv.key(), kv.value());
 		}
@@ -129,7 +120,7 @@ public class FileContentComparer
 		return this.entries;
 	}
 	
-	private void compare(final File sourceFile, final File targetFile)
+	private void compare(final AFile sourceFile, final AFile targetFile)
 	{
 		this.currentSourceFile = sourceFile;
 		this.currentTargetFile = targetFile;
@@ -231,9 +222,9 @@ public class FileContentComparer
 		// instance fields //
 		////////////////////
 		
-		final File      sourceFile   ;
+		final AFile     sourceFile   ;
 		final long      sourceLength ;
-		final File      targetFile   ;
+		final AFile     targetFile   ;
 		final long      targetLength ;
 		final Boolean   isMatch      ;
 		final long      mismatchIndex;
@@ -247,9 +238,9 @@ public class FileContentComparer
 		/////////////////
 		
 		Entry(
-			final File      sourceFile   ,
+			final AFile     sourceFile   ,
 			final long      sourceLength ,
-			final File      targetFile   ,
+			final AFile     targetFile   ,
 			final long      targetLength ,
 			final long      mismatchIndex,
 			final Boolean   isMatch      ,
@@ -274,7 +265,7 @@ public class FileContentComparer
 		// methods //
 		////////////
 
-		public File sourceFile()
+		public AFile sourceFile()
 		{
 			return this.sourceFile;
 		}
@@ -284,7 +275,7 @@ public class FileContentComparer
 			return this.sourceLength;
 		}
 
-		public File targetFile()
+		public AFile targetFile()
 		{
 			return this.targetFile;
 		}
@@ -434,12 +425,12 @@ public class FileContentComparer
 			for(final Entry e : entries)
 			{
 				vs
-				.add(e.sourceFile().getPath()).add(valueSeparator)
+				.add(e.sourceFile().toPathString()).add(valueSeparator)
 				.add(e.sourceLength >= 0
 					? Long.toString(e.sourceLength)
 					: ""
 				).add(valueSeparator)
-				.add(e.targetFile().getPath()).add(valueSeparator)
+				.add(e.targetFile().toPathString()).add(valueSeparator)
 				.add(e.targetLength >= 0
 					? Long.toString(e.targetLength)
 					: ""

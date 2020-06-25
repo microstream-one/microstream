@@ -6,7 +6,7 @@ package one.microstream.storage.types;
  *
  * @author Thomas Muenz
  */
-public interface StorageTransactionFileEntry
+public interface StorageTransactionEntry
 {
 	public long fileNumber();
 
@@ -16,7 +16,7 @@ public interface StorageTransactionFileEntry
 
 
 
-	public final class Default implements StorageTransactionFileEntry
+	public final class Default implements StorageTransactionEntry
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// instance fields //
