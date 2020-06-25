@@ -39,7 +39,7 @@ public class UtilStoragePrintTransactionFiles
 		printTransactionsFiles(
 			CQL
 			.from(X.List(filePaths))
-			.project(NioFileSystem::File)
+			.project(NioFileSystem::file)
 			.execute()
 			.toArray(AFile.class)
 		);

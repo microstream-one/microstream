@@ -6,10 +6,6 @@ import one.microstream.afs.AFile;
 
 public interface StorageLockFile extends StorageClosableFile
 {
-	// (10.06.2020 TM)FIXME: priv#49: StorageLockFile
-	
-	
-	
 	public static StorageLockFile New(final AFile file)
 	{
 		return new StorageLockFile.Default(

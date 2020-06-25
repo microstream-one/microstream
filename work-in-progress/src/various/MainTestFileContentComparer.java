@@ -20,7 +20,7 @@ public class MainTestFileContentComparer
 	
 	static void add(final HashTable<AFile, AFile> files, final String file1, final String file2)
 	{
-		add(files, NioFileSystem.File(file1), NioFileSystem.File(file2));
+		add(files, NioFileSystem.file(file1), NioFileSystem.file(file2));
 	}
 	
 	static void add(final HashTable<AFile, AFile> files, final AFile file1, final AFile file2)

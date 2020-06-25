@@ -67,7 +67,7 @@ public class MainTestStorageExport extends TestStorage
 
 	static void testExport()
 	{
-		final ADirectory directory = AFS.ensureExists(NioFileSystem.Directory("C:/Files/export/bin"));
+		final ADirectory directory = AFS.ensureExists(NioFileSystem.directory("C:/Files/export/bin"));
 		
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		final XSequence<AFile> exportFiles = exportTypes(

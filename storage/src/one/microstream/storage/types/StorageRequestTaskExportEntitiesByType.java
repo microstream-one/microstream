@@ -265,8 +265,6 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 		final synchronized void cleanUp()
 		{
-			// (16.06.2020 TM)FIXME: priv#49: maybe exporting an entity should directly use AWritableFile after all ...
-			
 			if(!this.file.isOpen())
 			{
 				return;

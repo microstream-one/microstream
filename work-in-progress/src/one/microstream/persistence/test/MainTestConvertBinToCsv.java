@@ -19,7 +19,7 @@ public class MainTestConvertBinToCsv
 	public static void main(final String[] args)
 	{
 		convertBinToCsv(
-			X.List(NioFileSystem.File(XIO.Path("C:/Files/export/bin/ExportTest.dat"))),
+			X.List(NioFileSystem.file(XIO.Path("C:/Files/export/bin/ExportTest.dat"))),
 			XFunc.all()
 		);
 	}
@@ -35,7 +35,7 @@ public class MainTestConvertBinToCsv
 				binaryFiles.get().parent().parent().ensureDirectory("csv"), "csv"
 			),
 			BinaryPersistence.provideTypeDictionaryFromFile(
-				NioFileSystem.File(
+				NioFileSystem.file(
 					XIO.Path("C:/Files/PersistenceTypeDictionary.ptd")
 				)
 			),

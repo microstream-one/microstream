@@ -4,8 +4,6 @@ import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
 
-import one.microstream.afs.AReadableFile;
-
 
 public interface StorageFileWriterBackupping extends StorageFileWriter
 {
@@ -57,7 +55,7 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeImport(
-			final AReadableFile       sourceFile  ,
+			final StorageFile         sourceFile  ,
 			final long                sourceOffset,
 			final long                copyLength  ,
 			final StorageLiveDataFile targetFile

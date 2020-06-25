@@ -264,13 +264,13 @@ public class UtilStorageCsvExport
 		// export all
 		UtilStorageCsvExport.exportCsv(
 			storage,
-			NioFileSystem.Directory("C:/StorageExportTest_2018-02-20-1600_ALL")
+			NioFileSystem.directory("C:/StorageExportTest_2018-02-20-1600_ALL")
 		);
 		
 		// Export-Type-Filter example: only export Strings
 		UtilStorageCsvExport.exportCsv(
 			storage,
-			NioFileSystem.Directory("C:/StorageExportTest_2018-02-20-1600_Strings"),
+			NioFileSystem.directory("C:/StorageExportTest_2018-02-20-1600_Strings"),
 			t -> t.typeName().equals(String.class.getName())
 		);
 		

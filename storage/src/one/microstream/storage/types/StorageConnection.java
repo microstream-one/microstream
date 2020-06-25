@@ -2,7 +2,6 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
 import java.util.function.Predicate;
 
 import one.microstream.afs.AFile;
@@ -276,7 +275,7 @@ public interface StorageConnection extends Persister
 	}
 
 	/**
-	 * Imports all files specified by the passed Enum (ordered set) of {@link Path} in order.<br>
+	 * Imports all files specified by the passed Enum (ordered set) of {@link AFile} in order.<br>
 	 * The files are assumed to be in the native binary format used internally by the storage.<br>
 	 * All entities contained in the specified files will be imported. If they already exist in the storage
 	 * (identified by their ObjectId), their current data will be replaced by the imported data.<br>

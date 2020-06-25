@@ -8,6 +8,7 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.persistence.types.Persistence;
@@ -20,7 +21,7 @@ import one.microstream.storage.types.StorageTransactionsEntries;
 
 public class MainUtilRecoverStorageFiles
 {
-	static final ADirectory PATH_CORRUPTED = NioFileSystem.Directory(
+	static final ADirectory PATH_CORRUPTED = NioFileSystem.directory(
 		"D:/_Corp/2019-01-10/db_lcm_prod_v400"
 	);
 	static final long
@@ -83,8 +84,7 @@ public class MainUtilRecoverStorageFiles
 		final AFile sourceFile = PATH_CORRUPTED.ensureDirectory("channel_0").ensureFile("channel_0_491.dat");
 				
 		final ADirectory dir = AFS.ensureExists(PATH_CORRUPTED.ensureDirectory("strings"));
-		// (22.06.2020 TM)NOTE: deleteAllFiles functionality for AFS is currently missing but this class is no longer used.
-//		XDebug.deleteAllFiles(dir, false);
+		XDebug.deleteAllFiles(dir, false);
 		
 		// 2019-03-13 (2019-03-14)
 //		final StorageRollbacker sr = new StorageRollbacker(

@@ -19,7 +19,7 @@ import one.microstream.test.corp.logic.Test;
 
 public class MainTestBackupStoring
 {
-	static final ADirectory DIRECTORY_STORAGE   = NioFileSystem.Directory(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
+	static final ADirectory DIRECTORY_STORAGE   = NioFileSystem.directory(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
 	static final ADirectory DIRECTORY_BACKUP    = DIRECTORY_STORAGE.ensureDirectory("backup");
 	static final ADirectory DIRECTORY_DELETED   = DIRECTORY_BACKUP.ensureDirectory("deleted");
 	static final ADirectory DIRECTORY_TRUNCATED = DIRECTORY_BACKUP.ensureDirectory("truncated");

@@ -1,8 +1,5 @@
 package one.microstream.storage.types;
 
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -11,7 +8,6 @@ import one.microstream.afs.AFile;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.concurrency.XThreads;
-import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.types.StorageDataFileItemIterator.ItemProcessor;
@@ -85,7 +81,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			final SourceFileSlice[] sourceFileTails = new SourceFileSlice[channelCount];
 			for(int i = 0; i < channelCount; i++)
 			{
-				sourceFileTails[i] = new SourceFileSlice(i, null, null, null);
+				sourceFileTails[i] = new SourceFileSlice(i, null, null);
 			}
 			
 			return sourceFileTails;
@@ -411,8 +407,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 		private void cleanUpResources()
 		{
-			final DisruptionCollectorExecuting<FileChannel> closer = DisruptionCollectorExecuting.New(fc ->
-				XIO.close(fc, null)
+			final DisruptionCollectorExecuting<StorageClosableFile> closer = DisruptionCollectorExecuting.New(fc ->
+				fc.close()
 			);
 			
 			for(final SourceFileSlice s : this.sourceFileTails)
@@ -421,7 +417,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				for(SourceFileSlice file = s; (file = file.next) != null;)
 				{
 //					DEBUGStorage.println("Closing: " + file);
-					closer.executeOn(file.fileChannel);
+					closer.executeOn(file);
 				}
 			}
 			
@@ -467,8 +463,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 	}
 
 	static final class SourceFileSlice
-	extends ZStorageInventoryFile.Default
-	implements ZStorageChannelImportSourceFile
+	extends StorageChannelFile.Abstract
+	implements StorageImportSourceFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -485,12 +481,11 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 		SourceFileSlice(
 			final int         channelIndex,
-			final Path        file        ,
-			final FileLock    fileLock    ,
+			final AFile       file        ,
 			final ImportBatch headBatch
 		)
 		{
-			super(channelIndex, 0L, file, fileLock);
+			super(file, channelIndex);
 			this.headBatch = headBatch;
 		}
 		
@@ -513,7 +508,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		public String toString()
 		{
 			return Integer.toString(this.channelIndex()) + " "
-				+ (this.file == null ? "<Dummy>"  : this.file.toString() + " " + this.headBatch)
+				+ (this.file() == null ? "<Dummy>"  : this.file().toPathString() + " " + this.headBatch)
 			;
 		}
 

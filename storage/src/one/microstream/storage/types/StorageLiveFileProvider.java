@@ -3,8 +3,6 @@ package one.microstream.storage.types;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
-
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFile;
 import one.microstream.afs.AFileSystem;
@@ -45,9 +43,9 @@ public interface StorageLiveFileProvider extends StorageFileProvider
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLiveFileProvider.Builder}.
 	 * 
-	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
+	 * @return {@linkDoc StorageFileProvider#New(ADirectory)@return}
 	 * 
-	 * @see StorageLiveFileProvider#New(Path)
+	 * @see StorageLiveFileProvider#New(ADirectory)
 	 * @see StorageLiveFileProvider.Builder
 	 * @see StorageLiveFileProvider.Defaults
 	 */
@@ -158,7 +156,7 @@ public interface StorageLiveFileProvider extends StorageFileProvider
 	 */
 	public static StorageLiveFileProvider.Builder<?> Builder()
 	{
-		return Builder(NioFileSystem.New());
+		return Builder(NioFileSystem.get());
 	}
 	
 	public static StorageLiveFileProvider.Builder<?> Builder(final AFileSystem fileSystem)

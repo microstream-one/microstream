@@ -6,8 +6,6 @@ import static one.microstream.chars.MemoryCharConversionUTF8.toSingleByte;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
-import java.nio.file.Path;
 
 import one.microstream.X;
 import one.microstream.afs.AFS;
@@ -26,8 +24,6 @@ import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingMap;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.io.FileException;
-import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -146,25 +142,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 			}
 		}
 
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// static methods //
-		///////////////////
-
-		static final FileChannel createFileChannel(final Path file) throws StorageException
-		{
-			try
-			{
-				return XIO.openFileChannelWriting(file);
-			}
-			catch(FileException | IOException e)
-			{
-				throw new StorageException(e);
-			}
-		}
-
-
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

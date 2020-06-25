@@ -16,7 +16,7 @@ public class MainTestExportConvertImport extends TestStorage
 		ROOT.set(testGraphEvenMoreManyType());
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		storageConnection.store(ROOT);
-		testExport(NioFileSystem.Directory("C:/Files/export"));
+		testExport(NioFileSystem.directory("C:/Files/export"));
 		exit();
 	}
 

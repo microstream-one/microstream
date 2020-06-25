@@ -16,8 +16,8 @@ public class MainTestOnDemandStorageConnection
 	public static void main(final String[] args)
 	{
 		final EmbeddedStorageManager storageManager = createEmbeddedStorageManager(
-			NioFileSystem.Directory("testStorage"),
-			NioFileSystem.Directory("testBackup")
+			NioFileSystem.directory("testStorage"),
+			NioFileSystem.directory("testBackup")
 		);
 		
 		System.out.println("Created: " + XChars.systemString(storageManager));

@@ -5,7 +5,6 @@ import java.nio.file.Path;
 
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.nio.NioFileSystem;
-import one.microstream.io.XIO;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
@@ -48,7 +47,7 @@ public final class EmbeddedStorage
 	 *
 	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)@return}
 	 *
-	 * @see #ConnectionFoundation(Path)
+	 * @see #ConnectionFoundation(ADirectory)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)
 	 * @see Persistence
 	 */
@@ -80,7 +79,7 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @deprecated replaced by {@link #ConnectionFoundation(Path)}
+	 * @deprecated replaced by {@link #ConnectionFoundation(Path)} and {@link #ConnectionFoundation(ADirectory)}
 	 */
 	@Deprecated
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
@@ -101,7 +100,7 @@ public final class EmbeddedStorage
 	 *
 	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler)@return}
 	 *
-	 * @see PersistenceTypeDictionaryFileHandler#NewInDirectory(Path)
+	 * @see PersistenceTypeDictionaryFileHandler#NewInDirectory(ADirectory)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)
 	 * @see Persistence
@@ -111,7 +110,7 @@ public final class EmbeddedStorage
 	)
 	{
 		return ConnectionFoundation(
-			NioFileSystem.Directory(directory)
+			NioFileSystem.directory(directory)
 		);
 	}
 	
@@ -136,7 +135,7 @@ public final class EmbeddedStorage
 	 * @return a new {@link EmbeddedStorageConnectionFoundation} instance.
 	 *
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)
-	 * @see #ConnectionFoundation(Path)
+	 * @see #ConnectionFoundation(ADirectory)
 	 */
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final PersistenceTypeDictionaryIoHandler typeDictionaryIoHandler ,
@@ -155,9 +154,9 @@ public final class EmbeddedStorage
 	 *
 	 * @return the default storage directory located in the current working directory.
 	 */
-	public static Path defaultStorageDirectory()
+	public static ADirectory defaultStorageDirectory()
 	{
-		return XIO.Path(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
+		return NioFileSystem.directory(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
 	}
 
 
@@ -167,11 +166,11 @@ public final class EmbeddedStorage
 	 * using {@link #defaultStorageDirectory()} as its storage directory and default values for
 	 * its {@link StorageConfiguration}.
 	 * <p>
-	 * Calls {@link #ConnectionFoundation(Path)} with {@link #defaultStorageDirectory()}.
+	 * Calls {@link #ConnectionFoundation(ADirectory)} with {@link #defaultStorageDirectory()}.
 	 *
 	 * @return a new all-default {@link EmbeddedStorageFoundation} instance.
 	 *
-	 * @see #Foundation(Path)
+	 * @see #Foundation(ADirectory)
 	 * @see #Foundation(StorageConfiguration)
 	 * @see #Foundation(StorageConfiguration.Builder)
 	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
@@ -190,6 +189,19 @@ public final class EmbeddedStorage
 	)
 	{
 		return Foundation(directory.toPath());
+	}
+	
+	public static final EmbeddedStorageFoundation<?> Foundation(
+		final Path directory
+	)
+	{
+		// no directory ensuring required since the file provider does that internally
+
+		return Foundation(
+			Storage.Configuration(
+				Storage.FileProvider(NioFileSystem.directory(directory))
+			)
+		);
 	}
 
 	/**
@@ -210,7 +222,7 @@ public final class EmbeddedStorage
 	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
 	public static final EmbeddedStorageFoundation<?> Foundation(
-		final Path directory
+		final ADirectory directory
 	)
 	{
 		// no directory ensuring required since the file provider does that internally
@@ -231,7 +243,7 @@ public final class EmbeddedStorage
 	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed configuration.
 	 *
 	 * @see #Foundation()
-	 * @see #Foundation(Path)
+	 * @see #Foundation(ADirectory)
 	 * @see #Foundation(StorageConfiguration.Builder)
 	 * @see #Foundation(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
@@ -280,7 +292,7 @@ public final class EmbeddedStorage
 	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed configuration.
 	 *
 	 * @see #Foundation()
-	 * @see #Foundation(Path)
+	 * @see #Foundation(ADirectory)
 	 * @see #Foundation(StorageConfiguration)
 	 * @see #Foundation(StorageConfiguration.Builder)
 	 */
@@ -304,7 +316,7 @@ public final class EmbeddedStorage
 	 *
 	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
-	 * @see #start(Path)
+	 * @see #start(ADirectory)
 	 * @see #start(StorageConfiguration)
 	 * @see #start(StorageConfiguration.Builder)
 	 * @see #start(Object, one.microstream.storage.types.StorageConfiguration.Builder)
@@ -347,6 +359,28 @@ public final class EmbeddedStorage
 	{
 		return start(null, directory);
 	}
+	
+	/**
+	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
+	 * the passed {@literal directory} as its storage location and defaults for the remainings values.
+	 * <p>
+	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
+	 *
+	 * @param directory the directory where the storage will be located.
+	 *
+	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 *
+	 * @see #start()
+	 * @see #start(StorageConfiguration)
+	 * @see #start(StorageConfiguration.Builder)
+	 * @see #start(StorageConfiguration, EmbeddedStorageConnectionFoundation)
+	 */
+	public static final EmbeddedStorageManager start(
+		final ADirectory directory
+	)
+	{
+		return start(null, directory);
+	}
 
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
@@ -359,7 +393,7 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 *
 	 * @see #start()
-	 * @see #start(Path)
+	 * @see #start(ADirectory)
 	 * @see #start(StorageConfiguration.Builder)
 	 * @see #start(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
@@ -381,7 +415,7 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 *
 	 * @see #start()
-	 * @see #start(Path)
+	 * @see #start(ADirectory)
 	 * @see #start(StorageConfiguration)
 	 * @see #start(StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
@@ -406,7 +440,7 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 *
 	 * @see #start()
-	 * @see #start(Path)
+	 * @see #start(ADirectory)
 	 * @see #start(StorageConfiguration)
 	 * @see #start(StorageConfiguration.Builder)
 	 */
@@ -431,7 +465,7 @@ public final class EmbeddedStorage
 	 *
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 *
-	 * @see #start(Object, Path)
+	 * @see #start(Object, ADirectory)
 	 * @see #start(Object, StorageConfiguration)
 	 * @see #start(Object, StorageConfiguration.Builder)
 	 * @see #start(Object, StorageConfiguration, EmbeddedStorageConnectionFoundation)
@@ -447,7 +481,7 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @deprecated replaced by {@link #start(Object, Path)}
+	 * @deprecated replaced by {@link #start(Object, Path)} and {@link #start(Object, ADirectory)}
 	 */
 	@Deprecated
 	public static final EmbeddedStorageManager start(
@@ -486,6 +520,35 @@ public final class EmbeddedStorage
 			root
 		);
 	}
+	
+	/**
+	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
+	 * the passed {@literal root} as the persistent entity graph's root instance,
+	 * the passed {@literal directory} as its storage location and defaults for the remainings values.
+	 * <p>
+	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
+	 *
+	 * @param root      {@linkDoc EmbeddedStorage#start(Object):}
+	 *
+	 * @param directory {@linkDoc EmbeddedStorage#start(Path):}
+	 *
+	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 *
+	 * @see #start(Object)
+	 * @see #start(Object, StorageConfiguration)
+	 * @see #start(Object, StorageConfiguration.Builder)
+	 * @see #start(Object, StorageConfiguration, EmbeddedStorageConnectionFoundation)
+	 */
+	public static final EmbeddedStorageManager start(
+		final Object     root     ,
+		final ADirectory directory
+	)
+	{
+		return createAndStartStorageManager(
+			Foundation(directory),
+			root
+		);
+	}
 
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
@@ -501,7 +564,7 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 *
 	 * @see #start(Object)
-	 * @see #start(Object, Path)
+	 * @see #start(Object, ADirectory)
 	 * @see #start(Object, StorageConfiguration.Builder)
 	 * @see #start(Object, StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
@@ -530,7 +593,7 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 *
 	 * @see #start(Object)
-	 * @see #start(Object, Path)
+	 * @see #start(Object, ADirectory)
 	 * @see #start(Object, StorageConfiguration)
 	 * @see #start(Object, StorageConfiguration, EmbeddedStorageConnectionFoundation)
 	 */
@@ -561,7 +624,7 @@ public final class EmbeddedStorage
 	 * @return {@linkDoc EmbeddedStorage#start()@return}
 	 *
 	 * @see #start(Object)
-	 * @see #start(Object, Path)
+	 * @see #start(Object, ADirectory)
 	 * @see #start(Object, StorageConfiguration)
 	 * @see #start(Object, StorageConfiguration.Builder)
 	 */

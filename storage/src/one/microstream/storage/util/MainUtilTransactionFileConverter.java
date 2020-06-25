@@ -32,7 +32,7 @@ public class MainUtilTransactionFileConverter
 			System.exit(-1);
 		}
 		
-		final AFile file = NioFileSystem.File(XIO.Path(args[0]));
+		final AFile file = NioFileSystem.file(XIO.Path(args[0]));
 		if(!file.exists())
 		{
 			System.out.println("File not found: " + args[0]);

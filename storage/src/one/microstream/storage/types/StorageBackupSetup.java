@@ -2,8 +2,6 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
-
 import one.microstream.afs.ADirectory;
 
 public interface StorageBackupSetup
@@ -54,7 +52,7 @@ public interface StorageBackupSetup
 	 * 
 	 * @return a new {@link StorageBackupSetup} instance.
 	 * 
-	 * @see StorageBackupSetup#New(Path)
+	 * @see StorageBackupSetup#New(ADirectory)
 	 * @see StorageBackupHandler
 	 */
 	public static StorageBackupSetup New(final StorageBackupFileProvider backupFileProvider)

@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 
 import one.microstream.afs.AFS;
 import one.microstream.afs.AFile;
-import one.microstream.afs.AReadableFile;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIo;
 
@@ -49,13 +48,13 @@ public interface StorageFileWriter
 	 * Logically the same as a store, but technically the same as a transfer with an external source file.
 	 */
 	public default long writeImport(
-		final AReadableFile       sourceFile  ,
+		final StorageFile         sourceFile  ,
 		final long                sourceOffset,
 		final long                copyLength  ,
 		final StorageLiveDataFile targetFile
 	)
 	{
-		return targetFile.copyFrom(sourceFile, sourceOffset, copyLength);
+		return sourceFile.copyTo(targetFile, sourceOffset, copyLength);
 	}
 	
 	public default long writeTransfer(
@@ -174,14 +173,7 @@ public interface StorageFileWriter
 			return;
 		}
 		
-		// (16.06.2020 TM)FIXME: priv#49: delete
-		
-		if(file.delete())
-		{
-			return;
-		}
-		
-		throw new StorageException("Could not delete file " + file); // (02.10.2014 TM)EXCP: proper exception
+		file.delete();
 	}
 	
 
