@@ -449,7 +449,7 @@ public final class XCSV
 	
 	public static StringTable readFromFile(final AFile file)
 	{
-		final String       fileSuffix = XIO.getFileSuffix(file.name());
+		final String       fileSuffix = XIO.getFileSuffix(file.identifier());
 		final String       normalized = fileSuffix == null ? null : fileSuffix.trim().toLowerCase();
 		final XCsvDataType dataType   = XCsvDataType.fromIdentifier(normalized);
 		

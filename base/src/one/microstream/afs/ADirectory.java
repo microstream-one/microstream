@@ -1,5 +1,6 @@
 package one.microstream.afs;
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.util.function.BiFunction;
@@ -364,18 +365,35 @@ public interface ADirectory extends AItem, AResolving
 		@Override
 		public final AFile ensureFile(final String identifier, final String name, final String type)
 		{
-			final String effIdentifier = identifier != null
-				? identifier
-				: this.fileSystem().deriveFileIdentifier(name, type)
-			;
+			// either identifier or name must be non-null. Type may be null.
+			final String effIdnt, effName, effType;
+			
+			if(identifier == null)
+			{
+				effName = notNull(name);
+				effType = mayNull(type);
+				effIdnt = this.fileSystem().deriveFileIdentifier(name, type);
+			}
+			else
+			{
+				effIdnt = identifier;
+				effName = name != null
+					? name
+					: this.fileSystem().deriveFileName(identifier)
+				;
+				effType = type != null
+					? type
+					: this.fileSystem().deriveFileType(identifier) // might return null yet again.
+				;
+			}
 			
 			synchronized(this.mutex())
 			{
-				AFile file = this.files.get(effIdentifier);
+				AFile file = this.files.get(effIdnt);
 				if(file == null)
 				{
-					file = this.fileSystem().creator().createFile(this, effIdentifier, name, type);
-					this.register(effIdentifier, file);
+					file = this.fileSystem().creator().createFile(this, effIdnt, effName, effType);
+					this.register(effIdnt, file);
 				}
 				
 				return file;

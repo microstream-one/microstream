@@ -60,6 +60,9 @@ public interface AFile extends AItem
 	 */
 	public default long size()
 	{
+		// otherwise, reading the size throws an exception or returns a misleading result!
+		this.ensureExists();
+		
 		return this.fileSystem().ioHandler().size(this);
 	}
 	
@@ -118,6 +121,16 @@ public interface AFile extends AItem
 	public default boolean exists()
 	{
 		return this.fileSystem().ioHandler().exists(this);
+	}
+	
+	public default boolean ensureExists()
+	{
+		if(this.exists())
+		{
+			return false;
+		}
+		
+		return AFS.executeWriting(this, wf -> wf.ensureExists());
 	}
 	
 	public default boolean isUsed()
