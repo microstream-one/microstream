@@ -483,6 +483,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				this.channelIndex(),
 				fileNumber
 			);
+			file.ensureExists();
 
 			/*
 			 * File#length is incredibly slow compared to FileChannel#size (although irrelevant here),
@@ -1029,6 +1030,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		private StorageLiveTransactionsFile createTransactionsFile()
 		{
 			final AFile file = this.storageFileProvider.provideTransactionsFile(this.channelIndex());
+			file.ensureExists();
 			
 			return StorageLiveTransactionsFile.New(file, this.channelIndex());
 		}

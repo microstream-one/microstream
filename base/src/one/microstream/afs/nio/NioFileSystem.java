@@ -119,6 +119,18 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		}
 		
 		@Override
+		public String deriveFileName(final String fileIdentifier)
+		{
+			return XIO.getFilePrefix(fileIdentifier);
+		}
+		
+		@Override
+		public String deriveFileType(final String fileIdentifier)
+		{
+			return XIO.getFileSuffix(fileIdentifier);
+		}
+		
+		@Override
 		public String getFileName(final AFile file)
 		{
 			return XIO.getFilePrefix(file.identifier());

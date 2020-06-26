@@ -77,6 +77,10 @@ public interface AFileSystem extends AResolving
 	
 	public String deriveFileIdentifier(String fileName, String fileType);
 	
+	public String deriveFileName(String fileIdentifier);
+	
+	public String deriveFileType(String fileIdentifier);
+	
 
 	public VarString assemblePath(AFile file, VarString vs);
 	
