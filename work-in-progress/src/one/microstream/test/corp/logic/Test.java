@@ -13,6 +13,7 @@ import java.util.function.Function;
 import one.microstream.X;
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFile;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
@@ -291,7 +292,12 @@ public class Test
 
 	public static ADirectory provideTimestampedDirectory(final ADirectory directory, final String prefix)
 	{
-		return directory.ensureDirectory(prefix + "_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.S").format(new Date()));
+		final String fileName = prefix + "_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.S").format(new Date());
+		
+		return directory == null
+			? NioFileSystem.directory(fileName)
+			: directory.ensureDirectory(fileName)
+		;
 	}
 
 	public static ADirectory provideTimestampedDirectory(final String prefix)

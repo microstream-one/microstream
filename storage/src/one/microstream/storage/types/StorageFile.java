@@ -303,6 +303,7 @@ public interface StorageFile
 		{
 			try
 			{
+				target.ensureExists();
 				return target.copyFrom(this.ensureReadable(), sourcePosition, length);
 			}
 			catch(final Exception e)
@@ -416,6 +417,7 @@ public interface StorageFile
 					this.access = this.file().useWriting();
 				}
 				
+				this.access.ensureExists();
 				return this.access.open();
 			}
 			catch(final Exception e)

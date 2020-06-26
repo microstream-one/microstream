@@ -16,11 +16,14 @@ import one.microstream.storage.types.StorageDataConverterTypeCsvToBinary;
 import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportStatistics;
+import one.microstream.storage.types.StorageFileNameProvider;
 import one.microstream.storage.types.StorageTypeDictionary;
 import one.microstream.util.cql.CQL;
 
 public class TestImportExport
 {
+	static final String DAT = StorageFileNameProvider.Defaults.defaultDataFileSuffix();
+	
 	@SuppressWarnings("unused")
 	public static void testExport(final EmbeddedStorageManager storage, final ADirectory targetDirectory)
 	{
@@ -38,7 +41,7 @@ public class TestImportExport
 		System.out.println("Data export to binary files complete. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
 		tStart = System.nanoTime();
-		csvDir = convertBinToCsv(storage.typeDictionary(), exportFiles, file -> file.name().endsWith(".dat"));
+		csvDir = convertBinToCsv(storage.typeDictionary(), exportFiles, file -> DAT.equals(file.type()));
 		tStop = System.nanoTime();
 		System.out.println("Conversion of binary to csv complete. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 

@@ -576,7 +576,7 @@ public final class XIO
 	public static FileChannel openFileChannelRW(final Path file, final OpenOption... options)
 		throws IOException
 	{
-		return FileChannel.open(file, XArrays.ensureContained(options, READ, WRITE));
+		return FileChannel.open(file, XArrays.ensureContained(options, WRITE));
 	}
 	
 	
