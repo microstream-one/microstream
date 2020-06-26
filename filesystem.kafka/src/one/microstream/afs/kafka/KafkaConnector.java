@@ -239,7 +239,7 @@ public interface KafkaConnector extends BlobStoreConnector
 		)
 		{
 			/*
-			 * Writes remaining blobs into topic and then deletes all before current offsets.
+			 * Writes remaining blobs into topic and deletes all before current offsets.
 			 * Unfortunately there's no other way to get partial deletion done.
 			 */
 
@@ -261,7 +261,7 @@ public interface KafkaConnector extends BlobStoreConnector
 			;
 
 			/*
-			 * Write remaining blobs into topic.
+			 * Read data.
 			 */
 			final List<ByteBuffer> buffers        = new ArrayList<>();
 			final List<Blob>       remainingBlobs = this.blobs(file).collect(toList());
@@ -273,12 +273,7 @@ public interface KafkaConnector extends BlobStoreConnector
 				buffer.flip();
 				buffers.add(buffer);
 			}
-			synchronized(this)
-			{
-				Optional.ofNullable(this.indices.removeFor(topicName)).ifPresent(Index::close);
-			}
-			this.internalWriteData(file, buffers);
-
+			
 			/*
 			 * Delete old data
 			 */
@@ -288,13 +283,33 @@ public interface KafkaConnector extends BlobStoreConnector
 					.deleteRecords(deletionMap)
 					.all()
 					.get();
-
-				return true;
 			}
 			catch(final Exception e)
 			{
 				throw new RuntimeException(e);
 			}
+			synchronized(this)
+			{
+				final Index index = this.indices.get(topicName);
+				if(index != null)
+				{
+					final Map<Integer, RecordsToDelete> partitionsWithRecords = deletionMap
+						.entrySet()
+						.stream()
+						.collect(toMap(
+							e -> e.getKey().partition(),
+							e -> e.getValue()
+						));
+					index.delete(partitionsWithRecords);
+				}
+			}
+			
+			/*
+			 * Write remaining
+			 */
+			this.internalWriteData(file, buffers);
+
+			return true;
 		}
 
 		@Override

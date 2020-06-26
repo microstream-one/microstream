@@ -89,7 +89,7 @@ public interface RedisConnector extends BlobStoreConnector
 		)
 		{
 			final RedisCommands<String, ByteBuffer> commands = this.commands();
-			final String                            prefix   = toBlobKeyPrefix(file);
+			final String                            prefix   = toBlobKeyPrefixWithContainer(file);
 			final Pattern                           pattern  = Pattern.compile(blobKeyRegex(prefix));
 			return commands.keys(prefix.concat("*"))
 				.stream()
@@ -107,7 +107,7 @@ public interface RedisConnector extends BlobStoreConnector
 		@Override
 		protected void internalReadBlobData(
 			final BlobStorePath   file        ,
-			final BlobMetadata            blob        ,
+			final BlobMetadata    blob        ,
 			final ByteBuffer      targetBuffer,
 			final long            offset      ,
 			final long            length
@@ -152,7 +152,7 @@ public interface RedisConnector extends BlobStoreConnector
 			buffer.flip();
 
 			this.commands().set(
-				toBlobKey(file, nextBlobNumber),
+				toBlobKeyWithContainer(file, nextBlobNumber),
 				buffer
 			);
 
@@ -179,7 +179,7 @@ public interface RedisConnector extends BlobStoreConnector
 				);
 				buffer.flip();
 				this.commands().set(
-					toBlobKey(
+					toBlobKeyWithContainer(
 						 targetFile,
 						 this.blobNumber(blob)
 					),

@@ -82,12 +82,29 @@ public interface BlobStoreConnector extends AutoCloseable
 			return toBlobKeyPrefix(file).concat(Long.toString(nr));
 		}
 
+		protected static String toBlobKeyWithContainer(
+			final BlobStorePath file,
+			final long          nr
+		)
+		{
+			return toBlobKeyPrefixWithContainer(file).concat(Long.toString(nr));
+		}
+
 		protected static String toBlobKeyPrefix(
 			final BlobStorePath file
 		)
 		{
 			return Arrays.stream(file.pathElements())
 				.skip(1L) // skip container
+				.collect(Collectors.joining(BlobStorePath.SEPARATOR, "", NUMBER_SUFFIX_SEPARATOR))
+			;
+		}
+
+		protected static String toBlobKeyPrefixWithContainer(
+			final BlobStorePath file
+		)
+		{
+			return Arrays.stream(file.pathElements())
 				.collect(Collectors.joining(BlobStorePath.SEPARATOR, "", NUMBER_SUFFIX_SEPARATOR))
 			;
 		}
@@ -327,18 +344,21 @@ public interface BlobStoreConnector extends AutoCloseable
 
 			final long blobStart = offset;
 			final long blobEnd   = this.blobSizeProvider.applyAsLong(blob) - 1L;
+			final int  blobIndex = blobs.indexOf(blob);
+			final int  blobCount = blobs.size();
+			
 			if(blobStart == newLength)
 			{
 				this.internalDeleteBlobs(
 					file,
-					blobs.subList(blobs.indexOf(blob), blobs.size())
+					blobs.subList(blobIndex, blobCount)
 				);
 			}
 			else if(blobEnd == newLength - 1)
 			{
 				this.internalDeleteBlobs(
 					file,
-					blobs.subList(blobs.indexOf(blob) + 1, blobs.size())
+					blobs.subList(blobIndex + 1, blobCount)
 				);
 			}
 			else
@@ -348,10 +368,11 @@ public interface BlobStoreConnector extends AutoCloseable
 					checkArrayRange(newBlobLength)
 				);
 				this.internalReadBlobData(file, blob, buffer, 0L, newBlobLength);
+				buffer.flip();
 
 				this.internalDeleteBlobs(
 					file,
-					blobs.subList(blobs.indexOf(blob), blobs.size())
+					blobs.subList(blobIndex, blobCount)
 				);
 
 				this.internalWriteData(file, Arrays.asList(buffer));

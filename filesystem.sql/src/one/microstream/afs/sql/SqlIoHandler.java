@@ -100,12 +100,7 @@ public interface SqlIoHandler extends AIoHandler
 			final SqlPath directory
 		)
 		{
-			/*
-			 * Directories (tables) are created on demand when a file is opened for writing.
-			 * @see #specificOpenWriting
-			 */
-
-			return true;
+			return this.connector.directoryExists(directory);
 		}
 
 		@Override
@@ -163,9 +158,31 @@ public interface SqlIoHandler extends AIoHandler
 			final SqlWritableFile file
 		)
 		{
-			this.connector.ensureDirectory(file.path().parentPath());
-
 			return file.openHandle();
+		}
+		
+		/*
+		 * Per default directories are created recursively.
+		 * But since we create tables named with the full path of the directory,
+		 * a single create is sufficient.
+		 */
+		@Override
+		public void create(final ADirectory directory)
+		{
+			this.validateHandledDirectory(directory);
+			
+			synchronized(this)
+			{
+				directory.iterateObservers(o ->
+					o.onBeforeDirectoryCreate(directory)
+				);
+				
+				this.specificCreate(directory);
+				
+				directory.iterateObservers(o ->
+					o.onAfterDirectoryCreate(directory)
+				);
+			}
 		}
 
 		@Override
@@ -173,10 +190,9 @@ public interface SqlIoHandler extends AIoHandler
 			final ADirectory directory
 		)
 		{
-			/*
-			 * Directories (tables) are created on demand when a file is opened for writing.
-			 * @see #specificOpenWriting
-			 */
+			this.connector.createDirectory(
+				this.toSubjectDirectory(directory)
+			);
 		}
 
 		@Override
@@ -342,8 +358,6 @@ public interface SqlIoHandler extends AIoHandler
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			this.openWriting(targetFile);
-
 			return this.connector.writeData(
 				SqlFileSystem.toPath(targetFile.ensureOpenHandle()),
 				sourceBuffers

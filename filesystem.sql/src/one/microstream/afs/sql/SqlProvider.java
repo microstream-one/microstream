@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Types;
@@ -40,6 +41,8 @@ public interface SqlProvider
 	public String schema();
 
 	public <T> T execute(SqlOperation<T> operation);
+	
+	public long maxBlobSize(Connection connection);
 
 	public SqlBlobData createBlobData(Connection connection, InputStream inputStream, long length);
 
@@ -294,6 +297,25 @@ public interface SqlProvider
 			try(final Connection connection = this.dataSource.getConnection())
 			{
 				return operation.execute(connection);
+			}
+			catch(final SQLException e)
+			{
+				// TODO: proper exception
+				throw new RuntimeException(e);
+			}
+		}
+		
+		@Override
+		public long maxBlobSize(final Connection connection)
+		{
+			try
+			{
+				final DatabaseMetaData metaData   = connection.getMetaData();
+				final long             maxLobSize = metaData.getMaxLogicalLobSize();
+				return maxLobSize > 0L
+					? maxLobSize
+					: 1048576L
+				;
 			}
 			catch(final SQLException e)
 			{
@@ -581,7 +603,6 @@ public interface SqlProvider
 			vs.add(", ");
 			this.addSqlColumnName(vs, DATA_COLUMN_NAME);
 			vs.add(") select ?, ");
-			vs.add(", ");
 			this.addSqlColumnName(vs, START_COLUMN_NAME);
 			vs.add(", ");
 			this.addSqlColumnName(vs, END_COLUMN_NAME);

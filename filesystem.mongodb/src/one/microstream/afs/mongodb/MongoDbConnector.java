@@ -70,7 +70,8 @@ public interface MongoDbConnector extends BlobStoreConnector
 		private final static String INDEX_NAME = "key-index";
 
 		// https://docs.mongodb.com/manual/reference/limits/
-		private final static long   MAX_BLOB_SIZE = 16_777_216L;
+		// 16 MB payload maximum minus 16 KB for the rest
+		private final static long   MAX_BLOB_SIZE = 16_777_216L - 16_384L;
 
 		private final MongoDatabase                          database   ;
 		private final Map<String, MongoCollection<Document>> collections;

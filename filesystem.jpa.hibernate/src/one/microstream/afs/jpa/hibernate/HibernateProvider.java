@@ -2,6 +2,8 @@ package one.microstream.afs.jpa.hibernate;
 
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -139,6 +141,25 @@ public interface HibernateProvider extends SqlProvider
 				{
 					transaction.commit();
 				}
+			}
+		}
+		
+		@Override
+		public long maxBlobSize(final Connection connection)
+		{
+			try
+			{
+				final DatabaseMetaData metaData   = connection.getMetaData();
+				final long             maxLobSize = metaData.getMaxLogicalLobSize();
+				return maxLobSize > 0L
+					? maxLobSize
+					: 1048576L // 1MB
+				;
+			}
+			catch(final SQLException e)
+			{
+				// TODO: proper exception
+				throw new RuntimeException(e);
 			}
 		}
 
@@ -385,9 +406,9 @@ public interface HibernateProvider extends SqlProvider
 			)
 			{
 				super(
-					Identifier.toIdentifier(catalog)  ,
-					Identifier.toIdentifier(schema)   ,
-					Identifier.toIdentifier(tableName),
+					Identifier.toIdentifier(catalog  , true),
+					Identifier.toIdentifier(schema   , true),
+					Identifier.toIdentifier(tableName, true),
 					false
 				);
 
