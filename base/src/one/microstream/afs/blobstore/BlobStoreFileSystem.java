@@ -51,6 +51,9 @@ public interface BlobStoreFileSystem extends AFileSystem
 		);
 	}
 
+	@Override
+	public BlobStoreIoHandler ioHandler();
+	
 
 	public static class Default
 	extends    AFileSystem.Abstract<BlobStorePath, BlobStorePath>
@@ -74,6 +77,12 @@ public interface BlobStoreFileSystem extends AFileSystem
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public BlobStoreIoHandler ioHandler()
+		{
+			return (BlobStoreIoHandler)super.ioHandler();
+		}
 
 		@Override
 		public String deriveFileIdentifier(
@@ -201,7 +210,7 @@ public interface BlobStoreFileSystem extends AFileSystem
 			return BlobStoreWritableFile.New(
 				file,
 				file.user(),
-				((BlobStoreWritableFile)file).path()
+				((BlobStoreReadableFile)file).path()
 			);
 		}
 

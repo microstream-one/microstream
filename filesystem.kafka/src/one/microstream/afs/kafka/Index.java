@@ -5,9 +5,11 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.apache.kafka.clients.admin.RecordsToDelete;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -29,6 +31,8 @@ public interface Index extends AutoCloseable
 	public Iterable<Blob> get();
 
 	public Index put(Iterable<Blob> blobs);
+	
+	public Index delete(Map<Integer, RecordsToDelete> partitionsWithRecords);
 
 	@Override
 	public void close();
@@ -248,6 +252,22 @@ public interface Index extends AutoCloseable
 				});
 			}
 
+			return this;
+		}
+		
+		@Override
+		public Index delete(
+			final Map<Integer, RecordsToDelete> partitionsWithRecords
+		)
+		{
+			this.blobs.removeBy(blob ->
+			{
+				final RecordsToDelete recordsToDelete = partitionsWithRecords.get(blob.partition());
+				return recordsToDelete != null
+					&& recordsToDelete.beforeOffset() > blob.offset()
+				;
+			});
+			
 			return this;
 		}
 

@@ -36,7 +36,7 @@ public interface KafkaPathValidator extends BlobStorePath.Validator
 				);
 			}
 			if(!Pattern.matches(
-				"[a-zA-Z0-9\\._\\-]",
+				"[a-zA-Z0-9\\._\\-]*",
 				name
 			))
 			{

@@ -24,9 +24,11 @@ public interface SqlConnector
 {
 	public long fileSize(SqlPath file);
 
-	public boolean fileExists(SqlPath directory);
+	public boolean fileExists(SqlPath file);
 
-	public boolean ensureDirectory(SqlPath directory);
+	public boolean directoryExists(SqlPath directory);
+
+	public boolean createDirectory(SqlPath directory);
 
 	public boolean deleteFile(SqlPath file);
 
@@ -460,17 +462,23 @@ public interface SqlConnector
 				}
 			});
 		}
-
+		
 		@Override
-		public boolean ensureDirectory(final SqlPath directory)
+		public boolean directoryExists(final SqlPath directory)
 		{
 			return this.provider.execute(connection ->
 			{
-				if(!this.internalDirectoryExists(directory, connection))
-				{
-					this.internalCreateDirectory(directory, connection);
-				}
-
+				return this.internalDirectoryExists(directory, connection);
+			});
+		}
+		
+		@Override
+		public boolean createDirectory(final SqlPath directory)
+		{
+			return this.provider.execute(connection ->
+			{
+				this.internalCreateDirectory(directory, connection);
+				
 				return true;
 			});
 		}
@@ -561,18 +569,17 @@ public interface SqlConnector
 				{
 					buffersLength += buffer.remaining();
 				}
-				final long maxLobSize = connection.getMetaData().getMaxLogicalLobSize();
-				final long batchSize  = maxLobSize > 0L
-					? Math.min(maxLobSize, buffersLength)
-					: buffersLength
-				;
+				final long maxBatchSize = Math.min(
+					this.provider.maxBlobSize(connection),
+					buffersLength
+				);
 
 				final ByteBufferInputStream inputStream = ByteBufferInputStream.New(sourceBuffers);
 				      long                  offset      = Math.max(0L, this.internalFileSize(file, connection));
 				      long                  available   = buffersLength;
 				while(available > 0)
 				{
-					final long        currentBatchSize = Math.min(available, batchSize);
+					final long        currentBatchSize = Math.min(available, maxBatchSize);
 					final SqlBlobData blobData         = this.provider.createBlobData(
 						connection,
 						LimitedInputStream.New(inputStream, currentBatchSize),

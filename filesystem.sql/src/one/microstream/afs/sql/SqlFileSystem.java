@@ -208,7 +208,7 @@ public interface SqlFileSystem extends AFileSystem
 			return SqlWritableFile.New(
 				file                          ,
 				file.user()                   ,
-				((SqlWritableFile)file).path()
+				((SqlReadableFile)file).path()
 			);
 		}
 
