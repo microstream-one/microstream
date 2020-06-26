@@ -7,6 +7,7 @@ import one.microstream.collections.HashEnum;
 import one.microstream.reference.Lazy;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageFileNameProvider;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
@@ -42,6 +43,9 @@ public class MainTestStorageImportData
 	static final ADirectory EXPORT_DIRECTORY = NioFileSystem.directory("export"); // root is working directory
 	
 	static final int ID_OFFSET = 0; // change to 1000 or so
+	
+
+	static final String DAT = StorageFileNameProvider.Defaults.defaultDataFileSuffix();
 
 	public static void main(final String[] args)
 	{
@@ -61,7 +65,7 @@ public class MainTestStorageImportData
 		{
 			Test.print("Importing data ...");
 			STORAGE.importFiles(
-				AFS.listFiles(EXPORT_DIRECTORY, f -> f.name().endsWith(".dat"), HashEnum.New())
+				AFS.listFiles(EXPORT_DIRECTORY, f -> DAT.equals(f.type()), HashEnum.New())
 			);
 			Test.print("Data import completed.");
 			
