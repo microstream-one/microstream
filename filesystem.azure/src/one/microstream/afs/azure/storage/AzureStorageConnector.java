@@ -25,10 +25,28 @@ import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.ByteBufferOutputStream;
 import one.microstream.io.LimitedInputStream;
 
-
+/**
+ * Connector for the <a href="https://azure.microsoft.com/services/storage/blobs/">Azure blob storage</a>.
+ * <p>
+ * First create a <a href="https://docs.microsoft.com/azure/storage/common/storage-samples-java">BlobServiceClient</a>.
+ * <pre>
+ * BlobServiceClient serviceClient = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	AzureStorageConnector.New(serviceClient)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface AzureStorageConnector extends BlobStoreConnector
 {
-
+	/**
+	 * Pseude-constructor method which creates a new {@link AzureStorageConnector}.
+	 * 
+	 * @param serviceClient connection to the Azure storage service
+	 * @return a new {@link AzureStorageConnector}
+	 */
 	public static AzureStorageConnector New(
 		final BlobServiceClient serviceClient
 	)

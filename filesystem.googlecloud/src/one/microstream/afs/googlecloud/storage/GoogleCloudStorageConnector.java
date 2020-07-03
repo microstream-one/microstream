@@ -26,10 +26,28 @@ import one.microstream.afs.blobstore.BlobStorePath;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.memory.XMemory;
 
-
+/**
+ * Connector for the <a href="https://cloud.google.com/storage">Google cloud storage</a>.
+ * <p>
+ * First create a <a href="https://cloud.google.com/storage/docs/reference/libraries#client-libraries-install-java">storage client</a>.
+ * <pre>
+ * Storage storage = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	GoogleCloudStorageConnector.New(storage)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface GoogleCloudStorageConnector extends BlobStoreConnector
 {
-
+	/**
+	 * Pseude-constructor method which creates a new {@link GoogleCloudStorageConnector}.
+	 * 
+	 * @param storage connection to the Google storage service
+	 * @return a new {@link GoogleCloudStorageConnector}
+	 */
 	public static GoogleCloudStorageConnector New(
 		final Storage storage
 	)

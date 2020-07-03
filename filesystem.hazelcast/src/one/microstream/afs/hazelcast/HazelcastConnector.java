@@ -26,10 +26,28 @@ import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
 
-
+/**
+ * Connector for the <a href="https://hazelcast.org/imdg/">Hazelcast IMDG</a>.
+ * <p>
+ * First create a connection to a <a href="https://docs.hazelcast.org/docs/latest/manual/html-single/index.html#java-client">Hazelcast instance</a>.
+ * <pre>
+ * HazelcastInstance hazelcast = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	HazelcastConnector.New(hazelcast)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface HazelcastConnector extends BlobStoreConnector
 {
-
+	/**
+	 * Pseude-constructor method which creates a new {@link HazelcastConnector}.
+	 * 
+	 * @param hazelcast connection to the Hazelcast instance
+	 * @return a new {@link HazelcastConnector}
+	 */
 	public static HazelcastConnector New(
 		final HazelcastInstance hazelcast
 	)

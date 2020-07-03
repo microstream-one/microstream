@@ -38,9 +38,34 @@ import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
 
-
+/**
+ * Connector for <a href="https://www.mongodb.com/">MongoDB</a> database and GridFS.
+ * <p>
+ * First create a connection to a <a href="http://mongodb.github.io/mongo-java-driver/3.12/driver/getting-started/quick-start/">MongoDB database</a>.
+ * <pre>
+ * MongoDatabase database = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	MongoDbConnector.New(database)
+ * );
+ * </pre>
+ * or
+ * <pre>
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	MongoDbConnector.GridFs(database)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface MongoDbConnector extends BlobStoreConnector
 {
+	/**
+	 * Pseude-constructor method which creates a new {@link MongoDbConnector}.
+	 * 
+	 * @param database connection to the MongoDB database
+	 * @return a new {@link MongoDbConnector}
+	 */
 	public static MongoDbConnector New(
 		final MongoDatabase database
 	)
@@ -50,6 +75,12 @@ public interface MongoDbConnector extends BlobStoreConnector
 		);
 	}
 
+	/**
+	 * Pseude-constructor method which creates a new {@link MongoDbConnector} for GridFS.
+	 * 
+	 * @param database connection to the MongoDB database
+	 * @return a new {@link MongoDbConnector}
+	 */
 	public static MongoDbConnector GridFs(
 		final MongoDatabase database
 	)

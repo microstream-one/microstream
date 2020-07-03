@@ -34,10 +34,28 @@ import oracle.kv.table.TableAPI;
 import oracle.kv.table.TableOpExecutionException;
 import oracle.kv.table.TableOperation;
 
-
+/**
+ * Connector for the <a href="https://www.oracle.com/database/technologies/related/nosql.html">Oracle NoSQL database</a>.
+ * <p>
+ * First create a connection to a <a href="https://docs.oracle.com/database/nosql-12.2.4.4/GettingStartedGuide/kvapi.html">key value store</a>.
+ * <pre>
+ * KVStore kvstore = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	OracleNoSqlConnector.New(kvstore)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface OracleNoSqlConnector extends BlobStoreConnector
 {
-
+	/**
+	 * Pseude-constructor method which creates a new {@link OracleNoSqlConnector}.
+	 * 
+	 * @param kvstore connection to a key value store
+	 * @return a new {@link OracleNoSqlConnector}
+	 */
 	public static OracleNoSqlConnector New(
 		final KVStore kvstore
 	)

@@ -16,10 +16,28 @@ import io.lettuce.core.api.sync.RedisCommands;
 import one.microstream.afs.blobstore.BlobStoreConnector;
 import one.microstream.afs.blobstore.BlobStorePath;
 
-
+/**
+ * Connector for <a href="https://redis.io/">Redis</a> which utilizes the <a href="https://lettuce.io/">Lettuce client</a>.
+ * <p>
+ * First create a <a href="https://lettuce.io/">Lettuce Redis client</a>.
+ * <pre>
+ * RedisClient client = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	RedisConnector.New(client)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface RedisConnector extends BlobStoreConnector
 {
-
+	/**
+	 * Pseude-constructor method which creates a new {@link RedisConnector}.
+	 * 
+	 * @param redisUri url to connect to
+	 * @return a new {@link RedisConnector}
+	 */
 	public static RedisConnector New(
 		final String redisUri
 	)
@@ -31,6 +49,12 @@ public interface RedisConnector extends BlobStoreConnector
 		);
 	}
 
+	/**
+	 * Pseude-constructor method which creates a new {@link RedisConnector}.
+	 * 
+	 * @param client Redis client connection
+	 * @return a new {@link RedisConnector}
+	 */
 	public static RedisConnector New(
 		final RedisClient client
 	)
