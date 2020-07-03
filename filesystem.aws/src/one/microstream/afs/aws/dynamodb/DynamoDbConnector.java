@@ -46,9 +46,28 @@ import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
 
-
+/**
+ * Connector for the <a href="https://aws.amazon.com/dynamodb/">Amazon DynamoDB database service</a>.
+ * <p>
+ * First create a connection to the <a href="https://docs.aws.amazon.com/sdk-for-java/v2/developer-guide/examples-dynamodb.html">DynamoDB service</a>.
+ * <pre>
+ * AmazonDynamoDB client = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	DynamoDbConnector.New(client)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface DynamoDbConnector extends BlobStoreConnector
 {
+	/**
+	 * Pseude-constructor method which creates a new {@link DynamoDbConnector}.
+	 * 
+	 * @param dynamoDb connection to the DynamoDB service
+	 * @return a new {@link DynamoDbConnector}
+	 */
 	public static DynamoDbConnector New(
 		final AmazonDynamoDB dynamoDb
 	)

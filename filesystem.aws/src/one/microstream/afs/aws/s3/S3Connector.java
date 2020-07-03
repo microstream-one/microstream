@@ -27,10 +27,28 @@ import one.microstream.afs.blobstore.BlobStorePath;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 
-
+/**
+ * Connector for the <a href="https://aws.amazon.com/s3/">Amazon Simple Storage Service (Amazon S3)</a>.
+ * <p>
+ * First create a connection to the <a href="https://docs.aws.amazon.com/sdk-for-java/v2/developer-guide/s3-examples.html">S3 storage</a>.
+ * <pre>
+ * AmazonS3 s3 = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	S3Connector.New(s3)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface S3Connector extends BlobStoreConnector
 {
-
+	/**
+	 * Pseude-constructor method which creates a new {@link S3Connector}.
+	 * 
+	 * @param s3 connection to the S3 storage
+	 * @return a new {@link S3Connector}
+	 */
 	public static S3Connector New(
 		final AmazonS3 s3
 	)

@@ -33,10 +33,28 @@ import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
 
-
+/**
+ * Connector for the <a href="https://www.oracle.com/cloud/storage/object-storage.html">Oracle cloud object storage</a>.
+ * <p>
+ * First create a <a href="https://docs.cloud.oracle.com/en-us/iaas/Content/API/SDKDocs/javasdk.htm">Oracle storage client</a>.
+ * <pre>
+ * ObjectStorageClient client = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	OracleCloudObjectStorageConnector.New(client)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface OracleCloudObjectStorageConnector extends BlobStoreConnector
 {
-
+	/**
+	 * Pseude-constructor method which creates a new {@link OracleCloudObjectStorageConnector}.
+	 * 
+	 * @param client connection to the Oracle cloud object storage
+	 * @return a new {@link OracleCloudObjectStorageConnector}
+	 */
 	public static OracleCloudObjectStorageConnector New(
 		final ObjectStorageClient client
 	)

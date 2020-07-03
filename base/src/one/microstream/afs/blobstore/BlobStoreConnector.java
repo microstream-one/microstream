@@ -20,7 +20,14 @@ import java.util.stream.Stream;
 
 import one.microstream.reference.Reference;
 
-
+/**
+ * Connector for blob stores which handles the concrete IO operations on a specific connection.
+ * <p>
+ * All operations must be implemented thread-safe.
+ * 
+ * @author FH
+ *
+ */
 public interface BlobStoreConnector extends AutoCloseable
 {
 	public long fileSize(BlobStorePath file);

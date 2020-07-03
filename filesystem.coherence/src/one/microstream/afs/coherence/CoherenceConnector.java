@@ -32,7 +32,20 @@ import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
 
-
+/**
+ * Connector for the <a href="https://www.oracle.com/middleware/technologies/coherence.html">Oracle Coherence data grid</a>.
+ * <p>
+ * First create a connection to a <a href="https://docs.oracle.com/cd/E15357_01/coh.360/e15726/gs_example.htm">named cache</a>.
+ * <pre>
+ * NamedCache cache = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	CoherenceConnector.New(cache)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface CoherenceConnector extends BlobStoreConnector
 {
 

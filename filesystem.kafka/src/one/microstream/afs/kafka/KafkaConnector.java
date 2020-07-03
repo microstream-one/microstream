@@ -43,10 +43,28 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 
-
+/**
+ * Connector for <a href="https://kafka.apache.org/">Apache Kafka</a>.
+ * <p>
+ * First setup the <a href="https://kafka.apache.org/documentation/#api">connection properties</a>.
+ * <pre>
+ * Properties properties = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	KafkaConnector.New(properties)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface KafkaConnector extends BlobStoreConnector
 {
-
+	/**
+	 * Pseude-constructor method which creates a new {@link KafkaConnector}.
+	 * 
+	 * @param kafkaProperties the Kafka configuration
+	 * @return a new {@link KafkaConnector}
+	 */
 	public static KafkaConnector New(
 		final Properties kafkaProperties
 	)

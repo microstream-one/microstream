@@ -32,9 +32,28 @@ import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
 
-
+/**
+ * Connector for the <a href="https://cloud.google.com/firestore">Google cloud firestore</a>.
+ * <p>
+ * First create a <a href="https://cloud.google.com/firestore/docs/quickstart-servers">firestore connection</a>.
+ * <pre>
+ * Firestore firestore = ...
+ * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+ * 	GoogleCloudFirestoreConnector.New(firestore)
+ * );
+ * </pre>
+ * 
+ * @author FH
+ *
+ */
 public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 {
+	/**
+	 * Pseude-constructor method which creates a new {@link GoogleCloudFirestoreConnector}.
+	 * 
+	 * @param firestore connection to the Google firestore service
+	 * @return a new {@link GoogleCloudFirestoreConnector}
+	 */
 	public static GoogleCloudFirestoreConnector New(
 		final Firestore firestore
 	)
