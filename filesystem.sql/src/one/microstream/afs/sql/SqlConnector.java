@@ -9,7 +9,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.function.LongFunction;
@@ -408,7 +407,7 @@ public interface SqlConnector
 					blob.free();
 				}
 			}
-			catch(final SQLFeatureNotSupportedException e)
+			catch(final SQLException e)
 			{
 				final byte[] bytes    = result.getBytes(columnIndex);
 				final int    amount   = checkArrayRange(length);

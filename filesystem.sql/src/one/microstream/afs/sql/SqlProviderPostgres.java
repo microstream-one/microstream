@@ -77,7 +77,7 @@ public interface SqlProviderPostgres extends SqlProvider
 			this.addSqlColumnName(vs, END_COLUMN_NAME);
 			vs.add(" bigint not null, ");
 			this.addSqlColumnName(vs, DATA_COLUMN_NAME);
-			vs.add(" oid not null, constraint ");
+			vs.add(" bytea not null, constraint ");
 			this.addNameQuoted(vs, tableName + "_pk");
 			vs.add(" primary key (");
 			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
