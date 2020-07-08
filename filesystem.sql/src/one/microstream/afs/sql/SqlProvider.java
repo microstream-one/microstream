@@ -3,19 +3,13 @@ package one.microstream.afs.sql;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Types;
 
 import javax.sql.DataSource;
 
-import one.microstream.X;
 import one.microstream.chars.VarString;
 
 
@@ -43,8 +37,6 @@ public interface SqlProvider
 	public <T> T execute(SqlOperation<T> operation);
 	
 	public long maxBlobSize(Connection connection);
-
-	public SqlBlobData createBlobData(Connection connection, InputStream inputStream, long length);
 
 	/**
 	 * <pre>
@@ -318,54 +310,6 @@ public interface SqlProvider
 				;
 			}
 			catch(final SQLException e)
-			{
-				// TODO: proper exception
-				throw new RuntimeException(e);
-			}
-		}
-
-		@Override
-		public SqlBlobData createBlobData(
-			final Connection  connection ,
-			final InputStream inputStream,
-			final long        length
-		)
-		{
-			try
-			{
-				try
-				{
-					final Blob blob = connection.createBlob();
-					try(final OutputStream outputStream = blob.setBinaryStream(1L))
-					{
-						int          remaining = X.checkArrayRange(length);
-						final byte[] buffer    = new byte[Math.min(remaining, 8096)];
-						while(remaining > 0)
-						{
-							final int read = inputStream.read(
-								buffer,
-								0,
-								Math.min(remaining, buffer.length)
-							);
-							outputStream.write(buffer, 0, read);
-							remaining -= read;
-						}
-					}
-
-					return SqlBlobData.New(blob);
-				}
-				catch(final SQLFeatureNotSupportedException e)
-				{
-					final byte[] bytes = new byte[X.checkArrayRange(length)];
-					int offset = 0;
-					while(offset < bytes.length - 1)
-					{
-						offset += inputStream.read(bytes, offset, bytes.length - offset);
-					}
-					return SqlBlobData.New(bytes);
-				}
-			}
-			catch(final SQLException | IOException e)
 			{
 				// TODO: proper exception
 				throw new RuntimeException(e);

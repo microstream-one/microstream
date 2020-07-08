@@ -3,16 +3,20 @@ package one.microstream.afs.sql;
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.function.LongFunction;
 
+import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
 import one.microstream.reference.Reference;
@@ -72,6 +76,37 @@ public interface SqlConnector
 		{
 			super();
 			this.provider = provider;
+		}
+		
+		private void setBlob(
+			final PreparedStatement statement  ,
+			final int               index      ,
+			final InputStream       inputStream,
+			final long              length
+		)
+		throws SQLException
+		{
+			try
+			{
+				statement.setBinaryStream(index, inputStream, length);
+			}
+			catch(final SQLFeatureNotSupportedException featureNotSupported)
+			{
+				try
+				{
+					final byte[] bytes = new byte[checkArrayRange(length)];
+					int offset = 0;
+					while(offset < bytes.length - 1)
+					{
+						offset += inputStream.read(bytes, offset, bytes.length - offset);
+					}
+					statement.setBytes(index, bytes);
+				}
+				catch(final IOException e)
+				{
+					throw new IORuntimeException(e);
+				}
+			}
 		}
 
 		private boolean internalDirectoryExists(
@@ -579,17 +614,17 @@ public interface SqlConnector
 				while(available > 0)
 				{
 					final long        currentBatchSize = Math.min(available, maxBatchSize);
-					final SqlBlobData blobData         = this.provider.createBlobData(
-						connection,
-						LimitedInputStream.New(inputStream, currentBatchSize),
-						currentBatchSize
-					);
 					try(final PreparedStatement statement = connection.prepareStatement(sql))
 					{
 						statement.setString(IDENTIFIER_COLUMN_INDEX, file.identifier()            );
 						statement.setLong  (START_COLUMN_INDEX     , offset                       );
 						statement.setLong  (END_COLUMN_INDEX       , offset + currentBatchSize - 1);
-						blobData.setAsParameter(statement, DATA_COLUMN_INDEX);
+						this.setBlob(
+							statement,
+							DATA_COLUMN_INDEX,
+							LimitedInputStream.New(inputStream, currentBatchSize),
+							currentBatchSize
+						);
 						statement.executeUpdate();
 					}
 
@@ -769,11 +804,6 @@ public interface SqlConnector
 						statement.executeUpdate();
 					}
 
-					final SqlBlobData blobData = this.provider.createBlobData(
-						connection,
-						ByteBufferInputStream.New(buffer),
-						newSegmentLength
-					);
 					try(final PreparedStatement statement = connection.prepareStatement(
 						this.provider.writeDataQuery(tableName)
 					))
@@ -781,7 +811,12 @@ public interface SqlConnector
 						statement.setString(IDENTIFIER_COLUMN_INDEX, file.identifier()                  );
 						statement.setLong  (START_COLUMN_INDEX     , segmentStart                       );
 						statement.setLong  (END_COLUMN_INDEX       , segmentStart + newSegmentLength - 1);
-						blobData.setAsParameter(statement, DATA_COLUMN_INDEX);
+						this.setBlob(
+							statement,
+							DATA_COLUMN_INDEX,
+							ByteBufferInputStream.New(buffer),
+							newSegmentLength
+						);
 						statement.executeUpdate();
 					}
 				}

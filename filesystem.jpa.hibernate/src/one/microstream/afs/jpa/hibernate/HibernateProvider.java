@@ -1,6 +1,5 @@
 package one.microstream.afs.jpa.hibernate;
 
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -11,7 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
-import org.hibernate.Hibernate;
 import org.hibernate.NullPrecedence;
 import org.hibernate.Session;
 import org.hibernate.boot.model.naming.Identifier;
@@ -27,7 +25,6 @@ import org.hibernate.sql.Update;
 import org.hibernate.tool.schema.internal.StandardTableExporter;
 import org.hibernate.type.StandardBasicTypes;
 
-import one.microstream.afs.sql.SqlBlobData;
 import one.microstream.afs.sql.SqlOperation;
 import one.microstream.afs.sql.SqlProvider;
 import one.microstream.chars.XChars;
@@ -161,23 +158,6 @@ public interface HibernateProvider extends SqlProvider
 				// TODO: proper exception
 				throw new RuntimeException(e);
 			}
-		}
-
-		@Override
-		public SqlBlobData createBlobData(
-			final Connection  connection ,
-			final InputStream inputStream,
-			final long        length
-		)
-		{
-			return SqlBlobData.New(
-				Hibernate.getLobCreator(
-					this.entityManager().unwrap(Session.class)
-				).createBlob(
-					inputStream,
-					length
-				)
-			);
 		}
 
 		@Override
