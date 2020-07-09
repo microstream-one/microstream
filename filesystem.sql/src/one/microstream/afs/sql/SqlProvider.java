@@ -1,16 +1,21 @@
 package one.microstream.afs.sql;
 
+import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Types;
 
 import javax.sql.DataSource;
 
 import one.microstream.chars.VarString;
+import one.microstream.exceptions.IORuntimeException;
 
 
 public interface SqlProvider
@@ -36,7 +41,7 @@ public interface SqlProvider
 
 	public <T> T execute(SqlOperation<T> operation);
 	
-	public long maxBlobSize(Connection connection);
+	public void setBlob(PreparedStatement statement, int index, InputStream inputStream, long length) throws SQLException;
 
 	/**
 	 * <pre>
@@ -298,21 +303,34 @@ public interface SqlProvider
 		}
 		
 		@Override
-		public long maxBlobSize(final Connection connection)
+		public void setBlob(
+			final PreparedStatement statement  ,
+			final int               index      ,
+			final InputStream       inputStream,
+			final long              length
+		)
+			throws SQLException
 		{
 			try
 			{
-				final DatabaseMetaData metaData   = connection.getMetaData();
-				final long             maxLobSize = metaData.getMaxLogicalLobSize();
-				return maxLobSize > 0L
-					? maxLobSize
-					: 1048576L
-				;
+				statement.setBinaryStream(index, inputStream, length);
 			}
-			catch(final SQLException e)
+			catch(final SQLFeatureNotSupportedException featureNotSupported)
 			{
-				// TODO: proper exception
-				throw new RuntimeException(e);
+				try
+				{
+					final byte[] bytes = new byte[checkArrayRange(length)];
+					int offset = 0;
+					while(offset < bytes.length - 1)
+					{
+						offset += inputStream.read(bytes, offset, bytes.length - offset);
+					}
+					statement.setBytes(index, bytes);
+				}
+				catch(final IOException e)
+				{
+					throw new IORuntimeException(e);
+				}
 			}
 		}
 
