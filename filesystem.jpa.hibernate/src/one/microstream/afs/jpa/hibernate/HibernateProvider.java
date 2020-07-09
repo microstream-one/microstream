@@ -1,7 +1,8 @@
 package one.microstream.afs.jpa.hibernate;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
+import java.io.InputStream;
+import java.sql.Blob;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -10,11 +11,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
+import org.hibernate.Hibernate;
 import org.hibernate.NullPrecedence;
 import org.hibernate.Session;
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.PrimaryKey;
 import org.hibernate.mapping.SimpleValue;
@@ -48,6 +51,7 @@ public interface HibernateProvider extends SqlProvider
 	{
 		private final HibernateContext           context         ;
 		private final ThreadLocal<EntityManager> entityManagerRef;
+		private       Table                      dummyTable      ;
 
 		Default(
 			final HibernateContext context
@@ -78,6 +82,21 @@ public interface HibernateProvider extends SqlProvider
 				this.schema() ,
 				tableName
 			);
+		}
+		
+		private Table dummyTable()
+		{
+			if(this.dummyTable == null)
+			{
+				synchronized(this)
+				{
+					if(this.dummyTable == null)
+					{
+						this.dummyTable = this.table("dummy");
+					}
+				}
+			}
+			return this.dummyTable;
 		}
 
 		private Select readDataQuerySelect(
@@ -142,22 +161,26 @@ public interface HibernateProvider extends SqlProvider
 		}
 		
 		@Override
-		public long maxBlobSize(final Connection connection)
+		public void setBlob(
+			final PreparedStatement statement  ,
+			final int               index      ,
+			final InputStream       inputStream,
+			final long              length
+		)
+		throws SQLException
 		{
-			try
-			{
-				final DatabaseMetaData metaData   = connection.getMetaData();
-				final long             maxLobSize = metaData.getMaxLogicalLobSize();
-				return maxLobSize > 0L
-					? maxLobSize
-					: 1048576L // 1MB
-				;
-			}
-			catch(final SQLException e)
-			{
-				// TODO: proper exception
-				throw new RuntimeException(e);
-			}
+			final Session session = this.entityManager().unwrap(Session.class);
+			final Blob    blob    = Hibernate.getLobCreator(session)
+				.createBlob(
+					inputStream,
+					length
+				);
+			this.dummyTable().dataColumn.getValue().getType().nullSafeSet(
+				statement,
+				blob,
+				index,
+				(SharedSessionContractImplementor)session
+			);
 		}
 
 		@Override

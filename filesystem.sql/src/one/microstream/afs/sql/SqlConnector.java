@@ -3,20 +3,17 @@ package one.microstream.afs.sql;
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.sql.Blob;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.function.LongFunction;
 
-import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
 import one.microstream.reference.Reference;
@@ -76,37 +73,6 @@ public interface SqlConnector
 		{
 			super();
 			this.provider = provider;
-		}
-		
-		private void setBlob(
-			final PreparedStatement statement  ,
-			final int               index      ,
-			final InputStream       inputStream,
-			final long              length
-		)
-		throws SQLException
-		{
-			try
-			{
-				statement.setBinaryStream(index, inputStream, length);
-			}
-			catch(final SQLFeatureNotSupportedException featureNotSupported)
-			{
-				try
-				{
-					final byte[] bytes = new byte[checkArrayRange(length)];
-					int offset = 0;
-					while(offset < bytes.length - 1)
-					{
-						offset += inputStream.read(bytes, offset, bytes.length - offset);
-					}
-					statement.setBytes(index, bytes);
-				}
-				catch(final IOException e)
-				{
-					throw new IORuntimeException(e);
-				}
-			}
 		}
 
 		private boolean internalDirectoryExists(
@@ -456,6 +422,19 @@ public interface SqlConnector
 				reverseTargetBuffer.position(position);
 			}
 		}
+		
+		private long maxBlobSize(
+			final Connection connection
+		)
+		throws SQLException
+		{
+			final DatabaseMetaData metaData   = connection.getMetaData();
+			final long             maxLobSize = metaData.getMaxLogicalLobSize();
+			return maxLobSize > 0L
+				? maxLobSize
+				: 1048576L // 1MB
+			;
+		}
 
 		@Override
 		public long fileSize(
@@ -604,7 +583,7 @@ public interface SqlConnector
 					buffersLength += buffer.remaining();
 				}
 				final long maxBatchSize = Math.min(
-					this.provider.maxBlobSize(connection),
+					this.maxBlobSize(connection),
 					buffersLength
 				);
 
@@ -619,7 +598,7 @@ public interface SqlConnector
 						statement.setString(IDENTIFIER_COLUMN_INDEX, file.identifier()            );
 						statement.setLong  (START_COLUMN_INDEX     , offset                       );
 						statement.setLong  (END_COLUMN_INDEX       , offset + currentBatchSize - 1);
-						this.setBlob(
+						this.provider.setBlob(
 							statement,
 							DATA_COLUMN_INDEX,
 							LimitedInputStream.New(inputStream, currentBatchSize),
@@ -811,7 +790,7 @@ public interface SqlConnector
 						statement.setString(IDENTIFIER_COLUMN_INDEX, file.identifier()                  );
 						statement.setLong  (START_COLUMN_INDEX     , segmentStart                       );
 						statement.setLong  (END_COLUMN_INDEX       , segmentStart + newSegmentLength - 1);
-						this.setBlob(
+						this.provider.setBlob(
 							statement,
 							DATA_COLUMN_INDEX,
 							ByteBufferInputStream.New(buffer),
