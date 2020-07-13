@@ -1,6 +1,7 @@
 package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
+import static one.microstream.math.XMath.notNegative;
 
 import java.text.DecimalFormat;
 import java.util.Date;
@@ -18,6 +19,23 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 	public XGettingTable<Integer, ? extends ChannelStatistics> channelStatistics();
 
 
+	
+	public static StorageRawFileStatistics New(
+		final Date                                                creationTime     ,
+		final long                                                fileCount        ,
+		final long                                                liveDataLength   ,
+		final long                                                totalDataLength  ,
+		final XGettingTable<Integer, ? extends ChannelStatistics> channelStatistics
+	)
+	{
+		return new StorageRawFileStatistics.Default(
+			    notNull(creationTime)     ,
+			notNegative(fileCount)        ,
+			notNegative(liveDataLength)   ,
+			notNegative(totalDataLength)  ,
+			    notNull(channelStatistics)
+		);
+	}
 
 	public final class Default
 	extends StorageRawFileStatisticsItem.Abstract
@@ -46,8 +64,8 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 		)
 		{
 			super(fileCount, liveDataLength, totalDataLength);
-			this.creationTime      = notNull(creationTime)     ;
-			this.channelStatistics = notNull(channelStatistics);
+			this.creationTime      = creationTime     ;
+			this.channelStatistics = channelStatistics;
 		}
 
 

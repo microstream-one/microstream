@@ -77,7 +77,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 			return this.result;
 		}
 
-		private StorageRawFileStatistics.Default createResult()
+		private StorageRawFileStatistics createResult()
 		{
 			long fileCount       = 0;
 			long liveDataLength  = 0;
@@ -90,7 +90,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 				totalDataLength += result.totalDataLength();
 			}
 
-			return new StorageRawFileStatistics.Default(
+			return StorageRawFileStatistics.New(
 				this.creationTime                            ,
 				fileCount                                    ,
 				liveDataLength                               ,
