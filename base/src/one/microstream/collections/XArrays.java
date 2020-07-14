@@ -619,6 +619,16 @@ public final class XArrays
 		// all elements of a2 were found in a1. No need to modify anything.
 		return a1;
 	}
+	
+	public static final <T> T[] ensureContained(final T[] ts, final T t)
+	{
+		if(contains(ts, t))
+		{
+			return ts;
+		}
+		
+		return add(ts, t);
+	}
 
 	/**
 	 * This method checks if {@code array} contains {@code element} by object identity

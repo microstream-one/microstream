@@ -168,7 +168,10 @@ public final class XIO
 		}
 		catch(final IOException e)
 		{
-			e.addSuppressed(suppressed);
+			if(suppressed != null)
+			{
+				e.addSuppressed(suppressed);
+			}
 			throw e;
 		}
 		
@@ -192,7 +195,10 @@ public final class XIO
 		}
 		catch(final Exception e)
 		{
-			e.addSuppressed(suppressed);
+			if(suppressed != null)
+			{
+				e.addSuppressed(suppressed);
+			}
 			throw e;
 		}
 		
@@ -564,19 +570,25 @@ public final class XIO
 	public static FileChannel openFileChannelReading(final Path file, final OpenOption... options)
 		throws IOException
 	{
-		return FileChannel.open(file, XArrays.ensureContained(options, READ));
+		return openFileChannel(file, XArrays.ensureContained(options, READ));
 	}
 	
 	public static FileChannel openFileChannelWriting(final Path file, final OpenOption... options)
 		throws IOException
 	{
-		return FileChannel.open(file, XArrays.ensureContained(options, WRITE));
+		return openFileChannel(file, XArrays.ensureContained(options, WRITE));
 	}
 	
 	public static FileChannel openFileChannelRW(final Path file, final OpenOption... options)
 		throws IOException
 	{
-		return FileChannel.open(file, XArrays.ensureContained(options, WRITE));
+		return openFileChannelWriting(file, XArrays.ensureContained(options, READ));
+	}
+	
+	public static FileChannel openFileChannel(final Path file, final OpenOption... options)
+		throws IOException
+	{
+		return FileChannel.open(file, options);
 	}
 	
 	
