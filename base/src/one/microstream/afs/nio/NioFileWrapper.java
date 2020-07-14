@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 
 import one.microstream.afs.AFile;
 import one.microstream.chars.XChars;
@@ -66,6 +65,7 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 			super(actual, user);
 			this.path        = notNull(path)       ;
 			this.fileChannel = mayNull(fileChannel);
+			this.ensurePositionAtFileEnd();
 		}
 		
 		
@@ -126,8 +126,7 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 				return false;
 			}
 			
-			XIO.unchecked.close(this.fileChannel);
-			this.fileChannel = null;
+			this.ensureClearedFileChannelField();
 			
 			return true;
 		}
@@ -150,8 +149,8 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 		{
 			this.validateIsNotRetired();
 			
-			// default is appending mode. Explicit options can be used as an override.
-			this.openChannel(StandardOpenOption.APPEND);
+			// see inside for implicit append mode. Crazy stuff.
+			this.openChannel();
 			
 			return this.fileChannel();
 		}
@@ -169,27 +168,14 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 		@Override
 		public synchronized boolean openChannel() throws IORuntimeException
 		{
-			if(this.checkChannelOpen())
-			{
-				return false;
-			}
-			
-			try
-			{
-				this.fileChannel = XIO.openFileChannelRW(this.path);
-			}
-			catch(final IOException e)
-			{
-				throw new IORuntimeException(e);
-			}
-			
-			return true;
+			// reroute to open options variant to reuse its position setting logic
+			return this.openChannel(new OpenOption[0]);
 		}
 		
 		@Override
 		public synchronized boolean openChannel(final OpenOption... options) throws IORuntimeException
 		{
-			// well, the geniuses gave no means to query/check options of an existing channel
+			// well, the geniuses provided no means to query/check the creation options of an existing channel
 			if(this.checkChannelOpen())
 			{
 				return false;
@@ -197,7 +183,8 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 			
 			try
 			{
-				this.fileChannel = XIO.openFileChannelRW(this.path, options);
+				final FileChannel fileChannel = XIO.openFileChannelRW(this.path, options);
+				this.internalSetFileChannel(fileChannel);
 			}
 			catch(final IOException e)
 			{
@@ -207,6 +194,60 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 			return true;
 		}
 		
+		protected void internalSetFileChannel(final FileChannel fileChannel)
+		{
+			this.fileChannel = fileChannel;
+			
+			/*
+			 * The channel is set implicitely to the end since append mode is somehow never usable
+			 * Details:
+			 * When using RandomAccessFile, there is no way to make it create the channel in append mode
+			 * When creating the channel by using the open options, then READ and APPEND have an
+			 * inexplicably stupid conflict that causes an exception.
+			 * So the only viable option to get an always-append file channel is to NOT use append mode,
+			 * set the position to size and never change it again.
+			 * Typical JDK moronity.
+			 */
+			this.ensurePositionAtFileEnd();
+		}
+		
+		protected void ensurePositionAtFileEnd() throws IORuntimeException
+		{
+			if(this.fileChannel == null)
+			{
+				return;
+			}
+			
+			try
+			{
+				// explicit check might increase IO efficiency
+				final long fileSize = this.fileChannel.size();
+				if(this.fileChannel.position() != fileSize)
+				{
+					this.fileChannel.position(fileSize);
+				}
+			}
+			catch(final IOException e)
+			{
+				// reset field in case the position setting caused the exception
+				this.ensureClearedFileChannelField(e);
+				
+				throw new IORuntimeException(e);
+			}
+		}
+		
+		private void ensureClearedFileChannelField()
+		{
+			this.ensureClearedFileChannelField(null);
+		}
+		
+		private void ensureClearedFileChannelField(final Throwable cause)
+		{
+			final FileChannel fc = this.fileChannel;
+			this.fileChannel = null;
+			XIO.unchecked.close(fc, cause);
+		}
+				
 		@Override
 		public synchronized boolean reopenChannel(final OpenOption... options) throws IORuntimeException
 		{
