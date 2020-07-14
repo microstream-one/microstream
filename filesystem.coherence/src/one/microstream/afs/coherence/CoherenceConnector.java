@@ -42,7 +42,7 @@ import one.microstream.io.LimitedInputStream;
  * 	CoherenceConnector.New(cache)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -106,7 +106,7 @@ public interface CoherenceConnector extends BlobStoreConnector
 		{
 			return new RegexFilter(
 				new KeyExtractor(),
-				blobKeyRegex(toBlobKeyPrefix(file))
+				blobKeyRegex(toBlobKeyPrefixWithContainer(file))
 			);
 		}
 
@@ -246,7 +246,7 @@ public interface CoherenceConnector extends BlobStoreConnector
 					}
 					while(read < batchSize);
 
-					final String              key  = toBlobKey(file, nextBlobNumber++);
+					final String              key  = toBlobKeyWithContainer(file, nextBlobNumber++);
 					final Map<String, Object> blob = createBlobValue(
 						currentBatchSize,
 						batch
@@ -303,7 +303,7 @@ public interface CoherenceConnector extends BlobStoreConnector
 		)
 		{
 			this.cache.put(
-				toBlobKey(
+				toBlobKeyWithContainer(
 					targetFile,
 					nr.getAndIncrement()
 				),
