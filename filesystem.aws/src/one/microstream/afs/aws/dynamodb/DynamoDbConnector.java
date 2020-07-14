@@ -20,12 +20,13 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
-import com.amazonaws.services.dynamodbv2.document.RangeKeyCondition;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.TableWriteItems;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
+import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.Delete;
 import com.amazonaws.services.dynamodbv2.model.DescribeLimitsRequest;
@@ -33,12 +34,12 @@ import com.amazonaws.services.dynamodbv2.model.DescribeLimitsResult;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import com.amazonaws.services.dynamodbv2.model.KeyType;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
+import com.amazonaws.services.dynamodbv2.model.QueryRequest;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
 import com.amazonaws.services.dynamodbv2.model.Select;
 import com.amazonaws.services.dynamodbv2.model.TransactWriteItem;
 import com.amazonaws.services.dynamodbv2.model.TransactWriteItemsRequest;
-import com.amazonaws.services.dynamodbv2.model.Update;
 
 import one.microstream.afs.blobstore.BlobStoreConnector;
 import one.microstream.afs.blobstore.BlobStorePath;
@@ -56,7 +57,7 @@ import one.microstream.io.LimitedInputStream;
  * 	DynamoDbConnector.New(client)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -64,7 +65,7 @@ public interface DynamoDbConnector extends BlobStoreConnector
 {
 	/**
 	 * Pseude-constructor method which creates a new {@link DynamoDbConnector}.
-	 * 
+	 *
 	 * @param dynamoDb connection to the DynamoDB service
 	 * @return a new {@link DynamoDbConnector}
 	 */
@@ -185,13 +186,6 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			return Stream.empty();
 		}
 
-		private Map<String, AttributeValue> primaryKey(final BlobStorePath file)
-		{
-			final Map<String, AttributeValue> pk = new HashMap<>();
-	        pk.put(FIELD_KEY, new AttributeValue(file.fullQualifiedName()));
-	        return pk;
-		}
-
 		@Override
 		protected long blobNumber(final Item blob)
 		{
@@ -211,13 +205,20 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			final BlobStorePath file
 		)
 		{
-			final int count = this.table(file)
-				.query(new QuerySpec()
+			final Map<String, Condition> keyConditions = new HashMap<>();
+			keyConditions.put(
+				FIELD_KEY,
+				new Condition()
+		        	.withComparisonOperator(ComparisonOperator.EQ)
+		        	.withAttributeValueList(new AttributeValue().withS(file.fullQualifiedName()))
+			);
+			final Integer count = this.client.query(
+				new QueryRequest(file.container())
 					.withSelect(Select.COUNT)
-					.withHashKey(FIELD_KEY, file.fullQualifiedName())
-					.withRangeKeyCondition(new RangeKeyCondition(FIELD_SEQ).eq(0L))
-				)
-				.getAccumulatedItemCount();
+					.withKeyConditions(keyConditions)
+			)
+			.getCount();
+
 			return count > 0;
 		}
 
@@ -368,32 +369,6 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			batchWrite.finish();
 
 			return amount;
-		}
-
-		@Override
-		protected void internalMoveFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			if(sourceFile.container().equals(targetFile.container()))
-			{
-				final Update update = new Update()
-					.withTableName(sourceFile.container())
-					.withKey(this.primaryKey(sourceFile))
-					.withUpdateExpression("set #" + FIELD_KEY +" = :" + FIELD_KEY)
-					.addExpressionAttributeNamesEntry("#" + FIELD_KEY, FIELD_KEY)
-					.addExpressionAttributeValuesEntry(":" + FIELD_KEY, new AttributeValue(targetFile.fullQualifiedName()));
-
-				final TransactWriteItemsRequest request = new TransactWriteItemsRequest()
-					.withTransactItems(new TransactWriteItem().withUpdate(update))
-				;
-				this.client.transactWriteItems(request);
-			}
-			else
-			{
-				super.internalMoveFile(sourceFile, targetFile);
-			}
 		}
 
 
