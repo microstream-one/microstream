@@ -124,6 +124,23 @@ public class AFS
 		}
 	}
 	
+	public static void execute(
+		final AFile                           file ,
+		final Object                          user ,
+		final Consumer<? super AReadableFile> logic
+	)
+	{
+		final AReadableFile rFile = file.useReading(user);
+		try
+		{
+			logic.accept(rFile);
+		}
+		finally
+		{
+			rFile.release();
+		}
+	}
+	
 	public static long writeBytes(
 		final AFile      file ,
 		final ByteBuffer bytes
