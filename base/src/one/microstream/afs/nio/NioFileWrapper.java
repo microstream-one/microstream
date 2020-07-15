@@ -150,10 +150,26 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 			this.validateIsNotRetired();
 			
 			// see inside for implicit append mode. Crazy stuff.
-			this.openChannel();
+			this.openChannel(this.normalizeOpenOptions());
 			
 			return this.fileChannel();
 		}
+		
+		private static final OpenOption[] EMPTY_OPEN_OPTIONS = new OpenOption[0];
+		
+		protected OpenOption[] normalizeOpenOptions(final OpenOption... options)
+		{
+			if(options == null)
+			{
+				return EMPTY_OPEN_OPTIONS;
+			}
+			
+			this.validateOpenOptions(options);
+			
+			return options;
+		}
+		
+		protected abstract void validateOpenOptions(OpenOption... options);
 		
 
 		@Override
@@ -169,7 +185,7 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 		public synchronized boolean openChannel() throws IORuntimeException
 		{
 			// reroute to open options variant to reuse its position setting logic
-			return this.openChannel(new OpenOption[0]);
+			return this.openChannel((OpenOption[])null);
 		}
 		
 		@Override
@@ -181,9 +197,12 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 				return false;
 			}
 			
+			final OpenOption[] effectiveOptions = this.normalizeOpenOptions(options);
+			
 			try
 			{
-				final FileChannel fileChannel = XIO.openFileChannelRW(this.path, options);
+				// READ / WRITE are defined by #normalizeOpenOptions depending on the specific class
+				final FileChannel fileChannel = XIO.openFileChannel(this.path, effectiveOptions);
 				this.internalSetFileChannel(fileChannel);
 			}
 			catch(final IOException e)
