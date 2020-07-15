@@ -223,7 +223,7 @@ public interface StorageDataFileItemIterator
 						buffer.limit((int)(boundPosition - currentFilePosition));
 					}
 					
-					file.readBytes(buffer);
+					file.readBytes(buffer, currentFilePosition, buffer.limit());
 					
 					// buffer is guaranteed to be filled exactely to its limit in any case
 					final long progress = processBufferedEntities(
