@@ -278,6 +278,8 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 			{
 				this.file.close();
 			}
+			
+			this.file.release();
 		}
 
 	}

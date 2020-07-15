@@ -18,7 +18,6 @@ public class MainTestStorageExample
 
 	public static void main(final String[] args)
 	{
-		
 		// object graph with root either loaded on startup from an existing DB or required to be generated.
 		if(STORAGE.root() == null)
 		{
