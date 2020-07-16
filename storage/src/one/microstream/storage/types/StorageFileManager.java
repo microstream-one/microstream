@@ -685,17 +685,17 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				throw new StorageException(this.channelIndex() + " already initialized");
 			}
 
-			final StorageTransactionsAnalysis                 transactionsFile = this.readTransactionsFile();
-			final EqHashTable<Long, StorageDataInventoryFile> storageFiles     = EqHashTable.New();
+			final StorageTransactionsAnalysis      transactionsAnalysis = this.readTransactionsFile();
+			final EqHashTable<Long, StorageDataInventoryFile> dataFiles = EqHashTable.New();
 			this.storageFileProvider.collectDataFiles(
 				StorageDataInventoryFile::New,
 				f ->
-					storageFiles.add(f.number(), f),
+					dataFiles.add(f.number(), f),
 				this.channelIndex()
 			);
-			storageFiles.keys().sort(XSort::compare);
+			dataFiles.keys().sort(XSort::compare);
 
-			return new StorageInventory.Default(this.channelIndex(), storageFiles, transactionsFile);
+			return new StorageInventory.Default(this.channelIndex(), dataFiles, transactionsAnalysis);
 		}
 
 		final StorageTransactionsAnalysis readTransactionsFile()

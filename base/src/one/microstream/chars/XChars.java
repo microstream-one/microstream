@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.StringTokenizer;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
@@ -17,6 +18,7 @@ import java.util.stream.IntStream;
 import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
 import one.microstream.bytes.VarByte;
+import one.microstream.collections.BulkList;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.exceptions.NumberRangeException;
@@ -196,6 +198,17 @@ public final class XChars
 	public static final boolean isNonWhitespace(final char c)
 	{
 		return c >= LOWEST_NON_WHITESPACE;
+	}
+	
+	/**
+	 * Arbitrary threshold of 1000 to discrimate "short" strings from "long" strings.<br>
+	 * The rationale behind that is that "short" strings usually allow for simpler and faster algorithms,
+	 * which become inefficient on larger strings. For example a two-pass processing of a splitting algorithm.
+	 * @return
+	 */
+	public static final int shortStringLength()
+	{
+		return 1000;
 	}
 	
 	/**
@@ -2082,6 +2095,53 @@ public final class XChars
 			collector.accept(trimToString(input, lowerIndex, input.length - lowerIndex));
 		}
 
+		return collector;
+	}
+	
+	public static String[] splitSimple(final String s, final String separator)
+	{
+		if(s.length() >= shortStringLength())
+		{
+			// one-pass processing, but requires the detour of allocating a collection and copying stuff around.
+			return splitSimple(s, separator, BulkList.New()).toArray(String.class);
+		}
+		
+		/*
+		 * A delimiter is not a separator. Delimiter: '"..."'. Separator: '\'.
+		 * And it's oh-so-hard to properly write "delimiter" as the parameter name, isn't it?
+		 */
+		final StringTokenizer pathTokenizer = new StringTokenizer(s, separator);
+		
+		// quick token counting (two-pass) for short strings to spare the collection allocation detour.
+		final int tokenCount = pathTokenizer.countTokens();
+		final String[] pathParts = new String[tokenCount];
+
+		for(int i = 0; pathTokenizer.hasMoreTokens(); i++)
+		{
+			pathParts[i] = pathTokenizer.nextToken();
+		}
+		
+		return pathParts;
+	}
+	
+	public static <C extends Consumer<? super String>> C splitSimple(
+		final String s        ,
+		final String separator,
+		final C      collector
+	)
+	{
+		/*
+		 * A delimiter is not a separator. Delimiter: '"..."'. Separator: '\'.
+		 * And it's oh-so-hard to properly write "delimiter" as the parameter name, isn't it?
+		 */
+		final StringTokenizer pathTokenizer = new StringTokenizer(s, separator);
+		
+		while(pathTokenizer.hasMoreTokens())
+		{
+			final String token = pathTokenizer.nextToken();
+			collector.accept(token);
+		}
+		
 		return collector;
 	}
 

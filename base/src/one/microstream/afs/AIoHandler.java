@@ -29,6 +29,8 @@ public interface AIoHandler
 
 	public boolean ensureExists(AWritableFile file);
 	
+	public void inventorize(ADirectory directory);
+	
 
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
 	public boolean isOpen(AReadableFile file);
@@ -140,6 +142,8 @@ public interface AIoHandler
 		protected abstract boolean specificExists(F file);
 
 		protected abstract boolean specificExists(D directory);
+
+		protected abstract void specificInventorize(D directory);
 
 		protected abstract boolean specificIsOpen(R file);
 
@@ -355,6 +359,14 @@ public interface AIoHandler
 			}
 
 			return this.specificExists(this.typeDirectory.cast(directory));
+		}
+		
+		@Override
+		public void inventorize(final ADirectory directory)
+		{
+			this.validateHandledDirectory(directory);
+			
+			this.specificInventorize(this.typeDirectory.cast(directory));
 		}
 
 		@Override
