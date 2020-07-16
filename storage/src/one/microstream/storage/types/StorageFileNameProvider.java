@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import one.microstream.afs.AFile;
 import one.microstream.chars.VarString;
 import one.microstream.persistence.types.Persistence;
+import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageFileNameProvider
 {
@@ -255,12 +256,20 @@ public interface StorageFileNameProvider
 			{
 				return;
 			}
+			
+			/*
+			 * From here on, the file must have a valid data file name.
+			 * Anything else is an error, since it is most probably a data file with a ruined file name.
+			 * If someone wants to create a backup file of a data file in the same directory,
+			 * they can/must give it another file suffix or name prefix.
+			 */
 
-			final String middlePart = filename.substring(this.dataFilePrefix.length(), filename.length() - this.dataFileSuffix.length());
+			final String middlePart = filename.substring(this.dataFilePrefix.length());
 			final int separatorIndex = middlePart.indexOf('_');
 			if(separatorIndex < 0)
 			{
-				return;
+				// (15.07.2020 TM)EXCP: proper exception
+				throw new StorageException("Invalid data file name: " + file);
 			}
 			
 			final String hashIndexString = middlePart.substring(0, separatorIndex);
@@ -268,12 +277,14 @@ public interface StorageFileNameProvider
 			{
 				if(Integer.parseInt(hashIndexString) != channelIndex)
 				{
-					return;
+					// (15.07.2020 TM)EXCP: proper exception
+					throw new StorageException("Invalid channel for data file: " + file);
 				}
 			}
 			catch(final NumberFormatException e)
 			{
-				return;
+				// (15.07.2020 TM)EXCP: proper exception
+				throw new StorageException("Invalid data file name: " + file);
 			}
 
 			final String fileNumberString = middlePart.substring(separatorIndex + 1);
@@ -284,7 +295,8 @@ public interface StorageFileNameProvider
 			}
 			catch(final NumberFormatException e)
 			{
-				return; // not a strictly validly named file, ignore intentionally despite all previous matches.
+				// (15.07.2020 TM)EXCP: proper exception
+				throw new StorageException("Invalid data file name: " + file);
 			}
 			
 			// strictly validly named file, collect.

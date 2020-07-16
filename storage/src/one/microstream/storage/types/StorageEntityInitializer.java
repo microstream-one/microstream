@@ -260,7 +260,7 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 				// the reason for the stupid limit is actually a single clumsy toArray() somewhere in NIO.
 				buffer.limit(X.checkArrayRange(fileActualLength));
 				
-				file.readBytes(buffer, fileActualLength);
+				file.readBytes(buffer, 0, fileActualLength);
 			}
 			catch(final Exception e)
 			{
