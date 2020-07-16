@@ -2,6 +2,7 @@ package one.microstream.afs.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -112,6 +113,39 @@ public interface NioIoHandler extends AIoHandler
 		protected boolean specificExists(final ADirectory directory)
 		{
 			return this.subjectFileExists(this.toSubjectDirectory(directory));
+		}
+		
+		// (15.07.2020 TM)TODO: priv#49: maybe use WatchService stuff to automatically register newly appearing children.
+		
+		@Override
+		protected void specificInventorize(final ADirectory directory)
+		{
+			final Path dirPath = this.toSubjectDirectory(directory);
+			if(!XIO.unchecked.exists(dirPath))
+			{
+				// no point in trying to inventorize a directory that does not physically exist, yet.
+				return;
+			}
+			
+			try(DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath))
+			{
+		        for(final Path p : stream)
+		        {
+		        	final String identifier = XIO.getFileName(p);
+		        	if(XIO.isDirectory(p))
+		        	{
+		        		directory.ensureDirectory(identifier);
+		        	}
+		        	else
+		        	{
+		        		directory.ensureFile(identifier);
+		        	}
+		        }
+		    }
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
 		}
 
 		@Override
