@@ -73,6 +73,8 @@ public interface ADirectory extends AItem, AResolving
 	public <C extends Consumer<? super ADirectory>> C iterateDirectories(C iterator);
 	
 	public <C extends Consumer<? super AFile>> C iterateFiles(C iterator);
+		
+	public ADirectory inventorize();
 	
 	// (23.06.2020 TM)FIXME: priv#49: consolidate list~ methods with those in AFS.
 	
@@ -238,6 +240,17 @@ public interface ADirectory extends AItem, AResolving
 		}
 		
 		@Override
+		public final ADirectory inventorize()
+		{
+			synchronized(this.mutex())
+			{
+				this.fileSystem().ioHandler().inventorize(this);
+			}
+			
+			return this;
+		}
+		
+		@Override
 		public final <C extends Consumer<? super AItem>> C iterateItems(final C iterator)
 		{
 			synchronized(this.mutex())
@@ -356,6 +369,7 @@ public interface ADirectory extends AItem, AResolving
 				{
 					directory = this.fileSystem().creator().createDirectory(this, identifier);
 					this.register(identifier, directory);
+					directory.inventorize();
 				}
 				
 				return directory;
