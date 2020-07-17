@@ -11,10 +11,13 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import one.microstream.afs.blobstore.BlobStoreConnector;
@@ -44,7 +47,7 @@ import oracle.kv.table.TableOperation;
  * 	OracleNoSqlConnector.New(kvstore)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -52,7 +55,7 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 {
 	/**
 	 * Pseude-constructor method which creates a new {@link OracleNoSqlConnector}.
-	 * 
+	 *
 	 * @param kvstore connection to a key value store
 	 * @return a new {@link OracleNoSqlConnector}
 	 */
@@ -94,11 +97,11 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 		}
 
 		private Table table(
-			final BlobStorePath file
+			final BlobStorePath path
 		)
 		{
 			return this.tables.computeIfAbsent(
-				file.container(),
+				path.container(),
 				this::createTable
 			);
 		}
@@ -189,6 +192,32 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 				))
 				.sorted(this.blobComparator())
 			;
+		}
+
+		/*
+		 * TODO check if it can be done more efficient with queries instead of iterating over all keys
+		 */
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			final Set<String> keys    = new LinkedHashSet<>();
+			final Table       table   = this.table(directory);
+			final PrimaryKey  pk      = table.createPrimaryKey();
+			final Pattern     pattern = Pattern.compile(childKeysRegex(directory));
+			this.kvstore.getTableAPI()
+				.tableIterator(pk, null, null)
+				.forEachRemaining(row ->
+				{
+					final String key = row.get(KEY).asString().get();
+					if(pattern.matcher(key).matches())
+					{
+						keys.add(key);
+					}
+				});
+			;
+			return keys.stream();
 		}
 
 		@Override

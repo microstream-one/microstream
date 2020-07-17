@@ -130,6 +130,40 @@ public interface SqlIoHandler extends AIoHandler
 		}
 
 		@Override
+		protected void specificInventorize(
+			final ADirectory directory
+		)
+		{
+			final SqlPath dirPath = this.toSubjectDirectory(directory);
+			if(!this.subjectDirectoryExists(dirPath))
+			{
+				// nothing to do
+				return;
+			}
+
+			this.connector.visitChildren(dirPath, new SqlPathVisitor()
+			{
+				@Override
+				public void visitDirectory(
+					final SqlPath parent       ,
+					final String  directoryName
+				)
+				{
+					directory.ensureDirectory(directoryName);
+				}
+
+				@Override
+				public void visitFile(
+					final SqlPath parent  ,
+					final String  fileName
+				)
+				{
+					directory.ensureFile(fileName);
+				}
+			});
+		}
+
+		@Override
 		protected boolean specificOpenReading(
 			final SqlReadableFile file
 		)
@@ -160,7 +194,7 @@ public interface SqlIoHandler extends AIoHandler
 		{
 			return file.openHandle();
 		}
-		
+
 		/*
 		 * Per default directories are created recursively.
 		 * But since we create tables named with the full path of the directory,
@@ -170,15 +204,15 @@ public interface SqlIoHandler extends AIoHandler
 		public void create(final ADirectory directory)
 		{
 			this.validateHandledDirectory(directory);
-			
+
 			synchronized(this)
 			{
 				directory.iterateObservers(o ->
 					o.onBeforeDirectoryCreate(directory)
 				);
-				
+
 				this.specificCreate(directory);
-				
+
 				directory.iterateObservers(o ->
 					o.onAfterDirectoryCreate(directory)
 				);

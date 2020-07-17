@@ -36,7 +36,7 @@ import one.microstream.io.LimitedInputStream;
  * 	HazelcastConnector.New(hazelcast)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -44,7 +44,7 @@ public interface HazelcastConnector extends BlobStoreConnector
 {
 	/**
 	 * Pseude-constructor method which creates a new {@link HazelcastConnector}.
-	 * 
+	 *
 	 * @param hazelcast connection to the Hazelcast instance
 	 * @return a new {@link HazelcastConnector}
 	 */
@@ -111,9 +111,11 @@ public interface HazelcastConnector extends BlobStoreConnector
 			this.hazelcast = hazelcast;
 		}
 
-		private IMap<String, List<Object>> map(final BlobStorePath file)
+		private IMap<String, List<Object>> map(
+			final BlobStorePath path
+		)
 		{
-			return this.hazelcast.getMap(file.container());
+			return this.hazelcast.getMap(path.container());
 		}
 
 		@Override
@@ -133,6 +135,25 @@ public interface HazelcastConnector extends BlobStoreConnector
 			.stream()
 			.map(list -> BlobMetadata.New((String)list.get(0), (Long)list.get(1)))
 			.sorted(this.blobComparator())
+			;
+		}
+
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			return this.map(directory).project(
+				Projections.<Entry<String, List<Object>>, List<Object>>singleAttribute(
+					QueryConstants.THIS_ATTRIBUTE_NAME.value() + ".getFirst"
+				),
+				Predicates.regex(
+					QueryConstants.KEY_ATTRIBUTE_NAME.value(),
+					childKeysRegex(directory)
+				)
+			)
+			.stream()
+			.map(list -> (String)list.get(0))
 			;
 		}
 

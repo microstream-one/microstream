@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
 
+import one.microstream.chars.XChars;
 import one.microstream.collections.XArrays;
 
 public interface BlobStorePath
@@ -34,6 +35,13 @@ public interface BlobStorePath
 
 	public BlobStorePath parentPath();
 
+
+	public static String[] splitPath(
+		final String fullQualifiedPath
+	)
+	{
+		return XChars.splitSimple(fullQualifiedPath, SEPARATOR);
+	}
 
 	public static BlobStorePath New(
 		final String... pathElements

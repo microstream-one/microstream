@@ -40,7 +40,7 @@ public interface SqlProvider
 	public String schema();
 
 	public <T> T execute(SqlOperation<T> operation);
-	
+
 	public void setBlob(PreparedStatement statement, int index, InputStream inputStream, long length) throws SQLException;
 
 	/**
@@ -51,6 +51,14 @@ public interface SqlProvider
 	 * </pre>
 	 */
 	public String fileSizeQuery(String tableName);
+
+	/**
+	 * <pre>
+	 * select distinct 'identifier'
+	 * from [tableName]
+	 * </pre>
+	 */
+	public String listFilesQuery(String tableName);
 
 	/**
 	 * <pre>
@@ -301,7 +309,7 @@ public interface SqlProvider
 				throw new RuntimeException(e);
 			}
 		}
-		
+
 		@Override
 		public void setBlob(
 			final PreparedStatement statement  ,
@@ -348,6 +356,21 @@ public interface SqlProvider
 			vs.add(" where ");
 			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
 			vs.add("=?");
+
+			return vs.toString();
+		}
+
+		@Override
+		public String listFilesQuery(
+			final String tableName
+		)
+		{
+			final VarString vs = VarString.New();
+
+			vs.add("select distinct ");
+			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
+			vs.add(" from ");
+			this.addSqlTableName(vs, tableName);
 
 			return vs.toString();
 		}

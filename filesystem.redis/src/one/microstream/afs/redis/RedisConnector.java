@@ -26,7 +26,7 @@ import one.microstream.afs.blobstore.BlobStorePath;
  * 	RedisConnector.New(client)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -34,7 +34,7 @@ public interface RedisConnector extends BlobStoreConnector
 {
 	/**
 	 * Pseude-constructor method which creates a new {@link RedisConnector}.
-	 * 
+	 *
 	 * @param redisUri url to connect to
 	 * @return a new {@link RedisConnector}
 	 */
@@ -51,7 +51,7 @@ public interface RedisConnector extends BlobStoreConnector
 
 	/**
 	 * Pseude-constructor method which creates a new {@link RedisConnector}.
-	 * 
+	 *
 	 * @param client Redis client connection
 	 * @return a new {@link RedisConnector}
 	 */
@@ -125,6 +125,19 @@ public interface RedisConnector extends BlobStoreConnector
 					)
 				)
 				.sorted(this.blobComparator())
+			;
+		}
+
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			final RedisCommands<String, ByteBuffer> commands = this.commands();
+			final Pattern                           pattern  = Pattern.compile(childKeysRegexWithContainer(directory));
+			return commands.keys(toChildKeysPrefixWithContainer(directory).concat("*"))
+				.stream()
+				.filter(key -> pattern.matcher(key).matches())
 			;
 		}
 

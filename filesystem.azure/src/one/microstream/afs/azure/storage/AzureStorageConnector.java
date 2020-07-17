@@ -35,7 +35,7 @@ import one.microstream.io.LimitedInputStream;
  * 	AzureStorageConnector.New(serviceClient)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -43,7 +43,7 @@ public interface AzureStorageConnector extends BlobStoreConnector
 {
 	/**
 	 * Pseude-constructor method which creates a new {@link AzureStorageConnector}.
-	 * 
+	 *
 	 * @param serviceClient connection to the Azure storage service
 	 * @return a new {@link AzureStorageConnector}
 	 */
@@ -80,18 +80,38 @@ public interface AzureStorageConnector extends BlobStoreConnector
 			final BlobStorePath file
 		)
 		{
-			final String                  prefix  = toBlobKeyPrefix(file);
-			final Pattern                 pattern = Pattern.compile(blobKeyRegex(prefix));
-			final PagedIterable<BlobItem> blobs   = this.serviceClient.getBlobContainerClient(
+			final String  prefix  = toBlobKeyPrefix(file);
+			final Pattern pattern = Pattern.compile(blobKeyRegex(prefix));
+			return this.serviceClient.getBlobContainerClient(
 				file.container()
 			)
 			.listBlobs(
 				new ListBlobsOptions().setPrefix(prefix),
 				null
-			);
-			return blobs.stream()
-				.filter(summary -> pattern.matcher(summary.getName()).matches())
-				.sorted(this.blobComparator())
+			)
+			.stream()
+			.filter(summary -> pattern.matcher(summary.getName()).matches())
+			.sorted(this.blobComparator())
+			;
+		}
+
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			final String       prefix  = toChildKeysPrefix(directory);
+			final Pattern      pattern = Pattern.compile(childKeysRegex(directory));
+			return this.serviceClient.getBlobContainerClient(
+				directory.container()
+			)
+			.listBlobs(
+				new ListBlobsOptions().setPrefix(prefix),
+				null
+			)
+			.stream()
+			.map(BlobItem::getName)
+			.filter(key -> pattern.matcher(key).matches())
 			;
 		}
 

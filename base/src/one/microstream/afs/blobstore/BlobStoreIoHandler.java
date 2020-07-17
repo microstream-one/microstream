@@ -131,6 +131,40 @@ public interface BlobStoreIoHandler extends AIoHandler
 		}
 
 		@Override
+		protected void specificInventorize(
+			final ADirectory directory
+		)
+		{
+			final BlobStorePath dirPath = this.toSubjectDirectory(directory);
+			if(!this.subjectDirectoryExists(dirPath))
+			{
+				// nothing to do
+				return;
+			}
+
+			this.connector.visitChildren(dirPath, new BlobStorePathVisitor()
+			{
+				@Override
+				public void visitDirectory(
+					final BlobStorePath parent       ,
+					final String        directoryName
+				)
+				{
+					directory.ensureDirectory(directoryName);
+				}
+
+				@Override
+				public void visitFile(
+					final BlobStorePath parent  ,
+					final String        fileName
+				)
+				{
+					directory.ensureFile(fileName);
+				}
+			});
+		}
+
+		@Override
 		protected boolean specificOpenReading(
 			final BlobStoreReadableFile file
 		)

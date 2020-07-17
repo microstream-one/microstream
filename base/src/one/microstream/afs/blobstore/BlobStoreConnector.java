@@ -8,8 +8,10 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.OptionalLong;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.LongFunction;
@@ -35,6 +37,8 @@ public interface BlobStoreConnector extends AutoCloseable
 	public boolean directoryExists(BlobStorePath directory);
 
 	public boolean fileExists(BlobStorePath file);
+
+	public void visitChildren(BlobStorePath directory, BlobStorePathVisitor visitor);
 
 	public boolean createDirectory(BlobStorePath directory);
 
@@ -117,23 +121,86 @@ public interface BlobStoreConnector extends AutoCloseable
 		}
 
 		protected static String blobKeyRegex(
-			final String prefix)
+			final String prefix
+		)
 		{
 			return Pattern.quote(prefix).concat(NUMBER_SUFFIX_REGEX);
+		}
+
+		protected static String toChildKeysPrefix(
+			final BlobStorePath directory
+		)
+		{
+			return Arrays.stream(directory.pathElements())
+				.skip(1L) // skip container
+				.collect(Collectors.joining(BlobStorePath.SEPARATOR, "", BlobStorePath.SEPARATOR))
+			;
+		}
+
+		protected static String toChildKeysPrefixWithContainer(
+			final BlobStorePath directory
+		)
+		{
+			return Arrays.stream(directory.pathElements())
+				.collect(Collectors.joining(BlobStorePath.SEPARATOR, "", BlobStorePath.SEPARATOR))
+			;
+		}
+
+		protected static String childKeysRegex(
+			final BlobStorePath directory
+		)
+		{
+			return Pattern.quote(toChildKeysPrefix(directory)) + "[^" + BlobStorePath.SEPARATOR + "]+";
+		}
+
+		protected static String childKeysRegexWithContainer(
+			final BlobStorePath directory
+		)
+		{
+			return Pattern.quote(toChildKeysPrefixWithContainer(directory)) + "[^" + BlobStorePath.SEPARATOR + "]+";
+		}
+
+		protected static String removeNumberSuffix(
+			final String key
+		)
+		{
+			return key.substring(
+				0,
+				key.lastIndexOf(NUMBER_SUFFIX_SEPARATOR_CHAR)
+			);
 		}
 
 		protected static boolean isBlobKey(
 			final String key
 		)
 		{
-			return !isContainerKey(key);
+			return !isDirectoryKey(key);
 		}
 
-		protected static boolean isContainerKey(
+		protected static boolean isDirectoryKey(
 			final String key
 		)
 		{
 			return key.endsWith(BlobStorePath.SEPARATOR);
+		}
+
+		protected static String directoryNameOfKey(
+			final String key
+		)
+		{
+			int lastSeparator = -1;
+			for(int i = key.length() - 1; --i >= 0; )
+			{
+				if(key.charAt(i) == BlobStorePath.SEPARATOR_CHAR)
+				{
+					lastSeparator = i;
+					break;
+				}
+			}
+			return key.substring(
+				lastSeparator + 1,
+				key.length() - 1
+			);
 		}
 
 
@@ -172,6 +239,10 @@ public interface BlobStoreConnector extends AutoCloseable
 
 		protected abstract Stream<? extends B> blobs(
 			BlobStorePath file
+		);
+
+		protected abstract Stream<String> childKeys(
+			BlobStorePath directory
 		);
 
 		protected abstract boolean internalDeleteBlobs(
@@ -222,6 +293,40 @@ public interface BlobStoreConnector extends AutoCloseable
 				.findAny()
 				.isPresent()
 			;
+		}
+
+		protected void internalVisitChildren(
+			final BlobStorePath        directory,
+			final BlobStorePathVisitor visitor
+		)
+		{
+			final Set<String> directoryNames = new LinkedHashSet<>();
+			final Set<String> fileNames      = new LinkedHashSet<>();
+
+			this.childKeys(directory).forEach(key ->
+			{
+				if(isDirectoryKey(key))
+				{
+					directoryNames.add(directoryNameOfKey(key));
+				}
+				else
+				{
+					fileNames.add(this.fileNameOfKey(key));
+				}
+			});
+
+			directoryNames.forEach(name -> visitor.visitDirectory(directory, name));
+			fileNames     .forEach(name -> visitor.visitFile     (directory, name));
+		}
+
+		protected String fileNameOfKey(
+			final String key
+		)
+		{
+			return key.substring(
+				key.lastIndexOf(BlobStorePath.SEPARATOR_CHAR) + 1,
+				key.lastIndexOf(NUMBER_SUFFIX_SEPARATOR_CHAR)
+			);
 		}
 
 		protected boolean internalCreateDirectory(
@@ -539,6 +644,18 @@ public interface BlobStoreConnector extends AutoCloseable
 		}
 
 		@Override
+		public void visitChildren(
+			final BlobStorePath        directory,
+			final BlobStorePathVisitor visitor
+		)
+		{
+			this.ensureOpen();
+			this.blobStorePathValidator.validate(directory);
+
+			this.internalVisitChildren(directory, visitor);
+		}
+
+		@Override
 		public final boolean createDirectory(
 			final BlobStorePath directory
 		)
@@ -660,7 +777,14 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
-			this.internalTruncateFile(file, newLength);
+			if(newLength == 0L)
+			{
+				this.internalDeleteFile(file);
+			}
+			else
+			{
+				this.internalTruncateFile(file, newLength);
+			}
 		}
 
 		@Override

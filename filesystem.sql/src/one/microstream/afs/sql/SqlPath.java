@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 
 import java.util.Arrays;
 
+import one.microstream.chars.XChars;
 import one.microstream.collections.XArrays;
 
 public interface SqlPath
@@ -20,6 +21,13 @@ public interface SqlPath
 
 	public SqlPath parentPath();
 
+
+	public static String[] splitPath(
+		final String fullQualifiedPath
+	)
+	{
+		return XChars.splitSimple(fullQualifiedPath, DIRECTORY_TABLE_NAME_SEPARATOR);
+	}
 
 	public static SqlPath New(
 		final String... pathElements

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -20,9 +21,12 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
+import com.amazonaws.services.dynamodbv2.document.ScanFilter;
+import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.TableWriteItems;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
@@ -111,11 +115,11 @@ public interface DynamoDbConnector extends BlobStoreConnector
 		}
 
 		private Table table(
-			final BlobStorePath file
+			final BlobStorePath path
 		)
 		{
 			return this.tables.computeIfAbsent(
-				file.container() ,
+				path.container() ,
 				this::createTable
 			);
 		}
@@ -198,6 +202,42 @@ public interface DynamoDbConnector extends BlobStoreConnector
 		)
 		{
 			return this.blobs(file, false);
+		}
+
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			final Pattern                     pattern = Pattern.compile(childKeysRegexWithContainer(directory));
+			final ItemCollection<ScanOutcome> outcome = this.table(directory).scan(
+				new ScanSpec()
+					.withScanFilters(
+						new ScanFilter(FIELD_KEY)
+							.beginsWith(toChildKeysPrefixWithContainer(directory))
+					)
+					.withAttributesToGet(FIELD_KEY)
+			);
+			return StreamSupport.stream(
+				outcome.spliterator(),
+				false
+			)
+			.map(item -> item.getString(FIELD_KEY))
+			.filter(key ->
+				pattern.matcher(key).matches()
+			)
+			.distinct()
+			;
+		}
+
+		@Override
+		protected String fileNameOfKey(
+			final String key
+		)
+		{
+			return key.substring(
+				key.lastIndexOf(BlobStorePath.SEPARATOR_CHAR) + 1
+			);
 		}
 
 		@Override
