@@ -32,19 +32,37 @@ public interface AWritableFile extends AReadableFile
 		return this.fileSystem().accessManager().useWriting(this);
 	}
 	
+	@Override
+	public default long copyTo(final AWritableFile target)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(this, target);
+	}
+	
+	@Override
+	public default long copyTo(final AWritableFile target, final long sourcePosition)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(this, sourcePosition, target);
+	}
+
+	@Override
+	public default long copyTo(final AWritableFile target, final long sourcePosition, final long length)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(this, sourcePosition, length, target);
+	}
+	
 	public default long copyFrom(final AReadableFile source)
 	{
-		return this.actual().fileSystem().ioHandler().copyTo(source, this);
+		return this.actual().fileSystem().ioHandler().copyFrom(source, this);
 	}
 	
 	public default long copyFrom(final AReadableFile source, final long sourcePosition)
 	{
-		return this.actual().fileSystem().ioHandler().copyTo(source, sourcePosition, this);
+		return this.actual().fileSystem().ioHandler().copyFrom(source, sourcePosition, this);
 	}
 
 	public default long copyFrom(final AReadableFile source, final long sourcePosition, final long length)
 	{
-		return this.actual().fileSystem().ioHandler().copyTo(source, sourcePosition, length, this);
+		return this.actual().fileSystem().ioHandler().copyFrom(source, sourcePosition, length, this);
 	}
 	
 	public default long writeBytes(final ByteBuffer source)
@@ -63,7 +81,8 @@ public interface AWritableFile extends AReadableFile
 		// synchronization handled by IoHandler.
 		this.actual().fileSystem().ioHandler().create(this);
 	}
-	
+		
+	@Override
 	public default boolean ensureExists()
 	{
 		// synchronization handled by IoHandler.

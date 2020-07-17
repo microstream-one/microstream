@@ -10,6 +10,7 @@ import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFile;
 import one.microstream.afs.AIoHandler;
 import one.microstream.afs.AItem;
+import one.microstream.afs.AReadableFile;
 import one.microstream.afs.AWritableFile;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.BufferProvider;
@@ -372,16 +373,21 @@ public interface NioIoHandler extends AIoHandler
 
 		@Override
 		protected long specificCopyTo(
-			final NioReadableFile sourceFile,
+			final NioReadableFile sourceSubject,
 			final AWritableFile   target
 		)
 		{
+			if(!this.isHandledWritableFile(target))
+			{
+				return this.copyGeneric(sourceSubject, target);
+			}
+			
 			final NioWritableFile handlableTarget = this.castWritableFile(target);
 			
 			try
 			{
 				return XIO.copyFile(
-					sourceFile.ensureOpenChannel(),
+					sourceSubject.ensureOpenChannel(),
 					handlableTarget.ensureOpenChannel()
 				);
 			}
@@ -393,17 +399,22 @@ public interface NioIoHandler extends AIoHandler
 
 		@Override
 		protected long specificCopyTo(
-			final NioReadableFile sourceFile    ,
+			final NioReadableFile sourceSubject ,
 			final long            sourcePosition,
 			final AWritableFile   target
 		)
 		{
+			if(!this.isHandledWritableFile(target))
+			{
+				return this.copyGeneric(sourceSubject, sourcePosition, target);
+			}
+			
 			final NioWritableFile handlableTarget = this.castWritableFile(target);
 			
 			try
 			{
 				return XIO.copyFile(
-					sourceFile.ensureOpenChannel(),
+					sourceSubject.ensureOpenChannel(),
 					sourcePosition,
 					handlableTarget.ensureOpenChannel()
 				);
@@ -416,18 +427,23 @@ public interface NioIoHandler extends AIoHandler
 
 		@Override
 		protected long specificCopyTo(
-			final NioReadableFile sourceFile    ,
+			final NioReadableFile sourceSubject ,
 			final long            sourcePosition,
 			final long            length        ,
 			final AWritableFile   target
 		)
 		{
+			if(!this.isHandledWritableFile(target))
+			{
+				return this.copyGeneric(sourceSubject, sourcePosition, target);
+			}
+			
 			final NioWritableFile handlableTarget = this.castWritableFile(target);
 			
 			try
 			{
 				return XIO.copyFile(
-					sourceFile.ensureOpenChannel(),
+					sourceSubject.ensureOpenChannel(),
 					sourcePosition,
 					length,
 					handlableTarget.ensureOpenChannel()
@@ -441,7 +457,7 @@ public interface NioIoHandler extends AIoHandler
 
 //		@Override
 //		protected long specificCopyTo(
-//			final NioReadableFile sourceFile    ,
+//			final NioReadableFile sourceSubject ,
 //			final AWritableFile   target        ,
 //			final long            targetPosition
 //		)
@@ -451,7 +467,7 @@ public interface NioIoHandler extends AIoHandler
 //			try
 //			{
 //				return XIO.copyFile(
-//					sourceFile.ensureOpenChannel(),
+//					sourceSubject.ensureOpenChannel(),
 //					handlableTarget.ensureOpenChannel(),
 //					targetPosition
 //				);
@@ -464,7 +480,7 @@ public interface NioIoHandler extends AIoHandler
 
 //		@Override
 //		protected long specificCopyTo(
-//			final NioReadableFile sourceFile    ,
+//			final NioReadableFile sourceSubject ,
 //			final AWritableFile   target        ,
 //			final long            targetPosition,
 //			final long            length
@@ -475,8 +491,126 @@ public interface NioIoHandler extends AIoHandler
 //			try
 //			{
 //				return XIO.copyFile(
-//					sourceFile.ensureOpenChannel(),
+//					sourceSubject.ensureOpenChannel(),
 //					handlableTarget.ensureOpenChannel(),
+//					targetPosition,
+//					length
+//				);
+//			}
+//			catch(final IOException e)
+//			{
+//				throw new IORuntimeException(e);
+//			}
+//		}
+		
+		
+		@Override
+		protected long specificCopyFrom(
+			final AReadableFile   source       ,
+			final NioWritableFile targetSubject
+		)
+		{
+			final NioReadableFile handlableSource = this.castReadableFile(source);
+			
+			try
+			{
+				return XIO.copyFile(
+					handlableSource.ensureOpenChannel(),
+					targetSubject.ensureOpenChannel()
+				);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+
+		@Override
+		protected long specificCopyFrom(
+			final AReadableFile   source        ,
+			final long            sourcePosition,
+			final NioWritableFile targetSubject
+		)
+		{
+			final NioReadableFile handlableSource = this.castReadableFile(source);
+			
+			try
+			{
+				return XIO.copyFile(
+					handlableSource.ensureOpenChannel(),
+					sourcePosition,
+					targetSubject.ensureOpenChannel()
+				);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+
+		@Override
+		protected long specificCopyFrom(
+			final AReadableFile   source        ,
+			final long            sourcePosition,
+			final long            length        ,
+			final NioWritableFile targetSubject
+		)
+		{
+			final NioReadableFile handlableSource = this.castReadableFile(source);
+			
+			try
+			{
+				return XIO.copyFile(
+					handlableSource.ensureOpenChannel(),
+					sourcePosition,
+					length,
+					targetSubject.ensureOpenChannel()
+				);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+
+//		@Override
+//		protected long specificCopyFrom(
+//			final AReadableFile   source        ,
+//			final NioWritableFile targetSubject ,
+//			final long            targetPosition
+//		)
+//		{
+//			final NioReadableFile handlableSource = this.castReadableFile(source);
+//
+//			try
+//			{
+//				return XIO.copyFile(
+//					handlableSource.ensureOpenChannel(),
+//					targetSubject.ensureOpenChannel(),
+//					targetPosition
+//				);
+//			}
+//			catch(final IOException e)
+//			{
+//				throw new IORuntimeException(e);
+//			}
+//		}
+
+//		@Override
+//		protected long specificCopyFrom(
+//			final AReadableFile   source        ,
+//			final NioWritableFile targetSubject ,
+//			final long            targetPosition,
+//			final long            length
+//		)
+//		{
+//			final NioReadableFile handlableSource = this.castReadableFile(source);
+//
+//			try
+//			{
+//				return XIO.copyFile(
+//					handlableSource.ensureOpenChannel(),
+//					targetSubject.ensureOpenChannel(),
 //					targetPosition,
 //					length
 //				);
@@ -512,15 +646,30 @@ public interface NioIoHandler extends AIoHandler
 			final AWritableFile   targetFile
 		)
 		{
-			// (28.05.2020 TM)TODO: priv#49: support generic moving (copy and delete)
+			if(this.isHandledFile(targetFile))
+			{
+				final NioWritableFile handlableTarget = this.castWritableFile(targetFile);
+				this.specificTargetMoveFile(sourceFile, handlableTarget);
+				
+				return;
+			}
 			
-			final NioWritableFile handlableTarget = this.castWritableFile(targetFile);
-			
+			this.specificCopyTo(sourceFile, targetFile);
+			this.specificDeleteFile(sourceFile);
+		}
+		
+
+		
+		protected void specificTargetMoveFile(
+			final NioWritableFile sourceFile,
+			final NioWritableFile targetFile
+		)
+		{
 			try
 			{
 				XIO.move(
 					sourceFile.path(),
-					handlableTarget.path()
+					targetFile.path()
 				);
 			}
 			catch(final IOException e)

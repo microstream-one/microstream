@@ -11,8 +11,26 @@ public interface AIoHandler
 {
 	/* (08.06.2020 TM)TODO: priv#49: JavaDoc: guaranteed completeness
 	 * guarantees that all specified bytes (where applicable) are read/written.
-	 * Any iterative, reattempting, waiting, timeouting etc. logic that is required for this must be provided
+	 * Any iterative, reattempting, waiting, timeouting etc. logic that is required for this must be covered
 	 * by the IoHandler implementation.
+	 */
+	
+	/* (16.07.2020 TM)TODO: priv#49: composite IoHandler
+	 * The default implementation is rather strict on its handleable file and directory implementations.
+	 * This is intentional.
+	 * If a more flexible or dynamic/heuristic approach is desired, it has to be implemented as another IoHandler.
+	 * For example a "composite" IoHandler that looks up the specific IoHandler depending on the implementation of
+	 * a passed file or directory.
+	 */
+	
+	/* (16.07.2020 TM)TODO: priv#49: target positional parameters
+	 * So far, variants for target positional writing (including copying) is missing completely.
+	 * There is a way to provide a source position, but the target can only be written to
+	 * in the way the implementation has set the default behavior (always append or always start at 0).
+	 * This matches the microstream strategy, but in general, it must be possible to write to a
+	 * specified position in the target file.
+	 * Simple example: a utility that replaces found byte ranges with a new value (search & replace).
+	 * Currently, such a tricial functionality is not possible with AFS.
 	 */
 	
 	public long size(AFile file);
@@ -66,18 +84,30 @@ public interface AIoHandler
 	public long readBytes(AReadableFile sourceFile, BufferProvider bufferProvider, long position, long length);
 		
 	
-	public long copyTo(AReadableFile sourceFile, AWritableFile target);
+	public long copyTo(AReadableFile sourceSubject, AWritableFile target);
 	
-	public long copyTo(AReadableFile sourceFile, long sourcePosition, AWritableFile target);
+	public long copyTo(AReadableFile sourceSubject, long sourcePosition, AWritableFile target);
 	
-	public long copyTo(AReadableFile sourceFile, long sourcePosition, long length, AWritableFile target);
+	public long copyTo(AReadableFile sourceSubject, long sourcePosition, long length, AWritableFile target);
 	
-//	public long copyTo(AReadableFile sourceFile, AWritableFile target, long targetPosition);
+//	public long copyTo(AReadableFile sourceSubject, AWritableFile target, long targetPosition);
 //
-//	public long copyTo(AReadableFile sourceFile, AWritableFile target, long targetPosition, long length);
+//	public long copyTo(AReadableFile sourceSubject, AWritableFile target, long targetPosition, long length);
+//
+//	public long copyTo(AReadableFile sourceSubject, long srcPos, AWritableFile target, long trgPos, long length);
 	
+	public long copyFrom(AReadableFile source, AWritableFile targetSubject);
 	
+	public long copyFrom(AReadableFile source, long sourcePosition, AWritableFile targetSubject);
 	
+	public long copyFrom(AReadableFile source, long sourcePosition, long length, AWritableFile targetSubject);
+	
+//	public long copyFrom(AReadableFile source, AWritableFile targetSubject, long targetPosition);
+//
+//	public long copyFrom(AReadableFile source, AWritableFile targetSubject, long targetPosition, long length);
+//
+//	public long copyFrom(AReadableFile source, long srcPos, AWritableFile targetSubject, long trgPos, long length);
+		
 	
 	public long writeBytes(AWritableFile targetFile, Iterable<? extends ByteBuffer> sourceBuffers);
 
@@ -87,6 +117,7 @@ public interface AIoHandler
 	
 	public void truncate(AWritableFile file, long newSize);
 	
+		
 	
 	public abstract class Abstract<
 		FS,
@@ -178,15 +209,30 @@ public interface AIoHandler
 		protected abstract long specificReadBytes(R sourceFile, BufferProvider bufferProvider, long position, long length);
 			
 		
-		protected abstract long specificCopyTo(R sourceFile, AWritableFile target);
+		protected abstract long specificCopyTo(R sourceSubject, AWritableFile target);
 		
-		protected abstract long specificCopyTo(R sourceFile, long sourcePosition, AWritableFile target);
+		protected abstract long specificCopyTo(R sourceSubject, long sourcePosition, AWritableFile target);
 		
-		protected abstract long specificCopyTo(R sourceFile, long sourcePosition, long length, AWritableFile target);
+		protected abstract long specificCopyTo(R sourceSubject, long sourcePosition, long length, AWritableFile target);
 		
-//		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long targetPosition);
+//		protected abstract long specificCopyTo(R sourceSubject, AWritableFile target, long targetPosition);
 //
-//		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long targetPosition, long length);
+//		protected abstract long specificCopyTo(R sourceSubject, AWritableFile target, long targetPosition, long length);
+//
+//		protected abstract long specificCopyTo(R sourceSubject, long srcPos, AWritableFile target, long trgPos, long length);
+		
+		
+		protected abstract long specificCopyFrom(AReadableFile source, W targetSubject);
+		
+		protected abstract long specificCopyFrom(AReadableFile source, long sourcePosition, W targetSubject);
+		
+		protected abstract long specificCopyFrom(AReadableFile source, long sourcePosition, long length, W targetSubject);
+		
+//		protected abstract long specificCopyFrom(AReadableFile source, W targetSubject, long targetPosition);
+//
+//		protected abstract long specificCopyFrom(AReadableFile source, W targetSubject, long targetPosition, long length);
+//
+//		protected abstract long specificCopyFrom(AReadableFile source, long srcPos, W targetSubject, long trgPos, long length);
 		
 		
 		protected abstract long specificWriteBytes(W targetFile, Iterable<? extends ByteBuffer> sourceBuffers);
@@ -197,6 +243,34 @@ public interface AIoHandler
 		
 		protected abstract void specificTruncateFile(W file, long newSize);
 		
+		
+		protected long copyGeneric(
+			final AReadableFile source,
+			final AWritableFile target
+		)
+		{
+			return this.copyFrom(source, 0, target);
+		}
+		
+		protected long copyGeneric(
+			final AReadableFile source        ,
+			final long          sourcePosition,
+			final AWritableFile target
+		)
+		{
+			return this.copyFrom(source, sourcePosition, source.size(), target);
+		}
+		
+		protected long copyGeneric(
+			final AReadableFile source        ,
+			final long          sourcePosition,
+			final AWritableFile target        ,
+			final long          length
+		)
+		{
+			// (16.07.2020 TM)FIXME: priv#49: copyGeneric
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
 		
 		
 		protected RuntimeException createUnhandledTypeException(final Object subject, final Class<?> checkedType)
@@ -307,6 +381,13 @@ public interface AIoHandler
 			throw this.createUnhandledTypeExceptionWritableFile(file);
 		}
 		
+		protected R castReadableFile(final AReadableFile file)
+		{
+			this.validateHandledReadableFile(file);
+			
+			return this.typeReadableFile.cast(file);
+		}
+		
 		protected W castWritableFile(final AWritableFile file)
 		{
 			this.validateHandledWritableFile(file);
@@ -331,10 +412,13 @@ public interface AIoHandler
 		@Override
 		public long size(final AFile file)
 		{
-			if(!this.isHandledFile(file))
-			{
-				return this.subjectFileSize(this.toSubjectFile(file));
-			}
+			this.validateHandledFile(file);
+			
+			// no heuristics / interpretation in default implementation
+//			if(!this.isHandledFile(file))
+//			{
+//				return this.subjectFileSize(this.toSubjectFile(file));
+//			}
 
 			return this.specificSize(this.typeFile.cast(file));
 		}
@@ -342,10 +426,13 @@ public interface AIoHandler
 		@Override
 		public boolean exists(final AFile file)
 		{
-			if(!this.isHandledFile(file))
-			{
-				return this.subjectFileExists(this.toSubjectFile(file));
-			}
+			this.validateHandledFile(file);
+			
+			// no heuristics / interpretation in default implementation
+//			if(!this.isHandledFile(file))
+//			{
+//				return this.subjectFileExists(this.toSubjectFile(file));
+//			}
 
 			return this.specificExists(this.typeFile.cast(file));
 		}
@@ -353,10 +440,13 @@ public interface AIoHandler
 		@Override
 		public boolean exists(final ADirectory directory)
 		{
-			if(!this.isHandledDirectory(directory))
-			{
-				return this.subjectDirectoryExists(this.toSubjectDirectory(directory));
-			}
+			this.validateHandledDirectory(directory);
+
+			// no heuristics / interpretation in default implementation
+//			if(!this.isHandledDirectory(directory))
+//			{
+//				return this.subjectDirectoryExists(this.toSubjectDirectory(directory));
+//			}
 
 			return this.specificExists(this.typeDirectory.cast(directory));
 		}
@@ -607,69 +697,152 @@ public interface AIoHandler
 
 		@Override
 		public long copyTo(
-			final AReadableFile sourceFile,
+			final AReadableFile sourceSubject,
 			final AWritableFile target
 		)
 		{
-			this.validateHandledReadableFile(sourceFile);
+			this.validateHandledReadableFile(sourceSubject);
 
-			return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target);
+			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target);
 		}
 		
 		@Override
 		public long copyTo(
-			final AReadableFile sourceFile    ,
+			final AReadableFile sourceSubject ,
 			final long          sourcePosition,
 			final AWritableFile target
 		)
 		{
-			this.validateHandledReadableFile(sourceFile);
+			this.validateHandledReadableFile(sourceSubject);
 			
-			return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), sourcePosition, target);
+			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, target);
 		}
 		
 		@Override
 		public long copyTo(
-			final AReadableFile sourceFile    ,
+			final AReadableFile sourceSubject ,
 			final long          sourcePosition,
 			final long          length        ,
 			final AWritableFile target
 		)
 		{
-			this.validateHandledReadableFile(sourceFile);
+			this.validateHandledReadableFile(sourceSubject);
 
-			return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), sourcePosition, length, target);
+			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, length, target);
 		}
 
 //		@Override
 //		public long copyTo(
-//			final AReadableFile sourceFile    ,
+//			final AReadableFile sourceSubject ,
 //			final AWritableFile target        ,
 //			final long          targetPosition
 //		)
 //		{
-//			if(this.isHandledReadableFile(sourceFile))
-//			{
-//				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, targetPosition);
-//			}
+//			this.validateHandledReadableFile(sourceSubject);
 //
-//			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
+//			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target, targetPosition);
 //		}
 //
 //		@Override
 //		public long copyTo(
-//			final AReadableFile sourceFile    ,
+//			final AReadableFile sourceSubject ,
 //			final AWritableFile target        ,
 //			final long          targetPosition,
 //			final long          length
 //		)
 //		{
-//			if(this.isHandledReadableFile(sourceFile))
-//			{
-//				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, targetPosition, length);
-//			}
+//			this.validateHandledReadableFile(sourceSubject);
 //
-//			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
+//			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target, targetPosition, length);
+//		}
+//
+//		@Override
+//		public long copyTo(
+//			final AReadableFile sourceSubject ,
+//			final long          sourcePosition,
+//			final AWritableFile target        ,
+//			final long          targetPosition,
+//			final long          length
+//		)
+//		{
+//			this.validateHandledReadableFile(sourceSubject);
+//
+//			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, target, targetPosition, length);
+//		}
+		
+		@Override
+		public long copyFrom(
+			final AReadableFile source       ,
+			final AWritableFile targetSubject
+		)
+		{
+			this.validateHandledWritableFile(targetSubject);
+
+			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject));
+		}
+		
+		@Override
+		public long copyFrom(
+			final AReadableFile source        ,
+			final long          sourcePosition,
+			final AWritableFile targetSubject
+		)
+		{
+			this.validateHandledWritableFile(targetSubject);
+			
+			return this.specificCopyFrom(source, sourcePosition, this.typeWritableFile.cast(targetSubject));
+		}
+		
+		@Override
+		public long copyFrom(
+			final AReadableFile source        ,
+			final long          sourcePosition,
+			final long          length        ,
+			final AWritableFile targetSubject
+		)
+		{
+			this.validateHandledWritableFile(targetSubject);
+
+			return this.specificCopyFrom(source, sourcePosition, length, this.typeWritableFile.cast(targetSubject));
+		}
+
+//		@Override
+//		public long copyFrom(
+//			final AReadableFile source        ,
+//			final AWritableFile targetSubject ,
+//			final long          targetPosition
+//		)
+//		{
+//			this.validateHandledWritableFile(targetSubject);
+//
+//			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition);
+//		}
+//
+//		@Override
+//		public long copyFrom(
+//			final AReadableFile source        ,
+//			final AWritableFile targetSubject ,
+//			final long          targetPosition,
+//			final long          length
+//		)
+//		{
+//			this.validateHandledWritableFile(targetSubject);
+//
+//			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition, length);
+//		}
+//
+//		@Override
+//		public long copyFrom(
+//			final AReadableFile source        ,
+//			final long          sourcePosition,
+//			final AWritableFile targetSubject ,
+//			final long          targetPosition,
+//			final long          length
+//		)
+//		{
+//			this.validateHandledWritableFile(targetSubject);
+//
+//			return this.specificCopyFrom(source, sourcePosition, this.typeWritableFile.cast(targetSubject), targetPosition, length);
 //		}
 
 		@Override
@@ -695,10 +868,7 @@ public interface AIoHandler
 			
 			return writeCount;
 		}
-
-		/* (28.05.2020 TM)TODO: priv#49: call moveFile
-		 * But NOT automatic unregister on the abstract level, because ... it's abstract!
-		 */
+		
 		@Override
 		public void moveFile(
 			final AWritableFile sourceFile,
