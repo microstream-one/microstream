@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFile;
 import one.microstream.afs.AIoHandler;
+import one.microstream.afs.AReadableFile;
 import one.microstream.afs.AWritableFile;
 import one.microstream.io.BufferProvider;
 
@@ -432,6 +433,52 @@ public interface BlobStoreIoHandler extends AIoHandler
 			return this.connector.copyFile(
 				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				BlobStoreFileSystem.toPath(handlableTarget.ensureOpenHandle()),
+				sourcePosition,
+				length
+			);
+		}
+
+		@Override
+		protected long specificCopyFrom(
+			final AReadableFile         source       ,
+			final BlobStoreWritableFile targetSubject
+		)
+		{
+			final BlobStoreReadableFile handlableSource = this.castReadableFile(source);
+			return this.connector.copyFile(
+				BlobStoreFileSystem.toPath(handlableSource.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(targetSubject.ensureOpenHandle())
+			);
+		}
+
+		@Override
+		protected long specificCopyFrom(
+			final AReadableFile         source        ,
+			final long                  sourcePosition,
+			final BlobStoreWritableFile targetSubject
+		)
+		{
+			final BlobStoreReadableFile handlableSource = this.castReadableFile(source);
+			return this.connector.copyFile(
+				BlobStoreFileSystem.toPath(handlableSource.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(targetSubject.ensureOpenHandle()),
+				sourcePosition,
+				-1L
+			);
+		}
+
+		@Override
+		protected long specificCopyFrom(
+			final AReadableFile         source        ,
+			final long                  sourcePosition,
+			final long                  length        ,
+			final BlobStoreWritableFile targetSubject
+		)
+		{
+			final BlobStoreReadableFile handlableSource = this.castReadableFile(source);
+			return this.connector.copyFile(
+				BlobStoreFileSystem.toPath(handlableSource.ensureOpenHandle()),
+				BlobStoreFileSystem.toPath(targetSubject.ensureOpenHandle()),
 				sourcePosition,
 				length
 			);

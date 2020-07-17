@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFile;
 import one.microstream.afs.AIoHandler;
+import one.microstream.afs.AReadableFile;
 import one.microstream.afs.AWritableFile;
 import one.microstream.io.BufferProvider;
 
@@ -452,6 +453,52 @@ public interface SqlIoHandler extends AIoHandler
 			return this.connector.copyFile(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				SqlFileSystem.toPath(handlableTarget.ensureOpenHandle()),
+				sourcePosition,
+				length
+			);
+		}
+
+		@Override
+		protected long specificCopyFrom(
+			final AReadableFile   source       ,
+			final SqlWritableFile targetSubject
+		)
+		{
+			final SqlReadableFile handlableSource = this.castReadableFile(source);
+			return this.connector.copyFile(
+				SqlFileSystem.toPath(handlableSource.ensureOpenHandle()),
+				SqlFileSystem.toPath(targetSubject.ensureOpenHandle())
+			);
+		}
+
+		@Override
+		protected long specificCopyFrom(
+			final AReadableFile   source        ,
+			final long            sourcePosition,
+			final SqlWritableFile targetSubject
+		)
+		{
+			final SqlReadableFile handlableSource = this.castReadableFile(source);
+			return this.connector.copyFile(
+				SqlFileSystem.toPath(handlableSource.ensureOpenHandle()),
+				SqlFileSystem.toPath(targetSubject.ensureOpenHandle()),
+				sourcePosition,
+				-1L
+			);
+		}
+
+		@Override
+		protected long specificCopyFrom(
+			final AReadableFile   source        ,
+			final long            sourcePosition,
+			final long            length        ,
+			final SqlWritableFile targetSubject
+		)
+		{
+			final SqlReadableFile handlableSource = this.castReadableFile(source);
+			return this.connector.copyFile(
+				SqlFileSystem.toPath(handlableSource.ensureOpenHandle()),
+				SqlFileSystem.toPath(targetSubject.ensureOpenHandle()),
 				sourcePosition,
 				length
 			);
