@@ -90,9 +90,7 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 		{
 			try
 			{
-//				wSourceFile.move(wTargetFile);
-				// (15.06.2020 TM)FIXME: priv#49: AWritableFile#move?
-				throw new one.microstream.meta.NotImplementedYetError();
+				wSourceFile.moveTo(wTargetFile);
 			}
 			finally
 			{
