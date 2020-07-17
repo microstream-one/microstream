@@ -123,6 +123,7 @@ public interface AFile extends AItem
 		return this.fileSystem().ioHandler().exists(this);
 	}
 	
+	// required to query the file size, for example
 	public default boolean ensureExists()
 	{
 		if(this.exists())
