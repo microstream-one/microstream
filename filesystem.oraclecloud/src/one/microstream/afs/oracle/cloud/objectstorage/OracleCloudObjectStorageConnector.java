@@ -43,7 +43,7 @@ import one.microstream.io.LimitedInputStream;
  * 	OracleCloudObjectStorageConnector.New(client)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -51,7 +51,7 @@ public interface OracleCloudObjectStorageConnector extends BlobStoreConnector
 {
 	/**
 	 * Pseude-constructor method which creates a new {@link OracleCloudObjectStorageConnector}.
-	 * 
+	 *
 	 * @param client connection to the Oracle cloud object storage
 	 * @return a new {@link OracleCloudObjectStorageConnector}
 	 */
@@ -129,6 +129,26 @@ public interface OracleCloudObjectStorageConnector extends BlobStoreConnector
 			.stream()
 			.filter(summary -> pattern.matcher(summary.getName()).matches())
 			.sorted(this.blobComparator())
+			;
+		}
+
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			return this.client.listObjects(ListObjectsRequest.builder()
+				.namespaceName(this.namespaceName())
+				.bucketName(directory.container())
+				.prefix(toChildKeysPrefix(directory))
+				.delimiter(BlobStorePath.SEPARATOR)
+				.fields("name")
+				.build()
+			)
+			.getListObjects()
+			.getObjects()
+			.stream()
+			.map(ObjectSummary::getName)
 			;
 		}
 

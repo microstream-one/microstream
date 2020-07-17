@@ -83,7 +83,7 @@ public interface HibernateProvider extends SqlProvider
 				tableName
 			);
 		}
-		
+
 		private Table dummyTable()
 		{
 			if(this.dummyTable == null)
@@ -159,7 +159,7 @@ public interface HibernateProvider extends SqlProvider
 				}
 			}
 		}
-		
+
 		@Override
 		public void setBlob(
 			final PreparedStatement statement  ,
@@ -193,6 +193,18 @@ public interface HibernateProvider extends SqlProvider
 			select.setFromClause(table.sqlName());
 			select.setSelectClause("count(*), max(" + table.endColumnSqlName() + ")");
 			select.setWhereClause(table.identifierColumnSqlName() + "=?");
+			return select.toStatementString();
+		}
+
+		@Override
+		public String listFilesQuery(
+			final String tableName
+		)
+		{
+			final Table  table  = this.table(tableName);
+			final Select select = new Select(table);
+			select.setFromClause(table.sqlName());
+			select.setSelectClause("distinct " + table.identifierColumnSqlName());
 			return select.toStatementString();
 		}
 

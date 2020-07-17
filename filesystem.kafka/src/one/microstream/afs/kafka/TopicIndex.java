@@ -5,10 +5,13 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.RecordsToDelete;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,35 +29,35 @@ import org.apache.kafka.common.serialization.StringSerializer;
 
 import one.microstream.collections.BulkList;
 
-public interface Index extends AutoCloseable
+public interface TopicIndex extends AutoCloseable
 {
 	public Iterable<Blob> get();
 
-	public Index put(Iterable<Blob> blobs);
-	
-	public Index delete(Map<Integer, RecordsToDelete> partitionsWithRecords);
+	public TopicIndex put(Iterable<Blob> blobs);
+
+	public TopicIndex delete(Map<Integer, RecordsToDelete> partitionsWithRecords);
 
 	@Override
 	public void close();
 
 
-    public static Index New(
+    public static TopicIndex New(
 		final Properties kafkaProperties,
-		final String     key
+		final String     topic
 	)
     {
-    	return new Index.Default(
+    	return new TopicIndex.Default(
     		notNull (kafkaProperties),
-    		notEmpty(key)
+    		notEmpty(topic)
     	);
     }
 
 
-	public static class Default implements Index
+	public static class Default implements TopicIndex
 	{
-		static String topicName(final String key)
+		static String indexTopicName(final String topic)
 		{
-			return "__" + key + "_index";
+			return "__" + topic + "_index";
 		}
 
 		static int getInt(
@@ -115,23 +118,23 @@ public interface Index extends AutoCloseable
 
 
 		private final Properties               kafkaProperties;
-		private final String                   key            ;
+		private final String                   topic          ;
 		private       BulkList<Blob>           blobs          ;
 		private       Producer<String, byte[]> producer       ;
 
 		Default(
 			final Properties kafkaProperties,
-			final String     key
+			final String     topic
 		)
 		{
 			super();
 			this.kafkaProperties = kafkaProperties;
-			this.key             = key            ;
+			this.topic           = topic          ;
 		}
 
 		private String topicName()
 		{
-			return topicName(this.key);
+			return indexTopicName(this.topic);
 		}
 
 		private BulkList<Blob> ensureBlobs()
@@ -157,7 +160,7 @@ public interface Index extends AutoCloseable
 			final Properties properties = new Properties();
 			properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG  , StringDeserializer   .class.getName());
 			properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getName());
-			properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG                , "index" + UUID.randomUUID().toString());
+			properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG                , "topicindex" + UUID.randomUUID().toString());
 			properties.remove(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG );
 			properties.remove(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG);
 			properties.putAll(this.kafkaProperties);
@@ -182,7 +185,7 @@ public interface Index extends AutoCloseable
 						final long   start     = getLong(bytes, 12);
 						final long   end       = getLong(bytes, 20);
 						blobs.add(new Blob.Default(
-							this.key,
+							this.topic,
 							partition,
 							offset,
 							start,
@@ -211,6 +214,27 @@ public interface Index extends AutoCloseable
 			return this.producer;
 		}
 
+		private void internalProduce(
+			final Producer<String, byte[]> producer,
+			final Blob                     blob
+		)
+		{
+			final byte[] bytes = new byte[28];
+			putInt (bytes,  0, blob.partition());
+			putLong(bytes,  4, blob.offset   ());
+			putLong(bytes, 12, blob.start    ());
+			putLong(bytes, 20, blob.end      ());
+
+			try
+			{
+				producer.send(new ProducerRecord<>(this.topicName(), bytes)).get();
+			}
+			catch(final Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+
 		@Override
 		public Iterable<Blob> get()
 		{
@@ -222,52 +246,63 @@ public interface Index extends AutoCloseable
 		}
 
 		@Override
-		public Index put(
+		public TopicIndex put(
 			final Iterable<Blob> metadata
 		)
 		{
 			final BulkList<Blob> blobs = this.ensureBlobs();
 			synchronized(blobs)
 			{
-				final String                   topic    = this.topicName();
 				final Producer<String, byte[]> producer = this.ensureProducer();
 				metadata.forEach(blob ->
 				{
 					blobs.add(blob);
-
-					final byte[] bytes = new byte[28];
-					putInt (bytes,  0, blob.partition());
-					putLong(bytes,  4, blob.offset   ());
-					putLong(bytes, 12, blob.start    ());
-					putLong(bytes, 20, blob.end      ());
-
-					try
-					{
-						producer.send(new ProducerRecord<>(topic, bytes)).get();
-					}
-					catch(final Exception e)
-					{
-						throw new RuntimeException(e);
-					}
+					this.internalProduce(producer, blob);
 				});
 			}
 
 			return this;
 		}
-		
+
 		@Override
-		public Index delete(
+		public TopicIndex delete(
 			final Map<Integer, RecordsToDelete> partitionsWithRecords
 		)
 		{
-			this.blobs.removeBy(blob ->
+			final BulkList<Blob> blobs = this.ensureBlobs();
+			synchronized(blobs)
 			{
-				final RecordsToDelete recordsToDelete = partitionsWithRecords.get(blob.partition());
-				return recordsToDelete != null
-					&& recordsToDelete.beforeOffset() > blob.offset()
-				;
-			});
-			
+				final long removeCount = blobs.removeBy(blob ->
+				{
+					final RecordsToDelete recordsToDelete = partitionsWithRecords.get(blob.partition());
+					return recordsToDelete != null
+						&& recordsToDelete.beforeOffset() > blob.offset()
+					;
+				});
+				if(removeCount > 0L)
+				{
+					final Map<TopicPartition, RecordsToDelete> recordsToDelete = new HashMap<>();
+					recordsToDelete.put(
+						new TopicPartition(this.topicName(), 0),
+						RecordsToDelete.beforeOffset(0xFFFFFFFFFFFFFFFFL)
+					);
+					try(AdminClient admin = KafkaAdminClient.create(this.kafkaProperties))
+					{
+						admin.deleteRecords(recordsToDelete)
+							.all()
+							.get()
+						;
+					}
+					catch(final Exception e)
+					{
+						throw new RuntimeException(e);
+					}
+
+					final Producer<String, byte[]> producer = this.ensureProducer();
+					blobs.forEach(blob -> this.internalProduce(producer, blob));
+				}
+			}
+
 			return this;
 		}
 

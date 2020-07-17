@@ -11,7 +11,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.LongFunction;
 
 import one.microstream.io.ByteBufferInputStream;
@@ -27,6 +29,8 @@ public interface SqlConnector
 	public boolean fileExists(SqlPath file);
 
 	public boolean directoryExists(SqlPath directory);
+
+	public void visitChildren(SqlPath directory, SqlPathVisitor visitor);
 
 	public boolean createDirectory(SqlPath directory);
 
@@ -92,6 +96,53 @@ public interface SqlConnector
 			}
 		}
 
+		private void internalVisitChildren(
+			final SqlPath        directory ,
+			final SqlPathVisitor visitor   ,
+			final Connection     connection
+		)
+		throws SQLException
+		{
+			final List<String> directoryNames = new ArrayList<>();
+			final List<String> fileNames      = new ArrayList<>();
+
+			final String directoryPrefix = directory.fullQualifiedName() + SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR;
+			try(final ResultSet result = connection.getMetaData().getTables(
+				this.provider.catalog(),
+				this.provider.schema(),
+				directoryPrefix + "%",
+				new String[] {"TABLE"}
+			))
+			{
+				while(result.next())
+				{
+					final String name = result.getString("TABLE_NAME");
+					if(name.startsWith(directoryPrefix)
+					&& name.length() > directoryPrefix.length()
+					&& name.indexOf(SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR, directoryPrefix.length()) == -1
+					)
+					{
+						directoryNames.add(name.substring(directoryPrefix.length()));
+					}
+				}
+			}
+
+			final String sql = this.provider.listFilesQuery(directory.fullQualifiedName());
+			try(final Statement statement = connection.createStatement())
+			{
+				try(final ResultSet result = statement.executeQuery(sql))
+				{
+					while(result.next())
+					{
+						fileNames.add(result.getString(IDENTIFIER_COLUMN_INDEX));
+					}
+				}
+			}
+
+			directoryNames.forEach(name -> visitor.visitDirectory(directory, name));
+			fileNames     .forEach(name -> visitor.visitFile     (directory, name));
+		}
+
 		private void internalCreateDirectory(
 			final SqlPath    directory ,
 			final Connection connection
@@ -128,7 +179,7 @@ public interface SqlConnector
 					final long max   = result.getLong(2);
 					return count > 0
 						? max + 1L
-						: -1L
+						: 0L
 					;
 				}
 			}
@@ -422,7 +473,7 @@ public interface SqlConnector
 				reverseTargetBuffer.position(position);
 			}
 		}
-		
+
 		private long maxBlobSize(
 			final Connection connection
 		)
@@ -475,7 +526,7 @@ public interface SqlConnector
 				}
 			});
 		}
-		
+
 		@Override
 		public boolean directoryExists(final SqlPath directory)
 		{
@@ -484,14 +535,28 @@ public interface SqlConnector
 				return this.internalDirectoryExists(directory, connection);
 			});
 		}
-		
+
+		@Override
+		public void visitChildren(
+			final SqlPath        directory,
+			final SqlPathVisitor visitor
+		)
+		{
+			this.provider.execute(connection ->
+			{
+				this.internalVisitChildren(directory, visitor, connection);
+
+				return null;
+			});
+		}
+
 		@Override
 		public boolean createDirectory(final SqlPath directory)
 		{
 			return this.provider.execute(connection ->
 			{
 				this.internalCreateDirectory(directory, connection);
-				
+
 				return true;
 			});
 		}
@@ -709,6 +774,12 @@ public interface SqlConnector
 			final long    newLength
 		)
 		{
+			if(newLength == 0L)
+			{
+				this.deleteFile(file);
+				return;
+			}
+
 			this.provider.execute(connection ->
 			{
 				final long currentLength = this.internalFileSize(file, connection);

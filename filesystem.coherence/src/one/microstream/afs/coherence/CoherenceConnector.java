@@ -110,6 +110,16 @@ public interface CoherenceConnector extends BlobStoreConnector
 			);
 		}
 
+		private static Filter childKeysFilter(
+			final BlobStorePath directory
+		)
+		{
+			return new RegexFilter(
+				new KeyExtractor(),
+				childKeysRegexWithContainer(directory)
+			);
+		}
+
 		private static Filter blobsFilter(
 			final List<? extends BlobMetadata> blobs
 		)
@@ -152,6 +162,19 @@ public interface CoherenceConnector extends BlobStoreConnector
 		}
 
 		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			@SuppressWarnings("unchecked")
+			final Map<String, ?> result = this.cache.invokeAll(
+				childKeysFilter(directory),
+				new ExtractorProcessor(new KeyExtractor())
+			);
+			return result.keySet().stream();
+		}
+
+		@Override
 		protected long internalFileSize(final BlobStorePath file)
 		{
 			final Long size = (Long)this.cache.aggregate(
@@ -160,7 +183,7 @@ public interface CoherenceConnector extends BlobStoreConnector
 			);
 			return size != null
 				? size
-				: -1
+				: 0L
 			;
 		}
 

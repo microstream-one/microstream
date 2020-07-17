@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public interface Blob
 {
-	public String key();
+	public String topic();
 
 	public int partition();
 
@@ -20,7 +20,7 @@ public interface Blob
 
 
 	public static Blob New(
-		final String key      ,
+		final String topic    ,
 		final int    partition,
 		final long   offset   ,
 		final long   start    ,
@@ -37,7 +37,7 @@ public interface Blob
 		}
 
 		return new Blob.Default(
-			notEmpty(key),
+			notEmpty(topic),
 			partition,
 			offset,
 			start,
@@ -48,14 +48,14 @@ public interface Blob
 
 	public static class Default implements Blob
 	{
-		private final String key      ;
+		private final String topic    ;
 		private final int    partition;
 		private final long   offset   ;
 		private final long   start    ;
 		private final long   end      ;
 
 		Default(
-			final String key      ,
+			final String topic    ,
 			final int    partition,
 			final long   offset   ,
 			final long   start    ,
@@ -63,7 +63,7 @@ public interface Blob
 		)
 		{
 			super();
-			this.key       = key      ;
+			this.topic     = topic    ;
 			this.partition = partition;
 			this.offset    = offset   ;
 			this.start     = start    ;
@@ -71,9 +71,9 @@ public interface Blob
 		}
 
 		@Override
-		public String key()
+		public String topic()
 		{
-			return this.key;
+			return this.topic;
 		}
 
 		@Override
@@ -110,7 +110,7 @@ public interface Blob
 		public int hashCode()
 		{
 			return Objects.hash(
-				this.key,
+				this.topic,
 				this.partition,
 				this.offset,
 				this.start,
@@ -130,7 +130,7 @@ public interface Blob
 				return false;
 			}
 			final Default other = (Default)obj;
-			return Objects.equals(this.key, other.key)
+			return Objects.equals(this.topic, other.topic)
 				&& this.partition == other.partition
 				&& this.offset    == other.offset
 				&& this.start     == other.start

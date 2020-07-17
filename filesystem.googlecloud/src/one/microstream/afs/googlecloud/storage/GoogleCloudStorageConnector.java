@@ -36,7 +36,7 @@ import one.microstream.memory.XMemory;
  * 	GoogleCloudStorageConnector.New(storage)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -44,7 +44,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 {
 	/**
 	 * Pseude-constructor method which creates a new {@link GoogleCloudStorageConnector}.
-	 * 
+	 *
 	 * @param storage connection to the Google storage service
 	 * @return a new {@link GoogleCloudStorageConnector}
 	 */
@@ -102,6 +102,37 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 				.filter(blob -> pattern.matcher(blob.getName()).matches())
 				.sorted(this.blobComparator())
 			;
+		}
+
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			final List<String> keys    = new ArrayList<>();
+			final String       prefix  = toChildKeysPrefix(directory);
+			final Pattern      pattern = Pattern.compile(childKeysRegex(directory));
+			      Page<Blob>   page    = this.storage.list(
+				directory.container(),
+				BlobListOption.prefix(prefix)
+			);
+			while(page != null)
+			{
+				page.getValues().forEach(blob ->
+				{
+					final String key = blob.getName();
+					if(pattern.matcher(key).matches())
+					{
+						keys.add(key);
+					}
+				});
+
+				page = page.hasNextPage()
+					? page.getNextPage()
+					: null
+				;
+			}
+			return keys.stream();
 		}
 
 		@Override

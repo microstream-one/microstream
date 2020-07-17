@@ -17,6 +17,7 @@ import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
 import com.amazonaws.services.s3.model.DeleteObjectsResult;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
@@ -37,7 +38,7 @@ import one.microstream.io.ByteBufferInputStream;
  * 	S3Connector.New(s3)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -45,7 +46,7 @@ public interface S3Connector extends BlobStoreConnector
 {
 	/**
 	 * Pseude-constructor method which creates a new {@link S3Connector}.
-	 * 
+	 *
 	 * @param s3 connection to the S3 storage
 	 * @return a new {@link S3Connector}
 	 */
@@ -86,9 +87,27 @@ public interface S3Connector extends BlobStoreConnector
 				file.container(),
 				prefix
 			)
-			.getObjectSummaries().stream()
+			.getObjectSummaries()
+			.stream()
 			.filter(summary -> pattern.matcher(summary.getKey()).matches())
 			.sorted(this.blobComparator())
+			;
+		}
+
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			return this.s3.listObjectsV2(
+				new ListObjectsV2Request()
+					.withBucketName(directory.container())
+					.withPrefix(toChildKeysPrefix(directory))
+					.withDelimiter(BlobStorePath.SEPARATOR)
+			)
+			.getObjectSummaries()
+			.stream()
+			.map(S3ObjectSummary::getKey)
 			;
 		}
 

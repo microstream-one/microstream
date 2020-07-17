@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.RecordsToDelete;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -53,7 +54,7 @@ import one.microstream.io.ByteBufferInputStream;
  * 	KafkaConnector.New(properties)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -61,7 +62,7 @@ public interface KafkaConnector extends BlobStoreConnector
 {
 	/**
 	 * Pseude-constructor method which creates a new {@link KafkaConnector}.
-	 * 
+	 *
 	 * @param kafkaProperties the Kafka configuration
 	 * @return a new {@link KafkaConnector}
 	 */
@@ -79,18 +80,19 @@ public interface KafkaConnector extends BlobStoreConnector
 	extends    BlobStoreConnector.Abstract<Blob>
 	implements KafkaConnector
 	{
-		private static String topicName(
-			final BlobStorePath file
+		static String topicName(
+			final BlobStorePath path
 		)
 		{
 			return Pattern.compile("[^a-zA-Z0-9\\._\\-]")
-				.matcher(file.fullQualifiedName().replace(BlobStorePath.SEPARATOR_CHAR, '_'))
+				.matcher(path.fullQualifiedName().replace(BlobStorePath.SEPARATOR_CHAR, '_'))
 				.replaceAll("_")
 			;
 		}
 
 		private final Properties                                         kafkaProperties;
-		private final EqHashTable<String, Index>                         indices        ;
+		private final FileSystemIndex                                    fileSystemIndex;
+		private final EqHashTable<String, TopicIndex>                    topicIndices   ;
 		private final EqHashTable<String, KafkaConsumer<String, byte[]>> kafkaConsumers ;
 		private final EqHashTable<String, KafkaProducer<String, byte[]>> kafkaProducers ;
 
@@ -99,23 +101,24 @@ public interface KafkaConnector extends BlobStoreConnector
 		)
 		{
 			super(
-				Blob::key,
+				Blob::topic,
 				Blob::size,
 				KafkaPathValidator.New()
 			);
 			this.kafkaProperties = kafkaProperties  ;
-			this.indices         = EqHashTable.New();
+			this.fileSystemIndex = FileSystemIndex.New(kafkaProperties);
+			this.topicIndices    = EqHashTable.New();
 			this.kafkaConsumers  = EqHashTable.New();
 			this.kafkaProducers  = EqHashTable.New();
 		}
 
-		private synchronized Index index(
-			final BlobStorePath file
+		private synchronized TopicIndex topicIndex(
+			final BlobStorePath path
 		)
 		{
-			return this.indices.ensure(
-				topicName(file),
-				n -> Index.New(this.kafkaProperties, n)
+			return this.topicIndices.ensure(
+				topicName(path),
+				topic -> TopicIndex.New(this.kafkaProperties, topic)
 			);
 		}
 
@@ -172,11 +175,32 @@ public interface KafkaConnector extends BlobStoreConnector
 			final BlobStorePath file
 		)
 		{
-			final Iterable<Blob> iterable = this.index(file).get();
+			final Iterable<Blob> iterable = this.topicIndex(file).get();
 			return iterable != null
 				? StreamSupport.stream(iterable.spliterator(), false)
 				: Stream.empty()
 			;
+		}
+
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			final Pattern pattern = Pattern.compile(childKeysRegexWithContainer(directory));
+			return this.fileSystemIndex.files()
+				.filter(key -> pattern.matcher(key).matches())
+			;
+		}
+
+		@Override
+		protected String fileNameOfKey(
+			final String key
+		)
+		{
+			return key.substring(
+				key.lastIndexOf(BlobStorePath.SEPARATOR_CHAR) + 1
+			);
 		}
 
 		@Override
@@ -188,7 +212,7 @@ public interface KafkaConnector extends BlobStoreConnector
 			final long          length
 		)
 		{
-			final KafkaConsumer<String, byte[]> consumer = this.consumer(blob.key());
+			final KafkaConsumer<String, byte[]> consumer = this.consumer(blob.topic());
 
 			final TopicPartition topicPartition = new TopicPartition(
 				topicName(file),
@@ -227,17 +251,20 @@ public interface KafkaConnector extends BlobStoreConnector
 			try
 			{
 				final String topicName = topicName(file);
-				KafkaAdminClient.create(this.kafkaProperties)
-					.deleteTopics(Arrays.asList(
+				try(AdminClient admin = KafkaAdminClient.create(this.kafkaProperties))
+				{
+					admin.deleteTopics(Arrays.asList(
 						topicName,
-						Index.Default.topicName(topicName)
+						TopicIndex.Default.indexTopicName(topicName)
 					))
 					.all()
 					.get();
+				}
 
 				synchronized(this)
 				{
-					Optional.ofNullable(this.indices       .removeFor(topicName)).ifPresent(Index        ::close);
+					this.fileSystemIndex.delete(file.fullQualifiedName());
+					Optional.ofNullable(this.topicIndices  .removeFor(topicName)).ifPresent(TopicIndex   ::close);
 					Optional.ofNullable(this.kafkaConsumers.removeFor(topicName)).ifPresent(KafkaConsumer::close);
 					Optional.ofNullable(this.kafkaProducers.removeFor(topicName)).ifPresent(KafkaProducer::close);
 				}
@@ -291,14 +318,13 @@ public interface KafkaConnector extends BlobStoreConnector
 				buffer.flip();
 				buffers.add(buffer);
 			}
-			
+
 			/*
 			 * Delete old data
 			 */
-			try
+			try(AdminClient admin = KafkaAdminClient.create(this.kafkaProperties))
 			{
-				KafkaAdminClient.create(this.kafkaProperties)
-					.deleteRecords(deletionMap)
+				admin.deleteRecords(deletionMap)
 					.all()
 					.get();
 			}
@@ -308,7 +334,7 @@ public interface KafkaConnector extends BlobStoreConnector
 			}
 			synchronized(this)
 			{
-				final Index index = this.indices.get(topicName);
+				final TopicIndex index = this.topicIndices.get(topicName);
 				if(index != null)
 				{
 					final Map<Integer, RecordsToDelete> partitionsWithRecords = deletionMap
@@ -321,7 +347,7 @@ public interface KafkaConnector extends BlobStoreConnector
 					index.delete(partitionsWithRecords);
 				}
 			}
-			
+
 			/*
 			 * Write remaining
 			 */
@@ -376,7 +402,8 @@ public interface KafkaConnector extends BlobStoreConnector
 					offset    += currentBatchSize;
 				}
 
-				this.index(file).put(blobs);
+				this.fileSystemIndex.put(file.fullQualifiedName());
+				this.topicIndex(file).put(blobs);
 
 				return totalSize;
 			}
@@ -410,8 +437,9 @@ public interface KafkaConnector extends BlobStoreConnector
 		@Override
 		protected synchronized void internalClose()
 		{
-			this.indices.values().forEach(Index::close);
-			this.indices.clear();
+			this.fileSystemIndex.close();
+			this.topicIndices.values().forEach(TopicIndex::close);
+			this.topicIndices.clear();
 			this.kafkaConsumers.values().forEach(KafkaConsumer::close);
 			this.kafkaConsumers.clear();
 			this.kafkaProducers.values().forEach(KafkaProducer::close);

@@ -42,7 +42,7 @@ import one.microstream.io.LimitedInputStream;
  * 	GoogleCloudFirestoreConnector.New(firestore)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -50,7 +50,7 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 {
 	/**
 	 * Pseude-constructor method which creates a new {@link GoogleCloudFirestoreConnector}.
-	 * 
+	 *
 	 * @param firestore connection to the Google firestore service
 	 * @return a new {@link GoogleCloudFirestoreConnector}
 	 */
@@ -91,10 +91,10 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 		}
 
 		private CollectionReference collection(
-			final BlobStorePath file
+			final BlobStorePath path
 		)
 		{
-			return this.firestore.collection(file.container());
+			return this.firestore.collection(path.container());
 		}
 
 		private Stream<? extends DocumentSnapshot> blobs(
@@ -118,6 +118,34 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 				)
 				.filter(document -> pattern.matcher(document.getString(FIELD_KEY)).matches())
 				.sorted(this.blobComparator())
+				;
+			}
+			catch(final Exception e)
+			{
+				// TODO Proper exception
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			try
+			{
+				final String  prefix  = toChildKeysPrefix(directory);
+				final Pattern pattern = Pattern.compile(childKeysRegex(directory));
+				final Query   query   = this.collection(directory)
+					.whereGreaterThan(FIELD_KEY, prefix)
+					.select(FIELD_KEY)
+				;
+				return StreamSupport.stream(
+					query.get().get().spliterator(),
+					false
+				)
+				.map(document -> document.getString(FIELD_KEY))
+				.filter(key -> pattern.matcher(key).matches())
 				;
 			}
 			catch(final Exception e)

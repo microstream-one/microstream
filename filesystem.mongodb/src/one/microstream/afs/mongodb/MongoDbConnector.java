@@ -54,7 +54,7 @@ import one.microstream.io.LimitedInputStream;
  * 	MongoDbConnector.GridFs(database)
  * );
  * </pre>
- * 
+ *
  * @author FH
  *
  */
@@ -62,7 +62,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 {
 	/**
 	 * Pseude-constructor method which creates a new {@link MongoDbConnector}.
-	 * 
+	 *
 	 * @param database connection to the MongoDB database
 	 * @return a new {@link MongoDbConnector}
 	 */
@@ -77,7 +77,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 
 	/**
 	 * Pseude-constructor method which creates a new {@link MongoDbConnector} for GridFS.
-	 * 
+	 *
 	 * @param database connection to the MongoDB database
 	 * @return a new {@link MongoDbConnector}
 	 */
@@ -121,13 +121,13 @@ public interface MongoDbConnector extends BlobStoreConnector
 		}
 
 		private MongoCollection<Document> collection(
-			final BlobStorePath file
+			final BlobStorePath path
 		)
 		{
 			synchronized(this.collections)
 			{
 				return this.collections.computeIfAbsent(
-					file.container(),
+					path.container(),
 					this::createCollection
 				);
 			}
@@ -171,6 +171,18 @@ public interface MongoDbConnector extends BlobStoreConnector
 			);
 		}
 
+		private Bson filterForChildren(
+			final BlobStorePath directory
+		)
+		{
+			return Filters.regex(
+				FIELD_KEY,
+				Pattern.compile(
+					childKeysRegex(directory)
+				)
+			);
+		}
+
 		private Bson filterFor(
 			final List<? extends Document> blobs
 		)
@@ -198,8 +210,9 @@ public interface MongoDbConnector extends BlobStoreConnector
 			final boolean       withData
 		)
 		{
-			final Bson                   filter   = this.filterFor(file);
-			final FindIterable<Document> iterable = this.collection(file).find(filter);
+			final FindIterable<Document> iterable = this.collection(file)
+				.find(this.filterFor(file))
+			;
 			if(!withData)
 			{
 				iterable.projection(Projections.include(FIELD_KEY, FIELD_SIZE));
@@ -209,6 +222,23 @@ public interface MongoDbConnector extends BlobStoreConnector
 				false
 			)
 			.sorted(this.blobComparator())
+			;
+		}
+
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			final FindIterable<Document> iterable = this.collection(directory)
+				.find(this.filterForChildren(directory))
+				.projection(Projections.include(FIELD_KEY));
+			;
+			return StreamSupport.stream(
+				iterable.spliterator(),
+				false
+			)
+			.map(document -> document.getString(FIELD_KEY))
 			;
 		}
 
@@ -423,13 +453,13 @@ public interface MongoDbConnector extends BlobStoreConnector
 		}
 
 		private GridFSBucket bucket(
-			final BlobStorePath file
+			final BlobStorePath path
 		)
 		{
 			synchronized(this.buckets)
 			{
 				return this.buckets.computeIfAbsent(
-					file.container(),
+					path.container(),
 					name -> GridFSBuckets.create(this.database, name)
 				);
 			}
@@ -448,6 +478,21 @@ public interface MongoDbConnector extends BlobStoreConnector
 				false
 			)
 			.sorted(this.blobComparator())
+			;
+		}
+
+		@Override
+		protected Stream<String> childKeys(
+			final BlobStorePath directory
+		)
+		{
+			final Pattern pattern = Pattern.compile(childKeysRegex(directory));
+			final Bson    filter  = Filters.regex("filename", pattern);
+			return StreamSupport.stream(
+				this.bucket(directory).find(filter).spliterator(),
+				false
+			)
+			.map(GridFSFile::getFilename)
 			;
 		}
 
