@@ -1,11 +1,11 @@
 package one.microstream.afs.kafka;
 
+import static java.util.stream.Collectors.toMap;
 import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.notEmpty;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -35,7 +35,7 @@ public interface TopicIndex extends AutoCloseable
 
 	public TopicIndex put(Iterable<Blob> blobs);
 
-	public TopicIndex delete(Map<Integer, RecordsToDelete> partitionsWithRecords);
+	public TopicIndex delete(Map<TopicPartition, RecordsToDelete> recordsToDelete);
 
 	@Override
 	public void close();
@@ -173,7 +173,7 @@ public interface TopicIndex extends AutoCloseable
 				final long highestOffset = consumer.position(topicPartition) - 1;
 				consumer.seekToBeginning(Arrays.asList(topicPartition));
 
-				long lastReadOffset = 0L;
+				long lastReadOffset = -1L;
 				while(lastReadOffset < highestOffset)
 				{
 					final ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofSeconds(1));
@@ -259,6 +259,7 @@ public interface TopicIndex extends AutoCloseable
 					blobs.add(blob);
 					this.internalProduce(producer, blob);
 				});
+				producer.flush();
 			}
 
 			return this;
@@ -266,26 +267,29 @@ public interface TopicIndex extends AutoCloseable
 
 		@Override
 		public TopicIndex delete(
-			final Map<Integer, RecordsToDelete> partitionsWithRecords
+			final Map<TopicPartition, RecordsToDelete> recordsToDelete
 		)
 		{
 			final BulkList<Blob> blobs = this.ensureBlobs();
 			synchronized(blobs)
 			{
+				final Map<Integer, RecordsToDelete> partitionMap = recordsToDelete
+					.entrySet()
+					.stream()
+					.collect(toMap(
+						e -> e.getKey().partition(),
+						e -> e.getValue())
+					)
+				;
 				final long removeCount = blobs.removeBy(blob ->
 				{
-					final RecordsToDelete recordsToDelete = partitionsWithRecords.get(blob.partition());
-					return recordsToDelete != null
-						&& recordsToDelete.beforeOffset() > blob.offset()
+					final RecordsToDelete records = partitionMap.get(blob.partition());
+					return records != null
+						&& records.beforeOffset() > blob.offset()
 					;
 				});
 				if(removeCount > 0L)
 				{
-					final Map<TopicPartition, RecordsToDelete> recordsToDelete = new HashMap<>();
-					recordsToDelete.put(
-						new TopicPartition(this.topicName(), 0),
-						RecordsToDelete.beforeOffset(0xFFFFFFFFFFFFFFFFL)
-					);
 					try(AdminClient admin = KafkaAdminClient.create(this.kafkaProperties))
 					{
 						admin.deleteRecords(recordsToDelete)
@@ -300,6 +304,7 @@ public interface TopicIndex extends AutoCloseable
 
 					final Producer<String, byte[]> producer = this.ensureProducer();
 					blobs.forEach(blob -> this.internalProduce(producer, blob));
+					producer.flush();
 				}
 			}
 

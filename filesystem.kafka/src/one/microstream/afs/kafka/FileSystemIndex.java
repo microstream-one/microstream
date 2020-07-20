@@ -104,7 +104,7 @@ public interface FileSystemIndex extends AutoCloseable
 				final long highestOffset = consumer.position(topicPartition) - 1;
 				consumer.seekToBeginning(Arrays.asList(topicPartition));
 
-				long lastReadOffset = 0L;
+				long lastReadOffset = -1L;
 				while(lastReadOffset < highestOffset)
 				{
 					final ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
@@ -170,6 +170,7 @@ public interface FileSystemIndex extends AutoCloseable
 				{
 					final Producer<String, String> producer = this.ensureProducer();
 					this.internalProduce(producer, file);
+					producer.flush();
 				}
 			}
 
@@ -205,6 +206,7 @@ public interface FileSystemIndex extends AutoCloseable
 
 					final Producer<String, String> producer = this.ensureProducer();
 					files.forEach(f -> this.internalProduce(producer, f));
+					producer.flush();
 				}
 			}
 

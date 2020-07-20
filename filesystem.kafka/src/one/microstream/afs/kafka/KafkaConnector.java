@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.toMap;
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.Duration;
@@ -43,6 +44,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
+import one.microstream.io.LimitedInputStream;
 
 /**
  * Connector for <a href="https://kafka.apache.org/">Apache Kafka</a>.
@@ -225,7 +227,7 @@ public interface KafkaConnector extends BlobStoreConnector
 			);
 			ConsumerRecords<String, byte[]> records;
 			int count = 0;
-			while((records = consumer.poll(Duration.ofSeconds(1))).isEmpty())
+			while((records = consumer.poll(Duration.ofSeconds(3))).isEmpty())
 			{
 				if(++count >= 3)
 				{
@@ -337,14 +339,7 @@ public interface KafkaConnector extends BlobStoreConnector
 				final TopicIndex index = this.topicIndices.get(topicName);
 				if(index != null)
 				{
-					final Map<Integer, RecordsToDelete> partitionsWithRecords = deletionMap
-						.entrySet()
-						.stream()
-						.collect(toMap(
-							e -> e.getKey().partition(),
-							e -> e.getValue()
-						));
-					index.delete(partitionsWithRecords);
+					index.delete(deletionMap);
 				}
 			}
 
@@ -373,34 +368,47 @@ public interface KafkaConnector extends BlobStoreConnector
 				      long                          offset             = this.fileSize(file);
 				while(available > 0)
 				{
-					final long   currentBatchSize = Math.min(
+					final long currentBatchSize = Math.min(
 						available,
 						1_000_000
 					);
-					final byte[] batch            = new byte[checkArrayRange(currentBatchSize)];
-					      int    read             = 0;
-					do
+					try(LimitedInputStream limitedInputStream = LimitedInputStream.New(
+						new BufferedInputStream(buffersInputStream),
+						currentBatchSize))
 					{
-						read += buffersInputStream.read(batch, read, batch.length - read);
+						final byte[] batch = new byte[checkArrayRange(currentBatchSize)];
+						      int    remaining = batch.length;
+				              int    read;
+						while(remaining > 0 &&
+							(read = limitedInputStream.read(
+								batch,
+								0,
+								Math.min(batch.length, remaining))
+							) != -1
+						)
+						{
+							remaining -= read;
+						}
+
+						final RecordMetadata metadata = producer.send(
+							new ProducerRecord<>(topic, batch)
+						)
+						.get();
+
+						blobs.add(Blob.New(
+							topic,
+							metadata.partition(),
+							metadata.offset(),
+							offset,
+							offset + currentBatchSize - 1
+						));
 					}
-					while(read < batch.length);
-
-					final RecordMetadata metadata = producer.send(
-						new ProducerRecord<>(topic, batch)
-					)
-					.get();
-
-					blobs.add(Blob.New(
-						topic,
-						metadata.partition(),
-						metadata.offset(),
-						offset,
-						offset + currentBatchSize - 1
-					));
 
 					available -= currentBatchSize;
 					offset    += currentBatchSize;
 				}
+
+				producer.flush();
 
 				this.fileSystemIndex.put(file.fullQualifiedName());
 				this.topicIndex(file).put(blobs);
