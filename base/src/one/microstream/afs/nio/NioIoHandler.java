@@ -36,6 +36,10 @@ public interface NioIoHandler extends AIoHandler
 	}
 
 	
+	public NioReadableFile castReadableFile(AReadableFile file);
+	
+	public NioWritableFile castWritableFile(AWritableFile file);
+	
 	
 	
 	public static NioIoHandler New()
@@ -67,6 +71,18 @@ public interface NioIoHandler extends AIoHandler
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public NioReadableFile castReadableFile(final AReadableFile file)
+		{
+			return super.castReadableFile(file);
+		}
+		
+		@Override
+		public NioWritableFile castWritableFile(final AWritableFile file)
+		{
+			return super.castWritableFile(file);
+		}
 		
 		@Override
 		protected Path toSubjectFile(final AFile file)

@@ -1372,27 +1372,27 @@ public final class X
 		return index;
 	}
 	
-	public static final long validateRange(final long availableLength, final long startIndex, final long length)
+	public static final long validateRange(final long bound, final long startIndex, final long length)
 	{
 		if(startIndex < 0)
 		{
-			throw IndexBoundsException(0, availableLength, startIndex, "StartIndex < 0", 1);
+			throw IndexBoundsException(0, bound, startIndex, "StartIndex < 0", 1);
 		}
-		if(startIndex >= availableLength)
+		if(startIndex >= bound)
 		{
-			throw IndexBoundsException(0, availableLength, startIndex, "StartIndex >= bound", 1);
+			throw IndexBoundsException(0, bound, startIndex, "StartIndex >= bound", 1);
 		}
 		
 		if(length < 0)
 		{
-			throw IndexBoundsException(startIndex, availableLength, length, "Length < 0", 1);
+			throw IndexBoundsException(startIndex, bound, length, "Length < 0", 1);
 		}
-		if(startIndex + length - 1 >= availableLength)
+		if(startIndex + length > bound)
 		{
-			throw IndexBoundsException(0, availableLength, startIndex + length - 1, "LastIndex >= bound", 1);
+			throw IndexBoundsException(0, bound, startIndex + length, "Range > bound", 1);
 		}
 		
-		return startIndex;
+		return startIndex + length;
 	}
 	
 	public static final IndexBoundsException IndexBoundsException(

@@ -1160,7 +1160,8 @@ public final class XIO
 		final int  targetLimit = X.checkArrayRange(targetBuffer.position() + effectiveLength);
 		final long fileLength  = fileChannel.size();
 		
-		long fileOffset = X.validateRange(fileLength, filePosition, effectiveLength);
+		X.validateRange(fileLength, filePosition, effectiveLength);
+		long fileOffset = filePosition;
 		targetBuffer.limit(targetLimit);
 		
 		// reading should be done in one fell swoop, but better be sure

@@ -41,8 +41,6 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		return Default.SINGLETON;
 	}
 	
-	
-	
 	public static Path toPath(final AItem item)
 	{
 		return NioFileSystem.toPath(item.toPath());
@@ -52,13 +50,23 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 	{
 		return XIO.Path(pathElements);
 	}
+	
+	
+	
+	
+	@Override
+	public NioIoHandler ioHandler();
+	
 		
 	public static NioFileSystem New()
 	{
-		/* (29.05.2020 TM)FIXME: priv#49: standard protocol strings? Constants, Enums?
+		/* (29.05.2020 TM)TODO: priv#49: standard protocol strings? Constants, Enums?
 		 * (02.06.2020 TM)Note: the JDK does not define such constants.
 		 * E.g. the class FileSystems just uses a plain String "file:///".
 		 * All other search results are false positives in JavaDoc and comments.
+		 * 
+		 * (19.07.2020 TM):
+		 * Downgraded to T0D0 since MicroStream does not require super clean structures regarding this point.
 		 */
 		return New("file:///");
 	}
@@ -84,7 +92,7 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		);
 	}
 	
-	public class Default extends AFileSystem.Abstract<Path, Path> implements NioFileSystem
+	public class Default extends AFileSystem.Abstract<NioIoHandler, Path, Path> implements NioFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -111,7 +119,7 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+				
 		@Override
 		public String deriveFileIdentifier(final String fileName, final String fileType)
 		{
@@ -212,27 +220,43 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		}
 		
 		@Override
-		public synchronized AReadableFile convertToReading(final AWritableFile file)
+		public AReadableFile convertToReading(final AWritableFile file)
 		{
-			// kind of ugly/unclean casts, but there's no acceptble way to prevent it.
-			return NioReadableFile.New(
-				file,
-				file.user(),
-				((NioWritableFile)file).path(),
-				((NioWritableFile)file).fileChannel()
-			);
+			synchronized(file)
+			{
+				final NioWritableFile wf = this.ioHandler().castWritableFile(file);
+				wf.closeChannel();
+				
+				final NioReadableFile rf = NioReadableFile.New(
+					file,
+					file.user(),
+					wf.path(),
+					null
+				);
+				rf.ensureOpenChannel();
+				
+				return rf;
+			}
 		}
 		
 		@Override
-		public synchronized AWritableFile convertToWriting(final AReadableFile file)
+		public AWritableFile convertToWriting(final AReadableFile file)
 		{
-			// kind of ugly/unclean casts, but there's no acceptble way to prevent it.
-			return NioWritableFile.New(
-				file,
-				file.user(),
-				((NioReadableFile)file).path(),
-				((NioReadableFile)file).fileChannel()
-			);
+			synchronized(file)
+			{
+				final NioReadableFile wf = this.ioHandler().castReadableFile(file);
+				wf.closeChannel();
+				
+				final NioWritableFile rf = NioWritableFile.New(
+					file,
+					file.user(),
+					wf.path(),
+					null
+				);
+				rf.ensureOpenChannel();
+				
+				return rf;
+			}
 		}
 		
 	}
