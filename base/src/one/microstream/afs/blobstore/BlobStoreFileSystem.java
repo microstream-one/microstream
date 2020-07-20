@@ -7,12 +7,13 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.AFileSystem;
 import one.microstream.afs.AItem;
 import one.microstream.afs.AReadableFile;
+import one.microstream.afs.AResolver;
 import one.microstream.afs.AWritableFile;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.io.XIO;
 
-public interface BlobStoreFileSystem extends AFileSystem
+public interface BlobStoreFileSystem extends AFileSystem, AResolver<BlobStorePath, BlobStorePath>
 {
 	public static BlobStorePath toPath(
 		final AItem item
@@ -53,10 +54,10 @@ public interface BlobStoreFileSystem extends AFileSystem
 
 	@Override
 	public BlobStoreIoHandler ioHandler();
-	
+
 
 	public static class Default
-	extends    AFileSystem.Abstract<BlobStorePath, BlobStorePath>
+	extends    AFileSystem.Abstract<BlobStoreIoHandler, BlobStorePath, BlobStorePath>
 	implements BlobStoreFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -77,12 +78,6 @@ public interface BlobStoreFileSystem extends AFileSystem
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
-		@Override
-		public BlobStoreIoHandler ioHandler()
-		{
-			return (BlobStoreIoHandler)super.ioHandler();
-		}
 
 		@Override
 		public String deriveFileIdentifier(
@@ -92,7 +87,7 @@ public interface BlobStoreFileSystem extends AFileSystem
 		{
 			return XIO.addFileSuffix(fileName, fileType);
 		}
-		
+
 		@Override
 		public String deriveFileName(
 			final String fileIdentifier
@@ -100,7 +95,7 @@ public interface BlobStoreFileSystem extends AFileSystem
 		{
 			return XIO.getFilePrefix(fileIdentifier);
 		}
-		
+
 		@Override
 		public String deriveFileType(
 			final String fileIdentifier
