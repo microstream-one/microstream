@@ -462,13 +462,11 @@ public interface AIoHandler
 		@Override
 		public long size(final AFile file)
 		{
-			this.validateHandledFile(file);
-			
-			// no heuristics / interpretation in default implementation
-//			if(!this.isHandledFile(file))
-//			{
-//				return this.subjectFileSize(this.toSubjectFile(file));
-//			}
+			// required to query the size of a general AFile instance
+			if(!this.isHandledFile(file))
+			{
+				return this.subjectFileSize(this.toSubjectFile(file));
+			}
 
 			return this.specificSize(this.typeFile.cast(file));
 		}
@@ -476,13 +474,11 @@ public interface AIoHandler
 		@Override
 		public boolean exists(final AFile file)
 		{
-			this.validateHandledFile(file);
-			
-			// no heuristics / interpretation in default implementation
-//			if(!this.isHandledFile(file))
-//			{
-//				return this.subjectFileExists(this.toSubjectFile(file));
-//			}
+			// required to check the existence of a general AFile instance
+			if(!this.isHandledFile(file))
+			{
+				return this.subjectFileExists(this.toSubjectFile(file));
+			}
 
 			return this.specificExists(this.typeFile.cast(file));
 		}
@@ -490,13 +486,11 @@ public interface AIoHandler
 		@Override
 		public boolean exists(final ADirectory directory)
 		{
-			this.validateHandledDirectory(directory);
-
-			// no heuristics / interpretation in default implementation
-//			if(!this.isHandledDirectory(directory))
-//			{
-//				return this.subjectDirectoryExists(this.toSubjectDirectory(directory));
-//			}
+			// required to check the existence of a general ADirectory instance
+			if(!this.isHandledDirectory(directory))
+			{
+				return this.subjectDirectoryExists(this.toSubjectDirectory(directory));
+			}
 
 			return this.specificExists(this.typeDirectory.cast(directory));
 		}
