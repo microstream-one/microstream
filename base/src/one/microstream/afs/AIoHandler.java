@@ -2,8 +2,10 @@ package one.microstream.afs;
 
 import java.nio.ByteBuffer;
 
+import one.microstream.X;
 import one.microstream.chars.XChars;
 import one.microstream.io.BufferProvider;
+import one.microstream.memory.XMemory;
 import one.microstream.util.UtilStackTrace;
 
 
@@ -32,6 +34,24 @@ public interface AIoHandler
 	 * Simple example: a utility that replaces found byte ranges with a new value (search & replace).
 	 * Currently, such a tricial functionality is not possible with AFS.
 	 */
+	
+	public boolean isHandledItem(AItem item);
+	
+	public boolean isHandledFile(AFile file);
+	
+	public boolean isHandledDirectory(ADirectory directory);
+	
+	public boolean isHandledReadableFile(AReadableFile file);
+	
+	public boolean isHandledWritableFile(AWritableFile file);
+	
+	public void validateHandledFile(AFile file);
+	
+	public void validateHandledDirectory(ADirectory directory);
+	
+	public void validateHandledReadableFile(AReadableFile file);
+	
+	public void validateHandledWritableFile(AWritableFile file);
 	
 	public long size(AFile file);
 
@@ -268,8 +288,29 @@ public interface AIoHandler
 			final long          length
 		)
 		{
-			// (16.07.2020 TM)FIXME: priv#49: copyGeneric
-			throw new one.microstream.meta.NotImplementedYetError();
+			final ByteBuffer dbb = XMemory.allocateDirectNativeDefault();
+			
+			try
+			{
+				final long sourceSize  = source.size(); // explicit variable for debugging purposes
+				final long sourceBound = X.validateRange(sourceSize, sourcePosition, length);
+				
+				for(long s = sourcePosition; s < sourceBound; s += dbb.limit())
+				{
+					XMemory.clearForLimit(dbb, sourceBound - s);
+					
+					// read and write method implementations must guarantee to write the specified byte count
+					source.readBytes(dbb, sourcePosition);
+					dbb.flip();
+					target.writeBytes(dbb);
+				}
+			}
+			finally
+			{
+				XMemory.deallocateDirectByteBuffer(dbb);
+			}
+			
+			return length;
 		}
 		
 		
@@ -316,32 +357,38 @@ public interface AIoHandler
 			return this.createUnhandledTypeException(subject, this.typeWritableFile, 1);
 		}
 		
-		protected boolean isHandledItem(final AItem item)
+		@Override
+		public boolean isHandledItem(final AItem item)
 		{
 			return this.typeItem.isInstance(item);
 		}
 		
-		protected boolean isHandledFile(final AFile file)
+		@Override
+		public boolean isHandledFile(final AFile file)
 		{
 			return this.typeFile.isInstance(file);
 		}
 		
-		protected boolean isHandledDirectory(final ADirectory directory)
+		@Override
+		public boolean isHandledDirectory(final ADirectory directory)
 		{
 			return this.typeDirectory.isInstance(directory);
 		}
 		
-		protected boolean isHandledReadableFile(final AReadableFile file)
+		@Override
+		public boolean isHandledReadableFile(final AReadableFile file)
 		{
 			return this.typeReadableFile.isInstance(file);
 		}
 		
-		protected boolean isHandledWritableFile(final AWritableFile file)
+		@Override
+		public boolean isHandledWritableFile(final AWritableFile file)
 		{
 			return this.typeWritableFile.isInstance(file);
 		}
 		
-		protected final void validateHandledFile(final AFile file)
+		@Override
+		public final void validateHandledFile(final AFile file)
 		{
 			if(this.isHandledFile(file))
 			{
@@ -351,7 +398,8 @@ public interface AIoHandler
 			throw this.createUnhandledTypeExceptionFile(file);
 		}
 		
-		protected final void validateHandledDirectory(final ADirectory directory)
+		@Override
+		public final void validateHandledDirectory(final ADirectory directory)
 		{
 			if(this.isHandledDirectory(directory))
 			{
@@ -361,7 +409,8 @@ public interface AIoHandler
 			throw this.createUnhandledTypeExceptionDirectory(directory);
 		}
 		
-		protected final void validateHandledReadableFile(final AReadableFile file)
+		@Override
+		public final void validateHandledReadableFile(final AReadableFile file)
 		{
 			if(this.isHandledReadableFile(file))
 			{
@@ -371,7 +420,8 @@ public interface AIoHandler
 			throw this.createUnhandledTypeExceptionReadableFile(file);
 		}
 		
-		protected final void validateHandledWritableFile(final AWritableFile file)
+		@Override
+		public final void validateHandledWritableFile(final AWritableFile file)
 		{
 			if(this.isHandledWritableFile(file))
 			{

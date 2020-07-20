@@ -133,12 +133,15 @@ public interface ADirectory extends AItem, AResolving
 		return this.fileSystem().ioHandler().exists(this);
 	}
 	
-	/* (03.06.2020 TM)FIXME: priv#49: directory mutation:
-	 * - move directory to directory
+	/* (03.06.2020 TM)TODO: priv#49: directory mutation:
+	 * - move directory to target directory
 	 * - delete directory
 	 * - rename directory
 	 * 
-	 * each is only allowed if there are no uses for that directory
+	 * Each is only allowed if there are no uses for that directory
+	 * 
+	 * (19.07.2020 TM):
+	 * Downgraded to T0D0 since MicroStream does not require directory mutations (for now...).
 	 */
 	
 	

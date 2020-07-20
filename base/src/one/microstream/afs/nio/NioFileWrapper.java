@@ -114,7 +114,7 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 			
 			// (28.05.2020 TM)EXCP: proper exception
 			throw new RuntimeException(
-				"File is retired: " + XChars.systemString(this) + "(\"" + this.toPathString() + "\"."
+				"File is retired: " + XChars.systemString(this) + "(\"" + this.toPathString() + "\")."
 			);
 		}
 		
