@@ -7,12 +7,13 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.AFileSystem;
 import one.microstream.afs.AItem;
 import one.microstream.afs.AReadableFile;
+import one.microstream.afs.AResolver;
 import one.microstream.afs.AWritableFile;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.io.XIO;
 
-public interface SqlFileSystem extends AFileSystem
+public interface SqlFileSystem extends AFileSystem, AResolver<SqlPath, SqlPath>
 {
 	public static SqlPath toPath(
 		final AItem item
@@ -61,7 +62,7 @@ public interface SqlFileSystem extends AFileSystem
 	}
 
 
-	public static class Default extends AFileSystem.Abstract<SqlPath, SqlPath> implements SqlFileSystem
+	public static class Default extends AFileSystem.Abstract<SqlIoHandler, SqlPath, SqlPath> implements SqlFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -90,7 +91,7 @@ public interface SqlFileSystem extends AFileSystem
 		{
 			return XIO.addFileSuffix(fileName, fileType);
 		}
-		
+
 		@Override
 		public String deriveFileName(
 			final String fileIdentifier
@@ -98,7 +99,7 @@ public interface SqlFileSystem extends AFileSystem
 		{
 			return XIO.getFilePrefix(fileIdentifier);
 		}
-		
+
 		@Override
 		public String deriveFileType(
 			final String fileIdentifier
