@@ -210,6 +210,7 @@ public interface AFile extends AItem
 		
 		protected final Object mutex()
 		{
+			// (20.07.2020 TM)FIXME: priv#49: locking on a changing instance is a bug!
 			return this.observers;
 		}
 		

@@ -199,6 +199,7 @@ public interface ADirectory extends AItem, AResolving
 		
 		protected final Object mutex()
 		{
+			// (20.07.2020 TM)FIXME: priv#49: locking on a changing instance is a bug!
 			return this.observers;
 		}
 		
@@ -438,6 +439,7 @@ public interface ADirectory extends AItem, AResolving
 				
 			}
 			
+			// (20.07.2020 TM)FIXME: priv#49: why lock on fileSystem? Does this belong here?
 			synchronized(this.fileSystem())
 			{
 				ADirectory directory = null;
