@@ -208,12 +208,6 @@ public interface AFile extends AItem
 			return this.parent.fileSystem();
 		}
 		
-		protected final Object mutex()
-		{
-			// (20.07.2020 TM)FIXME: priv#49: locking on a changing instance is a bug!
-			return this.observers;
-		}
-		
 		@Override
 		public final boolean registerObserver(final AFile.Observer observer)
 		{
@@ -401,6 +395,12 @@ public interface AFile extends AItem
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
+			
+			protected Object mutex()
+			{
+				// the singleton file is the mutex
+				return this.actual;
+			}
 			
 			@Override
 			public U user()
