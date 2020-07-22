@@ -204,16 +204,18 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		}
 		
 		@Override
-		public synchronized AReadableFile wrapForReading(final AFile file, final Object user)
+		public AReadableFile wrapForReading(final AFile file, final Object user)
 		{
+			// note: no locking required for thread-safe trivial logic here.
 			final Path path = this.resolve(file);
 			
 			return NioReadableFile.New(file, user, path);
 		}
 
 		@Override
-		public synchronized AWritableFile wrapForWriting(final AFile file, final Object user)
+		public AWritableFile wrapForWriting(final AFile file, final Object user)
 		{
+			// note: no locking required for thread-safe trivial logic here.
 			final Path path = this.resolve(file);
 			
 			return NioWritableFile.New(file, user, path);
@@ -222,41 +224,35 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		@Override
 		public AReadableFile convertToReading(final AWritableFile file)
 		{
-			synchronized(file)
-			{
-				final NioWritableFile wf = this.ioHandler().castWritableFile(file);
-				wf.closeChannel();
-				
-				final NioReadableFile rf = NioReadableFile.New(
-					file,
-					file.user(),
-					wf.path(),
-					null
-				);
-				rf.ensureOpenChannel();
-				
-				return rf;
-			}
+			final NioWritableFile wf = this.ioHandler().castWritableFile(file);
+			wf.closeChannel();
+			
+			final NioReadableFile rf = NioReadableFile.New(
+				file,
+				file.user(),
+				wf.path(),
+				null
+			);
+			rf.ensureOpenChannel();
+			
+			return rf;
 		}
 		
 		@Override
 		public AWritableFile convertToWriting(final AReadableFile file)
 		{
-			synchronized(file)
-			{
-				final NioReadableFile wf = this.ioHandler().castReadableFile(file);
-				wf.closeChannel();
-				
-				final NioWritableFile rf = NioWritableFile.New(
-					file,
-					file.user(),
-					wf.path(),
-					null
-				);
-				rf.ensureOpenChannel();
-				
-				return rf;
-			}
+			final NioReadableFile wf = this.ioHandler().castReadableFile(file);
+			wf.closeChannel();
+			
+			final NioWritableFile rf = NioWritableFile.New(
+				file,
+				file.user(),
+				wf.path(),
+				null
+			);
+			rf.ensureOpenChannel();
+			
+			return rf;
 		}
 		
 	}
