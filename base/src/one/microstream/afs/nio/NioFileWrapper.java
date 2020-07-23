@@ -77,32 +77,46 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 		@Override
 		public Path path()
 		{
-			return this.path;
+			synchronized(this.mutex())
+			{
+				this.validateIsNotRetired();
+				return this.path;
+			}
 		}
 		
 		@Override
 		public FileChannel fileChannel()
 		{
-			return this.fileChannel;
-		}
-		
-		@Override
-		public synchronized boolean retire()
-		{
-			if(this.path == null)
+			synchronized(this.mutex())
 			{
-				return false;
+				this.validateIsNotRetired();
+				return this.fileChannel;
 			}
-			
-			this.path = null;
-			
-			return true;
 		}
 		
 		@Override
-		public synchronized boolean isRetired()
+		public boolean retire()
 		{
-			return this.path == null;
+			synchronized(this.mutex())
+			{
+				if(this.path == null)
+				{
+					return false;
+				}
+				
+				this.path = null;
+				
+				return true;
+			}
+		}
+		
+		@Override
+		public boolean isRetired()
+		{
+			synchronized(this.mutex())
+			{
+				return this.path == null;
+			}
 		}
 		
 		public void validateIsNotRetired()
@@ -119,40 +133,52 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 		}
 		
 		@Override
-		public synchronized boolean closeChannel() throws IORuntimeException
+		public boolean closeChannel() throws IORuntimeException
 		{
-			if(!this.isChannelOpen())
+			synchronized(this.mutex())
 			{
-				return false;
+				if(!this.isChannelOpen())
+				{
+					return false;
+				}
+				
+				this.ensureClearedFileChannelField();
+				
+				return true;
 			}
-			
-			this.ensureClearedFileChannelField();
-			
-			return true;
 		}
 		
 		@Override
-		public synchronized boolean isChannelOpen()
+		public boolean isChannelOpen()
 		{
-			return this.fileChannel != null && this.fileChannel.isOpen();
+			synchronized(this.mutex())
+			{
+				return this.fileChannel != null && this.fileChannel.isOpen();
+			}
 		}
 		
 		@Override
-		public synchronized boolean checkChannelOpen()
+		public boolean checkChannelOpen()
 		{
-			this.validateIsNotRetired();
-			return this.isChannelOpen();
+			synchronized(this.mutex())
+			{
+				this.validateIsNotRetired();
+				return this.isChannelOpen();
+			}
 		}
 		
 		@Override
-		public synchronized FileChannel ensureOpenChannel()
+		public FileChannel ensureOpenChannel()
 		{
-			this.validateIsNotRetired();
-			
-			// see inside for implicit append mode. Crazy stuff.
-			this.openChannel(this.normalizeOpenOptions());
-			
-			return this.fileChannel();
+			synchronized(this.mutex())
+			{
+				this.validateIsNotRetired();
+				
+				// see inside for implicit append mode. Crazy stuff.
+				this.openChannel(this.normalizeOpenOptions());
+				
+				return this.fileChannel();
+			}
 		}
 		
 		private static final OpenOption[] EMPTY_OPEN_OPTIONS = new OpenOption[0];
@@ -173,44 +199,53 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 		
 
 		@Override
-		public synchronized FileChannel ensureOpenChannel(final OpenOption... options)
+		public FileChannel ensureOpenChannel(final OpenOption... options)
 		{
-			this.validateIsNotRetired();
-			this.openChannel(options);
-			
-			return this.fileChannel();
+			synchronized(this.mutex())
+			{
+				this.validateIsNotRetired();
+				this.openChannel(options);
+				
+				return this.fileChannel();
+			}
 		}
 		
 		@Override
-		public synchronized boolean openChannel() throws IORuntimeException
+		public boolean openChannel() throws IORuntimeException
 		{
-			// reroute to open options variant to reuse its position setting logic
-			return this.openChannel((OpenOption[])null);
+			synchronized(this.mutex())
+			{
+				// reroute to open options variant to reuse its position setting logic
+				return this.openChannel((OpenOption[])null);
+			}
 		}
 		
 		@Override
-		public synchronized boolean openChannel(final OpenOption... options) throws IORuntimeException
+		public boolean openChannel(final OpenOption... options) throws IORuntimeException
 		{
-			// well, the geniuses provided no means to query/check the creation options of an existing channel
-			if(this.checkChannelOpen())
+			synchronized(this.mutex())
 			{
-				return false;
+				// well, the geniuses provided no means to query/check the creation options of an existing channel
+				if(this.checkChannelOpen())
+				{
+					return false;
+				}
+				
+				final OpenOption[] effectiveOptions = this.normalizeOpenOptions(options);
+				
+				try
+				{
+					// READ / WRITE are defined by #normalizeOpenOptions depending on the specific class
+					final FileChannel fileChannel = XIO.openFileChannel(this.path, effectiveOptions);
+					this.internalSetFileChannel(fileChannel);
+				}
+				catch(final IOException e)
+				{
+					throw new IORuntimeException(e);
+				}
+				
+				return true;
 			}
-			
-			final OpenOption[] effectiveOptions = this.normalizeOpenOptions(options);
-			
-			try
-			{
-				// READ / WRITE are defined by #normalizeOpenOptions depending on the specific class
-				final FileChannel fileChannel = XIO.openFileChannel(this.path, effectiveOptions);
-				this.internalSetFileChannel(fileChannel);
-			}
-			catch(final IOException e)
-			{
-				throw new IORuntimeException(e);
-			}
-			
-			return true;
 		}
 		
 		protected void internalSetFileChannel(final FileChannel fileChannel)
@@ -268,11 +303,14 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 		}
 				
 		@Override
-		public synchronized boolean reopenChannel(final OpenOption... options) throws IORuntimeException
+		public boolean reopenChannel(final OpenOption... options) throws IORuntimeException
 		{
-			this.closeChannel();
-			
-			return this.openChannel(options);
+			synchronized(this.mutex())
+			{
+				this.closeChannel();
+				
+				return this.openChannel(options);
+			}
 		}
         
 	}

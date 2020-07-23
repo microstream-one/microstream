@@ -138,6 +138,12 @@ public interface AItem
 			return this.identifier;
 		}
 		
+		protected final Object mutex()
+		{
+			// must be accessible externally, anyway, because of observer calling.
+			return this;
+		}
+		
 	}
 	
 		

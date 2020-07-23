@@ -208,11 +208,6 @@ public interface AFile extends AItem
 			return this.parent.fileSystem();
 		}
 		
-		protected final Object mutex()
-		{
-			return this.observers;
-		}
-		
 		@Override
 		public final boolean registerObserver(final AFile.Observer observer)
 		{
@@ -400,6 +395,12 @@ public interface AFile extends AItem
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
+			
+			protected Object mutex()
+			{
+				// the singleton file is the mutex
+				return this.actual;
+			}
 			
 			@Override
 			public U user()
