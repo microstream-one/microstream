@@ -749,6 +749,9 @@ public interface AIoHandler
 		{
 			this.validateHandledReadableFile(sourceSubject);
 
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			target.ensureExists();
+			
 			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target);
 		}
 		
@@ -760,6 +763,9 @@ public interface AIoHandler
 		)
 		{
 			this.validateHandledReadableFile(sourceSubject);
+
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			target.ensureExists();
 			
 			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, target);
 		}
@@ -774,6 +780,9 @@ public interface AIoHandler
 		{
 			this.validateHandledReadableFile(sourceSubject);
 
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			target.ensureExists();
+
 			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, length, target);
 		}
 
@@ -785,6 +794,9 @@ public interface AIoHandler
 //		)
 //		{
 //			this.validateHandledReadableFile(sourceSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			target.ensureExists();
 //
 //			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target, targetPosition);
 //		}
@@ -798,6 +810,9 @@ public interface AIoHandler
 //		)
 //		{
 //			this.validateHandledReadableFile(sourceSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			target.ensureExists();
 //
 //			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target, targetPosition, length);
 //		}
@@ -813,6 +828,9 @@ public interface AIoHandler
 //		{
 //			this.validateHandledReadableFile(sourceSubject);
 //
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			target.ensureExists();
+//
 //			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, target, targetPosition, length);
 //		}
 		
@@ -823,6 +841,9 @@ public interface AIoHandler
 		)
 		{
 			this.validateHandledWritableFile(targetSubject);
+
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			targetSubject.ensureExists();
 
 			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject));
 		}
@@ -835,6 +856,9 @@ public interface AIoHandler
 		)
 		{
 			this.validateHandledWritableFile(targetSubject);
+
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			targetSubject.ensureExists();
 			
 			return this.specificCopyFrom(source, sourcePosition, this.typeWritableFile.cast(targetSubject));
 		}
@@ -849,6 +873,9 @@ public interface AIoHandler
 		{
 			this.validateHandledWritableFile(targetSubject);
 
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			targetSubject.ensureExists();
+
 			return this.specificCopyFrom(source, sourcePosition, length, this.typeWritableFile.cast(targetSubject));
 		}
 
@@ -860,6 +887,9 @@ public interface AIoHandler
 //		)
 //		{
 //			this.validateHandledWritableFile(targetSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			targetSubject.ensureExists();
 //
 //			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition);
 //		}
@@ -874,6 +904,9 @@ public interface AIoHandler
 //		{
 //			this.validateHandledWritableFile(targetSubject);
 //
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			targetSubject.ensureExists();
+//
 //			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition, length);
 //		}
 //
@@ -887,6 +920,9 @@ public interface AIoHandler
 //		)
 //		{
 //			this.validateHandledWritableFile(targetSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			targetSubject.ensureExists();
 //
 //			return this.specificCopyFrom(source, sourcePosition, this.typeWritableFile.cast(targetSubject), targetPosition, length);
 //		}
