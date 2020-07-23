@@ -550,17 +550,14 @@ public interface AIoHandler
 		{
 			this.validateHandledDirectory(directory);
 			
-			/* (31.05.2020 TM)TODO: priv#49: if ioHandler does locking, what about the other methods?
-			 * Think through locking concept and concerned instances, potential deadlocks, etc. in general.
-			 */
-			synchronized(this)
+			// only handle non-root parent directories. Note that not all roots are of type ARoot
+			if(directory.parent() != null)
 			{
-				// only handle non-root parent directories. Note that not all roots are of type ARoot
-				if(directory.parent() != null)
-				{
-					this.ensureExists(directory.parent());
-				}
-				
+				this.ensureExists(directory.parent());
+			}
+			
+			synchronized(ADirectory.actual(directory))
+			{
 				directory.iterateObservers(o ->
 					o.onBeforeDirectoryCreate(directory)
 				);
@@ -580,22 +577,29 @@ public interface AIoHandler
 		{
 			this.validateHandledWritableFile(file);
 			
-			synchronized(this)
+			final ADirectory parent = ADirectory.actual(file.parent());
+			
+			this.ensureExists(parent);
+			
+			synchronized(parent)
 			{
-				this.ensureExists(file.parent());
-				
 				file.parent().iterateObservers(o ->
 					o.onBeforeFileCreate(file)
 				);
-				file.iterateObservers(o ->
-					o.onBeforeFileCreate(file)
-				);
 				
-				this.specificCreate(this.typeWritableFile.cast(file));
+				synchronized(file.actual())
+				{
+					file.iterateObservers(o ->
+						o.onBeforeFileCreate(file)
+					);
+					
+					this.specificCreate(this.typeWritableFile.cast(file));
+					
+					file.iterateObservers(o ->
+						o.onAfterFileCreate(file)
+					);
+				}
 				
-				file.iterateObservers(o ->
-					o.onAfterFileCreate(file)
-				);
 				file.parent().iterateObservers(o ->
 					o.onAfterFileCreate(file)
 				);
@@ -605,8 +609,7 @@ public interface AIoHandler
 		@Override
 		public boolean ensureExists(final ADirectory directory)
 		{
-			final ADirectory actual = ADirectory.actual(directory);
-			synchronized(actual)
+			synchronized(ADirectory.actual(directory))
 			{
 				if(this.exists(directory))
 				{
@@ -614,16 +617,15 @@ public interface AIoHandler
 				}
 				
 				this.create(directory);
-				
-				return true;
 			}
+			
+			return true;
 		}
 
 		@Override
 		public boolean ensureExists(final AWritableFile file)
 		{
-			final AFile actual = file.actual();
-			synchronized(actual)
+			synchronized(file.actual())
 			{
 				if(this.exists(file))
 				{
@@ -631,9 +633,9 @@ public interface AIoHandler
 				}
 				
 				this.create(file);
-				
-				return true;
 			}
+			
+			return true;
 		}
 
 		@Override
@@ -747,6 +749,9 @@ public interface AIoHandler
 		{
 			this.validateHandledReadableFile(sourceSubject);
 
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			target.ensureExists();
+			
 			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target);
 		}
 		
@@ -758,6 +763,9 @@ public interface AIoHandler
 		)
 		{
 			this.validateHandledReadableFile(sourceSubject);
+
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			target.ensureExists();
 			
 			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, target);
 		}
@@ -772,6 +780,9 @@ public interface AIoHandler
 		{
 			this.validateHandledReadableFile(sourceSubject);
 
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			target.ensureExists();
+
 			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, length, target);
 		}
 
@@ -783,6 +794,9 @@ public interface AIoHandler
 //		)
 //		{
 //			this.validateHandledReadableFile(sourceSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			target.ensureExists();
 //
 //			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target, targetPosition);
 //		}
@@ -796,6 +810,9 @@ public interface AIoHandler
 //		)
 //		{
 //			this.validateHandledReadableFile(sourceSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			target.ensureExists();
 //
 //			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target, targetPosition, length);
 //		}
@@ -811,6 +828,9 @@ public interface AIoHandler
 //		{
 //			this.validateHandledReadableFile(sourceSubject);
 //
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			target.ensureExists();
+//
 //			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, target, targetPosition, length);
 //		}
 		
@@ -821,6 +841,9 @@ public interface AIoHandler
 		)
 		{
 			this.validateHandledWritableFile(targetSubject);
+
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			targetSubject.ensureExists();
 
 			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject));
 		}
@@ -833,6 +856,9 @@ public interface AIoHandler
 		)
 		{
 			this.validateHandledWritableFile(targetSubject);
+
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			targetSubject.ensureExists();
 			
 			return this.specificCopyFrom(source, sourcePosition, this.typeWritableFile.cast(targetSubject));
 		}
@@ -847,6 +873,9 @@ public interface AIoHandler
 		{
 			this.validateHandledWritableFile(targetSubject);
 
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			targetSubject.ensureExists();
+
 			return this.specificCopyFrom(source, sourcePosition, length, this.typeWritableFile.cast(targetSubject));
 		}
 
@@ -858,6 +887,9 @@ public interface AIoHandler
 //		)
 //		{
 //			this.validateHandledWritableFile(targetSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			targetSubject.ensureExists();
 //
 //			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition);
 //		}
@@ -871,6 +903,9 @@ public interface AIoHandler
 //		)
 //		{
 //			this.validateHandledWritableFile(targetSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			targetSubject.ensureExists();
 //
 //			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition, length);
 //		}
@@ -886,6 +921,9 @@ public interface AIoHandler
 //		{
 //			this.validateHandledWritableFile(targetSubject);
 //
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			targetSubject.ensureExists();
+//
 //			return this.specificCopyFrom(source, sourcePosition, this.typeWritableFile.cast(targetSubject), targetPosition, length);
 //		}
 
@@ -897,20 +935,23 @@ public interface AIoHandler
 		{
 			this.validateHandledWritableFile(targetFile);
 			
-			targetFile.iterateObservers(o ->
-				o.onBeforeFileWrite(targetFile, sourceBuffers)
-			);
-					
-			final long writeCount = this.specificWriteBytes(
-				this.typeWritableFile.cast(targetFile),
-				sourceBuffers
-			);
-			
-			targetFile.iterateObservers(o ->
-				o.onAfterFileWrite(targetFile, sourceBuffers, writeCount)
-			);
-			
-			return writeCount;
+			synchronized(targetFile.actual())
+			{
+				targetFile.iterateObservers(o ->
+					o.onBeforeFileWrite(targetFile, sourceBuffers)
+				);
+						
+				final long writeCount = this.specificWriteBytes(
+					this.typeWritableFile.cast(targetFile),
+					sourceBuffers
+				);
+				
+				targetFile.iterateObservers(o ->
+					o.onAfterFileWrite(targetFile, sourceBuffers, writeCount)
+				);
+				
+				return writeCount;
+			}
 		}
 		
 		@Override
@@ -920,15 +961,30 @@ public interface AIoHandler
 		)
 		{
 			this.validateHandledWritableFile(sourceFile);
+
+			final ADirectory sourceParent = ADirectory.actual(sourceFile.parent());
+			final ADirectory targetParent = ADirectory.actual(targetFile.parent());
 			
-			targetFile.parent().iterateObservers(o ->
+			/*
+			 * intentionally no locking here, since there are TWO sets of parent&file involved,
+			 * which could cause deadlocks.
+			 */
+			
+			targetParent.iterateObservers(o ->
 			{
 				o.onBeforeFileMove(sourceFile, targetFile);
+			});
+			sourceParent.iterateObservers(o ->
+			{
 				o.onBeforeFileDelete(sourceFile);
 			});
+			
 			targetFile.iterateObservers(o ->
 			{
 				o.onBeforeFileMove(sourceFile, targetFile);
+			});
+			sourceFile.iterateObservers(o ->
+			{
 				o.onBeforeFileDelete(sourceFile);
 			});
 			
@@ -937,11 +993,19 @@ public interface AIoHandler
 			targetFile.iterateObservers(o ->
 			{
 				o.onAfterFileMove(sourceFile, targetFile);
+			});
+			
+			sourceFile.iterateObservers(o ->
+			{
 				o.onAfterFileDelete(sourceFile, true);
 			});
-			targetFile.parent().iterateObservers(o ->
+			
+			targetParent.iterateObservers(o ->
 			{
 				o.onAfterFileMove(sourceFile, targetFile);
+			});
+			sourceParent.iterateObservers(o ->
+			{
 				o.onAfterFileDelete(sourceFile, true);
 			});
 		}
@@ -950,22 +1014,33 @@ public interface AIoHandler
 		public boolean deleteFile(final AWritableFile file)
 		{
 			this.validateHandledWritableFile(file);
+
+			final ADirectory parent = ADirectory.actual(file.parent());
+
+			final boolean result;
+			synchronized(parent)
+			{
+				file.parent().iterateObservers(o ->
+					o.onBeforeFileDelete(file)
+				);
+				
+				synchronized(file.actual())
+				{
+					file.iterateObservers(o ->
+						o.onBeforeFileDelete(file)
+					);
+					
+					result = this.specificDeleteFile(this.typeWritableFile.cast(file));
 			
-			file.parent().iterateObservers(o ->
-				o.onBeforeFileDelete(file)
-			);
-			file.iterateObservers(o ->
-				o.onBeforeFileDelete(file)
-			);
-			
-			final boolean result = this.specificDeleteFile(this.typeWritableFile.cast(file));
-	
-			file.iterateObservers(o ->
-				o.onAfterFileDelete(file, result)
-			);
-			file.parent().iterateObservers(o ->
-				o.onAfterFileDelete(file, result)
-			);
+					file.iterateObservers(o ->
+						o.onAfterFileDelete(file, result)
+					);
+				}
+				
+				file.parent().iterateObservers(o ->
+					o.onAfterFileDelete(file, result)
+				);
+			}
 			
 			return result;
 		}
@@ -976,15 +1051,18 @@ public interface AIoHandler
 		{
 			this.validateHandledWritableFile(file);
 			
-			file.iterateObservers(o ->
-				o.onBeforeFileTruncation(file, newSize)
-			);
-			
-			this.specificTruncateFile(this.typeWritableFile.cast(file), newSize);
-	
-			file.iterateObservers(o ->
-				o.onAfterFileTruncation(file, newSize)
-			);
+			synchronized(file.actual())
+			{
+				file.iterateObservers(o ->
+					o.onBeforeFileTruncation(file, newSize)
+				);
+				
+				this.specificTruncateFile(this.typeWritableFile.cast(file), newSize);
+		
+				file.iterateObservers(o ->
+					o.onAfterFileTruncation(file, newSize)
+				);
+			}
 		}
 		
 	}

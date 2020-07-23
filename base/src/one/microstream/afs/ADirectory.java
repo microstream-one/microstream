@@ -197,11 +197,6 @@ public interface ADirectory extends AItem, AResolving
 		// methods //
 		////////////
 		
-		protected final Object mutex()
-		{
-			return this.observers;
-		}
-		
 		@Override
 		public final AItem getItem(final String identifier)
 		{
@@ -438,6 +433,7 @@ public interface ADirectory extends AItem, AResolving
 				
 			}
 			
+			// (20.07.2020 TM)FIXME: priv#49: why lock on fileSystem? Does this belong here?
 			synchronized(this.fileSystem())
 			{
 				ADirectory directory = null;
