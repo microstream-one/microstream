@@ -14,6 +14,7 @@ import one.microstream.afs.AWritableFile;
 import one.microstream.chars.VarString;
 import one.microstream.io.XIO;
 
+
 public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 {
 	public static ADirectory directory(final Path path)
@@ -225,7 +226,7 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		public AReadableFile convertToReading(final AWritableFile file)
 		{
 			final NioWritableFile wf = this.ioHandler().castWritableFile(file);
-			wf.closeChannel();
+			final boolean actuallyClosedChannel = wf.closeChannel();
 			
 			final NioReadableFile rf = NioReadableFile.New(
 				file,
@@ -233,7 +234,12 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 				wf.path(),
 				null
 			);
-			rf.ensureOpenChannel();
+			
+			// replicate opened channel (ONLY!) if necessary
+			if(actuallyClosedChannel)
+			{
+				rf.ensureOpenChannel();
+			}
 			
 			return rf;
 		}
@@ -242,7 +248,7 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		public AWritableFile convertToWriting(final AReadableFile file)
 		{
 			final NioReadableFile wf = this.ioHandler().castReadableFile(file);
-			wf.closeChannel();
+			final boolean actuallyClosedChannel = wf.closeChannel();
 			
 			final NioWritableFile rf = NioWritableFile.New(
 				file,
@@ -250,7 +256,12 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 				wf.path(),
 				null
 			);
-			rf.ensureOpenChannel();
+			
+			// replicate opened channel (ONLY!) if necessary
+			if(actuallyClosedChannel)
+			{
+				rf.ensureOpenChannel();
+			}
 			
 			return rf;
 		}
