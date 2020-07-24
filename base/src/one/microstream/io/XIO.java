@@ -1251,9 +1251,17 @@ public final class XIO
 	)
 		throws IOException
 	{
-		return copyFile(sourceChannel, targetChannel, 0);
+		return copyFile(sourceChannel, 0, targetChannel);
 	}
 	
+	/**
+	 * Uses the sourceChannel's current position!
+	 * @param sourceChannel
+	 * @param targetChannel
+	 * @param targetPosition
+	 * @return
+	 * @throws IOException
+	 */
 	public static long copyFile(
 		final FileChannel sourceChannel ,
 		final FileChannel targetChannel ,
