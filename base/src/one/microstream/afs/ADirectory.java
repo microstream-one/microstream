@@ -433,7 +433,7 @@ public interface ADirectory extends AItem, AResolving
 				
 			}
 			
-			// (20.07.2020 TM)FIXME: priv#49: why lock on fileSystem? Does this belong here?
+			// requires the central lock but calls an internal method, so this lock must be acquired here
 			synchronized(this.fileSystem())
 			{
 				ADirectory directory = null;
