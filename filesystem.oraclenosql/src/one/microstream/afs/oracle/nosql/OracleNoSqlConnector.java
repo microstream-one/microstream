@@ -205,7 +205,7 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 			final Set<String> keys    = new LinkedHashSet<>();
 			final Table       table   = this.table(directory);
 			final PrimaryKey  pk      = table.createPrimaryKey();
-			final Pattern     pattern = Pattern.compile(childKeysRegex(directory));
+			final Pattern     pattern = Pattern.compile(childKeysRegexWithContainer(directory));
 			this.kvstore.getTableAPI()
 				.tableIterator(pk, null, null)
 				.forEachRemaining(row ->
@@ -218,6 +218,16 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 				});
 			;
 			return keys.stream();
+		}
+
+		@Override
+		protected String fileNameOfKey(
+			final String key
+		)
+		{
+			return key.substring(
+				key.lastIndexOf(BlobStorePath.SEPARATOR_CHAR) + 1
+			);
 		}
 
 		@Override
