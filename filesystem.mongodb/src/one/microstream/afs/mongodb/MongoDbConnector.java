@@ -292,6 +292,11 @@ public interface MongoDbConnector extends BlobStoreConnector
 			final MongoCollection<Document> collection   = this.collection(file);
 			final Bson                      filter       = this.filterFor(file);
 			final long                      count        = collection.countDocuments(filter);
+			if(count == 0L)
+			{
+				return false;
+			}
+
 			final long                      deletedCount = collection
 				.deleteMany(filter)
 				.getDeletedCount()
@@ -361,7 +366,16 @@ public interface MongoDbConnector extends BlobStoreConnector
 				available -= currentBatchSize;
 			}
 
-			this.collection(file).insertMany(documents);
+			if(!this.collection(file).insertMany(documents).wasAcknowledged())
+			{
+				throw new RuntimeException("Write to " + file.fullQualifiedName() + " was not acknowledged.");
+			}
+
+//			final String fullQualifiedName = file.fullQualifiedName();
+//			if(!fullQualifiedName.endsWith("PersistenceTypeDictionary.ptd"))
+//			{
+//				System.out.println("Write: " + fullQualifiedName);
+//			}
 
 			return totalSize;
 		}
@@ -536,8 +550,9 @@ public interface MongoDbConnector extends BlobStoreConnector
 			final List<? extends GridFSFile> blobs
 		)
 		{
+			final GridFSBucket bucket = this.bucket(file);
 			blobs.forEach(
-				blob -> this.bucket(file).delete(blob.getObjectId())
+				blob -> bucket.delete(blob.getObjectId())
 			);
 
 			return true;
@@ -565,6 +580,12 @@ public interface MongoDbConnector extends BlobStoreConnector
 			{
 				throw new IORuntimeException(e);
 			}
+
+//			final String fullQualifiedName = file.fullQualifiedName();
+//			if(!fullQualifiedName.endsWith("PersistenceTypeDictionary.ptd"))
+//			{
+//				System.out.println("Write: " + fullQualifiedName);
+//			}
 
 			return totalSize;
 		}

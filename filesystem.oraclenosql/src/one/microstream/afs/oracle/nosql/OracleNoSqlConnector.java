@@ -269,7 +269,13 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 				return false;
 			}
 
-			for(final BlobMetadata metadata : this.blobs(file).collect(toList()))
+			final List<BlobMetadata> blobs = this.blobs(file).collect(toList());
+			if(blobs.isEmpty())
+			{
+				return false;
+			}
+
+			for(final BlobMetadata metadata : blobs)
 			{
 				final Key key = this.key(file, metadata.seq());
 				if(!this.kvstore.deleteLOB(key, null, 0L, null))
