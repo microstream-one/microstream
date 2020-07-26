@@ -1310,9 +1310,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			});
 		}
 		
-		private static FileStatistics.Default createFileStatistics(final StorageLiveDataFile.Default file)
+		private static FileStatistics createFileStatistics(final StorageLiveDataFile.Default file)
 		{
-			return new FileStatistics.Default(
+			return FileStatistics.New(
 				file.number()    ,
 				file.identifier(),
 				file.dataLength(),
@@ -1328,7 +1328,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 			long liveDataLength  = 0;
 			long totalDataLength = 0;
-			final BulkList<FileStatistics.Default> fileStatistics = BulkList.New();
+			final BulkList<FileStatistics> fileStatistics = BulkList.New();
 
 			do
 			{
@@ -1336,12 +1336,12 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				liveDataLength  += file.dataLength();
 				totalDataLength += file.totalLength();
 				
-				final FileStatistics.Default fileStats = createFileStatistics(file);
+				final FileStatistics fileStats = createFileStatistics(file);
 				fileStatistics.add(fileStats);
 			}
 			while(file != currentFile);
 
-			return new StorageRawFileStatistics.ChannelStatistics.Default(
+			return StorageRawFileStatistics.ChannelStatistics.New(
 				this.channelIndex(),
 				fileStatistics.size(),
 				liveDataLength,
