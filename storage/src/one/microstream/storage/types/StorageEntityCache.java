@@ -20,11 +20,11 @@ import one.microstream.storage.exceptions.StorageException;
 import one.microstream.time.XTime;
 
 
-public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends StorageChannelResetablePart
+public interface StorageEntityCache<E extends StorageEntity> extends StorageChannelResetablePart
 {
 	public StorageTypeDictionary typeDictionary();
 
-	public StorageEntityType<I> lookupType(long typeId);
+	public StorageEntityType<E> lookupType(long typeId);
 
 	public boolean incrementalLiveCheck(long nanoTimeBudgetBound);
 
@@ -1032,9 +1032,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		final void internalPutEntities(
-			final ByteBuffer              chunk               ,
-			final long                    chunkStoragePosition,
-			final StorageDataFile.Default file
+			final ByteBuffer                  chunk               ,
+			final long                        chunkStoragePosition,
+			final StorageLiveDataFile.Default file
 		)
 		{
 			final long chunkStartAddress = XMemory.getDirectByteBufferAddress(chunk);
@@ -1102,9 +1102,9 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 		}
 
 		public void postStorePutEntities(
-			final ByteBuffer[]                   chunks                ,
-			final long[]                         chunksStoragePositions,
-			final StorageDataFile.Default dataFile
+			final ByteBuffer[]                chunks                ,
+			final long[]                      chunksStoragePositions,
+			final StorageLiveDataFile.Default dataFile
 		)
 			throws InterruptedException
 		{
@@ -1190,10 +1190,10 @@ public interface StorageEntityCache<I extends StorageEntityCacheItem<I>> extends
 			}
 
 			final long evaluationTime = System.currentTimeMillis();
-			final StorageEntity.Default   cursor;
-			      StorageEntity.Default   tail  ;
-			      StorageEntity.Default   entity;
-			      StorageDataFile.Default file  ;
+			final StorageEntity.Default cursor;
+			      StorageEntity.Default tail  ;
+			      StorageEntity.Default entity;
+			      StorageLiveDataFile.Default file;
 
 			if(this.liveCursor == null || !this.liveCursor.isProper() || this.liveCursor.isDeleted())
 			{

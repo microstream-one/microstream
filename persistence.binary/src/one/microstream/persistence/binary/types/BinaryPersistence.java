@@ -1,11 +1,11 @@
 package one.microstream.persistence.binary.types;
 
 import java.lang.reflect.Field;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
 
+import one.microstream.afs.AFile;
 import one.microstream.collections.BinaryHandlerBulkList;
 import one.microstream.collections.BinaryHandlerConstHashEnum;
 import one.microstream.collections.BinaryHandlerConstHashTable;
@@ -386,7 +386,7 @@ public final class BinaryPersistence extends Persistence
 		return new BinaryFieldLengthResolver.Default();
 	}
 		
-	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final Path dictionaryFile)
+	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final AFile dictionaryFile)
 	{
 		final BinaryPersistenceFoundation<?> f = BinaryPersistenceFoundation.New()
 			.setTypeDictionaryLoader(

@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
 import one.microstream.X;
+import one.microstream.afs.AWritableFile;
 import one.microstream.functional.ThrowingProcedure;
 import one.microstream.functional._longProcedure;
 import one.microstream.persistence.binary.types.Chunk;
@@ -48,23 +49,23 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 	public boolean issuedCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
 
-	public void exportData(StorageIoHandler fileHandler);
+	public void exportData(StorageLiveFileProvider fileProvider);
 
 	// (19.07.2014 TM)TODO: refactor storage typing to avoid classes in public API
 	public StorageEntityCache.Default prepareImportData();
 
-	public void importData(StorageChannelImportSourceFile importFile);
+	public void importData(StorageImportSourceFile importFile);
 
 	public void rollbackImportData(Throwable cause);
 
 	public void commitImportData(long taskTimestamp);
 
-	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, StorageLockedFile file)
+	public KeyValue<Long, Long> exportTypeEntities(StorageEntityTypeHandler type, AWritableFile file)
 		throws IOException;
 
 	public KeyValue<Long, Long> exportTypeEntities(
 		StorageEntityTypeHandler         type           ,
-		StorageLockedFile                file           ,
+		AWritableFile                    file           ,
 		Predicate<? super StorageEntity> predicateEntity
 	) throws IOException;
 
@@ -107,6 +108,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			this::houseKeepingCheckFileCleanup ,
 			this::houseKeepingGarbageCollection,
 			this::houseKeepingLiveCheck
+			// (16.06.2020 TM)TODO: priv#49: housekeeping task that closes data files after a timeout.
 		};
 		private int nextHouseKeepingIndex;
 
@@ -496,9 +498,9 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		}
 
 		@Override
-		public final void exportData(final StorageIoHandler fileHandler)
+		public final void exportData(final StorageLiveFileProvider fileProvider)
 		{
-			this.fileManager.exportData(fileHandler);
+			this.fileManager.exportData(fileProvider);
 		}
 
 		@Override
@@ -509,7 +511,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		}
 
 		@Override
-		public void importData(final StorageChannelImportSourceFile importFile)
+		public void importData(final StorageImportSourceFile importFile)
 		{
 			this.fileManager.copyData(importFile);
 		}
@@ -529,7 +531,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
 			final StorageEntityTypeHandler         type           ,
-			final StorageLockedFile                file           ,
+			final AWritableFile                    file           ,
 			final Predicate<? super StorageEntity> predicateEntity
 		)
 			throws IOException
@@ -564,7 +566,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final KeyValue<Long, Long> exportTypeEntities(
 			final StorageEntityTypeHandler type,
-			final StorageLockedFile        file
+			final AWritableFile            file
 		)
 			throws IOException
 		{
@@ -685,7 +687,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final void accept(final long objectId)
 		{
-			final StorageEntityCacheItem<?> entry;
+			final StorageEntity.Default entry;
 			if((entry = this.entityCache.getEntry(objectId)) == null)
 			{
 				/* (14.01.2015 TM)NOTE: this actually is an error, as every oid request comes

@@ -39,9 +39,12 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		////////////
 			
 		@Override
-		public final long writeStore(final StorageDataFile<?> targetFile, final ByteBuffer[] byteBuffers)
+		public final long writeStore(
+			final StorageLiveDataFile            targetFile ,
+			final Iterable<? extends ByteBuffer> byteBuffers
+		)
 		{
-			final long oldTargetFileLength = targetFile.length();
+			final long oldTargetFileLength = targetFile.size();
 			final long byteCount = this.delegate.writeStore(targetFile, byteBuffers);
 						
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
@@ -52,13 +55,13 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeImport(
-			final StorageLockedFile  sourceFile  ,
-			final long               sourceOffset,
-			final long               copyLength  ,
-			final StorageDataFile<?> targetFile
+			final StorageFile         sourceFile  ,
+			final long                sourceOffset,
+			final long                copyLength  ,
+			final StorageLiveDataFile targetFile
 		)
 		{
-			final long oldTargetFileLength = targetFile.length();
+			final long oldTargetFileLength = targetFile.size();
 			this.delegate.writeImport(sourceFile, sourceOffset, copyLength, targetFile);
 			
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
@@ -69,13 +72,13 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransfer(
-			final StorageDataFile<?> sourceFile  ,
-			final long               sourceOffset,
-			final long               length      ,
-			final StorageDataFile<?> targetFile
+			final StorageLiveDataFile sourceFile  ,
+			final long                sourceOffset,
+			final long                length      ,
+			final StorageLiveDataFile targetFile
 		)
 		{
-			final long oldTargetFileLength = targetFile.length();
+			final long oldTargetFileLength = targetFile.size();
 			this.delegate.writeTransfer(sourceFile, sourceOffset, length, targetFile);
 			
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
@@ -86,12 +89,12 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransactionEntryCreate(
-			final StorageInventoryFile transactionFile,
-			final ByteBuffer[]         byteBuffers    ,
-			final StorageDataFile<?>   dataFile
+			final StorageLiveTransactionsFile    transactionFile,
+			final Iterable<? extends ByteBuffer> byteBuffers    ,
+			final StorageLiveDataFile            dataFile
 		)
 		{
-			final long oldLength = transactionFile.length();
+			final long oldLength = transactionFile.size();
 			final long byteCount = this.delegate.writeTransactionEntryCreate(
 				transactionFile,
 				byteBuffers    ,
@@ -106,14 +109,14 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransactionEntryStore(
-			final StorageInventoryFile transactionFile,
-			final ByteBuffer[]         byteBuffers    ,
-			final StorageDataFile<?>   dataFile       ,
-			final long                 dataFileOffset ,
-			final long                 storeLength
+			final StorageLiveTransactionsFile    transactionFile,
+			final Iterable<? extends ByteBuffer> byteBuffers    ,
+			final StorageLiveDataFile            dataFile       ,
+			final long                           dataFileOffset ,
+			final long                           storeLength
 		)
 		{
-			final long oldLength = transactionFile.length();
+			final long oldLength = transactionFile.size();
 			final long byteCount = this.delegate.writeTransactionEntryStore(
 				transactionFile,
 				byteBuffers    ,
@@ -130,14 +133,14 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransactionEntryTransfer(
-			final StorageInventoryFile transactionFile,
-			final ByteBuffer[]             byteBuffers    ,
-			final StorageDataFile<?>       dataFile       ,
-			final long                     dataFileOffset ,
-			final long                     storeLength
+			final StorageLiveTransactionsFile    transactionFile,
+			final Iterable<? extends ByteBuffer> byteBuffers    ,
+			final StorageLiveDataFile            dataFile       ,
+			final long                           dataFileOffset ,
+			final long                           storeLength
 		)
 		{
-			final long oldLength = transactionFile.length();
+			final long oldLength = transactionFile.size();
 			final long byteCount = this.delegate.writeTransactionEntryTransfer(
 				transactionFile,
 				byteBuffers    ,
@@ -154,12 +157,12 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransactionEntryDelete(
-			final StorageInventoryFile transactionFile,
-			final ByteBuffer[]         byteBuffers    ,
-			final StorageDataFile<?>   dataFile
+			final StorageLiveTransactionsFile    transactionFile,
+			final Iterable<? extends ByteBuffer> byteBuffers    ,
+			final StorageLiveDataFile            dataFile
 		)
 		{
-			final long oldLength = transactionFile.length();
+			final long oldLength = transactionFile.size();
 			final long byteCount = this.delegate.writeTransactionEntryDelete(
 				transactionFile,
 				byteBuffers    ,
@@ -174,13 +177,13 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeTransactionEntryTruncate(
-			final StorageInventoryFile transactionFile,
-			final ByteBuffer[]             byteBuffers    ,
-			final StorageInventoryFile     file           ,
-			final long                     newFileLength
+			final StorageLiveTransactionsFile    transactionFile,
+			final Iterable<? extends ByteBuffer> byteBuffers    ,
+			final StorageLiveDataFile            file           ,
+			final long                           newFileLength
 		)
 		{
-			final long oldLength = transactionFile.length();
+			final long oldLength = transactionFile.size();
 			final long byteCount = this.delegate.writeTransactionEntryTruncate(
 				transactionFile,
 				byteBuffers    ,
@@ -196,21 +199,24 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 
 		@Override
 		public final void truncate(
-			final StorageInventoryFile file               ,
-			final long                 newLength          ,
-			final StorageFileProvider  storageFileProvider
+			final StorageLiveChannelFile<?> file        ,
+			final long                      newLength   ,
+			final StorageFileProvider       fileProvider
 		)
 		{
 			// no user increment since only the identifier is required and the actual file can well be deleted.
-			this.delegate.truncate(file, newLength, storageFileProvider);
+			this.delegate.truncate(file, newLength, fileProvider);
 			this.itemEnqueuer.enqueueTruncatingItem(file, newLength);
 		}
 		
 		@Override
-		public void delete(final StorageInventoryFile file, final StorageFileProvider storageFileProvider)
+		public void delete(
+			final StorageLiveDataFile file        ,
+			final StorageFileProvider fileProvider
+		)
 		{
 			// no user increment since only the identifier is required and the actual file can well be deleted.
-			this.delegate.delete(file, storageFileProvider);
+			this.delegate.delete(file, fileProvider);
 			this.itemEnqueuer.enqueueDeletionItem(file);
 		}
 		

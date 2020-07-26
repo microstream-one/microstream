@@ -2,10 +2,10 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import one.microstream.X;
+import one.microstream.afs.AFile;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.XArrays;
@@ -35,20 +35,16 @@ public interface StorageLockFileManager extends Runnable
 	
 	public static StorageLockFileManager New(
 		final StorageLockFileSetup       setup              ,
-		final StorageOperationController operationController,
-		final StorageFileReader          reader             ,
-		final StorageFileWriter          writer
+		final StorageOperationController operationController
 	)
 	{
 		return new StorageLockFileManager.Default(
 			notNull(setup),
-			notNull(operationController),
-			notNull(reader),
-			notNull(writer)
+			notNull(operationController)
 		);
 	}
 	
-	public final class Default implements StorageLockFileManager, StorageReaderCallback
+	public final class Default implements StorageLockFileManager
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -56,18 +52,16 @@ public interface StorageLockFileManager extends Runnable
 		
 		private final StorageLockFileSetup       setup              ;
 		private final StorageOperationController operationController;
-		private final StorageFileReader          reader             ;
-		private final StorageFileWriter          writer             ;
 
 		// cached values
-		private transient boolean           isRunning        ;
-		private transient StorageLockedFile lockFile         ;
-		private transient LockFileData      lockFileData     ;
-		private transient ByteBuffer[]      wrappedByteBuffer;
-		private transient ByteBuffer        directByteBuffer ;
-		private transient byte[]            stringReadBuffer ;
-		private transient byte[]            stringWriteBuffer;
-		private transient VarString         vs;
+		private transient boolean         isRunning        ;
+		private transient StorageLockFile lockFile         ;
+		private transient LockFileData    lockFileData     ;
+		private transient ByteBuffer[]    wrappedByteBuffer;
+		private transient ByteBuffer      directByteBuffer ;
+		private transient byte[]          stringReadBuffer ;
+		private transient byte[]          stringWriteBuffer;
+		private transient VarString       vs;
 		
 		
 		
@@ -77,16 +71,12 @@ public interface StorageLockFileManager extends Runnable
 		
 		Default(
 			final StorageLockFileSetup       setup              ,
-			final StorageOperationController operationController,
-			final StorageFileReader          reader             ,
-			final StorageFileWriter          writer
+			final StorageOperationController operationController
 		)
 		{
 			super();
 			this.setup               = setup              ;
 			this.operationController = operationController;
-			this.reader              = reader             ;
-			this.writer              = writer             ;
 			this.vs                  = VarString.New()    ;
 			
 			// 2 timestamps with separators and an identifier. Should suffice.
@@ -104,13 +94,13 @@ public interface StorageLockFileManager extends Runnable
 		////////////
 
 		@Override
-		public synchronized final boolean isRunning()
+		public final synchronized boolean isRunning()
 		{
 			return this.isRunning;
 		}
 
 		@Override
-		public synchronized final StorageLockFileManager setRunning(final boolean running)
+		public final synchronized StorageLockFileManager setRunning(final boolean running)
 		{
 			this.isRunning = running;
 			
@@ -247,8 +237,8 @@ public interface StorageLockFileManager extends Runnable
 		
 		private void fillReadBufferFromFile()
 		{
-			final int fileLength = X.checkArrayRange(this.lockFile.length());
-			this.reader.readStorage(this.lockFile, 0, this.ensureReadingBuffer(fileLength), this);
+			final int fileLength = X.checkArrayRange(this.lockFile.size());
+			this.lockFile.readBytes(this.ensureReadingBuffer(fileLength), 0, fileLength);
 			XMemory.copyRangeToArray(XMemory.getDirectByteBufferAddress(this.directByteBuffer), this.stringReadBuffer);
 		}
 						
@@ -335,25 +325,14 @@ public interface StorageLockFileManager extends Runnable
 			}
 			
 		}
-		
-		@Override
-		public void validateIncrementalRead(
-			final StorageLockedFile file         ,
-			final long              filePosition ,
-			final ByteBuffer        buffer       ,
-			final long              lastReadCount
-		)
-			throws IOException
-		{
-			StorageReaderCallback.staticValidateIncrementalRead(file, filePosition, buffer, lastReadCount);
-		}
-		
+				
 		private void initialize()
 		{
-			final StorageFileProvider fileProvider = this.setup.lockFileProvider();
-			this.lockFile = fileProvider.provideLockFile();
+			final StorageLiveFileProvider fileProvider = this.setup.lockFileProvider();
+			final AFile               lockFile     = fileProvider.provideLockFile();
+			this.lockFile = StorageLockFile.New(lockFile);
 			
-			if(this.lockFile.exists() && this.lockFile.length() > 0)
+			if(this.lockFile.exists() && this.lockFile.size() > 0)
 			{
 				this.validateExistingLockFileData(true);
 			}
@@ -443,7 +422,8 @@ public interface StorageLockFileManager extends Runnable
 			
 			XMemory.copyArrayToAddress(bytes, XMemory.getDirectByteBufferAddress(this.directByteBuffer));
 			
-			this.writer.write(this.lockFile, bb);
+			// no need for the writer detour (for now) since it makes no sense to backup lock files.
+			this.lockFile.writeBytes(X.List(bb));
 		}
 				
 		private void updateFile()
@@ -466,7 +446,7 @@ public interface StorageLockFileManager extends Runnable
 				return;
 			}
 			
-			StorageFile.close(this.lockFile, cause);
+			StorageClosableFile.close(this.lockFile, cause);
 			this.lockFile = null;
 		}
 		
@@ -482,9 +462,7 @@ public interface StorageLockFileManager extends Runnable
 	{
 		public StorageLockFileManager createLockFileManager(
 			StorageLockFileSetup       setup              ,
-			StorageOperationController operationController,
-			StorageFileReader          reader             ,
-			StorageFileWriter          writer
+			StorageOperationController operationController
 		);
 		
 		public final class Default implements StorageLockFileManager.Creator
@@ -497,16 +475,12 @@ public interface StorageLockFileManager extends Runnable
 			@Override
 			public StorageLockFileManager createLockFileManager(
 				final StorageLockFileSetup       setup              ,
-				final StorageOperationController operationController,
-				final StorageFileReader          reader             ,
-				final StorageFileWriter          writer
+				final StorageOperationController operationController
 			)
 			{
 				return StorageLockFileManager.New(
 					setup              ,
-					operationController,
-					reader             ,
-					writer
+					operationController
 				);
 			}
 			

@@ -1,12 +1,12 @@
 package one.microstream.storage.util;
 
 import java.io.File;
-import java.nio.file.Path;
 
 import one.microstream.X;
+import one.microstream.afs.AFile;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.VarString;
-import one.microstream.io.XIO;
-import one.microstream.storage.types.StorageTransactionsFileAnalysis;
+import one.microstream.storage.types.StorageTransactionsAnalysis;
 import one.microstream.util.cql.CQL;
 
 
@@ -39,9 +39,9 @@ public class UtilStoragePrintTransactionFiles
 		printTransactionsFiles(
 			CQL
 			.from(X.List(filePaths))
-			.project(XIO::Path)
+			.project(NioFileSystem::file)
 			.execute()
-			.toArray(Path.class)
+			.toArray(AFile.class)
 		);
 	}
 		
@@ -51,15 +51,10 @@ public class UtilStoragePrintTransactionFiles
 	 * 
 	 * @param files die auszulesenden Transactions Files.
 	 */
-	public static void printTransactionsFiles(final Path... files)
+	public static void printTransactionsFiles(final AFile... files)
 	{
-		for(final Path file : files)
+		for(final AFile file : files)
 		{
-			if(XIO.unchecked.isDirectory(file))
-			{
-				continue;
-			}
-			
 			printTransactionsFile(file);
 		}
 	}
@@ -70,11 +65,11 @@ public class UtilStoragePrintTransactionFiles
 	 * 
 	 * @param file Die auszulesende Transactions Datei.
 	 */
-	public static void printTransactionsFile(final Path file)
+	public static void printTransactionsFile(final AFile file)
 	{
 		final VarString vs = VarString.New(file.toString()).lf();
-		StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
-		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs);
+		StorageTransactionsAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
+		final VarString s = StorageTransactionsAnalysis.Logic.parseFile(file, vs);
 		System.out.println(s);
 	}
 	

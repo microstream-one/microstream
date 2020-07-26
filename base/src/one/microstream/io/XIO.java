@@ -36,12 +36,17 @@ public final class XIO
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
+	
 	public static char fileSuffixSeparator()
 	{
 		return '.';
 	}
-
+	
+	public static char filePathSeparator()
+	{
+		return '/';
+	}
+	
 	public static String addFileSuffix(final String fileName, final String fileSuffix)
 	{
 		return fileSuffix != null
@@ -49,50 +54,50 @@ public final class XIO
 			: fileName
 		;
 	}
-
+	
 	public static String getFileSuffix(final Path file)
 	{
 		return getFileSuffix(getFileName(file));
 	}
-
+	
 	public static String getFileSuffix(final String fileName)
 	{
 		if(XChars.hasNoContent(fileName))
 		{
 			return null;
 		}
-
+		
 		final int fileSuffixSeparatorIndex = fileName.lastIndexOf(fileSuffixSeparator());
 		if(fileSuffixSeparatorIndex < 0)
 		{
 			return null;
 		}
-
+		
 		return fileName.substring(fileSuffixSeparatorIndex + 1);
 	}
-
+	
 	public static String getFilePrefix(final Path file)
 	{
-		return getFileSuffix(getFileName(file));
+		return getFilePrefix(getFileName(file));
 	}
-
+	
 	public static String getFilePrefix(final String fileName)
 	{
 		if(XChars.hasNoContent(fileName))
 		{
 			return null;
 		}
-
+		
 		final int fileSuffixSeparatorIndex = fileName.lastIndexOf(fileSuffixSeparator());
 		if(fileSuffixSeparatorIndex < 0)
 		{
 			return fileName;
 		}
-
+		
 		return fileName.substring(0, fileSuffixSeparatorIndex);
 	}
-
-
+	
+	
 	public static void unchecked(final IoOperation operation)
 		throws IORuntimeException
 	{
@@ -105,7 +110,7 @@ public final class XIO
 			throw UtilStackTrace.cutStacktraceByOne(new IORuntimeException(e));
 		}
 	}
-
+	
 	public static <T> T unchecked(final IoOperationR<T> operation)
 		throws IORuntimeException
 	{
@@ -118,7 +123,7 @@ public final class XIO
 			throw UtilStackTrace.cutStacktraceByOne(new IORuntimeException(e));
 		}
 	}
-
+	
 	public static <S> void unchecked(final IoOperationS<S> operation, final S subject)
 		throws IORuntimeException
 	{
@@ -131,7 +136,7 @@ public final class XIO
 			throw UtilStackTrace.cutStacktraceByOne(new IORuntimeException(e));
 		}
 	}
-
+	
 	public static <S, R> R unchecked(final IoOperationSR<S, R> operation, final S subject)
 		throws IORuntimeException
 	{
@@ -144,7 +149,7 @@ public final class XIO
 			throw UtilStackTrace.cutStacktraceByOne(new IORuntimeException(e));
 		}
 	}
-
+		
 	public static final <C extends Closeable> C close(
 		final C         closable  ,
 		final Throwable suppressed
@@ -155,20 +160,23 @@ public final class XIO
 		{
 			return null;
 		}
-
+		
 		try
 		{
 			closable.close();
 		}
-		catch(final IOException t)
+		catch(final IOException e)
 		{
-			t.addSuppressed(suppressed);
-			throw t;
+			if(suppressed != null)
+			{
+				e.addSuppressed(suppressed);
+			}
+			throw e;
 		}
-
+		
 		return closable;
 	}
-
+	
 	public static final <C extends AutoCloseable> C close(
 		final C         closable  ,
 		final Throwable suppressed
@@ -179,54 +187,57 @@ public final class XIO
 		{
 			return null;
 		}
-
+		
 		try
 		{
 			closable.close();
 		}
-		catch(final Exception t)
+		catch(final Exception e)
 		{
-			t.addSuppressed(suppressed);
-			throw t;
+			if(suppressed != null)
+			{
+				e.addSuppressed(suppressed);
+			}
+			throw e;
 		}
-
+		
 		return closable;
 	}
-
-
+	
+	
 	public static final String ensureNormalizedPathSeperators(final String path)
 	{
 		if(path.indexOf('\\') < 0)
 		{
 			return path;
 		}
-
+		
 		return path.replace('\\', '/');
 	}
-
+	
 	public static final String ensureTrailingSlash(final String path)
 	{
 		if(path.charAt(path.length() - 1) == '/')
 		{
 			return path;
 		}
-
+		
 		return path + '/';
 	}
-
+	
 	public static final String buildFilePath(final String... items)
 	{
 		return VarString.New().list("/", items).toString();
 	}
-
-
-
+	
+		
+	
 	/* (19.11.2019 TM)NOTE:
 	 * "Path" must be the dumbest idea on earth for a name to represent a file or a directory.
 	 * "Path" is way too generic. A physical way is also a path. A reference track is a path. The rules of
 	 * a cult can be a "path". Etc etc.
 	 * It's explicitely not a generic "can-be-anything-Path", it is designed to represent a FileSystem file.
-	 *
+	 * 
 	 * It is traceable that they needed another short and unique type name after "File" was already
 	 * taken by their clumsy first attempt, but still: Who talks (primarily!) about "paths" when referring to
 	 * files and directories? No one. Of course, every file has a uniquely identifying path in the file system,
@@ -241,7 +252,7 @@ public final class XIO
 	 * interface FileItem (or "FSItem" if you must)
 	 * interface File extends FileItem
 	 * interface Directory extends FileItem
-	 *
+	 * 
 	 * With Directory having methods like
 	 * iterateFiles
 	 * iterateDirectories
@@ -250,11 +261,11 @@ public final class XIO
 	 * Proper typing. It would have been, could be wonderful.
 	 * But noooo. A singular, diffusely general "Path" is the best they could have come up with.
 	 * And clumsiest-possible API like Files.newDirectoryStream(mustHappenToBeADirectoryOrElseYouAreInTrouble).
-	 *
+	 * 
 	 * Also, hilariously, their intellectual capacity only sufficed for exactely ONE interface.
 	 * FileSystem HAD to be a class again. One with purely abstract methods (AKA an idiot's interface).
 	 * Because may the god of idiots beware to ever make a proper API.
-	 *
+	 * 
 	 * So now we are stuck with "Path" to indiscriminately talk about files and directories alike.
 	 * Thanks to the JDK geniuses once again.
 	 * But I refuse to name the variables "path" instead of "file".
@@ -269,7 +280,7 @@ public final class XIO
 		// just for completeness' sake and ease of workflow
 		return Paths.get(path);
 	}
-
+	
 	public static final Path Path(final String... items)
 	{
 		// because why make it simple...
@@ -282,7 +293,7 @@ public final class XIO
 	 * Note that this is fundamentally different to {@link #Path(String...)} or {@link Paths#get(String, String...)}
 	 * since those two end up using {@code FileSystems.getDefault()}, no matter the {@link FileSystem} that the passed
 	 * parent {@link Path} is associated with.
-	 *
+	 * 
 	 * @param  parent the {@code parent} {@link Path} of the new sub-path.
 	 * @param  items the path items defining the sub-path under the passed {@code parent} {@link Path}.
 	 * @return a sub-path under the passed {@code parent} {@link Path}.
@@ -293,7 +304,7 @@ public final class XIO
 		{
 			return Path(items);
 		}
-
+		
 		/*
 		 * They seem to really have made every mistake possible on the Path API.
 		 * Not even a defined, reliable getter method for the string representation.
@@ -301,12 +312,12 @@ public final class XIO
 		 */
 		return parent.getFileSystem().getPath(parent.toString(), items);
 	}
-
+	
 	/**
 	 * Providing only the abused moreless debug-information method #toString is a horrible misconception since
 	 * it conveys no clear message which string is desired. Why are the JDK guys so horribly bad at designing
 	 * clean Java code structure? Why?
-	 *
+	 * 
 	 * @param file
 	 * @return
 	 */
@@ -318,7 +329,7 @@ public final class XIO
 			: null
 		;
 	}
-
+	
 	public static String getFileName(final Path file)
 	{
 		// because lol.
@@ -327,6 +338,44 @@ public final class XIO
 			: null
 		;
 	}
+	
+	public static String[] splitPath(final Path path)
+	{
+		/*
+		 * Note on algorithm:
+		 * Path#iterator does not work, because it hilariously omits the root element.
+		 * Prepending the root element does not work because it has a trailing separator in its toString
+		 * representation (which is inconsistent to all other Path elements) and there is no proper "getIdentifier"
+		 * method or such in Path.
+		 * Besides, Path only stores a plain String and every operation has to inefficiently deconstruct that string.
+		 * 
+		 * So the only reasonable and performance-wise best approach in the first place is to split the string
+		 * directly.
+		 * 
+		 * But the fun continues:
+		 * String#split cannot be used since the separator might be a regex meta character.
+		 * It could be quoted, but all this regex business gets into the realm of cracking a nut with a a sledgehammer.
+		 * (or shooting sparrows with cannons! :D)
+		 * 
+		 * So a simpler, more direct and in the end much faster approach is used.
+		 * This might very well become relevant if lots of Paths (e.g. tens of thousands when scanning a drive) have
+		 * to be processed.
+		 */
+		
+		// local variables for debugging purposes. Should be jitted out, anyway.
+		final String pathString = path.toString();
+		final String separator  = path.getFileSystem().getSeparator();
+		
+		return XChars.splitSimple(pathString, separator);
+	}
+	
+	public static final VarString assemblePath(
+		final VarString       vs       ,
+		final CharSequence... elements
+	)
+	{
+		return XChars.assembleSeparated(vs, XIO.filePathSeparator(), elements);
+	}
 
 	// because the IDE-generated ", null" for their method drives one crazy when working with it.
 	public static boolean isDirectory(final Path path) throws IOException
@@ -334,26 +383,32 @@ public final class XIO
 		// file or directory
 		return Files.isDirectory(path);
 	}
-
+	
 	// because the IDE-generated ", null" for their method drives one crazy when working with it.
 	public static boolean exists(final Path path) throws IOException
 	{
 		// file or directory
 		return Files.exists(path);
 	}
-
+	
+	public static long size(final Path file) throws IOException
+	{
+		// file only
+		return Files.size(file);
+	}
+	
 	public static final boolean delete(final Path path) throws IOException
 	{
 		return Files.deleteIfExists(path);
 	}
-
-
-
+	
+	
+	
 	public static Path[] listEntries(final Path directory) throws IOException
 	{
 		return listEntries(directory, XFunc.all());
 	}
-
+	
 	public static Path[] listEntries(
 		final Path                    directory,
 		final Predicate<? super Path> selector
@@ -362,7 +417,7 @@ public final class XIO
 	{
 		return listEntries(directory, BulkList.New(), selector).toArray(Path.class);
 	}
-
+	
 	public static <C extends XAddingCollection<? super Path>> C listEntries(
 		final Path directory,
 		final C    target
@@ -371,7 +426,7 @@ public final class XIO
 	{
 		return iterateEntries(directory, target);
 	}
-
+	
 	public static <C extends XAddingCollection<? super Path>> C listEntries(
 		final Path                    directory,
 		final C                       target   ,
@@ -381,12 +436,12 @@ public final class XIO
 	{
 		return iterateEntries(directory, target, selector);
 	}
-
+	
 	/**
 	 * Warning: this (because of using Files.newDirectoryStream) does some weird file opening/locking stuff.
 	 * <p>
 	 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
-	 *
+	 * 
 	 * @param <C>
 	 * @param directory
 	 * @param logic
@@ -401,12 +456,12 @@ public final class XIO
 	{
 		return iterateEntries(directory, logic, XFunc.all());
 	}
-
+	
 	/**
 	 * Warning: this (because of using Files.newDirectoryStream) does some weird file opening/locking stuff.
 	 * <p>
 	 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
-	 *
+	 * 
 	 * @param <C>
 	 * @param directory
 	 * @param logic
@@ -432,12 +487,12 @@ public final class XIO
 	        	logic.accept(p);
 	        }
 	    }
-
+		
 		return logic;
 	}
-
-
-
+	
+	
+	
 	public static boolean hasNoFiles(final Path directory) throws IOException
 	{
 		try(DirectoryStream<Path> stream = Files.newDirectoryStream(directory))
@@ -449,19 +504,19 @@ public final class XIO
 			throw e;
 		}
 	}
-
+	
 	public static final long lastModified(final Path file) throws IOException
 	{
 		return Files.getLastModifiedTime(file).toMillis();
 	}
-
+	
 	public static String toAbsoluteNormalizedPath(final Path file)
 	{
 		return file.toAbsolutePath().normalize().toString();
 	}
-
-
-
+	
+	
+	
 	public static final <P extends Path> P ensureDirectory(final P directory) throws IOException
 	{
 		// Let's hope calling this on an already existing directory is not too much overhead ...
@@ -469,7 +524,7 @@ public final class XIO
 
 		return directory;
 	}
-
+	
 	public static final <P extends Path> P ensureDirectoryAndFile(final P file) throws IOException
 	{
 		final Path parent;
@@ -477,7 +532,7 @@ public final class XIO
 		{
 			ensureDirectory(parent);
 		}
-
+		
 		return ensureFile(file);
 	}
 
@@ -498,62 +553,68 @@ public final class XIO
 				throw e;
 			}
 		}
-
+		
 		return file;
 	}
-
+		
 	public static final <P extends Path> P ensureWriteableFile(final P file) throws IOException, FilePathException
 	{
 		ensureFile(file);
-
+		
 		if(!Files.isWritable(file))
 		{
 			throw new FilePathException(file, "Unwritable file");
 		}
-
+		
 		return file;
 	}
-
-
-
+	
+		
+	
 	public static FileChannel openFileChannelReading(final Path file)
 		throws IOException
 	{
 		return FileChannel.open(file, READ);
 	}
-
+	
 	public static FileChannel openFileChannelWriting(final Path file)
 		throws IOException
 	{
 		return FileChannel.open(file, WRITE);
 	}
-
+	
 	public static FileChannel openFileChannelRW(final Path file)
 		throws IOException
 	{
 		return FileChannel.open(file, READ, WRITE);
 	}
-
+	
 	public static FileChannel openFileChannelReading(final Path file, final OpenOption... options)
 		throws IOException
 	{
-		return FileChannel.open(file, XArrays.ensureContained(options, READ));
+		return openFileChannel(file, XArrays.ensureContained(options, READ));
 	}
-
+	
 	public static FileChannel openFileChannelWriting(final Path file, final OpenOption... options)
 		throws IOException
 	{
-		return FileChannel.open(file, XArrays.ensureContained(options, WRITE));
+		return openFileChannel(file, XArrays.ensureContained(options, WRITE));
 	}
-
+	
 	public static FileChannel openFileChannelRW(final Path file, final OpenOption... options)
 		throws IOException
 	{
-		return FileChannel.open(file, XArrays.ensureContained(options, READ, WRITE));
+		return openFileChannelWriting(file, XArrays.ensureContained(options, READ));
 	}
-
-
-
+	
+	public static FileChannel openFileChannel(final Path file, final OpenOption... options)
+		throws IOException
+	{
+		return FileChannel.open(file, options);
+	}
+	
+	
+	
 	public static final <T> T readOneShot(final Path file, final IoOperationSR<FileChannel, T> operation)
 		throws IOException
 	{
@@ -562,8 +623,8 @@ public final class XIO
 			operation
 		);
 	}
-
-
+	
+	
 	/**
 	 * Extreme convenience method. Normally, methods handling files should not accept file path strings, but only
 	 * properly typed file instances like {@link Path}.
@@ -571,7 +632,7 @@ public final class XIO
 	 * {@code readString(Path("./my/path/myFile.txt"))}, only verbosity.<br>
 	 * So when already using a convenience method, anyway, why not make it really convienent and accept file path
 	 * strings right away?
-	 *
+	 * 
 	 * @param filePath
 	 * @return
 	 * @throws IOException
@@ -581,7 +642,7 @@ public final class XIO
 	{
 		return readString(Path(filePath));
 	}
-
+	
 	/**
 	 * Extreme convenience method. Normally, methods handling files should not accept file path strings, but only
 	 * properly typed file instances like {@link Path}.
@@ -589,7 +650,7 @@ public final class XIO
 	 * {@code readString(Path("./my/path/myFile.txt"))}, only verbosity.<br>
 	 * So when already using a convenience method, anyway, why not make it really convienent and accept file path
 	 * strings right away?
-	 *
+	 * 
 	 * @param filePath
 	 * @param charSet
 	 * @return
@@ -600,64 +661,64 @@ public final class XIO
 	{
 		return readString(Path(filePath), charSet);
 	}
-
+	
 	public static String readString(final Path file)
 		throws IOException
 	{
 		return readString(file, XChars.standardCharset());
 	}
-
+	
 	public static String readString(final Path file, final Charset charSet)
 		throws IOException
 	{
 		final byte[] bytes = read_bytes(file);
-
+		
 		return XChars.String(bytes, charSet);
 	}
-
+	
 	public static String readString(final FileChannel fileChannel)
 		throws IOException
 	{
 		return readString(fileChannel, XChars.standardCharset());
 	}
-
+	
 	public static String readString(final FileChannel fileChannel, final Charset charSet)
 		throws IOException
 	{
 		final byte[] bytes = read_bytes(fileChannel);
-
+		
 		return XChars.String(bytes, charSet);
 	}
-
-
+	
+	
 	public static byte[] read_bytes(final Path file)
 		throws IOException
 	{
 		final ByteBuffer content = read(file);
 		final byte[]     bytes   = XMemory.toArray(content);
 		XMemory.deallocateDirectByteBuffer(content);
-
+		
 		return bytes;
 	}
-
+	
 	public static byte[] read_bytes(final FileChannel fileChannel)
 		throws IOException
 	{
 		final ByteBuffer bb = XIO.read(fileChannel);
-
+		
 		final byte[] bytes = XMemory.toArray(bb);
 		XMemory.deallocateDirectByteBuffer(bb);
-
+		
 		return bytes;
 	}
-
+	
 	public static ByteBuffer read(final Path file) throws IOException
 	{
 		return readOneShot(file, XIO::read);
 	}
-
-
-
+	
+	
+	
 	public static final <T> T writeOneShot(
 		final Path                          file     ,
 		final IoOperationSR<FileChannel, T> operation
@@ -665,19 +726,19 @@ public final class XIO
 		throws IOException
 	{
 		ensureWriteableFile(file);
-
+		
 		return XIO.performClosingOperation(
 			openFileChannelWriting(file),
 			operation
 		);
 	}
-
+		
 	public static final long write(final Path file, final String string)
 		throws IOException
 	{
 		return write(file, string, XChars.standardCharset());
 	}
-
+	
 	public static final long write(final Path file, final String string, final Charset charset)
 		throws IOException
 	{
@@ -685,17 +746,17 @@ public final class XIO
 
 		return write(file, bytes);
 	}
-
+	
 	public static final long write(final Path file, final byte[] bytes)
 		throws IOException
 	{
 		final ByteBuffer dbb = XIO.wrapInDirectByteBuffer(bytes);
 		final Long writeCount = write(file, dbb);
 		XMemory.deallocateDirectByteBuffer(dbb);
-
+		
 		return writeCount;
 	}
-
+	
 	public static long write(final Path file, final ByteBuffer buffer)
 		throws IOException
 	{
@@ -703,15 +764,23 @@ public final class XIO
 			XIO.write(fc, buffer)
 		);
 	}
-
-
-
+	
+	public static void truncate(final Path file, final long newSize)
+		throws IOException
+	{
+		writeOneShot(file, fc ->
+			fc.truncate(newSize)
+		);
+	}
+	
+	
+	
 	public static final long writePositioned(final Path file, final long filePosition, final String string)
 		throws IOException
 	{
 		return writePositioned(file, filePosition, string, XChars.standardCharset());
 	}
-
+	
 	public static final long writePositioned(final Path file, final long filePosition, final String string, final Charset charset)
 		throws IOException
 	{
@@ -719,17 +788,17 @@ public final class XIO
 
 		return writePositioned(file, filePosition, bytes);
 	}
-
+	
 	public static final long writePositioned(final Path file, final long filePosition, final byte[] bytes)
 		throws IOException
 	{
 		final ByteBuffer dbb = XIO.wrapInDirectByteBuffer(bytes);
 		final Long writeCount = writePositioned(file, filePosition, dbb);
 		XMemory.deallocateDirectByteBuffer(dbb);
-
+		
 		return writeCount;
 	}
-
+	
 	public static long writePositioned(final Path file, final long filePosition, final ByteBuffer buffer)
 		throws IOException
 	{
@@ -737,15 +806,15 @@ public final class XIO
 			XIO.writePositioned(fc, filePosition, buffer)
 		);
 	}
-
-
-
+	
+	
+	
 	public static final long writeAppending(final Path file, final String string)
 		throws IOException
 	{
 		return writeAppending(file, string, XChars.standardCharset());
 	}
-
+	
 	public static final long writeAppending(final Path file, final String string, final Charset charset)
 		throws IOException
 	{
@@ -753,17 +822,17 @@ public final class XIO
 
 		return writeAppending(file, bytes);
 	}
-
+	
 	public static final long writeAppending(final Path file, final byte[] bytes)
 		throws IOException
 	{
 		final ByteBuffer dbb = XIO.wrapInDirectByteBuffer(bytes);
 		final Long writeCount = writeAppending(file, dbb);
 		XMemory.deallocateDirectByteBuffer(dbb);
-
+		
 		return writeCount;
 	}
-
+	
 	public static long writeAppending(final Path file, final ByteBuffer buffer)
 		throws IOException
 	{
@@ -771,9 +840,9 @@ public final class XIO
 			XIO.writeAppending(fc, buffer)
 		);
 	}
-
-
-
+	
+	
+	
 	public static final void mergeBinary(
 		final Iterable<Path>          sourceFiles,
 		final Path                    targetFile ,
@@ -793,7 +862,7 @@ public final class XIO
 					{
 						continue;
 					}
-
+					
 					try(final FileChannel sourceChannel = openFileChannelReading(sourceFile))
 					{
 						sourceChannel.transferTo(0, sourceChannel.size(), channel);
@@ -823,9 +892,9 @@ public final class XIO
 	{
 		mergeBinary(sourceFiles, targetFile, XFunc.all());
 	}
-
-
-
+	
+	
+	
 	public static void move(final Path sourceFile, final Path targetFile)
 		throws IOException, RuntimeException
 	{
@@ -842,13 +911,13 @@ public final class XIO
 			throw new RuntimeException(e);
 		}
 	}
-
-
+	
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// java.nio.channels.FileChannel //
 	//////////////////////////////////
-
+	
 	public static ByteBuffer determineLastNonEmpty(final ByteBuffer[] byteBuffers)
 	{
 		for(int i = byteBuffers.length - 1; i >= 0; i--)
@@ -858,21 +927,20 @@ public final class XIO
 				return byteBuffers[i];
 			}
 		}
-
+		
 		// either the array is empty or only contains empty buffers. Either way, no suitable buffer found.
 		return null;
 	}
-
+	
 	public static final ByteBuffer wrapInDirectByteBuffer(final byte[] bytes)
-		throws IOException
 	{
 		final ByteBuffer dbb = ByteBuffer.allocateDirect(bytes.length);
 		dbb.put(bytes);
 		dbb.flip();
-
+		
 		return dbb;
 	}
-
+	
 	/**
 	 * Sets the passed {@link FileChannel}'s position to its current length and repeatedly calls
 	 * {@link FileChannel#write(ByteBuffer[])} until the last non-empty buffer has no remaining bytes.<br>
@@ -881,7 +949,7 @@ public final class XIO
 	 * <p>
 	 * The reason for this behavior is unknown, but looking at countless other issues in the JDK code,
 	 * one might guess... .
-	 *
+	 * 
 	 * @param fileChannel
 	 * @param byteBuffers
 	 * @throws IOException
@@ -895,9 +963,9 @@ public final class XIO
 		{
 			return 0L;
 		}
-
+		
 		final long oldLength = fileChannel.size();
-
+		
 		long writeCount = 0;
 		fileChannel.position(oldLength);
 		while(lastNonEmpty.hasRemaining())
@@ -905,17 +973,17 @@ public final class XIO
 			// file channel position is implicitely advanced by the amount of written bytes.
 			writeCount += fileChannel.write(byteBuffers);
 		}
-
+		
 		return writeCount;
 	}
-
+	
 	/**
 	 * Calls {@link #appendAll(FileChannel, ByteBuffer[])}, then {@link FileChannel#force(boolean)}, then validates
 	 * if the actual new file size is really exactely what it should be based on old file size and the amount of bytes
 	 * written.<p>
 	 * In short: this method "guarantees" that every byte contained in the passed {@link ByteBuffer}s was appended
 	 * to the passed {@link FileChannel} and actually reached the physical file.
-	 *
+	 * 
 	 * @param fileChannel
 	 * @param byteBuffers
 	 * @throws IOException
@@ -925,12 +993,12 @@ public final class XIO
 	{
 		final long oldLength  = fileChannel.size();
 		final long writeCount = XIO.appendAll(fileChannel, byteBuffers);
-
+		
 		// this is the right place for a data-safety-securing force/flush.
 		fileChannel.force(false);
-
+		
 		final long newTotalLength = fileChannel.size();
-
+		
 		if(newTotalLength != oldLength + writeCount)
 		{
 			 // (01.10.2014 TM)EXCP: proper exception
@@ -940,17 +1008,17 @@ public final class XIO
 				" is not equal " + oldLength + " + " + writeCount + " (old length and write count)"
 			);
 		}
-
+		
 		return writeCount;
 	}
-
+	
 	public static long writeAppending(final FileChannel fileChannel, final ByteBuffer buffer)
 		throws IOException
 	{
 		// appending logic
 		return writePositioned(fileChannel, fileChannel.size(), buffer);
 	}
-
+	
 	public static long writePositioned(
 		final FileChannel fileChannel ,
 		final long        filePosition,
@@ -959,10 +1027,10 @@ public final class XIO
 		throws IOException
 	{
 		fileChannel.position(filePosition);
-
+		
 		return write(fileChannel, buffer);
 	}
-
+	
 	public static long write(
 		final FileChannel fileChannel,
 		final ByteBuffer  buffer
@@ -974,10 +1042,26 @@ public final class XIO
 		{
 			writeCount += fileChannel.write(buffer);
 		}
-
+		
 		return writeCount;
 	}
-
+	
+	public static long write(
+		final FileChannel                    fileChannel,
+		final Iterable<? extends ByteBuffer> buffers
+	)
+		throws IOException
+	{
+		long writeCount = 0;
+		
+		for(final ByteBuffer buffer : buffers)
+		{
+			writeCount += write(fileChannel, buffer);
+		}
+		
+		return writeCount;
+	}
+	
 	public static final <T> T performClosingOperation(
 		final FileChannel                   fileChannel,
 		final IoOperationSR<FileChannel, T> operation
@@ -993,15 +1077,24 @@ public final class XIO
 			fileChannel.close();
 		}
 	}
-
+		
 	public static ByteBuffer read(final FileChannel fileChannel)
 		throws IOException
 	{
-		return read(fileChannel, 0, fileChannel.size());
+		return read(fileChannel, 0);
 	}
-
+	
 	public static ByteBuffer read(
-		final FileChannel fileChannel,
+		final FileChannel fileChannel ,
+		final long        filePosition
+	)
+		throws IOException
+	{
+		return read(fileChannel, filePosition, fileChannel.size());
+	}
+	
+	public static ByteBuffer read(
+		final FileChannel fileChannel ,
 		final long        filePosition,
 		final long        length
 	)
@@ -1009,14 +1102,14 @@ public final class XIO
 	{
 		// always hilarious to see that a low-level IO-tool has a int size limitation. Geniuses.
 		final ByteBuffer dbb = ByteBuffer.allocateDirect(X.checkArrayRange(length));
-
+		
 		read(fileChannel, dbb, filePosition, dbb.limit());
-
+		
 		dbb.flip();
-
+		
 		return dbb;
 	}
-
+	
 	public static long read(
 		final FileChannel fileChannel ,
 		final ByteBuffer  targetBuffer
@@ -1025,7 +1118,7 @@ public final class XIO
 	{
 		return read(fileChannel, targetBuffer, 0, fileChannel.size());
 	}
-
+		
 	public static long read(
 		final FileChannel fileChannel ,
 		final ByteBuffer  targetBuffer,
@@ -1042,13 +1135,35 @@ public final class XIO
 				+ targetBuffer.remaining() + " < " + length
 			);
 		}
-
-		final int  targetLimit = X.checkArrayRange(targetBuffer.position() + length);
+		
+		return internalRead(fileChannel, targetBuffer, filePosition, length);
+	}
+	
+	public static long read(
+		final FileChannel fileChannel ,
+		final ByteBuffer  targetBuffer,
+		final long        filePosition
+	)
+		throws IOException
+	{
+		return internalRead(fileChannel, targetBuffer, filePosition, targetBuffer.remaining());
+	}
+	
+	private static long internalRead(
+		final FileChannel fileChannel ,
+		final ByteBuffer  targetBuffer,
+		final long        filePosition,
+		final long        effectiveLength
+	)
+		throws IOException
+	{
+		final int  targetLimit = X.checkArrayRange(targetBuffer.position() + effectiveLength);
 		final long fileLength  = fileChannel.size();
-
-		long fileOffset = X.validateRange(fileLength, filePosition, length);
+		
+		X.validateRange(fileLength, filePosition, effectiveLength);
+		long fileOffset = filePosition;
 		targetBuffer.limit(targetLimit);
-
+		
 		// reading should be done in one fell swoop, but better be sure
 		long readCount = 0;
 		while(targetBuffer.hasRemaining())
@@ -1059,8 +1174,8 @@ public final class XIO
 
 		return readCount;
 	}
-
-
+	
+	
 	/**
 	 * Uses {@link #openFileChannelReading(Path)}, {@link #openFileChannelWriting(Path, OpenOption...)}
 	 * and {@link #copyFile(FileChannel, FileChannel)} to copy the contents of the specified {@code sourceFile}
@@ -1080,16 +1195,16 @@ public final class XIO
 	 * custom OpenOptions and/or modifying file timestamps and or performing pre- or post-actions, it is strongly
 	 * suggested to write a custom tailored version of a copying method. Covering all conceivable cases would result
 	 * in an overly complicated one-size-fits-all attempt and we all know how well those work in practice.	 *
-	 *
+	 * 
 	 * @param sourceFile the source file whose content shall be copied.
 	 * @param targetFile the target file that shall receive the copied content. Must already exist!
 	 * @param targetChannelOpenOptions the {@link OpenOption}s (see {@link StandardOpenOption}) to be passed to
 	 *        {@link #openFileChannelWriting(Path, OpenOption...)}. May be null / empty.
-	 *
+	 * 
 	 * @return the number of bytes written by {@link FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)}.
-	 *
+	 * 
 	 * @throws IOException
-	 *
+	 * 
 	 * @see #ensureFile(Path)
 	 * @see #ensureDirectoryAndFile(Path)
 	 * @see StandardOpenOption
@@ -1105,6 +1220,8 @@ public final class XIO
 	)
 		throws IOException
 	{
+		
+		// (20.02.2020 TM)NOTE: Files#copy is bugged as it recognizes the process's file locks as foreign (rofl).
 		try(
 			final FileChannel sourceChannel = openFileChannelReading(sourceFile);
 			final FileChannel targetChannel = openFileChannelWriting(targetFile, targetChannelOpenOptions);
@@ -1113,34 +1230,127 @@ public final class XIO
 			return copyFile(sourceChannel, targetChannel);
 		}
 	}
-
+	
 	/**
 	 * Alias for {@code targetChannel.transferFrom(sourceChannel, 0, sourceChannel.size())}.<br>
 	 * (Once again a method that is missing in the JDK.)
-	 *
+	 * 
 	 * @param sourceChannel an open and readable channel to the source file whose content shall be copied.
 	 * @param targetChannel an open and writeable channel to the target file that shall receive the copied content.
-	 *
+	 * 
 	 * @return The number of bytes, possibly zero, that were actually transferred.
-	 *
+	 * 
 	 * @throws IOException as specified by {@link FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)}
-	 *
+	 * 
 	 * @see FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)
-	 * @see #copyFile(Path, Path, OpenOption...)
+	 * @see #copyFile(Path, Path)
 	 */
-	public static long copyFile(final FileChannel sourceChannel, final FileChannel targetChannel)
+	public static long copyFile(
+		final FileChannel sourceChannel,
+		final FileChannel targetChannel
+	)
 		throws IOException
 	{
-		return targetChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+		return copyFile(sourceChannel, 0, targetChannel);
 	}
-
-
-
-
-
+	
+	/**
+	 * Uses the sourceChannel's current position!
+	 * @param sourceChannel
+	 * @param targetChannel
+	 * @param targetPosition
+	 * @return
+	 * @throws IOException
+	 */
+	public static long copyFile(
+		final FileChannel sourceChannel ,
+		final FileChannel targetChannel ,
+		final long        targetPosition
+	)
+		throws IOException
+	{
+		return targetChannel.transferFrom(sourceChannel, targetPosition, sourceChannel.size());
+	}
+	
+	public static long copyFile(
+		final FileChannel sourceChannel ,
+		final long        sourcePosition,
+		final FileChannel targetChannel
+	)
+		throws IOException
+	{
+		return copyFile(sourceChannel, sourcePosition, sourceChannel.size() - sourcePosition, targetChannel);
+	}
+	
+	public static long copyFile(
+		final FileChannel sourceChannel ,
+		final long        sourcePosition,
+		final long        length        ,
+		final FileChannel targetChannel
+	)
+		throws IOException
+	{
+		return sourceChannel.transferTo(sourcePosition, length, targetChannel);
+	}
+	
+	public static long copyFile(
+		final FileChannel sourceChannel ,
+		final FileChannel targetChannel ,
+		final long        targetPosition,
+		final long        length
+	)
+		throws IOException
+	{
+		return targetChannel.transferFrom(sourceChannel, targetPosition, length);
+	}
+	
 	// breaks naming conventions intentionally to indicate a modification of called methods instead of a type
 	public static final class unchecked
 	{
+		public static final <C extends Closeable> C close(
+			final C closable
+		)
+			throws IORuntimeException
+		{
+			if(closable == null)
+			{
+				return null;
+			}
+			
+			try
+			{
+				closable.close();
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+			
+			return closable;
+		}
+		
+		public static final <C extends AutoCloseable> C close(
+			final C closable
+		)
+			throws RuntimeException
+		{
+			if(closable == null)
+			{
+				return null;
+			}
+			
+			try
+			{
+				closable.close();
+			}
+			catch(final Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+			
+			return closable;
+		}
+		
 		public static final <C extends Closeable> C close(
 			final C         closable  ,
 			final Throwable suppressed
@@ -1156,7 +1366,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static final <C extends AutoCloseable> C close(
 			final C         closable  ,
 			final Throwable suppressed
@@ -1172,8 +1382,8 @@ public final class XIO
 				throw new RuntimeException(e);
 			}
 		}
-
-
+		
+		
 		public static final long size(final FileChannel fileChannel) throws IORuntimeException
 		{
 			try
@@ -1185,7 +1395,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static boolean isDirectory(final Path path) throws IORuntimeException
 		{
 			try
@@ -1197,7 +1407,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static final boolean exists(final Path path) throws IORuntimeException
 		{
 			try
@@ -1209,7 +1419,19 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
+		public static final long size(final Path file) throws IORuntimeException
+		{
+			try
+			{
+				return XIO.size(file);
+			}
+			catch(final IOException e)
+			{
+				throw new IORuntimeException(e);
+			}
+		}
+		
 		public static final boolean delete(final Path path) throws IORuntimeException
 		{
 			try
@@ -1221,7 +1443,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static final Path[] listEntries(final Path directory) throws IORuntimeException
 		{
 			try
@@ -1233,7 +1455,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static Path[] listEntries(
 			final Path                    directory,
 			final Predicate<? super Path> selector
@@ -1249,7 +1471,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static final <C extends XAddingCollection<? super Path>> C listEntries(
 			final Path directory,
 			final C    target
@@ -1265,7 +1487,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static final <C extends XAddingCollection<? super Path>> C listEntries(
 			final Path                    directory,
 			final C                       target   ,
@@ -1282,12 +1504,12 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		/**
 		 * Warning: this (because of using Files.newDirectoryStream) does some weird file opening/locking stuff.
 		 * <p>
 		 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
-		 *
+		 * 
 		 * @param <C>
 		 * @param directory
 		 * @param logic
@@ -1314,7 +1536,7 @@ public final class XIO
 		 * Warning: this (because of using Files.newDirectoryStream) does some weird file opening/locking stuff.
 		 * <p>
 		 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
-		 *
+		 * 
 		 * @param <C>
 		 * @param directory
 		 * @param logic
@@ -1338,7 +1560,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static final boolean hasNoFiles(final Path directory) throws IORuntimeException
 		{
 			try
@@ -1350,19 +1572,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
-		public static final long size(final Path file) throws IORuntimeException
-		{
-			try
-			{
-				return Files.size(file);
-			}
-			catch(final IOException e)
-			{
-				throw new IORuntimeException(e);
-			}
-		}
-
+		
 		public static final long lastModified(final Path file) throws IORuntimeException
 		{
 			try
@@ -1374,7 +1584,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static final <P extends Path> P ensureDirectory(final P directory) throws IORuntimeException
 		{
 			try
@@ -1398,7 +1608,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static final <P extends Path> P ensureFile(final P file) throws IORuntimeException
 		{
 			try
@@ -1410,7 +1620,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static final <P extends Path> P ensureWriteableFile(final P file) throws IORuntimeException
 		{
 			try
@@ -1422,7 +1632,7 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
+		
 		public static void move(final Path sourceFile, final Path targetFile)
 			throws IORuntimeException, RuntimeException
 		{
@@ -1435,16 +1645,16 @@ public final class XIO
 				throw new IORuntimeException(e);
 			}
 		}
-
-
-
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
 		/**
 		 * Dummy constructor to prevent instantiation of this static-only utility class.
-		 *
+		 * 
 		 * @throws UnsupportedOperationException
 		 */
 		private unchecked()
@@ -1452,18 +1662,18 @@ public final class XIO
 			// static only
 			throw new UnsupportedOperationException();
 		}
-
+		
 	}
-
-
-
+		
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
-	 *
+	 * 
 	 * @throws UnsupportedOperationException
 	 */
 	private XIO()
@@ -1471,5 +1681,5 @@ public final class XIO
 		// static only
 		throw new UnsupportedOperationException();
 	}
-
+	
 }

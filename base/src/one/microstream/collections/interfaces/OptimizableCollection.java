@@ -4,7 +4,7 @@ package one.microstream.collections.interfaces;
  * @author Thomas Muenz
  *
  */
-public interface OptimizableCollection
+public interface OptimizableCollection extends Sized
 {
 	/**
 	 * Optimizes the internal storage of this collection and returns the storage size of the collection after the

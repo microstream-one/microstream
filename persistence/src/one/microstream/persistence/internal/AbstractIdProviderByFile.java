@@ -3,8 +3,7 @@ package one.microstream.persistence.internal;
 import static one.microstream.math.XMath.notNegative;
 import static one.microstream.math.XMath.positive;
 
-import java.nio.file.Path;
-
+import one.microstream.afs.AFile;
 import one.microstream.io.AbstractProviderByFile;
 
 public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
@@ -13,7 +12,7 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 	// static methods //
 	///////////////////
 	
-	public static final void writeId(final Path file, final long value)
+	public static final void writeId(final AFile file, final long value)
 	{
 		write(file, Long.toString(value));
 	}
@@ -34,7 +33,7 @@ public abstract class AbstractIdProviderByFile extends AbstractProviderByFile
 	// constructors //
 	/////////////////
 
-	protected AbstractIdProviderByFile(final Path file, final long increase, final long id)
+	protected AbstractIdProviderByFile(final AFile file, final long increase, final long id)
 	{
 		super(file);
 		this.id        = notNegative(id      );

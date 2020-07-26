@@ -2,16 +2,16 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
-
-import one.microstream.io.XIO;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AWritableFile;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.storage.exceptions.StorageException;
 
 
 public interface StorageEntityTypeExportFileProvider
 {
-	public StorageLockedFile provideExportFile(StorageEntityTypeHandler entityType);
+	public AWritableFile provideExportFile(StorageEntityTypeHandler entityType);
 
 	
 	
@@ -70,10 +70,8 @@ public interface StorageEntityTypeExportFileProvider
 		// instance fields //
 		////////////////////
 
-		private final Path   directory ;
-		private final String fileSuffix;
-
-		private final transient String cachedFileSuffix;
+		private final ADirectory directory ;
+		private final String     fileSuffix;
 
 
 
@@ -81,15 +79,11 @@ public interface StorageEntityTypeExportFileProvider
 		// constructors //
 		/////////////////
 
-		public Default(final Path directory, final String fileSuffix)
+		public Default(final ADirectory directory, final String fileSuffix)
 		{
 			super();
-			this.directory        = notNull(directory);
-			this.fileSuffix       = fileSuffix;
-			this.cachedFileSuffix = fileSuffix == null
-				? ""
-				: XIO.fileSuffixSeparator() + fileSuffix
-			;
+			this.directory  = notNull(directory);
+			this.fileSuffix = fileSuffix;
 		}
 		
 		
@@ -104,12 +98,13 @@ public interface StorageEntityTypeExportFileProvider
 		}
 
 		@Override
-		public final StorageLockedFile provideExportFile(final StorageEntityTypeHandler entityType)
+		public final AWritableFile provideExportFile(final StorageEntityTypeHandler entityType)
 		{
-			final String fileName = StorageEntityTypeExportFileProvider.toUniqueTypeFileName(entityType);
-			final Path   file     = XIO.Path(this.directory, fileName + this.cachedFileSuffix);
+			final String        name  = StorageEntityTypeExportFileProvider.toUniqueTypeFileName(entityType);
+			final AFile         file  = this.directory.ensureFile(null, name, this.fileSuffix);
+			final AWritableFile wFile = file.useWriting();
 			
-			return StorageLockedFile.openLockedFile(file);
+			return wFile;
 		}
 
 	}
