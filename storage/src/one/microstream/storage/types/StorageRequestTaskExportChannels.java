@@ -11,7 +11,7 @@ public interface StorageRequestTaskExportChannels extends StorageRequestTask
 		// instance fields //
 		////////////////////
 
-		private final StorageIoHandler fileHandler;
+		private final StorageLiveFileProvider fileProvider;
 
 
 
@@ -20,14 +20,14 @@ public interface StorageRequestTaskExportChannels extends StorageRequestTask
 		/////////////////
 
 		Default(
-			final long             timestamp   ,
-			final int              channelCount,
-			final StorageIoHandler fileHandler
+			final long                timestamp   ,
+			final int                 channelCount,
+			final StorageLiveFileProvider fileProvider
 		)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
 			super(timestamp, channelCount);
-			this.fileHandler = fileHandler;
+			this.fileProvider = fileProvider;
 		}
 
 
@@ -39,7 +39,7 @@ public interface StorageRequestTaskExportChannels extends StorageRequestTask
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)
 		{
-			channel.exportData(this.fileHandler);
+			channel.exportData(this.fileProvider);
 			return null;
 		}
 

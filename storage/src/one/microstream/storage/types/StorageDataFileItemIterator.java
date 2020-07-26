@@ -2,9 +2,8 @@ package one.microstream.storage.types;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.SeekableByteChannel;
 
+import one.microstream.afs.AReadableFile;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.storage.exceptions.StorageException;
@@ -12,7 +11,12 @@ import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageDataFileItemIterator
 {
-	public void iterateStoredItems(FileChannel storageData, long startPosition, final long length);
+	public default void iterateStoredItems(final AReadableFile file)
+	{
+		this.iterateStoredItems(file, 0, file.size());
+	}
+	
+	public void iterateStoredItems(AReadableFile file, long startPosition, final long length);
 
 
 
@@ -162,26 +166,32 @@ public interface StorageDataFileItemIterator
 		///////////////////
 
 		public static <P extends ItemProcessor> P processInputFile(
-			final FileChannel fileChannel  ,
-			final P           itemProcessor
+			final AReadableFile file         ,
+			final P             itemProcessor
 		)
 			throws IOException
 		{
-			return processInputFile(fileChannel, BufferProvider.New(), itemProcessor, 0, fileChannel.size());
+			return processInputFile(file, BufferProvider.New(), itemProcessor, 0, file.size());
+		}
+		
+		// kind of ugly, but I don't know a better way right now to transport two values from one method call.
+		static final class NextItemLength
+		{
+			long value;
 		}
 
 		public static <P extends ItemProcessor> P processInputFile(
-			final SeekableByteChannel fileChannel    ,
-			final BufferProvider      bufferProvider ,
-			final P                   itemProcessor  ,
-			final long                startPosition  ,
-			final long                length
+			final AReadableFile  file          ,
+			final BufferProvider bufferProvider,
+			final P              itemProcessor ,
+			final long           startPosition ,
+			final long           length
 		)
 			throws IOException
 		{
 //			DEBUGStorage.println("Reading file from " + startPosition + " for length " + length);
 
-			final long actualFileLength    = fileChannel.size()    ;
+			final long actualFileLength    = file.size()           ;
 			final long boundPosition       = startPosition + length;
 		          long currentFilePosition = startPosition         ;
 
@@ -194,10 +204,9 @@ public interface StorageDataFileItemIterator
 				throw new IllegalArgumentException(); // (10.06.2014 TM)EXCP: proper exception
 			}
 
-			      long nextEntityLength = 0;
-			ByteBuffer buffer           = bufferProvider.provideInitialBuffer();
-
-			fileChannel.position(startPosition);
+			final NextItemLength nextItemLength = new NextItemLength();
+			      
+			ByteBuffer buffer = bufferProvider.provideInitialBuffer();
 
 			try
 			{
@@ -205,7 +214,7 @@ public interface StorageDataFileItemIterator
 				while(currentFilePosition < boundPosition)
 				{
 					// ensure buffer size according to buffer size provider
-					buffer = bufferProvider.provideBuffer(buffer, nextEntityLength);
+					buffer = bufferProvider.provideBuffer(buffer, nextItemLength.value);
 
 					// end of file special case: adjust buffer limit if buffer would exceed the bounds
 					if(currentFilePosition + buffer.limit() >= boundPosition)
@@ -213,29 +222,24 @@ public interface StorageDataFileItemIterator
 						// cast (value range) safety is guaranteed by if above
 						buffer.limit((int)(boundPosition - currentFilePosition));
 					}
-
-					// loop is guaranteed to terminate as it depends on the buffer capacity and the file length
-					do
-					{
-						fileChannel.read(buffer);
-					}
-					while(buffer.hasRemaining());
-
+					
+					file.readBytes(buffer, currentFilePosition, buffer.limit());
+					
 					// buffer is guaranteed to be filled exactely to its limit in any case
-					nextEntityLength = processBufferedEntities(
+					final long progress = processBufferedEntities(
 						XMemory.getDirectByteBufferAddress(buffer),
 						buffer.limit(),
-						fileChannel,
+						nextItemLength,
 						itemProcessor
 					);
-					currentFilePosition = fileChannel.position();
+					currentFilePosition += progress;
 				}
 			}
 			catch(final Exception e)
 			{
 				// (04.12.2014 TM)EXCP: proper exception
 				throw new StorageException(
-					"currentFilePosition = " + currentFilePosition + ". nextEntityLength = " + nextEntityLength, e
+					"currentFilePosition = " + currentFilePosition + ". nextEntityLength = " + nextItemLength.value, e
 				);
 			}
 
@@ -244,10 +248,10 @@ public interface StorageDataFileItemIterator
 		}
 
 		private static long processBufferedEntities(
-			final long                startAddress    ,
-			final long                bufferDataLength,
-			final SeekableByteChannel fileChannel     ,
-			final ItemProcessor       entityProcessor
+			final long           startAddress    ,
+			final long           bufferDataLength,
+			final NextItemLength nextItemLength,
+			final ItemProcessor  entityProcessor
 		)
 			throws IOException
 		{
@@ -281,17 +285,20 @@ public interface StorageDataFileItemIterator
 				// depending on the processor logic, incomplete entity data can still be enough (e.g. only needs header)
 				if(!entityProcessor.accept(address, bufferBound - address))
 				{
-					// revert fileChannel position to start of current incomplete entity, return its length
-					fileChannel.position(fileChannel.position() + address - bufferBound); // current address!
-					return Math.abs(itemLength);
+					nextItemLength.value = Math.abs(itemLength);
+					
+					// advance position to start of current incomplete entity
+					return address - startAddress;
 				}
 
 				// advance iteration and check for end of current buffered data
 				if((address += Math.abs(itemLength)) > entityStartBound)
 				{
-					// revert fileChannel position to start of next item (of currently unknowable length)
-					fileChannel.position(fileChannel.position() + address - bufferBound);
-					return 0;
+					// 0 value just to indicate unknown next item length
+					nextItemLength.value = 0;
+					
+					// advance position to start of next entity (or exactely end of data)
+					return address - startAddress;
 				}
 			}
 		}
@@ -304,14 +311,14 @@ public interface StorageDataFileItemIterator
 
 		@Override
 		public final void iterateStoredItems(
-			final FileChannel fileChannel  ,
-			final long        startPosition,
-			final long        length
+			final AReadableFile file         ,
+			final long          startPosition,
+			final long          length
 		)
 		{
 			try
 			{
-				processInputFile(fileChannel, this.bufferProvider, this.itemProcessor, startPosition, length);
+				processInputFile(file, this.bufferProvider, this.itemProcessor, startPosition, length);
 			}
 			catch(final IOException e)
 			{

@@ -18,8 +18,8 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 
 	public XGettingTable<Integer, ? extends ChannelStatistics> channelStatistics();
 
-
 	
+
 	public static StorageRawFileStatistics New(
 		final Date                                                creationTime     ,
 		final long                                                fileCount        ,
@@ -64,8 +64,8 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 		)
 		{
 			super(fileCount, liveDataLength, totalDataLength);
-			this.creationTime      = creationTime     ;
-			this.channelStatistics = channelStatistics;
+			this.creationTime      = notNull(creationTime)     ;
+			this.channelStatistics = notNull(channelStatistics);
 		}
 
 
@@ -172,7 +172,6 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 					notNull(files)
 			);
 		}
-		
 
 		public final class Default
 		extends StorageRawFileStatisticsItem.Abstract
@@ -234,7 +233,7 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 
 		public String file();
 
-		
+
 		
 		public static FileStatistics New(
 			final long   fileNumber     ,
@@ -244,13 +243,12 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 		)
 		{
 			return new FileStatistics.Default(
-				notNegative(fileNumber)     ,
-				    notNull(file)           ,
-				notNegative(liveDataLength) ,
-				notNegative(totalDataLength)
+				fileNumber     ,
+				file           ,
+				liveDataLength ,
+				totalDataLength
 			);
 		}
-
 
 		public final class Default
 		extends StorageRawFileStatisticsItem.Abstract

@@ -1,8 +1,8 @@
 package one.microstream.persistence.test;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
 
+import one.microstream.afs.AFile;
 import one.microstream.persistence.binary.internal.BinaryFileTarget;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
@@ -21,7 +21,7 @@ public class DEBUG_BinaryFileTarget extends BinaryFileTarget
 	// constructors //
 	/////////////////
 
-	public DEBUG_BinaryFileTarget(final PrintStream out, final Path file)
+	public DEBUG_BinaryFileTarget(final PrintStream out, final AFile file)
 	{
 		super(file);
 		this.out = out;

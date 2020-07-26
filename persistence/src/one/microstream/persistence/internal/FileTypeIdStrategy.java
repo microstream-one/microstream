@@ -2,9 +2,8 @@ package one.microstream.persistence.internal;
 
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
-
-import one.microstream.io.XIO;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
 import one.microstream.persistence.types.PersistenceTypeIdProvider;
 import one.microstream.persistence.types.PersistenceTypeIdStrategy;
 
@@ -34,7 +33,7 @@ public class FileTypeIdStrategy implements PersistenceTypeIdStrategy
 		return "TypeId.tid";
 	}
 	
-	public static FileTypeIdStrategy NewInDirectory(final Path directory)
+	public static FileTypeIdStrategy NewInDirectory(final ADirectory directory)
 	{
 		return New(
 			directory        ,
@@ -42,15 +41,15 @@ public class FileTypeIdStrategy implements PersistenceTypeIdStrategy
 		);
 	}
 	
-	public static FileTypeIdStrategy New(final Path directory, final String typeIdFilename)
+	public static FileTypeIdStrategy New(final ADirectory directory, final String typeIdFilename)
 	{
-		return new FileTypeIdStrategy(
-			XIO.Path(directory, typeIdFilename)
+		return New(
+			directory.ensureFile(typeIdFilename)
 		);
 	}
 	
 	
-	public static FileTypeIdStrategy New(final Path typeIdFile)
+	public static FileTypeIdStrategy New(final AFile typeIdFile)
 	{
 		return new FileTypeIdStrategy(
 			notNull(typeIdFile)
@@ -63,7 +62,7 @@ public class FileTypeIdStrategy implements PersistenceTypeIdStrategy
 	// instance fields //
 	////////////////////
 	
-	private final Path typeIdFile;
+	private final AFile typeIdFile;
 	
 	
 	
@@ -71,7 +70,7 @@ public class FileTypeIdStrategy implements PersistenceTypeIdStrategy
 	// constructors //
 	/////////////////
 
-	FileTypeIdStrategy(final Path typeIdFile)
+	FileTypeIdStrategy(final AFile typeIdFile)
 	{
 		super();
 		this.typeIdFile = typeIdFile;

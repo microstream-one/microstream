@@ -2,12 +2,13 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.Iterator;
 
 import one.microstream.X;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AWritableFile;
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
@@ -17,9 +18,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.exceptions.IORuntimeException;
 import one.microstream.functional._charRangeProcedure;
-import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -50,7 +49,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 
 
-	public static StorageDataConverterTypeCsvToBinary<StorageFile> New(
+	public static StorageDataConverterTypeCsvToBinary<AFile> New(
 		final StorageDataConverterCsvConfiguration    configuration ,
 		final PersistenceTypeDictionary               typeDictionary,
 		final StorageEntityTypeConversionFileProvider fileProvider
@@ -59,7 +58,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		return New(configuration, typeDictionary, fileProvider, 0);
 	}
 
-	public static StorageDataConverterTypeCsvToBinary<StorageFile> New(
+	public static StorageDataConverterTypeCsvToBinary<AFile> New(
 		final StorageDataConverterCsvConfiguration    configuration ,
 		final PersistenceTypeDictionary               typeDictionary,
 		final StorageEntityTypeConversionFileProvider fileProvider  ,
@@ -77,7 +76,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 	public final class Default
 	implements
-	StorageDataConverterTypeCsvToBinary<StorageFile>,
+	StorageDataConverterTypeCsvToBinary<AFile>,
 	XCsvSegmentsParser.Provider<_charArrayRange>,
 	XCsvSegmentsParser<_charArrayRange>,
 	XCsvRecordParserCharArray.Provider,
@@ -132,9 +131,8 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		final long                                    addressEntityLengthUpdateBuffer;
 		final ValueHandler                            objectIdValueHandler           ;
 
-		      StorageFile                             sourceFile                     ;
-		      StorageLockedFile                       targetFile                     ;
-		      FileChannel                             targetFileChannel              ;
+		      AFile                                   sourceFile                     ;
+		      AWritableFile                           targetFile                     ;
 		      long                                    targetFileActualLength         ;
 		      PersistenceTypeDefinition               currentType                    ;
 		      long                                    currentTypeEntityInitLength    ;
@@ -1054,20 +1052,11 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 
 		private void setTargetFile()
 		{
-			this.targetFile        = this.fileProvider.provideConversionFile(this.currentType, this.sourceFile);
-			this.targetFileChannel = this.targetFile.fileChannel();
-			try
-			{
-				this.targetFileActualLength = this.targetFileChannel.size();
-			}
-			catch(final IOException e)
-			{
-				// (07.10.2014 TM)EXCP: proper exception
-				throw new StorageException(e);
-			}
+			this.targetFile             = this.fileProvider.provideConversionFile(this.currentType, this.sourceFile);
+			this.targetFileActualLength = this.targetFile.size();
 		}
 
-		private void setSourceFile(final StorageFile file)
+		private void setSourceFile(final AFile file)
 		{
 			this.flushCloseClear();
 
@@ -1081,14 +1070,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			 * Copied from StorageRequestTaskImportData#internalProcessBy:
 			 * if it is a normal problem, there should be a proper wrapping exception for it.
 			 */
-			final char[] input = XIO.unchecked(()->
-				XIO.readString(
-					this.sourceFile.fileChannel(),
-					XChars.utf8()
-				)
-			).toCharArray();
-			
-			
+			final char[] input = AFS.readString(this.sourceFile, XChars.utf8()).toCharArray();
 						
 			final XCsvParserCharArray parser = XCsvParserCharArray.New();
 			parser.parseCsvData(this.configuration.csvConfiguration(), _charArrayRange.New(input), this, this);
@@ -1123,13 +1105,12 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		{
 			try
 			{
-				StorageFile.close(this.targetFile, suppressed);
+				AFS.close(this.targetFile, suppressed);
 			}
 			finally
 			{
 				this.sourceFile            = null;
 				this.targetFile            = null;
-				this.targetFileChannel     = null;
 				this.actualCsvConfiguation = null;
 			}
 		}
@@ -1564,18 +1545,12 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		{
 			try
 			{
-				// no idea if this is necessary, especially on such tiny buffers, but completeness must be guaranteed.
-				while(byteBuffer.hasRemaining())
-				{
-					// (13.10.2018 TM)NOTE: the pure write() call should already implicitely always append.
-					this.targetFileChannel.write(byteBuffer);
-//					this.targetFileChannel.write(byteBuffer, filePosition + byteBuffer.position());
-				}
+				this.targetFile.writeBytes(byteBuffer);
 			}
-			catch(final IOException e)
+			catch(final Exception e)
 			{
-				XIO.unchecked.close(this.targetFileChannel, e);
-				throw new IORuntimeException(e); // (15.10.2014 TM)EXCP: proper exception
+				AFS.close(this.targetFile, e);
+				throw new RuntimeException(e); // (15.10.2014 TM)EXCP: proper exception
 			}
 			finally
 			{
@@ -1597,18 +1572,11 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			// write byte buffer content, ensure all bytes are written
 			try
 			{
-				/* (07.10.2014 TM)TODO: better csv to binary write handling
-				 * Maybe check returned written byte count (however that should be guaranteed, shouldn't it?)
-				 * Maybe also modularize, and if it's just to get rid of the ugly exception.
-				 */
-				while(this.byteBuffer.hasRemaining())
-				{
-					this.targetFileChannel.write(this.byteBuffer);
-				}
+				this.targetFile.writeBytes(this.byteBuffer);
 			}
-			catch(final IOException e)
+			catch(final Exception e)
 			{
-				throw new IORuntimeException(e); // (07.10.2014 TM)EXCP: proper exception
+				throw new RuntimeException(e); // (07.10.2014 TM)EXCP: proper exception
 			}
 			finally
 			{
@@ -1698,28 +1666,21 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		////////////
 
 		@Override
-		public void convertCsv(final StorageFile file)
+		public void convertCsv(final AFile file)
 		{
 			this.setSourceFile(file);
 			this.parseCurrentFile();
 			this.flushCloseClear();
 		}
 		
-		static final long getTypeIdFromFileName(final StorageFile file)
+		static final long getTypeIdFromFileName(final AFile file)
 		{
-			final String fileName = getSuffixlessFileName(file);
+			final String fileName = file.name();
 			final long   typeId   = StorageEntityTypeExportFileProvider.getTypeIdFromUniqueTypeFileName(fileName);
 			
 			return typeId;
 		}
 		
-		static final String getSuffixlessFileName(final StorageFile file)
-		{
-			final String filename = file.name();
-			final int    dotIndex = filename.lastIndexOf(XIO.fileSuffixSeparator());
-			return dotIndex < 0 ? filename : filename.substring(0, dotIndex);
-		}
-
 		@Override
 		public void beginTable(
 			final String                   tableName  ,
@@ -1740,7 +1701,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			if((this.currentType = this.typeDictionary.lookupTypeById(typeId)) == null)
 			{
 				// (01.10.2014 TM)EXCP: proper exception
-				throw new StorageException("Type not found: " + getSuffixlessFileName(this.sourceFile));
+				throw new StorageException("Type not found: " + this.sourceFile.identifier());
 			}
 
 			final String firstColumnName = columnNames.first();

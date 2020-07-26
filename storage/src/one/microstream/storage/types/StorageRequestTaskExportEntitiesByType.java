@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import one.microstream.afs.AWritableFile;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XUtilsCollection;
@@ -214,7 +215,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		////////////////////
 
 		final int                              lastChannelIndex;
-		final StorageLockedFile                file            ;
+		final AWritableFile                    file            ;
 		final StorageEntityTypeHandler         type            ;
 		final Predicate<? super StorageEntity> predicateEntity ;
 
@@ -229,7 +230,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		ExportItem(
 			final int                              channelCount   ,
 			final StorageEntityTypeHandler         type           ,
-			final StorageLockedFile                file           ,
+			final AWritableFile                    file           ,
 			final Predicate<? super StorageEntity> predicateEntity
 		)
 		{
@@ -268,7 +269,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 			{
 				return;
 			}
-			this.file.flush();
+			
 			if(this.file.isEmpty())
 			{
 				this.file.delete();
@@ -277,6 +278,8 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 			{
 				this.file.close();
 			}
+			
+			this.file.release();
 		}
 
 	}

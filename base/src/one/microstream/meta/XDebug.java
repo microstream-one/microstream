@@ -16,11 +16,15 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import one.microstream.X;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingCollection;
+import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.concurrency.XThreads;
 import one.microstream.io.XIO;
@@ -459,6 +463,45 @@ public final class XDebug
 		copyFile(source, source, target);
 	}
 	
+	public static final void deleteAllFiles(final ADirectory directory)
+	{
+		deleteAllFiles(directory, true);
+	}
+	
+	public static final void deleteAllFiles(final ADirectory directory, final boolean output)
+	{
+		if(!directory.exists())
+		{
+			return;
+		}
+
+		final XGettingEnum<AFile> files = directory.listFiles();
+		for(final AFile f : files)
+		{
+			if(output)
+			{
+				println("Deleting " + f.toPathString());
+			}
+			AFS.executeWriting(f, wf -> wf.delete());
+		}
+
+		final XGettingEnum<ADirectory> directories = directory.listDirectories();
+		for(final ADirectory d : directories)
+		{
+			deleteAllFiles(d, output);
+
+			if(output)
+			{
+				println("Deleting " + d.toPathString());
+			}
+			// or such...
+//			AFS.executeMutating(d, d -> d.delete());
+			
+			// (16.07.2020 TM)FIXME: priv#49: see "directory mutation".
+			throw new one.microstream.meta.NotImplementedYetError();
+		}
+	}
+	
 	public static final void deleteAllFiles(final Path directory)
 	{
 		deleteAllFiles(directory, true);
@@ -493,7 +536,6 @@ public final class XDebug
 				throw new RuntimeException("Cannot delete file: " + f, e);
 			}
 		}
-		
 	}
 
 	public static void copyFile(final Path sourceRoot, final Path subject, final Path targetRoot) throws IOException

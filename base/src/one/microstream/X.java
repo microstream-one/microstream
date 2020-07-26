@@ -137,6 +137,47 @@ public final class X
 		return (int)capacity;
 	}
 	
+	/**
+	 * Transiently ensures the passed object to be not {@code null} by either returning it in case it is
+	 * not {@code null} or throwing a {@link NullPointerException} otherwise.
+	 * <p>
+	 * <i>(Really, no idea why java.util.Objects.notNull got renamed to requireNotNull after some odd objection from
+	 * some guy in the mailing list that the name would be misleading.
+	 * Of course "notNull" means "the thing you pass has to be not null, otherwise you'll get an exception".
+	 * What else could the meaning of a transient method named "notNull" be?
+	 * If "requireNotNull" is needed to express this behavior, than what would "notNull" alone mean?<br>
+	 * In the end, "requireNotNull" is just additional clutter, hence not usable and is replaced by
+	 * this, still properly named "notNull" method.)<i>
+	 *
+	 * @param <T> the type of the object to be ensured to be not {@code null}.
+	 * @param object the object to be ensured to be not {@code null}.
+	 * @return the passed object, guaranteed to be not {@code null}.
+	 * @throws NullPointerException if {@code null} was passed.
+	 */
+	public static final <T> T notNull(final T object) throws NullPointerException
+	{
+		if(object == null)
+		{
+			throw UtilStackTrace.cutStacktraceByOne(new NullPointerException());
+		}
+		return object;
+	}
+	
+	/**
+	 * This method is a complete dummy, simply serving as a semantical counterpart to {@link #notNull(Object)}.<br>
+	 * The use is small, but still there:<br>
+	 * - the sourcecode is easier to read if the same structure is used next to a {@link #notNull(Object)} call
+	 *   instead of missing method calls and comments (like "may be null" or "optional").
+	 * - the IDE can search for all occurances of this method, listing all places where something may be null.
+	 * 
+	 * @param object the passed reference.
+	 * @return the passed reference without doing ANYTHING else.
+	 */
+	public static final <T> T mayNull(final T object)
+	{
+		return object;
+	}
+	
 	
 	/**
 	 * Helper method to project ternary values to binary logic.<br>
@@ -198,50 +239,6 @@ public final class X
 		return reference != null;
 	}
 
-	
-	
-	/**
-	 * Transiently ensures the passed object to be not {@code null} by either returning it in case it is
-	 * not {@code null} or throwing a {@link NullPointerException} otherwise.
-	 * <p>
-	 * <i>(Really, no idea why java.util.Objects.notNull got renamed to requireNotNull after some odd objection from
-	 * some guy in the mailing list that the name would be misleading.
-	 * Of course "notNull" means "the thing you pass has to be not null, otherwise you'll get an exception".
-	 * What else could the meaning of a transient method named "notNull" be?
-	 * If "requireNotNull" is needed to express this behavior, than what would "notNull" alone mean?<br>
-	 * In the end, "requireNotNull" is just additional clutter, hence not usable and is replaced by
-	 * this, still properly named "notNull" method.)<i>
-	 *
-	 * @param <T> the type of the object to be ensured to be not {@code null}.
-	 * @param object the object to be ensured to be not {@code null}.
-	 * @return the passed object, guaranteed to be not {@code null}.
-	 * @throws NullPointerException if {@code null} was passed.
-	 */
-	public static final <T> T notNull(final T object) throws NullPointerException
-	{
-		if(object == null)
-		{
-			throw UtilStackTrace.cutStacktraceByOne(new NullPointerException());
-		}
-		return object;
-	}
-	
-	/**
-	 * This method is a complete dummy, simply serving as a semantical counterpart to {@link #notNull(Object)}.<br>
-	 * The use is small, but still there:<br>
-	 * - the sourcecode is easier to read if the same structure is used next to a {@link #notNull(Object)} call
-	 *   instead of missing method calls and comments (like "may be null" or "optional").
-	 * - the IDE can search for all occurances of this method, listing all places where something may be null.
-	 * 
-	 * @param object the passed reference.
-	 * @return the passed reference without doing ANYTHING else.
-	 */
-	public static final <T> T mayNull(final T object)
-	{
-		return object;
-	}
-	
-	
 	
 	public static final <T> T coalesce(final T firstElement, final T secondElement)
 	{
@@ -859,6 +856,33 @@ public final class X
 	{
 		return (E[])Array.newInstance(sampleArray.getClass().getComponentType(), sampleArray.length);
 	}
+	
+	public static <E> E[] Array(final E element)
+	{
+		return Array(1, element);
+	}
+	
+	public static <E> E[] Array(final int length, final E element)
+	{
+		@SuppressWarnings("unchecked")
+		final E[] newArray = (E[])Array.newInstance(element.getClass(), length);
+		newArray[0] = element;
+		
+		return newArray;
+	}
+	
+	public static <E> E[] Array(final Class<E> componentType, final E element)
+	{
+		return Array(componentType, element, 1);
+	}
+	
+	public static <E> E[] Array(final Class<E> componentType, final E element, final int length)
+	{
+		final E[] newArray = Array(componentType, length);
+		newArray[0] = element;
+		
+		return newArray;
+	}
 
 	@SuppressWarnings("unchecked")
 	public static <E> E[] Array(final Class<E> componentType, final int length)
@@ -1348,27 +1372,27 @@ public final class X
 		return index;
 	}
 	
-	public static final long validateRange(final long availableLength, final long startIndex, final long length)
+	public static final long validateRange(final long bound, final long startIndex, final long length)
 	{
 		if(startIndex < 0)
 		{
-			throw IndexBoundsException(0, availableLength, startIndex, "StartIndex < 0", 1);
+			throw IndexBoundsException(0, bound, startIndex, "StartIndex < 0", 1);
 		}
-		if(startIndex >= availableLength)
+		if(startIndex >= bound)
 		{
-			throw IndexBoundsException(0, availableLength, startIndex, "StartIndex >= bound", 1);
+			throw IndexBoundsException(0, bound, startIndex, "StartIndex >= bound", 1);
 		}
 		
 		if(length < 0)
 		{
-			throw IndexBoundsException(startIndex, availableLength, length, "Length < 0", 1);
+			throw IndexBoundsException(startIndex, bound, length, "Length < 0", 1);
 		}
-		if(startIndex + length - 1 >= availableLength)
+		if(startIndex + length > bound)
 		{
-			throw IndexBoundsException(0, availableLength, startIndex + length - 1, "LastIndex >= bound", 1);
+			throw IndexBoundsException(0, bound, startIndex + length, "Range > bound", 1);
 		}
 		
-		return startIndex;
+		return startIndex + length;
 	}
 	
 	public static final IndexBoundsException IndexBoundsException(

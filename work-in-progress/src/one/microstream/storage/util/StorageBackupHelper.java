@@ -1,18 +1,15 @@
 package one.microstream.storage.util;
 
-import java.nio.file.Path;
-
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
 import one.microstream.chars.VarString;
-import one.microstream.io.XIO;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeDictionaryAssembler;
 import one.microstream.storage.types.EmbeddedStorageConnectionFoundation;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
-import one.microstream.storage.types.Storage;
-import one.microstream.storage.types.StorageFileWriter;
-import one.microstream.storage.types.StorageIoHandler;
+import one.microstream.storage.types.StorageLiveFileProvider;
 
 
 public final class StorageBackupHelper
@@ -31,7 +28,7 @@ public final class StorageBackupHelper
 	public static void backup(
 		final EmbeddedStorageManager       storageManager        ,
 		final EmbeddedStorageFoundation<?> storageFoundation     ,
-		final Path                         targetDirectory       ,
+		final ADirectory                   targetDirectory       ,
 		final String                       typeDictionaryFileName
 	)
 	{
@@ -41,7 +38,7 @@ public final class StorageBackupHelper
 	public static void backup(
 		final EmbeddedStorageManager                 storageManager        ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation  ,
-		final Path                                   targetDirectory       ,
+		final ADirectory                             targetDirectory       ,
 		final String                                 typeDictionaryFileName
 	)
 	{
@@ -52,23 +49,20 @@ public final class StorageBackupHelper
 
 	static void backupData(
 		final EmbeddedStorageManager storageManager          ,
-		final Path                   targetDirectory         ,
+		final ADirectory             targetDirectory         ,
 		final boolean                runFullGarbageCollection
 	)
 	{
 		// export (= copy) all channels' data files to the target directory (= "create backup")
 		storageManager.exportChannels(
-			new StorageIoHandler.Default(
-				Storage.FileProvider(targetDirectory),
-				new StorageFileWriter.Default()
-			),
+			StorageLiveFileProvider.New(targetDirectory),
 			runFullGarbageCollection
 		);
 	}
 
 	static void backupMetadata(
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation  ,
-		final Path                                   targetDirectory       ,
+		final ADirectory                             targetDirectory       ,
 		final String                                 typeDictionaryFileName
 	)
 	{
@@ -82,9 +76,9 @@ public final class StorageBackupHelper
 		final String typeDictString = dictionaryAssembler.assemble(VarString.New(), typeDictionary).toString();
 
 		// arbitrary file names, preferably the same that were used for creating the EmbeddedStorageConnectionFoundation instance.
-//		final Path fileOid = XIO.Path(targetDirectory, "MyObjectId.oid");
-//		final Path fileTid = XIO.Path(targetDirectory, "MyTypeId.oid");
-		final Path fileTDc = XIO.Path(targetDirectory, typeDictionaryFileName);
+//		final AFile fileOid = targetDirectory.ensureFile("MyObjectId.oid");
+//		final AFile fileTid = targetDirectory.ensureFile("MyTypeId.oid");
+		final AFile fileTDc = targetDirectory.ensureFile(typeDictionaryFileName);
 
 		// write current metadata's state to the specified files (= "metadata backup")
 		PersistenceTypeDictionaryFileHandler.writeTypeDictionary(fileTDc, typeDictString);

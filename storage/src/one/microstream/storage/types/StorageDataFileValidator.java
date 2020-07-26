@@ -10,14 +10,16 @@ import one.microstream.storage.exceptions.StorageException;
 public interface StorageDataFileValidator
 {
 	public void validateFile(
-		StorageNumberedFile file           ,
-		long                fileOffset     ,
-		long                iterationLength
+		StorageDataFile file           ,
+		long            fileOffset     ,
+		long            iterationLength
 	);
 	
-	public default void validateFile(final StorageNumberedFile file)
+	public default void validateFile(
+		final StorageDataFile file
+	)
 	{
-		this.validateFile(file, 0, file.length());
+		this.validateFile(file, 0, file.size());
 	}
 		
 	public default void freeMemory()
@@ -52,13 +54,8 @@ public interface StorageDataFileValidator
 			notNull(fileIterator)
 		){
 			@Override
-			public void validateFile(final StorageNumberedFile file, final long fileOffset, final long iterationLength)
+			public void validateFile(final StorageDataFile file, final long fileOffset, final long iterationLength)
 			{
-				if(!Storage.isDataFile(file))
-				{
-					return;
-				}
-				
 				XDebug.println("Validating file " + file.identifier() + "[" + fileOffset + ";" + (fileOffset + iterationLength) + "[");
 				super.validateFile(file, fileOffset, iterationLength);
 			}
@@ -107,16 +104,11 @@ public interface StorageDataFileValidator
 
 		@Override
 		public void validateFile(
-			final StorageNumberedFile file           ,
-			final long                fileOffset     ,
-			final long                iterationLength
+			final StorageDataFile file           ,
+			final long            fileOffset     ,
+			final long            iterationLength
 		)
 		{
-			if(!Storage.isDataFile(file))
-			{
-				return;
-			}
-			
 			final long remainingLength = this.fileIterator.iterateEntityData(
 				file,
 				fileOffset,
@@ -148,12 +140,12 @@ public interface StorageDataFileValidator
 		}
 
 		@Override
-		public void validateFile(final StorageNumberedFile file, final long fileOffset, final long iterationLength)
+		public void validateFile(
+			final StorageDataFile file           ,
+			final long            fileOffset     ,
+			final long            iterationLength
+		)
 		{
-			if(!Storage.isDataFile(file))
-			{
-				return;
-			}
 			
 			XDebug.println("Validating file " + file.identifier() + "[" + fileOffset + ";" + (fileOffset + iterationLength) + "[");
 			this.delegate.validateFile(file, fileOffset, iterationLength);

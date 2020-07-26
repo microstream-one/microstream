@@ -51,6 +51,13 @@ Copyable
 	{
 		return this.iterate(new ToArrayAggregator<>(X.Array(type, X.checkArrayRange(this.size())))).yield();
 	}
+	
+	// stolen from Streams API. However. A) ambiguous for compiler and B) inferior to just keeping and passing a type.
+//	public default E[] toArray(final IntFunction<E[]> arrayConstructor)
+//	{
+//		final E[] array = arrayConstructor.apply(X.checkArrayRange(this.size()));
+//		return this.iterate(new ToArrayAggregator<>(array)).yield();
+//	}
 
 	public OldCollection<E> old();
 
