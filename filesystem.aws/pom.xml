@@ -16,7 +16,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
-			<artifactId>base</artifactId>
+			<artifactId>filesystem.blobstore</artifactId>
 			<version>03.01.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
