@@ -10,8 +10,6 @@ import one.microstream.collections.types.XGettingTable;
 
 public interface AFileSystem extends AResolving
 {
-	// (06.06.2020 TM)FIXME: priv#49: analyse all lockings and complement/change where needed.
-	
 	public String defaultProtocol();
 	
 	public default ADirectory ensureDirectoryPath(final String... pathElements)
@@ -77,6 +75,10 @@ public interface AFileSystem extends AResolving
 	
 	public String deriveFileIdentifier(String fileName, String fileType);
 	
+	public String deriveFileName(String fileIdentifier);
+	
+	public String deriveFileType(String fileIdentifier);
+	
 
 	public VarString assemblePath(AFile file, VarString vs);
 	
@@ -106,7 +108,7 @@ public interface AFileSystem extends AResolving
 	
 	
 	
-	public abstract class Abstract<D, F> implements AFileSystem, AResolver<D, F>, ACreator
+	public abstract class Abstract<H extends AIoHandler, D, F> implements AFileSystem, AResolver<D, F>, ACreator
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -116,7 +118,7 @@ public interface AFileSystem extends AResolving
 		private final EqHashTable<String, ADirectory> rootDirectories; // ARoot or relative top-level directory
 		private final ACreator                        creator        ;
 		private final AccessManager                   accessManager  ;
-		private final AIoHandler                      ioHandler      ;
+		private final H                               ioHandler      ;
 		
 		
 		
@@ -125,8 +127,8 @@ public interface AFileSystem extends AResolving
 		/////////////////
 		
 		protected Abstract(
-			final String    defaultProtocol,
-			final AIoHandler ioHandler
+			final String defaultProtocol,
+			final H      ioHandler
 		)
 		{
 			this(defaultProtocol, null, ioHandler);
@@ -135,17 +137,17 @@ public interface AFileSystem extends AResolving
 		protected Abstract(
 			final String           defaultProtocol,
 			final ACreator.Creator creatorCreator ,
-			final AIoHandler       ioHandler
+			final H                ioHandler
 		)
 		{
 			this(defaultProtocol, creatorCreator, AccessManager::New, ioHandler);
 		}
 		
 		protected Abstract(
-			final String                     defaultProtocol     ,
-			final ACreator.Creator           creatorCreator      ,
-			final AccessManager.Creator      accessManagerCreator,
-			final AIoHandler                 ioHandler
+			final String                defaultProtocol     ,
+			final ACreator.Creator      creatorCreator      ,
+			final AccessManager.Creator accessManagerCreator,
+			final H                     ioHandler
 		)
 		{
 			super();
@@ -197,7 +199,7 @@ public interface AFileSystem extends AResolving
 		}
 		
 		@Override
-		public AIoHandler ioHandler()
+		public H ioHandler()
 		{
 			return this.ioHandler;
 		}

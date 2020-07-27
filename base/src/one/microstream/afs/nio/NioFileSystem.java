@@ -14,6 +14,7 @@ import one.microstream.afs.AWritableFile;
 import one.microstream.chars.VarString;
 import one.microstream.io.XIO;
 
+
 public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 {
 	public static ADirectory directory(final Path path)
@@ -41,8 +42,6 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		return Default.SINGLETON;
 	}
 	
-	
-	
 	public static Path toPath(final AItem item)
 	{
 		return NioFileSystem.toPath(item.toPath());
@@ -52,13 +51,23 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 	{
 		return XIO.Path(pathElements);
 	}
+	
+	
+	
+	
+	@Override
+	public NioIoHandler ioHandler();
+	
 		
 	public static NioFileSystem New()
 	{
-		/* (29.05.2020 TM)FIXME: priv#49: standard protocol strings? Constants, Enums?
+		/* (29.05.2020 TM)TODO: priv#49: standard protocol strings? Constants, Enums?
 		 * (02.06.2020 TM)Note: the JDK does not define such constants.
 		 * E.g. the class FileSystems just uses a plain String "file:///".
 		 * All other search results are false positives in JavaDoc and comments.
+		 * 
+		 * (19.07.2020 TM):
+		 * Downgraded to T0D0 since MicroStream does not require super clean structures regarding this point.
 		 */
 		return New("file:///");
 	}
@@ -84,7 +93,7 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		);
 	}
 	
-	public class Default extends AFileSystem.Abstract<Path, Path> implements NioFileSystem
+	public class Default extends AFileSystem.Abstract<NioIoHandler, Path, Path> implements NioFileSystem
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants        //
@@ -111,11 +120,23 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+				
 		@Override
 		public String deriveFileIdentifier(final String fileName, final String fileType)
 		{
 			return XIO.addFileSuffix(fileName, fileType);
+		}
+		
+		@Override
+		public String deriveFileName(final String fileIdentifier)
+		{
+			return XIO.getFilePrefix(fileIdentifier);
+		}
+		
+		@Override
+		public String deriveFileType(final String fileIdentifier)
+		{
+			return XIO.getFileSuffix(fileIdentifier);
 		}
 		
 		@Override
@@ -184,43 +205,65 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		}
 		
 		@Override
-		public synchronized AReadableFile wrapForReading(final AFile file, final Object user)
+		public AReadableFile wrapForReading(final AFile file, final Object user)
 		{
+			// note: no locking required for thread-safe trivial logic here.
 			final Path path = this.resolve(file);
 			
 			return NioReadableFile.New(file, user, path);
 		}
 
 		@Override
-		public synchronized AWritableFile wrapForWriting(final AFile file, final Object user)
+		public AWritableFile wrapForWriting(final AFile file, final Object user)
 		{
+			// note: no locking required for thread-safe trivial logic here.
 			final Path path = this.resolve(file);
 			
 			return NioWritableFile.New(file, user, path);
 		}
 		
 		@Override
-		public synchronized AReadableFile convertToReading(final AWritableFile file)
+		public AReadableFile convertToReading(final AWritableFile file)
 		{
-			// kind of ugly/unclean casts, but there's no acceptble way to prevent it.
-			return NioReadableFile.New(
+			final NioWritableFile wf = this.ioHandler().castWritableFile(file);
+			final boolean actuallyClosedChannel = wf.closeChannel();
+			
+			final NioReadableFile rf = NioReadableFile.New(
 				file,
 				file.user(),
-				((NioWritableFile)file).path(),
-				((NioWritableFile)file).fileChannel()
+				wf.path(),
+				null
 			);
+			
+			// replicate opened channel (ONLY!) if necessary
+			if(actuallyClosedChannel)
+			{
+				rf.ensureOpenChannel();
+			}
+			
+			return rf;
 		}
 		
 		@Override
-		public synchronized AWritableFile convertToWriting(final AReadableFile file)
+		public AWritableFile convertToWriting(final AReadableFile file)
 		{
-			// kind of ugly/unclean casts, but there's no acceptble way to prevent it.
-			return NioWritableFile.New(
+			final NioReadableFile wf = this.ioHandler().castReadableFile(file);
+			final boolean actuallyClosedChannel = wf.closeChannel();
+			
+			final NioWritableFile rf = NioWritableFile.New(
 				file,
 				file.user(),
-				((NioReadableFile)file).path(),
-				((NioReadableFile)file).fileChannel()
+				wf.path(),
+				null
 			);
+			
+			// replicate opened channel (ONLY!) if necessary
+			if(actuallyClosedChannel)
+			{
+				rf.ensureOpenChannel();
+			}
+			
+			return rf;
 		}
 		
 	}

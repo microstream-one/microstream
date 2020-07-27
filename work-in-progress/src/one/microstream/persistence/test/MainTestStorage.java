@@ -11,7 +11,6 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XEnum;
-import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
@@ -250,8 +249,7 @@ public class MainTestStorage extends TestStorage
 		final String filename = file.name();
 		return Long.valueOf(
 			filename.substring(
-				filename.lastIndexOf('_') + 1,
-				filename.lastIndexOf(XIO.fileSuffixSeparator())
+				filename.lastIndexOf('_') + 1
 			)
 		);
 	}

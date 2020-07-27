@@ -1,5 +1,6 @@
 package one.microstream.afs;
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.util.function.BiFunction;
@@ -8,11 +9,11 @@ import java.util.function.Function;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
-import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XArrays;
-import one.microstream.collections.types.XGettingCollection;
+import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.functional.XFunc;
 
 public interface ADirectory extends AItem, AResolving
 {
@@ -72,22 +73,22 @@ public interface ADirectory extends AItem, AResolving
 	public <C extends Consumer<? super ADirectory>> C iterateDirectories(C iterator);
 	
 	public <C extends Consumer<? super AFile>> C iterateFiles(C iterator);
+		
+	public ADirectory inventorize();
 	
-	// (23.06.2020 TM)FIXME: priv#49: consolidate list~ methods with those in AFS.
-	
-	public default XGettingCollection<AItem> listItems()
+	public default XGettingEnum<AItem> listItems()
 	{
-		return this.iterateItems(BulkList.New());
+		return AFS.listItems(this, XFunc.all());
 	}
 	
-	public default XGettingCollection<ADirectory> listDirectories()
+	public default XGettingEnum<ADirectory> listDirectories()
 	{
-		return this.iterateDirectories(BulkList.New());
+		return AFS.listDirectories(this, XFunc.all());
 	}
 	
-	public default XGettingCollection<AFile> listFiles()
+	public default XGettingEnum<AFile> listFiles()
 	{
-		return this.iterateFiles(BulkList.New());
+		return AFS.listFiles(this, XFunc.all());
 	}
 	
 	public boolean contains(AItem item);
@@ -132,12 +133,15 @@ public interface ADirectory extends AItem, AResolving
 		return this.fileSystem().ioHandler().exists(this);
 	}
 	
-	/* (03.06.2020 TM)FIXME: priv#49: directory mutation:
-	 * - move directory to directory
+	/* (03.06.2020 TM)TODO: priv#49: directory mutation:
+	 * - move directory to target directory
 	 * - delete directory
 	 * - rename directory
 	 * 
-	 * each is only allowed if there are no uses for that directory
+	 * Each is only allowed if there are no uses for that directory
+	 * 
+	 * (19.07.2020 TM):
+	 * Downgraded to T0D0 since MicroStream does not require directory mutations (for now...).
 	 */
 	
 	
@@ -193,11 +197,6 @@ public interface ADirectory extends AItem, AResolving
 		// methods //
 		////////////
 		
-		protected final Object mutex()
-		{
-			return this.observers;
-		}
-		
 		@Override
 		public final AItem getItem(final String identifier)
 		{
@@ -234,6 +233,17 @@ public interface ADirectory extends AItem, AResolving
 			{
 				return this.files.get(identifier);
 			}
+		}
+		
+		@Override
+		public final ADirectory inventorize()
+		{
+			synchronized(this.mutex())
+			{
+				this.fileSystem().ioHandler().inventorize(this);
+			}
+			
+			return this;
 		}
 		
 		@Override
@@ -355,6 +365,7 @@ public interface ADirectory extends AItem, AResolving
 				{
 					directory = this.fileSystem().creator().createDirectory(this, identifier);
 					this.register(identifier, directory);
+					directory.inventorize();
 				}
 				
 				return directory;
@@ -364,18 +375,35 @@ public interface ADirectory extends AItem, AResolving
 		@Override
 		public final AFile ensureFile(final String identifier, final String name, final String type)
 		{
-			final String effIdentifier = identifier != null
-				? identifier
-				: this.fileSystem().deriveFileIdentifier(name, type)
-			;
+			// either identifier or name must be non-null. Type may be null.
+			final String effIdnt, effName, effType;
+			
+			if(identifier == null)
+			{
+				effName = notNull(name);
+				effType = mayNull(type);
+				effIdnt = this.fileSystem().deriveFileIdentifier(name, type);
+			}
+			else
+			{
+				effIdnt = identifier;
+				effName = name != null
+					? name
+					: this.fileSystem().deriveFileName(identifier)
+				;
+				effType = type != null
+					? type
+					: this.fileSystem().deriveFileType(identifier) // might return null yet again.
+				;
+			}
 			
 			synchronized(this.mutex())
 			{
-				AFile file = this.files.get(effIdentifier);
+				AFile file = this.files.get(effIdnt);
 				if(file == null)
 				{
-					file = this.fileSystem().creator().createFile(this, effIdentifier, name, type);
-					this.register(effIdentifier, file);
+					file = this.fileSystem().creator().createFile(this, effIdnt, effName, effType);
+					this.register(effIdnt, file);
 				}
 				
 				return file;
@@ -405,6 +433,7 @@ public interface ADirectory extends AItem, AResolving
 				
 			}
 			
+			// requires the central lock but calls an internal method, so this lock must be acquired here
 			synchronized(this.fileSystem())
 			{
 				ADirectory directory = null;

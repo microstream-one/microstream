@@ -1066,6 +1066,24 @@ public final class XMemory
 
 		return buffer;
 	}
+	
+	public static final ByteBuffer capLimit(final ByteBuffer buffer, final long limit)
+	{
+		if(limit < buffer.limit())
+		{
+			buffer.limit((int)limit);
+		}
+
+		return buffer;
+	}
+	
+	public static final ByteBuffer clearForLimit(final ByteBuffer buffer, final long limit)
+	{
+		buffer.clear();
+		capLimit(buffer, limit);
+
+		return buffer;
+	}
 
 
 

@@ -25,7 +25,6 @@ import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.XArrays;
-import one.microstream.collections.XUtilsCollection;
 import one.microstream.collections.types.XAddingCollection;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.functional.XFunc;
@@ -168,7 +167,10 @@ public final class XIO
 		}
 		catch(final IOException e)
 		{
-			e.addSuppressed(suppressed);
+			if(suppressed != null)
+			{
+				e.addSuppressed(suppressed);
+			}
 			throw e;
 		}
 		
@@ -192,7 +194,10 @@ public final class XIO
 		}
 		catch(final Exception e)
 		{
-			e.addSuppressed(suppressed);
+			if(suppressed != null)
+			{
+				e.addSuppressed(suppressed);
+			}
 			throw e;
 		}
 		
@@ -336,9 +341,32 @@ public final class XIO
 	
 	public static String[] splitPath(final Path path)
 	{
-		return XUtilsCollection.projectInto(path, XIO::getFileName, BulkList.New())
-			.toArray(String.class)
-		;
+		/*
+		 * Note on algorithm:
+		 * Path#iterator does not work, because it hilariously omits the root element.
+		 * Prepending the root element does not work because it has a trailing separator in its toString
+		 * representation (which is inconsistent to all other Path elements) and there is no proper "getIdentifier"
+		 * method or such in Path.
+		 * Besides, Path only stores a plain String and every operation has to inefficiently deconstruct that string.
+		 * 
+		 * So the only reasonable and performance-wise best approach in the first place is to split the string
+		 * directly.
+		 * 
+		 * But the fun continues:
+		 * String#split cannot be used since the separator might be a regex meta character.
+		 * It could be quoted, but all this regex business gets into the realm of cracking a nut with a a sledgehammer.
+		 * (or shooting sparrows with cannons! :D)
+		 * 
+		 * So a simpler, more direct and in the end much faster approach is used.
+		 * This might very well become relevant if lots of Paths (e.g. tens of thousands when scanning a drive) have
+		 * to be processed.
+		 */
+		
+		// local variables for debugging purposes. Should be jitted out, anyway.
+		final String pathString = path.toString();
+		final String separator  = path.getFileSystem().getSeparator();
+		
+		return XChars.splitSimple(pathString, separator);
 	}
 	
 	public static final VarString assemblePath(
@@ -564,19 +592,25 @@ public final class XIO
 	public static FileChannel openFileChannelReading(final Path file, final OpenOption... options)
 		throws IOException
 	{
-		return FileChannel.open(file, XArrays.ensureContained(options, READ));
+		return openFileChannel(file, XArrays.ensureContained(options, READ));
 	}
 	
 	public static FileChannel openFileChannelWriting(final Path file, final OpenOption... options)
 		throws IOException
 	{
-		return FileChannel.open(file, XArrays.ensureContained(options, WRITE));
+		return openFileChannel(file, XArrays.ensureContained(options, WRITE));
 	}
 	
 	public static FileChannel openFileChannelRW(final Path file, final OpenOption... options)
 		throws IOException
 	{
-		return FileChannel.open(file, XArrays.ensureContained(options, READ, WRITE));
+		return openFileChannelWriting(file, XArrays.ensureContained(options, READ));
+	}
+	
+	public static FileChannel openFileChannel(final Path file, final OpenOption... options)
+		throws IOException
+	{
+		return FileChannel.open(file, options);
 	}
 	
 	
@@ -1126,7 +1160,8 @@ public final class XIO
 		final int  targetLimit = X.checkArrayRange(targetBuffer.position() + effectiveLength);
 		final long fileLength  = fileChannel.size();
 		
-		long fileOffset = X.validateRange(fileLength, filePosition, effectiveLength);
+		X.validateRange(fileLength, filePosition, effectiveLength);
+		long fileOffset = filePosition;
 		targetBuffer.limit(targetLimit);
 		
 		// reading should be done in one fell swoop, but better be sure
@@ -1216,9 +1251,17 @@ public final class XIO
 	)
 		throws IOException
 	{
-		return copyFile(sourceChannel, targetChannel, 0);
+		return copyFile(sourceChannel, 0, targetChannel);
 	}
 	
+	/**
+	 * Uses the sourceChannel's current position!
+	 * @param sourceChannel
+	 * @param targetChannel
+	 * @param targetPosition
+	 * @return
+	 * @throws IOException
+	 */
 	public static long copyFile(
 		final FileChannel sourceChannel ,
 		final FileChannel targetChannel ,

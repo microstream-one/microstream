@@ -583,7 +583,7 @@ public interface AccessManager
 					return e.exclusive;
 				}
 				
-				conflictHandler.handleSharedAttemptExclusiveUserConflict(actual, e);
+				conflictHandler.handleSharedAttemptExclusiveUserConflict(actual, user, e);
 			}
 			
 			AReadableFile wrapper = e.getForUser(user);
@@ -615,7 +615,7 @@ public interface AccessManager
 					return e.exclusive;
 				}
 				
-				conflictHandler.handleExclusiveAttemptConflict(actual, e);
+				conflictHandler.handleExclusiveAttemptConflict(actual, user, e);
 				
 				return null;
 			}
@@ -630,7 +630,7 @@ public interface AccessManager
 				}
 				else
 				{
-					conflictHandler.handleExclusiveAttemptSharedUsersConflict(actual, e);
+					conflictHandler.handleExclusiveAttemptSharedUsersConflict(actual, user, e);
 				}
 			}
 			else
@@ -644,19 +644,31 @@ public interface AccessManager
 		private static final ConflictHandler CONFLICT_HANDLER_NO_OP = new ConflictHandler()
 		{
 			@Override
-			public void handleSharedAttemptExclusiveUserConflict(final AFile actual, final FileEntry entry)
+			public void handleSharedAttemptExclusiveUserConflict(
+				final AFile     actual,
+				final Object    user  ,
+				final FileEntry entry
+			)
 			{
 				// no-op
 			}
 			
 			@Override
-			public void handleExclusiveAttemptConflict(final AFile actual, final FileEntry entry)
+			public void handleExclusiveAttemptConflict(
+				final AFile     actual,
+				final Object    user  ,
+				final FileEntry entry
+			)
 			{
 				// no-op
 			}
 			
 			@Override
-			public void handleExclusiveAttemptSharedUsersConflict(final AFile actual, final FileEntry entry)
+			public void handleExclusiveAttemptSharedUsersConflict(
+				final AFile     actual,
+				final Object    user  ,
+				final FileEntry entry
+			)
 			{
 				// no-op
 			}
@@ -665,26 +677,46 @@ public interface AccessManager
 		private static final ConflictHandler CONFLICT_HANDLER_EXCEPTION = new ConflictHandler()
 		{
 			@Override
-			public void handleSharedAttemptExclusiveUserConflict(final AFile actual, final FileEntry entry)
+			public void handleSharedAttemptExclusiveUserConflict(
+				final AFile     actual,
+				final Object    user  ,
+				final FileEntry entry
+			)
 			{
 				// (30.04.2020 TM)EXCP: proper exception
-				throw new RuntimeException("File is exclusively used: " + actual);
+				throw new RuntimeException(
+					"File is already exclusively used by a different user: " + actual
+					+ ". Exclusive user: " + entry.exclusive.user()
+					+ ". Attempting user: " + user + "."
+				);
 			}
 			
 			@Override
-			public void handleExclusiveAttemptConflict(final AFile actual, final FileEntry entry)
+			public void handleExclusiveAttemptConflict(
+				final AFile     actual,
+				final Object    user  ,
+				final FileEntry entry
+			)
 			{
 				// (30.04.2020 TM)EXCP: proper exception
-				throw new RuntimeException("File is exclusively used: " + actual);
+				throw new RuntimeException(
+					"File is already used by a different exclusive user: " + actual
+					+ ". Exclusive user: " + entry.exclusive.user()
+					+ ". Attempting user: " + user + "."
+				);
 			}
 			
 			@Override
-			public void handleExclusiveAttemptSharedUsersConflict(final AFile actual, final FileEntry entry)
+			public void handleExclusiveAttemptSharedUsersConflict(
+				final AFile     actual,
+				final Object    user  ,
+				final FileEntry entry
+			)
 			{
 				// (30.04.2020 TM) EXCP: proper exception
 				throw new RuntimeException(
 					"File \"" + actual.toPathString()
-					+ "\" cannot be accessed exlusively since there are shared users present."
+					+ "\" cannot be accessed exclusively since there are shared users present."
 				);
 			}
 		};
@@ -692,11 +724,11 @@ public interface AccessManager
 		
 		interface ConflictHandler
 		{
-			public void handleSharedAttemptExclusiveUserConflict(AFile actual, FileEntry entry);
+			public void handleSharedAttemptExclusiveUserConflict(AFile actual, Object user, FileEntry entry);
 
-			public void handleExclusiveAttemptConflict(AFile actual, FileEntry entry);
+			public void handleExclusiveAttemptConflict(AFile actual, Object user, FileEntry entry);
 
-			public void handleExclusiveAttemptSharedUsersConflict(AFile actual, FileEntry entry);
+			public void handleExclusiveAttemptSharedUsersConflict(AFile actual, Object user, FileEntry entry);
 		}
 
 		

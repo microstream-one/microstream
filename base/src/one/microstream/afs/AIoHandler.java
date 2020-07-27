@@ -2,8 +2,10 @@ package one.microstream.afs;
 
 import java.nio.ByteBuffer;
 
+import one.microstream.X;
 import one.microstream.chars.XChars;
 import one.microstream.io.BufferProvider;
+import one.microstream.memory.XMemory;
 import one.microstream.util.UtilStackTrace;
 
 
@@ -11,9 +13,45 @@ public interface AIoHandler
 {
 	/* (08.06.2020 TM)TODO: priv#49: JavaDoc: guaranteed completeness
 	 * guarantees that all specified bytes (where applicable) are read/written.
-	 * Any iterative, reattempting, waiting, timeouting etc. logic that is required for this must be provided
+	 * Any iterative, reattempting, waiting, timeouting etc. logic that is required for this must be covered
 	 * by the IoHandler implementation.
 	 */
+	
+	/* (16.07.2020 TM)TODO: priv#49: composite IoHandler
+	 * The default implementation is rather strict on its handleable file and directory implementations.
+	 * This is intentional.
+	 * If a more flexible or dynamic/heuristic approach is desired, it has to be implemented as another IoHandler.
+	 * For example a "composite" IoHandler that looks up the specific IoHandler depending on the implementation of
+	 * a passed file or directory.
+	 */
+	
+	/* (16.07.2020 TM)TODO: priv#49: target positional parameters
+	 * So far, variants for target positional writing (including copying) is missing completely.
+	 * There is a way to provide a source position, but the target can only be written to
+	 * in the way the implementation has set the default behavior (always append or always start at 0).
+	 * This matches the microstream strategy, but in general, it must be possible to write to a
+	 * specified position in the target file.
+	 * Simple example: a utility that replaces found byte ranges with a new value (search & replace).
+	 * Currently, such a tricial functionality is not possible with AFS.
+	 */
+	
+	public boolean isHandledItem(AItem item);
+	
+	public boolean isHandledFile(AFile file);
+	
+	public boolean isHandledDirectory(ADirectory directory);
+	
+	public boolean isHandledReadableFile(AReadableFile file);
+	
+	public boolean isHandledWritableFile(AWritableFile file);
+	
+	public void validateHandledFile(AFile file);
+	
+	public void validateHandledDirectory(ADirectory directory);
+	
+	public void validateHandledReadableFile(AReadableFile file);
+	
+	public void validateHandledWritableFile(AWritableFile file);
 	
 	public long size(AFile file);
 
@@ -28,6 +66,8 @@ public interface AIoHandler
 	public boolean ensureExists(ADirectory directory);
 
 	public boolean ensureExists(AWritableFile file);
+	
+	public void inventorize(ADirectory directory);
 	
 
 	// ONLY the IO-Aspect, not the AFS-management-level aspect
@@ -64,18 +104,30 @@ public interface AIoHandler
 	public long readBytes(AReadableFile sourceFile, BufferProvider bufferProvider, long position, long length);
 		
 	
-	public long copyTo(AReadableFile sourceFile, AWritableFile target);
+	public long copyTo(AReadableFile sourceSubject, AWritableFile target);
 	
-	public long copyTo(AReadableFile sourceFile, long sourcePosition, AWritableFile target);
+	public long copyTo(AReadableFile sourceSubject, long sourcePosition, AWritableFile target);
 	
-	public long copyTo(AReadableFile sourceFile, long sourcePosition, long length, AWritableFile target);
+	public long copyTo(AReadableFile sourceSubject, long sourcePosition, long length, AWritableFile target);
 	
-//	public long copyTo(AReadableFile sourceFile, AWritableFile target, long targetPosition);
+//	public long copyTo(AReadableFile sourceSubject, AWritableFile target, long targetPosition);
 //
-//	public long copyTo(AReadableFile sourceFile, AWritableFile target, long targetPosition, long length);
+//	public long copyTo(AReadableFile sourceSubject, AWritableFile target, long targetPosition, long length);
+//
+//	public long copyTo(AReadableFile sourceSubject, long srcPos, AWritableFile target, long trgPos, long length);
 	
+	public long copyFrom(AReadableFile source, AWritableFile targetSubject);
 	
+	public long copyFrom(AReadableFile source, long sourcePosition, AWritableFile targetSubject);
 	
+	public long copyFrom(AReadableFile source, long sourcePosition, long length, AWritableFile targetSubject);
+	
+//	public long copyFrom(AReadableFile source, AWritableFile targetSubject, long targetPosition);
+//
+//	public long copyFrom(AReadableFile source, AWritableFile targetSubject, long targetPosition, long length);
+//
+//	public long copyFrom(AReadableFile source, long srcPos, AWritableFile targetSubject, long trgPos, long length);
+		
 	
 	public long writeBytes(AWritableFile targetFile, Iterable<? extends ByteBuffer> sourceBuffers);
 
@@ -85,6 +137,7 @@ public interface AIoHandler
 	
 	public void truncate(AWritableFile file, long newSize);
 	
+		
 	
 	public abstract class Abstract<
 		FS,
@@ -141,6 +194,8 @@ public interface AIoHandler
 
 		protected abstract boolean specificExists(D directory);
 
+		protected abstract void specificInventorize(D directory);
+
 		protected abstract boolean specificIsOpen(R file);
 
 		protected abstract boolean specificOpenReading(R file);
@@ -174,15 +229,30 @@ public interface AIoHandler
 		protected abstract long specificReadBytes(R sourceFile, BufferProvider bufferProvider, long position, long length);
 			
 		
-		protected abstract long specificCopyTo(R sourceFile, AWritableFile target);
+		protected abstract long specificCopyTo(R sourceSubject, AWritableFile target);
 		
-		protected abstract long specificCopyTo(R sourceFile, long sourcePosition, AWritableFile target);
+		protected abstract long specificCopyTo(R sourceSubject, long sourcePosition, AWritableFile target);
 		
-		protected abstract long specificCopyTo(R sourceFile, long sourcePosition, long length, AWritableFile target);
+		protected abstract long specificCopyTo(R sourceSubject, long sourcePosition, long length, AWritableFile target);
 		
-//		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long targetPosition);
+//		protected abstract long specificCopyTo(R sourceSubject, AWritableFile target, long targetPosition);
 //
-//		protected abstract long specificCopyTo(R sourceFile, AWritableFile target, long targetPosition, long length);
+//		protected abstract long specificCopyTo(R sourceSubject, AWritableFile target, long targetPosition, long length);
+//
+//		protected abstract long specificCopyTo(R sourceSubject, long srcPos, AWritableFile target, long trgPos, long length);
+		
+		
+		protected abstract long specificCopyFrom(AReadableFile source, W targetSubject);
+		
+		protected abstract long specificCopyFrom(AReadableFile source, long sourcePosition, W targetSubject);
+		
+		protected abstract long specificCopyFrom(AReadableFile source, long sourcePosition, long length, W targetSubject);
+		
+//		protected abstract long specificCopyFrom(AReadableFile source, W targetSubject, long targetPosition);
+//
+//		protected abstract long specificCopyFrom(AReadableFile source, W targetSubject, long targetPosition, long length);
+//
+//		protected abstract long specificCopyFrom(AReadableFile source, long srcPos, W targetSubject, long trgPos, long length);
 		
 		
 		protected abstract long specificWriteBytes(W targetFile, Iterable<? extends ByteBuffer> sourceBuffers);
@@ -193,6 +263,55 @@ public interface AIoHandler
 		
 		protected abstract void specificTruncateFile(W file, long newSize);
 		
+		
+		protected long copyGeneric(
+			final AReadableFile source,
+			final AWritableFile target
+		)
+		{
+			return this.copyFrom(source, 0, target);
+		}
+		
+		protected long copyGeneric(
+			final AReadableFile source        ,
+			final long          sourcePosition,
+			final AWritableFile target
+		)
+		{
+			return this.copyFrom(source, sourcePosition, source.size(), target);
+		}
+		
+		protected long copyGeneric(
+			final AReadableFile source        ,
+			final long          sourcePosition,
+			final AWritableFile target        ,
+			final long          length
+		)
+		{
+			final ByteBuffer dbb = XMemory.allocateDirectNativeDefault();
+			
+			try
+			{
+				final long sourceSize  = source.size(); // explicit variable for debugging purposes
+				final long sourceBound = X.validateRange(sourceSize, sourcePosition, length);
+				
+				for(long s = sourcePosition; s < sourceBound; s += dbb.limit())
+				{
+					XMemory.clearForLimit(dbb, sourceBound - s);
+					
+					// read and write method implementations must guarantee to write the specified byte count
+					source.readBytes(dbb, sourcePosition);
+					dbb.flip();
+					target.writeBytes(dbb);
+				}
+			}
+			finally
+			{
+				XMemory.deallocateDirectByteBuffer(dbb);
+			}
+			
+			return length;
+		}
 		
 		
 		protected RuntimeException createUnhandledTypeException(final Object subject, final Class<?> checkedType)
@@ -238,32 +357,38 @@ public interface AIoHandler
 			return this.createUnhandledTypeException(subject, this.typeWritableFile, 1);
 		}
 		
-		protected boolean isHandledItem(final AItem item)
+		@Override
+		public boolean isHandledItem(final AItem item)
 		{
 			return this.typeItem.isInstance(item);
 		}
 		
-		protected boolean isHandledFile(final AFile file)
+		@Override
+		public boolean isHandledFile(final AFile file)
 		{
 			return this.typeFile.isInstance(file);
 		}
 		
-		protected boolean isHandledDirectory(final ADirectory directory)
+		@Override
+		public boolean isHandledDirectory(final ADirectory directory)
 		{
 			return this.typeDirectory.isInstance(directory);
 		}
 		
-		protected boolean isHandledReadableFile(final AReadableFile file)
+		@Override
+		public boolean isHandledReadableFile(final AReadableFile file)
 		{
 			return this.typeReadableFile.isInstance(file);
 		}
 		
-		protected boolean isHandledWritableFile(final AWritableFile file)
+		@Override
+		public boolean isHandledWritableFile(final AWritableFile file)
 		{
 			return this.typeWritableFile.isInstance(file);
 		}
 		
-		protected final void validateHandledFile(final AFile file)
+		@Override
+		public final void validateHandledFile(final AFile file)
 		{
 			if(this.isHandledFile(file))
 			{
@@ -273,7 +398,8 @@ public interface AIoHandler
 			throw this.createUnhandledTypeExceptionFile(file);
 		}
 		
-		protected final void validateHandledDirectory(final ADirectory directory)
+		@Override
+		public final void validateHandledDirectory(final ADirectory directory)
 		{
 			if(this.isHandledDirectory(directory))
 			{
@@ -283,7 +409,8 @@ public interface AIoHandler
 			throw this.createUnhandledTypeExceptionDirectory(directory);
 		}
 		
-		protected final void validateHandledReadableFile(final AReadableFile file)
+		@Override
+		public final void validateHandledReadableFile(final AReadableFile file)
 		{
 			if(this.isHandledReadableFile(file))
 			{
@@ -293,7 +420,8 @@ public interface AIoHandler
 			throw this.createUnhandledTypeExceptionReadableFile(file);
 		}
 		
-		protected final void validateHandledWritableFile(final AWritableFile file)
+		@Override
+		public final void validateHandledWritableFile(final AWritableFile file)
 		{
 			if(this.isHandledWritableFile(file))
 			{
@@ -301,6 +429,13 @@ public interface AIoHandler
 			}
 			
 			throw this.createUnhandledTypeExceptionWritableFile(file);
+		}
+		
+		protected R castReadableFile(final AReadableFile file)
+		{
+			this.validateHandledReadableFile(file);
+			
+			return this.typeReadableFile.cast(file);
 		}
 		
 		protected W castWritableFile(final AWritableFile file)
@@ -327,6 +462,7 @@ public interface AIoHandler
 		@Override
 		public long size(final AFile file)
 		{
+			// required to query the size of a general AFile instance
 			if(!this.isHandledFile(file))
 			{
 				return this.subjectFileSize(this.toSubjectFile(file));
@@ -338,6 +474,7 @@ public interface AIoHandler
 		@Override
 		public boolean exists(final AFile file)
 		{
+			// required to check the existence of a general AFile instance
 			if(!this.isHandledFile(file))
 			{
 				return this.subjectFileExists(this.toSubjectFile(file));
@@ -349,12 +486,21 @@ public interface AIoHandler
 		@Override
 		public boolean exists(final ADirectory directory)
 		{
+			// required to check the existence of a general ADirectory instance
 			if(!this.isHandledDirectory(directory))
 			{
 				return this.subjectDirectoryExists(this.toSubjectDirectory(directory));
 			}
 
 			return this.specificExists(this.typeDirectory.cast(directory));
+		}
+		
+		@Override
+		public void inventorize(final ADirectory directory)
+		{
+			this.validateHandledDirectory(directory);
+			
+			this.specificInventorize(this.typeDirectory.cast(directory));
 		}
 
 		@Override
@@ -404,17 +550,14 @@ public interface AIoHandler
 		{
 			this.validateHandledDirectory(directory);
 			
-			/* (31.05.2020 TM)TODO: priv#49: if ioHandler does locking, what about the other methods?
-			 * Think through locking concept and concerned instances, potential deadlocks, etc. in general.
-			 */
-			synchronized(this)
+			// only handle non-root parent directories. Note that not all roots are of type ARoot
+			if(directory.parent() != null)
 			{
-				// only handle non-root parent directories. Note that not all roots are of type ARoot
-				if(directory.parent() != null)
-				{
-					this.ensureExists(directory.parent());
-				}
-				
+				this.ensureExists(directory.parent());
+			}
+			
+			synchronized(ADirectory.actual(directory))
+			{
 				directory.iterateObservers(o ->
 					o.onBeforeDirectoryCreate(directory)
 				);
@@ -434,22 +577,29 @@ public interface AIoHandler
 		{
 			this.validateHandledWritableFile(file);
 			
-			synchronized(this)
+			final ADirectory parent = ADirectory.actual(file.parent());
+			
+			this.ensureExists(parent);
+			
+			synchronized(parent)
 			{
-				this.ensureExists(file.parent());
-				
 				file.parent().iterateObservers(o ->
 					o.onBeforeFileCreate(file)
 				);
-				file.iterateObservers(o ->
-					o.onBeforeFileCreate(file)
-				);
 				
-				this.specificCreate(this.typeWritableFile.cast(file));
+				synchronized(file.actual())
+				{
+					file.iterateObservers(o ->
+						o.onBeforeFileCreate(file)
+					);
+					
+					this.specificCreate(this.typeWritableFile.cast(file));
+					
+					file.iterateObservers(o ->
+						o.onAfterFileCreate(file)
+					);
+				}
 				
-				file.iterateObservers(o ->
-					o.onAfterFileCreate(file)
-				);
 				file.parent().iterateObservers(o ->
 					o.onAfterFileCreate(file)
 				);
@@ -459,8 +609,7 @@ public interface AIoHandler
 		@Override
 		public boolean ensureExists(final ADirectory directory)
 		{
-			final ADirectory actual = ADirectory.actual(directory);
-			synchronized(actual)
+			synchronized(ADirectory.actual(directory))
 			{
 				if(this.exists(directory))
 				{
@@ -468,16 +617,15 @@ public interface AIoHandler
 				}
 				
 				this.create(directory);
-				
-				return true;
 			}
+			
+			return true;
 		}
 
 		@Override
 		public boolean ensureExists(final AWritableFile file)
 		{
-			final AFile actual = file.actual();
-			synchronized(actual)
+			synchronized(file.actual())
 			{
 				if(this.exists(file))
 				{
@@ -485,9 +633,9 @@ public interface AIoHandler
 				}
 				
 				this.create(file);
-				
-				return true;
 			}
+			
+			return true;
 		}
 
 		@Override
@@ -595,69 +743,188 @@ public interface AIoHandler
 
 		@Override
 		public long copyTo(
-			final AReadableFile sourceFile,
+			final AReadableFile sourceSubject,
 			final AWritableFile target
 		)
 		{
-			this.validateHandledReadableFile(sourceFile);
+			this.validateHandledReadableFile(sourceSubject);
 
-			return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target);
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			target.ensureExists();
+			
+			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target);
 		}
 		
 		@Override
 		public long copyTo(
-			final AReadableFile sourceFile    ,
+			final AReadableFile sourceSubject ,
 			final long          sourcePosition,
 			final AWritableFile target
 		)
 		{
-			this.validateHandledReadableFile(sourceFile);
+			this.validateHandledReadableFile(sourceSubject);
+
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			target.ensureExists();
 			
-			return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), sourcePosition, target);
+			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, target);
 		}
 		
 		@Override
 		public long copyTo(
-			final AReadableFile sourceFile    ,
+			final AReadableFile sourceSubject ,
 			final long          sourcePosition,
 			final long          length        ,
 			final AWritableFile target
 		)
 		{
-			this.validateHandledReadableFile(sourceFile);
+			this.validateHandledReadableFile(sourceSubject);
 
-			return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), sourcePosition, length, target);
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			target.ensureExists();
+
+			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, length, target);
 		}
 
 //		@Override
 //		public long copyTo(
-//			final AReadableFile sourceFile    ,
+//			final AReadableFile sourceSubject ,
 //			final AWritableFile target        ,
 //			final long          targetPosition
 //		)
 //		{
-//			if(this.isHandledReadableFile(sourceFile))
-//			{
-//				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, targetPosition);
-//			}
+//			this.validateHandledReadableFile(sourceSubject);
 //
-//			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			target.ensureExists();
+//
+//			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target, targetPosition);
 //		}
 //
 //		@Override
 //		public long copyTo(
-//			final AReadableFile sourceFile    ,
+//			final AReadableFile sourceSubject ,
 //			final AWritableFile target        ,
 //			final long          targetPosition,
 //			final long          length
 //		)
 //		{
-//			if(this.isHandledReadableFile(sourceFile))
-//			{
-//				return this.specificCopyTo(this.typeReadableFile.cast(sourceFile), target, targetPosition, length);
-//			}
+//			this.validateHandledReadableFile(sourceSubject);
 //
-//			throw this.createUnhandledTypeExceptionReadableFile(sourceFile);
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			target.ensureExists();
+//
+//			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target, targetPosition, length);
+//		}
+//
+//		@Override
+//		public long copyTo(
+//			final AReadableFile sourceSubject ,
+//			final long          sourcePosition,
+//			final AWritableFile target        ,
+//			final long          targetPosition,
+//			final long          length
+//		)
+//		{
+//			this.validateHandledReadableFile(sourceSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			target.ensureExists();
+//
+//			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, target, targetPosition, length);
+//		}
+		
+		@Override
+		public long copyFrom(
+			final AReadableFile source       ,
+			final AWritableFile targetSubject
+		)
+		{
+			this.validateHandledWritableFile(targetSubject);
+
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			targetSubject.ensureExists();
+
+			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject));
+		}
+		
+		@Override
+		public long copyFrom(
+			final AReadableFile source        ,
+			final long          sourcePosition,
+			final AWritableFile targetSubject
+		)
+		{
+			this.validateHandledWritableFile(targetSubject);
+
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			targetSubject.ensureExists();
+			
+			return this.specificCopyFrom(source, sourcePosition, this.typeWritableFile.cast(targetSubject));
+		}
+		
+		@Override
+		public long copyFrom(
+			final AReadableFile source        ,
+			final long          sourcePosition,
+			final long          length        ,
+			final AWritableFile targetSubject
+		)
+		{
+			this.validateHandledWritableFile(targetSubject);
+
+			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			targetSubject.ensureExists();
+
+			return this.specificCopyFrom(source, sourcePosition, length, this.typeWritableFile.cast(targetSubject));
+		}
+
+//		@Override
+//		public long copyFrom(
+//			final AReadableFile source        ,
+//			final AWritableFile targetSubject ,
+//			final long          targetPosition
+//		)
+//		{
+//			this.validateHandledWritableFile(targetSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			targetSubject.ensureExists();
+//
+//			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition);
+//		}
+//
+//		@Override
+//		public long copyFrom(
+//			final AReadableFile source        ,
+//			final AWritableFile targetSubject ,
+//			final long          targetPosition,
+//			final long          length
+//		)
+//		{
+//			this.validateHandledWritableFile(targetSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			targetSubject.ensureExists();
+//
+//			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition, length);
+//		}
+//
+//		@Override
+//		public long copyFrom(
+//			final AReadableFile source        ,
+//			final long          sourcePosition,
+//			final AWritableFile targetSubject ,
+//			final long          targetPosition,
+//			final long          length
+//		)
+//		{
+//			this.validateHandledWritableFile(targetSubject);
+//
+//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+//			targetSubject.ensureExists();
+//
+//			return this.specificCopyFrom(source, sourcePosition, this.typeWritableFile.cast(targetSubject), targetPosition, length);
 //		}
 
 		@Override
@@ -668,25 +935,25 @@ public interface AIoHandler
 		{
 			this.validateHandledWritableFile(targetFile);
 			
-			targetFile.iterateObservers(o ->
-				o.onBeforeFileWrite(targetFile, sourceBuffers)
-			);
-					
-			final long writeCount = this.specificWriteBytes(
-				this.typeWritableFile.cast(targetFile),
-				sourceBuffers
-			);
-			
-			targetFile.iterateObservers(o ->
-				o.onAfterFileWrite(targetFile, sourceBuffers, writeCount)
-			);
-			
-			return writeCount;
+			synchronized(targetFile.actual())
+			{
+				targetFile.iterateObservers(o ->
+					o.onBeforeFileWrite(targetFile, sourceBuffers)
+				);
+						
+				final long writeCount = this.specificWriteBytes(
+					this.typeWritableFile.cast(targetFile),
+					sourceBuffers
+				);
+				
+				targetFile.iterateObservers(o ->
+					o.onAfterFileWrite(targetFile, sourceBuffers, writeCount)
+				);
+				
+				return writeCount;
+			}
 		}
-
-		/* (28.05.2020 TM)TODO: priv#49: call moveFile
-		 * But NOT automatic unregister on the abstract level, because ... it's abstract!
-		 */
+		
 		@Override
 		public void moveFile(
 			final AWritableFile sourceFile,
@@ -694,15 +961,30 @@ public interface AIoHandler
 		)
 		{
 			this.validateHandledWritableFile(sourceFile);
+
+			final ADirectory sourceParent = ADirectory.actual(sourceFile.parent());
+			final ADirectory targetParent = ADirectory.actual(targetFile.parent());
 			
-			targetFile.parent().iterateObservers(o ->
+			/*
+			 * intentionally no locking here, since there are TWO sets of parent&file involved,
+			 * which could cause deadlocks.
+			 */
+			
+			targetParent.iterateObservers(o ->
 			{
 				o.onBeforeFileMove(sourceFile, targetFile);
+			});
+			sourceParent.iterateObservers(o ->
+			{
 				o.onBeforeFileDelete(sourceFile);
 			});
+			
 			targetFile.iterateObservers(o ->
 			{
 				o.onBeforeFileMove(sourceFile, targetFile);
+			});
+			sourceFile.iterateObservers(o ->
+			{
 				o.onBeforeFileDelete(sourceFile);
 			});
 			
@@ -711,11 +993,19 @@ public interface AIoHandler
 			targetFile.iterateObservers(o ->
 			{
 				o.onAfterFileMove(sourceFile, targetFile);
+			});
+			
+			sourceFile.iterateObservers(o ->
+			{
 				o.onAfterFileDelete(sourceFile, true);
 			});
-			targetFile.parent().iterateObservers(o ->
+			
+			targetParent.iterateObservers(o ->
 			{
 				o.onAfterFileMove(sourceFile, targetFile);
+			});
+			sourceParent.iterateObservers(o ->
+			{
 				o.onAfterFileDelete(sourceFile, true);
 			});
 		}
@@ -724,22 +1014,33 @@ public interface AIoHandler
 		public boolean deleteFile(final AWritableFile file)
 		{
 			this.validateHandledWritableFile(file);
+
+			final ADirectory parent = ADirectory.actual(file.parent());
+
+			final boolean result;
+			synchronized(parent)
+			{
+				file.parent().iterateObservers(o ->
+					o.onBeforeFileDelete(file)
+				);
+				
+				synchronized(file.actual())
+				{
+					file.iterateObservers(o ->
+						o.onBeforeFileDelete(file)
+					);
+					
+					result = this.specificDeleteFile(this.typeWritableFile.cast(file));
 			
-			file.parent().iterateObservers(o ->
-				o.onBeforeFileDelete(file)
-			);
-			file.iterateObservers(o ->
-				o.onBeforeFileDelete(file)
-			);
-			
-			final boolean result = this.specificDeleteFile(this.typeWritableFile.cast(file));
-	
-			file.iterateObservers(o ->
-				o.onAfterFileDelete(file, result)
-			);
-			file.parent().iterateObservers(o ->
-				o.onAfterFileDelete(file, result)
-			);
+					file.iterateObservers(o ->
+						o.onAfterFileDelete(file, result)
+					);
+				}
+				
+				file.parent().iterateObservers(o ->
+					o.onAfterFileDelete(file, result)
+				);
+			}
 			
 			return result;
 		}
@@ -750,15 +1051,18 @@ public interface AIoHandler
 		{
 			this.validateHandledWritableFile(file);
 			
-			file.iterateObservers(o ->
-				o.onBeforeFileTruncation(file, newSize)
-			);
-			
-			this.specificTruncateFile(this.typeWritableFile.cast(file), newSize);
-	
-			file.iterateObservers(o ->
-				o.onAfterFileTruncation(file, newSize)
-			);
+			synchronized(file.actual())
+			{
+				file.iterateObservers(o ->
+					o.onBeforeFileTruncation(file, newSize)
+				);
+				
+				this.specificTruncateFile(this.typeWritableFile.cast(file), newSize);
+		
+				file.iterateObservers(o ->
+					o.onAfterFileTruncation(file, newSize)
+				);
+			}
 		}
 		
 	}

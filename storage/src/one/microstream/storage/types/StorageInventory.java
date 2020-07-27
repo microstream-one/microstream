@@ -16,9 +16,9 @@ public interface StorageInventory extends StorageHashChannelPart
 		// instance fields //
 		////////////////////
 
-		final int                                           channelIndex    ;
-		final XGettingTable<Long, StorageDataInventoryFile> dataFiles       ;
-		final StorageTransactionsAnalysis                   transactionsFile;
+		final int                                           channelIndex        ;
+		final XGettingTable<Long, StorageDataInventoryFile> dataFiles           ;
+		final StorageTransactionsAnalysis                   transactionsAnalysis;
 
 
 
@@ -27,15 +27,15 @@ public interface StorageInventory extends StorageHashChannelPart
 		/////////////////
 
 		public Default(
-			final int                                           channelIndex    ,
-			final XGettingTable<Long, StorageDataInventoryFile> dataFiles       ,
-			final StorageTransactionsAnalysis                   transactionsFile
+			final int                                           channelIndex        ,
+			final XGettingTable<Long, StorageDataInventoryFile> dataFiles           ,
+			final StorageTransactionsAnalysis                   transactionsAnalysis
 		)
 		{
 			super();
-			this.channelIndex     = channelIndex    ;
-			this.dataFiles        = dataFiles       ;
-			this.transactionsFile = transactionsFile;
+			this.channelIndex         = channelIndex        ;
+			this.dataFiles            = dataFiles           ;
+			this.transactionsAnalysis = transactionsAnalysis;
 		}
 
 
@@ -59,7 +59,7 @@ public interface StorageInventory extends StorageHashChannelPart
 		@Override
 		public final StorageTransactionsAnalysis transactionsFileAnalysis()
 		{
-			return this.transactionsFile;
+			return this.transactionsAnalysis;
 		}
 
 	}

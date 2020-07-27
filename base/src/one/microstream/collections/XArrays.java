@@ -406,8 +406,8 @@ public final class XArrays
 	public static <T> T[] remove(final T[] array, final int i)
 	{
 		final T[] newArray = ArrayOfSameType(array, array.length - 1);
-		System.arraycopy(array, 0, newArray, 0, i                   );
-		System.arraycopy(array, i, newArray, i, array.length - i - 1);
+		System.arraycopy(array, 0    , newArray, 0, i                   );
+		System.arraycopy(array, i + 1, newArray, i, array.length - i - 1);
 		
 		return newArray;
 	}
@@ -618,6 +618,16 @@ public final class XArrays
 		
 		// all elements of a2 were found in a1. No need to modify anything.
 		return a1;
+	}
+	
+	public static final <T> T[] ensureContained(final T[] ts, final T t)
+	{
+		if(contains(ts, t))
+		{
+			return ts;
+		}
+		
+		return add(ts, t);
 	}
 
 	/**
