@@ -60,6 +60,9 @@ public interface AFile extends AItem
 	 */
 	public default long size()
 	{
+		// otherwise, reading the size throws an exception or returns a misleading result!
+		this.ensureExists();
+		
 		return this.fileSystem().ioHandler().size(this);
 	}
 	
@@ -118,6 +121,17 @@ public interface AFile extends AItem
 	public default boolean exists()
 	{
 		return this.fileSystem().ioHandler().exists(this);
+	}
+	
+	// required to query the file size, for example
+	public default boolean ensureExists()
+	{
+		if(this.exists())
+		{
+			return false;
+		}
+		
+		return AFS.executeWriting(this, wf -> wf.ensureExists());
 	}
 	
 	public default boolean isUsed()
@@ -192,11 +206,6 @@ public interface AFile extends AItem
 		public final AFileSystem fileSystem()
 		{
 			return this.parent.fileSystem();
-		}
-		
-		protected final Object mutex()
-		{
-			return this.observers;
 		}
 		
 		@Override
@@ -386,6 +395,12 @@ public interface AFile extends AItem
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
+			
+			protected Object mutex()
+			{
+				// the singleton file is the mutex
+				return this.actual;
+			}
 			
 			@Override
 			public U user()

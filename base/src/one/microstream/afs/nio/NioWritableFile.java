@@ -4,10 +4,13 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.nio.channels.FileChannel;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import one.microstream.afs.AFile;
 import one.microstream.afs.AWritableFile;
+import one.microstream.collections.XArrays;
 
 public interface NioWritableFile extends NioReadableFile, AWritableFile
 {
@@ -37,6 +40,10 @@ public interface NioWritableFile extends NioReadableFile, AWritableFile
     
     public class Default<U> extends NioReadableFile.Default<U> implements NioWritableFile
     {
+    	///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+    	
         protected Default(
         	final AFile       actual     ,
         	final U           user       ,
@@ -46,6 +53,32 @@ public interface NioWritableFile extends NioReadableFile, AWritableFile
         {
             super(actual, user, path, fileChannel);
         }
+        
+        
+        
+        ///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+        
+        @Override
+        protected void validateOpenOptions(final OpenOption... options)
+        {
+        	/*
+        	 * override super class (readable) implementation to do no validation
+        	 * since everything is allowed for writable files.
+        	 */
+        }
+        
+        @Override
+        protected OpenOption[] normalizeOpenOptions(final OpenOption... options)
+        {
+        	// super class implementation ensures READ
+    		final OpenOption[] superOptions = super.normalizeOpenOptions(options);
+    		
+    		// this implementation ensures WRITE
+    		return XArrays.ensureContained(superOptions, StandardOpenOption.WRITE);
+        }
                 
     }
+    
 }

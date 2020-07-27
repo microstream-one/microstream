@@ -32,19 +32,37 @@ public interface AWritableFile extends AReadableFile
 		return this.fileSystem().accessManager().useWriting(this);
 	}
 	
+	@Override
+	public default long copyTo(final AWritableFile target)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(this, target);
+	}
+	
+	@Override
+	public default long copyTo(final AWritableFile target, final long sourcePosition)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(this, sourcePosition, target);
+	}
+
+	@Override
+	public default long copyTo(final AWritableFile target, final long sourcePosition, final long length)
+	{
+		return this.actual().fileSystem().ioHandler().copyTo(this, sourcePosition, length, target);
+	}
+	
 	public default long copyFrom(final AReadableFile source)
 	{
-		return this.actual().fileSystem().ioHandler().copyTo(source, this);
+		return this.actual().fileSystem().ioHandler().copyFrom(source, this);
 	}
 	
 	public default long copyFrom(final AReadableFile source, final long sourcePosition)
 	{
-		return this.actual().fileSystem().ioHandler().copyTo(source, sourcePosition, this);
+		return this.actual().fileSystem().ioHandler().copyFrom(source, sourcePosition, this);
 	}
 
 	public default long copyFrom(final AReadableFile source, final long sourcePosition, final long length)
 	{
-		return this.actual().fileSystem().ioHandler().copyTo(source, sourcePosition, length, this);
+		return this.actual().fileSystem().ioHandler().copyFrom(source, sourcePosition, length, this);
 	}
 	
 	public default long writeBytes(final ByteBuffer source)
@@ -63,7 +81,8 @@ public interface AWritableFile extends AReadableFile
 		// synchronization handled by IoHandler.
 		this.actual().fileSystem().ioHandler().create(this);
 	}
-	
+		
+	@Override
 	public default boolean ensureExists()
 	{
 		// synchronization handled by IoHandler.
@@ -96,8 +115,29 @@ public interface AWritableFile extends AReadableFile
 		this.actual().fileSystem().ioHandler().truncate(this, newSize);
 	}
 	
-	/* (03.06.2020 TM)FIXME: priv#49: rename file
+	/* (03.06.2020 TM)TODO: priv#49: rename file
 	 * including physical file, if exists.
+	 * 
+	 * (19.07.2020 TM):
+	 * This is tricky:
+	 * Since AFile instances are immutable singletons that abstractly represent files,
+	 * the name cannot simply be changed directly.
+	 * An AFile is not an identity in itself with a mutable name, but the name defines the identity.
+	 * So another name means another AFile instance.
+	 * Renaming the physical file just shifts it from "belonging" to the new AFile instance instead of the
+	 * old one.
+	 * 
+	 * So the algorithm must be:
+	 * - Create and register new AFile instance
+	 * - Rename physical file
+	 * - Rollback on exception
+	 * - Release and retire old AWritableFile instance
+	 * - Unregister old AFile instance
+	 * - Create new AWritableFile instance.
+	 * - Return new AWritableFile
+	 * Of course, everything under a central lock in the FileSystem
+	 * 
+	 * Downgraded to T0D0 since MicroStream does not require file renaming.
 	 */
 					
 }

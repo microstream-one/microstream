@@ -108,7 +108,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			this::houseKeepingCheckFileCleanup ,
 			this::houseKeepingGarbageCollection,
 			this::houseKeepingLiveCheck
-			// (16.06.2020 TM)FIXME: priv#49: housekeeping task that closes data files after a timeout.
+			// (16.06.2020 TM)TODO: priv#49: housekeeping task that closes data files after a timeout.
 		};
 		private int nextHouseKeepingIndex;
 

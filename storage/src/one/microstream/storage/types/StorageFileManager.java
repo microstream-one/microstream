@@ -483,6 +483,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				this.channelIndex(),
 				fileNumber
 			);
+			file.ensureExists();
 
 			/*
 			 * File#length is incredibly slow compared to FileChannel#size (although irrelevant here),
@@ -684,17 +685,17 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				throw new StorageException(this.channelIndex() + " already initialized");
 			}
 
-			final StorageTransactionsAnalysis                 transactionsFile = this.readTransactionsFile();
-			final EqHashTable<Long, StorageDataInventoryFile> storageFiles     = EqHashTable.New();
+			final StorageTransactionsAnalysis      transactionsAnalysis = this.readTransactionsFile();
+			final EqHashTable<Long, StorageDataInventoryFile> dataFiles = EqHashTable.New();
 			this.storageFileProvider.collectDataFiles(
 				StorageDataInventoryFile::New,
 				f ->
-					storageFiles.add(f.number(), f),
+					dataFiles.add(f.number(), f),
 				this.channelIndex()
 			);
-			storageFiles.keys().sort(XSort::compare);
+			dataFiles.keys().sort(XSort::compare);
 
-			return new StorageInventory.Default(this.channelIndex(), storageFiles, transactionsFile);
+			return new StorageInventory.Default(this.channelIndex(), dataFiles, transactionsAnalysis);
 		}
 
 		final StorageTransactionsAnalysis readTransactionsFile()
@@ -722,7 +723,10 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			}
 		}
 
-		private long validateStorageDataFilesLength(final StorageInventory storageInventory)
+		private long validateStorageDataFilesLength(
+			final StorageInventory                            storageInventory             ,
+			final EqHashTable<Long, StorageDataInventoryFile> supplementedMissingEmptyFiles
+		)
 		{
 			final StorageTransactionsAnalysis tFileAnalysis = storageInventory.transactionsFileAnalysis();
 			long unregisteredEmptyLastFileNumber = -1; // -1 for "none"
@@ -782,7 +786,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 					+ file.number() + " is inconsinstent with the transactions entry's length of " + entryFile.length()
 				);
 			}
-
+			
 			// check that all remaining file entries are deleted files. No non-deleted file may be missing!
 			for(final StorageTransactionEntry remainingFileEntry : fileEntries.values())
 			{
@@ -790,10 +794,19 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				{
 					continue;
 				}
+				
+				if(remainingFileEntry.isEmpty())
+				{
+					this.supplementedMissingEmptyFile(
+						supplementedMissingEmptyFiles,
+						remainingFileEntry.fileNumber()
+					);
+					continue;
+				}
 
 				// (06.09.2014 TM)EXCP: proper exception
 				throw new StorageException(
-					"Non-deleted data file not found: channel " + this.channelIndex()
+					"Non-deleted non-empty data file not found: channel " + this.channelIndex()
 					+ ", file " + remainingFileEntry.fileNumber()
 				);
 			}
@@ -808,6 +821,22 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			// return required information about uber special case
 			return unregisteredEmptyLastFileNumber;
 		}
+		
+		protected void supplementedMissingEmptyFile(
+			final EqHashTable<Long, StorageDataInventoryFile> supplementedMissingEmptyFiles,
+			final long                                        fileNumber
+		)
+		{
+			final AFile missingEmptyFile = this.storageFileProvider.provideDataFile(
+				this.channelIndex,
+				fileNumber
+			);
+			missingEmptyFile.ensureExists();
+			final StorageDataInventoryFile supplementedDataFile = StorageDataInventoryFile.New(
+				missingEmptyFile, this.channelIndex, fileNumber
+			);
+			supplementedMissingEmptyFiles.add(fileNumber, supplementedDataFile);
+		}
 
 		@Override
 		public StorageIdAnalysis initializeStorage(
@@ -819,19 +848,29 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		{
 //			DEBUGStorage.println(this.channelIndex + " init for consistent timestamp " + consistentStoreTimestamp);
 
+			final EqHashTable<Long, StorageDataInventoryFile> supplementedMissingEmptyFiles = EqHashTable.New();
+			
 			// validate file lengths, even in case of no files, to validate transactions entries to that state
-			final long unregisteredEmptyLastFileNumber = this.validateStorageDataFilesLength(storageInventory);
+			final long unregisteredEmptyLastFileNumber = this.validateStorageDataFilesLength(
+				storageInventory,
+				supplementedMissingEmptyFiles
+			);
+			
+			final StorageInventory effectiveStorageInventory = this.determineEffectiveStorageInventory(
+				storageInventory,
+				supplementedMissingEmptyFiles
+			);
 
 			boolean isEmpty = true;
 			try
 			{
-				isEmpty = storageInventory.dataFiles().isEmpty();
+				isEmpty = effectiveStorageInventory.dataFiles().isEmpty();
 
 				final StorageIdAnalysis idAnalysis;
 				if(isEmpty)
 				{
 					// initialize if there are no files at all (create first file, ensure transactions file)
-					this.initializeForNoFiles(taskTimestamp, storageInventory);
+					this.initializeForNoFiles(taskTimestamp, effectiveStorageInventory);
 					idAnalysis = StorageIdAnalysis.New(0L, 0L, 0L);
 					
 					// blank initialization to avoid redundantly copying the initial transactions entry (nasty bug).
@@ -845,13 +884,13 @@ public interface StorageFileManager extends StorageChannelResetablePart
 					// handle files (read, parse, register items) and ensure transactions file
 					idAnalysis = this.initializeForExistingFiles(
 						taskTimestamp                  ,
-						storageInventory               ,
+						effectiveStorageInventory      ,
 						consistentStoreTimestamp       ,
 						unregisteredEmptyLastFileNumber
 					);
 					
 					// initialization plus synchronization with existing files.
-					this.initializeBackupHandler(storageInventory);
+					this.initializeBackupHandler(effectiveStorageInventory);
 				}
 
 				this.restartFileCleanupCursor();
@@ -873,6 +912,29 @@ public interface StorageFileManager extends StorageChannelResetablePart
 					this.entityCache.clearPendingStoreUpdate();
 				}
 			}
+		}
+		
+		protected StorageInventory determineEffectiveStorageInventory(
+			final StorageInventory                            storageInventory             ,
+			final EqHashTable<Long, StorageDataInventoryFile> supplementedMissingEmptyFiles
+		)
+		{
+			if(supplementedMissingEmptyFiles.isEmpty())
+			{
+				return storageInventory;
+			}
+			
+			final EqHashTable<Long, StorageDataInventoryFile> completeDataFiles = EqHashTable.New(
+				storageInventory.dataFiles()
+			)
+			.addAll(supplementedMissingEmptyFiles)
+			;
+			
+			return new StorageInventory.Default(
+				storageInventory.channelIndex(),
+				completeDataFiles.immure(),
+				storageInventory.transactionsFileAnalysis()
+			);
 		}
 		
 		private boolean initializeBackupHandler()
@@ -1029,6 +1091,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		private StorageLiveTransactionsFile createTransactionsFile()
 		{
 			final AFile file = this.storageFileProvider.provideTransactionsFile(this.channelIndex());
+			file.ensureExists();
 			
 			return StorageLiveTransactionsFile.New(file, this.channelIndex());
 		}
@@ -1247,9 +1310,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			});
 		}
 		
-		private static FileStatistics.Default createFileStatistics(final StorageLiveDataFile.Default file)
+		private static FileStatistics createFileStatistics(final StorageLiveDataFile.Default file)
 		{
-			return new FileStatistics.Default(
+			return FileStatistics.New(
 				file.number()    ,
 				file.identifier(),
 				file.dataLength(),
@@ -1265,7 +1328,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 			long liveDataLength  = 0;
 			long totalDataLength = 0;
-			final BulkList<FileStatistics.Default> fileStatistics = BulkList.New();
+			final BulkList<FileStatistics> fileStatistics = BulkList.New();
 
 			do
 			{
@@ -1273,12 +1336,12 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				liveDataLength  += file.dataLength();
 				totalDataLength += file.totalLength();
 				
-				final FileStatistics.Default fileStats = createFileStatistics(file);
+				final FileStatistics fileStats = createFileStatistics(file);
 				fileStatistics.add(fileStats);
 			}
 			while(file != currentFile);
 
-			return new StorageRawFileStatistics.ChannelStatistics.Default(
+			return StorageRawFileStatistics.ChannelStatistics.New(
 				this.channelIndex(),
 				fileStatistics.size(),
 				liveDataLength,

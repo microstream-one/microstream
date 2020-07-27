@@ -62,6 +62,14 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 		try
 		{
 			final AWritableFile wFile = file.useWriting();
+			if(wFile.exists())
+			{
+				wFile.truncate(0);
+			}
+			else
+			{
+				wFile.create();
+			}
 			
 			try
 			{

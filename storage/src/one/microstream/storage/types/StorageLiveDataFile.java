@@ -253,8 +253,14 @@ extends StorageDataFile, StorageLiveChannelFile<StorageLiveDataFile>, StorageCre
 			}
 
 			final long expectedSize = this.totalLength();
-			final long actualSize = this.ensureReadable().size();
+			if(expectedSize == 0)
+			{
+				// size validation is skipped for expected size 0. Applies when initially opening data files.
+				return true;
+			}
 			
+			final long actualSize = this.ensureReadable().size();
+
 			if(actualSize != expectedSize)
 			{
 				// (16.06.2020 TM)EXCP: proper exception

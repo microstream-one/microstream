@@ -150,10 +150,8 @@ public class UtilStorageCsvExport
 		final String                 fileSuffix
 	)
 	{
-		final String effectiveFileSuffix = "." + fileSuffix;
-		
 		final Predicate<AFile> filter = file ->
-			file.name().endsWith(effectiveFileSuffix)
+			fileSuffix.equals(file.type())
 		;
 		
 		final long tStart = System.nanoTime();

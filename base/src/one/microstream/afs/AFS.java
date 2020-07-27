@@ -7,19 +7,69 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import one.microstream.chars.XChars;
-import one.microstream.collections.BulkList;
-import one.microstream.collections.types.XGettingList;
+import one.microstream.collections.HashEnum;
+import one.microstream.collections.types.XGettingEnum;
 import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
 
 public class AFS
 {
-	public static XGettingList<AFile> listFiles(
+	public static XGettingEnum<AItem> listItems(
+		final ADirectory               directory,
+		final Predicate<? super AItem> selector
+	)
+	{
+		return listFiles(directory, selector, HashEnum.New());
+	}
+	
+	public static <C extends Consumer<? super AItem>> C listItems(
+		final ADirectory               directory,
+		final Predicate<? super AItem> selector ,
+		final C                        collector
+	)
+	{
+		directory.iterateItems(f ->
+		{
+			if(selector.test(f))
+			{
+				collector.accept(f);
+			}
+		});
+
+		return collector;
+	}
+
+	public static XGettingEnum<ADirectory> listDirectories(
+		final ADirectory                    directory,
+		final Predicate<? super ADirectory> selector
+	)
+	{
+		return listDirectories(directory, selector, HashEnum.New());
+	}
+	
+	public static <C extends Consumer<? super ADirectory>> C listDirectories(
+		final ADirectory                    directory,
+		final Predicate<? super ADirectory> selector ,
+		final C                             collector
+	)
+	{
+		directory.iterateDirectories(f ->
+		{
+			if(selector.test(f))
+			{
+				collector.accept(f);
+			}
+		});
+
+		return collector;
+	}
+	
+	public static XGettingEnum<AFile> listFiles(
 		final ADirectory               directory,
 		final Predicate<? super AFile> selector
 	)
 	{
-		return listFiles(directory, selector, BulkList.New());
+		return listFiles(directory, selector, HashEnum.New());
 	}
 	
 	public static <C extends Consumer<? super AFile>> C listFiles(
@@ -114,6 +164,23 @@ public class AFS
 	)
 	{
 		final AReadableFile rFile = file.useReading();
+		try
+		{
+			logic.accept(rFile);
+		}
+		finally
+		{
+			rFile.release();
+		}
+	}
+	
+	public static void execute(
+		final AFile                           file ,
+		final Object                          user ,
+		final Consumer<? super AReadableFile> logic
+	)
+	{
+		final AReadableFile rFile = file.useReading(user);
 		try
 		{
 			logic.accept(rFile);
@@ -243,7 +310,7 @@ public class AFS
 		}
 	}
 	
-	// (06.06.2020 TM)FIXME: priv#49: need waitingUse~ and waitingExecute~ as well(?).
+	// (06.06.2020 TM)TODO: priv#49: need waitingUse~ and waitingExecute~ as well(?).
 	
 	
 	public static void close(final AReadableFile file, final Throwable cause)

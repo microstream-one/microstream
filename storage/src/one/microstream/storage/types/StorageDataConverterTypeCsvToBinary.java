@@ -1701,7 +1701,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			if((this.currentType = this.typeDictionary.lookupTypeById(typeId)) == null)
 			{
 				// (01.10.2014 TM)EXCP: proper exception
-				throw new StorageException("Type not found: " + this.sourceFile.name());
+				throw new StorageException("Type not found: " + this.sourceFile.identifier());
 			}
 
 			final String firstColumnName = columnNames.first();
