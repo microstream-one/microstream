@@ -13,6 +13,11 @@ public interface StorageTransactionEntry
 	public long length();
 
 	public boolean isDeleted();
+	
+	public default boolean isEmpty()
+	{
+		return this.length() == 0L;
+	}
 
 
 
