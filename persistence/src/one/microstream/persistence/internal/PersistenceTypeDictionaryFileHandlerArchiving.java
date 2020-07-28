@@ -49,6 +49,8 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 	{
 		super(file, writeListener);
 		this.directory  = file.parent();
+		
+		// (28.07.2020 TM)TODO: magic value String
 		this.tdArchive  = this.directory.ensureDirectory("TypeDictionaryArchive");
 		this.filePrefix = file.name();
 		this.fileSuffix = file.type();

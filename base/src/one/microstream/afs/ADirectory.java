@@ -180,6 +180,9 @@ public interface ADirectory extends AItem, AResolving
 		// memory-optimized array because there should usually be no or very few observers (<= 10).
 		private ADirectory.Observer[] observers = NO_OBSERVERS;
 		
+		// note the 8 bytes cost for this flag due to memory padding. Or there are 7 more bytes "free" for future fields.
+		private boolean inventorized;
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -246,13 +249,24 @@ public interface ADirectory extends AItem, AResolving
 			return this;
 		}
 		
+		private void ensureInventorized()
+		{
+			if(this.inventorized)
+			{
+				return;
+			}
+			
+			this.inventorize();
+			this.inventorized = true;
+		}
+		
 		@Override
 		public final <C extends Consumer<? super AItem>> C iterateItems(final C iterator)
 		{
 			synchronized(this.mutex())
 			{
-				this.directories.values().iterate(iterator);
-				this.files.values().iterate(iterator);
+				this.iterateDirectories(iterator);
+				this.iterateFiles(iterator);
 			}
 					
 			return iterator;
@@ -263,6 +277,7 @@ public interface ADirectory extends AItem, AResolving
 		{
 			synchronized(this.mutex())
 			{
+				this.ensureInventorized();
 				this.directories.values().iterate(iterator);
 			}
 					
@@ -274,6 +289,7 @@ public interface ADirectory extends AItem, AResolving
 		{
 			synchronized(this.mutex())
 			{
+				this.ensureInventorized();
 				this.files.values().iterate(iterator);
 			}
 					
@@ -365,7 +381,7 @@ public interface ADirectory extends AItem, AResolving
 				{
 					directory = this.fileSystem().creator().createDirectory(this, identifier);
 					this.register(identifier, directory);
-					directory.inventorize();
+					// note: inventorize is only called on-demand.
 				}
 				
 				return directory;
@@ -417,8 +433,8 @@ public interface ADirectory extends AItem, AResolving
 			final int      length
 		)
 		{
-			// length 0 means no path element at all, length 1 means this is the last element on the path.
-			if(length == 1)
+			// length means distance in this case. 1 is the next, 0 is "self".
+			if(length == 0)
 			{
 				if(pathElements[offset].equals(this.identifier()))
 				{
