@@ -35,7 +35,14 @@ public interface ARoot extends ADirectory
 	}
 	
 	
-	
+	/**
+	 * Note: {@code identifier} can be {@literal ""} since local file paths might start with a "/".
+	 * @param fileSystem
+	 * @param protocol
+	 * @param identifier
+	 * 
+	 * @return
+	 */
 	public static ARoot New(
 		final AFileSystem fileSystem,
 		final String      protocol  ,
@@ -44,8 +51,8 @@ public interface ARoot extends ADirectory
 	{
 		return new ARoot.Default(
 			notNull(fileSystem),
-			notNull(protocol),
-			notNull(identifier)
+			notNull(protocol)  ,
+			notNull(identifier) // may be ""
 		);
 	}
 	
