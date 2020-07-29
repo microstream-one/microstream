@@ -157,6 +157,12 @@ public class ViewerBinaryTypeHandlerManager implements PersistenceTypeHandlerMan
 	}
 
 	@Override
+	public <T> long registerTypeHandlers(final Iterable<? extends PersistenceTypeHandler<Binary, T>> typeHandlers)
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public boolean registerLegacyTypeHandler(final PersistenceLegacyTypeHandler<Binary, ?> legacyTypeHandler)
 	{
 		throw new UnsupportedOperationException();
