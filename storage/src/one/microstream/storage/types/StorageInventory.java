@@ -9,6 +9,19 @@ public interface StorageInventory extends StorageHashChannelPart
 	public StorageTransactionsAnalysis transactionsFileAnalysis();
 
 
+	
+	public static StorageInventory New(
+		final int                                           channelIndex        ,
+		final XGettingTable<Long, StorageDataInventoryFile> dataFiles           ,
+		final StorageTransactionsAnalysis                   transactionsAnalysis
+	)
+	{
+		return new StorageInventory.Default(
+			channelIndex        ,
+			dataFiles           ,
+			transactionsAnalysis
+		);
+	}
 
 	public final class Default implements StorageInventory
 	{
@@ -26,7 +39,7 @@ public interface StorageInventory extends StorageHashChannelPart
 		// constructors //
 		/////////////////
 
-		public Default(
+		Default(
 			final int                                           channelIndex        ,
 			final XGettingTable<Long, StorageDataInventoryFile> dataFiles           ,
 			final StorageTransactionsAnalysis                   transactionsAnalysis
