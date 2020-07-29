@@ -83,7 +83,7 @@ public interface EmbeddedStorageFoundationCreator
 			);
 
 			return Storage
-				.FileProviderBuilder   (NioFileSystem.New()                                            )
+				.FileProviderBuilder   (NioFileSystem.get()                                            )
 				.setDirectory          (NioFileSystem.directory(baseDirectory)                         )
 				.setDeletionDirectory  (NioFileSystem.directory(configuration.getDeletionDirectory())  )
 				.setTruncationDirectory(NioFileSystem.directory(configuration.getTruncationDirectory()))

@@ -137,7 +137,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			@Override
 			public B setDeletionDirectory(final ADirectory deletionDirectory)
 			{
-				this.deletionDirectory = this.fileSystem.validateMember(this.deletionDirectory);
+				this.deletionDirectory = this.fileSystem.validateMember(deletionDirectory);
 				return this.$();
 			}
 
@@ -150,7 +150,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			@Override
 			public B setTruncationDirectory(final ADirectory truncationDirectory)
 			{
-				this.truncationDirectory = this.fileSystem.validateMember(this.truncationDirectory);
+				this.truncationDirectory = this.fileSystem.validateMember(truncationDirectory);
 				return this.$();
 			}
 			
