@@ -695,7 +695,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			);
 			dataFiles.keys().sort(XSort::compare);
 
-			return new StorageInventory.Default(this.channelIndex(), dataFiles, transactionsAnalysis);
+			return StorageInventory.New(this.channelIndex(), dataFiles, transactionsAnalysis);
 		}
 
 		final StorageTransactionsAnalysis readTransactionsFile()
@@ -929,8 +929,10 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			)
 			.addAll(supplementedMissingEmptyFiles)
 			;
+
+			completeDataFiles.keys().sort(XSort::compare);
 			
-			return new StorageInventory.Default(
+			return StorageInventory.New(
 				storageInventory.channelIndex(),
 				completeDataFiles.immure(),
 				storageInventory.transactionsFileAnalysis()
