@@ -412,7 +412,7 @@ public interface StorageFile
 		{
 			try
 			{
-				if(this.access == null)
+				if(this.access == null || this.access.isRetired())
 				{
 					this.access = this.file().useWriting();
 				}

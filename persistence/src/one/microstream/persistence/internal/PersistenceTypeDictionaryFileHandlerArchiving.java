@@ -86,10 +86,9 @@ public class PersistenceTypeDictionaryFileHandlerArchiving extends PersistenceTy
 		final AFile targetFile = this.buildArchiveFile();
 		
 		final AWritableFile wSourceFile = this.file().useWriting();
-		final AWritableFile wTargetFile = targetFile.useWriting();
-		
 		try
 		{
+			final AWritableFile wTargetFile = targetFile.useWriting();
 			try
 			{
 				wSourceFile.moveTo(wTargetFile);
