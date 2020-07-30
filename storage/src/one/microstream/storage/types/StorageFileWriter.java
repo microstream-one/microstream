@@ -195,7 +195,7 @@ public interface StorageFileWriter
 			
 			AFS.executeWriting(targetFile, wf ->
 			{
-				wf.ensureExists();
+				// copyTo does ensureExists internally
 				sourceFile.copyTo(wf);
 				return null;
 			});
@@ -217,11 +217,19 @@ public interface StorageFileWriter
 			return false;
 		}
 		
+		if(deletionTargetFile.exists())
+		{
+			throw new StorageExceptionIo("Moving target already exist: " + deletionTargetFile);
+		}
+		
 		try
 		{
 			AFS.executeWriting(deletionTargetFile, wf ->
 			{
-				wf.ensureExists();
+				/*
+				 * Target file explicitely may NOT be ensured to exist since
+				 * moving does not implicitly replace an existing file.
+				 */
 				file.moveTo(wf);
 				return null;
 			});
