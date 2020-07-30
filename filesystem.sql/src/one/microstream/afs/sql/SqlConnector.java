@@ -13,7 +13,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.LongFunction;
 
 import one.microstream.io.ByteBufferInputStream;
@@ -70,6 +72,9 @@ public interface SqlConnector
 		public final static int DATA_COLUMN_INDEX       = 4;
 
 		private final SqlProvider provider;
+		private final Map<String, Boolean> directoryExistsCache = new HashMap<>();
+		private final Map<String, Boolean> fileExistsCache      = new HashMap<>();
+		private final Map<String, Long>    fileSizeCache        = new HashMap<>();
 
 		Default(
 			final SqlProvider provider
@@ -85,6 +90,17 @@ public interface SqlConnector
 		)
 		throws SQLException
 		{
+			final String tableName = directory.fullQualifiedName();
+			Boolean cachedValue;
+			synchronized(this)
+			{
+				cachedValue = this.directoryExistsCache.get(tableName);
+			}
+			if(cachedValue != null)
+			{
+				return cachedValue;
+			}
+			
 			try(final ResultSet result = connection.getMetaData().getTables(
 				this.provider.catalog(),
 				this.provider.schema(),
@@ -92,7 +108,12 @@ public interface SqlConnector
 				new String[] {"TABLE"}
 			))
 			{
-				return result.next();
+				final boolean exists = result.next();
+				synchronized(this)
+				{
+					this.directoryExistsCache.put(tableName, exists);
+				}
+				return exists;
 			}
 		}
 
@@ -149,13 +170,17 @@ public interface SqlConnector
 		)
 		throws SQLException
 		{
-			for(final String sql : this.provider.createDirectoryQueries(
-				directory.fullQualifiedName()
-			))
+			final String tableName = directory.fullQualifiedName();
+			for(final String sql : this.provider.createDirectoryQueries(tableName))
 			{
 				try(Statement statement = connection.createStatement())
 				{
 					statement.executeUpdate(sql);
+				}
+				
+				synchronized(this)
+				{
+					this.directoryExistsCache.put(tableName, Boolean.TRUE);
 				}
 			}
 		}
@@ -166,6 +191,16 @@ public interface SqlConnector
 		)
 		throws SQLException
 		{
+			Long cachedValue;
+			synchronized(this)
+			{
+				cachedValue = this.fileSizeCache.get(file.identifier());
+			}
+			if(cachedValue != null)
+			{
+				return cachedValue;
+			}
+			
 			final String sql = this.provider.fileSizeQuery(
 				file.parentPath().fullQualifiedName()
 			);
@@ -177,10 +212,15 @@ public interface SqlConnector
 					result.next();
 					final long count = result.getLong(1);
 					final long max   = result.getLong(2);
-					return count > 0
+					final Long fileSize = count > 0
 						? max + 1L
 						: 0L
 					;
+					synchronized(this)
+					{
+						this.fileSizeCache.put(file.identifier(), fileSize);
+					}
+					return fileSize;
 				}
 			}
 		}
@@ -510,18 +550,31 @@ public interface SqlConnector
 					return false;
 				}
 
-				final String sql = this.provider.fileExistsQuery(
-					file.parentPath().fullQualifiedName()
-				);
+				Boolean cachedValue;
+				synchronized(this)
+				{
+					cachedValue = this.fileExistsCache.get(file.fullQualifiedName());
+				}
+				if(cachedValue != null)
+				{
+					return cachedValue;
+				}
+				
+				final String sql = this.provider.fileExistsQuery(file.parentPath().fullQualifiedName());
 				try(final PreparedStatement statement = connection.prepareStatement(sql))
 				{
 					statement.setString(1, file.identifier());
 					try(final ResultSet result = statement.executeQuery())
 					{
-						return result.next()
+						final boolean exists = result.next()
 							? result.getLong(1) > 0L
 							: false
 						;
+						synchronized(this)
+						{
+							this.fileExistsCache.put(file.fullQualifiedName(), exists);
+						}
+						return exists;
 					}
 				}
 			});
@@ -575,6 +628,13 @@ public interface SqlConnector
 				{
 					statement.setString(1, file.identifier());
 					final int affectedRows = statement.executeUpdate();
+					
+					synchronized(this)
+					{
+						this.fileExistsCache.remove(file.fullQualifiedName());
+						this.fileSizeCache.remove(file.fullQualifiedName());
+					}
+					
 					return affectedRows > 0;
 				}
 			});
@@ -675,6 +735,15 @@ public interface SqlConnector
 					offset    += currentBatchSize;
 					available -= currentBatchSize;
 				}
+				
+				synchronized(this)
+				{
+					final long addedSize = buffersLength;
+					this.fileSizeCache.computeIfPresent(
+						file.fullQualifiedName(),
+						(fileName, fileSize) -> fileSize + addedSize
+					);
+				}
 
 				return buffersLength;
 			});
@@ -728,7 +797,19 @@ public interface SqlConnector
 						statement.executeUpdate();
 					}
 				}
-
+				
+				synchronized(this)
+				{
+					this.fileExistsCache.put(sourceFile.fullQualifiedName(), Boolean.FALSE);
+					this.fileExistsCache.put(targetFile.fullQualifiedName(), Boolean.TRUE);
+					
+					final Long fileSize = this.fileSizeCache.remove(sourceFile.fullQualifiedName());
+					if(fileSize != null)
+					{
+						this.fileSizeCache.put(targetFile.fullQualifiedName(), fileSize);
+					}
+				}
+				
 				return null;
 			});
 		}
@@ -869,6 +950,14 @@ public interface SqlConnector
 						);
 						statement.executeUpdate();
 					}
+				}
+				
+				synchronized(this)
+				{
+					this.fileSizeCache.computeIfPresent(
+						file.fullQualifiedName(),
+						(fileName, fileSize) -> newLength
+					);
 				}
 
 				return null;

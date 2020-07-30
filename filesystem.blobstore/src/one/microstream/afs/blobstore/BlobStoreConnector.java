@@ -7,9 +7,11 @@ import static one.microstream.X.notNull;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -208,6 +210,9 @@ public interface BlobStoreConnector extends AutoCloseable
 		private final ToLongFunction<B>       blobSizeProvider      ;
 		private final BlobStorePath.Validator blobStorePathValidator;
 		private final AtomicBoolean           open                  ;
+		private final Map<String, Boolean>    directoryExistsCache  = new HashMap<>();
+		private final Map<String, Boolean>    fileExistsCache       = new HashMap<>();
+		private final Map<String, Long>       fileSizeCache         = new HashMap<>();
 
 		protected Abstract(
 			final Function<B, String> blobKeyProvider ,
@@ -620,7 +625,10 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
-			return this.internalFileSize(file);
+			return this.fileSizeCache.computeIfAbsent(
+				file.fullQualifiedName(),
+				name -> this.internalFileSize(file)
+			);
 		}
 
 		@Override
@@ -629,7 +637,13 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(directory);
 
-			return this.internalDirectoryExists(directory);
+			synchronized(this)
+			{
+				return this.directoryExistsCache.computeIfAbsent(
+					directory.fullQualifiedName(),
+					name -> this.internalDirectoryExists(directory)
+				);
+			}
 		}
 
 		@Override
@@ -640,7 +654,13 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
-			return this.internalFileExists(file);
+			synchronized(this)
+			{
+				return this.fileExistsCache.computeIfAbsent(
+					file.fullQualifiedName(),
+					name -> this.internalFileExists(file)
+				);
+			}
 		}
 
 		@Override
@@ -685,6 +705,12 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
+			synchronized(this)
+			{
+				this.fileExistsCache.remove(file.fullQualifiedName());
+				this.fileSizeCache.remove(file.fullQualifiedName());
+			}
+			
 			return this.internalDeleteFile(file);
 		}
 
@@ -724,7 +750,17 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
-			return this.internalWriteData(file, sourceBuffers);
+			final long addedSize = this.internalWriteData(file, sourceBuffers);
+			
+			synchronized(this)
+			{
+				this.fileSizeCache.computeIfPresent(
+					file.fullQualifiedName(),
+					(fileName, fileSize) -> fileSize + addedSize
+				);
+			}
+			
+			return addedSize;
 		}
 
 		@Override
@@ -738,6 +774,18 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.blobStorePathValidator.validate(targetFile);
 
 			this.internalMoveFile(sourceFile, targetFile);
+			
+			synchronized(this)
+			{
+				this.fileExistsCache.put(sourceFile.fullQualifiedName(), Boolean.FALSE);
+				this.fileExistsCache.put(targetFile.fullQualifiedName(), Boolean.TRUE);
+				
+				final Long fileSize = this.fileSizeCache.remove(sourceFile.fullQualifiedName());
+				if(fileSize != null)
+				{
+					this.fileSizeCache.put(targetFile.fullQualifiedName(), fileSize);
+				}
+			}
 		}
 
 		@Override
@@ -780,10 +828,24 @@ public interface BlobStoreConnector extends AutoCloseable
 			if(newLength == 0L)
 			{
 				this.internalDeleteFile(file);
+				
+				synchronized(this)
+				{
+					this.fileExistsCache.remove(file.fullQualifiedName());
+					this.fileSizeCache.remove(file.fullQualifiedName());
+				}
 			}
 			else
 			{
 				this.internalTruncateFile(file, newLength);
+				
+				synchronized(this)
+				{
+					this.fileSizeCache.computeIfPresent(
+						file.fullQualifiedName(),
+						(fileName, fileSize) -> newLength
+					);
+				}
 			}
 		}
 
