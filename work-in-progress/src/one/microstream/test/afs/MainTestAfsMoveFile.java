@@ -1,9 +1,10 @@
 package one.microstream.test.afs;
 
 import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
 import one.microstream.afs.nio.NioFileSystem;
 
-public class MainTestAfsInventorizeOnDemand
+public class MainTestAfsMoveFile
 {
 
 	static final String[] TEST_DIRECTORY_PATH = {"D:", "testDir", "a", "a1", "start"};
@@ -14,10 +15,7 @@ public class MainTestAfsInventorizeOnDemand
 		
 		final ADirectory dir = fs.ensureDirectoryPath(TEST_DIRECTORY_PATH);
 		
-		final ADirectory dir2 = fs.resolveDirectoryPath("D:", "testDir");
-		
-		dir2.iterateItems(System.out::println);
-		
-		System.out.println(dir);
+		final AFile file = dir.ensureFile("moveMe.txt");
+		file.useWriting().moveTo(dir.parent());
 	}
 }

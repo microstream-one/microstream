@@ -93,14 +93,37 @@ public interface AWritableFile extends AReadableFile
 	{
 		// synchronization handled by IoHandler.
 		return this.actual().fileSystem().ioHandler().deleteFile(this);
+		
+		/* note:
+		 * no release since an abstract file represents "the notion of a physical file".
+		 * It can remain valid even after the physical file was removed.
+		 */
 	}
 	
-	public default boolean moveTo(final AWritableFile targetFile)
+	public default void moveTo(final ADirectory targetDirectory)
 	{
+		final AFile targetFile = targetDirectory.ensureFile(this.identifier(), this.name(), this.type());
+		
+		final AWritableFile wFile = targetFile.useWriting();
+		try
+		{
+			this.moveTo(wFile);
+		}
+		finally
+		{
+			wFile.release();
+		}
+	}
+	
+	public default void moveTo(final AWritableFile targetFile)
+	{
+		// synchronization handled by IoHandler.
 		this.actual().fileSystem().ioHandler().moveFile(this, targetFile);
 		
-		// hardly reasonable to pass through the return value since it must always be true; maybe for bug hunting.
-		return this.release();
+		/* note:
+		 * no release since an abstract file represents "the notion of a physical file".
+		 * It can remain valid even after the physical file was removed.
+		 */
 	}
 	
 	public default AReadableFile downgrade()
