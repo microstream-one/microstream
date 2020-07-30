@@ -56,26 +56,36 @@ public interface BlobStoreFileWrapper extends AFile.Wrapper, BlobStoreItemWrappe
 		@Override
 		public BlobStorePath path()
 		{
-			return this.path;
-		}
-
-		@Override
-		public synchronized boolean retire()
-		{
-			if(this.path == null)
+			synchronized(this.mutex())
 			{
-				return false;
+				this.validateIsNotRetired();
+				return this.path;
 			}
-
-			this.path = null;
-
-			return true;
 		}
 
 		@Override
-		public synchronized boolean isRetired()
+		public boolean retire()
 		{
-			return this.path == null;
+			synchronized(this.mutex())
+			{
+				if(this.path == null)
+				{
+					return false;
+				}
+	
+				this.path = null;
+	
+				return true;
+			}
+		}
+
+		@Override
+		public boolean isRetired()
+		{
+			synchronized(this.mutex())
+			{
+				return this.path == null;
+			}
 		}
 
 		public void validateIsNotRetired()
@@ -92,50 +102,65 @@ public interface BlobStoreFileWrapper extends AFile.Wrapper, BlobStoreItemWrappe
 		}
 
 		@Override
-		public synchronized boolean isHandleOpen()
+		public boolean isHandleOpen()
 		{
-			return this.handleOpen;
-		}
-
-		@Override
-		public synchronized boolean checkHandleOpen()
-		{
-			this.validateIsNotRetired();
-			return this.isHandleOpen();
-		}
-
-		@Override
-		public synchronized boolean openHandle()
-		{
-			if(this.checkHandleOpen())
+			synchronized(this.mutex())
 			{
-				return false;
+				return this.handleOpen;
 			}
+		}
 
-			this.handleOpen = true;
-			return true;
+		@Override
+		public boolean checkHandleOpen()
+		{
+			synchronized(this.mutex())
+			{
+				this.validateIsNotRetired();
+				return this.isHandleOpen();
+			}
+		}
+
+		@Override
+		public boolean openHandle()
+		{
+			synchronized(this.mutex())
+			{
+				if(this.checkHandleOpen())
+				{
+					return false;
+				}
+	
+				this.handleOpen = true;
+				return true;
+			}
 		}
 
 		@Override
 		public boolean closeHandle()
 		{
-			if(!this.isHandleOpen())
+			synchronized(this.mutex())
 			{
-				return false;
+				if(!this.isHandleOpen())
+				{
+					return false;
+				}
+	
+				this.handleOpen = false;
+	
+				return true;
 			}
-
-			this.handleOpen = false;
-
-			return true;
 		}
 
 		@Override
 		public BlobStoreFileWrapper ensureOpenHandle()
 		{
-			this.validateIsNotRetired();
-			this.openHandle();
-
-			return this;
+			synchronized(this.mutex())
+			{
+				this.validateIsNotRetired();
+				this.openHandle();
+	
+				return this;
+			}
 		}
 
 	}

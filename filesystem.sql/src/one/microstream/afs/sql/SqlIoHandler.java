@@ -313,7 +313,7 @@ public interface SqlIoHandler extends AIoHandler
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				targetBuffer,
 				position,
-				-1
+				targetBuffer.remaining()
 			);
 		}
 

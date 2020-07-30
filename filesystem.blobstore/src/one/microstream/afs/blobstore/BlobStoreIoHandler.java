@@ -291,7 +291,7 @@ public interface BlobStoreIoHandler extends AIoHandler
 				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
 				targetBuffer,
 				position,
-				-1
+				targetBuffer.remaining()
 			);
 		}
 
