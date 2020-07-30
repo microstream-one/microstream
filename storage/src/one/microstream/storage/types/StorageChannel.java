@@ -298,6 +298,12 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 //				DEBUGStorage.println(this.channelIndex + " housekeeping");
 				// do a little house keeping, either after a new task or use time if no new task came in.
+				/* (29.07.2020 TM)FIXME: priv#361: An exception during housekeeping is fatal
+				 * it kills the channel thread and leaves the application thread forever waiting to be
+				 * notified.
+				 * This has to be covered by a similar mechanism as tasks are.
+				 * Or maybe some consolidation of that mechanism has to be done to cover house keeping as well.
+				 */
 				this.houseKeeping();
 //				final long waitStart = System.currentTimeMillis();
 
