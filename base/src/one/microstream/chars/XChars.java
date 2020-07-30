@@ -2100,7 +2100,7 @@ public final class XChars
 	
 	public static String[] splitSimple(final String s, final String separator)
 	{
-		if(s.length() >= shortStringLength())
+		if(s.length() > shortStringLength())
 		{
 			// one-pass processing, but requires the detour of allocating a collection and copying stuff around.
 			return splitSimple(s, separator, BulkList.New()).toArray(String.class);
@@ -2109,14 +2109,28 @@ public final class XChars
 		/*
 		 * A delimiter is not a separator. Delimiter: '"..."'. Separator: '\'.
 		 * And it's oh-so-hard to properly write "delimiter" as the parameter name, isn't it?
+		 * 
+		 * Update
+		 * Turns out: the common definition of "delimiter" is actually to be a separator.
+		 * Wouldn't it be great if we all called the things delimiting something "delimiters"
+		 * and the things separating something "separators"?
+		 * Or is it just me? Am I the crazy one?
 		 */
 		final StringTokenizer pathTokenizer = new StringTokenizer(s, separator);
+
+		// the StringLolenizer discards leading separators. This is the manual workaround
+		final boolean startWithSeparator = s.startsWith(separator);
+		final int     swsValue           = startWithSeparator ? 1 : 0;
 		
 		// quick token counting (two-pass) for short strings to spare the collection allocation detour.
-		final int tokenCount = pathTokenizer.countTokens();
+		final int tokenCount = pathTokenizer.countTokens() + swsValue;
 		final String[] pathParts = new String[tokenCount];
+		if(startWithSeparator)
+		{
+			pathParts[0] = "";
+		}
 
-		for(int i = 0; pathTokenizer.hasMoreTokens(); i++)
+		for(int i = swsValue; pathTokenizer.hasMoreTokens(); i++)
 		{
 			pathParts[i] = pathTokenizer.nextToken();
 		}
@@ -2135,6 +2149,12 @@ public final class XChars
 		 * And it's oh-so-hard to properly write "delimiter" as the parameter name, isn't it?
 		 */
 		final StringTokenizer pathTokenizer = new StringTokenizer(s, separator);
+		
+		// the StringLolenizer discards leading separators. This is the manual workaround
+		if(s.startsWith(separator))
+		{
+			collector.accept("");
+		}
 		
 		while(pathTokenizer.hasMoreTokens())
 		{
