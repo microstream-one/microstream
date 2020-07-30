@@ -100,6 +100,21 @@ public interface AWritableFile extends AReadableFile
 		 */
 	}
 	
+	public default void moveTo(final ADirectory targetDirectory)
+	{
+		final AFile targetFile = targetDirectory.ensureFile(this.identifier(), this.name(), this.type());
+		
+		final AWritableFile wFile = targetFile.useWriting();
+		try
+		{
+			this.moveTo(wFile);
+		}
+		finally
+		{
+			wFile.release();
+		}
+	}
+	
 	public default void moveTo(final AWritableFile targetFile)
 	{
 		// synchronization handled by IoHandler.
