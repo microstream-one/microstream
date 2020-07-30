@@ -60,7 +60,24 @@ public interface OracleCloudObjectStorageConnector extends BlobStoreConnector
 	)
 	{
 		return new OracleCloudObjectStorageConnector.Default(
-			notNull(client)
+			notNull(client),
+			false
+		);
+	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link OracleCloudObjectStorageConnector} with cache.
+	 *
+	 * @param client connection to the Oracle cloud object storage
+	 * @return a new {@link OracleCloudObjectStorageConnector}
+	 */
+	public static OracleCloudObjectStorageConnector Caching(
+		final ObjectStorageClient client
+	)
+	{
+		return new OracleCloudObjectStorageConnector.Default(
+			notNull(client),
+			true
 		);
 	}
 
@@ -75,13 +92,15 @@ public interface OracleCloudObjectStorageConnector extends BlobStoreConnector
 		private String                    namespaceName;
 
 		Default(
-			final ObjectStorageClient client
+			final ObjectStorageClient client   ,
+			final boolean             withCache
 		)
 		{
 			super(
 				ObjectSummary::getName,
 				ObjectSummary::getSize,
-				OracleCloudObjectStoragePathValidator.New()
+				OracleCloudObjectStoragePathValidator.New(),
+				withCache
 			);
 			this.client = client;
 		}
@@ -264,50 +283,6 @@ public interface OracleCloudObjectStorageConnector extends BlobStoreConnector
 			}
 
 			return totalSize;
-		}
-
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			final UploadManager uploadManager = this.uploadManager();
-
-			this.blobs(sourceFile).forEach(sourceBlobSummary ->
-			{
-				final GetObjectResponse response = this.client.getObject(
-					GetObjectRequest.builder()
-						.namespaceName(this.namespaceName())
-						.bucketName(sourceFile.container())
-						.objectName(sourceBlobSummary.getName())
-						.build()
-				);
-				try(final InputStream inputStream = response.getInputStream())
-				{
-					final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-						.namespaceName(this.namespaceName())
-						.bucketName(targetFile.container())
-						.objectName(toBlobKey(targetFile, this.blobNumber(sourceBlobSummary)))
-						.contentLength(sourceBlobSummary.getSize())
-						.buildWithoutInvocationCallback()
-					;
-					final UploadRequest    uploadRequest    = UploadRequest.builder(
-							new UploadInputStream(inputStream),
-							sourceBlobSummary.getSize()
-						)
-						.allowOverwrite(true)
-						.build(putObjectRequest)
-					;
-					uploadManager.upload(uploadRequest);
-				}
-				catch(final IOException e)
-				{
-					throw new IORuntimeException(e);
-				}
-			});
-
-			return this.fileSize(targetFile);
 		}
 
 

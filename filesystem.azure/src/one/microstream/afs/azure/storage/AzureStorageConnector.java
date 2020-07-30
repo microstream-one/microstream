@@ -52,7 +52,24 @@ public interface AzureStorageConnector extends BlobStoreConnector
 	)
 	{
 		return new AzureStorageConnector.Default(
-			notNull(serviceClient)
+			notNull(serviceClient),
+			false
+		);
+	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link AzureStorageConnector} with cache.
+	 *
+	 * @param serviceClient connection to the Azure storage service
+	 * @return a new {@link AzureStorageConnector}
+	 */
+	public static AzureStorageConnector Caching(
+		final BlobServiceClient serviceClient
+	)
+	{
+		return new AzureStorageConnector.Default(
+			notNull(serviceClient),
+			true
 		);
 	}
 
@@ -64,13 +81,15 @@ public interface AzureStorageConnector extends BlobStoreConnector
 		private final BlobServiceClient serviceClient;
 
 		Default(
-			final BlobServiceClient serviceClient
+			final BlobServiceClient serviceClient,
+			final boolean           useCache
 		)
 		{
 			super(
 				BlobItem::getName,
 				b -> b.getProperties().getContentLength(),
-				AzureStoragePathValidator.New()
+				AzureStoragePathValidator.New(),
+				useCache
 			);
 			this.serviceClient = serviceClient;
 		}
@@ -223,38 +242,6 @@ public interface AzureStorageConnector extends BlobStoreConnector
 			}
 
 			return totalSize;
-		}
-
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			final BlobContainerClient sourceContainerClient = this.serviceClient.getBlobContainerClient(
-				sourceFile.container()
-			);
-			final BlobContainerClient targetContainerClient = this.serviceClient.getBlobContainerClient(
-				targetFile.container()
-			);
-			this.blobs(sourceFile).forEach(sourceItem ->
-			{
-				final String url = sourceContainerClient.getBlobClient(
-					sourceItem.getName()
-				)
-				.getBlobUrl();
-
-				targetContainerClient.getBlobClient(
-					toBlobKey(
-						targetFile,
-						this.blobNumber(sourceItem)
-					)
-				)
-				.beginCopy(url, null)
-				.getFinalResult();
-			});
-
-			return this.fileSize(targetFile);
 		}
 
 	}

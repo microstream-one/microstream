@@ -71,7 +71,24 @@ public interface MongoDbConnector extends BlobStoreConnector
 	)
 	{
 		return new MongoDbConnector.Default(
-			notNull(database)
+			notNull(database),
+			false
+		);
+	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link MongoDbConnector} with cache.
+	 *
+	 * @param database connection to the MongoDB database
+	 * @return a new {@link MongoDbConnector}
+	 */
+	public static MongoDbConnector Caching(
+		final MongoDatabase database
+	)
+	{
+		return new MongoDbConnector.Default(
+			notNull(database),
+			true
 		);
 	}
 
@@ -86,7 +103,24 @@ public interface MongoDbConnector extends BlobStoreConnector
 	)
 	{
 		return new MongoDbConnector.GridFs(
-			notNull(database)
+			notNull(database),
+			false
+		);
+	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link MongoDbConnector} for GridFS with cache.
+	 *
+	 * @param database connection to the MongoDB database
+	 * @return a new {@link MongoDbConnector}
+	 */
+	public static MongoDbConnector GridFsCaching(
+		final MongoDatabase database
+	)
+	{
+		return new MongoDbConnector.GridFs(
+			notNull(database),
+			true
 		);
 	}
 
@@ -108,13 +142,15 @@ public interface MongoDbConnector extends BlobStoreConnector
 		private final Map<String, MongoCollection<Document>> collections;
 
 		Default(
-			final MongoDatabase database
+			final MongoDatabase database ,
+			final boolean       withCache
 		)
 		{
 			super(
 				blob -> blob.getString(FIELD_KEY ),
 				blob -> blob.getLong  (FIELD_SIZE),
-				MongoDbPathValidator.New()
+				MongoDbPathValidator.New(),
+				withCache
 			);
 			this.database    = database       ;
 			this.collections = new HashMap<>();
@@ -381,35 +417,6 @@ public interface MongoDbConnector extends BlobStoreConnector
 		}
 
 		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			final List<Document> documents = new ArrayList<>();
-			final long[]         amount    = new long[1];
-			this.blobs(sourceFile, true).forEach(blob ->
-			{
-				final String   newKey   = toBlobKey(
-					targetFile,
-					this.blobNumber(blob)
-				);
-				final long     size     = blob.getLong(FIELD_SIZE);
-				final Document document = new Document();
-				document.put(FIELD_KEY , newKey                 );
-				document.put(FIELD_SIZE, size                   );
-				document.put(FIELD_DATA, blob.get(FIELD_DATA));
-				documents.add(document);
-
-				amount[0] += size;
-			});
-
-			this.collection(targetFile).insertMany(documents);
-
-			return amount[0];
-		}
-
-		@Override
 		protected void internalMoveFile(
 			final BlobStorePath sourceFile,
 			final BlobStorePath targetFile
@@ -455,12 +462,14 @@ public interface MongoDbConnector extends BlobStoreConnector
 		private final Map<String, GridFSBucket> buckets ;
 
 		GridFs(
-			final MongoDatabase database
+			final MongoDatabase database ,
+			final boolean       withCache
 		)
 		{
 			super(
 				GridFSFile::getFilename,
-				GridFSFile::getLength
+				GridFSFile::getLength,
+				withCache
 			);
 			this.database = database       ;
 			this.buckets  = new HashMap<>();
@@ -588,47 +597,6 @@ public interface MongoDbConnector extends BlobStoreConnector
 //			}
 
 			return totalSize;
-		}
-
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			final long[] amount = new long[1];
-			this.blobs(sourceFile).forEach(blob ->
-			{
-				final long       size   = blob.getLength();
-				final ByteBuffer buffer = ByteBuffer.allocateDirect(checkArrayRange(size));
-				this.internalReadBlobData(
-					sourceFile,
-					blob,
-					buffer,
-					0L,
-					size
-				);
-				buffer.flip();
-				try(final BufferedInputStream inputStream = new BufferedInputStream(
-					ByteBufferInputStream.New(buffer)
-				))
-				{
-					this.bucket(targetFile).uploadFromStream(
-						toBlobKey(
-							targetFile,
-							this.blobNumber(blob)
-						),
-						inputStream
-					);
-				}
-				catch(final IOException e)
-				{
-					throw new IORuntimeException(e);
-				}
-				amount[0] += size;
-			});
-
-			return amount[0];
 		}
 
 		@Override

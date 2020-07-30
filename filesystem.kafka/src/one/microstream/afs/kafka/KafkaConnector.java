@@ -73,7 +73,24 @@ public interface KafkaConnector extends BlobStoreConnector
 	)
 	{
 		return new Default(
-			notNull(kafkaProperties)
+			notNull(kafkaProperties),
+			false
+		);
+	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link KafkaConnector} with cache.
+	 *
+	 * @param kafkaProperties the Kafka configuration
+	 * @return a new {@link KafkaConnector}
+	 */
+	public static KafkaConnector Caching(
+		final Properties kafkaProperties
+	)
+	{
+		return new Default(
+			notNull(kafkaProperties),
+			true
 		);
 	}
 
@@ -99,13 +116,15 @@ public interface KafkaConnector extends BlobStoreConnector
 		private final EqHashTable<String, KafkaProducer<String, byte[]>> kafkaProducers ;
 
 		Default(
-			final Properties kafkaProperties
+			final Properties kafkaProperties,
+			final boolean    withCache
 		)
 		{
 			super(
 				Blob::topic,
 				Blob::size,
-				KafkaPathValidator.New()
+				KafkaPathValidator.New(),
+				withCache
 			);
 			this.kafkaProperties = kafkaProperties  ;
 			this.fileSystemIndex = FileSystemIndex.New(kafkaProperties);
@@ -423,23 +442,6 @@ public interface KafkaConnector extends BlobStoreConnector
 			{
 				throw new RuntimeException(e);
 			}
-		}
-
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			final ByteBuffer buffer = this.readData(
-				sourceFile,
-				0L,
-				this.fileSize(sourceFile)
-			);
-			return this.writeData(
-				targetFile,
-				Arrays.asList(buffer)
-			);
 		}
 
 		@Override

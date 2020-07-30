@@ -421,7 +421,9 @@ public interface SqlIoHandler extends AIoHandler
 			final SqlWritableFile handlableTarget = this.castWritableFile(targetFile);
 			return this.connector.copyFile(
 				SqlFileSystem.toPath(sourceFile.ensureOpenHandle()),
-				SqlFileSystem.toPath(handlableTarget.ensureOpenHandle())
+				SqlFileSystem.toPath(handlableTarget.ensureOpenHandle()),
+				0,
+				-1
 			);
 		}
 
@@ -467,7 +469,9 @@ public interface SqlIoHandler extends AIoHandler
 			final SqlReadableFile handlableSource = this.castReadableFile(source);
 			return this.connector.copyFile(
 				SqlFileSystem.toPath(handlableSource.ensureOpenHandle()),
-				SqlFileSystem.toPath(targetSubject.ensureOpenHandle())
+				SqlFileSystem.toPath(targetSubject.ensureOpenHandle()),
+				0,
+				-1
 			);
 		}
 

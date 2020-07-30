@@ -59,7 +59,24 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 	)
 	{
 		return new GoogleCloudFirestoreConnector.Default(
-			notNull(firestore)
+			notNull(firestore),
+			false
+		);
+	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link GoogleCloudFirestoreConnector} with cache.
+	 *
+	 * @param firestore connection to the Google firestore service
+	 * @return a new {@link GoogleCloudFirestoreConnector}
+	 */
+	public static GoogleCloudFirestoreConnector Caching(
+		final Firestore firestore
+	)
+	{
+		return new GoogleCloudFirestoreConnector.Default(
+			notNull(firestore),
+			true
 		);
 	}
 
@@ -79,13 +96,15 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 		private final Firestore firestore;
 
 		Default(
-			final Firestore firestore
+			final Firestore firestore,
+			final boolean   withCache
 		)
 		{
 			super(
 				blob -> blob.getString(FIELD_KEY ),
 				blob -> blob.getLong  (FIELD_SIZE),
-				GoogleCloudFirestorePathValidator.New()
+				GoogleCloudFirestorePathValidator.New(),
+				withCache
 			);
 			this.firestore = firestore;
 		}
@@ -315,58 +334,7 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 				throw new RuntimeException(e);
 			}
 		}
-
-		// TODO batch
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			try
-			{
-				WriteBatch writeBatch = this.firestore.batch();
-				long       amount     = 0L;
-				for(final DocumentSnapshot blob : this.blobs(sourceFile, true).collect(Collectors.toList()))
-				{
-					final long                blobNumber = this.blobNumber(blob);
-					final String              newKey     = toBlobKey(targetFile, blobNumber);
-					final long                size       = blob.getLong(FIELD_SIZE);
-					final Map<String, Object> map        = new HashMap<>();
-					map.put(FIELD_KEY , newKey              );
-					map.put(FIELD_SIZE, size                );
-					map.put(FIELD_DATA, blob.get(FIELD_DATA));
-
-					writeBatch.set(
-						this.firestore.document(
-							this.documentPath(targetFile, blobNumber)
-						),
-						map
-					);
-
-					if(writeBatch.getMutationsSize() * MAX_BLOB_SIZE >= MAX_REQUEST_SIZE)
-					{
-						writeBatch.commit().get();
-						writeBatch = this.firestore.batch();
-					}
-
-					amount += size;
-				}
-
-				if(writeBatch.getMutationsSize() > 0)
-				{
-					writeBatch.commit().get();
-				}
-
-				return amount;
-			}
-			catch(final Exception e)
-			{
-				// TODO Proper exception
-				throw new RuntimeException(e);
-			}
-		}
-
+		
 	}
 
 }

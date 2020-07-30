@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 import com.tangosol.coherence.memcached.processor.DeleteProcessor;
@@ -48,16 +47,37 @@ import one.microstream.io.LimitedInputStream;
  */
 public interface CoherenceConnector extends BlobStoreConnector
 {
-
+	/**
+	 * Pseude-constructor method which creates a new {@link CoherenceConnector}.
+	 *
+	 * @param cache connection to the coherence caching service
+	 * @return a new {@link CoherenceConnector}
+	 */
 	public static CoherenceConnector New(
 		final NamedCache cache
 	)
 	{
 		return new Default(
-			notNull(cache)
+			notNull(cache),
+			false
 		);
 	}
-
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link CoherenceConnector} with cache.
+	 *
+	 * @param cache connection to the coherence caching service
+	 * @return a new {@link CoherenceConnector}
+	 */
+	public static CoherenceConnector Caching(
+		final NamedCache cache
+	)
+	{
+		return new Default(
+			notNull(cache),
+			true
+		);
+	}
 
 	public static class Default
 	extends    BlobStoreConnector.Abstract<BlobMetadata>
@@ -135,12 +155,14 @@ public interface CoherenceConnector extends BlobStoreConnector
 		private final NamedCache cache;
 
 		Default(
-			final NamedCache cache
+			final NamedCache cache,
+			final boolean    withCache
 		)
 		{
 			super(
 				BlobMetadata::key,
-				BlobMetadata::size
+				BlobMetadata::size,
+				withCache
 			);
 			this.cache = cache;
 		}
@@ -302,21 +324,6 @@ public interface CoherenceConnector extends BlobStoreConnector
 				this.copyBlob(metadata, targetFile, nr);
 				this.cache.remove(metadata.key());
 			});
-		}
-
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			final AtomicInteger nr   = new AtomicInteger();
-			final AtomicLong    size = new AtomicLong();
-			this.blobs(sourceFile).forEach(metadata ->{
-				this.copyBlob(metadata, targetFile, nr);
-				size.addAndGet(metadata.size());
-			});
-			return size.get();
 		}
 
 		private void copyBlob(

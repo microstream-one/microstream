@@ -46,8 +46,6 @@ public interface SqlConnector
 
 	public void moveFile(SqlPath sourceFile, SqlPath targetFile);
 
-	public long copyFile(SqlPath sourceFile, SqlPath targetFile);
-
 	public long copyFile(SqlPath sourceFile, SqlPath targetFile, long offset, long length);
 
 	public void truncateFile(SqlPath file, long newLength);
@@ -58,7 +56,18 @@ public interface SqlConnector
 	)
 	{
 		return new Default(
-			notNull(provider)
+			notNull(provider),
+			false
+		);
+	}
+	
+	public static SqlConnector Caching(
+		final SqlProvider provider
+	)
+	{
+		return new Default(
+			notNull(provider),
+			true
 		);
 	}
 
@@ -71,36 +80,48 @@ public interface SqlConnector
 		public final static int END_COLUMN_INDEX        = 3;
 		public final static int DATA_COLUMN_INDEX       = 4;
 
-		private final SqlProvider provider;
+		private final SqlProvider          provider                              ;
+		private final boolean              useCache                              ;
 		private final Map<String, Boolean> directoryExistsCache = new HashMap<>();
 		private final Map<String, Boolean> fileExistsCache      = new HashMap<>();
 		private final Map<String, Long>    fileSizeCache        = new HashMap<>();
 
 		Default(
-			final SqlProvider provider
+			final SqlProvider provider,
+			final boolean     useCache
 		)
 		{
 			super();
 			this.provider = provider;
+			this.useCache = useCache;
+		}
+		
+		private boolean queryFileExists(
+			final SqlPath    file      ,
+			final Connection connection
+		)
+		throws SQLException
+		{
+			final String sql = this.provider.fileExistsQuery(file.parentPath().fullQualifiedName());
+			try(final PreparedStatement statement = connection.prepareStatement(sql))
+			{
+				statement.setString(1, file.identifier());
+				try(final ResultSet result = statement.executeQuery())
+				{
+					return result.next()
+						? result.getLong(1) > 0L
+						: false
+					;
+				}
+			}
 		}
 
-		private boolean internalDirectoryExists(
+		private boolean queryDirectoryExists(
 			final SqlPath    directory ,
 			final Connection connection
 		)
 		throws SQLException
 		{
-			final String tableName = directory.fullQualifiedName();
-			Boolean cachedValue;
-			synchronized(this)
-			{
-				cachedValue = this.directoryExistsCache.get(tableName);
-			}
-			if(cachedValue != null)
-			{
-				return cachedValue;
-			}
-			
 			try(final ResultSet result = connection.getMetaData().getTables(
 				this.provider.catalog(),
 				this.provider.schema(),
@@ -108,12 +129,7 @@ public interface SqlConnector
 				new String[] {"TABLE"}
 			))
 			{
-				final boolean exists = result.next();
-				synchronized(this)
-				{
-					this.directoryExistsCache.put(tableName, exists);
-				}
-				return exists;
+				return result.next();
 			}
 		}
 
@@ -164,43 +180,56 @@ public interface SqlConnector
 			fileNames     .forEach(name -> visitor.visitFile     (directory, name));
 		}
 
-		private void internalCreateDirectory(
+		private void queryCreateDirectory(
 			final SqlPath    directory ,
 			final Connection connection
 		)
 		throws SQLException
 		{
-			final String tableName = directory.fullQualifiedName();
-			for(final String sql : this.provider.createDirectoryQueries(tableName))
+			for(final String sql : this.provider.createDirectoryQueries(directory.fullQualifiedName()))
 			{
 				try(Statement statement = connection.createStatement())
 				{
 					statement.executeUpdate(sql);
 				}
-				
-				synchronized(this)
-				{
-					this.directoryExistsCache.put(tableName, Boolean.TRUE);
-				}
+			}
+		}
+		
+		private long internalFileSize(
+			final SqlPath file,
+			final Connection connection
+		)
+		throws SQLException
+		{
+			if(!this.useCache)
+			{
+				return this.queryFileSize(file, connection);
+			}
+			
+			synchronized(this)
+			{
+				return this.fileSizeCache.computeIfAbsent(
+					file.fullQualifiedName(),
+					name -> {
+						try
+						{
+							return this.queryFileSize(file, connection);
+						}
+						catch(final SQLException e)
+						{
+							throw new RuntimeException(e);
+						}
+					}
+				);
 			}
 		}
 
-		private Long internalFileSize(
+		private Long queryFileSize(
 			final SqlPath    file      ,
 			final Connection connection
 		)
 		throws SQLException
 		{
-			Long cachedValue;
-			synchronized(this)
-			{
-				cachedValue = this.fileSizeCache.get(file.identifier());
-			}
-			if(cachedValue != null)
-			{
-				return cachedValue;
-			}
-			
 			final String sql = this.provider.fileSizeQuery(
 				file.parentPath().fullQualifiedName()
 			);
@@ -212,15 +241,10 @@ public interface SqlConnector
 					result.next();
 					final long count = result.getLong(1);
 					final long max   = result.getLong(2);
-					final Long fileSize = count > 0
+					return count > 0
 						? max + 1L
 						: 0L
 					;
-					synchronized(this)
-					{
-						this.fileSizeCache.put(file.identifier(), fileSize);
-					}
-					return fileSize;
 				}
 			}
 		}
@@ -532,10 +556,22 @@ public interface SqlConnector
 			final SqlPath file
 		)
 		{
-			return this.provider.execute(connection ->
+			if(!this.useCache)
 			{
-				return this.internalFileSize(file, connection);
-			});
+				return this.provider.execute(
+					connection -> this.queryFileSize(file, connection)
+				);
+			}
+			
+			synchronized(this)
+			{
+				return this.fileSizeCache.computeIfAbsent(
+					file.fullQualifiedName(),
+					name -> this.provider.execute(
+						connection -> this.queryFileSize(file, connection)
+					)
+				);
+			}
 		}
 
 		@Override
@@ -543,50 +579,43 @@ public interface SqlConnector
 			final SqlPath file
 		)
 		{
-			return this.provider.execute(connection ->
+			if(!this.useCache)
 			{
-				if(!this.internalDirectoryExists(file.parentPath(), connection))
-				{
-					return false;
-				}
-
-				Boolean cachedValue;
-				synchronized(this)
-				{
-					cachedValue = this.fileExistsCache.get(file.fullQualifiedName());
-				}
-				if(cachedValue != null)
-				{
-					return cachedValue;
-				}
-				
-				final String sql = this.provider.fileExistsQuery(file.parentPath().fullQualifiedName());
-				try(final PreparedStatement statement = connection.prepareStatement(sql))
-				{
-					statement.setString(1, file.identifier());
-					try(final ResultSet result = statement.executeQuery())
-					{
-						final boolean exists = result.next()
-							? result.getLong(1) > 0L
-							: false
-						;
-						synchronized(this)
-						{
-							this.fileExistsCache.put(file.fullQualifiedName(), exists);
-						}
-						return exists;
-					}
-				}
-			});
+				return this.provider.execute(connection ->
+					this.queryFileExists(file, connection)
+				);
+			}
+			
+			synchronized(this)
+			{
+				return this.fileExistsCache.computeIfAbsent(
+					file.fullQualifiedName(),
+					name -> this.provider.execute(connection ->
+						this.queryFileExists(file, connection)
+					)
+				);
+			}
 		}
 
 		@Override
 		public boolean directoryExists(final SqlPath directory)
 		{
-			return this.provider.execute(connection ->
+			if(!this.useCache)
 			{
-				return this.internalDirectoryExists(directory, connection);
-			});
+				return this.provider.execute(connection ->
+					this.queryDirectoryExists(directory, connection)
+				);
+			}
+			
+			synchronized(this)
+			{
+				return this.directoryExistsCache.computeIfAbsent(
+					directory.fullQualifiedName(),
+					name -> this.provider.execute(connection ->
+						this.queryDirectoryExists(directory, connection)
+					)
+				);
+			}
 		}
 
 		@Override
@@ -606,12 +635,22 @@ public interface SqlConnector
 		@Override
 		public boolean createDirectory(final SqlPath directory)
 		{
-			return this.provider.execute(connection ->
+			final boolean success = this.provider.execute(connection ->
 			{
-				this.internalCreateDirectory(directory, connection);
+				this.queryCreateDirectory(directory, connection);
 
 				return true;
 			});
+			
+			if(this.useCache && success)
+			{
+				synchronized(this)
+				{
+					this.directoryExistsCache.put(directory.fullQualifiedName(), Boolean.TRUE);
+				}
+			}
+			
+			return success;
 		}
 
 		@Override
@@ -619,7 +658,7 @@ public interface SqlConnector
 			final SqlPath file
 		)
 		{
-			return this.provider.execute(connection ->
+			final boolean success = this.provider.execute(connection ->
 			{
 				final String sql = this.provider.deleteFileQuery(
 					file.parentPath().fullQualifiedName()
@@ -628,16 +667,20 @@ public interface SqlConnector
 				{
 					statement.setString(1, file.identifier());
 					final int affectedRows = statement.executeUpdate();
-					
-					synchronized(this)
-					{
-						this.fileExistsCache.remove(file.fullQualifiedName());
-						this.fileSizeCache.remove(file.fullQualifiedName());
-					}
-					
 					return affectedRows > 0;
 				}
 			});
+			
+			if(this.useCache)
+			{
+				synchronized(this)
+				{
+					this.fileExistsCache.remove(file.fullQualifiedName());
+					this.fileSizeCache.remove(file.fullQualifiedName());
+				}
+			}
+			
+			return success;
 		}
 
 		@Override
@@ -696,7 +739,7 @@ public interface SqlConnector
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			return this.provider.execute(connection ->
+			final long written = this.provider.execute(connection ->
 			{
 				final String sql = this.provider.writeDataQuery(
 					file.parentPath().fullQualifiedName()
@@ -713,7 +756,8 @@ public interface SqlConnector
 				);
 
 				final ByteBufferInputStream inputStream = ByteBufferInputStream.New(sourceBuffers);
-				      long                  offset      = Math.max(0L, this.internalFileSize(file, connection));
+				final long                  fileSize    = this.internalFileSize(file, connection);
+				      long                  offset      = Math.max(0L, fileSize);
 				      long                  available   = buffersLength;
 				while(available > 0)
 				{
@@ -735,18 +779,20 @@ public interface SqlConnector
 					offset    += currentBatchSize;
 					available -= currentBatchSize;
 				}
-				
-				synchronized(this)
-				{
-					final long addedSize = buffersLength;
-					this.fileSizeCache.computeIfPresent(
-						file.fullQualifiedName(),
-						(fileName, fileSize) -> fileSize + addedSize
-					);
-				}
 
 				return buffersLength;
 			});
+			
+			if(this.useCache)
+			{
+				synchronized(this)
+				{
+					this.fileExistsCache.put(file.fullQualifiedName(), Boolean.TRUE);
+					this.fileSizeCache.merge(file.fullQualifiedName(), written, Math::addExact);
+				}
+			}
+			
+			return written;
 		}
 
 		@Override
@@ -798,6 +844,11 @@ public interface SqlConnector
 					}
 				}
 				
+				return null;
+			});
+			
+			if(this.useCache)
+			{
 				synchronized(this)
 				{
 					this.fileExistsCache.put(sourceFile.fullQualifiedName(), Boolean.FALSE);
@@ -809,32 +860,7 @@ public interface SqlConnector
 						this.fileSizeCache.put(targetFile.fullQualifiedName(), fileSize);
 					}
 				}
-				
-				return null;
-			});
-		}
-
-		@Override
-		public long copyFile(
-			final SqlPath sourceFile,
-			final SqlPath targetFile
-		)
-		{
-			return this.provider.execute(connection ->
-			{
-				final String sql = this.provider.copyFileQuery(
-					sourceFile.parentPath().fullQualifiedName(),
-					targetFile.parentPath().fullQualifiedName()
-				);
-				try(final PreparedStatement statement = connection.prepareStatement(sql))
-				{
-					statement.setString(1, targetFile.identifier());
-					statement.setString(2, sourceFile.identifier());
-					statement.executeUpdate();
-				}
-
-				return this.internalFileSize(sourceFile, connection);
-			});
+			}
 		}
 
 		@Override
@@ -851,7 +877,7 @@ public interface SqlConnector
 
 		@Override
 		public void truncateFile(
-			final SqlPath file   ,
+			final SqlPath file     ,
 			final long    newLength
 		)
 		{
@@ -860,7 +886,7 @@ public interface SqlConnector
 				this.deleteFile(file);
 				return;
 			}
-
+			
 			this.provider.execute(connection ->
 			{
 				final long currentLength = this.internalFileSize(file, connection);
@@ -951,19 +977,19 @@ public interface SqlConnector
 						statement.executeUpdate();
 					}
 				}
-				
-				synchronized(this)
-				{
-					this.fileSizeCache.computeIfPresent(
-						file.fullQualifiedName(),
-						(fileName, fileSize) -> newLength
-					);
-				}
 
 				return null;
 			});
+			
+			if(this.useCache)
+			{
+				synchronized(this)
+				{
+					this.fileSizeCache.put(file.fullQualifiedName(), newLength);
+				}
+			}
 		}
 
 	}
-
+	
 }

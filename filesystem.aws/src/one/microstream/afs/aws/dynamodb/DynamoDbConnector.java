@@ -1,6 +1,5 @@
 package one.microstream.afs.aws.dynamodb;
 
-import static java.util.stream.Collectors.toList;
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
@@ -78,7 +77,24 @@ public interface DynamoDbConnector extends BlobStoreConnector
 	)
 	{
 		return new DynamoDbConnector.Default(
-			notNull(dynamoDb)
+			notNull(dynamoDb),
+			false
+		);
+	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link DynamoDbConnector} with cache.
+	 *
+	 * @param dynamoDb connection to the DynamoDB service
+	 * @return a new {@link DynamoDbConnector}
+	 */
+	public static DynamoDbConnector Caching(
+		final AmazonDynamoDB dynamoDb
+	)
+	{
+		return new DynamoDbConnector.Default(
+			notNull(dynamoDb),
+			true
 		);
 	}
 
@@ -102,12 +118,14 @@ public interface DynamoDbConnector extends BlobStoreConnector
 		private final Map<String, Table> tables  ;
 
 		Default(
-			final AmazonDynamoDB client
+			final AmazonDynamoDB client  ,
+			final boolean        useCache
 		)
 		{
 			super(
 				blob -> blob.getString(FIELD_KEY ),
-				blob -> blob.getLong  (FIELD_SIZE)
+				blob -> blob.getLong  (FIELD_SIZE),
+				useCache
 			);
 			this.client   = client              ;
 			this.dynamoDB = new DynamoDB(client);
@@ -382,33 +400,6 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			batchWrite.finish();
 
 			return totalSize;
-		}
-
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			final BatchWrite batchWrite = new BatchWrite(this.dynamoDB, targetFile.container());
-			      long       amount     = 0L;
-			for(final Item blob : this.blobs(sourceFile, true).collect(toList()))
-			{
-				final long size = blob.getLong(FIELD_SIZE);
-				final Item item = new Item()
-					.withPrimaryKey(FIELD_KEY, targetFile.fullQualifiedName())
-					.withKeyComponent(FIELD_SEQ, this.blobNumber(blob))
-					.withNumber(FIELD_SIZE, size)
-					.withBinary(FIELD_DATA, blob.getBinary(FIELD_DATA))
-				;
-				batchWrite.add(item);
-
-				amount += size;
-			}
-
-			batchWrite.finish();
-
-			return amount;
 		}
 
 

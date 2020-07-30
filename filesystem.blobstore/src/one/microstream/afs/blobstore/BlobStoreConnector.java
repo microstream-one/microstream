@@ -56,14 +56,13 @@ public interface BlobStoreConnector extends AutoCloseable
 
 	public void moveFile(BlobStorePath sourceFile, BlobStorePath targetFile);
 
-	public long copyFile(BlobStorePath sourceFile, BlobStorePath targetFile);
-
 	public long copyFile(BlobStorePath sourceFile, BlobStorePath targetFile, long offset, long length);
 
 	public void truncateFile(BlobStorePath file, long newLength);
 
 	@Override
 	public void close();
+	
 
 
 	/**
@@ -206,30 +205,34 @@ public interface BlobStoreConnector extends AutoCloseable
 		}
 
 
-		private final Function<B, String>     blobKeyProvider       ;
-		private final ToLongFunction<B>       blobSizeProvider      ;
-		private final BlobStorePath.Validator blobStorePathValidator;
-		private final AtomicBoolean           open                  ;
-		private final Map<String, Boolean>    directoryExistsCache  = new HashMap<>();
-		private final Map<String, Boolean>    fileExistsCache       = new HashMap<>();
-		private final Map<String, Long>       fileSizeCache         = new HashMap<>();
+		private final Function<B, String>     blobKeyProvider                       ;
+		private final ToLongFunction<B>       blobSizeProvider                      ;
+		private final BlobStorePath.Validator blobStorePathValidator                ;
+		private final AtomicBoolean           open                                  ;
+		private final boolean                 useCache                              ;
+		private final Map<String, Boolean>    directoryExistsCache = new HashMap<>();
+		private final Map<String, Boolean>    fileExistsCache      = new HashMap<>();
+		private final Map<String, Long>       fileSizeCache        = new HashMap<>();
 
 		protected Abstract(
 			final Function<B, String> blobKeyProvider ,
-			final ToLongFunction<B>   blobSizeProvider
+			final ToLongFunction<B>   blobSizeProvider,
+			final boolean             useCache
 		)
 		{
 			this(
 				blobKeyProvider,
 				blobSizeProvider,
-				null
+				null,
+				useCache
 			);
 		}
 
 		protected Abstract(
 			final Function<B, String>     blobKeyProvider       ,
 			final ToLongFunction<B>       blobSizeProvider      ,
-			final BlobStorePath.Validator blobStorePathValidator
+			final BlobStorePath.Validator blobStorePathValidator,
+			final boolean                 useCache
 		)
 		{
 			super();
@@ -239,6 +242,7 @@ public interface BlobStoreConnector extends AutoCloseable
 				? blobStorePathValidator
 				: BlobStorePath.Validator.NO_OP
 			;
+			this.useCache               = useCache;
 			this.open                   = new AtomicBoolean(true);
 		}
 
@@ -266,11 +270,6 @@ public interface BlobStoreConnector extends AutoCloseable
 		protected abstract long internalWriteData(
 			BlobStorePath                  file         ,
 			Iterable<? extends ByteBuffer> sourceBuffers
-		);
-
-		protected abstract long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
 		);
 
 		protected long internalFileSize(
@@ -416,7 +415,7 @@ public interface BlobStoreConnector extends AutoCloseable
 			final BlobStorePath targetFile
 		)
 		{
-			this.internalCopyFile(sourceFile, targetFile);
+			this.internalCopyFile(sourceFile, targetFile, 0, -1);
 			this.internalDeleteFile(sourceFile);
 		}
 
@@ -427,13 +426,6 @@ public interface BlobStoreConnector extends AutoCloseable
 			final long          length
 		)
 		{
-			if(offset == 0
-			&& length > 0
-			&& length == this.fileSize(sourceFile))
-			{
-				return this.copyFile(sourceFile, targetFile);
-			}
-
 			final ByteBuffer buffer = this.readData(sourceFile, offset, length);
 			return this.writeData(targetFile, Arrays.asList(buffer));
 		}
@@ -625,10 +617,18 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
-			return this.fileSizeCache.computeIfAbsent(
-				file.fullQualifiedName(),
-				name -> this.internalFileSize(file)
-			);
+			if(!this.useCache)
+			{
+				return this.internalFileSize(file);
+			}
+			
+			synchronized(this)
+			{
+				return this.fileSizeCache.computeIfAbsent(
+					file.fullQualifiedName(),
+					name -> this.internalFileSize(file)
+				);
+			}
 		}
 
 		@Override
@@ -637,6 +637,11 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(directory);
 
+			if(!this.useCache)
+			{
+				return this.internalDirectoryExists(directory);
+			}
+			
 			synchronized(this)
 			{
 				return this.directoryExistsCache.computeIfAbsent(
@@ -654,6 +659,11 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
+			if(!this.useCache)
+			{
+				return this.internalFileExists(file);
+			}
+			
 			synchronized(this)
 			{
 				return this.fileExistsCache.computeIfAbsent(
@@ -683,7 +693,17 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(directory);
 
-			return this.internalCreateDirectory(directory);
+			final boolean success = this.internalCreateDirectory(directory);
+			
+			if(this.useCache && success)
+			{
+				synchronized(this)
+				{
+					this.directoryExistsCache.put(directory.fullQualifiedName(), Boolean.TRUE);
+				}
+			}
+			
+			return success;
 		}
 
 		@Override
@@ -705,13 +725,18 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
-			synchronized(this)
+			final boolean success = this.internalDeleteFile(file);
+			
+			if(this.useCache)
 			{
-				this.fileExistsCache.remove(file.fullQualifiedName());
-				this.fileSizeCache.remove(file.fullQualifiedName());
+				synchronized(this)
+				{
+					this.fileExistsCache.remove(file.fullQualifiedName());
+					this.fileSizeCache.remove(file.fullQualifiedName());
+				}
 			}
 			
-			return this.internalDeleteFile(file);
+			return success;
 		}
 
 		@Override
@@ -750,17 +775,18 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
-			final long addedSize = this.internalWriteData(file, sourceBuffers);
+			final long written = this.internalWriteData(file, sourceBuffers);
 			
-			synchronized(this)
+			if(this.useCache)
 			{
-				this.fileSizeCache.computeIfPresent(
-					file.fullQualifiedName(),
-					(fileName, fileSize) -> fileSize + addedSize
-				);
+				synchronized(this)
+				{
+					this.fileExistsCache.put(file.fullQualifiedName(), Boolean.TRUE);
+					this.fileSizeCache.merge(file.fullQualifiedName(), written, Math::addExact);
+				}
 			}
 			
-			return addedSize;
+			return written;
 		}
 
 		@Override
@@ -775,30 +801,20 @@ public interface BlobStoreConnector extends AutoCloseable
 
 			this.internalMoveFile(sourceFile, targetFile);
 			
-			synchronized(this)
+			if(this.useCache)
 			{
-				this.fileExistsCache.put(sourceFile.fullQualifiedName(), Boolean.FALSE);
-				this.fileExistsCache.put(targetFile.fullQualifiedName(), Boolean.TRUE);
-				
-				final Long fileSize = this.fileSizeCache.remove(sourceFile.fullQualifiedName());
-				if(fileSize != null)
+				synchronized(this)
 				{
-					this.fileSizeCache.put(targetFile.fullQualifiedName(), fileSize);
+					this.fileExistsCache.put(sourceFile.fullQualifiedName(), Boolean.FALSE);
+					this.fileExistsCache.put(targetFile.fullQualifiedName(), Boolean.TRUE);
+					
+					final Long fileSize = this.fileSizeCache.remove(sourceFile.fullQualifiedName());
+					if(fileSize != null)
+					{
+						this.fileSizeCache.put(targetFile.fullQualifiedName(), fileSize);
+					}
 				}
 			}
-		}
-
-		@Override
-		public final long copyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			this.ensureOpen();
-			this.blobStorePathValidator.validate(sourceFile);
-			this.blobStorePathValidator.validate(targetFile);
-
-			return this.internalCopyFile(sourceFile, targetFile);
 		}
 
 		@Override
@@ -822,29 +838,22 @@ public interface BlobStoreConnector extends AutoCloseable
 			final long          newLength
 		)
 		{
+			if(newLength == 0L)
+			{
+				this.deleteFile(file);
+				return;
+			}
+			
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
-			if(newLength == 0L)
+			this.internalTruncateFile(file, newLength);
+			
+			if(this.useCache)
 			{
-				this.internalDeleteFile(file);
-				
 				synchronized(this)
 				{
-					this.fileExistsCache.remove(file.fullQualifiedName());
-					this.fileSizeCache.remove(file.fullQualifiedName());
-				}
-			}
-			else
-			{
-				this.internalTruncateFile(file, newLength);
-				
-				synchronized(this)
-				{
-					this.fileSizeCache.computeIfPresent(
-						file.fullQualifiedName(),
-						(fileName, fileSize) -> newLength
-					);
+					this.fileSizeCache.put(file.fullQualifiedName(), newLength);
 				}
 			}
 		}
