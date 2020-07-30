@@ -19,7 +19,6 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.Storage.BlobListOption;
-import com.google.cloud.storage.Storage.CopyRequest;
 
 import one.microstream.afs.blobstore.BlobStoreConnector;
 import one.microstream.afs.blobstore.BlobStorePath;
@@ -53,10 +52,27 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 	)
 	{
 		return new GoogleCloudStorageConnector.Default(
-			notNull(storage)
+			notNull(storage),
+			false
 		);
 	}
 
+	/**
+	 * Pseude-constructor method which creates a new {@link GoogleCloudStorageConnector} with cache.
+	 *
+	 * @param storage connection to the Google storage service
+	 * @return a new {@link GoogleCloudStorageConnector}
+	 */
+	public static GoogleCloudStorageConnector Caching(
+		final Storage storage
+	)
+	{
+		return new GoogleCloudStorageConnector.Default(
+			notNull(storage),
+			true
+		);
+	}
+	
 
 	public static class Default
 	extends    BlobStoreConnector.Abstract<Blob>
@@ -65,13 +81,15 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 		private final Storage storage;
 
 		Default(
-			final Storage storage
+			final Storage storage  ,
+			final boolean withCache
 		)
 		{
 			super(
 				Blob::getName,
 				Blob::getSize,
-				GoogleCloudStoragePathValidator.New()
+				GoogleCloudStoragePathValidator.New(),
+				withCache
 			);
 			this.storage = storage;
 		}
@@ -267,30 +285,6 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 			}
 
 			return totalSize;
-		}
-
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			this.blobs(sourceFile).forEach(sourceBlob ->
-			{
-				final BlobInfo targetBlobInfo = BlobInfo.newBuilder(
-					targetFile.container(),
-					toBlobKey(
-						targetFile,
-						this.blobNumber(sourceBlob)
-					)
-				)
-				.build();
-				this.storage.copy(
-					CopyRequest.of(sourceBlob.getBlobId(), targetBlobInfo)
-				);
-			});
-
-			return this.fileSize(targetFile);
 		}
 
 	}

@@ -401,7 +401,9 @@ public interface BlobStoreIoHandler extends AIoHandler
 			final BlobStoreWritableFile handlableTarget = this.castWritableFile(targetFile);
 			return this.connector.copyFile(
 				BlobStoreFileSystem.toPath(sourceFile.ensureOpenHandle()),
-				BlobStoreFileSystem.toPath(handlableTarget.ensureOpenHandle())
+				BlobStoreFileSystem.toPath(handlableTarget.ensureOpenHandle()),
+				0,
+				-1
 			);
 		}
 
@@ -447,7 +449,9 @@ public interface BlobStoreIoHandler extends AIoHandler
 			final BlobStoreReadableFile handlableSource = this.castReadableFile(source);
 			return this.connector.copyFile(
 				BlobStoreFileSystem.toPath(handlableSource.ensureOpenHandle()),
-				BlobStoreFileSystem.toPath(targetSubject.ensureOpenHandle())
+				BlobStoreFileSystem.toPath(targetSubject.ensureOpenHandle()),
+				0,
+				-1
 			);
 		}
 

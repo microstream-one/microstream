@@ -48,6 +48,23 @@ public interface RedisConnector extends BlobStoreConnector
 			)
 		);
 	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link RedisConnector} with cache.
+	 *
+	 * @param redisUri url to connect to
+	 * @return a new {@link RedisConnector}
+	 */
+	public static RedisConnector Caching(
+		final String redisUri
+	)
+	{
+		return Caching(
+			RedisClient.create(
+				notEmpty(redisUri)
+			)
+		);
+	}
 
 	/**
 	 * Pseude-constructor method which creates a new {@link RedisConnector}.
@@ -60,7 +77,24 @@ public interface RedisConnector extends BlobStoreConnector
 	)
 	{
 		return new RedisConnector.Default(
-			notNull(client)
+			notNull(client),
+			false
+		);
+	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link RedisConnector} with cache.
+	 *
+	 * @param client Redis client connection
+	 * @return a new {@link RedisConnector}
+	 */
+	public static RedisConnector Caching(
+		final RedisClient client
+	)
+	{
+		return new RedisConnector.Default(
+			notNull(client),
+			true
 		);
 	}
 
@@ -74,12 +108,14 @@ public interface RedisConnector extends BlobStoreConnector
 		private       RedisCommands          <String, ByteBuffer> commands  ;
 
 		Default(
-			final RedisClient client
+			final RedisClient client   ,
+			final boolean     withCache
 		)
 		{
 			super(
 				BlobMetadata::key,
-				BlobMetadata::size
+				BlobMetadata::size,
+				withCache
 			);
 			this.client = client;
 		}
@@ -194,38 +230,6 @@ public interface RedisConnector extends BlobStoreConnector
 			);
 
 			return totalSize;
-		}
-
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			final long[] amount = new long[1];
-			this.blobs(sourceFile).forEach(blob ->
-			{
-				final long       size   = blob.size();
-				final ByteBuffer buffer = ByteBuffer.allocateDirect(checkArrayRange(size));
-				this.internalReadBlobData(
-					sourceFile,
-					blob,
-					buffer,
-					0L,
-					size
-				);
-				buffer.flip();
-				this.commands().set(
-					toBlobKeyWithContainer(
-						 targetFile,
-						 this.blobNumber(blob)
-					),
-					buffer
-				);
-				amount[0] += size;
-			});
-
-			return amount[0];
 		}
 
 		@Override

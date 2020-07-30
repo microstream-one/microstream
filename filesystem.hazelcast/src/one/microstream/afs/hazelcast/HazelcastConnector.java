@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -53,7 +52,24 @@ public interface HazelcastConnector extends BlobStoreConnector
 	)
 	{
 		return new Default(
-			notNull(hazelcast)
+			notNull(hazelcast),
+			false
+		);
+	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link HazelcastConnector} with cache.
+	 *
+	 * @param hazelcast connection to the Hazelcast instance
+	 * @return a new {@link HazelcastConnector}
+	 */
+	public static HazelcastConnector Caching(
+		final HazelcastInstance hazelcast
+	)
+	{
+		return new Default(
+			notNull(hazelcast),
+			true
 		);
 	}
 
@@ -101,12 +117,14 @@ public interface HazelcastConnector extends BlobStoreConnector
 		private final HazelcastInstance hazelcast;
 
 		Default(
-			final HazelcastInstance hazelcast
+			final HazelcastInstance hazelcast,
+			final boolean           withCache
 		)
 		{
 			super(
 				BlobMetadata::key,
-				BlobMetadata::size
+				BlobMetadata::size,
+				withCache
 			);
 			this.hazelcast = hazelcast;
 		}
@@ -253,23 +271,6 @@ public interface HazelcastConnector extends BlobStoreConnector
 				this.copyBlob(metadata, targetFile, sourceMap, targetMap, nr);
 				sourceMap.delete(metadata.key());
 			});
-		}
-
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			final IMap<String, List<Object>> sourceMap = this.map(sourceFile);
-			final IMap<String, List<Object>> targetMap = this.map(targetFile);
-			final AtomicInteger              nr        = new AtomicInteger();
-			final AtomicLong                 size      = new AtomicLong();
-			this.blobs(sourceFile).forEach(metadata ->{
-				this.copyBlob(metadata, targetFile, sourceMap, targetMap, nr);
-				size.addAndGet(metadata.size());
-			});
-			return size.get();
 		}
 
 		private void copyBlob(

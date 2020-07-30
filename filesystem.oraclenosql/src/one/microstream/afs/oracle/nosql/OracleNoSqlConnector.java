@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -64,7 +63,24 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 	)
 	{
 		return new Default(
-			notNull(kvstore)
+			notNull(kvstore),
+			false
+		);
+	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link OracleNoSqlConnector} with cache.
+	 *
+	 * @param kvstore connection to a key value store
+	 * @return a new {@link OracleNoSqlConnector}
+	 */
+	public static OracleNoSqlConnector Caching(
+		final KVStore kvstore
+	)
+	{
+		return new Default(
+			notNull(kvstore),
+			true
 		);
 	}
 
@@ -84,13 +100,15 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 		private final Map<String, Table> tables;
 
 		Default(
-			final KVStore kvstore
+			final KVStore kvstore  ,
+			final boolean withCache
 		)
 		{
 			super(
 				BlobMetadata::key,
 				BlobMetadata::size,
-				OracleNoSqlPathValidator.New()
+				OracleNoSqlPathValidator.New(),
+				withCache
 			);
 			this.kvstore = kvstore;
 			this.tables  = new HashMap<>();
@@ -393,59 +411,6 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 			}
 
 			return totalSize;
-		}
-
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			final AtomicLong           size            = new AtomicLong();
-			final Table                table           = this.table(targetFile);
-			final List<TableOperation> tableOperations = new ArrayList<>();
-
-			this.blobs(sourceFile).forEach(metadata ->
-			{
-				final Row row = table.createRow();
-				row.put(KEY , targetFile.fullQualifiedName());
-				row.put(SEQ , metadata.seq());
-				row.put(SIZE, metadata.size());
-				tableOperations.add(this.kvstore.getTableAPI().getTableOperationFactory().createPut(
-					row,
-					Choice.NONE,
-					true
-				));
-
-				try(final InputStream inputStream = this.blobInputStream(sourceFile, metadata.seq()))
-				{
-					this.kvstore.putLOB(
-						this.key(targetFile, metadata.seq()),
-						inputStream,
-						null,
-						0L,
-						null
-					);
-				}
-				catch(final IOException e)
-				{
-					throw new IORuntimeException(e);
-				}
-
-				size.addAndGet(metadata.size());
-			});
-
-			try
-			{
-				this.kvstore.getTableAPI().execute(tableOperations, null);
-			}
-			catch(final TableOpExecutionException e)
-			{
-				// TODO proper exception
-				throw new RuntimeException(e);
-			}
-
-			return size.get();
 		}
 
 	}

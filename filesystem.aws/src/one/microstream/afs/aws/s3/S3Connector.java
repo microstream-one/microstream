@@ -55,7 +55,24 @@ public interface S3Connector extends BlobStoreConnector
 	)
 	{
 		return new S3Connector.Default(
-			notNull(s3)
+			notNull(s3),
+			false
+		);
+	}
+	
+	/**
+	 * Pseude-constructor method which creates a new {@link S3Connector} with cache.
+	 *
+	 * @param s3 connection to the S3 storage
+	 * @return a new {@link S3Connector}
+	 */
+	public static S3Connector Caching(
+		final AmazonS3 s3
+	)
+	{
+		return new S3Connector.Default(
+			notNull(s3),
+			true
 		);
 	}
 
@@ -67,13 +84,15 @@ public interface S3Connector extends BlobStoreConnector
 		private final AmazonS3 s3;
 
 		Default(
-			final AmazonS3 s3
+			final AmazonS3 s3      ,
+			final boolean  useCache
 		)
 		{
 			super(
 				S3ObjectSummary::getKey,
 				S3ObjectSummary::getSize,
-				S3PathValidator.New()
+				S3PathValidator.New(),
+				useCache
 			);
 			this.s3 = s3;
 		}
@@ -234,28 +253,6 @@ public interface S3Connector extends BlobStoreConnector
 			}
 
 			return totalSize;
-		}
-
-		@Override
-		protected long internalCopyFile(
-			final BlobStorePath sourceFile,
-			final BlobStorePath targetFile
-		)
-		{
-			this.blobs(sourceFile).forEach(sourceFileSummary ->
-			{
-				this.s3.copyObject(
-					 sourceFile.container(),
-					 sourceFileSummary.getKey(),
-					 targetFile.container(),
-					 toBlobKey(
-						 targetFile,
-						 this.blobNumber(sourceFileSummary)
-					)
-				);
-			});
-
-			return this.fileSize(targetFile);
 		}
 
 	}
