@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import java.util.function.Function;
 
 import one.microstream.X;
+import one.microstream.chars.XChars;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.interfaces.OptimizableCollection;
@@ -674,8 +675,17 @@ public interface AccessManager
 			}
 		};
 		
+		static String toStringWithIdentity(final Object o)
+		{
+			return o == null
+				? null
+				: "(" + XChars.systemString(o) + ") " + o.toString()
+			;
+		}
+		
 		private static final ConflictHandler CONFLICT_HANDLER_EXCEPTION = new ConflictHandler()
 		{
+			
 			@Override
 			public void handleSharedAttemptExclusiveUserConflict(
 				final AFile     actual,
@@ -686,8 +696,8 @@ public interface AccessManager
 				// (30.04.2020 TM)EXCP: proper exception
 				throw new RuntimeException(
 					"File is already exclusively used by a different user: " + actual
-					+ ". Exclusive user: " + entry.exclusive.user()
-					+ ". Attempting user: " + user + "."
+					+ ". Exclusive user: " + toStringWithIdentity(entry.exclusive.user())
+					+ ". Attempting user: " + toStringWithIdentity(user) + "."
 				);
 			}
 			
@@ -701,8 +711,8 @@ public interface AccessManager
 				// (30.04.2020 TM)EXCP: proper exception
 				throw new RuntimeException(
 					"File is already used by a different exclusive user: " + actual
-					+ ". Exclusive user: " + entry.exclusive.user()
-					+ ". Attempting user: " + user + "."
+					+ ". Exclusive user: " + toStringWithIdentity(entry.exclusive.user())
+					+ ". Attempting user: " + toStringWithIdentity(user) + "."
 				);
 			}
 			
