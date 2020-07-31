@@ -446,20 +446,6 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			 * once again).
 			 */
 		}
-
-		final StorageDataInventoryFile createDataInventoryFile(
-			final AFile file        ,
-			final int   channelIndex,
-			final long  number
-		)
-		{
-			return StorageDataInventoryFile.New(
-				    notNull(file)        ,
-				notNegative(channelIndex),
-				notNegative(number)
-			);
-		}
-		
 	
 		final StorageLiveDataFile.Default createLiveDataFile(
 			final AFile file        ,
