@@ -412,6 +412,11 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			
 			directory.iterateFiles(f ->
 			{
+				// collecting files refers only to those that physically exist. Residual AFS entries don't count.
+				if(!f.exists())
+				{
+					return;
+				}
 				this.fileNameProvider.parseDataInventoryFile(creator, collector, channelIndex, f);
 			});
 			
