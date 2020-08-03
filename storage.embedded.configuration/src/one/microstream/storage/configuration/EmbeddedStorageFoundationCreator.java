@@ -4,6 +4,7 @@ package one.microstream.storage.configuration;
 import static one.microstream.chars.XChars.isEmpty;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.io.XIO;
@@ -82,12 +83,13 @@ public interface EmbeddedStorageFoundationCreator
 				configuration.getLockFileName          ()
 			);
 
+			final NioFileSystem fileSystem = NioFileSystem.New();
 			return Storage
-				.FileProviderBuilder   (NioFileSystem.get()                                            )
-				.setDirectory          (NioFileSystem.directory(baseDirectory)                         )
-				.setDeletionDirectory  (NioFileSystem.directory(configuration.getDeletionDirectory())  )
-				.setTruncationDirectory(NioFileSystem.directory(configuration.getTruncationDirectory()))
-				.setFileNameProvider   (fileNameProvider                                               )
+				.FileProviderBuilder   (fileSystem                                                                   )
+				.setDirectory          (fileSystem.ensureDirectory(baseDirectory)                                    )
+				.setDeletionDirectory  (fileSystem.ensureDirectory(Paths.get(configuration.getDeletionDirectory()))  )
+				.setTruncationDirectory(fileSystem.ensureDirectory(Paths.get(configuration.getTruncationDirectory())))
+				.setFileNameProvider   (fileNameProvider                                                             )
 				.createFileProvider    ()
 			;
 		}
