@@ -25,7 +25,6 @@ import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.XArrays;
-import one.microstream.collections.types.XAddingCollection;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.functional.XFunc;
 import one.microstream.memory.XMemory;
@@ -418,7 +417,7 @@ public final class XIO
 		return listEntries(directory, BulkList.New(), selector).toArray(Path.class);
 	}
 	
-	public static <C extends XAddingCollection<? super Path>> C listEntries(
+	public static <C extends Consumer<? super Path>> C listEntries(
 		final Path directory,
 		final C    target
 	)
@@ -427,7 +426,7 @@ public final class XIO
 		return iterateEntries(directory, target);
 	}
 	
-	public static <C extends XAddingCollection<? super Path>> C listEntries(
+	public static <C extends Consumer<? super Path>> C listEntries(
 		final Path                    directory,
 		final C                       target   ,
 		final Predicate<? super Path> selector
@@ -1472,7 +1471,7 @@ public final class XIO
 			}
 		}
 		
-		public static final <C extends XAddingCollection<? super Path>> C listEntries(
+		public static final <C extends Consumer<? super Path>> C listEntries(
 			final Path directory,
 			final C    target
 		)
@@ -1488,7 +1487,7 @@ public final class XIO
 			}
 		}
 		
-		public static final <C extends XAddingCollection<? super Path>> C listEntries(
+		public static final <C extends Consumer<? super Path>> C listEntries(
 			final Path                    directory,
 			final C                       target   ,
 			final Predicate<? super Path> selector

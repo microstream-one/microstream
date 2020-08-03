@@ -10,7 +10,7 @@ public class MainTestAfsSpecialRoots
 {
 	public static void main(final String[] args)
 	{
-		final NioFileSystem fs = NioFileSystem.get();
+		final NioFileSystem fs = NioFileSystem.New();
 		
 		final Path filePath = XIO.Path("/test/bla/blub/stuff.lol");
 		System.out.println(filePath);

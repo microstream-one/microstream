@@ -7,16 +7,19 @@ import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.types.XSequence;
 import one.microstream.functional.XFunc;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageConnection;
 
 public class MainTestExportConvertImport extends TestStorage
 {
 	public static void main(final String[] args)
 	{
+		final NioFileSystem nfs = NioFileSystem.New();
+		
 		ROOT.set(testGraphEvenMoreManyType());
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		storageConnection.store(ROOT);
-		testExport(NioFileSystem.directory("C:/Files/export"));
+		testExport(nfs.ensureDirectory(XIO.Path("C:/Files/export")));
 		exit();
 	}
 

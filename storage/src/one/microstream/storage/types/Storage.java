@@ -56,6 +56,27 @@ public final class Storage
 
 
 	
+	public static NioFileSystem DefaultFileSystem()
+	{
+		return NioFileSystem.New();
+	}
+	
+	public static ADirectory defaultStorageDirectory()
+	{
+		return defaultStorageDirectory(DefaultFileSystem());
+	}
+	
+	/**
+	 * Returns the default storage directory in the current working directory and with a filename defined by
+	 * {@link StorageLiveFileProvider.Defaults#defaultStorageDirectory}.
+	 *
+	 * @return the default storage directory located in the current working directory.
+	 */
+	public static ADirectory defaultStorageDirectory(final AFileSystem fileSystem)
+	{
+		return fileSystem.ensureRoot(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
+	}
+	
 	/**
 	 * {@linkDoc StorageFileProvider#New()}
 	 *
@@ -100,7 +121,9 @@ public final class Storage
 	 */
 	public static final StorageLiveFileProvider FileProvider(final Path storageDirectory)
 	{
-		final ADirectory dir = NioFileSystem.directory(storageDirectory);
+		final NioFileSystem nfs = DefaultFileSystem();
+		
+		final ADirectory dir = nfs.ensureDirectory(storageDirectory);
 		
 		return StorageLiveFileProvider.New(dir);
 	}
@@ -145,7 +168,8 @@ public final class Storage
 
 	public static final StorageBackupFileProvider BackupFileProvider(final Path storageDirectory)
 	{
-		final NioFileSystem nfs = NioFileSystem.get();
+		// note that the backup's file system may potentially be completely different from the live file system.
+		final NioFileSystem nfs = Storage.DefaultFileSystem();
 		final ADirectory    dir = nfs.resolveDirectory(storageDirectory);
 		
 		return StorageBackupFileProvider.New(dir);
@@ -432,9 +456,16 @@ public final class Storage
 	 */
 	public static final StorageBackupSetup BackupSetup(final Path backupDirectory)
 	{
-		final ADirectory dir = NioFileSystem.directory(backupDirectory);
+		// note that the backup's file system may potentially be completely different from the live file system.
+		final NioFileSystem nfs = Storage.DefaultFileSystem();
+		final ADirectory dir = nfs.ensureDirectory(backupDirectory);
 		
-		return StorageBackupSetup.New(dir);
+		return BackupSetup(dir);
+	}
+	
+	public static final StorageBackupSetup BackupSetup(final ADirectory backupDirectory)
+	{
+		return StorageBackupSetup.New(backupDirectory);
 	}
 
 	/**

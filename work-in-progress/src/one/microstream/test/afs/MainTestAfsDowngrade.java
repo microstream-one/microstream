@@ -10,7 +10,7 @@ public class MainTestAfsDowngrade
 {
 	public static void main(final String[] args)
 	{
-		final NioFileSystem fs = NioFileSystem.get();
+		final NioFileSystem fs = NioFileSystem.New();
 		
 		final ADirectory dir  = fs.ensureDirectoryPath(AfsTest.TEST_DIRECTORY_PATH);
 		final AFile      file = fs.ensureFilePath(AfsTest.TEST_FILE_PATH);

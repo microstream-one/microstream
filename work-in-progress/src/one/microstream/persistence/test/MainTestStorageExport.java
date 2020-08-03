@@ -19,6 +19,7 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XSequence;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageConnection;
 
 
@@ -67,7 +68,8 @@ public class MainTestStorageExport extends TestStorage
 
 	static void testExport()
 	{
-		final ADirectory directory = AFS.ensureExists(NioFileSystem.directory("C:/Files/export/bin"));
+		final NioFileSystem nfs = NioFileSystem.New();
+		final ADirectory directory = AFS.ensureExists(nfs.ensureDirectory(XIO.Path("C:/Files/export/bin")));
 		
 		final StorageConnection storageConnection = STORAGE.createConnection();
 		final XSequence<AFile> exportFiles = exportTypes(

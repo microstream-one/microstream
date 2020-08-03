@@ -11,9 +11,8 @@ public class MainTestPrintTransactionFiles
 {
 	public static void main(final String[] args)
 	{
-		
 		final Path storageDirPath = XIO.Path("D:\\workspaces\\microstream\\work-in-progress\\storage");
-		final ADirectory storageDirectory = NioFileSystem.directory(storageDirPath);
+		final ADirectory storageDirectory = NioFileSystem.New().ensureDirectory(storageDirPath);
 		Test.printTransactionsFiles(storageDirectory, 1);
 	}
 }

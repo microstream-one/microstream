@@ -27,7 +27,7 @@ public class MainTestStoreSakilaCustomersPerformance
 	 * Since the MicroStream storing performance considerably depends on the disk speed, it is important to use
 	 * an SSD to get significant results.
 	 */
-	static final ADirectory DIRECTORY = NioFileSystem.directory(
+	static final ADirectory DIRECTORY = NioFileSystem.New().ensureDirectory(
 		XIO.Path("C:/" + MainTestStoreSakilaCustomersPerformance.class.getSimpleName())
 	);
 	
