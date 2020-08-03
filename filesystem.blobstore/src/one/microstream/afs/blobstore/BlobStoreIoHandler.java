@@ -9,6 +9,8 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.AIoHandler;
 import one.microstream.afs.AReadableFile;
 import one.microstream.afs.AWritableFile;
+import one.microstream.collections.EqHashEnum;
+import one.microstream.collections.types.XGettingEnum;
 import one.microstream.io.BufferProvider;
 
 public interface BlobStoreIoHandler extends AIoHandler
@@ -130,20 +132,114 @@ public interface BlobStoreIoHandler extends AIoHandler
 				this.toSubjectDirectory(directory)
 			);
 		}
+		
+		@Override
+		protected XGettingEnum<String> specificListItems(
+			final ADirectory parent
+		)
+		{
+			final EqHashEnum<String> items         = EqHashEnum.New();
+			final BlobStorePath      directoryPath = this.toSubjectDirectory(parent);
+			
+			this.connector.visitChildren(directoryPath, new BlobStorePathVisitor()
+			{
+				@Override
+				public void visitDirectory(
+					final BlobStorePath parent       ,
+					final String        directoryName
+				)
+				{
+					items.add(directoryName);
+				}
+
+				@Override
+				public void visitFile(
+					final BlobStorePath parent  ,
+					final String        fileName
+				)
+				{
+					items.add(fileName);
+				}
+			});
+			
+			return items;
+		}
+		
+		@Override
+		protected XGettingEnum<String> specificListDirectories(
+			final ADirectory parent
+		)
+		{
+			final EqHashEnum<String> items         = EqHashEnum.New();
+			final BlobStorePath      directoryPath = this.toSubjectDirectory(parent);
+			
+			this.connector.visitChildren(directoryPath, new BlobStorePathVisitor()
+			{
+				@Override
+				public void visitDirectory(
+					final BlobStorePath parent       ,
+					final String        directoryName
+				)
+				{
+					items.add(directoryName);
+				}
+
+				@Override
+				public void visitFile(
+					final BlobStorePath parent  ,
+					final String        fileName
+				)
+				{
+				}
+			});
+			
+			return items;
+		}
+		
+		@Override
+		protected XGettingEnum<String> specificListFiles(
+			final ADirectory parent
+		)
+		{
+			final EqHashEnum<String> items         = EqHashEnum.New();
+			final BlobStorePath      directoryPath = this.toSubjectDirectory(parent);
+			
+			this.connector.visitChildren(directoryPath, new BlobStorePathVisitor()
+			{
+				@Override
+				public void visitDirectory(
+					final BlobStorePath parent       ,
+					final String        directoryName
+				)
+				{
+				}
+
+				@Override
+				public void visitFile(
+					final BlobStorePath parent  ,
+					final String        fileName
+				)
+				{
+					items.add(fileName);
+				}
+			});
+			
+			return items;
+		}
 
 		@Override
 		protected void specificInventorize(
 			final ADirectory directory
 		)
 		{
-			final BlobStorePath dirPath = this.toSubjectDirectory(directory);
-			if(!this.subjectDirectoryExists(dirPath))
+			final BlobStorePath directoryPath = this.toSubjectDirectory(directory);
+			if(!this.subjectDirectoryExists(directoryPath))
 			{
 				// nothing to do
 				return;
 			}
 
-			this.connector.visitChildren(dirPath, new BlobStorePathVisitor()
+			this.connector.visitChildren(directoryPath, new BlobStorePathVisitor()
 			{
 				@Override
 				public void visitDirectory(

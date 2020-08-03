@@ -1,8 +1,7 @@
 package one.microstream.afs.sql;
 
+@FunctionalInterface
 public interface SqlPathVisitor
 {
-	public void visitDirectory(SqlPath parent, String directoryName);
-
-	public void visitFile(SqlPath parent, String fileName);
+	public void visitItem(String itemName);
 }
