@@ -129,7 +129,10 @@ public interface StorageBackupFileProvider extends StorageFileProvider
 	 */
 	public static StorageBackupFileProvider.Builder<?> Builder()
 	{
-		return Builder(NioFileSystem.get());
+		// note that the backup's file system may potentially be completely different from the live file system.
+		final NioFileSystem nfs = Storage.DefaultFileSystem();
+		
+		return Builder(nfs);
 	}
 	
 	public static StorageBackupFileProvider.Builder<?> Builder(final AFileSystem fileSystem)

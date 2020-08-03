@@ -2,16 +2,16 @@ package one.microstream.test.corp.main;
 
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFile;
-import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.VarString;
+import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageFileNameProvider;
-import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.storage.types.StorageTransactionsAnalysis;
+
 
 public class MainTestBackupPrintTransactionFiles
 {
 	// local copy to prevent storage starting caused by referencing a constant in MainTestBackupStoring (crazy! :D)
-	static final ADirectory DIRECTORY_STORAGE = NioFileSystem.directory(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
+	static final ADirectory DIRECTORY_STORAGE = Storage.defaultStorageDirectory();
 	static final ADirectory DIRECTORY_BACKUP  = DIRECTORY_STORAGE.ensureDirectory("backup");
 	
 	

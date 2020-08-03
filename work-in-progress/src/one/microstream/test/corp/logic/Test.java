@@ -295,7 +295,7 @@ public class Test
 		final String fileName = prefix + "_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.S").format(new Date());
 		
 		return directory == null
-			? NioFileSystem.directory(fileName)
+			? NioFileSystem.New().ensureDirectory(XIO.Path(fileName))
 			: directory.ensureDirectory(fileName)
 		;
 	}

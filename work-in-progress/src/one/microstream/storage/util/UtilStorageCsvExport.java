@@ -10,6 +10,7 @@ import one.microstream.afs.AFS;
 import one.microstream.afs.AFile;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.BulkList;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
@@ -256,19 +257,22 @@ public class UtilStorageCsvExport
 	
 	public static void main(final String[] args)
 	{
+		final NioFileSystem nfs = NioFileSystem.New();
+		
 		// the instance must come from somewhere in the application logic, where the storage has been initialized.
 		final EmbeddedStorageManager storage = null; // FIXME: EmbeddedStorageManager Instanz der Anwendung.
+		
 		
 		// export all
 		UtilStorageCsvExport.exportCsv(
 			storage,
-			NioFileSystem.directory("C:/StorageExportTest_2018-02-20-1600_ALL")
+			nfs.ensureDirectory(XIO.Path("C:/StorageExportTest_2018-02-20-1600_ALL"))
 		);
 		
 		// Export-Type-Filter example: only export Strings
 		UtilStorageCsvExport.exportCsv(
 			storage,
-			NioFileSystem.directory("C:/StorageExportTest_2018-02-20-1600_Strings"),
+			nfs.ensureDirectory(XIO.Path("C:/StorageExportTest_2018-02-20-1600_Strings")),
 			t -> t.typeName().equals(String.class.getName())
 		);
 		

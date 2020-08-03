@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import one.microstream.X;
 import one.microstream.chars.XChars;
+import one.microstream.collections.types.XGettingEnum;
 import one.microstream.io.BufferProvider;
 import one.microstream.memory.XMemory;
 import one.microstream.util.UtilStackTrace;
@@ -136,6 +137,12 @@ public interface AIoHandler
 	public boolean deleteFile(AWritableFile file);
 	
 	public void truncate(AWritableFile file, long newSize);
+
+	public XGettingEnum<String> listItems(ADirectory parent);
+	
+	public XGettingEnum<String> listDirectories(ADirectory parent);
+	
+	public XGettingEnum<String> listFiles(ADirectory parent);
 	
 		
 	
@@ -193,6 +200,12 @@ public interface AIoHandler
 		protected abstract boolean specificExists(F file);
 
 		protected abstract boolean specificExists(D directory);
+		
+		protected abstract XGettingEnum<String> specificListItems(D parent);
+		
+		protected abstract XGettingEnum<String> specificListDirectories(D parent);
+		
+		protected abstract XGettingEnum<String> specificListFiles(D parent);
 
 		protected abstract void specificInventorize(D directory);
 
@@ -493,6 +506,30 @@ public interface AIoHandler
 			}
 
 			return this.specificExists(this.typeDirectory.cast(directory));
+		}
+		
+		@Override
+		public XGettingEnum<String> listItems(final ADirectory parent)
+		{
+			this.validateHandledDirectory(parent);
+			
+			return this.specificListItems(this.typeDirectory.cast(parent));
+		}
+		
+		@Override
+		public XGettingEnum<String> listDirectories(final ADirectory parent)
+		{
+			this.validateHandledDirectory(parent);
+			
+			return this.specificListDirectories(this.typeDirectory.cast(parent));
+		}
+		
+		@Override
+		public XGettingEnum<String> listFiles(final ADirectory parent)
+		{
+			this.validateHandledDirectory(parent);
+			
+			return this.specificListFiles(this.typeDirectory.cast(parent));
 		}
 		
 		@Override

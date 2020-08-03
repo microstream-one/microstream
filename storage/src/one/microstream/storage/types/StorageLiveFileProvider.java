@@ -6,7 +6,6 @@ import static one.microstream.X.notNull;
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFile;
 import one.microstream.afs.AFileSystem;
-import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 
 public interface StorageLiveFileProvider extends StorageFileProvider
@@ -145,7 +144,10 @@ public interface StorageLiveFileProvider extends StorageFileProvider
 					
 	}
 	
-	
+	public static StorageLiveFileProvider.Builder<?> Builder()
+	{
+		return Builder(Storage.DefaultFileSystem());
+	}
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageLiveFileProvider.Builder} instance.
@@ -154,11 +156,6 @@ public interface StorageLiveFileProvider extends StorageFileProvider
 	 * 
 	 * @return a new {@link StorageLiveFileProvider.Builder} instance.
 	 */
-	public static StorageLiveFileProvider.Builder<?> Builder()
-	{
-		return Builder(NioFileSystem.get());
-	}
-	
 	public static StorageLiveFileProvider.Builder<?> Builder(final AFileSystem fileSystem)
 	{
 		return new StorageLiveFileProvider.Builder.Default(

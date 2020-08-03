@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.file.Path;
 
 import one.microstream.afs.ADirectory;
-import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
@@ -79,17 +78,6 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @deprecated replaced by {@link #ConnectionFoundation(Path)} and {@link #ConnectionFoundation(ADirectory)}
-	 */
-	@Deprecated
-	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
-		final File directory
-	)
-	{
-		return ConnectionFoundation(directory.toPath());
-	}
-
-	/**
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageConnectionFoundation} instance
 	 * using the passed {@literal directory} and default method references provided by {@link Persistence}.
 	 * <p>
@@ -100,20 +88,10 @@ public final class EmbeddedStorage
 	 *
 	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler)@return}
 	 *
-	 * @see PersistenceTypeDictionaryFileHandler#NewInDirectory(ADirectory)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)
 	 * @see Persistence
 	 */
-	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
-		final Path directory
-	)
-	{
-		return ConnectionFoundation(
-			NioFileSystem.directory(directory)
-		);
-	}
-	
 	public static final EmbeddedStorageConnectionFoundation<?> ConnectionFoundation(
 		final ADirectory directory
 	)
@@ -148,18 +126,6 @@ public final class EmbeddedStorage
 		;
 	}
 
-	/**
-	 * Returns the default storage directory in the current working directory and with a filename defined by
-	 * {@link StorageLiveFileProvider.Defaults#defaultStorageDirectory}.
-	 *
-	 * @return the default storage directory located in the current working directory.
-	 */
-	public static ADirectory defaultStorageDirectory()
-	{
-		return NioFileSystem.directory(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
-	}
-
-
 
 	/**
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
@@ -177,7 +143,7 @@ public final class EmbeddedStorage
 	 */
 	public static final EmbeddedStorageFoundation<?> Foundation()
 	{
-		return Foundation(EmbeddedStorage.defaultStorageDirectory());
+		return Foundation(Storage.defaultStorageDirectory());
 	}
 
 	/**
@@ -198,9 +164,7 @@ public final class EmbeddedStorage
 		// no directory ensuring required since the file provider does that internally
 
 		return Foundation(
-			Storage.Configuration(
-				Storage.FileProvider(NioFileSystem.directory(directory))
-			)
+			Storage.DefaultFileSystem().ensureDirectory(directory)
 		);
 	}
 

@@ -4,6 +4,7 @@ import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFS;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.HashEnum;
+import one.microstream.io.XIO;
 import one.microstream.reference.Lazy;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
@@ -40,7 +41,7 @@ public class MainTestStorageImportData
 	
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
 	
-	static final ADirectory EXPORT_DIRECTORY = NioFileSystem.directory("export"); // root is working directory
+	static final ADirectory EXPORT_DIRECTORY = NioFileSystem.New().ensureDirectory(XIO.Path("export")); // root is working directory
 	
 	static final int ID_OFFSET = 0; // change to 1000 or so
 	

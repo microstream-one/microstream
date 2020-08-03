@@ -41,13 +41,13 @@ public class MainTestBackupStoringMinimal
 			)
 			.setBackupSetup(
 				// the only necessary part to activate and configure backupping.
-				StorageBackupSetup.New(NioFileSystem.directory("storageBackup"))
+				StorageBackupSetup.New(NioFileSystem.New().ensureDirectoryPath("storageBackup"))
 			)
 		)
 		// priv#227: Warning: doing this replaces the properly setup TypeDictionaryIoHandler and causes unwanted behavior.
 		.onConnectionFoundation(cf ->
 			cf.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.New(
-				NioFileSystem.directory("storage").ensureFile("ExplicitTypeDictionary.ptd")
+				NioFileSystem.New().ensureDirectoryPath("storage").ensureFile("ExplicitTypeDictionary.ptd")
 			))
 		)
 		.start()

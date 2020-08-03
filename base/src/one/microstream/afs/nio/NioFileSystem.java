@@ -17,31 +17,6 @@ import one.microstream.io.XIO;
 
 public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 {
-	public static ADirectory directory(final Path path)
-	{
-		return NioFileSystem.get().ensureDirectory(path);
-	}
-	
-	public static ADirectory directory(final String path)
-	{
-		return directory(XIO.Path(path));
-	}
-	
-	public static AFile file(final Path path)
-	{
-		return NioFileSystem.get().ensureFile(path);
-	}
-	
-	public static AFile file(final String path)
-	{
-		return file(XIO.Path(path));
-	}
-	
-	public static NioFileSystem get()
-	{
-		return Default.SINGLETON;
-	}
-	
 	public static Path toPath(final AItem item)
 	{
 		return NioFileSystem.toPath(item.toPath());
@@ -51,8 +26,7 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 	{
 		return XIO.Path(pathElements);
 	}
-	
-	
+		
 	
 	
 	@Override
@@ -95,14 +69,6 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 	
 	public class Default extends AFileSystem.Abstract<NioIoHandler, Path, Path> implements NioFileSystem
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// constants        //
-		/////////////////////
-		
-		static final NioFileSystem SINGLETON = NioFileSystem.New();
-		
-		
-		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
