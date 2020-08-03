@@ -2,7 +2,6 @@ package one.microstream.test.corp.main;
 
 import one.microstream.X;
 import one.microstream.afs.ADirectory;
-import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.concurrency.XThreads;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandlerArchiving;
@@ -13,13 +12,12 @@ import one.microstream.storage.types.StorageBackupSetup;
 import one.microstream.storage.types.StorageDataChunkValidator;
 import one.microstream.storage.types.StorageDataFileValidator;
 import one.microstream.storage.types.StorageEntityDataValidator;
-import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.test.corp.logic.Test;
 
 
 public class MainTestBackupStoring
 {
-	static final ADirectory DIRECTORY_STORAGE   = NioFileSystem.directory(StorageLiveFileProvider.Defaults.defaultStorageDirectory());
+	static final ADirectory DIRECTORY_STORAGE   = Storage.defaultStorageDirectory();
 	static final ADirectory DIRECTORY_BACKUP    = DIRECTORY_STORAGE.ensureDirectory("backup");
 	static final ADirectory DIRECTORY_DELETED   = DIRECTORY_BACKUP.ensureDirectory("deleted");
 	static final ADirectory DIRECTORY_TRUNCATED = DIRECTORY_BACKUP.ensureDirectory("truncated");

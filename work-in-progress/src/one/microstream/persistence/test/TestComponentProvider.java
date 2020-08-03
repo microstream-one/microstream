@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFS;
 import one.microstream.afs.nio.NioFileSystem;
+import one.microstream.io.XIO;
 import one.microstream.persistence.binary.internal.BinaryFileStorage;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.internal.CompositeIdProvider;
@@ -20,7 +21,7 @@ public class TestComponentProvider extends InvocationLogging
 	// constants //
 	//////////////
 
-	protected static final ADirectory TEST_DIRECTORY = NioFileSystem.directory("c:/Files/");
+	protected static final ADirectory TEST_DIRECTORY = NioFileSystem.New().ensureDirectory(XIO.Path("c:/Files/"));
 
 	// application- (test-) specific components //
 	protected static final TestComponentProvider TEST = new TestComponentProvider(

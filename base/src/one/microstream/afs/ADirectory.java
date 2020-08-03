@@ -14,6 +14,7 @@ import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.functional.XFunc;
+import one.microstream.typing.XTypes;
 
 public interface ADirectory extends AItem, AResolving
 {
@@ -116,7 +117,6 @@ public interface ADirectory extends AItem, AResolving
 	}
 	
 	
-	
 	public boolean containsItem(String itemName);
 	
 	public boolean containsDirectory(String directoryName);
@@ -132,6 +132,16 @@ public interface ADirectory extends AItem, AResolving
 	{
 		return this.fileSystem().ioHandler().exists(this);
 	}
+	
+	/**
+	 * Removes all child items ({@link ADirectory} or {@link AFile}) that have no physical equivalent.
+	 * @return
+	 */
+	public int consolidate();
+	
+	public int consolidateDirectories();
+
+	public int consolidateFiles();
 	
 	/* (03.06.2020 TM)TODO: priv#49: directory mutation:
 	 * - move directory to target directory
@@ -294,6 +304,57 @@ public interface ADirectory extends AItem, AResolving
 			}
 					
 			return iterator;
+		}
+		
+		@Override
+		public int consolidate()
+		{
+			long count = 0;
+			synchronized(this.mutex())
+			{
+				final XGettingEnum<String> physicalItems = this.fileSystem().ioHandler().listItems(this);
+				
+				count += this.directories.keys().removeBy(dirName ->
+					!physicalItems.contains(dirName)
+				);
+				
+				count += this.files.keys().removeBy(fileName ->
+					!physicalItems.contains(fileName)
+				);
+			}
+			
+			return XTypes.to_int(count);
+		}
+		
+		@Override
+		public int consolidateDirectories()
+		{
+			long count = 0;
+			synchronized(this.mutex())
+			{
+				final XGettingEnum<String> physicalDirectories = this.fileSystem().ioHandler().listDirectories(this);
+				
+				count += this.directories.keys().removeBy(dirName ->
+					!physicalDirectories.contains(dirName)
+				);
+			}
+			
+			return XTypes.to_int(count);
+		}
+		
+		@Override
+		public int consolidateFiles()
+		{
+			long count = 0;
+			synchronized(this.mutex())
+			{
+				final XGettingEnum<String> physicalFiles = this.fileSystem().ioHandler().listFiles(this);
+				count += this.files.keys().removeBy(fileName ->
+					!physicalFiles.contains(fileName)
+				);
+			}
+			
+			return XTypes.to_int(count);
 		}
 		
 		@Override

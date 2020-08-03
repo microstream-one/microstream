@@ -2,6 +2,7 @@ package various;
 import one.microstream.afs.AFile;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.HashTable;
+import one.microstream.io.XIO;
 import one.microstream.util.FileContentComparer;
 
 public class MainTestFileContentComparer
@@ -20,7 +21,7 @@ public class MainTestFileContentComparer
 	
 	static void add(final HashTable<AFile, AFile> files, final String file1, final String file2)
 	{
-		add(files, NioFileSystem.file(file1), NioFileSystem.file(file2));
+		add(files, NIO.ensureFile(XIO.Path(file1)), NIO.ensureFile(XIO.Path(file2)));
 	}
 	
 	static void add(final HashTable<AFile, AFile> files, final AFile file1, final AFile file2)

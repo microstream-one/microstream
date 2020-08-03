@@ -12,6 +12,8 @@ import one.microstream.afs.AIoHandler;
 import one.microstream.afs.AItem;
 import one.microstream.afs.AReadableFile;
 import one.microstream.afs.AWritableFile;
+import one.microstream.collections.EqHashEnum;
+import one.microstream.collections.types.XGettingEnum;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.BufferProvider;
 import one.microstream.io.XIO;
@@ -133,6 +135,55 @@ public interface NioIoHandler extends AIoHandler
 		}
 		
 		// (15.07.2020 TM)TODO: priv#49: maybe use WatchService stuff to automatically register newly appearing children.
+
+		@Override
+		protected XGettingEnum<String> specificListItems(final ADirectory parent)
+		{
+			final Path dirPath = this.toSubjectDirectory(parent);
+			
+			final EqHashEnum<String> files = EqHashEnum.New();
+			XIO.unchecked.listEntries(dirPath,
+				p ->
+				{
+					files.add(XIO.getFileName(p));
+				}
+			);
+			
+			return files;
+		}
+		
+		@Override
+		protected XGettingEnum<String> specificListDirectories(final ADirectory parent)
+		{
+			final Path dirPath = this.toSubjectDirectory(parent);
+			
+			final EqHashEnum<String> files = EqHashEnum.New();
+			XIO.unchecked.listEntries(dirPath,
+				p ->
+					files.add(XIO.getFileName(p)),
+				p ->
+					Files.isDirectory(p)
+					
+			);
+			
+			return files;
+		}
+		
+		@Override
+		protected XGettingEnum<String> specificListFiles(final ADirectory parent)
+		{
+			final Path dirPath = this.toSubjectDirectory(parent);
+			
+			final EqHashEnum<String> files = EqHashEnum.New();
+			XIO.unchecked.listEntries(dirPath,
+				p ->
+					files.add(XIO.getFileName(p)),
+				p ->
+					!Files.isDirectory(p)
+			);
+			
+			return files;
+		}
 		
 		@Override
 		protected void specificInventorize(final ADirectory directory)

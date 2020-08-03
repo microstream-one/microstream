@@ -18,13 +18,16 @@ public class MainTestConvertBinToCsv
 {
 	public static void main(final String[] args)
 	{
+		final NioFileSystem nfs = NioFileSystem.New();
 		convertBinToCsv(
-			X.List(NioFileSystem.file(XIO.Path("C:/Files/export/bin/ExportTest.dat"))),
+			nfs.ensureFile(XIO.Path("C:/Files/PersistenceTypeDictionary.ptd")),
+			X.List(nfs.ensureFile(XIO.Path("C:/Files/export/bin/ExportTest.dat"))),
 			XFunc.all()
 		);
 	}
 
 	static void convertBinToCsv(
+		final AFile                     typeDictionaryFile,
 		final XGettingCollection<AFile> binaryFiles,
 		final Predicate<? super AFile>  filter
 	)
@@ -34,11 +37,7 @@ public class MainTestConvertBinToCsv
 			new StorageEntityTypeConversionFileProvider.Default(
 				binaryFiles.get().parent().parent().ensureDirectory("csv"), "csv"
 			),
-			BinaryPersistence.provideTypeDictionaryFromFile(
-				NioFileSystem.file(
-					XIO.Path("C:/Files/PersistenceTypeDictionary.ptd")
-				)
-			),
+			BinaryPersistence.provideTypeDictionaryFromFile(typeDictionaryFile),
 			null,
 			1<<20,
 			1<<20

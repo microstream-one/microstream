@@ -16,6 +16,8 @@ import one.microstream.persistence.types.PersistenceTypeDictionaryIoHandler;
 
 public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.Provider
 {
+	public AFileSystem fileSystem();
+	
 	public AFile provideDeletionTargetFile(
 		StorageChannelFile fileToBeDeleted
 	);
@@ -246,6 +248,8 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		// instance fields //
 		////////////////////
 		
+		private final AFileSystem fileSystem;
+		
 		private final ADirectory
 			baseDirectory      ,
 			deletionDirectory  ,
@@ -272,6 +276,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		)
 		{
 			super(fileHandlerCreator);
+			this.fileSystem          = baseDirectory.fileSystem();
 			this.baseDirectory       = baseDirectory      ;
 			this.deletionDirectory   = deletionDirectory  ;
 			this.truncationDirectory = truncationDirectory;
@@ -284,6 +289,12 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public AFileSystem fileSystem()
+		{
+			return this.fileSystem;
+		}
 
 		public ADirectory baseDirectory()
 		{
@@ -409,6 +420,14 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 				channelIndex,
 				this.fileNameProvider
 			);
+			
+			/*
+			 * Only actually existing files are relevant.
+			 * ...
+			 * Hm. But does that justify a library deleting file entries from some potentially passed AFS instance?
+			 * Maybe the exist check in the iteration is the better option, yet.
+			 */
+//			directory.consolidateFiles();
 			
 			directory.iterateFiles(f ->
 			{

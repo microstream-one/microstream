@@ -8,6 +8,7 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
+import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
@@ -21,9 +22,9 @@ import one.microstream.storage.types.StorageTransactionsEntries;
 
 public class MainUtilRecoverStorageFiles
 {
-	static final ADirectory PATH_CORRUPTED = NioFileSystem.directory(
+	static final ADirectory PATH_CORRUPTED = NioFileSystem.New().ensureDirectory(XIO.Path(
 		"D:/_Corp/2019-01-10/db_lcm_prod_v400"
-	);
+	));
 	static final long
 		LENGTH_LOWER_VALUE   = Binary.entityHeaderLength()       ,
 		LENGTH_UPPER_BOUND   = 100_000                           ,

@@ -4,6 +4,7 @@ import java.io.File;
 
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.nio.NioFileSystem;
+import one.microstream.io.XIO;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.reference.Reference;
 import one.microstream.storage.types.EmbeddedStorage;
@@ -17,7 +18,7 @@ public class MainTestStorageExampleMore
 {
 	// root of the application's data model graph
 	static final Reference<ClientCorporation> ROOT          = Reference.New(null);
-	static final ADirectory                   DIRECTORY     = NioFileSystem.directory("C:/StorageTest");
+	static final ADirectory                   DIRECTORY     = NioFileSystem.New().ensureDirectory(XIO.Path("C:/StorageTest"));
 	static final int                          CHANNEL_COUNT = 4;
 
 	// create a storage manager, link the root, start the "embedded" database

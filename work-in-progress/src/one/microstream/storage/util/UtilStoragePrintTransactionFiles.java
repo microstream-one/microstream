@@ -6,6 +6,7 @@ import one.microstream.X;
 import one.microstream.afs.AFile;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.VarString;
+import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageTransactionsAnalysis;
 import one.microstream.util.cql.CQL;
 
@@ -36,10 +37,12 @@ public class UtilStoragePrintTransactionFiles
 	 */
 	public static void printTransactionsFiles(final String... filePaths)
 	{
+		final NioFileSystem nfs = NioFileSystem.New();
+		
 		printTransactionsFiles(
 			CQL
 			.from(X.List(filePaths))
-			.project(NioFileSystem::file)
+			.project(p -> nfs.ensureFile(XIO.Path(p)))
 			.execute()
 			.toArray(AFile.class)
 		);

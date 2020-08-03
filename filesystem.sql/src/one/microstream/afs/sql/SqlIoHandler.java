@@ -9,6 +9,8 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.AIoHandler;
 import one.microstream.afs.AReadableFile;
 import one.microstream.afs.AWritableFile;
+import one.microstream.collections.EqHashEnum;
+import one.microstream.collections.types.XGettingEnum;
 import one.microstream.io.BufferProvider;
 
 public interface SqlIoHandler extends AIoHandler
@@ -131,6 +133,50 @@ public interface SqlIoHandler extends AIoHandler
 		}
 
 		@Override
+		protected XGettingEnum<String> specificListItems(
+			final ADirectory parent
+		)
+		{
+			final EqHashEnum<String> items         = EqHashEnum.New();
+			final SqlPath            directoryPath = this.toSubjectDirectory(parent);
+			this.connector.visitDirectories(
+				directoryPath,
+				items::add
+			);
+			this.connector.visitFiles(
+				directoryPath,
+				items::add
+			);
+			return items;
+		}
+
+		@Override
+		protected XGettingEnum<String> specificListDirectories(
+			final ADirectory parent
+		)
+		{
+			final EqHashEnum<String> directories = EqHashEnum.New();
+			this.connector.visitDirectories(
+				this.toSubjectDirectory(parent),
+				directories::add
+			);
+			return directories;
+		}
+
+		@Override
+		protected XGettingEnum<String> specificListFiles(
+			final ADirectory parent
+		)
+		{
+			final EqHashEnum<String> files = EqHashEnum.New();
+			this.connector.visitFiles(
+				this.toSubjectDirectory(parent),
+				files::add
+			);
+			return files;
+		}
+
+		@Override
 		protected void specificInventorize(
 			final ADirectory directory
 		)
@@ -142,26 +188,8 @@ public interface SqlIoHandler extends AIoHandler
 				return;
 			}
 
-			this.connector.visitChildren(dirPath, new SqlPathVisitor()
-			{
-				@Override
-				public void visitDirectory(
-					final SqlPath parent       ,
-					final String  directoryName
-				)
-				{
-					directory.ensureDirectory(directoryName);
-				}
-
-				@Override
-				public void visitFile(
-					final SqlPath parent  ,
-					final String  fileName
-				)
-				{
-					directory.ensureFile(fileName);
-				}
-			});
+			this.connector.visitDirectories(dirPath, directory::ensureDirectory);
+			this.connector.visitFiles      (dirPath, directory::ensureFile     );
 		}
 
 		@Override

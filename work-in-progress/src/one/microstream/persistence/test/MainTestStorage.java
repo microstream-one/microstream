@@ -11,6 +11,7 @@ import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XEnum;
+import one.microstream.io.XIO;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
@@ -232,11 +233,13 @@ public class MainTestStorage extends TestStorage
 
 	static void testImport()
 	{
+		final NioFileSystem nfs = NioFileSystem.New();
+		
 		final StorageConnection         connection = STORAGE.createConnection();
 		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
-			NioFileSystem.file("C:/FilesImport/PersistenceTypeDictionary.ptd")
+			nfs.ensureFile(XIO.Path("C:/FilesImport/PersistenceTypeDictionary.ptd"))
 		);
-		final XEnum<AFile> dataFiles  = NioFileSystem.directory("C:/FilesImport/channel_0").iterateFiles(HashEnum.New())
+		final XEnum<AFile> dataFiles  = nfs.ensureDirectory(XIO.Path("C:/FilesImport/channel_0")).iterateFiles(HashEnum.New())
 			.sort((f1, f2) -> Long.compare(parseStorageFileNumber(f1), parseStorageFileNumber(f2)))
 		;
 
