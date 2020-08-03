@@ -591,6 +591,11 @@ public interface SqlConnector
 			final SqlPath file
 		)
 		{
+			if(!this.directoryExists(file.parentPath()))
+			{
+				return false;
+			}
+			
 			if(!this.useCache)
 			{
 				return this.provider.execute(connection ->
