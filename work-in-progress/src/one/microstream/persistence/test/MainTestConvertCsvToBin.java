@@ -9,6 +9,7 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.functional.XFunc;
+import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.BinaryPersistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
@@ -19,10 +20,11 @@ public class MainTestConvertCsvToBin
 {
 	public static void main(final String[] args)
 	{
+		final NioFileSystem nfs = NioFileSystem.New();
 		convertCsvToBin(
-			BinaryPersistence.provideTypeDictionaryFromFile(NioFileSystem.file("C:/Files/PersistenceTypeDictionary.ptd")),
-			X.List(NioFileSystem.file("C:/Files/export/csv/ExportTest.csv")),
-			NioFileSystem.directory("C:/Files/export/bin2"),
+			BinaryPersistence.provideTypeDictionaryFromFile(nfs.ensureFile(XIO.Path("C:/Files/PersistenceTypeDictionary.ptd"))),
+			X.List(nfs.ensureFile(XIO.Path("C:/Files/export/csv/ExportTest.csv"))),
+			nfs.ensureDirectory(XIO.Path("C:/Files/export/bin2")),
 			XFunc.all()
 		);
 	}

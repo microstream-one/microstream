@@ -3,6 +3,7 @@ package one.microstream.storage.types;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
+import one.microstream.afs.AFileSystem;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.Unpersistable;
@@ -26,6 +27,12 @@ public interface StorageSystem extends StorageController
 	}
 
 	public StorageConfiguration configuration();
+	
+	public default AFileSystem fileSystem()
+	{
+		return this.configuration().fileProvider().fileSystem();
+	}
+	
 
 	@Override
 	public StorageSystem start();

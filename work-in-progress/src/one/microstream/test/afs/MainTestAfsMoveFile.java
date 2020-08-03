@@ -11,7 +11,7 @@ public class MainTestAfsMoveFile
 	
 	public static void main(final String[] args)
 	{
-		final NioFileSystem fs = NioFileSystem.get();
+		final NioFileSystem fs = NioFileSystem.New();
 		
 		final ADirectory dir = fs.ensureDirectoryPath(TEST_DIRECTORY_PATH);
 		
