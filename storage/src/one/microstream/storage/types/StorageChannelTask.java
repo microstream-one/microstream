@@ -202,7 +202,7 @@ public interface StorageChannelTask extends StorageTask
 				}
 				catch(final Throwable e)
 				{
-					// a problem occuring while storing gets reported and the task get cleanly aborted.
+					// a problem occuring while processing gets reported and the task gets cleanly aborted.
 					this.addProblem(storageChannel.channelIndex(), e);
 					this.incrementCompletionProgress();
 					return;
