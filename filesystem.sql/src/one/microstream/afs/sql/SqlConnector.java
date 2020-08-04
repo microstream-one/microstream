@@ -32,7 +32,9 @@ public interface SqlConnector
 
 	public boolean directoryExists(SqlPath directory);
 
-	public void visitChildren(SqlPath directory, SqlPathVisitor visitor);
+	public void visitDirectories(SqlPath directory, SqlPathVisitor visitor);
+	
+	public void visitFiles(SqlPath directory, SqlPathVisitor visitor);
 
 	public boolean createDirectory(SqlPath directory);
 
@@ -133,7 +135,7 @@ public interface SqlConnector
 			}
 		}
 
-		private void internalVisitChildren(
+		private void internalVisitDirectories(
 			final SqlPath        directory ,
 			final SqlPathVisitor visitor   ,
 			final Connection     connection
@@ -141,7 +143,6 @@ public interface SqlConnector
 		throws SQLException
 		{
 			final List<String> directoryNames = new ArrayList<>();
-			final List<String> fileNames      = new ArrayList<>();
 
 			final String directoryPrefix = directory.fullQualifiedName() + SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR;
 			try(final ResultSet result = connection.getMetaData().getTables(
@@ -164,6 +165,18 @@ public interface SqlConnector
 				}
 			}
 
+			directoryNames.forEach(visitor::visitItem);
+		}
+
+		private void internalVisitFiles(
+			final SqlPath        directory ,
+			final SqlPathVisitor visitor   ,
+			final Connection     connection
+		)
+		throws SQLException
+		{
+			final List<String> fileNames      = new ArrayList<>();
+
 			final String sql = this.provider.listFilesQuery(directory.fullQualifiedName());
 			try(final Statement statement = connection.createStatement())
 			{
@@ -176,8 +189,7 @@ public interface SqlConnector
 				}
 			}
 
-			directoryNames.forEach(name -> visitor.visitDirectory(directory, name));
-			fileNames     .forEach(name -> visitor.visitFile     (directory, name));
+			fileNames.forEach(visitor::visitItem);
 		}
 
 		private void queryCreateDirectory(
@@ -579,6 +591,11 @@ public interface SqlConnector
 			final SqlPath file
 		)
 		{
+			if(!this.directoryExists(file.parentPath()))
+			{
+				return false;
+			}
+			
 			if(!this.useCache)
 			{
 				return this.provider.execute(connection ->
@@ -619,14 +636,28 @@ public interface SqlConnector
 		}
 
 		@Override
-		public void visitChildren(
+		public void visitDirectories(
 			final SqlPath        directory,
 			final SqlPathVisitor visitor
 		)
 		{
 			this.provider.execute(connection ->
 			{
-				this.internalVisitChildren(directory, visitor, connection);
+				this.internalVisitDirectories(directory, visitor, connection);
+
+				return null;
+			});
+		}
+
+		@Override
+		public void visitFiles(
+			final SqlPath        directory,
+			final SqlPathVisitor visitor
+		)
+		{
+			this.provider.execute(connection ->
+			{
+				this.internalVisitFiles(directory, visitor, connection);
 
 				return null;
 			});
