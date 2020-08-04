@@ -95,6 +95,7 @@ public interface SqlConnector
 		public final static int DATA_COLUMN_INDEX       = 4;
 
 		private final SqlProvider          provider                         ;
+		private       Long                 maxBlobSize                      ;
 		private final boolean              useCache                         ;
 		private       Set<String>          directoryCache                   ;
 		private final Map<String, Boolean> fileExistsCache = new HashMap<>();
@@ -177,30 +178,42 @@ public interface SqlConnector
 		)
 		throws SQLException
 		{
-			final List<String> directoryNames = new ArrayList<>();
+			final String       directoryPrefix = directory.fullQualifiedName() + SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR;
+			final List<String> directories     = new ArrayList<>();
 
-			final String directoryPrefix = directory.fullQualifiedName() + SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR;
-			try(final ResultSet result = connection.getMetaData().getTables(
-				this.provider.catalog(),
-				this.provider.schema(),
-				directoryPrefix + "%",
-				new String[] {"TABLE"}
-			))
+			if(this.useCache)
 			{
-				while(result.next())
+				synchronized(this)
 				{
-					final String name = result.getString("TABLE_NAME");
-					if(name.startsWith(directoryPrefix)
-					&& name.length() > directoryPrefix.length()
-					&& name.indexOf(SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR, directoryPrefix.length()) == -1
-					)
+					if(this.directoryCache == null)
 					{
-						directoryNames.add(name.substring(directoryPrefix.length()));
+						this.directoryCache = this.queryDirectories(connection);
+					}
+					directories.addAll(this.directoryCache);
+				}
+			}
+			else
+			{
+				try(final ResultSet result = connection.getMetaData().getTables(
+					this.provider.catalog(),
+					this.provider.schema(),
+					directoryPrefix + "%",
+					new String[] {"TABLE"}
+				))
+				{
+					while(result.next())
+					{
+						directories.add(result.getString("TABLE_NAME"));
 					}
 				}
 			}
 
-			directoryNames.forEach(visitor::visitItem);
+			directories.stream()
+				.filter(name -> name.startsWith(directoryPrefix)
+					&& name.length() > directoryPrefix.length()
+					&& name.indexOf(SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR, directoryPrefix.length()) == -1
+				)
+				.forEach(visitor::visitItem);
 		}
 
 		private void internalVisitFiles(
@@ -590,12 +603,19 @@ public interface SqlConnector
 		)
 		throws SQLException
 		{
-			final DatabaseMetaData metaData   = connection.getMetaData();
-			final long             maxLobSize = metaData.getMaxLogicalLobSize();
-			return maxLobSize > 0L
-				? maxLobSize
-				: 1048576L // 1MB
-			;
+			synchronized(this)
+			{
+				if(this.maxBlobSize == null)
+				{
+					final DatabaseMetaData metaData   = connection.getMetaData();
+					final long             maxLobSize = metaData.getMaxLogicalLobSize();
+					this.maxBlobSize = maxLobSize > 0L
+						? maxLobSize
+						: 1048576L // 1MB
+					;
+				}
+				return this.maxBlobSize;
+			}
 		}
 
 		@Override
