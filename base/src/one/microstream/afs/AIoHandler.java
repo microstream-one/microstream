@@ -499,6 +499,12 @@ public interface AIoHandler
 		@Override
 		public boolean exists(final ADirectory directory)
 		{
+			if(directory.parent() == null && directory.identifier().isEmpty())
+			{
+				// an empty-named root directory (= leading separator) is assumed implicitely and cannot be queried.
+				return true;
+			}
+			
 			// required to check the existence of a general ADirectory instance
 			if(!this.isHandledDirectory(directory))
 			{
@@ -586,13 +592,7 @@ public interface AIoHandler
 		public void create(final ADirectory directory)
 		{
 			this.validateHandledDirectory(directory);
-			
-			// only handle non-root parent directories. Note that not all roots are of type ARoot
-			if(directory.parent() != null)
-			{
-				this.ensureExists(directory.parent());
-			}
-			
+						
 			synchronized(ADirectory.actual(directory))
 			{
 				directory.iterateObservers(o ->

@@ -282,6 +282,20 @@ public final class XIO
 	
 	public static final Path Path(final String... items)
 	{
+		/*
+		 * To workaround the JDK idiocy of conveniently ignoring empty strings in the path items.
+		 * This is a critical bug if a leading separator is used to define an absolut path.
+		 * Consider:
+		 * - "/mydir" gets parsed to the separator-independant path items {"", "mydir"}.
+		 * - that array is passed here and on to Paths#get
+		 * - Paths#get hilariously ignores the "", reassembling {"", "mydir"} to just "mydir" instead of "/mydir".
+		 * To workaround that idiocy, that specific case is explicitely checked and a blank separator is prepended.
+		 */
+		if(items != null && items.length > 0 && "".equals(items[0]))
+		{
+			return Paths.get(Character.toString(XIO.filePathSeparator()), items);
+		}
+		
 		// because why make it simple...
 		return Paths.get("", notNull(items));
 	}
