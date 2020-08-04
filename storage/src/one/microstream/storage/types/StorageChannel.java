@@ -304,7 +304,18 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				 * This has to be covered by a similar mechanism as tasks are.
 				 * Or maybe some consolidation of that mechanism has to be done to cover house keeping as well.
 				 */
-				this.houseKeeping();
+				try
+				{
+					this.houseKeeping();
+				}
+				catch(final Throwable t)
+				{
+					this.eventLogger.logDisruption(this, t);
+					this.operationController.setChannelProcessingEnabled(false);
+					this.eventLogger.logChannelProcessingDisabled(this);
+					break;
+				}
+				
 //				final long waitStart = System.currentTimeMillis();
 
 				// check and wait for the next task to come in
