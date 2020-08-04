@@ -14,8 +14,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.LongFunction;
 
 import one.microstream.io.ByteBufferInputStream;
@@ -53,6 +55,11 @@ public interface SqlConnector
 	public void truncateFile(SqlPath file, long newLength);
 
 
+	/**
+	 * Creates a new {@link SqlConnector} which doesn't use caching.
+	 * 
+	 * @see #Caching(SqlProvider)
+	 */
 	public static SqlConnector New(
 		final SqlProvider provider
 	)
@@ -63,6 +70,11 @@ public interface SqlConnector
 		);
 	}
 	
+	/**
+	 * Creates a new {@link SqlConnector} which uses caching.
+	 * 
+	 * @see #New(SqlProvider)
+	 */
 	public static SqlConnector Caching(
 		final SqlProvider provider
 	)
@@ -82,11 +94,11 @@ public interface SqlConnector
 		public final static int END_COLUMN_INDEX        = 3;
 		public final static int DATA_COLUMN_INDEX       = 4;
 
-		private final SqlProvider          provider                              ;
-		private final boolean              useCache                              ;
-		private final Map<String, Boolean> directoryExistsCache = new HashMap<>();
-		private final Map<String, Boolean> fileExistsCache      = new HashMap<>();
-		private final Map<String, Long>    fileSizeCache        = new HashMap<>();
+		private final SqlProvider          provider                         ;
+		private final boolean              useCache                         ;
+		private       Set<String>          directoryCache                   ;
+		private final Map<String, Boolean> fileExistsCache = new HashMap<>();
+		private final Map<String, Long>    fileSizeCache   = new HashMap<>();
 
 		Default(
 			final SqlProvider provider,
@@ -133,6 +145,29 @@ public interface SqlConnector
 			{
 				return result.next();
 			}
+		}
+
+		private Set<String> queryDirectories(
+			final Connection connection
+		)
+		throws SQLException
+		{
+			final Set<String> directories = new HashSet<>();
+			
+			try(final ResultSet result = connection.getMetaData().getTables(
+				this.provider.catalog(),
+				this.provider.schema(),
+				null,
+				new String[] {"TABLE"}
+			))
+			{
+				while(result.next())
+				{
+					directories.add(result.getString("TABLE_NAME"));
+				}
+			}
+			
+			return directories;
 		}
 
 		private void internalVisitDirectories(
@@ -626,12 +661,12 @@ public interface SqlConnector
 			
 			synchronized(this)
 			{
-				return this.directoryExistsCache.computeIfAbsent(
-					directory.fullQualifiedName(),
-					name -> this.provider.execute(connection ->
-						this.queryDirectoryExists(directory, connection)
-					)
-				);
+				if(this.directoryCache == null)
+				{
+					this.directoryCache = this.provider.execute(this::queryDirectories);
+				}
+				
+				return this.directoryCache.contains(directory.fullQualifiedName());
 			}
 		}
 
@@ -677,7 +712,7 @@ public interface SqlConnector
 			{
 				synchronized(this)
 				{
-					this.directoryExistsCache.put(directory.fullQualifiedName(), Boolean.TRUE);
+					this.directoryCache.add(directory.fullQualifiedName());
 				}
 			}
 			
