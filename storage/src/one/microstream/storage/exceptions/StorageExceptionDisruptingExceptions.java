@@ -9,7 +9,7 @@ public class StorageExceptionDisruptingExceptions extends StorageException
 	// instance fields //
 	////////////////////
 	
-	private final XGettingSequence<Throwable> problems;
+	private final XGettingSequence<Throwable> disruptions;
 	
 	
 	
@@ -18,43 +18,43 @@ public class StorageExceptionDisruptingExceptions extends StorageException
 	/////////////////
 
 	public StorageExceptionDisruptingExceptions(
-		final XGettingSequence<Throwable> problems
+		final XGettingSequence<Throwable> disruptions
 	)
 	{
 		super();
-		this.problems = problems;
+		this.disruptions = disruptions;
 	}
 
 	public StorageExceptionDisruptingExceptions(
-		final XGettingSequence<Throwable> problems,
+		final XGettingSequence<Throwable> disruptions,
 		final String                      message
 	)
 	{
 		super(message);
-		this.problems = problems;
+		this.disruptions = disruptions;
 	}
 
 	public StorageExceptionDisruptingExceptions(
-		final XGettingSequence<Throwable> problems,
+		final XGettingSequence<Throwable> disruptions,
 		final Throwable                   cause
 	)
 	{
 		super(cause);
-		this.problems = problems;
+		this.disruptions = disruptions;
 	}
 
 	public StorageExceptionDisruptingExceptions(
-		final XGettingSequence<Throwable> problems,
-		final String                      message ,
+		final XGettingSequence<Throwable> disruptions,
+		final String                      message    ,
 		final Throwable                   cause
 	)
 	{
 		super(message, cause);
-		this.problems = problems;
+		this.disruptions = disruptions;
 	}
 
 	public StorageExceptionDisruptingExceptions(
-		final XGettingSequence<Throwable> problems          ,
+		final XGettingSequence<Throwable> disruptions       ,
 		final String                      message           ,
 		final Throwable                   cause             ,
 		final boolean                     enableSuppression ,
@@ -62,7 +62,7 @@ public class StorageExceptionDisruptingExceptions extends StorageException
 	)
 	{
 		super(message, cause, enableSuppression, writableStackTrace);
-		this.problems = problems;
+		this.disruptions = disruptions;
 	}
 	
 	
@@ -71,19 +71,20 @@ public class StorageExceptionDisruptingExceptions extends StorageException
 	// methods //
 	////////////
 	
-	public final XGettingSequence<Throwable> problems()
+	public final XGettingSequence<Throwable> disruptions()
 	{
-		return this.problems;
+		return this.disruptions;
 	}
 	
 	@Override
 	public String assembleOutputString()
 	{
-		final VarString vs = VarString.New("Disrupting Exceptions:");
-		for(final Throwable t : this.problems)
+		final VarString vs = VarString.New("Disruptions: {");
+		for(final Throwable d : this.disruptions)
 		{
-			vs.lf().add(t.getMessage());
+			vs.add(d.getClass().getName()).add(':').add(d.getMessage()).add(',').blank();
 		}
+		vs.deleteLast().add('}');
 		
 		return vs.toString();
 	}
