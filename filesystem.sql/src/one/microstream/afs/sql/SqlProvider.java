@@ -8,9 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Types;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -42,6 +45,10 @@ public interface SqlProvider
 	public <T> T execute(SqlOperation<T> operation);
 
 	public void setBlob(PreparedStatement statement, int index, InputStream inputStream, long length) throws SQLException;
+	
+	public boolean queryDirectoryExists(Connection connection, String tableName) throws SQLException;
+	
+	public Set<String> queryDirectories(Connection connection, String prefix) throws SQLException;
 
 	/**
 	 * <pre>
@@ -340,6 +347,49 @@ public interface SqlProvider
 					throw new IORuntimeException(e);
 				}
 			}
+		}
+		
+		@Override
+		public boolean queryDirectoryExists(
+			final Connection connection,
+			final String     tableName
+		)
+			throws SQLException
+		{
+			try(final ResultSet result = connection.getMetaData().getTables(
+				this.catalog(),
+				this.schema(),
+				tableName,
+				new String[] {"TABLE"}
+			))
+			{
+				return result.next();
+			}
+		}
+		
+		@Override
+		public Set<String> queryDirectories(
+			final Connection connection,
+			final String     prefix
+		)
+			throws SQLException
+		{
+			final Set<String> directories = new HashSet<>();
+			
+			try(final ResultSet result = connection.getMetaData().getTables(
+				this.catalog(),
+				this.schema(),
+				prefix,
+				new String[] {"TABLE"}
+			))
+			{
+				while(result.next())
+				{
+					directories.add(result.getString("TABLE_NAME"));
+				}
+			}
+			
+			return directories;
 		}
 
 		@Override

@@ -3,7 +3,14 @@ package one.microstream.afs.sql;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -73,6 +80,70 @@ public interface SqlProviderOracle extends SqlProvider
 			vs.add("))");
 
 			return Arrays.asList(vs.toString());
+		}
+		
+		@Override
+		public boolean queryDirectoryExists(
+			final Connection connection,
+			final String     tableName
+		)
+			throws SQLException
+		{
+			try(PreparedStatement statement = connection.prepareStatement(
+				"SELECT COUNT(*) FROM user_tables WHERE table_name=?"
+			))
+			{
+				statement.setString(1, tableName);
+				try(ResultSet result = statement.executeQuery())
+				{
+					return result.next()
+						? result.getLong(1) > 0L
+						: false
+					;
+				}
+			}
+		}
+		
+		@Override
+		public Set<String> queryDirectories(
+			final Connection connection,
+			final String     prefix
+		)
+			throws SQLException
+		{
+			final Set<String> directories = new HashSet<>();
+			
+			if(prefix != null)
+			{
+				try(PreparedStatement statement = connection.prepareStatement(
+					"SELECT table_name FROM user_tables WHERE table_name LIKE ?"
+				))
+				{
+					statement.setString(1, prefix);
+					try(ResultSet result = statement.executeQuery())
+					{
+						while(result.next())
+						{
+							directories.add(result.getString(1));
+						}
+					}
+				}
+			}
+			else
+			{
+				try(Statement statement = connection.createStatement())
+				{
+					try(ResultSet result = statement.executeQuery("SELECT table_name FROM user_tables"))
+					{
+						while(result.next())
+						{
+							directories.add(result.getString(1));
+						}
+					}
+				}
+			}
+			
+			return directories;
 		}
 
 	}
