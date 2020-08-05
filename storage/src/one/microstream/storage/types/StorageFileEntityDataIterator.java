@@ -167,7 +167,7 @@ public interface StorageFileEntityDataIterator
 				buffer.clear();
 				buffer.limit(X.checkArrayRange(iterationLength));
 				
-				file.readBytes(buffer);
+				file.readBytes(buffer, fileOffset);
 			}
 			catch(final Exception e)
 			{
