@@ -2,10 +2,14 @@ package one.microstream.afs.jpa.hibernate;
 
 import java.io.InputStream;
 import java.sql.Blob;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -181,6 +185,49 @@ public interface HibernateProvider extends SqlProvider
 				index,
 				(SharedSessionContractImplementor)session
 			);
+		}
+		
+		@Override
+		public boolean queryDirectoryExists(
+			final Connection connection,
+			final String     tableName
+		)
+			throws SQLException
+		{
+			try(final ResultSet result = connection.getMetaData().getTables(
+				this.catalog(),
+				this.schema(),
+				tableName,
+				new String[] {"TABLE"}
+			))
+			{
+				return result.next();
+			}
+		}
+		
+		@Override
+		public Set<String> queryDirectories(
+			final Connection connection,
+			final String     prefix
+		)
+			throws SQLException
+		{
+			final Set<String> directories = new HashSet<>();
+			
+			try(final ResultSet result = connection.getMetaData().getTables(
+				this.catalog(),
+				this.schema(),
+				prefix,
+				new String[] {"TABLE"}
+			))
+			{
+				while(result.next())
+				{
+					directories.add(result.getString("TABLE_NAME"));
+				}
+			}
+			
+			return directories;
 		}
 
 		@Override
