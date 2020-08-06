@@ -14,7 +14,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -137,15 +136,7 @@ public interface SqlConnector
 		)
 		throws SQLException
 		{
-			try(final ResultSet result = connection.getMetaData().getTables(
-				this.provider.catalog(),
-				this.provider.schema(),
-				directory.fullQualifiedName(),
-				new String[] {"TABLE"}
-			))
-			{
-				return result.next();
-			}
+			return this.provider.queryDirectoryExists(connection, directory.fullQualifiedName());
 		}
 
 		private Set<String> queryDirectories(
@@ -153,22 +144,7 @@ public interface SqlConnector
 		)
 		throws SQLException
 		{
-			final Set<String> directories = new HashSet<>();
-			
-			try(final ResultSet result = connection.getMetaData().getTables(
-				this.provider.catalog(),
-				this.provider.schema(),
-				null,
-				new String[] {"TABLE"}
-			))
-			{
-				while(result.next())
-				{
-					directories.add(result.getString("TABLE_NAME"));
-				}
-			}
-			
-			return directories;
+			return this.provider.queryDirectories(connection, null);
 		}
 
 		private void internalVisitDirectories(
@@ -194,18 +170,12 @@ public interface SqlConnector
 			}
 			else
 			{
-				try(final ResultSet result = connection.getMetaData().getTables(
-					this.provider.catalog(),
-					this.provider.schema(),
-					directoryPrefix + "%",
-					new String[] {"TABLE"}
-				))
-				{
-					while(result.next())
-					{
-						directories.add(result.getString("TABLE_NAME"));
-					}
-				}
+				directories.addAll(
+					this.provider.queryDirectories(
+						connection,
+						directoryPrefix + "%"
+					)
+				);
 			}
 
 			directories.stream()
@@ -223,7 +193,7 @@ public interface SqlConnector
 		)
 		throws SQLException
 		{
-			final List<String> fileNames      = new ArrayList<>();
+			final List<String> fileNames = new ArrayList<>();
 
 			final String sql = this.provider.listFilesQuery(directory.fullQualifiedName());
 			try(final Statement statement = connection.createStatement())
