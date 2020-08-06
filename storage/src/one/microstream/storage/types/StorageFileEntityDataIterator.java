@@ -1,7 +1,6 @@
 package one.microstream.storage.types;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 import one.microstream.X;
 import one.microstream.memory.XMemory;
@@ -13,7 +12,7 @@ import one.microstream.storage.exceptions.StorageExceptionIoReading;
 public interface StorageFileEntityDataIterator
 {
 	public long iterateEntityData(
-		StorageFile                 file           ,
+		StorageDataFile             file           ,
 		long                        fileOffset     ,
 		long                        iterationLength,
 		BinaryEntityRawDataIterator dataIterator   ,
@@ -36,7 +35,7 @@ public interface StorageFileEntityDataIterator
 	{
 		@Override
 		public default long iterateEntityData(
-			final StorageFile                 file           ,
+			final StorageDataFile             file           ,
 			final long                        fileOffset     ,
 			final long                        iterationLength,
 			final BinaryEntityRawDataIterator dataIterator   ,
@@ -50,7 +49,7 @@ public interface StorageFileEntityDataIterator
 		
 		public default void prepareFile(
 			final StorageFileEntityDataIterator.Internal self           ,
-			final StorageFile                            file           ,
+			final StorageDataFile                        file           ,
 			final long                                   fileOffset     ,
 			final long                                   iterationLength
 		)
@@ -60,7 +59,7 @@ public interface StorageFileEntityDataIterator
 		
 		public default void wrapUpFile(
 			final StorageFileEntityDataIterator.Internal self           ,
-			final StorageFile                            file           ,
+			final StorageDataFile                        file           ,
 			final long                                   fileOffset     ,
 			final long                                   iterationLength
 		)
@@ -70,7 +69,7 @@ public interface StorageFileEntityDataIterator
 		
 		public void fillBuffer(
 			StorageFileEntityDataIterator.Internal self           ,
-			StorageFile                            file           ,
+			StorageDataFile                        file           ,
 			long                                   fileOffset     ,
 			long                                   iterationLength
 		);
@@ -83,7 +82,7 @@ public interface StorageFileEntityDataIterator
 		
 		public void validateIterationRange(
 			StorageFileEntityDataIterator.Internal self            ,
-			StorageFile                            file            ,
+			StorageDataFile                        file            ,
 			long                                   actualFileLength,
 			long                                   fileOffset      ,
 			long                                   iterationLength
@@ -153,7 +152,7 @@ public interface StorageFileEntityDataIterator
 		@Override
 		public void fillBuffer(
 			final StorageFileEntityDataIterator.Internal self           ,
-			final StorageFile                            file           ,
+			final StorageDataFile                        file           ,
 			final long                                   fileOffset     ,
 			final long                                   iterationLength
 		)
@@ -162,21 +161,13 @@ public interface StorageFileEntityDataIterator
 			{
 				this.prepareFile(self, file, fileOffset, iterationLength);
 				
-				final FileChannel fileChannel = file.fileChannel();
-				self.validateIterationRange(self, file, fileChannel.size(), fileOffset, iterationLength);
-				
+				self.validateIterationRange(self, file, file.size(), fileOffset, iterationLength);
 				self.ensureBufferCapacity(iterationLength);
 				final ByteBuffer buffer = this.directByteBuffer;
 				buffer.clear();
 				buffer.limit(X.checkArrayRange(iterationLength));
-
-				fileChannel.position(fileOffset);
-				// loop is guaranteed to terminate as it depends on validated buffer size and the file length
-				do
-				{
-					fileChannel.read(buffer);
-				}
-				while(buffer.hasRemaining());
+				
+				file.readBytes(buffer, fileOffset);
 			}
 			catch(final Exception e)
 			{
@@ -191,7 +182,7 @@ public interface StorageFileEntityDataIterator
 		@Override
 		public void validateIterationRange(
 			final StorageFileEntityDataIterator.Internal self            ,
-			final StorageFile                            file            ,
+			final StorageDataFile                        file            ,
 			final long                                   actualFileLength,
 			final long                                   fileOffset      ,
 			final long                                   iterationLength

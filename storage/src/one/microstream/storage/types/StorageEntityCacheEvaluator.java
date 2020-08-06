@@ -232,13 +232,12 @@ public interface StorageEntityCacheEvaluator
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
-
-		public long timeoutMs()
+		
+		public long timeout()
 		{
 			return this.timeoutMs;
 		}
-
+		
 		public long threshold()
 		{
 			return this.threshold;

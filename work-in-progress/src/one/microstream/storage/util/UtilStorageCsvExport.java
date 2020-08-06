@@ -1,11 +1,14 @@
 package one.microstream.storage.util;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.BulkList;
 import one.microstream.io.XIO;
 import one.microstream.storage.types.EmbeddedStorageManager;
@@ -16,7 +19,6 @@ import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportStatistics;
 import one.microstream.storage.types.StorageEntityTypeHandler;
-import one.microstream.storage.types.StorageLockedFile;
 import one.microstream.storage.types.StorageTypeDictionary;
 
 
@@ -60,7 +62,7 @@ public class UtilStorageCsvExport
 	 */
 	public static StorageEntityTypeExportStatistics exportCsv(
 		final EmbeddedStorageManager storage        ,
-		final Path                   targetDirectory
+		final ADirectory             targetDirectory
 	)
 	{
 		return exportCsv(storage, targetDirectory, null);
@@ -77,7 +79,7 @@ public class UtilStorageCsvExport
 	 */
 	public static StorageEntityTypeExportStatistics exportCsv(
 		final EmbeddedStorageManager                      storage         ,
-		final Path                                        targetDirectory ,
+		final ADirectory                                  targetDirectory ,
 		final Predicate<? super StorageEntityTypeHandler> exportTypeFilter
 	)
 	{
@@ -92,13 +94,13 @@ public class UtilStorageCsvExport
 	
 	static StorageEntityTypeExportStatistics internalExportBinaryAndConvert(
 		final EmbeddedStorageManager                      storage        ,
-		final Path                                        targetDirectory,
+		final ADirectory                                  targetDirectory,
 		final Predicate<? super StorageEntityTypeHandler> exportFilter
 	)
 	{
-		final Path binDirectory = XIO.unchecked.ensureDirectory(XIO.Path(targetDirectory, SUB_DIRECTORY_BIN));
+		final ADirectory binDirectory = AFS.ensureExists(targetDirectory.ensureDirectory(SUB_DIRECTORY_BIN));
 
-		final BulkList<Path> exportFiles = BulkList.New(1000);
+		final BulkList<AFile> exportFiles = BulkList.New(1000);
 		
 		final long tStart = System.nanoTime();
 		final StorageEntityTypeExportStatistics result = internalExportTypes(
@@ -121,8 +123,8 @@ public class UtilStorageCsvExport
 	static final StorageEntityTypeExportStatistics internalExportTypes(
 		final StorageConnection                           storageConnection  ,
 		final Predicate<? super StorageEntityTypeHandler> isExportType       ,
-		final Path                                        targetDirectory    ,
-		final Consumer<? super Path>                      exportFileCollector,
+		final ADirectory                                  targetDirectory    ,
+		final Consumer<? super AFile>                     exportFileCollector,
 		final String                                      fileSuffix
 	)
 	{
@@ -135,25 +137,22 @@ public class UtilStorageCsvExport
 		
 		result.typeStatistics().values().iterate(s ->
 			exportFileCollector.accept(
-				XIO.Path(s.file().identifier())
+				s.file()
 			)
 		);
 		
 		return result;
 	}
 	
-	static Path internalConvertToCsv(
+	static ADirectory internalConvertToCsv(
 		final EmbeddedStorageManager storage     ,
-		final Path                   csvDirectory,
-		final Iterator<Path>         binaryFiles ,
+		final ADirectory             csvDirectory,
+		final Iterator<AFile>        binaryFiles ,
 		final String                 fileSuffix
 	)
 	{
-		final String effectiveFileSuffix = "." + fileSuffix;
-		
-		final Predicate<Path> filter = file ->
-			!XIO.unchecked.isDirectory(file)
-			&& XIO.getFileName(file).endsWith(effectiveFileSuffix)
+		final Predicate<AFile> filter = file ->
+			fileSuffix.equals(file.type())
 		;
 		
 		final long tStart = System.nanoTime();
@@ -165,11 +164,11 @@ public class UtilStorageCsvExport
 	}
 	
 	static void internalConvertFiles(
-		final StorageTypeDictionary   typeDictionary    ,
-		final Path                    csvTargetDirectory,
-		final Iterator<Path>          fileProvider      ,
-		final Predicate<? super Path> filter            ,
-		final String                  name
+		final StorageTypeDictionary    typeDictionary    ,
+		final ADirectory               csvTargetDirectory,
+		final Iterator<AFile>          fileProvider      ,
+		final Predicate<? super AFile> filter            ,
+		final String                   name
 	)
 	{
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
@@ -183,7 +182,7 @@ public class UtilStorageCsvExport
 
 		while(true)
 		{
-			final Path file;
+			final AFile file;
 			
 			// fileProvider is queried by multiple threads and must therefore be used in a synchronized fashion.
 			synchronized(fileProvider)
@@ -207,8 +206,7 @@ public class UtilStorageCsvExport
 			printAction(name, "converting", file);
 			try
 			{
-				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
-				converter.convertDataFile(storageFile);
+				AFS.execute(file, rf -> converter.convertDataFile(rf));
 			}
 			catch(final Exception e)
 			{
@@ -217,9 +215,9 @@ public class UtilStorageCsvExport
 		}
 	}
 	
-	static void printAction(final String name, final String action, final Path file)
+	static void printAction(final String name, final String action, final AFile file)
 	{
-		System.out.println((name == null ? "" : name + " ") + action + " " + XIO.getFilePath(file));
+		System.out.println((name == null ? "" : name + " ") + action + " " + file.toPathString());
 	}
 	
 	static final File ensureDirectory(final File directory)
@@ -259,19 +257,22 @@ public class UtilStorageCsvExport
 	
 	public static void main(final String[] args)
 	{
+		final NioFileSystem nfs = NioFileSystem.New();
+		
 		// the instance must come from somewhere in the application logic, where the storage has been initialized.
 		final EmbeddedStorageManager storage = null; // FIXME: EmbeddedStorageManager Instanz der Anwendung.
+		
 		
 		// export all
 		UtilStorageCsvExport.exportCsv(
 			storage,
-			XIO.Path("C:/StorageExportTest_2018-02-20-1600_ALL")
+			nfs.ensureDirectory(XIO.Path("C:/StorageExportTest_2018-02-20-1600_ALL"))
 		);
 		
 		// Export-Type-Filter example: only export Strings
 		UtilStorageCsvExport.exportCsv(
 			storage,
-			XIO.Path("C:/StorageExportTest_2018-02-20-1600_Strings"),
+			nfs.ensureDirectory(XIO.Path("C:/StorageExportTest_2018-02-20-1600_Strings")),
 			t -> t.typeName().equals(String.class.getName())
 		);
 		

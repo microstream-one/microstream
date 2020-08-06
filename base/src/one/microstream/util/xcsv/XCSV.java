@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import one.microstream.X;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
 import one.microstream.chars.EscapeHandler;
 import one.microstream.chars.StringTable;
 import one.microstream.chars.VarString;
@@ -444,7 +446,41 @@ public final class XCSV
 		return stringTable;
 	}
 	
+	
+	public static StringTable readFromFile(final AFile file)
+	{
+		final String       fileSuffix = XIO.getFileSuffix(file.identifier());
+		final String       normalized = fileSuffix == null ? null : fileSuffix.trim().toLowerCase();
+		final XCsvDataType dataType   = XCsvDataType.fromIdentifier(normalized);
+		
+		return readFromFile(file, dataType);
+	}
+	
+	public static StringTable readFromFile(final AFile file, final XCsvDataType dataType)
+	{
+		final String fileContent = AFS.readString(file);
+		
+		final StringTable stringTable = parse(fileContent, dataType);
+		
+		return stringTable;
+	}
+	
+	public static StringTable readFromFile(final AFile file, final char valueSeparator)
+	{
+		return readFromFile(file, XCsvConfiguration.New(valueSeparator));
+	}
+	
+	public static StringTable readFromFile(final AFile file, final XCsvConfiguration xcsvConfiguration)
+	{
+		final String fileContent = AFS.readString(file);
+		
+		final StringTable stringTable = parse(fileContent, xcsvConfiguration);
+		
+		return stringTable;
+	}
+	
 
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////

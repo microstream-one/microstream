@@ -57,6 +57,11 @@ public final class VarString implements CharSequence, Appendable, Serializable
 		}
 		vs.add(object);
 	}
+	
+	public static void commaSpace(final VarString vs, final Object element)
+	{
+		vs.add(element).add(',', ' ');
+	}
 
 
 
@@ -569,12 +574,36 @@ public final class VarString implements CharSequence, Appendable, Serializable
 		final BiConsumer<VarString, ? super E> joiner
 	)
 	{
-		for(final E element : elements)
-		{
-			joiner.accept(this, element);
-		}
+		this.uncheckedAddAll(elements, 0, elements.length, joiner);
 		
 		return this;
+	}
+	
+	public final <E> VarString addAll(
+		final E[]                              elements,
+		final int                              offset  ,
+		final int                              length  ,
+		final BiConsumer<VarString, ? super E> joiner
+	)
+	{
+		XArrays.validateArrayRange(elements, offset, length);
+		this.uncheckedAddAll(elements, offset, length, joiner);
+		
+		return this;
+	}
+	
+	private <E> void uncheckedAddAll(
+		final E[]                              elements,
+		final int                              offset  ,
+		final int                              length  ,
+		final BiConsumer<VarString, ? super E> joiner
+	)
+	{
+		final int bound = offset + length;
+		for(int i = offset; i < bound; i++)
+		{
+			joiner.accept(this, elements[i]);
+		}
 	}
 	
 	public final <E> VarString addAll(

@@ -3,6 +3,7 @@ package one.microstream.collections;
 import java.util.Comparator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import one.microstream.X;
@@ -2241,6 +2242,19 @@ public final class XUtilsCollection
 		final Indexer<E> indexer;
 		sequence.iterateIndexed(indexer = new Indexer<>(predicate));
 		return indexer.sortAndYield();
+	}
+	
+	public static <I, O, C extends XAddingCollection<? super O>> C projectInto(
+		final Iterable<? extends I> elements ,
+		final Function<I, O>        projector,
+		final C                     target
+	)
+	{
+		for(final I e : elements)
+		{
+			target.add(projector.apply(e));
+		}
+		return target;
 	}
 
 	

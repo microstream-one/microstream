@@ -156,7 +156,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 
 		private static boolean isCompatibleTimestamp(
 			final long                            candidatetimestamp,
-			final StorageTransactionsFileAnalysis transactionsFile
+			final StorageTransactionsAnalysis transactionsFile
 		)
 		{
 			return transactionsFile.headFileLatestTimestamp()              == candidatetimestamp

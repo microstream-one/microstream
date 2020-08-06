@@ -1,11 +1,12 @@
 package one.microstream.test.corp.logic;
 
-import java.nio.file.Path;
 import java.util.function.Predicate;
 
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XSequence;
-import one.microstream.io.XIO;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageConnection;
@@ -15,31 +16,32 @@ import one.microstream.storage.types.StorageDataConverterTypeCsvToBinary;
 import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportFileProvider;
 import one.microstream.storage.types.StorageEntityTypeExportStatistics;
-import one.microstream.storage.types.StorageFile;
-import one.microstream.storage.types.StorageLockedFile;
+import one.microstream.storage.types.StorageFileNameProvider;
 import one.microstream.storage.types.StorageTypeDictionary;
 import one.microstream.util.cql.CQL;
 
 public class TestImportExport
 {
+	static final String DAT = StorageFileNameProvider.Defaults.defaultDataFileSuffix();
+	
 	@SuppressWarnings("unused")
-	public static void testExport(final EmbeddedStorageManager storage, final Path targetDirectory)
+	public static void testExport(final EmbeddedStorageManager storage, final ADirectory targetDirectory)
 	{
 		final StorageConnection storageConnection = storage.createConnection();
 		long tStart, tStop;
-		final Path bin2Dir, csvDir;
+		final ADirectory bin2Dir, csvDir;
 
 		tStart = System.nanoTime();
-		final XSequence<Path> exportFiles = exportTypes(
+		final XSequence<AFile> exportFiles = exportTypes(
 			storageConnection,
-			XIO.unchecked.ensureDirectory(XIO.Path(targetDirectory, "bin")),
+			AFS.ensureExists(targetDirectory.ensureDirectory("bin")),
 			"dat"
 		);
 		tStop = System.nanoTime();
 		System.out.println("Data export to binary files complete. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
 		tStart = System.nanoTime();
-		csvDir = convertBinToCsv(storage.typeDictionary(), exportFiles, file -> XIO.getFileName(file).endsWith(".dat"));
+		csvDir = convertBinToCsv(storage.typeDictionary(), exportFiles, file -> DAT.equals(file.type()));
 		tStop = System.nanoTime();
 		System.out.println("Conversion of binary to csv complete. Elapsed Time: " + new java.text.DecimalFormat("00,000,000,000").format(tStop - tStart));
 
@@ -75,9 +77,9 @@ public class TestImportExport
 //		storage.shutdown();
 	}
 
-	static final XSequence<Path> exportTypes(
+	static final XSequence<AFile> exportTypes(
 		final StorageConnection storageConnection,
-		final Path              targetDirectory  ,
+		final ADirectory        targetDirectory  ,
 		final String            fileSuffix
 )
 	{
@@ -86,22 +88,22 @@ public class TestImportExport
 		);
 		System.out.println(result);
 
-		final XSequence<Path> exportFiles = CQL
+		final XSequence<AFile> exportFiles = CQL
 			.from(result.typeStatistics().values())
-			.project(s -> XIO.Path(s.file().identifier()))
+			.project(s -> s.file())
 			.execute()
 		;
 
 		return exportFiles;
 	}
 
-	protected static Path convertBinToCsv(
+	protected static ADirectory convertBinToCsv(
 		final StorageTypeDictionary typeDictionary,
-		final XGettingCollection<Path> binaryFiles,
-		final Predicate<? super Path> filter
+		final XGettingCollection<AFile> binaryFiles,
+		final Predicate<? super AFile> filter
 	)
 	{
-		final Path directory = XIO.Path(binaryFiles.get().getParent().getParent(), "csv");
+		final ADirectory directory = binaryFiles.get().parent().parent().ensureDirectory("csv");
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			new StorageEntityTypeConversionFileProvider.Default(directory, "csv"),
@@ -111,7 +113,7 @@ public class TestImportExport
 			4096
 		);
 
-		for(final Path file : binaryFiles)
+		for(final AFile file : binaryFiles)
 		{
 			if(!filter.test(file))
 			{
@@ -119,8 +121,7 @@ public class TestImportExport
 			}
 			try
 			{
-				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
-				converter.convertDataFile(storageFile);
+				AFS.execute(file, rf -> converter.convertDataFile(rf));
 			}
 			catch(final Exception e)
 			{
@@ -130,14 +131,14 @@ public class TestImportExport
 		return directory;
 	}
 
-	static Path convertCsvToBin(
+	static ADirectory convertCsvToBin(
 		final PersistenceTypeDictionary typeDictionary ,
-		final XGettingCollection<Path>  binaryFiles    ,
-		final Path                      targetDirectory,
-		final Predicate<? super Path>   filter
+		final XGettingCollection<AFile> binaryFiles    ,
+		final ADirectory                targetDirectory,
+		final Predicate<? super AFile>  filter
 	)
 	{
-		final StorageDataConverterTypeCsvToBinary<StorageFile> converter = StorageDataConverterTypeCsvToBinary.New(
+		final StorageDataConverterTypeCsvToBinary<AFile> converter = StorageDataConverterTypeCsvToBinary.New(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
 			typeDictionary,
 			new StorageEntityTypeConversionFileProvider.Default(
@@ -145,7 +146,7 @@ public class TestImportExport
 			)
 		);
 
-		for(final Path file : binaryFiles)
+		for(final AFile file : binaryFiles)
 		{
 			if(!filter.test(file))
 			{
@@ -153,8 +154,7 @@ public class TestImportExport
 			}
 			try
 			{
-				final StorageLockedFile storageFile = StorageLockedFile.openLockedFile(file);
-				converter.convertCsv(storageFile);
+				AFS.execute(file, rf -> converter.convertCsv(rf));
 			}
 			catch(final Exception e)
 			{

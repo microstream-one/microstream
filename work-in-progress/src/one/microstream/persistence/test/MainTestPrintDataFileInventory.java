@@ -1,22 +1,23 @@
 package one.microstream.persistence.test;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 
+import one.microstream.afs.AReadableFile;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.storage.types.StorageDataFileItemIterator;
 import one.microstream.storage.types.StorageDataFileItemIterator.ItemProcessor;
-import one.microstream.storage.types.StorageLockedFile;
 
 public class MainTestPrintDataFileInventory
 {
 	public static void main(final String[] args) throws IOException
 	{
-		final FileChannel fc = StorageLockedFile.openLockedFile(
-			XIO.Path("D:/Bonus25/storage_2015-03-19 ID Fehler lokal/graveyard1/channel_1_129.dat")
-		).fileChannel();
-		StorageDataFileItemIterator.Default.processInputFile(fc, new DataFileInventoryPrinter());
+		final NioFileSystem nfs = NioFileSystem.New();
+		final AReadableFile rFile = nfs.ensureFile(XIO.Path(
+			"D:/Bonus25/storage_2015-03-19 ID Fehler lokal/graveyard1/channel_1_129.dat"
+		)).useReading();
+		StorageDataFileItemIterator.Default.processInputFile(rFile, new DataFileInventoryPrinter());
 	}
 
 

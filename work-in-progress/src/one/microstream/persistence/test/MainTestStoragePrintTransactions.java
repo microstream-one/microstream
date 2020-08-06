@@ -1,8 +1,9 @@
 package one.microstream.persistence.test;
 
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.VarString;
 import one.microstream.io.XIO;
-import one.microstream.storage.types.StorageTransactionsFileAnalysis;
+import one.microstream.storage.types.StorageTransactionsAnalysis;
 
 public class MainTestStoragePrintTransactions
 {
@@ -13,11 +14,13 @@ public class MainTestStoragePrintTransactions
 	
 	public static void printTransactionsFiles(final int channelCount)
 	{
-		System.out.println(StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(VarString.New(), "\t"));
+		final NioFileSystem nfs = NioFileSystem.New();
+		
+		System.out.println(StorageTransactionsAnalysis.EntryAssembler.assembleHeader(VarString.New(), "\t"));
 		for(int i = 0; i < channelCount; i++)
 		{
-			final VarString vs = StorageTransactionsFileAnalysis.Logic.parseFile(
-				XIO.Path("storage/channel_"+i+"/transactions_"+i+".sft")
+			final VarString vs = StorageTransactionsAnalysis.Logic.parseFile(
+				nfs.ensureFile(XIO.Path("storage/channel_"+i+"/transactions_"+i+".sft"))
 			);
 			System.out.println(vs);
 		}

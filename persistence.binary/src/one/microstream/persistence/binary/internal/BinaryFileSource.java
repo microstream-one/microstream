@@ -2,19 +2,16 @@ package one.microstream.persistence.binary.internal;
 
 import static one.microstream.X.notNull;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Path;
 
 import one.microstream.X;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AReadableFile;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.Constant;
 import one.microstream.collections.types.XGettingCollection;
-import one.microstream.io.XIO;
 import one.microstream.memory.XMemory;
-import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionIncompleteChunk;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.ChunksWrapper;
 import one.microstream.persistence.binary.types.ChunksWrapperByteReversing;
@@ -26,7 +23,7 @@ import one.microstream.persistence.types.PersistenceSource;
 
 public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaiter
 {
-	public static final BinaryFileSource New(final Path file, final boolean switchByteOrder)
+	public static final BinaryFileSource New(final AFile file, final boolean switchByteOrder)
 	{
 		return new BinaryFileSource(
 			notNull(file),
@@ -48,7 +45,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// instance fields //
 	////////////////////
 
-	private final Path    file           ;
+	private final AFile   file           ;
 	private final boolean switchByteOrder;
 	
 	// (11.07.2019 TM)NOTE: removed, see comments at occurance for reason.
@@ -60,7 +57,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// constructors //
 	/////////////////
 
-	BinaryFileSource(final Path file, final boolean switchByteOrder)
+	BinaryFileSource(final AFile file, final boolean switchByteOrder)
 	{
 		super();
 		this.switchByteOrder = switchByteOrder;
@@ -73,23 +70,24 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	// declared methods //
 	/////////////////////
 
-	private ByteBuffer readChunk(final ReadableByteChannel channel, final long chunkTotalLength)
-		throws IOException
+	private ByteBuffer readChunk(final AReadableFile channel, final long chunkTotalLength)
 	{
 		final ByteBuffer byteBuffer = XMemory.allocateDirectNative(X.checkArrayRange(chunkTotalLength));
 //		BinaryPersistence.setChunkTotalLength(byteBuffer);
 //		byteBuffer.position(8);
-		fillBuffer(byteBuffer, channel, this); // only one buffer per chunk in simple implementation
+		
+		// only one buffer per chunk in simple implementation
+		channel.readBytes(byteBuffer);
+		
 		return byteBuffer;
 	}
 
-	private Constant<Binary> read(final long fileLength, final ReadableByteChannel channel)
-		throws IOException
+	private Constant<Binary> read(final AReadableFile file)
 	{
 		final BulkList<ByteBuffer> chunks = new BulkList<>();
 
 		// (10.07.2019 TM)NOTE: there is no more chunk length, just read all at once. Or re-add in FileTarget?
-		chunks.add(this.readChunk(channel, fileLength));
+		chunks.add(this.readChunk(file, file.size()));
 //		for(long readCount = 0, chunkTotalLength = 0; readCount < fileLength; readCount += chunkTotalLength)
 //		{
 //			chunkTotalLength = readChunkLength(this.chunkDataBuffer, channel, this);
@@ -131,30 +129,7 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 //		return XMemory.get_long(XMemory.getDirectByteBufferAddress(lengthBuffer));
 //	}
 
-	private static final void fillBuffer(
-		final ByteBuffer          buffer       ,
-		final ReadableByteChannel channel      ,
-		final MessageWaiter       messageWaiter
-	)
-		throws IOException
-	{
-		while(true)
-		{
-			final int readCount;
-			if((readCount = channel.read(buffer)) < 0 && buffer.hasRemaining())
-			{
-				throw new BinaryPersistenceExceptionIncompleteChunk(buffer.position(), buffer.limit());
-			}
-			if(!buffer.hasRemaining())
-			{
-				break; // chunk complete, stop reading without calling waiter again
-			}
-			messageWaiter.waitForBytes(readCount);
-		}
-		// intentionally no flipping here.
-	}
-
-
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	// override methods //
@@ -163,9 +138,9 @@ public class BinaryFileSource implements PersistenceSource<Binary>, MessageWaite
 	@Override
 	public XGettingCollection<? extends Binary> read() throws PersistenceExceptionTransfer
 	{
-		try(final FileChannel fch = XIO.openFileChannelReading(this.file))
+		try
 		{
-			return this.read(fch.size(), fch);
+			return AFS.apply(this.file, rf -> this.read(rf));
 		}
 		catch(final Exception t)
 		{

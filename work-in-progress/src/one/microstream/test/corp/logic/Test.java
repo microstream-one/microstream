@@ -2,7 +2,6 @@ package one.microstream.test.corp.logic;
 
 import static one.microstream.X.notNull;
 
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -12,6 +11,9 @@ import java.util.HashSet;
 import java.util.function.Function;
 
 import one.microstream.X;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqHashTable;
@@ -22,8 +24,8 @@ import one.microstream.io.XIO;
 import one.microstream.math.XMath;
 import one.microstream.meta.XDebug;
 import one.microstream.storage.types.EmbeddedStorageManager;
-import one.microstream.storage.types.StorageFileProvider;
-import one.microstream.storage.types.StorageTransactionsFileAnalysis;
+import one.microstream.storage.types.StorageLiveFileProvider;
+import one.microstream.storage.types.StorageTransactionsAnalysis;
 import one.microstream.test.corp.model.Address;
 import one.microstream.test.corp.model.BusinessYear;
 import one.microstream.test.corp.model.CallAddress;
@@ -217,7 +219,7 @@ public class Test
 	
 	public static void clearDefaultStorageDirectory(final boolean output)
 	{
-		XDebug.deleteAllFiles(XIO.Path(StorageFileProvider.Defaults.defaultStorageDirectory()), output);
+		XDebug.deleteAllFiles(XIO.Path(StorageLiveFileProvider.Defaults.defaultStorageDirectory()), output);
 	}
 
 	public static ClientCorporation generateModelData(final int entityAmount)
@@ -288,48 +290,53 @@ public class Test
 		System.out.println(TIME_FORMAT.format(XTime.now())+": "+object);
 	}
 
-	public static Path provideTimestampedDirectory(final Path directory, final String prefix)
+	public static ADirectory provideTimestampedDirectory(final ADirectory directory, final String prefix)
 	{
-		return XIO.Path(directory, prefix + "_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.S").format(new Date()));
+		final String fileName = prefix + "_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.S").format(new Date());
+		
+		return directory == null
+			? NioFileSystem.New().ensureDirectory(XIO.Path(fileName))
+			: directory.ensureDirectory(fileName)
+		;
 	}
 
-	public static Path provideTimestampedDirectory(final String prefix)
+	public static ADirectory provideTimestampedDirectory(final String prefix)
 	{
 		return provideTimestampedDirectory(null, prefix);
 	}
 
 
-	public static void printTransactionsFiles(final Path... files)
+	public static void printTransactionsFiles(final AFile... files)
 	{
-		for(final Path file : files)
+		for(final AFile file : files)
 		{
 			printTransactionsFile(file);
 		}
 	}
 
-	public static String assembleTransactionsFile(final Path file)
+	public static String assembleTransactionsFile(final AFile file)
 	{
 		final VarString vs = VarString.New(file.toString()).lf();
-		StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
-		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs)
+		StorageTransactionsAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
+		final VarString s = StorageTransactionsAnalysis.Logic.parseFile(file, vs)
 			.lf().lf()
 		;
 		return s.toString();
 	}
 	
-	public static void printTransactionsFile(final Path file)
+	public static void printTransactionsFile(final AFile file)
 	{
 		final String s = assembleTransactionsFile(file);
 		System.out.println(s.toString());
 	}
 
-	public static void printTransactionsFiles(final Path storageDirectory, final int channelCount)
+	public static void printTransactionsFiles(final ADirectory storageDirectory, final int channelCount)
 	{
-		final Path[] files = new Path[channelCount];
+		final AFile[] files = new AFile[channelCount];
 
 		for(int i = 0; i < files.length; i++)
 		{
-			files[i] = XIO.Path(XIO.Path(storageDirectory, "channel_"+i), "transactions_"+i+".sft");
+			files[i] = storageDirectory.ensureDirectory("channel_"+i).ensureFile("transactions_"+i+".sft");
 		}
 		printTransactionsFiles(files);
 	}

@@ -51,13 +51,13 @@ public interface ConfigurationPropertyParser
 
 		Default(
 			final DurationParser durationParser,
-			final ByteSizeParser fileSizeParser
+			final ByteSizeParser byteSizeParser
 		)
 		{
 			super();
 
 			this.durationParser = durationParser;
-			this.byteSizeParser = fileSizeParser;
+			this.byteSizeParser = byteSizeParser;
 		}
 
 		@Override
@@ -171,6 +171,22 @@ public interface ConfigurationPropertyParser
 					case TYPE_DICTIONARY_FILENAME:
 					{
 						configuration.setTypeDictionaryFilename(
+							notEmpty(value)
+						);
+					}
+					break;
+
+					case RESCUED_FILE_SUFFIX:
+					{
+						configuration.setRescuedFileSuffix(
+							notEmpty(value)
+						);
+					}
+					break;
+
+					case LOCK_FILE_NAME:
+					{
+						configuration.setLockFileName(
 							notEmpty(value)
 						);
 					}

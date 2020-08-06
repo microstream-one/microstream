@@ -2,8 +2,10 @@ package one.microstream.storage.util.rollback;
 
 import static one.microstream.X.KeyValue;
 
-import java.nio.file.Path;
-
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
 import one.microstream.io.XIO;
@@ -12,17 +14,17 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.storage.types.StorageDataFileValidator;
+import one.microstream.storage.types.StorageDataInventoryFile;
 import one.microstream.storage.types.StorageEntityDataValidator;
 import one.microstream.storage.types.StorageFileEntityDataIterator;
-import one.microstream.storage.types.StorageFileProvider;
-import one.microstream.storage.types.StorageNumberedFile;
-import one.microstream.storage.types.StorageTransactionsFile;
+import one.microstream.storage.types.StorageLiveFileProvider;
+import one.microstream.storage.types.StorageTransactionsEntries;
 
 public class MainUtilRecoverStorageFiles
 {
-	static final String PATH_CORRUPTED =
+	static final ADirectory PATH_CORRUPTED = NioFileSystem.New().ensureDirectory(XIO.Path(
 		"D:/_Corp/2019-01-10/db_lcm_prod_v400"
-	;
+	));
 	static final long
 		LENGTH_LOWER_VALUE   = Binary.entityHeaderLength()       ,
 		LENGTH_UPPER_BOUND   = 100_000                           ,
@@ -41,12 +43,16 @@ public class MainUtilRecoverStorageFiles
 //	1000000000000087529
 	static void validateDataFiles()
 	{
-		final StorageFileProvider sfp = StorageFileProvider
+		final StorageLiveFileProvider sfp = StorageLiveFileProvider
 			.Builder()
-			.setBaseDirectory(PATH_CORRUPTED)
+			.setDirectory(PATH_CORRUPTED)
 			.createFileProvider()
 		;
-		final BulkList<StorageNumberedFile> storageFiles = sfp.collectDataFiles(BulkList.New(), 0);
+		final BulkList<StorageDataInventoryFile> storageFiles = sfp.collectDataFiles(
+			StorageDataInventoryFile::New,
+			BulkList.New(),
+			0
+		);
 		
 		final StorageDataFileValidator dfv = StorageDataFileValidator.DebugLogging(
 			BinaryEntityRawDataIterator.New(),
@@ -60,7 +66,7 @@ public class MainUtilRecoverStorageFiles
 			StorageFileEntityDataIterator.New()
 		);
 		
-		for(final StorageNumberedFile file : storageFiles)
+		for(final StorageDataInventoryFile file : storageFiles)
 		{
 			dfv.validateFile(file);
 		}
@@ -68,17 +74,17 @@ public class MainUtilRecoverStorageFiles
 	
 	static void printTransactionsFile()
 	{
-		final StorageTransactionsFile tf = StorageTransactionsFile.parseFile(
-			XIO.Path(PATH_CORRUPTED + "/channel_0/transactions_0.sft")
+		final StorageTransactionsEntries tf = StorageTransactionsEntries.parseFile(
+			PATH_CORRUPTED.ensureDirectory("channel_0").ensureFile("transactions_0.sft")
 		);
 		tf.entries().iterate(System.out::println);
 	}
 	
 	static void rollbackTransfers() throws Exception
 	{
-		final Path sourceFile = XIO.Path(PATH_CORRUPTED + "/channel_0/channel_0_491.dat");
+		final AFile sourceFile = PATH_CORRUPTED.ensureDirectory("channel_0").ensureFile("channel_0_491.dat");
 				
-		final Path dir = XIO.unchecked.ensureDirectory(XIO.Path(PATH_CORRUPTED, "strings"));
+		final ADirectory dir = AFS.ensureExists(PATH_CORRUPTED.ensureDirectory("strings"));
 		XDebug.deleteAllFiles(dir, false);
 		
 		// 2019-03-13 (2019-03-14)

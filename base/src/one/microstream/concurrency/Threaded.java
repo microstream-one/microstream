@@ -9,7 +9,6 @@ import java.util.function.Predicate;
 
 import one.microstream.collections.interfaces.ConsolidatableCollection;
 import one.microstream.collections.interfaces.OptimizableCollection;
-import one.microstream.collections.interfaces.Sized;
 import one.microstream.functional.Instantiator;
 import one.microstream.math.XMath;
 import one.microstream.reference.Referencing;
@@ -65,7 +64,7 @@ import one.microstream.reference.Referencing;
  *
  * @author Thomas Muenz
  */
-public class Threaded<E> implements ConsolidatableCollection, OptimizableCollection, Sized, Referencing<E>
+public class Threaded<E> implements ConsolidatableCollection, OptimizableCollection, Referencing<E>
 {
 	/*
 	 * General note on usage of Thread.currentThread():

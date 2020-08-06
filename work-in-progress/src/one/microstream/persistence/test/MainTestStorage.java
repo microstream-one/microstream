@@ -1,10 +1,11 @@
 package one.microstream.persistence.test;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Date;
 
 import one.microstream.X;
+import one.microstream.afs.AFile;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqConstHashTable;
@@ -17,7 +18,7 @@ import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.reference.Lazy;
 import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageRawFileStatistics;
-import one.microstream.storage.types.StorageTransactionsFileAnalysis;
+import one.microstream.storage.types.StorageTransactionsAnalysis;
 import one.microstream.test.Person;
 import one.microstream.time.XTime;
 import one.microstream.typing.XTypes;
@@ -232,13 +233,13 @@ public class MainTestStorage extends TestStorage
 
 	static void testImport()
 	{
+		final NioFileSystem nfs = NioFileSystem.New();
+		
 		final StorageConnection         connection = STORAGE.createConnection();
 		final PersistenceTypeDictionary dictionary = BinaryPersistence.provideTypeDictionaryFromFile(
-			XIO.Path("C:/FilesImport/PersistenceTypeDictionary.ptd")
+			nfs.ensureFile(XIO.Path("C:/FilesImport/PersistenceTypeDictionary.ptd"))
 		);
-		final XEnum<Path>               dataFiles  = XIO.unchecked.listEntries(
-			XIO.Path("C:/FilesImport/channel_0"), HashEnum.New()
-		)
+		final XEnum<AFile> dataFiles  = nfs.ensureDirectory(XIO.Path("C:/FilesImport/channel_0")).iterateFiles(HashEnum.New())
 			.sort((f1, f2) -> Long.compare(parseStorageFileNumber(f1), parseStorageFileNumber(f2)))
 		;
 
@@ -246,13 +247,12 @@ public class MainTestStorage extends TestStorage
 		connection.importFiles(dataFiles);
 	}
 
-	static long parseStorageFileNumber(final Path file)
+	static long parseStorageFileNumber(final AFile file)
 	{
-		final String filename = XIO.getFileName(file);
+		final String filename = file.name();
 		return Long.valueOf(
 			filename.substring(
-				filename.lastIndexOf('_') + 1,
-				filename.lastIndexOf(XIO.fileSuffixSeparator())
+				filename.lastIndexOf('_') + 1
 			)
 		);
 	}
@@ -428,19 +428,19 @@ public class MainTestStorage extends TestStorage
 		return array;
 	}
 
-	static void printTransactionsFiles(final Path... files)
+	static void printTransactionsFiles(final AFile... files)
 	{
-		for(final Path file : files)
+		for(final AFile file : files)
 		{
 			printTransactionsFile(file);
 		}
 	}
 
-	static void printTransactionsFile(final Path file)
+	static void printTransactionsFile(final AFile file)
 	{
 		final VarString vs = VarString.New(file.toString()).lf();
-		StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
-		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs)
+		StorageTransactionsAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
+		final VarString s = StorageTransactionsAnalysis.Logic.parseFile(file, vs)
 			.lf().lf()
 		;
 		XDebug.println(s.toString());

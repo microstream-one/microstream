@@ -3,8 +3,7 @@ package one.microstream.persistence.internal;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
-import java.nio.file.Path;
-
+import one.microstream.afs.AFile;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeIdProvider;
 
@@ -15,7 +14,7 @@ public final class FileTypeIdProvider extends AbstractIdProviderByFile implement
 	// static methods //
 	///////////////////
 
-	public static FileTypeIdProvider New(final Path file, final long increase)
+	public static FileTypeIdProvider New(final AFile file, final long increase)
 	{
 		return new FileTypeIdProvider(
 			 notNull(file)              ,
@@ -24,7 +23,7 @@ public final class FileTypeIdProvider extends AbstractIdProviderByFile implement
 		);
 	}
 
-	public static FileTypeIdProvider New(final Path file, final long increase, final long startId)
+	public static FileTypeIdProvider New(final AFile file, final long increase, final long startId)
 	{
 		return new FileTypeIdProvider(
 			 notNull(file)                 ,
@@ -39,7 +38,7 @@ public final class FileTypeIdProvider extends AbstractIdProviderByFile implement
 	// constructors //
 	/////////////////
 
-	FileTypeIdProvider(final Path file, final long increase, final long startId)
+	FileTypeIdProvider(final AFile file, final long increase, final long startId)
 	{
 		super(file, increase, startId);
 	}

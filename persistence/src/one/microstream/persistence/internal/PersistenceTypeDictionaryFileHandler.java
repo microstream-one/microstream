@@ -3,9 +3,14 @@ package one.microstream.persistence.internal;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import java.nio.ByteBuffer;
 
+import one.microstream.X;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AReadableFile;
+import one.microstream.afs.AWritableFile;
+import one.microstream.chars.XChars;
 import one.microstream.io.XIO;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionSource;
@@ -19,33 +24,63 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 	// static methods //
 	///////////////////
 
-	public static final String readTypeDictionary(final Path file)
+	public static final String readTypeDictionary(final AFile file)
 	{
 		return readTypeDictionary(file, null);
 	}
 
-	public static final String readTypeDictionary(final Path file, final String defaultString)
+	public static final String readTypeDictionary(final AFile file, final String defaultString)
 	{
 		try
 		{
-			if(!XIO.exists(file))
+			if(!file.exists())
 			{
 				return defaultString;
 			}
 			
-			return XIO.readString(file, Persistence.standardCharset());
+			final AReadableFile rFile = file.useReading();
+			
+			try
+			{
+				final ByteBuffer bb = rFile.readBytes();
+				
+				return XChars.String(bb, Persistence.standardCharset());
+			}
+			finally
+			{
+				rFile.release();
+			}
 		}
-		catch(final IOException e)
+		catch(final Exception e)
 		{
 			throw new PersistenceExceptionSource(e);
 		}
 	}
 
-	public static final void writeTypeDictionary(final Path file, final String typeDictionaryString)
+	public static final void writeTypeDictionary(final AFile file, final String typeDictionaryString)
 	{
 		try
 		{
-			XIO.write(file, typeDictionaryString, Persistence.standardCharset());
+			final AWritableFile wFile = file.useWriting();
+			if(wFile.exists())
+			{
+				wFile.truncate(0);
+			}
+			else
+			{
+				wFile.create();
+			}
+			
+			try
+			{
+				final byte[] bytes = typeDictionaryString.getBytes(Persistence.standardCharset());
+				final ByteBuffer dbb = XIO.wrapInDirectByteBuffer(bytes);
+				wFile.writeBytes(X.List(dbb));
+			}
+			finally
+			{
+				wFile.release();
+			}
 		}
 		catch(final Exception t)
 		{
@@ -53,31 +88,47 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 		}
 	}
 	
-	// sadly, the JDK geniuses didn't have enough OOP skill to implement proper FSElement types like Directory and File.
-	public static PersistenceTypeDictionaryFileHandler NewInDirectory(final Path directory)
+	@Deprecated
+	public static PersistenceTypeDictionaryFileHandler NewInDirectory(final ADirectory directory)
 	{
-		return NewInDirectory(directory, null);
+		return New(directory);
 	}
 	
-	public static PersistenceTypeDictionaryFileHandler New(final Path file)
+	public static PersistenceTypeDictionaryFileHandler New(final ADirectory directory)
+	{
+		return New(directory, null);
+	}
+	
+	public static PersistenceTypeDictionaryFileHandler New(final AFile file)
 	{
 		return New(file, null);
 	}
 	
+	@Deprecated
 	public static PersistenceTypeDictionaryFileHandler NewInDirectory(
-		final Path                            directory    ,
+		final ADirectory                      directory    ,
+		final PersistenceTypeDictionaryStorer writeListener
+	)
+	{
+		return New(directory, writeListener);
+	}
+	
+		
+	public static PersistenceTypeDictionaryFileHandler New(
+		final ADirectory                      directory    ,
 		final PersistenceTypeDictionaryStorer writeListener
 	)
 	{
 		return new PersistenceTypeDictionaryFileHandler(
-			XIO.Path(directory, Persistence.defaultFilenameTypeDictionary()),
+			directory.ensureFile(Persistence.defaultFilenameTypeDictionary()),
 			mayNull(writeListener)
 		);
 	}
 	
 	public static PersistenceTypeDictionaryFileHandler New(
-		final Path                            file         ,
-		final PersistenceTypeDictionaryStorer writeListener)
+		final AFile                           file         ,
+		final PersistenceTypeDictionaryStorer writeListener
+	)
 	{
 		return new PersistenceTypeDictionaryFileHandler(
 			notNull(file)         ,
@@ -91,7 +142,7 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 	// instance fields //
 	////////////////////
 
-	private final Path                            file         ;
+	private final AFile                           file         ;
 	private final PersistenceTypeDictionaryStorer writeListener;
 
 
@@ -101,7 +152,7 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 	/////////////////
 
 	PersistenceTypeDictionaryFileHandler(
-		final Path                            file         ,
+		final AFile                           file         ,
 		final PersistenceTypeDictionaryStorer writeListener
 	)
 	{
@@ -116,7 +167,7 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 	// override methods //
 	/////////////////////
 	
-	protected Path file()
+	protected AFile file()
 	{
 		return this.file;
 	}
@@ -147,21 +198,21 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 	public interface Creator
 	{
 		public PersistenceTypeDictionaryIoHandler createTypeDictionaryIoHandler(
-			Path                            file         ,
+			AFile                           file         ,
 			PersistenceTypeDictionaryStorer writeListener
 		);
 		
 	}
 	
 	
-	public static PersistenceTypeDictionaryFileHandler.Provider ProviderInDirectory(final Path directory)
+	public static PersistenceTypeDictionaryFileHandler.Provider ProviderInDirectory(final ADirectory directory)
 	{
 		return new PersistenceTypeDictionaryFileHandler.Provider(
-			XIO.Path(directory, Persistence.defaultFilenameTypeDictionary())
+			directory.ensureFile(Persistence.defaultFilenameTypeDictionary())
 		);
 	}
 	
-	public static PersistenceTypeDictionaryFileHandler.Provider Provider(final Path file)
+	public static PersistenceTypeDictionaryFileHandler.Provider Provider(final AFile file)
 	{
 		return new PersistenceTypeDictionaryFileHandler.Provider(
 			notNull(file)
@@ -174,7 +225,7 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 		// instance fields //
 		////////////////////
 		
-		private final Path file;
+		private final AFile file;
 		
 		
 		
@@ -182,7 +233,7 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 		// constructors //
 		/////////////////
 
-		Provider(final Path file)
+		Provider(final AFile file)
 		{
 			super();
 			this.file = file;

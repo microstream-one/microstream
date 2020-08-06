@@ -18,7 +18,7 @@ import one.microstream.chars.VarString;
 public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvaluator
 {
 	@Override
-	public boolean needsDissolving(StorageDataFile<?> storageFile);
+	public boolean needsDissolving(StorageLiveDataFile storageFile);
 
 	public boolean needsRetirement(long fileTotalLength);
 
@@ -361,19 +361,19 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		{
 			return this.fileMaximumSize;
 		}
-
+		
 		public double minimumUseRatio()
 		{
 			return this.minimumUseRatio;
 		}
-
+		
 		public boolean cleanupHeadFile()
 		{
 			return this.cleanupHeadFile;
 		}
 
 		@Override
-		public final boolean needsDissolving(final StorageDataFile<?> storageFile)
+		public final boolean needsDissolving(final StorageLiveDataFile storageFile)
 		{
 			/*
 			 * Dissolve file if one of three extreme cases (too small, too much gaps/overhead, too big) apply,
@@ -403,22 +403,22 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			;
 		}
 
-		private boolean isBelowMinimumSize(final StorageDataFile<?> storageFile)
+		private boolean isBelowMinimumSize(final StorageLiveDataFile storageFile)
 		{
 			return storageFile.totalLength() < this.fileMinimumSize();
 		}
 
-		private boolean hasTooMuchGapSpace(final StorageDataFile<?> storageFile)
+		private boolean hasTooMuchGapSpace(final StorageLiveDataFile storageFile)
 		{
 			return storageFile.dataFillRatio() < this.minimumUseRatio;
 		}
 
-		private boolean isAboveMaximumSize(final StorageDataFile<?> storageFile)
+		private boolean isAboveMaximumSize(final StorageLiveDataFile storageFile)
 		{
 			return storageFile.totalLength() > this.fileMaximumSize();
 		}
 
-		private boolean isGaplessSingleEntityFile(final StorageDataFile<?> storageFile)
+		private boolean isGaplessSingleEntityFile(final StorageLiveDataFile storageFile)
 		{
 			// file has only one entity and contains no further gaps
 			return storageFile.hasSingleEntity() && storageFile.dataLength() == storageFile.totalLength();

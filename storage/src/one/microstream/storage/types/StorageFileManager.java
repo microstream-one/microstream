@@ -5,12 +5,12 @@ import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.notNegative;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.function.Consumer;
 
 import one.microstream.X;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
 import one.microstream.chars.VarString;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
@@ -21,7 +21,7 @@ import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
 import one.microstream.storage.exceptions.StorageExceptionIoWritingChunk;
 import one.microstream.storage.types.StorageRawFileStatistics.FileStatistics;
-import one.microstream.storage.types.StorageTransactionsFileAnalysis.EntryAggregator;
+import one.microstream.storage.types.StorageTransactionsAnalysis.EntryAggregator;
 import one.microstream.time.XTime;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BufferSizeProvider;
@@ -66,15 +66,15 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		StorageChannel   parent
 	);
 
-	public StorageDataFile<?> currentStorageFile();
+	public StorageLiveDataFile currentStorageFile();
 
-	public void iterateStorageFiles(Consumer<? super StorageDataFile<?>> procedure);
+	public void iterateStorageFiles(Consumer<? super StorageLiveDataFile> procedure);
 
 	public boolean incrementalFileCleanupCheck(long nanoTimeBudgetBound);
 
 	public boolean issuedFileCleanupCheck(long nanoTimeBudget);
 
-	public void exportData(StorageIoHandler fileHandler);
+	public void exportData(StorageLiveFileProvider fileProvider);
 
 	public StorageRawFileStatistics.ChannelStatistics createRawFileStatistics();
 
@@ -83,7 +83,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 
 
-	public final class Default implements StorageFileManager, StorageReaderCallback, StorageFileUser
+	public final class Default implements StorageFileManager, StorageFileUser
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
@@ -125,44 +125,51 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		private final int                                  channelIndex                 ;
 		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider;
 		private final StorageTimestampProvider             timestampProvider            ;
-		private final StorageFileProvider                  storageFileProvider          ;
+		private final StorageLiveFileProvider              storageFileProvider          ;
 		private final StorageDataFileEvaluator             dataFileEvaluator            ;
 		private final StorageEntityCache.Default           entityCache                  ;
-		private final StorageFileReader                    reader                       ;
 		private final StorageFileWriter                    writer                       ;
 		private final StorageBackupHandler                 backupHandler                ;
 		
 		// to avoid permanent lambda instantiation
-		private final Consumer<? super StorageDataFile.Default> deleter        = this::deleteFile       ;
-		private final Consumer<? super StorageDataFile.Default> pendingDeleter = this::deletePendingFile;
+		private final Consumer<? super StorageLiveDataFile.Default> deleter        = this::deleteFile       ;
+		private final Consumer<? super StorageLiveDataFile.Default> pendingDeleter = this::deletePendingFile;
 		
 		
 		// state 1.1: entry buffers. Don't need to be resetted. See comment in reset().
 
 		// all ".clear()" calls on these buffers are only for flushing them out. Filling them happens only via address.
-		private final ByteBuffer[]
-			entryBufferFileCreation   = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
-			entryBufferStore          = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthStore())}         ,
-			entryBufferTransfer       = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthTransfer())}      ,
-			entryBufferFileDeletion   = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthFileCreation())}  ,
-			entryBufferFileTruncation = {XMemory.allocateDirectNative(StorageTransactionsFileAnalysis.Logic.entryLengthFileTruncation())}
+		private final ByteBuffer
+			entryBufferFileCreation   = XMemory.allocateDirectNative(StorageTransactionsAnalysis.Logic.entryLengthFileCreation())  ,
+			entryBufferStore          = XMemory.allocateDirectNative(StorageTransactionsAnalysis.Logic.entryLengthStore())         ,
+			entryBufferTransfer       = XMemory.allocateDirectNative(StorageTransactionsAnalysis.Logic.entryLengthTransfer())      ,
+			entryBufferFileDeletion   = XMemory.allocateDirectNative(StorageTransactionsAnalysis.Logic.entryLengthFileCreation())  ,
+			entryBufferFileTruncation = XMemory.allocateDirectNative(StorageTransactionsAnalysis.Logic.entryLengthFileTruncation())
+		;
+		
+		private final Iterable<? extends ByteBuffer>
+			entryBufferWrapFileCreation   = X.ArrayView(this.entryBufferFileCreation  ),
+			entryBufferWrapStore          = X.ArrayView(this.entryBufferStore         ),
+			entryBufferWrapTransfer       = X.ArrayView(this.entryBufferTransfer      ),
+			entryBufferWrapFileDeletion   = X.ArrayView(this.entryBufferFileDeletion  ),
+			entryBufferWrapFileTruncation = X.ArrayView(this.entryBufferFileTruncation)
 		;
 
 		private final long
-			entryBufferFileCreationAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileCreation[0])  ,
-			entryBufferStoreAddress          = XMemory.getDirectByteBufferAddress(this.entryBufferStore[0])         ,
-			entryBufferTransferAddress       = XMemory.getDirectByteBufferAddress(this.entryBufferTransfer[0])      ,
-			entryBufferFileDeletionAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileDeletion[0])  ,
-			entryBufferFileTruncationAddress = XMemory.getDirectByteBufferAddress(this.entryBufferFileTruncation[0])
+			entryBufferFileCreationAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileCreation)  ,
+			entryBufferStoreAddress          = XMemory.getDirectByteBufferAddress(this.entryBufferStore)         ,
+			entryBufferTransferAddress       = XMemory.getDirectByteBufferAddress(this.entryBufferTransfer)      ,
+			entryBufferFileDeletionAddress   = XMemory.getDirectByteBufferAddress(this.entryBufferFileDeletion)  ,
+			entryBufferFileTruncationAddress = XMemory.getDirectByteBufferAddress(this.entryBufferFileTruncation)
 		;
 
 		// Entry Buffers have their "effectively immutable" first parts initialized once and never changed again.
 		{
-			StorageTransactionsFileAnalysis.Logic.initializeEntryFileCreation  (this.entryBufferFileCreationAddress  );
-			StorageTransactionsFileAnalysis.Logic.initializeEntryStore         (this.entryBufferStoreAddress         );
-			StorageTransactionsFileAnalysis.Logic.initializeEntryTransfer      (this.entryBufferTransferAddress      );
-			StorageTransactionsFileAnalysis.Logic.initializeEntryFileDeletion  (this.entryBufferFileDeletionAddress  );
-			StorageTransactionsFileAnalysis.Logic.initializeEntryFileTruncation(this.entryBufferFileTruncationAddress);
+			StorageTransactionsAnalysis.Logic.initializeEntryFileCreation  (this.entryBufferFileCreationAddress  );
+			StorageTransactionsAnalysis.Logic.initializeEntryStore         (this.entryBufferStoreAddress         );
+			StorageTransactionsAnalysis.Logic.initializeEntryTransfer      (this.entryBufferTransferAddress      );
+			StorageTransactionsAnalysis.Logic.initializeEntryFileDeletion  (this.entryBufferFileDeletionAddress  );
+			StorageTransactionsAnalysis.Logic.initializeEntryFileTruncation(this.entryBufferFileTruncationAddress);
 		}
 		
 		
@@ -175,10 +182,10 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		// state 3.0: mutable fields. Must be cleared on reset.
 		
 		// cleared and nulled by clearTransactionsFile() / clearRegisteredFiles() / reset()
-		private StorageInventoryFile fileTransactions;
+		private StorageLiveTransactionsFile fileTransactions;
 		
 		// cleared and nulled by clearRegisteredFiles() / reset()
-		private StorageDataFile.Default fileCleanupCursor;
+		private StorageLiveDataFile.Default fileCleanupCursor;
 
 		// cleared by clearUncommittedDataLength() / reset()
 		private long uncommittedDataLength;
@@ -190,7 +197,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		// state 3.1: variable length content
 
 		// cleared and nulled by clearRegisteredFiles() / reset()
-		private StorageDataFile.Default headFile;
+		private StorageLiveDataFile.Default headFile;
 
 
 
@@ -202,10 +209,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			final int                                  channelIndex                 ,
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
 			final StorageTimestampProvider             timestampProvider            ,
-			final StorageFileProvider                  storageFileProvider          ,
+			final StorageLiveFileProvider              storageFileProvider          ,
 			final StorageDataFileEvaluator             dataFileEvaluator            ,
 			final StorageEntityCache.Default           entityCache                  ,
-			final StorageFileReader                    reader                       ,
 			final StorageFileWriter                    writer                       ,
 			final BufferSizeProvider                   standardBufferSizeProvider   ,
 			final StorageBackupHandler                 backupHandler
@@ -218,7 +224,6 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.dataFileEvaluator             =     notNull(dataFileEvaluator)            ;
 			this.storageFileProvider           =     notNull(storageFileProvider)          ;
 			this.entityCache                   =     notNull(entityCache)                  ;
-			this.reader                        =     notNull(reader)                       ;
 			this.writer                        =     notNull(writer)                       ;
 			this.backupHandler                 =     mayNull(backupHandler)                ;
 			
@@ -237,8 +242,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		{
 			// (01.04.2016)XXX: not tested yet
 
-			final StorageDataFile.Default head = this.headFile;
-			StorageDataFile.Default file = head; // initial reference, but gets handled at the end
+			final StorageLiveDataFile.Default head = this.headFile;
+			StorageLiveDataFile.Default file = head; // initial reference, but gets handled at the end
 			do
 			{
 				file = file.next;
@@ -252,8 +257,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 			return logic;
 		}
-
-		final boolean isHeadFile(final StorageDataFile.Default dataFile)
+		
+		final boolean isHeadFile(final StorageLiveDataFile.Default dataFile)
 		{
 			return this.headFile == dataFile;
 		}
@@ -289,9 +294,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				return; // already cleared or no files in the first place
 			}
 
-			final StorageDataFile.Default headFile = this.headFile;
+			final StorageLiveDataFile.Default headFile = this.headFile;
 
-			StorageDataFile.Default file = headFile;
+			StorageLiveDataFile.Default file = headFile;
 			do
 			{
 				file.unregisterUsageClosing(this, null);
@@ -322,9 +327,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		
-		final void transferOneChainToHeadFile(final StorageDataFile.Default sourceFile)
+		final void transferOneChainToHeadFile(final StorageLiveDataFile.Default sourceFile)
 		{
-			final StorageDataFile.Default headFile = this.headFile           ;
+			final StorageLiveDataFile.Default headFile = this.headFile           ;
 			final StorageEntity.Default   first    = sourceFile.head.fileNext;
 			      StorageEntity.Default   last     = null                    ;
 			      StorageEntity.Default   current  = first                   ;
@@ -404,7 +409,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		private void appendBytesToHeadFile(
-			final StorageDataFile.Default sourceFile,
+			final StorageLiveDataFile.Default sourceFile,
 			final long                           copyStart ,
 			final long                           copyLength
 		)
@@ -414,7 +419,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 //				+ " from " + sourceFile + " to " + targetFile
 //			);
 			
-			final StorageDataFile.Default headFile = this.headFile;
+			final StorageLiveDataFile.Default headFile = this.headFile;
 
 			// do the actual file-level copying in one go at the end and validate the byte count to be sure
 			this.writer.writeTransfer(sourceFile, copyStart, copyLength, headFile);
@@ -441,39 +446,48 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			 * once again).
 			 */
 		}
-
 	
+		final StorageLiveDataFile.Default createLiveDataFile(
+			final AFile file        ,
+			final int   channelIndex,
+			final long  number
+		)
+		{
+			return new StorageLiveDataFile.Default(
+				            this         ,
+				    notNull(file)        ,
+				notNegative(channelIndex),
+				notNegative(number)
+			);
+		}
 
 		private void createNewStorageFile(final long fileNumber)
 		{
 //			DEBUGStorage.println(this.channelIndex + " creating new head file " + fileNumber);
 
-			final StorageInventoryFile file = this.storageFileProvider.provideDataFile(
+			final AFile file = this.storageFileProvider.provideDataFile(
 				this.channelIndex(),
 				fileNumber
-			).inventorize();
+			);
+			file.ensureExists();
 
 			/*
 			 * File#length is incredibly slow compared to FileChannel#size (although irrelevant here),
 			 * but still the file length has to be checked before the channel is created, etc.
 			 */
-			if(file.length() != 0)
+			if(!file.isEmpty())
 			{
 				// (29.05.2014 TM)EXCP: proper exception
 				throw new StorageException("New storage file is not empty: " + file);
 			}
 
 			// create and register StorageFile instance with an attached channel
-			this.registerHeadFile(file);
+			final StorageLiveDataFile.Default dataFile = this.createLiveDataFile(file, this.channelIndex(), fileNumber);
+			this.registerStorageHeadFile(dataFile);
 			this.writeTransactionsEntryFileCreation(0, this.timestampProvider.currentNanoTimestamp(), fileNumber);
 		}
-
-		private void registerHeadFile(final StorageInventoryFile file)
-		{
-			this.registerStorageHeadFile(StorageDataFile.Default.New(this, file));
-		}
 		
-		private void registerStorageHeadFile(final StorageDataFile.Default storageFile)
+		private void registerStorageHeadFile(final StorageLiveDataFile.Default storageFile)
 		{
 			if(this.headFile == null)
 			{
@@ -500,17 +514,17 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		@Override
-		public final StorageDataFile.Default currentStorageFile()
+		public final StorageLiveDataFile.Default currentStorageFile()
 		{
 			return this.headFile;
 		}
 
 		@Override
-		public void iterateStorageFiles(final Consumer<? super StorageDataFile<?>> procedure)
+		public void iterateStorageFiles(final Consumer<? super StorageLiveDataFile> procedure)
 		{
 			// keep current als end marker, but start with first file, use current als last and then quit the loop
-			final StorageDataFile.Default current = this.headFile;
-			StorageDataFile.Default file = current;
+			final StorageLiveDataFile.Default current = this.headFile;
+			StorageLiveDataFile.Default file = current;
 			do
 			{
 				procedure.accept(file = file.next);
@@ -533,7 +547,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		
 		private long ensureHeadFileTotalLength()
 		{
-			final long physicalLength = this.headFile.length();
+			final long physicalLength = this.headFile.size();
 			final long expectedLength = this.headFile.totalLength();
 			
 			if(physicalLength != expectedLength)
@@ -561,10 +575,10 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.checkForNewFile();
 			final long   oldTotalLength   = this.ensureHeadFileTotalLength();
 			final long[] storagePositions = allChunksStoragePositions(dataBuffers, oldTotalLength);
-			final long   writeCount       = this.writer.writeStore(this.headFile, dataBuffers);
+			final long   writeCount       = this.writer.writeStore(this.headFile, X.ArrayView(dataBuffers));
 			final long   newTotalLength   = oldTotalLength + writeCount;
 			
-			if(newTotalLength != this.headFile.length())
+			if(newTotalLength != this.headFile.size())
 			{
 				throwImpossibleStoreLengthException(timestamp, oldTotalLength, writeCount, dataBuffers);
 			}
@@ -607,20 +621,24 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		{
 			this.uncommittedDataLength = 0;
 		}
-
+		
 		final void loadData(
-			final StorageDataFile.Default dataFile   ,
-			final StorageEntity.Default   entity     ,
-			final long                    length     ,
-			final long                    cacheChange
+			final StorageLiveDataFile.Default dataFile   ,
+			final StorageEntity.Default       entity     ,
+			final long                        length     ,
+			final long                        cacheChange
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " loading entity " + entity);
 			final ByteBuffer dataBuffer = this.buffer(X.checkArrayRange(length));
 			try
 			{
-				this.reader.readStorage(dataFile, entity.storagePosition, dataBuffer, this);
+				dataFile.readBytes(dataBuffer, entity.storagePosition);
 				this.putLiveEntityData(entity, XMemory.getDirectByteBufferAddress(dataBuffer), length, cacheChange);
+			}
+			catch(final StorageExceptionIoReading e)
+			{
+				throw e;
 			}
 			catch(final Exception e)
 			{
@@ -645,30 +663,6 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		@Override
-		public void validateIncrementalRead(
-			final StorageLockedFile fileChannel  ,
-			final long              filePosition ,
-			final ByteBuffer        buffer       ,
-			final long              lastReadCount
-		)
-			throws IOException
-		{
-			if(lastReadCount < 0)
-			{
-				// (30.06.2013 TM)EXCP: proper exception
-				throw new StorageException(this.channelIndex() + " failed to read data at " + filePosition);
-			}
-			throw new one.microstream.meta.NotImplementedYetError(
-				"filePosition = " + filePosition + ", lastReadCount = " + lastReadCount
-				+ ", buffer = " + buffer.limit() + " / " + buffer.position() + " / " + buffer.remaining()
-			);
-			/* (28.06.2013 TM)TODO: handle incomplete reads
-			 * Naive while(remaining) loop won't do either as this might
-			 * freeze the thread if there are no bytes for some reason
-			 */
-		}
-
-		@Override
 		public final StorageInventory readStorage()
 		{
 			if(this.headFile != null)
@@ -677,21 +671,22 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				throw new StorageException(this.channelIndex() + " already initialized");
 			}
 
-			final StorageTransactionsFileAnalysis         transactionsFile = this.readTransactionsFile();
-			final EqHashTable<Long, StorageInventoryFile> storageFiles     = EqHashTable.New();
+			final StorageTransactionsAnalysis      transactionsAnalysis = this.readTransactionsFile();
+			final EqHashTable<Long, StorageDataInventoryFile> dataFiles = EqHashTable.New();
 			this.storageFileProvider.collectDataFiles(
+				StorageDataInventoryFile::New,
 				f ->
-					storageFiles.add(f.number(), f.inventorize()),
+					dataFiles.add(f.number(), f),
 				this.channelIndex()
 			);
-			storageFiles.keys().sort(XSort::compare);
+			dataFiles.keys().sort(XSort::compare);
 
-			return new StorageInventory.Default(this.channelIndex(), storageFiles, transactionsFile);
+			return StorageInventory.New(this.channelIndex(), dataFiles, transactionsAnalysis);
 		}
 
-		final StorageTransactionsFileAnalysis readTransactionsFile()
+		final StorageTransactionsAnalysis readTransactionsFile()
 		{
-			final StorageInventoryFile file = this.createTransactionsFile();
+			final StorageLiveTransactionsFile file = this.createTransactionsFile();
 
 			if(!file.exists())
 			{
@@ -702,27 +697,24 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				return null;
 			}
 
-			FileChannel channel = null;
 			try
 			{
-				channel = file.fileChannel();
-
-				final EntryAggregator aggregator = StorageTransactionsFileAnalysis.Logic.processInputFile(
-					channel,
-					new EntryAggregator(this.channelIndex())
-				);
+				final EntryAggregator aggregator = file.processBy(new EntryAggregator(this.channelIndex()));
 				return aggregator.yield(file);
 			}
-			catch(final IOException e)
+			catch(final Exception e)
 			{
-				StorageFile.close(file, e);
+				StorageClosableFile.close(file, e);
 				throw new StorageException(e); // (29.08.2014 TM)EXCP: proper exception
 			}
 		}
 
-		private long validateStorageDataFilesLength(final StorageInventory storageInventory)
+		private long validateStorageDataFilesLength(
+			final StorageInventory                            storageInventory             ,
+			final EqHashTable<Long, StorageDataInventoryFile> supplementedMissingEmptyFiles
+		)
 		{
-			final StorageTransactionsFileAnalysis tFileAnalysis = storageInventory.transactionsFileAnalysis();
+			final StorageTransactionsAnalysis tFileAnalysis = storageInventory.transactionsFileAnalysis();
 			long unregisteredEmptyLastFileNumber = -1; // -1 for "none"
 
 			if(tFileAnalysis == null || tFileAnalysis.transactionsFileEntries().isEmpty())
@@ -732,16 +724,16 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				return unregisteredEmptyLastFileNumber;
 			}
 
-			final XGettingSequence<StorageInventoryFile>    dataFiles = storageInventory.dataFiles().values();
-			final EqHashTable<Long, StorageTransactionFileEntry> fileEntries = EqHashTable.New(tFileAnalysis.transactionsFileEntries());
-			final StorageInventoryFile                      lastFile    = dataFiles.peek();
+			final XGettingSequence<StorageDataInventoryFile> dataFiles   = storageInventory.dataFiles().values();
+			final EqHashTable<Long, StorageTransactionEntry> fileEntries = EqHashTable.New(tFileAnalysis.transactionsFileEntries());
+			final StorageDataInventoryFile                   lastFile    = dataFiles.peek();
 
-			for(final StorageInventoryFile file : dataFiles)
+			for(final StorageDataInventoryFile file : dataFiles)
 			{
-				final long actualFileLength = file.length();
+				final long actualFileLength = file.size();
 
 				// retrieve and remove (= mark as already handled) the corresponding file entry
-				final StorageTransactionFileEntry entryFile = fileEntries.removeFor(file.number());
+				final StorageTransactionEntry entryFile = fileEntries.removeFor(file.number());
 				if(entryFile == null)
 				{
 					// special case: empty file was created but not registered, can be safely ignored
@@ -780,18 +772,27 @@ public interface StorageFileManager extends StorageChannelResetablePart
 					+ file.number() + " is inconsinstent with the transactions entry's length of " + entryFile.length()
 				);
 			}
-
+			
 			// check that all remaining file entries are deleted files. No non-deleted file may be missing!
-			for(final StorageTransactionFileEntry remainingFileEntry : fileEntries.values())
+			for(final StorageTransactionEntry remainingFileEntry : fileEntries.values())
 			{
 				if(remainingFileEntry.isDeleted())
 				{
 					continue;
 				}
+				
+				if(remainingFileEntry.isEmpty())
+				{
+					this.supplementedMissingEmptyFile(
+						supplementedMissingEmptyFiles,
+						remainingFileEntry.fileNumber()
+					);
+					continue;
+				}
 
 				// (06.09.2014 TM)EXCP: proper exception
 				throw new StorageException(
-					"Non-deleted data file not found: channel " + this.channelIndex()
+					"Non-deleted non-empty data file not found: channel " + this.channelIndex()
 					+ ", file " + remainingFileEntry.fileNumber()
 				);
 			}
@@ -806,6 +807,22 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			// return required information about uber special case
 			return unregisteredEmptyLastFileNumber;
 		}
+		
+		protected void supplementedMissingEmptyFile(
+			final EqHashTable<Long, StorageDataInventoryFile> supplementedMissingEmptyFiles,
+			final long                                        fileNumber
+		)
+		{
+			final AFile missingEmptyFile = this.storageFileProvider.provideDataFile(
+				this.channelIndex,
+				fileNumber
+			);
+			missingEmptyFile.ensureExists();
+			final StorageDataInventoryFile supplementedDataFile = StorageDataInventoryFile.New(
+				missingEmptyFile, this.channelIndex, fileNumber
+			);
+			supplementedMissingEmptyFiles.add(fileNumber, supplementedDataFile);
+		}
 
 		@Override
 		public StorageIdAnalysis initializeStorage(
@@ -817,19 +834,29 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		{
 //			DEBUGStorage.println(this.channelIndex + " init for consistent timestamp " + consistentStoreTimestamp);
 
+			final EqHashTable<Long, StorageDataInventoryFile> supplementedMissingEmptyFiles = EqHashTable.New();
+			
 			// validate file lengths, even in case of no files, to validate transactions entries to that state
-			final long unregisteredEmptyLastFileNumber = this.validateStorageDataFilesLength(storageInventory);
+			final long unregisteredEmptyLastFileNumber = this.validateStorageDataFilesLength(
+				storageInventory,
+				supplementedMissingEmptyFiles
+			);
+			
+			final StorageInventory effectiveStorageInventory = this.determineEffectiveStorageInventory(
+				storageInventory,
+				supplementedMissingEmptyFiles
+			);
 
 			boolean isEmpty = true;
 			try
 			{
-				isEmpty = storageInventory.dataFiles().isEmpty();
+				isEmpty = effectiveStorageInventory.dataFiles().isEmpty();
 
 				final StorageIdAnalysis idAnalysis;
 				if(isEmpty)
 				{
 					// initialize if there are no files at all (create first file, ensure transactions file)
-					this.initializeForNoFiles(taskTimestamp, storageInventory);
+					this.initializeForNoFiles(taskTimestamp, effectiveStorageInventory);
 					idAnalysis = StorageIdAnalysis.New(0L, 0L, 0L);
 					
 					// blank initialization to avoid redundantly copying the initial transactions entry (nasty bug).
@@ -843,13 +870,13 @@ public interface StorageFileManager extends StorageChannelResetablePart
 					// handle files (read, parse, register items) and ensure transactions file
 					idAnalysis = this.initializeForExistingFiles(
 						taskTimestamp                  ,
-						storageInventory               ,
+						effectiveStorageInventory      ,
 						consistentStoreTimestamp       ,
 						unregisteredEmptyLastFileNumber
 					);
 					
 					// initialization plus synchronization with existing files.
-					this.initializeBackupHandler(storageInventory);
+					this.initializeBackupHandler(effectiveStorageInventory);
 				}
 
 				this.restartFileCleanupCursor();
@@ -871,6 +898,31 @@ public interface StorageFileManager extends StorageChannelResetablePart
 					this.entityCache.clearPendingStoreUpdate();
 				}
 			}
+		}
+		
+		protected StorageInventory determineEffectiveStorageInventory(
+			final StorageInventory                            storageInventory             ,
+			final EqHashTable<Long, StorageDataInventoryFile> supplementedMissingEmptyFiles
+		)
+		{
+			if(supplementedMissingEmptyFiles.isEmpty())
+			{
+				return storageInventory;
+			}
+			
+			final EqHashTable<Long, StorageDataInventoryFile> completeDataFiles = EqHashTable.New(
+				storageInventory.dataFiles()
+			)
+			.addAll(supplementedMissingEmptyFiles)
+			;
+
+			completeDataFiles.keys().sort(XSort::compare);
+			
+			return StorageInventory.New(
+				storageInventory.channelIndex(),
+				completeDataFiles.immure(),
+				storageInventory.transactionsFileAnalysis()
+			);
 		}
 		
 		private boolean initializeBackupHandler()
@@ -911,7 +963,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			 */
 			
 			// local variables for readability, debugging and (paranoid) consistency guarantee
-			final XGettingSequence<StorageInventoryFile> files = storageInventory.dataFiles().values();
+			final XGettingSequence<StorageDataInventoryFile> files = storageInventory.dataFiles().values();
 
 			// validate and determine length of last file before any file is processed to recognize errors early
 			final long lastFileLength = unregisteredEmptyLastFileNumber >= 0
@@ -920,9 +972,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			;
 
 			// register items (gaps and entities, with latest version of each entity replacing all previous)
-			final StorageEntityInitializer<StorageDataFile.Default> initializer =
+			final StorageEntityInitializer<StorageLiveDataFile.Default> initializer =
 				StorageEntityInitializer.New(this.entityCache, f ->
-					StorageDataFile.Default.New(this, f)
+					StorageLiveDataFile.New(this, f)
 				)
 			;
 			this.headFile = initializer.registerEntities(files, lastFileLength);
@@ -934,7 +986,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.ensureTransactionsFile(taskTimestamp, storageInventory, unregisteredEmptyLastFileNumber);
 
 			// special-case handle the last file
-			this.handleLastFile(this.headFile.file, lastFileLength);
+			this.handleLastFile(this.headFile, lastFileLength);
 
 			// check if last file is oversized and should be retired right away.
 			this.checkForNewFile();
@@ -947,7 +999,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			final StorageInventory storageInventory
 		)
 		{
-			final StorageTransactionsFileAnalysis tFileAnalysis = storageInventory.transactionsFileAnalysis();
+			final StorageTransactionsAnalysis tFileAnalysis = storageInventory.transactionsFileAnalysis();
 
 			if(tFileAnalysis == null || tFileAnalysis.isEmpty())
 			{
@@ -955,7 +1007,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				 * if no transactions file was present, it must be assumed that the last file is consistent
 				 * (e.g. user manually deleted the transactions file in a consistent database)
 				 */
-				return storageInventory.dataFiles().values().last().length();
+				return storageInventory.dataFiles().values().last().size();
 			}
 			else if(tFileAnalysis.headFileLatestTimestamp() == consistentStoreTimestamp)
 			{
@@ -989,8 +1041,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			final long             unregisteredEmptyLastFileNumber
 		)
 		{
-			final StorageTransactionsFileAnalysis trFileAn = storageInventory.transactionsFileAnalysis();
-			final StorageInventoryFile transactionsFile;
+			final StorageTransactionsAnalysis trFileAn = storageInventory.transactionsFileAnalysis();
+			final StorageLiveTransactionsFile transactionsFile;
 
 			if(trFileAn == null || trFileAn.isEmpty())
 			{
@@ -1001,7 +1053,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				;
 
 				// validate length of both cases anyway. 0-length is essential before deriving content
-				if(transactionsFile.length() != 0)
+				if(transactionsFile.size() != 0)
 				{
 					throw new StorageException("Invalid transactions file in channel " + this.channelIndex);
 				}
@@ -1024,41 +1076,44 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 		}
 
-		private StorageInventoryFile createTransactionsFile()
+		private StorageLiveTransactionsFile createTransactionsFile()
 		{
-			return this.storageFileProvider.provideTransactionsFile(this.channelIndex()).inventorize();
+			final AFile file = this.storageFileProvider.provideTransactionsFile(this.channelIndex());
+			file.ensureExists();
+			
+			return StorageLiveTransactionsFile.New(file, this.channelIndex());
 		}
 
 		private void deriveTransactionsFile(
-			final long                 taskTimestamp   ,
-			final StorageInventory     storageInventory,
-			final StorageInventoryFile tfile
+			final long                        taskTimestamp   ,
+			final StorageInventory            storageInventory,
+			final StorageLiveTransactionsFile tfile
 		)
 		{
-			final XGettingSequence<StorageInventoryFile> files   = storageInventory.dataFiles().values();
-			final ByteBuffer[]                           buffer  = this.entryBufferFileCreation         ;
-			final long                                   address = this.entryBufferFileCreationAddress  ;
-			final StorageFileWriter                      writer  = this.writer                          ;
+			final XGettingSequence<StorageDataInventoryFile> files   = storageInventory.dataFiles().values();
+			final ByteBuffer                                 buffer  = this.entryBufferFileCreation         ;
+			final long                                       address = this.entryBufferFileCreationAddress  ;
+			final StorageFileWriter                          writer  = this.writer                          ;
 
 			long timestamp = taskTimestamp - storageInventory.dataFiles().size() - 1;
 
 			try
 			{
-				for(final StorageInventoryFile file : files)
+				for(final StorageDataInventoryFile file : files)
 				{
-					buffer[0].clear();
-					StorageTransactionsFileAnalysis.Logic.setEntryFileCreation(
+					buffer.clear();
+					StorageTransactionsAnalysis.Logic.setEntryFileCreation(
 						address      ,
-						file.length(),
+						file.size()  ,
 						++timestamp  ,
 						file.number()
 					);
-					writer.write(tfile, buffer);
+					writer.write(tfile, this.entryBufferWrapFileCreation);
 				}
 			}
 			catch(final Exception e)
 			{
-				StorageFile.close(tfile, e);
+				StorageClosableFile.close(tfile, e);
 				throw e;
 			}
 		}
@@ -1069,45 +1124,45 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			final long number
 		)
 		{
-			this.entryBufferFileCreation[0].clear();
-			StorageTransactionsFileAnalysis.Logic.setEntryFileCreation(
+			this.entryBufferFileCreation.clear();
+			StorageTransactionsAnalysis.Logic.setEntryFileCreation(
 				this.entryBufferFileCreationAddress,
 				length                             ,
 				timestamp                          ,
 				number
 			);
-			this.writer.writeTransactionEntryCreate(this.fileTransactions, this.entryBufferFileCreation, this.headFile);
+			this.writer.writeTransactionEntryCreate(this.fileTransactions, this.entryBufferWrapFileCreation, this.headFile);
 		}
 
 		private void writeTransactionsEntryStore(
-			final StorageDataFile<?> dataFile              ,
-			final long               dataFileOffset        ,
-			final long               storeLength           ,
-			final long               timestamp             ,
-			final long               headFileNewTotalLength
+			final StorageLiveDataFile dataFile              ,
+			final long                dataFileOffset        ,
+			final long                storeLength           ,
+			final long                timestamp             ,
+			final long                headFileNewTotalLength
 		)
 		{
-			this.entryBufferStore[0].clear();
-			StorageTransactionsFileAnalysis.Logic.setEntryStore(
+			this.entryBufferStore.clear();
+			StorageTransactionsAnalysis.Logic.setEntryStore(
 				this.entryBufferStoreAddress,
 				headFileNewTotalLength      ,
 				timestamp
 			);
 			this.writer.writeTransactionEntryStore(
-				this.fileTransactions,
-				this.entryBufferStore,
-				dataFile             ,
-				dataFileOffset       ,
+				this.fileTransactions    ,
+				this.entryBufferWrapStore,
+				dataFile                 ,
+				dataFileOffset           ,
 				storeLength
 			);
 		}
 
 		private void writeTransactionsEntryTransfer(
-			final StorageDataFile<?> sourceFile            ,
-			final long               sourcefileOffset      ,
-			final long               copyLength            ,
-			final long               timestamp             ,
-			final long               headNewFileTotalLength
+			final StorageLiveDataFile sourceFile            ,
+			final long                sourcefileOffset      ,
+			final long                copyLength            ,
+			final long                timestamp             ,
+			final long                headNewFileTotalLength
 		)
 		{
 //			DEBUGStorage.println(this.channelIndex + " writing transfer entry "
@@ -1115,8 +1170,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 //				+length + "\t"
 //				+timestamp + "\t"
 //			);
-			this.entryBufferTransfer[0].clear();
-			StorageTransactionsFileAnalysis.Logic.setEntryTransfer(
+			this.entryBufferTransfer.clear();
+			StorageTransactionsAnalysis.Logic.setEntryTransfer(
 				this.entryBufferTransferAddress,
 				headNewFileTotalLength         ,
 				timestamp                      ,
@@ -1126,7 +1181,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			
 			this.writer.writeTransactionEntryTransfer(
 				this.fileTransactions,
-				this.entryBufferTransfer,
+				this.entryBufferWrapTransfer,
 				sourceFile,
 				sourcefileOffset,
 				copyLength
@@ -1135,38 +1190,38 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		private void writeTransactionsEntryFileDeletion(
-			final StorageDataFile<?> dataFile ,
-			final long               timestamp
+			final StorageLiveDataFile.Default dataFile ,
+			final long                        timestamp
 		)
 		{
-			this.entryBufferFileDeletion[0].clear();
-			StorageTransactionsFileAnalysis.Logic.setEntryFileDeletion(
+			this.entryBufferFileDeletion.clear();
+			StorageTransactionsAnalysis.Logic.setEntryFileDeletion(
 				this.entryBufferFileDeletionAddress,
 				dataFile.totalLength()             ,
 				timestamp                          ,
 				dataFile.number()
 			);
-			this.writer.writeTransactionEntryDelete(this.fileTransactions, this.entryBufferFileDeletion, dataFile);
+			this.writer.writeTransactionEntryDelete(this.fileTransactions, this.entryBufferWrapFileDeletion, dataFile);
 		}
 
 		private void writeTransactionsEntryFileTruncation(
-			final StorageInventoryFile lastFile ,
-			final long                 timestamp,
-			final long                 newLength
+			final StorageLiveDataFile.Default lastFile ,
+			final long                        timestamp,
+			final long                        newLength
 		)
 		{
-			this.entryBufferFileTruncation[0].clear();
-			StorageTransactionsFileAnalysis.Logic.setEntryFileTruncation(
+			this.entryBufferFileTruncation.clear();
+			StorageTransactionsAnalysis.Logic.setEntryFileTruncation(
 				this.entryBufferFileTruncationAddress,
 				newLength                            ,
 				timestamp                            ,
 				lastFile.number()                    ,
-				lastFile.length()
+				lastFile.size()
 			);
-			this.writer.writeTransactionEntryTruncate(this.fileTransactions, this.entryBufferFileTruncation, lastFile, newLength);
+			this.writer.writeTransactionEntryTruncate(this.fileTransactions, this.entryBufferWrapFileTruncation, lastFile, newLength);
 		}
 
-		private void setTransactionsFile(final StorageInventoryFile transactionsFile)
+		private void setTransactionsFile(final StorageLiveTransactionsFile transactionsFile)
 		{
 			this.fileTransactions = transactionsFile;
 			
@@ -1199,11 +1254,11 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		final void handleLastFile(
-			final StorageInventoryFile lastFile      ,
-			final long                 lastFileLength
+			final StorageLiveDataFile.Default lastFile      ,
+			final long                        lastFileLength
 		)
 		{
-			if(lastFileLength != lastFile.length())
+			if(lastFileLength != lastFile.size())
 			{
 //				XDebug.debugln(
 //					this.channelIndex()
@@ -1227,22 +1282,25 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 		
 		@Override
-		public void exportData(final StorageIoHandler fileHandler)
+		public void exportData(final StorageLiveFileProvider fileProvider)
 		{
-			// copy transactions file first so that an incomplete data file transfer can be recognized later.
-			final StorageInventoryFile backupTrsFile = fileHandler.copyTransactions(this.fileTransactions);
-			backupTrsFile.close();
+			final AFile transactionsFile = fileProvider.provideTransactionsFile(this.channelIndex());
+			AFS.executeWriting(transactionsFile, wf ->
+				this.fileTransactions.copyTo(wf)
+			);
 
 			this.iterateStorageFiles(file ->
 			{
-				final StorageInventoryFile backupDatFile = fileHandler.copyData(file);
-				backupDatFile.close();
+				final AFile exportFile = fileProvider.provideDataFile(file.channelIndex(), file.number());
+				AFS.executeWriting(exportFile, wf ->
+					file.copyTo(wf)
+				);
 			});
 		}
 		
-		private static FileStatistics.Default createFileStatistics(final StorageDataFile.Default file)
+		private static FileStatistics createFileStatistics(final StorageLiveDataFile.Default file)
 		{
-			return new FileStatistics.Default(
+			return FileStatistics.New(
 				file.number()    ,
 				file.identifier(),
 				file.dataLength(),
@@ -1253,12 +1311,12 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		@Override
 		public final StorageRawFileStatistics.ChannelStatistics createRawFileStatistics()
 		{
-			StorageDataFile.Default file;
-			final StorageDataFile.Default currentFile = file = this.headFile;
+			StorageLiveDataFile.Default file;
+			final StorageLiveDataFile.Default currentFile = file = this.headFile;
 
 			long liveDataLength  = 0;
 			long totalDataLength = 0;
-			final BulkList<FileStatistics.Default> fileStatistics = BulkList.New();
+			final BulkList<FileStatistics> fileStatistics = BulkList.New();
 
 			do
 			{
@@ -1266,12 +1324,12 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				liveDataLength  += file.dataLength();
 				totalDataLength += file.totalLength();
 				
-				final FileStatistics.Default fileStats = createFileStatistics(file);
+				final FileStatistics fileStats = createFileStatistics(file);
 				fileStatistics.add(fileStats);
 			}
 			while(file != currentFile);
 
-			return new StorageRawFileStatistics.ChannelStatistics.Default(
+			return StorageRawFileStatistics.ChannelStatistics.New(
 				this.channelIndex(),
 				fileStatistics.size(),
 				liveDataLength,
@@ -1305,7 +1363,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 		}
 
-		private void deletePendingFile(final StorageDataFile.Default file)
+		private void deletePendingFile(final StorageLiveDataFile.Default file)
 		{
 //			DEBUGStorage.println(this.channelIndex + " deleted pending file " + file);
 			if(this.pendingFileDeletes < 1)
@@ -1342,7 +1400,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 //			DEBUGStorage.println(this.channelIndex + " checks for file cleanup with budget " + (nanoTimeBudget));
 						
-			StorageDataFile.Default cycleAnchorFile = this.fileCleanupCursor;
+			StorageLiveDataFile.Default cycleAnchorFile = this.fileCleanupCursor;
 
 			// intentionally no minimum first loop execution as cleanup is not important if the system has heavy load
 			while(this.fileCleanupCursor != null && System.nanoTime() < nanoTimeBudgetBound)
@@ -1421,8 +1479,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		private boolean incrementalDissolveStorageFile(
-			final StorageDataFile.Default file               ,
-			final long                    nanoTimeBudgetBound
+			final StorageLiveDataFile.Default file               ,
+			final long                        nanoTimeBudgetBound
 		)
 		{
 //			DEBUGStorage.println("incrementally dissolving " + file);
@@ -1447,7 +1505,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			return false;
 		}
 
-		private void deleteFile(final StorageDataFile.Default file)
+		private void deleteFile(final StorageLiveDataFile.Default file)
 		{
 //			DEBUGStorage.println(this.channelIndex + " deleting " + file);
 
@@ -1474,7 +1532,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		private boolean incrementalTransferEntities(
-			final StorageDataFile.Default file               ,
+			final StorageLiveDataFile.Default file               ,
 			final long                    nanoTimeBudgetBound
 		)
 		{
@@ -1497,15 +1555,15 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		
 		final StorageEntity.Default getFirstEntity()
 		{
-			final StorageDataFile.Default currentFile = this.currentStorageFile();
+			final StorageLiveDataFile.Default currentFile = this.currentStorageFile();
 			if(currentFile == null)
 			{
 				// can occur when an exception causes a reset call during initialization
 				return null;
 			}
 			
-			final StorageDataFile.Default startingFile = currentFile.next;
-			StorageDataFile.Default file = startingFile;
+			final StorageLiveDataFile.Default startingFile = currentFile.next;
+			StorageLiveDataFile.Default file = startingFile;
 			do
 			{
 				if(file.head.fileNext != startingFile.tail)
@@ -1537,7 +1595,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			}
 		}
 
-		public void copyData(final StorageChannelImportSourceFile importFile)
+		public void copyData(final StorageImportSourceFile importFile)
 		{
 //			DEBUGStorage.println(this.channelIndex + " processing import source file " + importFile);
 			importFile.iterateBatches(this.importHelper.setFile(importFile));
@@ -1548,8 +1606,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 //			DEBUGStorage.println(this.channelIndex + " committing import data (entity registering)");
 
 			// caching variables
-			final StorageEntityCache.Default entityCache = this.entityCache;
-			final StorageDataFile.Default    headFile    = this.headFile   ;
+			final StorageEntityCache.Default  entityCache = this.entityCache;
+			final StorageLiveDataFile.Default headFile    = this.headFile   ;
 
 			final long oldTotalLength = this.headFile.totalLength();
 			      long loopFileLength = oldTotalLength;
@@ -1580,7 +1638,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.importHelper = null;
 		}
 
-		final void importBatch(final StorageLockedFile file, final long position, final long length)
+		final void importBatch(final StorageFile file, final long position, final long length)
 		{
 			// ignore dummy batches (e.g. transfer file continuation head dummy) and no-op batches in general
 			if(length == 0)
@@ -1601,8 +1659,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				return;
 			}
 
-			final StorageDataFile.Default first  = this.headFile.next;
-			StorageDataFile.Default       doomed = this.importHelper.preImportHeadFile.next;
+			final StorageLiveDataFile.Default first  = this.headFile.next;
+			StorageLiveDataFile.Default       doomed = this.importHelper.preImportHeadFile.next;
 			this.headFile.next = null;
 			(first.prev = this.headFile = this.importHelper.preImportHeadFile).next = first;
 
@@ -1627,7 +1685,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			}
 		}
 		
-		private void terminateFile(final StorageDataFile.Default file)
+		private void terminateFile(final StorageLiveDataFile.Default file)
 		{
 			file.close();
 			this.writer.delete(file, this.storageFileProvider);
@@ -1635,12 +1693,12 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 		final class ImportHelper implements Consumer<StorageChannelImportBatch>
 		{
-			final StorageDataFile.Default             preImportHeadFile;
+			final StorageLiveDataFile.Default         preImportHeadFile;
 			final BulkList<StorageChannelImportBatch> importBatches     = BulkList.New(1000);
-			      StorageLockedFile                   file             ;
+			StorageFile                               file             ;
 
 
-			ImportHelper(final StorageDataFile.Default preImportHeadFile)
+			ImportHelper(final StorageLiveDataFile.Default preImportHeadFile)
 			{
 				super();
 				this.preImportHeadFile = preImportHeadFile;
@@ -1653,7 +1711,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				StorageFileManager.Default.this.importBatch(this.file, batch.fileOffset(), batch.fileLength());
 			}
 
-			final ImportHelper setFile(final StorageLockedFile file)
+			final ImportHelper setFile(final StorageFile file)
 			{
 				this.file = file;
 				return this;

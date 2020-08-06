@@ -22,25 +22,21 @@ public class MainSearchBinaryStringInFiles
 	static final BiConsumer<Path, Consumer<? super Path>> DIRECT = (f, p) -> p.accept(f);
 
 	
-	static void searchLCM(final long... objectIds)
+	static void searchLongValues(final long... longValues)
 	{
-		for(final long objectId : objectIds)
+		for(final long objectId : longValues)
 		{
-			searchLCM(objectId);
+			searchLongValue(objectId);
 		}
 	}
 	
-	private static void searchLCM(final long objectId)
+	private static void searchLongValue(final long longValue)
 	{
-		final byte[] byteString = XMemory.asByteArray(objectId);
+		final byte[] byteString = XMemory.asByteArray(longValue);
 		
-		System.out.println("\nSearching for " + objectId);
+		System.out.println("\nSearching for " + longValue);
 		searchStringsInDirectory(
-			XIO.Path("D:/_Caweco/dbs/2019-11-18/channel_0/"),
-			byteString
-		);
-		searchStringsInDirectory(
-			XIO.Path("D:/_Caweco/dbs/2019-11-25/channel_0/"),
+			XIO.Path("C:/my/app/path/storage/"),
 			byteString
 		);
 	}
@@ -50,9 +46,9 @@ public class MainSearchBinaryStringInFiles
 //		System.out.println(System.currentTimeMillis());
 //		System.out.println(XTime.timestamp(2019, 11, 18).getTime());
 		
-//		Test.printTransactionsFiles(XIO.Path("D:/_Caweco/dbs/2019-11-25"), 1);
+//		Test.printTransactionsFiles(XIO.Path("C:/my/app/path/storage"), 1);
 		
-		searchLCM(
+		searchLongValues(
 			1000000000001703272L,
 			1000000000000097599L
 		);

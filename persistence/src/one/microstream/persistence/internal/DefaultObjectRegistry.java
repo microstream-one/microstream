@@ -405,7 +405,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 	
 	@Override
-	public synchronized final void validate(final long objectId, final Object object)
+	public final synchronized void validate(final long objectId, final Object object)
 	{
 		// hacky flag, but no idea how to better prevent the code redundancy except with abstraction overkill.
 		this.synchInternalValidate(objectId, object, true);
