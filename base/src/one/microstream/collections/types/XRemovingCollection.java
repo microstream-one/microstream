@@ -6,7 +6,6 @@ import one.microstream.collections.interfaces.ConsolidatableCollection;
 import one.microstream.collections.interfaces.ExtendedCollection;
 import one.microstream.collections.interfaces.OptimizableCollection;
 import one.microstream.collections.interfaces.ReleasingCollection;
-import one.microstream.collections.interfaces.Sized;
 import one.microstream.collections.interfaces.Truncateable;
 
 public interface XRemovingCollection<E>
@@ -15,8 +14,7 @@ ExtendedCollection<E>,
 Truncateable,
 ConsolidatableCollection,
 OptimizableCollection,
-ReleasingCollection<E>,
-Sized
+ReleasingCollection<E>
 {
 	public interface Factory<E> extends XFactory<E>
 	{

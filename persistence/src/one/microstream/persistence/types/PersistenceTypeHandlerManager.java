@@ -618,20 +618,42 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 				return this.typeHandlerRegistry.registerTypeHandler(type, typeHandler);
 			}
 		}
+		
+		@Override
+		public <T> long registerTypeHandlers(final Iterable<? extends PersistenceTypeHandler<D, T>> typeHandlers)
+		{
+			synchronized(this.typeHandlerRegistry)
+			{
+				// validate and register under the same lock
+				this.typeHandlerRegistry.validateTypeMappings(typeHandlers);
+				
+				return this.synchUnvalidatedRegisterTypeHandlers(typeHandlers);
+			}
+		}
 
 		@Override
 		public final <T> boolean registerTypeHandler(final PersistenceTypeHandler<D, T> typeHandler)
 		{
 			return this.registerTypeHandler(typeHandler.type(), typeHandler);
-//			synchronized(this.typeHandlerRegistry)
-//			{
-//				this.validateTypeHandler(typeHandler);
-//
-//				return this.synchUnvalidatedRegisterTypeHandler(typeHandler);
-//			}
 		}
 		
-		private final boolean synchUnvalidatedRegisterTypeHandler(final PersistenceTypeHandler<D, ?> typeHandler)
+		private final long synchUnvalidatedRegisterTypeHandlers(
+			final Iterable<? extends PersistenceTypeHandler<D, ?>> typeHandlers
+		)
+		{
+			final long registrationCount;
+			if((registrationCount = this.typeHandlerRegistry.registerTypeHandlers(typeHandlers)) > 0)
+			{
+				// (up to date) handlers are always the runtime type definitions
+				this.typeDictionaryManager.registerRuntimeTypeDefinitions(typeHandlers);
+			}
+			
+			return registrationCount;
+		}
+		
+		private final boolean synchUnvalidatedRegisterTypeHandler(
+			final PersistenceTypeHandler<D, ?> typeHandler
+		)
 		{
 			if(this.typeHandlerRegistry.registerTypeHandler(typeHandler))
 			{
@@ -647,13 +669,8 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			final XGettingCollection<PersistenceTypeHandler<D, ?>> initializedTypeHandlers
 		)
 		{
-			// no validation required during initialization.
-			
 			// First, pure registration without recursive type analysis calls to maintain the type handler order
-			for(final PersistenceTypeHandler<D, ?> typeHandler : initializedTypeHandlers)
-			{
-				this.synchUnvalidatedRegisterTypeHandler(typeHandler);
-			}
+			this.registerTypeHandlers(initializedTypeHandlers);
 			
 			// AFTERWARDS additional management logic like resursive ensuring and enum root registration
 			

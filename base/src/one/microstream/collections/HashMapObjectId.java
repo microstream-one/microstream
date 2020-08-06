@@ -5,7 +5,6 @@ import static java.lang.System.identityHashCode;
 import java.util.function.Consumer;
 
 import one.microstream.collections.interfaces.OptimizableCollection;
-import one.microstream.collections.interfaces.Sized;
 import one.microstream.collections.types.XList;
 import one.microstream.equality.IdentityEqualityLogic;
 import one.microstream.functional._longProcedure;
@@ -19,7 +18,7 @@ import one.microstream.typing.KeyValue;
  * @author Thomas Muenz
  *
  */
-public final class HashMapObjectId<T> implements Sized, OptimizableCollection, Composition, IdentityEqualityLogic
+public final class HashMapObjectId<T> implements OptimizableCollection, Composition, IdentityEqualityLogic
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //

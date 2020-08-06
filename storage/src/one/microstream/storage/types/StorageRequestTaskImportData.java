@@ -1,15 +1,13 @@
 package one.microstream.storage.types;
 
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import one.microstream.X;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.concurrency.XThreads;
-import one.microstream.io.XIO;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.types.StorageDataFileItemIterator.ItemProcessor;
@@ -36,7 +34,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		// instance fields //
 		////////////////////
 
-		private final XGettingEnum<Path>            importFiles           ;
+		private final XGettingEnum<AFile>           importFiles           ;
 		private final StorageEntityCache.Default[]  entityCaches          ;
 		private final StorageObjectIdRangeEvaluator objectIdRangeEvaluator;
 		
@@ -60,7 +58,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			final long                          timestamp             ,
 			final int                           channelCount          ,
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
-			final XGettingEnum<Path>            importFiles
+			final XGettingEnum<AFile>           importFiles
 		)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
@@ -83,7 +81,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			final SourceFileSlice[] sourceFileTails = new SourceFileSlice[channelCount];
 			for(int i = 0; i < channelCount; i++)
 			{
-				sourceFileTails[i] = new SourceFileSlice(i, null, null, null);
+				sourceFileTails[i] = new SourceFileSlice(i, null, null);
 			}
 			
 			return sourceFileTails;
@@ -119,16 +117,13 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				itemReader
 			);
 
-			for(final Path file : this.importFiles)
+			for(final AFile file : this.importFiles)
 			{
 //				DEBUGStorage.println("Reader reading source file " + file);
 				try
 				{
-					// channel must be closed by StorageChannel after copying has been completed.
-					final FileLock fileLock = StorageLockedFile.openLockedFileChannel(file);
-					itemReader.setSourceFile(file, fileLock);
-					final FileChannel channel = fileLock.channel();
-					iterator.iterateStoredItems(channel, 0, channel.size());
+					itemReader.setSourceFile(file);
+					AFS.execute(file, rf -> iterator.iterateStoredItems(rf));
 					itemReader.completeCurrentSourceFile();
 				}
 				catch(final Exception e)
@@ -153,8 +148,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			private final SourceFileSlice[]            sourceFileHeads          ;
 			private final ChannelItem[]                channelItems             ;
 			private final int                          channelHash              ;
-			private       Path                         file                     ;
-			private       FileLock                     fileLock                 ;
+			private       AFile                        file                     ;
 			private       int                          currentBatchChannel      ;
 			private       long                         currentSourceFilePosition;
 			private       long                         maxObjectId              ;
@@ -284,13 +278,12 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				item.tailBatch.batchLength += length;
 			}
 
-			final void setSourceFile(final Path file, final FileLock fileLock)
+			final void setSourceFile(final AFile file)
 			{
 				// next source file is set up
-				this.currentBatchChannel       =       -1; // invalid value to guarantee change on first entity.
-				this.currentSourceFilePosition =        0; // source file starts at 0, of course.
-				this.file                      =     file;
-				this.fileLock                  = fileLock; // keep file lock&channel reference.
+				this.currentBatchChannel       =   -1; // invalid value to guarantee change on first entity.
+				this.currentSourceFilePosition =    0; // source file starts at 0, of course.
+				this.file                      = file;
 			}
 
 			final void completeCurrentSourceFile()
@@ -299,11 +292,11 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				final ChannelItem[]      channelItems    = this.channelItems   ;
 				for(int i = 0; i < sourceFileHeads.length; i++)
 				{
-					final SourceFileSlice  oldSourceFileHead = sourceFileHeads[i];
-					final ChannelItem currentItem       = channelItems[i];
+					final SourceFileSlice oldSourceFileHead = sourceFileHeads[i];
+					final ChannelItem     currentItem       = channelItems[i];
 
 					sourceFileHeads[i] = sourceFileHeads[i].next =
-						new SourceFileSlice(i, this.file, this.fileLock, currentItem.headBatch.batchNext)
+						new SourceFileSlice(i, this.file, currentItem.headBatch.batchNext)
 					;
 					currentItem.resetChains();
 
@@ -414,8 +407,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 		private void cleanUpResources()
 		{
-			final DisruptionCollectorExecuting<FileChannel> closer = DisruptionCollectorExecuting.New(fc ->
-				XIO.close(fc, null)
+			final DisruptionCollectorExecuting<StorageClosableFile> closer = DisruptionCollectorExecuting.New(fc ->
+				fc.close()
 			);
 			
 			for(final SourceFileSlice s : this.sourceFileTails)
@@ -424,7 +417,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				for(SourceFileSlice file = s; (file = file.next) != null;)
 				{
 //					DEBUGStorage.println("Closing: " + file);
-					closer.executeOn(file.fileChannel);
+					closer.executeOn(file);
 				}
 			}
 			
@@ -470,8 +463,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 	}
 
 	static final class SourceFileSlice
-	extends StorageInventoryFile.Default
-	implements StorageChannelImportSourceFile
+	extends StorageChannelFile.Abstract
+	implements StorageImportSourceFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -488,12 +481,11 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 
 		SourceFileSlice(
 			final int         channelIndex,
-			final Path        file        ,
-			final FileLock    fileLock    ,
+			final AFile       file        ,
 			final ImportBatch headBatch
 		)
 		{
-			super(channelIndex, 0L, file, fileLock);
+			super(file, channelIndex);
 			this.headBatch = headBatch;
 		}
 		
@@ -516,7 +508,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		public String toString()
 		{
 			return Integer.toString(this.channelIndex()) + " "
-				+ (this.file == null ? "<Dummy>"  : this.file.toString() + " " + this.headBatch)
+				+ (this.file() == null ? "<Dummy>"  : this.file().toPathString() + " " + this.headBatch)
 			;
 		}
 

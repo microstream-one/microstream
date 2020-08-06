@@ -132,6 +132,11 @@ public final class CQL
 		return CqlSelection.New(source, null, null, null, null);
 	}
 	
+//	public static <I> CqlSelection<I> from(final Iterable<? extends I> source)
+//	{
+//		return CQL.from(BulkList.New(source));
+//	}
+	
 	// (14.10.2019 TM)NOTE: there's still too much unclean typing mess in the API for this to work...
 //	public static <O, R extends Consumer<O> & XIterable<O>> CqlResulting<O, R> into(final R target)
 //	{

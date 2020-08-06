@@ -1,6 +1,7 @@
 package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
+import static one.microstream.math.XMath.notNegative;
 
 import java.text.DecimalFormat;
 import java.util.Date;
@@ -17,7 +18,24 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 
 	public XGettingTable<Integer, ? extends ChannelStatistics> channelStatistics();
 
+	
 
+	public static StorageRawFileStatistics New(
+		final Date                                                creationTime     ,
+		final long                                                fileCount        ,
+		final long                                                liveDataLength   ,
+		final long                                                totalDataLength  ,
+		final XGettingTable<Integer, ? extends ChannelStatistics> channelStatistics
+	)
+	{
+		return new StorageRawFileStatistics.Default(
+			    notNull(creationTime)     ,
+			notNegative(fileCount)        ,
+			notNegative(liveDataLength)   ,
+			notNegative(totalDataLength)  ,
+			    notNull(channelStatistics)
+		);
+	}
 
 	public final class Default
 	extends StorageRawFileStatisticsItem.Abstract
@@ -137,6 +155,23 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 		public XGettingSequence<? extends FileStatistics> files();
 
 
+		
+		public static ChannelStatistics New(
+			final int                                        channelIndex   ,
+			final long                                       fileCount      ,
+			final long                                       liveDataLength ,
+			final long                                       totalDataLength,
+			final XGettingSequence<? extends FileStatistics> files
+		)
+		{
+			return new ChannelStatistics.Default(
+				notNegative(channelIndex)   ,
+				notNegative(fileCount)      ,
+				notNegative(liveDataLength) ,
+				notNegative(totalDataLength),
+					notNull(files)
+			);
+		}
 
 		public final class Default
 		extends StorageRawFileStatisticsItem.Abstract
@@ -199,6 +234,21 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 		public String file();
 
 
+		
+		public static FileStatistics New(
+			final long   fileNumber     ,
+			final String file           ,
+			final long   liveDataLength ,
+			final long   totalDataLength
+		)
+		{
+			return new FileStatistics.Default(
+				fileNumber     ,
+				file           ,
+				liveDataLength ,
+				totalDataLength
+			);
+		}
 
 		public final class Default
 		extends StorageRawFileStatisticsItem.Abstract
@@ -217,7 +267,7 @@ public interface StorageRawFileStatistics extends StorageRawFileStatisticsItem
 			// constructors //
 			/////////////////
 
-			public Default(
+			Default(
 				final long   fileNumber     ,
 				final String file           ,
 				final long   liveDataLength ,

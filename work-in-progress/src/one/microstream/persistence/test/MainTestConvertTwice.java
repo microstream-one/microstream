@@ -1,41 +1,39 @@
 package one.microstream.persistence.test;
 
-import java.nio.file.Path;
-
 import one.microstream.X;
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFS;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.functional.XFunc;
-import one.microstream.io.XIO;
 import one.microstream.storage.types.StorageDataConverterCsvConfiguration;
 import one.microstream.storage.types.StorageDataConverterTypeBinaryToCsv;
 import one.microstream.storage.types.StorageEntityTypeConversionFileProvider;
-import one.microstream.storage.types.StorageLockedFile;
 
 @SuppressWarnings("unused")
 public class MainTestConvertTwice extends TestStorage
 {
-	static final Path   dir      = XIO.Path("D:/zStorageConversionBug");
-	static final String filename = "java.lang.String";
+	static final ADirectory dir      = NioFileSystem.New().ensureDirectoryPath("D:/zStorageConversionBug");
+	static final String     filename = "java.lang.String";
 
 	public static void main(final String[] args)
 	{
 		final StorageDataConverterTypeBinaryToCsv converter = new StorageDataConverterTypeBinaryToCsv.UTF8(
 			StorageDataConverterCsvConfiguration.defaultConfiguration(),
-			new StorageEntityTypeConversionFileProvider.Default(XIO.Path(dir, "csv"), "csv"),
+			new StorageEntityTypeConversionFileProvider.Default(dir.ensureDirectory("csv"), "csv"),
 			STORAGE.typeDictionary(),
 			null,
 			4096,
 			4096
 		);
-		final StorageLockedFile file = StorageLockedFile.openLockedFile(
-			XIO.Path(XIO.Path(dir, "bin"), filename + ".dat")
+		
+		AFS.execute(dir.ensureDirectory("bin").ensureFile(filename, "dat"), rf ->
+			converter.convertDataFile(rf)
 		);
-		converter.convertDataFile(file);
 
-
-		final Path bin2Dir = MainTestConvertCsvToBin.convertCsvToBin(
+		final ADirectory bin2Dir = MainTestConvertCsvToBin.convertCsvToBin(
 			STORAGE.typeDictionary(),
-			X.List(XIO.Path(XIO.Path(dir, "csv"), filename + ".csv")),
-			XIO.Path(dir, "bin2"),
+			X.List(dir.ensureDirectory("csv").ensureFile(filename, "csv")),
+			dir.ensureDirectory("bin2"),
 			XFunc.all()
 		);
 	}

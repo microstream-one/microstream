@@ -4,11 +4,24 @@ import one.microstream.collections.types.XGettingTable;
 
 public interface StorageInventory extends StorageHashChannelPart
 {
-	public XGettingTable<Long, StorageInventoryFile> dataFiles();
+	public XGettingTable<Long, StorageDataInventoryFile> dataFiles();
 
-	public StorageTransactionsFileAnalysis transactionsFileAnalysis();
+	public StorageTransactionsAnalysis transactionsFileAnalysis();
 
 
+	
+	public static StorageInventory New(
+		final int                                           channelIndex        ,
+		final XGettingTable<Long, StorageDataInventoryFile> dataFiles           ,
+		final StorageTransactionsAnalysis                   transactionsAnalysis
+	)
+	{
+		return new StorageInventory.Default(
+			channelIndex        ,
+			dataFiles           ,
+			transactionsAnalysis
+		);
+	}
 
 	public final class Default implements StorageInventory
 	{
@@ -16,9 +29,9 @@ public interface StorageInventory extends StorageHashChannelPart
 		// instance fields //
 		////////////////////
 
-		final int                                       channelIndex    ;
-		final XGettingTable<Long, StorageInventoryFile> dataFiles       ;
-		final StorageTransactionsFileAnalysis           transactionsFile;
+		final int                                           channelIndex        ;
+		final XGettingTable<Long, StorageDataInventoryFile> dataFiles           ;
+		final StorageTransactionsAnalysis                   transactionsAnalysis;
 
 
 
@@ -26,16 +39,16 @@ public interface StorageInventory extends StorageHashChannelPart
 		// constructors //
 		/////////////////
 
-		public Default(
-			final int                                       channelIndex    ,
-			final XGettingTable<Long, StorageInventoryFile> dataFiles       ,
-			final StorageTransactionsFileAnalysis           transactionsFile
+		Default(
+			final int                                           channelIndex        ,
+			final XGettingTable<Long, StorageDataInventoryFile> dataFiles           ,
+			final StorageTransactionsAnalysis                   transactionsAnalysis
 		)
 		{
 			super();
-			this.channelIndex     = channelIndex    ;
-			this.dataFiles        = dataFiles       ;
-			this.transactionsFile = transactionsFile;
+			this.channelIndex         = channelIndex        ;
+			this.dataFiles            = dataFiles           ;
+			this.transactionsAnalysis = transactionsAnalysis;
 		}
 
 
@@ -51,15 +64,15 @@ public interface StorageInventory extends StorageHashChannelPart
 		}
 
 		@Override
-		public final XGettingTable<Long, StorageInventoryFile> dataFiles()
+		public final XGettingTable<Long, StorageDataInventoryFile> dataFiles()
 		{
 			return this.dataFiles;
 		}
 
 		@Override
-		public final StorageTransactionsFileAnalysis transactionsFileAnalysis()
+		public final StorageTransactionsAnalysis transactionsFileAnalysis()
 		{
-			return this.transactionsFile;
+			return this.transactionsAnalysis;
 		}
 
 	}

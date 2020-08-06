@@ -3,6 +3,8 @@ package one.microstream.storage.types;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
+import one.microstream.afs.AFileSystem;
+import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageException;
@@ -25,6 +27,12 @@ public interface StorageSystem extends StorageController
 	}
 
 	public StorageConfiguration configuration();
+	
+	public default AFileSystem fileSystem()
+	{
+		return this.configuration().fileProvider().fileSystem();
+	}
+	
 
 	@Override
 	public StorageSystem start();
@@ -48,8 +56,7 @@ public interface StorageSystem extends StorageController
 		private final StorageConfiguration                 configuration                 ;
 		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider ;
 		private final StorageDataFileEvaluator             fileDissolver                 ;
-		private final StorageFileProvider                  fileProvider                  ;
-		private final StorageFileReader.Provider           readerProvider                ;
+		private final StorageLiveFileProvider              fileProvider                  ;
 		private final StorageFileWriter.Provider           writerProvider                ;
 		private final StorageRequestAcceptor.Creator       requestAcceptorCreator        ;
 		private final StorageTaskBroker.Creator            taskBrokerCreator             ;
@@ -106,7 +113,6 @@ public interface StorageSystem extends StorageController
 			final StorageOperationController.Creator   ocCreator                     ,
 			final StorageDataFileValidator.Creator     backupDataFileValidatorCreator,
 			final StorageFileWriter.Provider           writerProvider                ,
-			final StorageFileReader.Provider           readerProvider                ,
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider ,
 			final StorageRequestAcceptor.Creator       requestAcceptorCreator        ,
 			final StorageTaskBroker.Creator            taskBrokerCreator             ,
@@ -155,7 +161,6 @@ public interface StorageSystem extends StorageController
 			this.rootTypeIdProvider             = notNull(rootTypeIdProvider)                  ;
 			this.timestampProvider              = notNull(timestampProvider)                   ;
 			this.objectIdRangeEvaluator         = notNull(objectIdRangeEvaluator)              ;
-			this.readerProvider                 = notNull(readerProvider)                      ;
 			this.writerProvider                 = notNull(writerProvider)                      ;
 			this.zombieOidHandler               = notNull(zombieOidHandler)                    ;
 			this.rootOidSelectorProvider        = notNull(rootOidSelectorProvider)             ;
@@ -328,9 +333,7 @@ public interface StorageSystem extends StorageController
 			
 			final StorageLockFileManager lockFileManager = this.lockFileManagerCreator.createLockFileManager(
 				this.lockFileSetup,
-				this.operationController,
-				this.readerProvider.provideReader(),
-				this.writerProvider.provideWriter()
+				this.operationController
 			);
 
 			// initialize lock file manager state to being running
@@ -401,7 +404,6 @@ public interface StorageSystem extends StorageController
 				this.operationController                   ,
 				this.housekeepingController                ,
 				this.timestampProvider                     ,
-				this.readerProvider                        ,
 				effectiveWriterProvider                    ,
 				this.zombieOidHandler                      ,
 				this.rootOidSelectorProvider               ,
@@ -468,15 +470,23 @@ public interface StorageSystem extends StorageController
 
 		private void internalShutdown() throws InterruptedException
 		{
+			// note: this method is already entered under a lock protection, so there can't be a race condition here.
+			if(this.taskbroker == null)
+			{
+				XDebug.println("taskbroker is null");
+				// storage not started in the first place
+				return;
+			}
+			
 //			DEBUGStorage.println("shutting down ...");
 			final StorageChannelTaskShutdown task = this.taskbroker.issueChannelShutdown(this.operationController);
+			
 			synchronized(task)
 			{
 				// (07.07.2016 TM)FIXME: OGS-23: shutdown doesn't wait for the shutdown to be completed.
 				task.waitOnCompletion();
 			}
-			
-
+			this.taskbroker = null;
 
 			/* (07.03.2019 TM)FIXME: Shutdown must wait for ongoing activities.
 			 * Such as a StorageBackupHandler thread with a non-empty item queue.
@@ -491,7 +501,6 @@ public interface StorageSystem extends StorageController
 			 * Maybe channel threads should simply be registered as activities, too.
 			 * 
 			 */
-			
 			
 //			DEBUGStorage.println("shutdown complete");
 		}

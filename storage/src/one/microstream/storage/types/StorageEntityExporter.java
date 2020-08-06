@@ -1,9 +1,10 @@
 package one.microstream.storage.types;
 
+import one.microstream.afs.AWritableFile;
 
-public interface StorageEntityExporter<E extends StorageEntityCacheItem<E>>
+public interface StorageEntityExporter<E extends StorageEntity>
 {
-	public void exportEntities(StorageEntityType<E> type, StorageLockedFile file);
+	public void exportEntities(StorageEntityType<E> type, AWritableFile file);
 
 	public void cleanup();
 
@@ -19,7 +20,7 @@ public interface StorageEntityExporter<E extends StorageEntityCacheItem<E>>
 		@Override
 		public final void exportEntities(
 			final StorageEntityType<StorageEntity.Default> type,
-			final StorageLockedFile                        file
+			final AWritableFile                            file
 		)
 		{
 			type.iterateEntities(e ->

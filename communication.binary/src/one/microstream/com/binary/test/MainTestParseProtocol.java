@@ -1,5 +1,6 @@
 package one.microstream.com.binary.test;
 
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.com.Com;
 import one.microstream.com.ComFoundation;
 import one.microstream.com.ComProtocol;
@@ -18,8 +19,10 @@ public class MainTestParseProtocol
 	public static void main(final String[] args)
 	{
 		final BinaryPersistenceFoundation<?> pf = BinaryPersistence.Foundation()
-			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.NewInDirectory(
-				XIO.unchecked.ensureDirectory(XIO.Path("TypeDictionary"))
+			.setTypeDictionaryIoHandler(PersistenceTypeDictionaryFileHandler.New(
+				NioFileSystem.New().ensureDirectory(
+					XIO.unchecked.ensureDirectory(XIO.Path("TypeDictionary"))
+				)
 			))
 //			.setObjectIdProvider(PersistenceObjectIdProvider.Transient())
 //			.setTypeIdProvider(PersistenceTypeIdProvider.Transient())

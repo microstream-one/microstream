@@ -1,6 +1,5 @@
 package com.mysql.dev.sakila;
 
-import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -8,6 +7,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.io.XIO;
 import one.microstream.math.XMath;
 import one.microstream.meta.XDebug;
@@ -26,7 +27,9 @@ public class MainTestStoreSakilaCustomersPerformance
 	 * Since the MicroStream storing performance considerably depends on the disk speed, it is important to use
 	 * an SSD to get significant results.
 	 */
-	static final Path DIRECTORY = XIO.Path("C:/" + MainTestStoreSakilaCustomersPerformance.class.getSimpleName());
+	static final ADirectory DIRECTORY = NioFileSystem.New().ensureDirectory(
+		XIO.Path("C:/" + MainTestStoreSakilaCustomersPerformance.class.getSimpleName())
+	);
 	
 	static
 	{

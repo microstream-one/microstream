@@ -5,6 +5,7 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -393,6 +394,23 @@ public final class XArrays
 		// (14.05.2019 TM)NOTE: Java 9 standard solution. Might be intrinsic, so it is preferable.
 //		return Arrays.equals(array1, 0, length, array2, 0, length);
 	}
+	
+	public static <T> T[] add(final T[] array, final T element)
+	{
+		final T[] newArray = enlarge(array, array.length + 1);
+		newArray[array.length] = element;
+		
+		return newArray;
+	}
+	
+	public static <T> T[] remove(final T[] array, final int i)
+	{
+		final T[] newArray = ArrayOfSameType(array, array.length - 1);
+		System.arraycopy(array, 0    , newArray, 0, i                   );
+		System.arraycopy(array, i + 1, newArray, i, array.length - i - 1);
+		
+		return newArray;
+	}
 
 	/**
 	 * adds all elements of the first array and all elements of the second array into one result array.
@@ -600,6 +618,16 @@ public final class XArrays
 		
 		// all elements of a2 were found in a1. No need to modify anything.
 		return a1;
+	}
+	
+	public static final <T> T[] ensureContained(final T[] ts, final T t)
+	{
+		if(contains(ts, t))
+		{
+			return ts;
+		}
+		
+		return add(ts, t);
 	}
 
 	/**
@@ -1188,17 +1216,17 @@ public final class XArrays
 		return newArray;
 	}
 	
-	public static <T> T removeFromIndex(final T[] strings, final int size, final int i)
+	public static <T> T removeFromIndex(final T[] elements, final int size, final int i)
 	{
-		final T removed = strings[i];
+		final T removed = elements[i];
 		if(i + 1 == size)
 		{
-			strings[i] = null;
+			elements[i] = null;
 		}
 		else
 		{
-			System.arraycopy(strings, i + 1, strings, i, size - i - 1);
-			strings[size - 1] = null;
+			System.arraycopy(elements, i + 1, elements, i, size - i - 1);
+			elements[size - 1] = null;
 		}
 		
 		return removed;
@@ -1747,6 +1775,32 @@ public final class XArrays
 		{
 			iterator.accept(elements[i]);
 		}
+	}
+	
+	public static final <T, S> int indexOf(final S sample, final T[] array, final BiPredicate<T, S> predicate)
+	{
+		for(int i = 0; i < array.length; i++)
+		{
+			if(predicate.test(array[i], sample))
+			{
+				return i;
+			}
+		}
+		
+		return -1;
+	}
+
+	public static final <T> int indexOf(final T element, final T[] array)
+	{
+		for(int i = 0; i < array.length; i++)
+		{
+			if(array[i] == element)
+			{
+				return i;
+			}
+		}
+		
+		return -1;
 	}
 
 	public static final int indexOf(final byte value, final byte[] values)

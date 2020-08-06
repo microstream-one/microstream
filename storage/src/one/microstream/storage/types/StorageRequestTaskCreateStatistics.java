@@ -1,14 +1,8 @@
 package one.microstream.storage.types;
 
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.file.Path;
 import java.util.Date;
-import java.util.function.Supplier;
 
 import one.microstream.collections.XUtilsCollection;
-import one.microstream.io.XIO;
-import one.microstream.storage.exceptions.StorageExceptionExportFailed;
 import one.microstream.time.XTime;
 
 public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
@@ -77,7 +71,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 			return this.result;
 		}
 
-		private StorageRawFileStatistics.Default createResult()
+		private StorageRawFileStatistics createResult()
 		{
 			long fileCount       = 0;
 			long liveDataLength  = 0;
@@ -90,7 +84,7 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 				totalDataLength += result.totalDataLength();
 			}
 
-			return new StorageRawFileStatistics.Default(
+			return StorageRawFileStatistics.New(
 				this.creationTime                            ,
 				fileCount                                    ,
 				liveDataLength                               ,
@@ -100,91 +94,5 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 		}
 
 	}
-
-	static final class ExportItem implements Supplier<FileChannel>
-	{
-		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		        final    int                      channelCount  ;
-		        final    StorageEntityTypeHandler type          ;
-		        final    Path                     file          ;
-		private volatile int                      currentChannel;
-		private volatile FileChannel              channel       ;
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
-		ExportItem(final int channelCount, final StorageEntityTypeHandler type, final Path file)
-		{
-			super();
-			this.channelCount = channelCount;
-			this.type         = type        ;
-			this.file         = file        ;
-		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// declared methods //
-		/////////////////////
-
-		final synchronized void incrementProgress()
-		{
-			this.currentChannel++;
-			this.notifyAll();
-		}
-
-		final boolean isCurrentChannel(final StorageChannel channel)
-		{
-			return this.currentChannel == channel.channelIndex();
-		}
-
-		final boolean isLastChannel(final StorageChannel channel)
-		{
-			return this.channelCount == channel.channelIndex();
-		}
-
-		@Override
-		public final FileChannel get()
-		{
-			/* (25.01.2014 TM)TODO: Storage ByType export append mode: is append mode (default) really a good idea?
-			 * makes for example export/import cycles to the same files not repeatable.
-			 * Maybe the file provider should make such decisions
-			 */
-			if(this.channel == null)
-			{
-				try
-				{
-					this.channel = XIO.openFileChannelWriting(this.file);
-				}
-				catch(final IOException e)
-				{
-					throw new StorageExceptionExportFailed(e);
-				}
-			}
-			return this.channel;
-		}
-
-		final void closeChannel()
-		{
-			try
-			{
-				if(this.channel != null)
-				{
-					this.channel.close();
-				}
-			}
-			catch(final IOException e)
-			{
-				throw new StorageExceptionExportFailed(e);
-			}
-		}
-
-	}
-
+	
 }

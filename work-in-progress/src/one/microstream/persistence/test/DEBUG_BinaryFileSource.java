@@ -3,8 +3,8 @@ package one.microstream.persistence.test;
 import static one.microstream.X.notNull;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
 
+import one.microstream.afs.AFile;
 import one.microstream.chars.VarString;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.persistence.binary.internal.BinaryFileSource;
@@ -28,7 +28,7 @@ public class DEBUG_BinaryFileSource implements PersistenceSource<Binary>
 	// constructors //
 	/////////////////
 
-	public DEBUG_BinaryFileSource(final PrintStream out, final Path file)
+	public DEBUG_BinaryFileSource(final PrintStream out, final AFile file)
 	{
 		super();
 		this.out         = notNull(out);

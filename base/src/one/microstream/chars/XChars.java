@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.StringTokenizer;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
@@ -17,6 +18,7 @@ import java.util.stream.IntStream;
 import one.microstream.X;
 import one.microstream.branching.ThrowBreak;
 import one.microstream.bytes.VarByte;
+import one.microstream.collections.BulkList;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.exceptions.NumberRangeException;
@@ -196,6 +198,17 @@ public final class XChars
 	public static final boolean isNonWhitespace(final char c)
 	{
 		return c >= LOWEST_NON_WHITESPACE;
+	}
+	
+	/**
+	 * Arbitrary threshold of 1000 to discrimate "short" strings from "long" strings.<br>
+	 * The rationale behind that is that "short" strings usually allow for simpler and faster algorithms,
+	 * which become inefficient on larger strings. For example a two-pass processing of a splitting algorithm.
+	 * @return
+	 */
+	public static final int shortStringLength()
+	{
+		return 1000;
 	}
 	
 	/**
@@ -970,7 +983,7 @@ public final class XChars
 
 		for(int i = 0; i < elements.length; i++)
 		{
-			vs.add(elements[i]);
+			vs.add(elements[i]).add(separator);
 		}
 		return vs.deleteLast(separator.length());
 	}
@@ -987,7 +1000,7 @@ public final class XChars
 		}
 		for(int i = 0; i < elements.length; i++)
 		{
-			vc.add(elements[i]);
+			vc.add(elements[i]).add(separator);
 		}
 		return vc.deleteLast();
 	}
@@ -2084,6 +2097,73 @@ public final class XChars
 
 		return collector;
 	}
+	
+	public static String[] splitSimple(final String s, final String separator)
+	{
+		if(s.length() > shortStringLength())
+		{
+			// one-pass processing, but requires the detour of allocating a collection and copying stuff around.
+			return splitSimple(s, separator, BulkList.New()).toArray(String.class);
+		}
+		
+		/*
+		 * A delimiter is not a separator. Delimiter: '"..."'. Separator: '\'.
+		 * And it's oh-so-hard to properly write "delimiter" as the parameter name, isn't it?
+		 * 
+		 * Update
+		 * Turns out: the common definition of "delimiter" is actually to be a separator.
+		 * Wouldn't it be great if we all called the things delimiting something "delimiters"
+		 * and the things separating something "separators"?
+		 * Or is it just me? Am I the crazy one?
+		 */
+		final StringTokenizer pathTokenizer = new StringTokenizer(s, separator);
+
+		// the StringLolenizer discards leading separators. This is the manual workaround
+		final boolean startWithSeparator = s.startsWith(separator);
+		final int     swsValue           = startWithSeparator ? 1 : 0;
+		
+		// quick token counting (two-pass) for short strings to spare the collection allocation detour.
+		final int tokenCount = pathTokenizer.countTokens() + swsValue;
+		final String[] pathParts = new String[tokenCount];
+		if(startWithSeparator)
+		{
+			pathParts[0] = "";
+		}
+
+		for(int i = swsValue; pathTokenizer.hasMoreTokens(); i++)
+		{
+			pathParts[i] = pathTokenizer.nextToken();
+		}
+		
+		return pathParts;
+	}
+	
+	public static <C extends Consumer<? super String>> C splitSimple(
+		final String s        ,
+		final String separator,
+		final C      collector
+	)
+	{
+		/*
+		 * A delimiter is not a separator. Delimiter: '"..."'. Separator: '\'.
+		 * And it's oh-so-hard to properly write "delimiter" as the parameter name, isn't it?
+		 */
+		final StringTokenizer pathTokenizer = new StringTokenizer(s, separator);
+		
+		// the StringLolenizer discards leading separators. This is the manual workaround
+		if(s.startsWith(separator))
+		{
+			collector.accept("");
+		}
+		
+		while(pathTokenizer.hasMoreTokens())
+		{
+			final String token = pathTokenizer.nextToken();
+			collector.accept(token);
+		}
+		
+		return collector;
+	}
 
 	/**
 	 * Creates a {@link String} instance with trimmed content directly from a character sequence without
@@ -2173,13 +2253,38 @@ public final class XChars
 		return ints;
 	}
 
-	public static final void assembleNewLinedTabbed(final VarString vs, final CharSequence... elements)
+	public static final VarString assembleNewLinedTabbed(
+		final VarString       vs      ,
+		final CharSequence... elements
+	)
 	{
 		vs.lf().add(elements[0]);
 		for(int i = 1; i < elements.length; i++)
 		{
 			vs.tab().add(elements[i]);
 		}
+		
+		return vs;
+	}
+	
+	public static final VarString assembleSeparated(
+		final VarString       vs       ,
+		final char            separator,
+		final CharSequence... elements
+	)
+	{
+		if(XArrays.hasNoContent(elements))
+		{
+			return vs;
+		}
+		
+		vs.add(elements[0]);
+		for(int i = 1; i < elements.length; i++)
+		{
+			vs.add(separator).add(elements[i]);
+		}
+		
+		return vs;
 	}
 
 	public static final byte parse_byteDecimal(final char[] input)
@@ -2583,6 +2688,17 @@ public final class XChars
 		return instance == null
 			? null
 			: instance.getClass().getName() + '@' + Integer.toHexString(System.identityHashCode(instance))
+		;
+	}
+	
+	public static VarString addSystemString(final Object instance, final VarString vs)
+	{
+		return instance == null
+			? vs.addNull()
+			: vs
+				.add(instance.getClass().getName())
+				.add('@')
+				.add(Integer.toHexString(System.identityHashCode(instance)))
 		;
 	}
 

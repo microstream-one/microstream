@@ -1,12 +1,14 @@
 package one.microstream.test.corp.main;
 
-import java.nio.file.Path;
-
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFS;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.collections.HashEnum;
 import one.microstream.io.XIO;
 import one.microstream.reference.Lazy;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageFileNameProvider;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
@@ -39,9 +41,12 @@ public class MainTestStorageImportData
 	
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
 	
-	static final Path EXPORT_DIRECTORY = XIO.Path("export"); // root is working directory
+	static final ADirectory EXPORT_DIRECTORY = NioFileSystem.New().ensureDirectory(XIO.Path("export")); // root is working directory
 	
 	static final int ID_OFFSET = 0; // change to 1000 or so
+	
+
+	static final String DAT = StorageFileNameProvider.Defaults.defaultDataFileSuffix();
 
 	public static void main(final String[] args)
 	{
@@ -57,13 +62,11 @@ public class MainTestStorageImportData
 			STORAGE.storeRoot();
 			Test.print("Storing completed.");
 		}
-		else if(!XIO.unchecked.hasNoFiles(EXPORT_DIRECTORY))
+		else if(!EXPORT_DIRECTORY.listFiles().isEmpty())
 		{
 			Test.print("Importing data ...");
 			STORAGE.importFiles(
-				XIO.unchecked.listEntries(EXPORT_DIRECTORY, HashEnum.New(), file ->
-					XIO.getFileName(file).endsWith(".dat")
-				)
+				AFS.listFiles(EXPORT_DIRECTORY, f -> DAT.equals(f.type()), HashEnum.New())
 			);
 			Test.print("Data import completed.");
 			

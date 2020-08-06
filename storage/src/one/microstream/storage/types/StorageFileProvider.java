@@ -1,326 +1,124 @@
 package one.microstream.storage.types;
 
 import static one.microstream.X.coalesce;
-import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.function.Consumer;
 
+import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFile;
+import one.microstream.afs.AFileSystem;
 import one.microstream.chars.VarString;
-import one.microstream.exceptions.IORuntimeException;
-import one.microstream.io.XIO;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
-import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionaryIoHandler;
-import one.microstream.persistence.types.PersistenceTypeDictionaryStorer;
+
 
 public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.Provider
 {
-	/* (03.03.2019 TM)TODO: proper file abstraction
-	 * An abstraction on the persistence layer is required with types like
-	 * - PersistenceDataItem (Folder or File)
-	 * - PersistenceDataLocation extends PersistenceDataItem (Folder, has n PersistenceDataItems, each with unique name)
-	 * - PersistenceDataFile extends PersistenceDataItem (File, must always be Folder + String name)
-	 *
-	 * Then this type here will no longer extend PersistenceTypeDictionaryIoHandler.Provider,
-	 * but just a PersistenceTypeDictionaryDataFileProvider
-	 */
-
-	/**
-	 * Returns a String that uniquely identifies the storage location.
-	 *
-	 * @return a String that uniquely identifies the storage location.
-	 */
-	public String getStorageLocationIdentifier();
-
-	@Override
-	public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler(
-		PersistenceTypeDictionaryStorer writeListener
+	public AFileSystem fileSystem();
+	
+	public ADirectory baseDirectory();
+	
+	public ADirectory deletionDirectory();
+	
+	public ADirectory truncationDirectory();
+	
+	public StorageFileNameProvider fileNameProvider();
+	
+	public AFile provideDeletionTargetFile(
+		StorageChannelFile fileToBeDeleted
 	);
-
-	public StorageNumberedFile provideDataFile(int channelIndex, long fileNumber);
-
-	public StorageNumberedFile provideTransactionsFile(int channelIndex);
-
-	public StorageLockedFile provideLockFile();
-
-	public StorageNumberedFile provideDeletionTargetFile(StorageNumberedFile fileToBeDeleted);
-
-	public StorageNumberedFile provideTruncationBackupTargetFile(StorageNumberedFile fileToBeTruncated, long newLength);
-
-
-
-	public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(P collector, int channelIndex);
-
-
-	public interface Defaults
-	{
-		public static String defaultStorageDirectory()
-		{
-			return "storage";
-		}
-
-		public static String defaultDeletionDirectory()
-		{
-			return null;
-		}
-
-		public static String defaultTruncationDirectory()
-		{
-			return null;
-		}
-
-		public static String defaultChannelDirectoryPrefix()
-		{
-			return "channel_";
-		}
-
-		public static String defaultStorageFilePrefix()
-		{
-			return "channel_";
-		}
-
-		public static String defaultStorageFileSuffix()
-		{
-			return ".dat";
-		}
-
-		public static String defaultTransactionFilePrefix()
-		{
-			return "transactions_";
-		}
-
-		public static String defaultTransactionFileSuffix()
-		{
-			return ".sft"; // "storage file transactions"
-		}
-
-		public static String defaultTypeDictionaryFileName()
-		{
-			return Persistence.defaultFilenameTypeDictionary();
-		}
-
-		public static String defaultLockFileName()
-		{
-			return "used.lock";
-		}
-
-		public static PersistenceTypeDictionaryFileHandler.Creator defaultTypeDictionaryFileHandlerCreator()
-		{
-			return PersistenceTypeDictionaryFileHandler::New;
-		}
-
-	}
-
-
-	public final class Static
-	{
-		public static final <C extends Consumer<? super StorageNumberedFile>>
-		C collectFile(
-			final C      collector       ,
-			final int    channelIndex    ,
-			final Path   storageDirectory,
-			final String fileBaseName    ,
-			final String suffix
-		)
-		{
-			try(DirectoryStream<Path> stream = Files.newDirectoryStream(storageDirectory))
-			{
-		        for(final Path file : stream)
-		        {
-		        	internalCollectFile(collector, channelIndex, file, fileBaseName, suffix);
-		        }
-		    }
-			catch(final IOException e)
-			{
-				throw new IORuntimeException(e);
-			}
-
-			return collector;
-		}
-
-		private static final void internalCollectFile(
-			final Consumer<? super StorageNumberedFile> collector   ,
-			final int                                   hashIndex   ,
-			final Path                                  file        ,
-			final String                                fileBaseName,
-			final String                                suffix
-		)
-		{
-			if(XIO.unchecked.isDirectory(file))
-			{
-				return;
-			}
-
-			final String filename = XIO.getFileName(file);
-			if(!filename.startsWith(fileBaseName))
-			{
-				return;
-			}
-			if(!filename.endsWith(suffix))
-			{
-				return;
-			}
-
-			final String middlePart = filename.substring(fileBaseName.length(), filename.length() - suffix.length());
-			final int separatorIndex = middlePart.indexOf('_');
-			if(separatorIndex < 0)
-			{
-				return;
-			}
-
-			final String hashIndexString = middlePart.substring(0, separatorIndex);
-			try
-			{
-				if(Integer.parseInt(hashIndexString) != hashIndex)
-				{
-					return;
-				}
-			}
-			catch(final NumberFormatException e)
-			{
-				return;
-			}
-
-			final String fileNumberString = middlePart.substring(separatorIndex + 1);
-			final long fileNumber;
-			try
-			{
-				fileNumber = Long.parseLong(fileNumberString);
-			}
-			catch(final NumberFormatException e)
-			{
-				return; // not a strictly validly named file, ignore intentionally despite all previous matches.
-			}
-
-			// strictly validly named file, collect.
-			collector.accept(StorageNumberedFile.New(hashIndex, fileNumber, file));
-		}
-
-
-
-		///////////////////////////////////////////////////////////////////////////
-		// constructors //
-		/////////////////
-
-		/**
-		 * Dummy constructor to prevent instantiation of this static-only utility class.
-		 *
-		 * @throws UnsupportedOperationException
-		 */
-		private Static()
-		{
-			// static only
-			throw new UnsupportedOperationException();
-		}
-	}
-
-
-
-	/**
-	 * Pseudo-constructor method to create a new {@link StorageFileProvider.Builder} instance.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
-	 *
-	 * @return a new {@link StorageFileProvider.Builder} instance.
-	 */
-	public static Builder<?> Builder()
-	{
-		return new StorageFileProvider.Builder.Default<>();
-	}
-
+	
+	public AFile provideTruncationTargetFile(
+		StorageChannelFile fileToBeTruncated,
+		long               newLength
+	);
+	
+	public <F extends StorageDataFile, C extends Consumer<F>> C collectDataFiles(
+		StorageDataFile.Creator<F> creator     ,
+		C                          collector   ,
+		int                        channelIndex
+	);
+	
+	
 	public interface Builder<B extends Builder<?>>
 	{
-		public String baseDirectory();
+		public AFileSystem fileSystem();
+		
+		public ADirectory directory();
 
-		public B setBaseDirectory(String baseDirectory);
+		public B setDirectory(ADirectory directory);
+		
+		public ADirectory deletionDirectory();
 
-		public String deletionDirectory();
+		public B setDeletionDirectory(ADirectory deletionDirectory);
 
-		public B setDeletionDirectory(String deletionDirectory);
+		public ADirectory truncationDirectory();
 
-		public String truncationDirectory();
+		public B setTruncationDirectory(ADirectory truncationDirectory);
 
-		public B setTruncationDirectory(String truncationDirectory);
+		public StorageDirectoryStructureProvider directoryStructureProvider();
 
-		public String channelDirectoryPrefix();
-
-		public B setChannelDirectoryPrefix(String channelDirectoryPrefix);
-
-		public String storageFilePrefix();
-
-		public B setStorageFilePrefix(String storageFilePrefix);
-
-		public String storageFileSuffix();
-
-		public B setStorageFileSuffix(String storageFileSuffix);
-
-		public String transactionsFilePrefix();
-
-		public B setTransactionsFilePrefix(String transactionsFilePrefix);
-
-		public String transactionsFileSuffix();
-
-		public B setTransactionsFileSuffix(String transactionsFileSuffix);
-
-		public String typeDictionaryFileName();
-
-		public B setTypeDictionaryFileName(String typeDictionaryFileName);
-
-		public String lockFileName();
-
-		public B setLockFileName(String lockFileName);
-
+		public B setDirectoryStructureProvider(StorageDirectoryStructureProvider directoryStructureProvider);
+		
+		public StorageFileNameProvider fileNameProvider();
+		
+		public B setFileNameProvider(StorageFileNameProvider fileNameProvider);
+		
 		public PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator();
-
+		
 		public B setFileHandlerCreator(PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator);
-
+		
 		public StorageFileProvider createFileProvider();
-
-
-
-		public class Default<B extends Builder.Default<?>> implements StorageFileProvider.Builder<B>
+		
+		
+		
+		public abstract class Abstract<B extends Builder.Abstract<?>>
+		implements StorageFileProvider.Builder<B>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
-
-			private String
-				baseDirectory         ,
-				deletionDirectory     ,
-				truncationDirectory   ,
-				channelDirectoryPrefix,
-				storageFilePrefix     ,
-				storageFileSuffix     ,
-				transactionsFilePrefix,
-				transactionsFileSuffix,
-				typeDictionaryFileName,
-				lockFileName
+			
+			private final AFileSystem fileSystem;
+			
+			private ADirectory
+				directory          ,
+				deletionDirectory  ,
+				truncationDirectory
 			;
-
+			
+			private StorageDirectoryStructureProvider structureProvider;
+			
+			private StorageFileNameProvider fileNameProvider;
+			
 			private PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator;
-
-
+			
+			
 
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
-
-			Default()
+			
+			Abstract(final AFileSystem fileSystem)
 			{
 				super();
+				this.fileSystem = notNull(fileSystem);
 			}
-
-
-
+			
+			
+			
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
-
+			
+			@Override
+			public final AFileSystem fileSystem()
+			{
+				return this.fileSystem;
+			}
+			
 			@SuppressWarnings("unchecked")
 			protected final B $()
 			{
@@ -328,519 +126,392 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			}
 
 			@Override
-			public String baseDirectory()
+			public ADirectory directory()
 			{
-				return this.baseDirectory;
+				return this.directory;
 			}
 
 			@Override
-			public B setBaseDirectory(final String baseDirectory)
+			public B setDirectory(final ADirectory directory)
 			{
-				this.baseDirectory = baseDirectory;
+				this.directory = this.fileSystem.validateMember(directory);
 				return this.$();
 			}
-
+			
 			@Override
-			public String deletionDirectory()
+			public ADirectory deletionDirectory()
 			{
 				return this.deletionDirectory;
 			}
 
 			@Override
-			public B setDeletionDirectory(final String deletionDirectory)
+			public B setDeletionDirectory(final ADirectory deletionDirectory)
 			{
-				this.deletionDirectory = deletionDirectory;
+				this.deletionDirectory = this.fileSystem.validateMember(deletionDirectory);
 				return this.$();
 			}
 
 			@Override
-			public String truncationDirectory()
+			public ADirectory truncationDirectory()
 			{
 				return this.truncationDirectory;
 			}
 
 			@Override
-			public B setTruncationDirectory(final String truncationDirectory)
+			public B setTruncationDirectory(final ADirectory truncationDirectory)
 			{
-				this.truncationDirectory = truncationDirectory;
+				this.truncationDirectory = this.fileSystem.validateMember(truncationDirectory);
 				return this.$();
 			}
-
+			
 			@Override
-			public String channelDirectoryPrefix()
+			public StorageDirectoryStructureProvider directoryStructureProvider()
 			{
-				return this.channelDirectoryPrefix;
+				return this.structureProvider;
 			}
 
 			@Override
-			public B setChannelDirectoryPrefix(final String channelDirectoryPrefix)
+			public B setDirectoryStructureProvider(final StorageDirectoryStructureProvider directoryStructureProvider)
 			{
-				this.channelDirectoryPrefix = channelDirectoryPrefix;
+				this.structureProvider = directoryStructureProvider;
+				
 				return this.$();
 			}
-
+			
 			@Override
-			public String storageFilePrefix()
+			public StorageFileNameProvider fileNameProvider()
 			{
-				return this.storageFilePrefix;
+				return this.fileNameProvider;
 			}
-
+			
 			@Override
-			public B setStorageFilePrefix(final String storageFilePrefix)
+			public B setFileNameProvider(final StorageFileNameProvider fileNameProvider)
 			{
-				this.storageFilePrefix = storageFilePrefix;
+				this.fileNameProvider = fileNameProvider;
+				
 				return this.$();
 			}
-
-			@Override
-			public String storageFileSuffix()
-			{
-				return this.storageFileSuffix;
-			}
-
-			@Override
-			public B setStorageFileSuffix(final String storageFileSuffix)
-			{
-				this.storageFileSuffix = storageFileSuffix;
-				return this.$();
-			}
-
-			@Override
-			public String transactionsFilePrefix()
-			{
-				return this.transactionsFilePrefix;
-			}
-
-			@Override
-			public B setTransactionsFilePrefix(final String transactionsFilePrefix)
-			{
-				this.transactionsFilePrefix = transactionsFilePrefix;
-				return this.$();
-			}
-
-			@Override
-			public String transactionsFileSuffix()
-			{
-				return this.transactionsFileSuffix;
-			}
-
-			@Override
-			public B setTransactionsFileSuffix(final String transactionsFileSuffix)
-			{
-				this.transactionsFileSuffix = transactionsFileSuffix;
-				return this.$();
-			}
-
-			@Override
-			public String typeDictionaryFileName()
-			{
-				return this.typeDictionaryFileName;
-			}
-
-			@Override
-			public B setTypeDictionaryFileName(final String typeDictionaryFileName)
-			{
-				this.typeDictionaryFileName = typeDictionaryFileName;
-				return this.$();
-			}
-
-			@Override
-			public String lockFileName()
-			{
-				return this.lockFileName;
-			}
-
-			@Override
-			public B setLockFileName(final String lockFileName)
-			{
-				this.lockFileName = lockFileName;
-				return this.$();
-			}
-
+			
 			@Override
 			public PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator()
 			{
 				return this.fileHandlerCreator;
 			}
-
+			
 			@Override
 			public B setFileHandlerCreator(final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator)
 			{
 				this.fileHandlerCreator = fileHandlerCreator;
 				return this.$();
 			}
-
-			@Override
-			public StorageFileProvider createFileProvider()
+			
+			protected abstract ADirectory getBaseDirectory();
+			
+			protected ADirectory getDeletionDirectory()
 			{
-				return StorageFileProvider.New(
-					coalesce(this.baseDirectory         , Defaults.defaultStorageDirectory()                ),
-					coalesce(this.deletionDirectory     , Defaults.defaultDeletionDirectory()               ),
-					coalesce(this.truncationDirectory   , Defaults.defaultTruncationDirectory()             ),
-					coalesce(this.channelDirectoryPrefix, Defaults.defaultChannelDirectoryPrefix()          ),
-					coalesce(this.storageFilePrefix     , Defaults.defaultStorageFilePrefix()               ),
-					coalesce(this.storageFileSuffix     , Defaults.defaultStorageFileSuffix()               ),
-					coalesce(this.transactionsFilePrefix, Defaults.defaultTransactionFilePrefix()           ),
-					coalesce(this.transactionsFileSuffix, Defaults.defaultTransactionFileSuffix()           ),
-					coalesce(this.typeDictionaryFileName, Defaults.defaultTypeDictionaryFileName()          ),
-					coalesce(this.lockFileName          , Defaults.defaultLockFileName()                    ),
-					coalesce(this.fileHandlerCreator    , Defaults.defaultTypeDictionaryFileHandlerCreator())
-				);
+				// no default / default is null
+				return this.deletionDirectory;
 			}
-
+			
+			protected ADirectory getTruncationDirectory()
+			{
+				// no default / default is null
+				return this.truncationDirectory;
+			}
+			
+			protected StorageDirectoryStructureProvider getDirectoryStructureProvider()
+			{
+				return this.structureProvider != null
+					? this.structureProvider
+					: StorageDirectoryStructureProvider.Defaults.defaultDirectoryStructureProvider()
+				;
+			}
+			
+			protected StorageFileNameProvider getFileNameProvider()
+			{
+				return this.fileNameProvider != null
+					? this.fileNameProvider
+					: StorageFileNameProvider.Defaults.defaultFileNameProvider()
+				;
+			}
+			
+			protected PersistenceTypeDictionaryFileHandler.Creator getTypeDictionaryFileHandler()
+			{
+				return this.fileHandlerCreator != null
+					? this.fileHandlerCreator
+					: PersistenceTypeDictionaryFileHandler::New
+				;
+			}
+			
 		}
-
+		
 	}
-
-	/**
-	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with default values
-	 * provided by {@link StorageFileProvider.Defaults}.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
-	 *
-	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
-	 *
-	 * @see StorageFileProvider#New(Path)
-	 * @see StorageFileProvider.Builder
-	 * @see StorageFileProvider.Defaults
-	 */
-	public static StorageFileProvider New()
-	{
-		return Storage.FileProviderBuilder()
-			.createFileProvider()
-		;
-	}
-
-	/**
-	 * Pseudo-constructor method to create a new {@link StorageFileProvider} instance with the passed file
-	 * as the storage directory and defaults provided by {@link StorageFileProvider.Defaults}.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageFileProvider.Builder}.
-	 *
-	 * @param storageDirectory the directory where the storage will be located.
-	 *
-	 * @return a new {@link StorageFileProvider} instance.
-	 *
-	 * @see StorageFileProvider#New()
-	 * @see StorageFileProvider.Builder
-	 * @see StorageFileProvider.Defaults
-	 */
-	public static StorageFileProvider New(final Path storageDirectory)
-	{
-		/* (07.05.2019 TM)NOTE: string-based paths are planned to be replaced by an abstraction of
-		 * storage files and directories that will replace any direct references to the file-system.
-		 * Since that work is not completed, yet, the string approach has been used as a working temporary solution.
-		 */
-		return Storage.FileProviderBuilder()
-			.setBaseDirectory(storageDirectory.toString())
-			.createFileProvider()
-		;
-	}
-
-	/**
-	 *
-	 * @param baseDirectory may <b>not</b> be null.
-	 * @param channelDirectoryPrefix may <b>not</b> be null.
-	 * @param storageFilePrefix may <b>not</b> be null.
-	 * @param storageFileSuffix may <b>not</b> be null.
-	 * @param transactionsFilePrefix may <b>not</b> be null.
-	 * @param transactionsFileSuffix may <b>not</b> be null.
-	 * @param typeDictionaryFileName may <b>not</b> be null.
-	 * @param lockFileName may <b>not</b> be null.
-	 * @param fileHandlerCreator may <b>not</b> be null.
-	 * @param deletionDirectory may be null.
-	 * @param truncationDirectory may be null.
-	 */
-	public static StorageFileProvider.Default New(
-		final String                                       baseDirectory         ,
-		final String                                       deletionDirectory     ,
-		final String                                       truncationDirectory   ,
-		final String                                       channelDirectoryPrefix,
-		final String                                       storageFilePrefix     ,
-		final String                                       storageFileSuffix     ,
-		final String                                       transactionsFilePrefix,
-		final String                                       transactionsFileSuffix,
-		final String                                       typeDictionaryFileName,
-		final String                                       lockFileName          ,
-		final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator
-	)
-	{
-		return new StorageFileProvider.Default(
-			notNull(baseDirectory)         , // base directory must at least be a relative directory name.
-			notNull(channelDirectoryPrefix),
-			notNull(storageFilePrefix)     ,
-			notNull(storageFileSuffix)     ,
-			notNull(transactionsFilePrefix),
-			notNull(transactionsFileSuffix),
-			notNull(typeDictionaryFileName),
-			notNull(lockFileName)          ,
-			notNull(fileHandlerCreator)    ,
-			mayNull(deletionDirectory)     , // null (no directory) means actually delete retired files
-			mayNull(truncationDirectory)     // null (no directory) means actually delete truncated files
-		);
-	}
-
-
-
-	public final class Default implements StorageFileProvider
+	
+	
+	public abstract class Abstract
+	extends PersistenceTypeDictionaryIoHandler.Provider.Abstract
+	implements StorageFileProvider
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-
-		private final String
-			baseDirectory         ,
-			deletionDirectory     ,
-			truncationDirectory   ,
-			channelDirectoryPrefix,
-			storageFilePrefix     ,
-			storageFileSuffix     ,
-			transactionsFilePrefix,
-			transactionsFileSuffix,
-			typeDictionaryFileName,
-			lockFileName
+		
+		private final AFileSystem fileSystem;
+		
+		private final ADirectory
+			baseDirectory      ,
+			deletionDirectory  ,
+			truncationDirectory
 		;
+		
+		private final StorageDirectoryStructureProvider structureProvider;
+		
+		private final StorageFileNameProvider fileNameProvider;
 
-		private final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator;
-
-
-
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
-
-		Default(
-			final String                                       baseDirectory         ,
-			final String                                       channelDirectoryPrefix,
-			final String                                       storageFilePrefix     ,
-			final String                                       storageFileSuffix     ,
-			final String                                       transactionsFilePrefix,
-			final String                                       transactionsFileSuffix,
-			final String                                       typeDictionaryFileName,
-			final String                                       lockFileName          ,
-			final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator    ,
-			final String                                       deletionDirectory     ,
-			final String                                       truncationDirectory
+		
+		Abstract(
+			final ADirectory                                   baseDirectory      ,
+			final ADirectory                                   deletionDirectory  ,
+			final ADirectory                                   truncationDirectory,
+			final StorageDirectoryStructureProvider            structureProvider  ,
+			final StorageFileNameProvider                      fileNameProvider   ,
+			final PersistenceTypeDictionaryFileHandler.Creator fileHandlerCreator
 		)
 		{
-			super();
-			this.baseDirectory          = baseDirectory         ;
-			this.channelDirectoryPrefix = channelDirectoryPrefix;
-			this.storageFilePrefix      = storageFilePrefix     ;
-			this.storageFileSuffix      = storageFileSuffix     ;
-			this.transactionsFilePrefix = transactionsFilePrefix;
-			this.transactionsFileSuffix = transactionsFileSuffix;
-			this.typeDictionaryFileName = typeDictionaryFileName;
-			this.lockFileName           = lockFileName          ;
-			this.fileHandlerCreator     = fileHandlerCreator    ;
-			this.deletionDirectory      = deletionDirectory     ;
-			this.truncationDirectory    = truncationDirectory   ;
+			super(fileHandlerCreator);
+			this.fileSystem          = baseDirectory.fileSystem();
+			this.baseDirectory       = baseDirectory      ;
+			this.deletionDirectory   = deletionDirectory  ;
+			this.truncationDirectory = truncationDirectory;
+			this.structureProvider   = structureProvider  ;
+			this.fileNameProvider    = fileNameProvider   ;
 		}
 
-
-
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-
+		
 		@Override
-		public String getStorageLocationIdentifier()
+		public AFileSystem fileSystem()
 		{
-			return XIO.Path(this.baseDirectory()).toAbsolutePath().toString();
+			return this.fileSystem;
 		}
 
-		public String baseDirectory()
+		@Override
+		public ADirectory baseDirectory()
 		{
 			return this.baseDirectory;
 		}
-
-		public String deletionDirectory()
+		
+		@Override
+		public ADirectory deletionDirectory()
 		{
 			return this.deletionDirectory;
 		}
-
-		public String truncationDirectory()
+		
+		@Override
+		public ADirectory truncationDirectory()
 		{
 			return this.truncationDirectory;
 		}
-
-		public String channelDirectoryPrefix()
+		
+		@Override
+		public StorageFileNameProvider fileNameProvider()
 		{
-			return this.channelDirectoryPrefix;
-		}
-
-		public String storageFilePrefix()
-		{
-			return this.storageFilePrefix;
-		}
-
-		public String storageFileSuffix()
-		{
-			return this.storageFileSuffix;
-		}
-
-		public String transactionsFilePrefix()
-		{
-			return this.transactionsFilePrefix;
-		}
-
-		public String transactionsFileSuffix()
-		{
-			return this.transactionsFileSuffix;
-		}
-
-		public String typeDictionaryFileName()
-		{
-			return this.typeDictionaryFileName;
-		}
-
-		public String lockFileName()
-		{
-			return this.lockFileName;
-		}
-
-		public final String provideStorageFileName(final int channelIndex, final long fileNumber)
-		{
-			return this.storageFilePrefix + channelIndex + '_' + fileNumber + this.storageFileSuffix;
-		}
-
-		public final String provideTransactionFileName(final int channelIndex)
-		{
-			return this.transactionsFilePrefix + channelIndex + this.transactionsFileSuffix;
+			return this.fileNameProvider;
 		}
 
 		@Override
-		public PersistenceTypeDictionaryIoHandler provideTypeDictionaryIoHandler(
-			final PersistenceTypeDictionaryStorer writeListener
+		protected AFile defineTypeDictionaryFile()
+		{
+			final ADirectory directory = this.baseDirectory;
+			directory.ensureExists();
+			
+			final AFile file = directory.ensureFile(this.fileNameProvider.typeDictionaryFileName());
+			
+			return file;
+		}
+		
+		private ADirectory provideChannelDirectory(
+			final ADirectory baseDirectory,
+			final int        channelIndex
 		)
 		{
-			/* (04.03.2019 TM)TODO: forced delegating API is not a clean solution.
-			 * This is only a temporary solution. See the task containing "PersistenceDataFile".
-			 */
-			final Path directory = XIO.Path(this.baseDirectory());
-			XIO.unchecked.ensureDirectory(directory);
-
-			final Path file = XIO.Path(directory, this.typeDictionaryFileName());
-			return this.fileHandlerCreator.createTypeDictionaryIoHandler(file, writeListener);
-		}
-
-		public final Path provideChannelDirectory(final String parentDirectory, final int hashIndex)
-		{
-			return XIO.unchecked.ensureDirectory(
-				XIO.Path(parentDirectory, this.channelDirectoryPrefix() + hashIndex)
-			);
-		}
-
-		public Path provideChannelDirectory(final int channelIndex)
-		{
-			return this.provideChannelDirectory(this.baseDirectory(), channelIndex);
-		}
-
-		@Override
-		public final StorageNumberedFile provideDataFile(final int channelIndex, final long fileNumber)
-		{
-			final Path file = XIO.Path(
-				this.provideChannelDirectory(channelIndex),
-				this.provideStorageFileName(channelIndex, fileNumber)
-			);
-
-			return StorageNumberedFile.New(channelIndex, fileNumber, file);
-		}
-
-		@Override
-		public StorageNumberedFile provideTransactionsFile(final int channelIndex)
-		{
-			final Path file = XIO.Path(
-				this.provideChannelDirectory(channelIndex),
-				this.provideTransactionFileName(channelIndex)
-			);
-
-			return StorageNumberedFile.New(channelIndex, Storage.transactionsFileNumber(), file);
-		}
-
-		@Override
-		public StorageLockedFile provideLockFile()
-		{
-			final Path lockFile = XIO.Path(this.baseDirectory(), this.lockFileName());
-
-			return StorageLockedFile.openLockedFile(lockFile);
-		}
-
-		@Override
-		public StorageNumberedFile provideDeletionTargetFile(final StorageNumberedFile fileToBeDeleted)
-		{
-			final String deletionDirectory = this.deletionDirectory();
-			if(deletionDirectory == null)
-			{
-				return null;
-			}
-
-			final int  channelIndex = fileToBeDeleted.channelIndex();
-			final long fileNumber   = fileToBeDeleted.number();
-
-			final Path file = XIO.Path(
-				this.provideChannelDirectory(deletionDirectory, channelIndex),
-				this.provideStorageFileName(channelIndex, fileNumber)
-			);
-
-			return StorageNumberedFile.New(channelIndex, fileNumber, file);
-		}
-
-		@Override
-		public StorageNumberedFile provideTruncationBackupTargetFile(
-			final StorageNumberedFile fileToBeTruncated,
-			final long                newLength
-		)
-		{
-			final String truncationDirectory = this.truncationDirectory();
-			if(truncationDirectory == null)
-			{
-				return null;
-			}
-
-			final int  channelIndex = fileToBeTruncated.channelIndex();
-			final long fileNumber   = fileToBeTruncated.number();
-
-			final Path file = XIO.Path(
-				this.provideChannelDirectory(truncationDirectory, channelIndex),
-				this.provideStorageFileName(channelIndex, fileNumber)
-				+ "_truncated_from_" + fileToBeTruncated.length() + "_to_" + newLength
-				+ "_@" + System.currentTimeMillis() + ".bak"
-			);
-
-			return StorageNumberedFile.New(channelIndex, fileNumber, file);
-		}
-
-		@Override
-		public <P extends Consumer<StorageNumberedFile>> P collectDataFiles(
-			final P   collector   ,
-			final int channelIndex
-		)
-		{
-			return Static.collectFile(
-				collector,
+			final ADirectory channelDirectory = this.structureProvider.provideChannelDirectory(
+				baseDirectory,
 				channelIndex,
-				this.provideChannelDirectory(channelIndex),
-				this.channelDirectoryPrefix(),
-				this.storageFileSuffix()
+				this.fileNameProvider
 			);
+			channelDirectory.ensureExists();
+			
+			return channelDirectory;
+		}
+		
+		private AFile provideChannelFile(
+			final ADirectory         baseDirectory,
+			final StorageChannelFile channelFile  ,
+			final String             newName      ,
+			final String             newType
+		)
+		{
+			final String effectiveName = coalesce(newName, channelFile.file().name());
+			final String effectiveType = coalesce(newType, channelFile.file().type());
+			
+			return this.provideChannelFile(baseDirectory, channelFile.channelIndex(), effectiveName, effectiveType);
+		}
+		
+		private AFile provideChannelFile(
+			final ADirectory baseDirectory,
+			final int        channelIndex ,
+			final String     newName      ,
+			final String     newType
+		)
+		{
+			final ADirectory channelDirectory = this.provideChannelDirectory(baseDirectory, channelIndex);
+			final AFile      channelFile      = channelDirectory.ensureFile(newName, newType);
+			
+			return channelFile;
+		}
+		
+		@Override
+		public AFile provideDeletionTargetFile(final StorageChannelFile fileToBeDeleted)
+		{
+			// maybe null, indicating to not backup the file
+			if(this.deletionDirectory == null)
+			{
+				return null;
+			}
+			
+			final String baseFileName = fileToBeDeleted.file().name();
+			final String fileName     = addDeletionFileNameTag(baseFileName);
+			final String fileType     = this.fileNameProvider.rescuedFileType();
+			
+			return this.provideChannelFile(this.deletionDirectory, fileToBeDeleted, fileName, fileType);
+		}
+		
+		protected static String addDeletionFileNameTag(final String currentName)
+		{
+			final SimpleDateFormat sdf = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss_SSS");
+			final String newFileName = currentName + sdf.format(System.currentTimeMillis());
+			
+			return newFileName;
 		}
 
+		@Override
+		public AFile provideTruncationTargetFile(final StorageChannelFile fileToBeTruncated, final long newLength)
+		{
+			// maybe null, indicating to not backup the file
+			if(this.truncationDirectory == null)
+			{
+				return null;
+			}
+
+			final String baseFileName = fileToBeTruncated.file().name();
+			final String fileType     = this.fileNameProvider.rescuedFileType();
+			final String fileName     = addTruncationFileNameTag(
+				baseFileName,
+				fileToBeTruncated.size(),
+				newLength
+			);
+
+			return this.provideChannelFile(this.truncationDirectory, fileToBeTruncated, fileName, fileType);
+		}
+		
+		protected static String addTruncationFileNameTag(
+			final String truncationFileNameRaw,
+			final long   oldLength            ,
+			final long   newLength
+		)
+		{
+			return truncationFileNameRaw + "_truncated_from_" + oldLength + "_to_" + newLength
+				+ "_@" + System.currentTimeMillis()
+			;
+		}
+
+		@Override
+		public <F extends StorageDataFile, C extends Consumer<F>> C collectDataFiles(
+			final StorageDataFile.Creator<F> creator     ,
+			final C                          collector   ,
+			final int                        channelIndex
+		)
+		{
+			final ADirectory directory = this.structureProvider.provideChannelDirectory(
+				this.baseDirectory,
+				channelIndex,
+				this.fileNameProvider
+			);
+			
+			/*
+			 * Only actually existing files are relevant.
+			 * ...
+			 * Hm. But does that justify a library deleting file entries from some potentially passed AFS instance?
+			 * Maybe the exist check in the iteration is the better option, yet.
+			 */
+//			directory.consolidateFiles();
+			
+			directory.iterateFiles(f ->
+			{
+				// collecting files refers only to those that physically exist. Residual AFS entries don't count.
+				if(!f.exists())
+				{
+					return;
+				}
+				this.fileNameProvider.parseDataInventoryFile(creator, collector, channelIndex, f);
+			});
+			
+			return collector;
+		}
+
+		public ADirectory provideChannelDirectory(final int channelIndex)
+		{
+			return this.provideChannelDirectory(this.baseDirectory, channelIndex);
+		}
+		
+		public AFile provideDataFile(final int channelIndex, final long fileNumber)
+		{
+			final ADirectory channelDirectory = this.provideChannelDirectory(channelIndex);
+			final String     dataFileName     = this.fileNameProvider.provideDataFileName(channelIndex, fileNumber);
+			final String     dataFileType     = this.fileNameProvider.dataFileType();
+			final AFile      file             = channelDirectory.ensureFile(dataFileName, dataFileType);
+			
+			return file;
+		}
+
+		public AFile provideTransactionsFile(final int channelIndex)
+		{
+			final ADirectory channelDirectory = this.provideChannelDirectory(channelIndex);
+			final String     dataFileName     = this.fileNameProvider.provideTransactionsFileName(channelIndex);
+			final String     dataFileType     = this.fileNameProvider.transactionsFileType();
+			final AFile      file             = channelDirectory.ensureFile(dataFileName, dataFileType);
+			
+			return file;
+		}
+
+		public AFile provideLockFile()
+		{
+			final AFile file = this.baseDirectory.ensureFile(this.fileNameProvider.lockFileName());
+			
+			return file;
+		}
+		
 		@Override
 		public String toString()
 		{
 			return VarString.New()
 				.add(this.getClass().getName()).add(':').lf()
-				.blank().add("base directory"          ).tab().add('=').blank().add(this.baseDirectory         ).lf()
-				.blank().add("deletion directory"      ).tab().add('=').blank().add(this.deletionDirectory     ).lf()
-				.blank().add("channel directory prefix").tab().add('=').blank().add(this.channelDirectoryPrefix).lf()
-				.blank().add("storage file prefix"     ).tab().add('=').blank().add(this.storageFilePrefix     ).lf()
-				.blank().add("file suffix"             ).tab().add('=').blank().add(this.storageFileSuffix     ).lf()
-				.blank().add("lockFileName"            ).tab().add('=').blank().add(this.lockFileName          )
+				.blank().add("base directory").tab().add('=').blank().add(this.baseDirectory   ).lf()
+				.blank().add("file names"    ).tab().add('=').blank().add(this.fileNameProvider).lf()
 				.toString()
 			;
 		}
-
+		
 	}
-
+	
 }

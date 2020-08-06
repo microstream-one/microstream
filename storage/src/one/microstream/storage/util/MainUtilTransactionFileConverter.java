@@ -1,13 +1,13 @@
 package one.microstream.storage.util;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.VarString;
 import one.microstream.collections.XArrays;
 import one.microstream.concurrency.XThreads;
 import one.microstream.io.XIO;
-import one.microstream.storage.types.StorageTransactionsFileAnalysis;
+import one.microstream.storage.types.StorageTransactionsAnalysis;
 
 
 /**
@@ -32,8 +32,8 @@ public class MainUtilTransactionFileConverter
 			System.exit(-1);
 		}
 		
-		final Path file = XIO.Path(args[0]);
-		if(!XIO.unchecked.exists(file))
+		final AFile file = NioFileSystem.New().ensureFile(XIO.Path(args[0]));
+		if(!file.exists())
 		{
 			System.out.println("File not found: " + args[0]);
 			XThreads.sleep(1000);
@@ -42,19 +42,19 @@ public class MainUtilTransactionFileConverter
 
 		System.out.println("Converting transaction entries ...");
 		final VarString vs = VarString.New(file.toString()).lf();
-		StorageTransactionsFileAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
-		final VarString s = StorageTransactionsFileAnalysis.Logic.parseFile(file, vs).lf().lf();
+		StorageTransactionsAnalysis.EntryAssembler.assembleHeader(vs, "\t").lf();
+		final VarString s = StorageTransactionsAnalysis.Logic.parseFile(file, vs).lf().lf();
 		final String result = s.toString();
 		System.out.println("Converted String length: " + result.length());
 		
-		final Path outputFile = XIO.Path(file.getParent(), XIO.getFileName(file) + ".txt");
+		final AFile outputFile = file.parent().ensureFile(file.name(), "txt");
 		System.out.println("Writing File " + outputFile);
 		
 		try
 		{
-			XIO.write(outputFile, result);
+			AFS.writeString(outputFile, result);
 		}
-		catch(final IOException e)
+		catch(final Exception e)
 		{
 			// naive printing is okay for a tiny standalone-utility program.
 			e.printStackTrace(); // NOSONAR

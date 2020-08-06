@@ -2,10 +2,8 @@ package one.microstream.io;
 
 import static one.microstream.X.notNull;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
-import one.microstream.exceptions.IORuntimeException;
+import one.microstream.afs.AFS;
+import one.microstream.afs.AFile;
 
 public abstract class AbstractProviderByFile
 {
@@ -13,14 +11,9 @@ public abstract class AbstractProviderByFile
 	// static methods //
 	///////////////////
 	
-	public static final void write(final Path file, final String value)
+	public static final void write(final AFile file, final String value)
 	{
-		XIO.unchecked(() ->
-		{
-			XIO.write(file, value);
-			
-			return null;
-		});
+		AFS.writeString(file, value);
 	}
 
 
@@ -29,7 +22,7 @@ public abstract class AbstractProviderByFile
 	// instance fields //
 	////////////////////
 
-	private final Path file;
+	private final AFile file;
 
 
 
@@ -37,7 +30,7 @@ public abstract class AbstractProviderByFile
 	// constructors //
 	/////////////////
 
-	public AbstractProviderByFile(final Path file)
+	public AbstractProviderByFile(final AFile file)
 	{
 		super();
 		this.file = notNull(file);
@@ -50,21 +43,12 @@ public abstract class AbstractProviderByFile
 	
 	protected boolean canRead()
 	{
-		try
-		{
-			return XIO.exists(this.file);
-		}
-		catch(final IOException e)
-		{
-			throw new IORuntimeException(e);
-		}
+		return this.file.exists();
 	}
 
 	protected String read()
 	{
-		return XIO.unchecked(() ->
-			XIO.readString(this.file)
-		);
+		return AFS.readString(this.file);
 	}
 
 }

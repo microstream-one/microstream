@@ -18,8 +18,10 @@ import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.StorageChannelCountProvider;
 import one.microstream.storage.types.StorageDataFileEvaluator;
 import one.microstream.storage.types.StorageEntityCacheEvaluator;
+import one.microstream.storage.types.StorageFileNameProvider;
 import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.storage.types.StorageHousekeepingController;
+import one.microstream.storage.types.StorageLiveFileProvider;
 
 /**
  * <p>
@@ -57,8 +59,6 @@ import one.microstream.storage.types.StorageHousekeepingController;
  * @see ConfigurationLoader
  * @see ConfigurationParser
  * @see ConfigurationPropertyNames
- * @see ConfigurationStorer
- * @see ConfigurationAssembler
  * @see <a href="https://manual.docs.microstream.one/data-store/configuration#external-configuration">MicroStream Reference Manual</a>
  */
 public interface Configuration
@@ -206,7 +206,7 @@ public interface Configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static Configuration Load(
-		final String path,
+		final String  path   ,
 		final Charset charset
 	)
 	{
@@ -253,7 +253,7 @@ public interface Configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static Configuration LoadIni(
-		final String path,
+		final String  path   ,
 		final Charset charset
 	)
 	{
@@ -287,7 +287,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadIni(
-		final Path path,
+		final Path    path   ,
 		final Charset charset
 	)
 	{
@@ -321,7 +321,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadIni(
-		final File file,
+		final File    file   ,
 		final Charset charset
 	)
 	{
@@ -355,7 +355,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadIni(
-		final URL url,
+		final URL     url    ,
 		final Charset charset
 	)
 	{
@@ -394,7 +394,7 @@ public interface Configuration
 	 */
 	public static Configuration LoadIni(
 		final InputStream inputStream,
-		final Charset charset
+		final Charset     charset
 	)
 	{
 		return ConfigurationParser.Ini().parse(
@@ -439,7 +439,7 @@ public interface Configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static Configuration LoadXml(
-		final String path,
+		final String  path   ,
 		final Charset charset
 	)
 	{
@@ -473,7 +473,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadXml(
-		final Path path,
+		final Path    path   ,
 		final Charset charset
 	)
 	{
@@ -507,7 +507,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadXml(
-		final File file,
+		final File    file   ,
 		final Charset charset
 	)
 	{
@@ -541,7 +541,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadXml(
-		final URL url,
+		final URL     url    ,
 		final Charset charset
 	)
 	{
@@ -580,11 +580,293 @@ public interface Configuration
 	 */
 	public static Configuration LoadXml(
 		final InputStream inputStream,
-		final Charset charset
+		final Charset     charset
 	)
 	{
 		return ConfigurationParser.Xml().parse(
 			ConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
+		);
+	}
+	
+	/**
+	 * Exports this configuration as XML.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final OutputStream outputStream
+	)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream).storeConfiguration(
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as XML.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final OutputStream outputStream,
+		final Charset      charset
+	)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream, charset).storeConfiguration(
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final Path path
+	)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final Path    path   ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			charset,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param file the file to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final File file
+	)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param file the file to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final File    file   ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			charset,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param url the URL to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final URL url
+	)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param url the URL to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final URL     url    ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			charset,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as INI.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final OutputStream outputStream
+	)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream).storeConfiguration(
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as INI.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final OutputStream outputStream,
+		final Charset      charset
+	)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream, charset).storeConfiguration(
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as an INI file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final Path path
+	)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as an INI file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final Path    path   ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			charset,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param file the file to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final File file
+	)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param file the file to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final File    file   ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			charset,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param url the URL to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final URL url
+	)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param url the URL to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final URL     url    ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			charset,
+			ConfigurationAssembler.Ini().assemble(this)
 		);
 	}
 
@@ -761,6 +1043,14 @@ public interface Configuration
 	 * The name of the dictionary file.
 	 */
 	public String getTypeDictionaryFilename();
+
+	public Configuration setRescuedFileSuffix(String rescuedFileSuffix);
+
+	public String getRescuedFileSuffix();
+
+	public Configuration setLockFileName(String lockFileName);
+
+	public String getLockFileName();
 
 	/**
 	 * @deprecated replaced by {@link #setHousekeepingIntervalMs(long)}, will be removed in a future release
@@ -1020,248 +1310,6 @@ public interface Configuration
 	 */
 	public boolean getDataFileCleanupHeadFile();
 
-	/**
-	 * Exports this configuration as XML.
-	 * <p>
-	 * Note that the given <code>outputStream</code> will not be closed by this method.
-	 *
-	 * @param outputStream the outputStream to write to
-	 * @since 3.1
-	 */
-	public default void exportXml(final OutputStream outputStream)
-	{
-		ConfigurationStorer.ToOutputStream(outputStream).storeConfiguration(
-			ConfigurationAssembler.Xml().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as XML.
-	 * <p>
-	 * Note that the given <code>outputStream</code> will not be closed by this method.
-	 *
-	 * @param outputStream the outputStream to write to
-	 * @param charset the charset used to export the configuration
-	 * @since 3.1
-	 */
-	public default void exportXml(final OutputStream outputStream, final Charset charset)
-	{
-		ConfigurationStorer.ToOutputStream(outputStream, charset).storeConfiguration(
-			ConfigurationAssembler.Xml().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as a XML file to the specified path.
-	 *
-	 * @param path the path to write to
-	 * @since 3.1
-	 */
-	public default void exportXml(final Path path)
-	{
-		ConfigurationStorer.storeToPath(
-			path,
-			ConfigurationAssembler.Xml().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as a XML file to the specified path.
-	 *
-	 * @param path the path to write to
-	 * @param charset the charset used to export the configuration
-	 * @since 3.1
-	 */
-	public default void exportXml(final Path path, final Charset charset)
-	{
-		ConfigurationStorer.storeToPath(
-			path,
-			charset,
-			ConfigurationAssembler.Xml().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as a XML file.
-	 *
-	 * @param file the file to write to
-	 * @since 3.1
-	 */
-	public default void exportXml(final File file)
-	{
-		ConfigurationStorer.storeToFile(
-			file,
-			ConfigurationAssembler.Xml().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as a XML file.
-	 *
-	 * @param file the file to write to
-	 * @param charset the charset used to export the configuration
-	 * @since 3.1
-	 */
-	public default void exportXml(final File file, final Charset charset)
-	{
-		ConfigurationStorer.storeToFile(
-			file,
-			charset,
-			ConfigurationAssembler.Xml().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as a XML file.
-	 *
-	 * @param url the URL to write to
-	 * @since 3.1
-	 */
-	public default void exportXml(final URL url)
-	{
-		ConfigurationStorer.storeToUrl(
-			url,
-			ConfigurationAssembler.Xml().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as a XML file.
-	 *
-	 * @param url the URL to write to
-	 * @param charset the charset used to export the configuration
-	 * @since 3.1
-	 */
-	public default void exportXml(final URL url, final Charset charset)
-	{
-		ConfigurationStorer.storeToUrl(
-			url,
-			charset,
-			ConfigurationAssembler.Xml().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as INI.
-	 * <p>
-	 * Note that the given <code>outputStream</code> will not be closed by this method.
-	 *
-	 * @param outputStream the outputStream to write to
-	 * @since 3.1
-	 */
-	public default void exportIni(final OutputStream outputStream)
-	{
-		ConfigurationStorer.ToOutputStream(outputStream).storeConfiguration(
-			ConfigurationAssembler.Ini().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as INI.
-	 * <p>
-	 * Note that the given <code>outputStream</code> will not be closed by this method.
-	 *
-	 * @param outputStream the outputStream to write to
-	 * @param charset the charset used to export the configuration
-	 * @since 3.1
-	 */
-	public default void exportIni(final OutputStream outputStream, final Charset charset)
-	{
-		ConfigurationStorer.ToOutputStream(outputStream, charset).storeConfiguration(
-			ConfigurationAssembler.Ini().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as an INI file to the specified path.
-	 *
-	 * @param path the path to write to
-	 * @since 3.1
-	 */
-	public default void exportIni(final Path path)
-	{
-		ConfigurationStorer.storeToPath(
-			path,
-			ConfigurationAssembler.Ini().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as an INI file to the specified path.
-	 *
-	 * @param path the path to write to
-	 * @param charset the charset used to export the configuration
-	 * @since 3.1
-	 */
-	public default void exportIni(final Path path, final Charset charset)
-	{
-		ConfigurationStorer.storeToPath(
-			path,
-			charset,
-			ConfigurationAssembler.Ini().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as a INI file.
-	 *
-	 * @param file the file to write to
-	 * @since 3.1
-	 */
-	public default void exportIni(final File file)
-	{
-		ConfigurationStorer.storeToFile(
-			file,
-			ConfigurationAssembler.Ini().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as a INI file.
-	 *
-	 * @param file the file to write to
-	 * @param charset the charset used to export the configuration
-	 * @since 3.1
-	 */
-	public default void exportIni(final File file, final Charset charset)
-	{
-		ConfigurationStorer.storeToFile(
-			file,
-			charset,
-			ConfigurationAssembler.Ini().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as a INI file.
-	 *
-	 * @param url the URL to write to
-	 * @since 3.1
-	 */
-	public default void exportIni(final URL url)
-	{
-		ConfigurationStorer.storeToUrl(
-			url,
-			ConfigurationAssembler.Ini().assemble(this)
-		);
-	}
-
-	/**
-	 * Exports this configuration as a INI file.
-	 *
-	 * @param url the URL to write to
-	 * @param charset the charset used to export the configuration
-	 * @since 3.1
-	 */
-	public default void exportIni(final URL url, final Charset charset)
-	{
-		ConfigurationStorer.storeToUrl(
-			url,
-			charset,
-			ConfigurationAssembler.Ini().assemble(this)
-		);
-	}
-
 
 	/**
 	 * Creates a new {@link Configuration} with the default settings.
@@ -1282,16 +1330,18 @@ public interface Configuration
 
 	public static class Default implements Configuration
 	{
-		private String  baseDirectory            = StorageFileProvider.Defaults.defaultStorageDirectory();
-		private String  deletionDirectory        = StorageFileProvider.Defaults.defaultDeletionDirectory();
-		private String  truncationDirectory      = StorageFileProvider.Defaults.defaultTruncationDirectory();
+		private String  baseDirectory            = StorageLiveFileProvider.Defaults.defaultStorageDirectory();
+		private String  deletionDirectory        = this.baseDirectory + "/backup/deleted";
+		private String  truncationDirectory      = this.baseDirectory + "/backup/truncated";
 		private String  backupDirectory          = null; // no on-the-fly backup by default
-		private String  channelDirectoryPrefix   = StorageFileProvider.Defaults.defaultChannelDirectoryPrefix();
-		private String  dataFilePrefix           = StorageFileProvider.Defaults.defaultStorageFilePrefix();
-		private String  dataFileSuffix           = StorageFileProvider.Defaults.defaultStorageFileSuffix();
-		private String  transactionFilePrefix    = StorageFileProvider.Defaults.defaultTransactionFilePrefix();
-		private String  transactionFileSuffix    = StorageFileProvider.Defaults.defaultTransactionFileSuffix();
-		private String  typeDictionaryFilename   = StorageFileProvider.Defaults.defaultTypeDictionaryFileName();
+		private String  channelDirectoryPrefix   = StorageFileNameProvider.Defaults.defaultChannelDirectoryPrefix();
+		private String  dataFilePrefix           = StorageFileNameProvider.Defaults.defaultDataFilePrefix();
+		private String  dataFileSuffix           = StorageFileNameProvider.Defaults.defaultDataFileSuffix();
+		private String  transactionFilePrefix    = StorageFileNameProvider.Defaults.defaultTransactionsFilePrefix();
+		private String  transactionFileSuffix    = StorageFileNameProvider.Defaults.defaultTransactionsFileSuffix();
+		private String  typeDictionaryFilename   = StorageFileNameProvider.Defaults.defaultTypeDictionaryFileName();
+		private String  rescuedFileSuffix        = StorageFileNameProvider.Defaults.defaultRescuedFileSuffix();
+		private String  lockFileName             = StorageFileNameProvider.Defaults.defaultLockFileName();
 
 		private int     channelCount             = StorageChannelCountProvider.Defaults.defaultChannelCount();
 
@@ -1454,6 +1504,32 @@ public interface Configuration
 		public String getTypeDictionaryFilename()
 		{
 			return this.typeDictionaryFilename;
+		}
+
+		@Override
+		public Configuration setRescuedFileSuffix(final String rescuedFileSuffix)
+		{
+			this.rescuedFileSuffix = notEmpty(rescuedFileSuffix);
+			return this;
+		}
+
+		@Override
+		public String getRescuedFileSuffix()
+		{
+			return this.rescuedFileSuffix;
+		}
+
+		@Override
+		public Configuration setLockFileName(final String lockFileName)
+		{
+			this.lockFileName = lockFileName;
+			return this;
+		}
+
+		@Override
+		public String getLockFileName()
+		{
+			return this.lockFileName;
 		}
 
 		@Override

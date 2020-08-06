@@ -8,7 +8,7 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.storage.exceptions.StorageException;
 
 
-public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
+public interface StorageEntityType<E extends StorageEntity>
 {
 	public StorageEntityTypeHandler typeHandler();
 
@@ -19,13 +19,13 @@ public interface StorageEntityType<I extends StorageEntityCacheItem<I>>
 		return this.entityCount() == 0;
 	}
 
-	public <T extends Throwable, P extends ThrowingProcedure<? super I, T>> P iterateEntities(P procedure) throws T;
+	public <T extends Throwable, P extends ThrowingProcedure<? super E, T>> P iterateEntities(P procedure) throws T;
 
 	public boolean hasReferences();
 
 	public long simpleReferenceDataCount();
 
-	public void iterateEntityReferenceIds(I entity, PersistenceObjectIdAcceptor iterator);
+	public void iterateEntityReferenceIds(E entity, PersistenceObjectIdAcceptor iterator);
 
 	public StorageIdAnalysis validateEntities();
 
