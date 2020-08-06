@@ -232,6 +232,16 @@ public interface StorageEntityCacheEvaluator
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		public long timeout()
+		{
+			return this.timeoutMs;
+		}
+		
+		public long threshold()
+		{
+			return this.threshold;
+		}
 
 		@Override
 		public final boolean clearEntityCache(

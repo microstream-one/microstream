@@ -361,6 +361,16 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		{
 			return this.fileMaximumSize;
 		}
+		
+		public double minimumUseRatio()
+		{
+			return this.minimumUseRatio;
+		}
+		
+		public boolean cleanupHeadFile()
+		{
+			return this.cleanupHeadFile;
+		}
 
 		@Override
 		public final boolean needsDissolving(final StorageLiveDataFile storageFile)
