@@ -10,7 +10,7 @@ import one.microstream.persistence.types.PersistenceIdSet;
 import one.microstream.persistence.types.PersistenceSource;
 import one.microstream.persistence.types.PersistenceTarget;
 
-public final class BinaryFileStorage implements PersistenceChannel<Binary>
+public final class BinaryStorageChannel implements PersistenceChannel<Binary>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -25,7 +25,7 @@ public final class BinaryFileStorage implements PersistenceChannel<Binary>
 	// constructors //
 	/////////////////
 
-	public BinaryFileStorage(final PersistenceSource<Binary> source, final PersistenceTarget<Binary> target)
+	public BinaryStorageChannel(final PersistenceSource<Binary> source, final PersistenceTarget<Binary> target)
 	{
 		super();
 		this.source = notNull(source);
@@ -55,6 +55,18 @@ public final class BinaryFileStorage implements PersistenceChannel<Binary>
 		throws PersistenceExceptionTransfer
 	{
 		return this.source.readByObjectIds(oids);
+	}
+	
+	@Override
+	public final void validateIsWritable()
+	{
+		this.target.validateIsWritable();
+	}
+	
+	@Override
+	public final boolean isWritable()
+	{
+		return this.target.isWritable();
 	}
 
 //	@Override

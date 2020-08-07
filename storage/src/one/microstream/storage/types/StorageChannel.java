@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.afs.AWritableFile;
+import one.microstream.collections.BulkList;
 import one.microstream.functional.ThrowingProcedure;
 import one.microstream.functional._longProcedure;
 import one.microstream.persistence.binary.types.Chunk;
@@ -103,13 +104,8 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		private final BufferSizeProviderIncremental loadingBufferSizeProvider;
 		private final StorageEventLogger            eventLogger              ;
 
-		private final HousekeepingTask[] housekeepingTasks =
-		{
-			this::houseKeepingCheckFileCleanup ,
-			this::houseKeepingGarbageCollection,
-			this::houseKeepingLiveCheck
-			// (16.06.2020 TM)TODO: priv#49: housekeeping task that closes data files after a timeout.
-		};
+		private final HousekeepingTask[] housekeepingTasks = this.defineHouseKeepingTasks();
+		
 		private int nextHouseKeepingIndex;
 
 		/**
@@ -163,6 +159,21 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		///////////////////////////////////////////////////////////////////////////
 		// declared methods //
 		/////////////////////
+		
+		private HousekeepingTask[] defineHouseKeepingTasks()
+		{
+			final BulkList<HousekeepingTask> tasks = BulkList.New();
+			
+			if(this.fileManager.isWritable())
+			{
+				tasks.add(this::houseKeepingCheckFileCleanup);
+			}
+			tasks.add(this::houseKeepingGarbageCollection);
+			tasks.add(this::houseKeepingLiveCheck);
+			// (16.06.2020 TM)TODO: priv#49: housekeeping task that closes data files after a timeout.
+
+			return tasks.toArray(HousekeepingTask.class);
+		}
 
 		private int getCurrentHouseKeepingIndexAndAdvance()
 		{

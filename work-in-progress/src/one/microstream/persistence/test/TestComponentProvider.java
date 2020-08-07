@@ -6,7 +6,7 @@ import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFS;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.io.XIO;
-import one.microstream.persistence.binary.internal.BinaryFileStorage;
+import one.microstream.persistence.binary.internal.BinaryStorageChannel;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.internal.CompositeIdProvider;
 import one.microstream.persistence.internal.FileObjectIdStrategy;
@@ -51,7 +51,7 @@ public class TestComponentProvider extends InvocationLogging
 	private String filenameData;
 
 	private transient CompositeIdProvider                  idProvider         = null;
-	private transient BinaryFileStorage                    persistenceStorage = null;
+	private transient BinaryStorageChannel                    persistenceStorage = null;
 	private transient PersistenceTypeDictionaryFileHandler dictionaryStorage  = null;
 
 
@@ -116,11 +116,11 @@ public class TestComponentProvider extends InvocationLogging
 		return this.idProvider;
 	}
 
-	final BinaryFileStorage persistenceStorage()
+	final BinaryStorageChannel persistenceStorage()
 	{
 		if(this.persistenceStorage == null && this.filenameData != null)
 		{
-			this.persistenceStorage = new BinaryFileStorage(
+			this.persistenceStorage = new BinaryStorageChannel(
 				dispatch(new DEBUG_BinaryFileSource(System.out, this.directory.ensureFile(this.filenameData))),
 				dispatch(new DEBUG_BinaryFileTarget(System.out, this.directory.ensureFile(this.filenameData)))
 			);

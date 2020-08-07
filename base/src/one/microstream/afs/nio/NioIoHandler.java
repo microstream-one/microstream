@@ -1,5 +1,7 @@
 package one.microstream.afs.nio;
 
+import static one.microstream.X.notNull;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.DirectoryStream;
@@ -12,6 +14,7 @@ import one.microstream.afs.AIoHandler;
 import one.microstream.afs.AItem;
 import one.microstream.afs.AReadableFile;
 import one.microstream.afs.AWritableFile;
+import one.microstream.afs.WriteController;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.exceptions.IORuntimeException;
@@ -46,7 +49,14 @@ public interface NioIoHandler extends AIoHandler
 	
 	public static NioIoHandler New()
 	{
-		return new NioIoHandler.Default();
+		return New(WriteController.Enabled());
+	}
+	
+	public static NioIoHandler New(final WriteController writeController)
+	{
+		return new NioIoHandler.Default(
+			notNull(writeController)
+		);
 	}
 	
 	public final class Default
@@ -57,9 +67,10 @@ public interface NioIoHandler extends AIoHandler
 		// constructors //
 		/////////////////
 		
-		Default()
+		Default(final WriteController writeController)
 		{
 			super(
+				writeController,
 				NioItemWrapper.class,
 				NioFileWrapper.class,
 				ADirectory.class,

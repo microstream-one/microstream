@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import one.microstream.X;
+import one.microstream.afs.WriteController;
 import one.microstream.chars.VarString;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.com.ComException;
@@ -26,13 +27,15 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 	public static ComPersistenceChannelBinary.Default New(
 		final SocketChannel         channel           ,
 		final BufferSizeProvider    bufferSizeProvider,
-		final ByteOrderTargeting<?> byteOrderTargeting
+		final ByteOrderTargeting<?> byteOrderTargeting,
+		final WriteController       writeController
 	)
 	{
 		return new ComPersistenceChannelBinary.Default(
 			notNull(channel)           ,
 			notNull(bufferSizeProvider),
-			        byteOrderTargeting
+			notNull(byteOrderTargeting),
+			notNull(writeController)
 		);
 	}
 	
@@ -88,6 +91,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		////////////////////
 
 		private final ByteOrderTargeting<?> byteOrderTargeting;
+		private final WriteController       writeController   ;
 		
 		
 		
@@ -98,11 +102,13 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		Default(
 			final SocketChannel         channel           ,
 			final BufferSizeProvider    bufferSizeProvider,
-			final ByteOrderTargeting<?> byteOrderTargeting
+			final ByteOrderTargeting<?> byteOrderTargeting,
+			final WriteController       writeController
 		)
 		{
 			super(channel, bufferSizeProvider);
 			this.byteOrderTargeting = byteOrderTargeting;
+			this.writeController    = writeController   ;
 		}
 		
 		
@@ -173,6 +179,8 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 			
 			try
 			{
+				this.validateIsWritable();
+				
 				ComBinary.writeChunk(channel, defaultBuffer, chunk.buffers());
 			}
 			catch(final ComException e)
@@ -210,6 +218,18 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		{
 			// SocketChannel#close is idempotent
 			this.close();
+		}
+		
+		@Override
+		public final void validateIsWritable()
+		{
+			this.writeController.validateIsWritable();
+		}
+		
+		@Override
+		public final boolean isWritable()
+		{
+			return this.writeController.isWritable();
 		}
 		
 

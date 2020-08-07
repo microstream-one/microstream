@@ -145,7 +145,10 @@ extends BinaryPersistenceFoundation<F>
 		@Override
 		protected EmbeddedStorageBinaryTarget ensurePersistenceTarget()
 		{
-			return new EmbeddedStorageBinaryTarget.Default(this.internalGetStorageRequestAcceptor());
+			return EmbeddedStorageBinaryTarget.New(
+				this.internalGetStorageRequestAcceptor(),
+				this.storageSystem.fileSystem()
+			);
 		}
 
 		protected StorageRequestAcceptor internalGetStorageRequestAcceptor()

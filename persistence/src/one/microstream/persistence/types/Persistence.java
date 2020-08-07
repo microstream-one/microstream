@@ -1174,7 +1174,7 @@ public class Persistence
 		{
 			// (05.08.2019 TM)EXCP: proper exception
 			throw new PersistenceExceptionTypeNotPersistable(type,
-				"Synthetic classes ($1 etc.) are not reliably persistence since a simple reordering of source code"
+				"Synthetic classes ($1 etc.) are not reliably persistable since a simple reordering of source code"
 				+ " elements would change the name identity of a class. For a type system that has to rely upon"
 				+ " resolving types by their identifying name, this would silently cause a potentially fatal error."
 				+ " If handling synthetic classes (e.g. anonymous inner classes) is absolutely necessary, a custom "
