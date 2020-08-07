@@ -125,7 +125,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		private final int                                  channelIndex                 ;
 		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider;
 		private final StorageTimestampProvider             timestampProvider            ;
-		private final StorageLiveFileProvider              storageFileProvider          ;
+		private final StorageLiveFileProvider              fileProvider                 ;
 		private final StorageDataFileEvaluator             dataFileEvaluator            ;
 		private final StorageEntityCache.Default           entityCache                  ;
 		private final StorageFileWriter                    writer                       ;
@@ -209,7 +209,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			final int                                  channelIndex                 ,
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
 			final StorageTimestampProvider             timestampProvider            ,
-			final StorageLiveFileProvider              storageFileProvider          ,
+			final StorageLiveFileProvider              fileProvider                 ,
 			final StorageDataFileEvaluator             dataFileEvaluator            ,
 			final StorageEntityCache.Default           entityCache                  ,
 			final StorageFileWriter                    writer                       ,
@@ -222,7 +222,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.initialDataFileNumberProvider =     notNull(initialDataFileNumberProvider);
 			this.timestampProvider             =     notNull(timestampProvider)            ;
 			this.dataFileEvaluator             =     notNull(dataFileEvaluator)            ;
-			this.storageFileProvider           =     notNull(storageFileProvider)          ;
+			this.fileProvider                  =     notNull(fileProvider)                 ;
 			this.entityCache                   =     notNull(entityCache)                  ;
 			this.writer                        =     notNull(writer)                       ;
 			this.backupHandler                 =     mayNull(backupHandler)                ;
@@ -237,6 +237,11 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		final boolean isWritable()
+		{
+			return this.fileProvider.fileSystem().isWritable();
+		}
 
 		final <L extends Consumer<StorageEntity.Default>> L iterateEntities(final L logic)
 		{
@@ -465,7 +470,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		{
 //			DEBUGStorage.println(this.channelIndex + " creating new head file " + fileNumber);
 
-			final AFile file = this.storageFileProvider.provideDataFile(
+			final AFile file = this.fileProvider.provideDataFile(
 				this.channelIndex(),
 				fileNumber
 			);
@@ -604,7 +609,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 //				+ "(length " + this.headFile.file().length()
 //				+ ") at " + this.headFile.totalLength()
 //			);
-			this.writer.truncate(this.headFile, this.headFile.totalLength(), this.storageFileProvider);
+			this.writer.truncate(this.headFile, this.headFile.totalLength(), this.fileProvider);
 		}
 
 		@Override
@@ -673,7 +678,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 			final StorageTransactionsAnalysis      transactionsAnalysis = this.readTransactionsFile();
 			final EqHashTable<Long, StorageDataInventoryFile> dataFiles = EqHashTable.New();
-			this.storageFileProvider.collectDataFiles(
+			this.fileProvider.collectDataFiles(
 				StorageDataInventoryFile::New,
 				f ->
 					dataFiles.add(f.number(), f),
@@ -813,7 +818,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			final long                                        fileNumber
 		)
 		{
-			final AFile missingEmptyFile = this.storageFileProvider.provideDataFile(
+			final AFile missingEmptyFile = this.fileProvider.provideDataFile(
 				this.channelIndex,
 				fileNumber
 			);
@@ -1078,7 +1083,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 		private StorageLiveTransactionsFile createTransactionsFile()
 		{
-			final AFile file = this.storageFileProvider.provideTransactionsFile(this.channelIndex());
+			final AFile file = this.fileProvider.provideTransactionsFile(this.channelIndex());
 			file.ensureExists();
 			
 			return StorageLiveTransactionsFile.New(file, this.channelIndex());
@@ -1277,7 +1282,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				this.writeTransactionsEntryFileTruncation(lastFile, timestamp, lastFileLength);
 
 				// (20.06.2014 TM)TODO: truncator function to give a chance to evaluate / rescue the doomed data
-				this.writer.truncate(lastFile, lastFileLength, this.storageFileProvider);
+				this.writer.truncate(lastFile, lastFileLength, this.fileProvider);
 			}
 		}
 		
@@ -1528,7 +1533,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.writeTransactionsEntryFileDeletion(file, this.timestampProvider.currentNanoTimestamp());
 
 			// physically delete file after the transactions entry is ensured
-			this.writer.delete(file, this.storageFileProvider);
+			this.writer.delete(file, this.fileProvider);
 		}
 
 		private boolean incrementalTransferEntities(
@@ -1688,7 +1693,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		private void terminateFile(final StorageLiveDataFile.Default file)
 		{
 			file.close();
-			this.writer.delete(file, this.storageFileProvider);
+			this.writer.delete(file, this.fileProvider);
 		}
 
 		final class ImportHelper implements Consumer<StorageChannelImportBatch>

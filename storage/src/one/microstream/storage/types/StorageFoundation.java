@@ -786,6 +786,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+		
+		/* (06.08.2020 TM)TODO: enlarge configuration
+		 * Some of these parts should be moved into the configuration.
+		 * E.g.
+		 * - StorageInitialDataFileNumberProvider
+		 * - StorageThreadNameProvider
+		 */
 
 		private StorageConfiguration                  configuration                ;
 		private StorageOperationController.Creator    operationControllerCreator   ;

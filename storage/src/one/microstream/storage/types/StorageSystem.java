@@ -169,7 +169,7 @@ public interface StorageSystem extends StorageController
 			this.exceptionHandler               = notNull(exceptionHandler)                    ;
 			this.lockFileSetup                  = mayNull(lockFileSetup)                       ;
 			this.lockFileManagerCreator         = notNull(lockFileManagerCreator)              ;
-			this.backupSetup                    = mayNull(storageConfiguration.backupSetup())  ;
+			this.backupSetup                    = getBackupSetup(storageConfiguration)         ;
 			this.backupDataFileValidatorCreator = notNull(backupDataFileValidatorCreator)      ;
 			this.eventLogger                    = notNull(eventLogger)                         ;
 			this.switchByteOrder                =         switchByteOrder                      ;
@@ -180,6 +180,20 @@ public interface StorageSystem extends StorageController
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		private static StorageBackupSetup getBackupSetup(
+			final StorageConfiguration storageConfiguration
+		)
+		{
+			if(!storageConfiguration.fileProvider().fileSystem().isWritable())
+			{
+				// ignore backup for read-only systems to avoid backup file synching during initialization
+				return null;
+			}
+			
+			// may be null
+			return storageConfiguration.backupSetup();
+		}
 
 		@Override
 		public final StorageConfiguration configuration()

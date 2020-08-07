@@ -1,8 +1,9 @@
 package one.microstream.persistence.types;
 
+import one.microstream.afs.WriteController;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 
-public interface PersistenceTarget<D>
+public interface PersistenceTarget<D> extends WriteController
 {
 	public void write(D data) throws PersistenceExceptionTransfer;
 	

@@ -3,6 +3,7 @@ package one.microstream.com;
 import java.nio.ByteOrder;
 import java.util.function.Consumer;
 
+import one.microstream.afs.WriteController;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceFoundation;
@@ -293,6 +294,12 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 			}
 			
 			return this;
+		}
+		
+		protected WriteController comWriteController()
+		{
+			// (06.08.2020 TM)TODO: Com Layer WriteController
+			return WriteController.Enabled();
 		}
 		
 	}
