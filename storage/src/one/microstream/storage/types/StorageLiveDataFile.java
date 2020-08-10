@@ -244,9 +244,9 @@ extends StorageDataFile, StorageLiveChannelFile<StorageLiveDataFile>, StorageCre
 		}
 		
 		@Override
-		protected synchronized boolean internalOpen()
+		protected synchronized boolean internalOpenWriting()
 		{
-			final boolean wasNewlyOpened = super.internalOpen();
+			final boolean wasNewlyOpened = super.internalOpenWriting();
 			if(!wasNewlyOpened)
 			{
 				return false;
