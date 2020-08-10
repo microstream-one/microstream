@@ -104,7 +104,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		private final BufferSizeProviderIncremental loadingBufferSizeProvider;
 		private final StorageEventLogger            eventLogger              ;
 
-		private final HousekeepingTask[] housekeepingTasks = this.defineHouseKeepingTasks();
+		private final HousekeepingTask[] housekeepingTasks;
 		
 		private int nextHouseKeepingIndex;
 
@@ -152,6 +152,9 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			this.loadingBufferSizeProvider =     notNull(loadingBufferSizeProvider);
 			this.eventLogger               =     notNull(eventLogger)              ;
 			this.switchByteOrder           =             switchByteOrder           ;
+			
+			// depends on this.fileManager!
+			this.housekeepingTasks = this.defineHouseKeepingTasks();
 		}
 
 

@@ -46,4 +46,25 @@ public interface WriteController
 		
 	}
 	
+	public static WriteController Disabled()
+	{
+		// Singleton is (usually) an anti pattern.
+		return new WriteController.Disabled();
+	}
+	
+	public final class Disabled implements WriteController
+	{
+		Disabled()
+		{
+			super();
+		}
+
+		@Override
+		public final boolean isWritable()
+		{
+			return false;
+		}
+		
+	}
+	
 }
