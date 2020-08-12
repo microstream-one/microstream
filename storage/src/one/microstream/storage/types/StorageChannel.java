@@ -166,11 +166,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		private HousekeepingTask[] defineHouseKeepingTasks()
 		{
 			final BulkList<HousekeepingTask> tasks = BulkList.New();
-			
-			if(this.fileManager.isWritable())
-			{
-				tasks.add(this::houseKeepingCheckFileCleanup);
-			}
+			tasks.add(this::houseKeepingCheckFileCleanup);
 			tasks.add(this::houseKeepingGarbageCollection);
 			tasks.add(this::houseKeepingLiveCheck);
 			// (16.06.2020 TM)TODO: priv#49: housekeeping task that closes data files after a timeout.
@@ -254,6 +250,12 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 		final boolean houseKeepingCheckFileCleanup()
 		{
+			// (12.08.2020 TM)FIXME: priv#351: replace with StorageWriteController
+			if(!this.fileManager.isWritable())
+			{
+				return true;
+			}
+			
 			return this.fileManager.incrementalFileCleanupCheck(
 				this.calculateSpecificHousekeepingTimeBudgetBound(
 					this.housekeepingController.fileCheckTimeBudgetNs()

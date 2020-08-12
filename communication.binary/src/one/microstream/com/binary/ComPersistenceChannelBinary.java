@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import one.microstream.X;
-import one.microstream.afs.WriteController;
 import one.microstream.chars.VarString;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.com.ComException;
@@ -19,16 +18,17 @@ import one.microstream.persistence.binary.types.ChunksWrapper;
 import one.microstream.persistence.binary.types.ChunksWrapperByteReversing;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 import one.microstream.persistence.types.ByteOrderTargeting;
+import one.microstream.persistence.types.PersistenceWriteController;
 import one.microstream.util.BufferSizeProvider;
 
 
 public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C, Binary>
 {
 	public static ComPersistenceChannelBinary.Default New(
-		final SocketChannel         channel           ,
-		final BufferSizeProvider    bufferSizeProvider,
-		final ByteOrderTargeting<?> byteOrderTargeting,
-		final WriteController       writeController
+		final SocketChannel              channel           ,
+		final BufferSizeProvider         bufferSizeProvider,
+		final ByteOrderTargeting<?>      byteOrderTargeting,
+		final PersistenceWriteController writeController
 	)
 	{
 		return new ComPersistenceChannelBinary.Default(
@@ -90,8 +90,8 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		// instance fields //
 		////////////////////
 
-		private final ByteOrderTargeting<?> byteOrderTargeting;
-		private final WriteController       writeController   ;
+		private final ByteOrderTargeting<?>      byteOrderTargeting;
+		private final PersistenceWriteController writeController   ;
 		
 		
 		
@@ -100,10 +100,10 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		/////////////////
 
 		Default(
-			final SocketChannel         channel           ,
-			final BufferSizeProvider    bufferSizeProvider,
-			final ByteOrderTargeting<?> byteOrderTargeting,
-			final WriteController       writeController
+			final SocketChannel              channel           ,
+			final BufferSizeProvider         bufferSizeProvider,
+			final ByteOrderTargeting<?>      byteOrderTargeting,
+			final PersistenceWriteController writeController
 		)
 		{
 			super(channel, bufferSizeProvider);
@@ -230,6 +230,18 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		public final boolean isWritable()
 		{
 			return this.writeController.isWritable();
+		}
+		
+		@Override
+		public void validateIsStoringEnabled()
+		{
+			this.writeController.validateIsStoringEnabled();
+		}
+		
+		@Override
+		public boolean isStoringEnabled()
+		{
+			return this.writeController.isStoringEnabled();
 		}
 		
 

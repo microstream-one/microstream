@@ -25,7 +25,10 @@ public final class BinaryStorageChannel implements PersistenceChannel<Binary>
 	// constructors //
 	/////////////////
 
-	public BinaryStorageChannel(final PersistenceSource<Binary> source, final PersistenceTarget<Binary> target)
+	public BinaryStorageChannel(
+		final PersistenceSource<Binary> source,
+		final PersistenceTarget<Binary> target
+	)
 	{
 		super();
 		this.source = notNull(source);
@@ -67,6 +70,18 @@ public final class BinaryStorageChannel implements PersistenceChannel<Binary>
 	public final boolean isWritable()
 	{
 		return this.target.isWritable();
+	}
+	
+	@Override
+	public void validateIsStoringEnabled()
+	{
+		this.target.validateIsStoringEnabled();
+	}
+	
+	@Override
+	public boolean isStoringEnabled()
+	{
+		return this.target.isStoringEnabled();
 	}
 
 //	@Override

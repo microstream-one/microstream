@@ -72,6 +72,6 @@ public class BinaryFileTarget implements PersistenceTarget<Binary>
 	{
 		return this.fs.isWritable();
 	}
-
+	
 }
 

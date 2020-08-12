@@ -482,6 +482,10 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	
 	public StorageEventLogger getEventLogger();
 
+	public StorageWriteController writeController();
+	
+	public StorageWriteController getWriteController();
+
 	
 	
 	/**
@@ -766,6 +770,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	
 	public F setEventLogger(StorageEventLogger eventLogger);
 	
+
+	public F setWriteController(StorageWriteController writeController);
+	
 	
 	/**
 	 * Creates and returns a new {@link StorageSystem} instance by using the current state of all registered
@@ -826,6 +833,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageLockFileManager.Creator        lockFileManagerCreator       ;
 		private StorageExceptionHandler               exceptionHandler             ;
 		private StorageEventLogger                    eventLogger                  ;
+		private StorageWriteController                writeController              ;
 
 		
 		
@@ -1042,6 +1050,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		protected ByteOrder ensureTargetByteOrder()
 		{
 			return ByteOrder.nativeOrder();
+		}
+		
+		protected StorageWriteController ensureWriteController()
+		{
+			return StorageWriteController.Wrap(
+				this.getConfiguration().fileProvider().fileSystem()
+			);
 		}
 		
 		
@@ -1364,6 +1379,22 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			}
 			return this.eventLogger;
 		}
+		
+		@Override
+		public StorageWriteController writeController()
+		{
+			return this.writeController;
+		}
+		
+		@Override
+		public StorageWriteController getWriteController()
+		{
+			if(this.writeController == null)
+			{
+				this.writeController = this.dispatch(this.ensureWriteController());
+			}
+			return this.writeController;
+		}
 
 		
 		
@@ -1621,6 +1652,14 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		public F setEventLogger(final StorageEventLogger eventLogger)
 		{
 			this.eventLogger = eventLogger;
+			return this.$();
+		}
+		
+		@Override
+		public F setWriteController(final StorageWriteController writeController)
+		{
+			this.writeController = writeController;
+			
 			return this.$();
 		}
 		

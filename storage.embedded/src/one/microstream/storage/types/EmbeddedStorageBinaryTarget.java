@@ -2,7 +2,6 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import one.microstream.afs.WriteController;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 import one.microstream.persistence.types.PersistenceTarget;
@@ -16,7 +15,7 @@ public interface EmbeddedStorageBinaryTarget extends PersistenceTarget<Binary>
 	
 	public static EmbeddedStorageBinaryTarget New(
 		final StorageRequestAcceptor requestAcceptor,
-		final WriteController        writeController
+		final StorageWriteController writeController
 	)
 	{
 		return new EmbeddedStorageBinaryTarget.Default(
@@ -32,7 +31,7 @@ public interface EmbeddedStorageBinaryTarget extends PersistenceTarget<Binary>
 		////////////////////
 
 		private final StorageRequestAcceptor requestAcceptor;
-		private final WriteController        writeController;
+		private final StorageWriteController writeController;
 
 
 
@@ -42,7 +41,7 @@ public interface EmbeddedStorageBinaryTarget extends PersistenceTarget<Binary>
 
 		Default(
 			final StorageRequestAcceptor requestAcceptor,
-			final WriteController        writeController
+			final StorageWriteController writeController
 		)
 		{
 			super();
@@ -80,6 +79,18 @@ public interface EmbeddedStorageBinaryTarget extends PersistenceTarget<Binary>
 		public final boolean isWritable()
 		{
 			return this.writeController.isWritable();
+		}
+		
+		@Override
+		public final void validateIsStoringEnabled()
+		{
+			this.writeController.validateIsStoringEnabled();
+		}
+		
+		@Override
+		public final boolean isStoringEnabled()
+		{
+			return this.writeController.isStoringEnabled();
 		}
 
 	}
