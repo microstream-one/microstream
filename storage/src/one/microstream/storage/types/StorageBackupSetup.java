@@ -14,6 +14,7 @@ public interface StorageBackupSetup
 	
 	public StorageBackupHandler setupHandler(
 		StorageOperationController operationController,
+		StorageWriteController     writeController    ,
 		StorageDataFileValidator   validator
 	);
 	
@@ -113,6 +114,7 @@ public interface StorageBackupSetup
 		@Override
 		public StorageBackupHandler setupHandler(
 			final StorageOperationController operationController,
+			final StorageWriteController     writeController    ,
 			final StorageDataFileValidator   validator
 		)
 		{
@@ -122,6 +124,7 @@ public interface StorageBackupSetup
 				channelCount       ,
 				this.itemQueue     ,
 				operationController,
+				writeController    ,
 				validator
 			);
 		}

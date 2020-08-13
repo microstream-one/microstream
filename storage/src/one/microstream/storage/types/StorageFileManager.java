@@ -128,6 +128,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		private final StorageLiveFileProvider              fileProvider                 ;
 		private final StorageDataFileEvaluator             dataFileEvaluator            ;
 		private final StorageEntityCache.Default           entityCache                  ;
+		private final StorageWriteController               writeController              ;
 		private final StorageFileWriter                    writer                       ;
 		private final StorageBackupHandler                 backupHandler                ;
 		
@@ -212,6 +213,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			final StorageLiveFileProvider              fileProvider                 ,
 			final StorageDataFileEvaluator             dataFileEvaluator            ,
 			final StorageEntityCache.Default           entityCache                  ,
+			final StorageWriteController               writeController              ,
 			final StorageFileWriter                    writer                       ,
 			final BufferSizeProvider                   standardBufferSizeProvider   ,
 			final StorageBackupHandler                 backupHandler
@@ -224,6 +226,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.dataFileEvaluator             =     notNull(dataFileEvaluator)            ;
 			this.fileProvider                  =     notNull(fileProvider)                 ;
 			this.entityCache                   =     notNull(entityCache)                  ;
+			this.writeController               =     notNull(writeController)              ;
 			this.writer                        =     notNull(writer)                       ;
 			this.backupHandler                 =     mayNull(backupHandler)                ;
 			
@@ -238,9 +241,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		// methods //
 		////////////
 		
-		final boolean isWritable()
+		final boolean isFileCleanupEnabled()
 		{
-			return this.fileProvider.fileSystem().isWritable();
+			return this.writeController.isFileCleanupEnabled();
 		}
 
 		final <L extends Consumer<StorageEntity.Default>> L iterateEntities(final L logic)
@@ -1394,6 +1397,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			{
 				return true;
 			}
+			
+			this.writeController.validateIsFileCleanupEnabled();
 
 			if(this.fileCleanupCursor == null)
 			{
@@ -1532,13 +1537,15 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			 */
 			this.writeTransactionsEntryFileDeletion(file, this.timestampProvider.currentNanoTimestamp());
 
+			// (12.08.2020 TM)FIXME: priv#351: where and how to check whether files may be deleted? Here? Weird!
+			
 			// physically delete file after the transactions entry is ensured
-			this.writer.delete(file, this.fileProvider);
+			this.writer.delete(file, this.writeController, this.fileProvider);
 		}
 
 		private boolean incrementalTransferEntities(
 			final StorageLiveDataFile.Default file               ,
-			final long                    nanoTimeBudgetBound
+			final long                        nanoTimeBudgetBound
 		)
 		{
 			// check for new head file in any case
@@ -1692,8 +1699,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		
 		private void terminateFile(final StorageLiveDataFile.Default file)
 		{
+			// (12.08.2020 TM)FIXME: priv#351: where and how to check whether files may be deleted? Here? Weird!
 			file.close();
-			this.writer.delete(file, this.fileProvider);
+			this.writer.delete(file, this.writeController, this.fileProvider);
 		}
 
 		final class ImportHelper implements Consumer<StorageChannelImportBatch>
