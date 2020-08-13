@@ -8,12 +8,6 @@ import one.microstream.afs.WriteController;
 @FunctionalInterface
 public interface PersistenceWriteController extends WriteController
 {
-	public interface Provider
-	{
-		public PersistenceWriteController provideWriteController(WriteController fileProvider);
-	}
-	
-	
 	public default void validateIsStoringEnabled()
 	{
 		if(this.isStoringEnabled())

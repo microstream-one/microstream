@@ -57,6 +57,7 @@ public interface StorageSystem extends StorageController
 		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider ;
 		private final StorageDataFileEvaluator             fileDissolver                 ;
 		private final StorageLiveFileProvider              fileProvider                  ;
+		private final StorageWriteController               writeController               ;
 		private final StorageFileWriter.Provider           writerProvider                ;
 		private final StorageRequestAcceptor.Creator       requestAcceptorCreator        ;
 		private final StorageTaskBroker.Creator            taskBrokerCreator             ;
@@ -83,7 +84,6 @@ public interface StorageSystem extends StorageController
 		private final StorageEventLogger                   eventLogger                   ;
 		private final boolean                              switchByteOrder               ;
 
-
 		// state flags //
 		private volatile boolean isStartingUp      ;
 		private volatile boolean isShuttingDown    ;
@@ -92,15 +92,15 @@ public interface StorageSystem extends StorageController
 		private volatile long    operationModeTime ;
 
 		// running state members //
-		private volatile StorageTaskBroker taskbroker    ;
-		private final    ChannelKeeper[]   channelKeepers;
+		private volatile StorageTaskBroker    taskbroker    ;
+		private final    ChannelKeeper[]      channelKeepers;
 		
 		private          StorageBackupHandler backupHandler;
 		private          Thread               backupThread ;
 		
 		private          Thread               lockFileManagerThread;
 		
-		private StorageIdAnalysis initializationIdAnalysis;
+		private          StorageIdAnalysis    initializationIdAnalysis;
 
 
 
@@ -112,6 +112,7 @@ public interface StorageSystem extends StorageController
 			final StorageConfiguration                 storageConfiguration          ,
 			final StorageOperationController.Creator   ocCreator                     ,
 			final StorageDataFileValidator.Creator     backupDataFileValidatorCreator,
+			final StorageWriteController               writeController               ,
 			final StorageFileWriter.Provider           writerProvider                ,
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider ,
 			final StorageRequestAcceptor.Creator       requestAcceptorCreator        ,
@@ -161,6 +162,7 @@ public interface StorageSystem extends StorageController
 			this.rootTypeIdProvider             = notNull(rootTypeIdProvider)                  ;
 			this.timestampProvider              = notNull(timestampProvider)                   ;
 			this.objectIdRangeEvaluator         = notNull(objectIdRangeEvaluator)              ;
+			this.writeController                = notNull(writeController)                     ;
 			this.writerProvider                 = notNull(writerProvider)                      ;
 			this.zombieOidHandler               = notNull(zombieOidHandler)                    ;
 			this.rootOidSelectorProvider        = notNull(rootOidSelectorProvider)             ;
@@ -169,7 +171,7 @@ public interface StorageSystem extends StorageController
 			this.exceptionHandler               = notNull(exceptionHandler)                    ;
 			this.lockFileSetup                  = mayNull(lockFileSetup)                       ;
 			this.lockFileManagerCreator         = notNull(lockFileManagerCreator)              ;
-			this.backupSetup                    = getBackupSetup(storageConfiguration)         ;
+			this.backupSetup                    = mayNull(storageConfiguration.backupSetup())  ;
 			this.backupDataFileValidatorCreator = notNull(backupDataFileValidatorCreator)      ;
 			this.eventLogger                    = notNull(eventLogger)                         ;
 			this.switchByteOrder                =         switchByteOrder                      ;
@@ -181,20 +183,6 @@ public interface StorageSystem extends StorageController
 		// methods //
 		////////////
 		
-		private static StorageBackupSetup getBackupSetup(
-			final StorageConfiguration storageConfiguration
-		)
-		{
-			if(!storageConfiguration.fileProvider().fileSystem().isWritable())
-			{
-				// ignore backup for read-only systems to avoid backup file synching during initialization
-				return null;
-			}
-			
-			// may be null
-			return storageConfiguration.backupSetup();
-		}
-
 		@Override
 		public final StorageConfiguration configuration()
 		{
@@ -315,7 +303,11 @@ public interface StorageSystem extends StorageController
 					.createDataFileValidator(this.typeDictionary)
 				;
 				
-				this.backupHandler = this.backupSetup.setupHandler(this.operationController, validator);
+				this.backupHandler = this.backupSetup.setupHandler(
+					this.operationController,
+					this.writeController,
+					validator
+				);
 			}
 			
 			return this.backupHandler;
@@ -325,6 +317,12 @@ public interface StorageSystem extends StorageController
 		{
 			final StorageBackupHandler backupHandler = this.provideBackupHandler();
 			if(backupHandler == null)
+			{
+				return;
+			}
+			
+			// backup handler may be created for later use. The actual deciding moment is before the starting.
+			if(!this.writeController.isBackupEnabled())
 			{
 				return;
 			}
@@ -418,6 +416,7 @@ public interface StorageSystem extends StorageController
 				this.operationController                   ,
 				this.housekeepingController                ,
 				this.timestampProvider                     ,
+				this.writeController                       ,
 				effectiveWriterProvider                    ,
 				this.zombieOidHandler                      ,
 				this.rootOidSelectorProvider               ,

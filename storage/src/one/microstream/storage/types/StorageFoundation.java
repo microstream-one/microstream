@@ -1689,6 +1689,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.getConfiguration()                ,
 				this.getOperationControllerCreator()   ,
 				this.getDataFileValidatorCreator()     ,
+				this.getWriteController()              ,
 				this.getWriterProvider()               ,
 				this.getInitialDataFileNumberProvider(),
 				this.getRequestAcceptorCreator()       ,

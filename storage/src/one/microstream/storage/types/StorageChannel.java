@@ -250,8 +250,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 		final boolean houseKeepingCheckFileCleanup()
 		{
-			// (12.08.2020 TM)FIXME: priv#351: replace with StorageWriteController
-			if(!this.fileManager.isWritable())
+			if(!this.fileManager.isFileCleanupEnabled())
 			{
 				return true;
 			}
