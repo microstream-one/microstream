@@ -486,6 +486,10 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	
 	public StorageWriteController getWriteController();
 
+	public StorageHousekeepingBroker housekeepingBroker();
+	
+	public StorageHousekeepingBroker getHousekeepingBroker();
+
 	
 	
 	/**
@@ -772,6 +776,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	
 
 	public F setWriteController(StorageWriteController writeController);
+
+	public F setHousekeepingBroker(StorageHousekeepingBroker housekeepingBroker);
 	
 	
 	/**
@@ -834,6 +840,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageExceptionHandler               exceptionHandler             ;
 		private StorageEventLogger                    eventLogger                  ;
 		private StorageWriteController                writeController              ;
+		private StorageHousekeepingBroker             housekeepingBroker           ;
 
 		
 		
@@ -1059,7 +1066,11 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			);
 		}
 		
-		
+		protected StorageHousekeepingBroker ensureHousekeepingBroker()
+		{
+			return StorageHousekeepingBroker.New();
+		}
+				
 		
 
 		@Override
@@ -1395,6 +1406,22 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			}
 			return this.writeController;
 		}
+		
+		@Override
+		public StorageHousekeepingBroker housekeepingBroker()
+		{
+			return this.housekeepingBroker;
+		}
+		
+		@Override
+		public StorageHousekeepingBroker getHousekeepingBroker()
+		{
+			if(this.housekeepingBroker == null)
+			{
+				this.housekeepingBroker = this.dispatch(this.ensureHousekeepingBroker());
+			}
+			return this.housekeepingBroker;
+		}
 
 		
 		
@@ -1663,6 +1690,14 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return this.$();
 		}
 		
+		@Override
+		public F setHousekeepingBroker(final StorageHousekeepingBroker housekeepingBroker)
+		{
+			this.housekeepingBroker = housekeepingBroker;
+			
+			return this.$();
+		}
+		
 		public final boolean isByteOrderMismatch()
 		{
 			/* (11.02.2019 TM)NOTE: On byte order switching:
@@ -1690,6 +1725,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.getOperationControllerCreator()   ,
 				this.getDataFileValidatorCreator()     ,
 				this.getWriteController()              ,
+				this.getHousekeepingBroker()           ,
 				this.getWriterProvider()               ,
 				this.getInitialDataFileNumberProvider(),
 				this.getRequestAcceptorCreator()       ,

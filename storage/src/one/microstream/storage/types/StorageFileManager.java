@@ -22,7 +22,6 @@ import one.microstream.storage.exceptions.StorageExceptionIoReading;
 import one.microstream.storage.exceptions.StorageExceptionIoWritingChunk;
 import one.microstream.storage.types.StorageRawFileStatistics.FileStatistics;
 import one.microstream.storage.types.StorageTransactionsAnalysis.EntryAggregator;
-import one.microstream.time.XTime;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BufferSizeProvider;
 
@@ -72,7 +71,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 	public boolean incrementalFileCleanupCheck(long nanoTimeBudgetBound);
 
-	public boolean issuedFileCleanupCheck(long nanoTimeBudget);
+	public boolean issuedFileCleanupCheck(long nanoTimeBudgetBound);
 
 	public void exportData(StorageLiveFileProvider fileProvider);
 
@@ -1360,14 +1359,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		@Override
-		public final boolean issuedFileCleanupCheck(final long nanoTimeBudget)
+		public final boolean issuedFileCleanupCheck(final long nanoTimeBudgetBound)
 		{
-//			DEBUGStorage.println(this.channelIndex + " processing issued file cleanup check, time budget = "
-//				+ nanoTimeBudget
-//			);
-			
-			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
-
 			return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 		}
 

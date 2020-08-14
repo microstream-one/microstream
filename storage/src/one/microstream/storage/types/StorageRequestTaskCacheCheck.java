@@ -46,7 +46,7 @@ public interface StorageRequestTaskCacheCheck extends StorageRequestTask
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)
 		{
-			this.completed = channel.issuedCacheCheck(this.nanoTimeBudget, this.entityEvaluator);
+			this.completed = channel.issuedEntityCacheCheck(this.nanoTimeBudget, this.entityEvaluator);
 			return null;
 		}
 
