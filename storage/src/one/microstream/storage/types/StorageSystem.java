@@ -71,6 +71,7 @@ public interface StorageSystem extends StorageController
 		private final StorageRootTypeIdProvider            rootTypeIdProvider            ;
 		private final StorageExceptionHandler              exceptionHandler              ;
 		private final StorageHousekeepingController        housekeepingController        ;
+		private final StorageHousekeepingBroker            housekeepingBroker            ;
 		private final StorageTimestampProvider             timestampProvider             ;
 		private final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator        ;
 		private final StorageGCZombieOidHandler            zombieOidHandler              ;
@@ -113,6 +114,7 @@ public interface StorageSystem extends StorageController
 			final StorageOperationController.Creator   ocCreator                     ,
 			final StorageDataFileValidator.Creator     backupDataFileValidatorCreator,
 			final StorageWriteController               writeController               ,
+			final StorageHousekeepingBroker            housekeepingBroker            ,
 			final StorageFileWriter.Provider           writerProvider                ,
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider ,
 			final StorageRequestAcceptor.Creator       requestAcceptorCreator        ,
@@ -152,6 +154,7 @@ public interface StorageSystem extends StorageController
 			this.fileProvider                   = storageConfiguration.fileProvider()          ;
 			this.entityCacheEvaluator           = storageConfiguration.entityCacheEvaluator()  ;
 			this.housekeepingController         = storageConfiguration.housekeepingController();
+			this.housekeepingBroker             = notNull(housekeepingBroker)                  ;
 			this.requestAcceptorCreator         = notNull(requestAcceptorCreator)              ;
 			this.taskBrokerCreator              = notNull(taskBrokerCreator)                   ;
 			this.dataChunkValidatorProvider     = notNull(dataChunkValidatorProvider)          ;
@@ -414,6 +417,7 @@ public interface StorageSystem extends StorageController
 				this.typeDictionary                        ,
 				this.taskbroker                            ,
 				this.operationController                   ,
+				this.housekeepingBroker                    ,
 				this.housekeepingController                ,
 				this.timestampProvider                     ,
 				this.writeController                       ,
