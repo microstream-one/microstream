@@ -111,8 +111,8 @@ public interface Serializer extends Closeable
 		{
 			if(this.persistenceManager == null)
 			{
-				final PersistenceSourceBinary   source = ()   -> X.Constant(this.input);
-				final PersistenceTarget<Binary> target = data -> this.output = data;
+				final PersistenceSourceBinary source = ()   -> X.Constant(this.input);
+				final PersistenceTargetBinary target = data -> this.output = data;
 				
 				final BinaryPersistenceFoundation<?> foundation = BinaryPersistence.Foundation()
 					.setPersister(Database.New(Serializer.class.getName()))
@@ -159,6 +159,16 @@ public interface Serializer extends Closeable
 				throws PersistenceExceptionTransfer
 			{
 				return null;
+			}
+		}
+		
+		
+		static interface PersistenceTargetBinary extends PersistenceTarget<Binary>
+		{
+			@Override
+			default boolean isWritable()
+			{
+				return true;
 			}
 		}
 		
