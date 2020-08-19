@@ -85,8 +85,8 @@ public interface StorageFile
 		
 		private final AFile file;
 		
-		private AWritableFile access;
-
+		private AWritableFile writeAccess;
+		private AReadableFile readAccess ;
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -379,46 +379,73 @@ public interface StorageFile
 		
 		protected synchronized AReadableFile ensureReadable()
 		{
-			return this.ensureWritable();
+			if(this.file.fileSystem().isWritable())
+			{
+				return this.ensureWritable();
+			}
+			
+			this.internalOpenReading();
+			
+			return this.readAccess;
 		}
 		
 		protected synchronized AWritableFile ensureWritable()
 		{
-			this.internalOpen();
+			this.internalOpenWriting();
 			
-			return this.access;
+			return this.writeAccess;
 		}
 		
 		public synchronized boolean isOpen()
 		{
-			return this.access != null && this.access.isOpen();
+			return this.writeAccess != null && this.writeAccess.isOpen();
 		}
 
 		public synchronized boolean close()
 		{
-			if(this.access == null)
+			if(this.writeAccess == null)
 			{
 				return false;
 			}
 			
 			// release closes implicitely.
-			final boolean result = this.access.release();
-			this.access = null;
+			final boolean result = this.writeAccess.release();
+			this.writeAccess = null;
 			
 			return result;
 		}
 		
-		protected synchronized boolean internalOpen()
+		protected synchronized boolean internalOpenWriting()
 		{
 			try
 			{
-				if(this.access == null || this.access.isRetired())
+				if(this.writeAccess == null || this.writeAccess.isRetired())
 				{
-					this.access = this.file().useWriting();
+					this.writeAccess = this.file().useWriting();
+					this.readAccess = this.writeAccess;
 				}
 				
-				this.access.ensureExists();
-				return this.access.open();
+				this.writeAccess.ensureExists();
+				return this.writeAccess.open();
+			}
+			catch(final Exception e)
+			{
+				throw new StorageException(e);
+			}
+		}
+		
+		protected synchronized boolean internalOpenReading()
+		{
+			try
+			{
+				if(this.readAccess == null || this.readAccess.isRetired())
+				{
+					this.writeAccess = null;
+					this.readAccess = this.file().useReading();
+				}
+				
+				this.readAccess.ensureExists();
+				return this.readAccess.open();
 			}
 			catch(final Exception e)
 			{

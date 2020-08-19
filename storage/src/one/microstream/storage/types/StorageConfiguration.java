@@ -30,7 +30,7 @@ public interface StorageConfiguration
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
 	 * 
-	 * @return {@linkDoc StorageConfiguration#New(StorageFileProvider)@return}
+	 * @return {@linkDoc StorageConfiguration#New(StorageLiveFileProvider)@return}
 	 * 
 	 * @see StorageConfiguration#New(StorageLiveFileProvider)
 	 * @see StorageConfiguration.Builder
@@ -209,7 +209,7 @@ public interface StorageConfiguration
 		
 		public StorageLiveFileProvider storagefileProvider();
 		
-		public B setStorageFileProvider(StorageLiveFileProvider storageFileProvider);
+		public B setStorageFileProvider(StorageLiveFileProvider liveFileProvider);
 		
 		public StorageBackupSetup backupSetup();
 		
@@ -233,11 +233,11 @@ public interface StorageConfiguration
 			// instance fields //
 			////////////////////
 
-			private StorageChannelCountProvider   channelCountProvider   = Storage.ChannelCountProvider()  ;
-			private StorageHousekeepingController housekeepingController = Storage.HousekeepingController();
-			private StorageLiveFileProvider           storageFileProvider    = Storage.FileProvider()          ;
-			private StorageDataFileEvaluator      dataFileEvaluator      = Storage.DataFileEvaluator()     ;
-			private StorageEntityCacheEvaluator   entityCacheEvaluator   = Storage.EntityCacheEvaluator()  ;
+			private StorageChannelCountProvider   channelCountProvider   = this.initializeChannelCountProvider();
+			private StorageHousekeepingController housekeepingController = this.initializeHousekeepingController();
+			private StorageLiveFileProvider       storageFileProvider    = this.initializeLiveFileProvider();
+			private StorageDataFileEvaluator      dataFileEvaluator      = this.initializeDataFileEvaluator();
+			private StorageEntityCacheEvaluator   entityCacheEvaluator   = this.initializeEntityCacheEvaluator();
 			private StorageBackupSetup            backupSetup           ; // optional
 			
 			
@@ -257,6 +257,31 @@ public interface StorageConfiguration
 			// methods //
 			////////////
 			
+			protected StorageChannelCountProvider initializeChannelCountProvider()
+			{
+				return Storage.ChannelCountProvider();
+			}
+			
+			protected StorageHousekeepingController initializeHousekeepingController()
+			{
+				return Storage.HousekeepingController();
+			}
+			
+			protected StorageLiveFileProvider initializeLiveFileProvider()
+			{
+				return Storage.FileProvider();
+			}
+			
+			protected StorageDataFileEvaluator initializeDataFileEvaluator()
+			{
+				return Storage.DataFileEvaluator();
+			}
+			
+			protected StorageEntityCacheEvaluator initializeEntityCacheEvaluator()
+			{
+				return Storage.EntityCacheEvaluator();
+			}
+			
 			@SuppressWarnings("unchecked")
 			protected final B $()
 			{
@@ -273,7 +298,7 @@ public interface StorageConfiguration
 			public B setChannelCountProvider(final StorageChannelCountProvider channelCountProvider)
 			{
 				this.channelCountProvider = channelCountProvider == null
-					? Storage.ChannelCountProvider()
+					? this.initializeChannelCountProvider()
 					: channelCountProvider
 				;
 				return this.$();
@@ -289,7 +314,7 @@ public interface StorageConfiguration
 			public B setHousekeepingController(final StorageHousekeepingController housekeepingController)
 			{
 				this.housekeepingController = housekeepingController == null
-					? Storage.HousekeepingController()
+					? this.initializeHousekeepingController()
 					: housekeepingController
 				;
 				return this.$();
@@ -302,12 +327,13 @@ public interface StorageConfiguration
 			}
 			
 			@Override
-			public B setStorageFileProvider(final StorageLiveFileProvider storageFileProvider)
+			public B setStorageFileProvider(final StorageLiveFileProvider liveFileProvider)
 			{
-				this.storageFileProvider = storageFileProvider == null
-					? Storage.FileProvider()
-					: storageFileProvider
+				this.storageFileProvider = liveFileProvider == null
+					? this.initializeLiveFileProvider()
+					: liveFileProvider
 				;
+				
 				return this.$();
 			}
 			
@@ -316,7 +342,7 @@ public interface StorageConfiguration
 			{
 				return this.backupSetup;
 			}
-			
+						
 			@Override
 			public B setBackupSetup(final StorageBackupSetup backupSetup)
 			{
@@ -335,7 +361,7 @@ public interface StorageConfiguration
 			public B setDataFileEvaluator(final StorageDataFileEvaluator dataFileEvaluator)
 			{
 				this.dataFileEvaluator = dataFileEvaluator == null
-					? Storage.DataFileEvaluator()
+					? this.initializeDataFileEvaluator()
 					: dataFileEvaluator
 				;
 				return this.$();
@@ -351,7 +377,7 @@ public interface StorageConfiguration
 			public B setEntityCacheEvaluator(final StorageEntityCacheEvaluator entityCacheEvaluator)
 			{
 				this.entityCacheEvaluator = entityCacheEvaluator == null
-					? Storage.EntityCacheEvaluator()
+					? this.initializeEntityCacheEvaluator()
 					: entityCacheEvaluator
 				;
 				return this.$();

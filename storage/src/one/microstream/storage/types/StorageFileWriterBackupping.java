@@ -211,12 +211,13 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public void delete(
-			final StorageLiveDataFile file        ,
-			final StorageFileProvider fileProvider
+			final StorageLiveDataFile    file           ,
+			final StorageWriteController writeController,
+			final StorageFileProvider    fileProvider
 		)
 		{
 			// no user increment since only the identifier is required and the actual file can well be deleted.
-			this.delegate.delete(file, fileProvider);
+			this.delegate.delete(file, writeController, fileProvider);
 			this.itemEnqueuer.enqueueDeletionItem(file);
 		}
 		

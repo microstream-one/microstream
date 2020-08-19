@@ -1,5 +1,7 @@
 package one.microstream.afs;
 
+import static one.microstream.X.notNull;
+
 import java.nio.ByteBuffer;
 
 import one.microstream.X;
@@ -10,7 +12,7 @@ import one.microstream.memory.XMemory;
 import one.microstream.util.UtilStackTrace;
 
 
-public interface AIoHandler
+public interface AIoHandler extends WriteController
 {
 	/* (08.06.2020 TM)TODO: priv#49: JavaDoc: guaranteed completeness
 	 * guarantees that all specified bytes (where applicable) are read/written.
@@ -143,7 +145,7 @@ public interface AIoHandler
 	public XGettingEnum<String> listDirectories(ADirectory parent);
 	
 	public XGettingEnum<String> listFiles(ADirectory parent);
-	
+		
 		
 	
 	public abstract class Abstract<
@@ -161,6 +163,8 @@ public interface AIoHandler
 		// instance fields //
 		////////////////////
 		
+		private final WriteController writeController;
+		
 		private final Class<I> typeItem        ;
 		private final Class<F> typeFile        ;
 		private final Class<D> typeDirectory   ;
@@ -174,19 +178,21 @@ public interface AIoHandler
 		/////////////////
 
 		protected Abstract(
-			final Class<I> typeItem        ,
-			final Class<F> typeFile        ,
-			final Class<D> typeDirectory   ,
-			final Class<R> typeReadableFile,
-			final Class<W> typeWritableFile
+			final WriteController writeController ,
+			final Class<I>        typeItem        ,
+			final Class<F>        typeFile        ,
+			final Class<D>        typeDirectory   ,
+			final Class<R>        typeReadableFile,
+			final Class<W>        typeWritableFile
 		)
 		{
 			super();
-			this.typeItem         = typeItem        ;
-			this.typeFile         = typeFile        ;
-			this.typeDirectory    = typeDirectory   ;
-			this.typeReadableFile = typeReadableFile;
-			this.typeWritableFile = typeWritableFile;
+			this.writeController  = notNull(writeController) ;
+			this.typeItem         = notNull(typeItem)        ;
+			this.typeFile         = notNull(typeFile)        ;
+			this.typeDirectory    = notNull(typeDirectory)   ;
+			this.typeReadableFile = notNull(typeReadableFile);
+			this.typeWritableFile = notNull(typeWritableFile);
 		}
 		
 		
@@ -194,6 +200,18 @@ public interface AIoHandler
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final void validateIsWritable()
+		{
+			this.writeController.validateIsWritable();
+		}
+		
+		@Override
+		public final boolean isWritable()
+		{
+			return this.writeController.isWritable();
+		}
 		
 		protected abstract long specificSize(F file);
 
@@ -584,6 +602,7 @@ public interface AIoHandler
 		public boolean openWriting(final AWritableFile file)
 		{
 			this.validateHandledWritableFile(file);
+			this.validateIsWritable();
 
 			return this.specificOpenWriting(this.typeWritableFile.cast(file));
 		}
@@ -595,6 +614,8 @@ public interface AIoHandler
 						
 			synchronized(ADirectory.actual(directory))
 			{
+				this.validateIsWritable();
+				
 				directory.iterateObservers(o ->
 					o.onBeforeDirectoryCreate(directory)
 				);
@@ -620,6 +641,8 @@ public interface AIoHandler
 			
 			synchronized(parent)
 			{
+				this.validateIsWritable();
+				
 				file.parent().iterateObservers(o ->
 					o.onBeforeFileCreate(file)
 				);
@@ -803,6 +826,8 @@ public interface AIoHandler
 
 			// it is by far the most common and intuitive case for copy to ensure existence implicitely
 			target.ensureExists();
+
+			this.validateIsWritable();
 			
 			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, target);
 		}
@@ -820,6 +845,8 @@ public interface AIoHandler
 			// it is by far the most common and intuitive case for copy to ensure existence implicitely
 			target.ensureExists();
 
+			this.validateIsWritable();
+			
 			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, length, target);
 		}
 
@@ -851,6 +878,8 @@ public interface AIoHandler
 //			// it is by far the most common and intuitive case for copy to ensure existence implicitely
 //			target.ensureExists();
 //
+//			this.validateIsWritable();
+//
 //			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target, targetPosition, length);
 //		}
 //
@@ -868,6 +897,8 @@ public interface AIoHandler
 //			// it is by far the most common and intuitive case for copy to ensure existence implicitely
 //			target.ensureExists();
 //
+//			this.validateIsWritable();
+//
 //			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, target, targetPosition, length);
 //		}
 		
@@ -882,6 +913,8 @@ public interface AIoHandler
 			// it is by far the most common and intuitive case for copy to ensure existence implicitely
 			targetSubject.ensureExists();
 
+			this.validateIsWritable();
+			
 			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject));
 		}
 		
@@ -896,6 +929,8 @@ public interface AIoHandler
 
 			// it is by far the most common and intuitive case for copy to ensure existence implicitely
 			targetSubject.ensureExists();
+
+			this.validateIsWritable();
 			
 			return this.specificCopyFrom(source, sourcePosition, this.typeWritableFile.cast(targetSubject));
 		}
@@ -913,6 +948,8 @@ public interface AIoHandler
 			// it is by far the most common and intuitive case for copy to ensure existence implicitely
 			targetSubject.ensureExists();
 
+			this.validateIsWritable();
+			
 			return this.specificCopyFrom(source, sourcePosition, length, this.typeWritableFile.cast(targetSubject));
 		}
 
@@ -927,6 +964,8 @@ public interface AIoHandler
 //
 //			// it is by far the most common and intuitive case for copy to ensure existence implicitely
 //			targetSubject.ensureExists();
+//
+//			this.validateIsWritable();
 //
 //			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition);
 //		}
@@ -943,6 +982,8 @@ public interface AIoHandler
 //
 //			// it is by far the most common and intuitive case for copy to ensure existence implicitely
 //			targetSubject.ensureExists();
+//
+//			this.validateIsWritable();
 //
 //			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition, length);
 //		}
@@ -961,6 +1002,8 @@ public interface AIoHandler
 //			// it is by far the most common and intuitive case for copy to ensure existence implicitely
 //			targetSubject.ensureExists();
 //
+//			this.validateIsWritable();
+//
 //			return this.specificCopyFrom(source, sourcePosition, this.typeWritableFile.cast(targetSubject), targetPosition, length);
 //		}
 
@@ -974,6 +1017,8 @@ public interface AIoHandler
 			
 			synchronized(targetFile.actual())
 			{
+				this.validateIsWritable();
+				
 				targetFile.iterateObservers(o ->
 					o.onBeforeFileWrite(targetFile, sourceBuffers)
 				);
@@ -1006,6 +1051,8 @@ public interface AIoHandler
 			 * intentionally no locking here, since there are TWO sets of parent&file involved,
 			 * which could cause deadlocks.
 			 */
+
+			this.validateIsWritable();
 			
 			targetParent.iterateObservers(o ->
 			{
@@ -1057,12 +1104,16 @@ public interface AIoHandler
 			final boolean result;
 			synchronized(parent)
 			{
+				this.validateIsWritable();
+				
 				file.parent().iterateObservers(o ->
 					o.onBeforeFileDelete(file)
 				);
 				
 				synchronized(file.actual())
 				{
+					this.validateIsWritable();
+					
 					file.iterateObservers(o ->
 						o.onBeforeFileDelete(file)
 					);
@@ -1090,6 +1141,8 @@ public interface AIoHandler
 			
 			synchronized(file.actual())
 			{
+				this.validateIsWritable();
+				
 				file.iterateObservers(o ->
 					o.onBeforeFileTruncation(file, newSize)
 				);
