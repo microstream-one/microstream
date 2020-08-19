@@ -31,7 +31,10 @@ public interface ByteSizeParser
 		}
 
 		@Override
-		public long parseByteSize(final String text, final ByteMultiple defaultByteMultiple)
+		public long parseByteSize(
+			final String       text               ,
+			final ByteMultiple defaultByteMultiple
+		)
 		{
 			final Matcher matcher = this.pattern.matcher(text);
 			if(matcher.find())
@@ -60,7 +63,7 @@ public interface ByteSizeParser
 			final String unitText
 		)
 		{
-			double amount;
+			final double amount;
 			try
 			{
 				amount = Double.parseDouble(amountText);

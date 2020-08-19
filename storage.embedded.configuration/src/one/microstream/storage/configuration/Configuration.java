@@ -149,7 +149,8 @@ public interface Configuration
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
 		final URL         url                = contextClassloader != null
 			? contextClassloader.getResource(defaultName)
-			: Configuration.class.getResource("/" + defaultName);
+			: Configuration.class.getResource("/" + defaultName)
+		;
 		if(url != null)
 		{
 			return LoadIni(url, charset);
@@ -885,7 +886,7 @@ public interface Configuration
 	/**
 	 * The base directory of the storage in the file system.
 	 */
-	public Configuration setBaseDirectory(final String baseDirectory);
+	public Configuration setBaseDirectory(String baseDirectory);
 
 	/**
 	 * The base directory of the storage in the file system.
@@ -908,7 +909,7 @@ public interface Configuration
 	/**
 	 * The deletion directory.
 	 */
-	public Configuration setDeletionDirectory(final String deletionDirectory);
+	public Configuration setDeletionDirectory(String deletionDirectory);
 
 	/**
 	 * The deletion directory.
@@ -918,7 +919,7 @@ public interface Configuration
 	/**
 	 * The truncation directory.
 	 */
-	public Configuration setTruncationDirectory(final String truncationDirectory);
+	public Configuration setTruncationDirectory(String truncationDirectory);
 
 	/**
 	 * The truncation directory.
@@ -928,7 +929,7 @@ public interface Configuration
 	/**
 	 * The backup directory.
 	 */
-	public Configuration setBackupDirectory(final String backupDirectory);
+	public Configuration setBackupDirectory(String backupDirectory);
 
 	/**
 	 * The backup directory.
@@ -1363,7 +1364,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setBaseDirectory(final String baseDirectory)
+		public Configuration setBaseDirectory(
+			final String baseDirectory
+		)
 		{
 			this.baseDirectory = notEmpty(baseDirectory);
 			return this;
@@ -1376,7 +1379,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDeletionDirectory(final String deletionDirectory)
+		public Configuration setDeletionDirectory(
+			final String deletionDirectory
+		)
 		{
 			this.deletionDirectory = deletionDirectory;
 			return this;
@@ -1389,7 +1394,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setTruncationDirectory(final String truncationDirectory)
+		public Configuration setTruncationDirectory(
+			final String truncationDirectory
+		)
 		{
 			this.truncationDirectory = truncationDirectory;
 			return this;
@@ -1402,7 +1409,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setBackupDirectory(final String backupDirectory)
+		public Configuration setBackupDirectory(
+			final String backupDirectory
+		)
 		{
 			this.backupDirectory = backupDirectory;
 			return this;
@@ -1415,7 +1424,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setChannelCount(final int channelCount)
+		public Configuration setChannelCount(
+			final int channelCount
+		)
 		{
 			StorageChannelCountProvider.Validation.validateParameters(channelCount);
 			this.channelCount = channelCount;
@@ -1429,7 +1440,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setChannelDirectoryPrefix(final String channelDirectoryPrefix)
+		public Configuration setChannelDirectoryPrefix(
+			final String channelDirectoryPrefix
+		)
 		{
 			this.channelDirectoryPrefix = notNull(channelDirectoryPrefix);
 			return this;
@@ -1442,7 +1455,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDataFilePrefix(final String dataFilePrefix)
+		public Configuration setDataFilePrefix(
+			final String dataFilePrefix
+		)
 		{
 			this.dataFilePrefix = notNull(dataFilePrefix);
 			return this;
@@ -1455,7 +1470,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDataFileSuffix(final String dataFileSuffix)
+		public Configuration setDataFileSuffix(
+			final String dataFileSuffix
+		)
 		{
 			this.dataFileSuffix = notNull(dataFileSuffix);
 			return this;
@@ -1468,7 +1485,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setTransactionFilePrefix(final String transactionFilePrefix)
+		public Configuration setTransactionFilePrefix(
+			final String transactionFilePrefix
+		)
 		{
 			this.transactionFilePrefix = notNull(transactionFilePrefix);
 			return this;
@@ -1481,7 +1500,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setTransactionFileSuffix(final String transactionFileSuffix)
+		public Configuration setTransactionFileSuffix(
+			final String transactionFileSuffix
+		)
 		{
 			this.transactionFileSuffix = notNull(transactionFileSuffix);
 			return this;
@@ -1494,7 +1515,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setTypeDictionaryFilename(final String typeDictionaryFilename)
+		public Configuration setTypeDictionaryFilename(
+			final String typeDictionaryFilename
+		)
 		{
 			this.typeDictionaryFilename = notEmpty(typeDictionaryFilename);
 			return this;
@@ -1507,7 +1530,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setRescuedFileSuffix(final String rescuedFileSuffix)
+		public Configuration setRescuedFileSuffix(
+			final String rescuedFileSuffix
+		)
 		{
 			this.rescuedFileSuffix = notEmpty(rescuedFileSuffix);
 			return this;
@@ -1520,7 +1545,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setLockFileName(final String lockFileName)
+		public Configuration setLockFileName(
+			final String lockFileName
+		)
 		{
 			this.lockFileName = lockFileName;
 			return this;
@@ -1533,7 +1560,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setHousekeepingIntervalMs(final long housekeepingIntervalMs)
+		public Configuration setHousekeepingIntervalMs(
+			final long housekeepingIntervalMs
+		)
 		{
 			StorageHousekeepingController.Validation.validateParameters(
 				housekeepingIntervalMs,
@@ -1550,7 +1579,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setHousekeepingTimeBudgetNs(final long housekeepingNanoTimeBudgetNs)
+		public Configuration setHousekeepingTimeBudgetNs(
+			final long housekeepingNanoTimeBudgetNs
+		)
 		{
 			StorageHousekeepingController.Validation.validateParameters(
 				StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs(),
@@ -1567,7 +1598,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setEntityCacheThreshold(final long entityCacheThreshold)
+		public Configuration setEntityCacheThreshold(
+			final long entityCacheThreshold
+		)
 		{
 			StorageEntityCacheEvaluator.Validation.validateParameters(
 				StorageEntityCacheEvaluator.Defaults.defaultTimeoutMs(),
@@ -1584,7 +1617,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setEntityCacheTimeoutMs(final long entityCacheTimeoutMs)
+		public Configuration setEntityCacheTimeoutMs(
+			final long entityCacheTimeoutMs
+		)
 		{
 			StorageEntityCacheEvaluator.Validation.validateParameters(
 				entityCacheTimeoutMs,
@@ -1601,7 +1636,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDataFileMinimumSize(final int dataFileMinimumSize)
+		public Configuration setDataFileMinimumSize(
+			final int dataFileMinimumSize
+		)
 		{
 			StorageDataFileEvaluator.Validation.validateParameters(
 				dataFileMinimumSize,
@@ -1619,7 +1656,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDataFileMaximumSize(final int dataFileMaximumSize)
+		public Configuration setDataFileMaximumSize(
+			final int dataFileMaximumSize
+		)
 		{
 			StorageDataFileEvaluator.Validation.validateParameters(
 				StorageDataFileEvaluator.Validation.minimumFileSize(),
@@ -1637,7 +1676,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDataFileMinimumUseRatio(final double dataFileMinimumUseRatio)
+		public Configuration setDataFileMinimumUseRatio(
+			final double dataFileMinimumUseRatio
+		)
 		{
 			StorageDataFileEvaluator.Validation.validateParameters(
 				StorageDataFileEvaluator.Defaults.defaultFileMinimumSize(),

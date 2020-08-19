@@ -8,25 +8,41 @@ public class StorageConfigurationIoException extends StorageConfigurationExcepti
 	}
 
 	public StorageConfigurationIoException(
-		String message,
-		Throwable cause,
-		boolean enableSuppression,
-		boolean writableStackTrace)
+		final String    message           ,
+		final Throwable cause             ,
+		final boolean   enableSuppression ,
+		final boolean   writableStackTrace
+	)
 	{
-		super(message, cause, enableSuppression, writableStackTrace);
+		super(
+			message           ,
+			cause             ,
+			enableSuppression ,
+			writableStackTrace
+		);
 	}
 
-	public StorageConfigurationIoException(String message, Throwable cause)
+	public StorageConfigurationIoException(
+		final String    message,
+		final Throwable cause
+	)
 	{
-		super(message, cause);
+		super(
+			message,
+			cause
+		);
 	}
 
-	public StorageConfigurationIoException(String message)
+	public StorageConfigurationIoException(
+		final String message
+	)
 	{
 		super(message);
 	}
 
-	public StorageConfigurationIoException(Throwable cause)
+	public StorageConfigurationIoException(
+		final Throwable cause
+	)
 	{
 		super(cause);
 	}

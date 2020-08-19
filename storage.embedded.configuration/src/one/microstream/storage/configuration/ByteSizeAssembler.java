@@ -39,7 +39,8 @@ public interface ByteSizeAssembler extends ObjectStringAssembler<Long>
 		@Override
 		public VarString assemble(final VarString vs, final Long byteSize)
 		{
-			final ByteMultiple[] byteMultiples = {
+			final ByteMultiple[] byteMultiples =
+			{
 				ByteMultiple.KB,
 				ByteMultiple.MB,
 				ByteMultiple.GB,
@@ -52,7 +53,7 @@ public interface ByteSizeAssembler extends ObjectStringAssembler<Long>
 
 			for(final ByteMultiple byteMultiple : byteMultiples)
 			{
-				final double value = ByteMultiple.convert(byteSize, ByteMultiple.B).to(byteMultiple);
+				final double value     = ByteMultiple.convert(byteSize, ByteMultiple.B).to(byteMultiple);
 				final long   longValue = (long)value;
 				if(longValue > 0 && longValue < 1000)
 				{

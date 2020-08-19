@@ -16,7 +16,7 @@ import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 */
 public interface ConfigurationPropertyAssembler
 {
-	public Map<String, String> assemble(final Configuration configuration);
+	public Map<String, String> assemble(Configuration configuration);
 
 
 	public static ConfigurationPropertyAssembler New()
@@ -55,7 +55,9 @@ public interface ConfigurationPropertyAssembler
 		}
 
 		@Override
-		public Map<String, String> assemble(final Configuration configuration)
+		public Map<String, String> assemble(
+			final Configuration configuration
+		)
 		{
 			final Map<String, String> map      = new HashMap<>();
 			final Configuration       defaults = Configuration.Default();
@@ -179,10 +181,10 @@ public interface ConfigurationPropertyAssembler
 		}
 
 		protected <T> void optPutProperty(
-			final Map<String, String> map,
-			final String key,
-			final T value,
-			final T defaultValue
+			final Map<String, String> map         ,
+			final String              key         ,
+			final T                   value       ,
+			final T                   defaultValue
 		)
 		{
 			if(value != null && !value.equals(defaultValue))
@@ -191,7 +193,10 @@ public interface ConfigurationPropertyAssembler
 			}
 		}
 
-		protected String toStringValue(final String key, final Object value)
+		protected String toStringValue(
+			final String key  ,
+			final Object value
+		)
 		{
 			switch(key)
 			{
