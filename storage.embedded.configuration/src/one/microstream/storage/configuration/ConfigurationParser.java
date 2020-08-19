@@ -59,7 +59,7 @@ public interface ConfigurationParser
 	 */
 	public Configuration parse(
 		Configuration configuration,
-		String data
+		String        data
 	);
 
 	/**
@@ -119,7 +119,7 @@ public interface ConfigurationParser
 		@Override
 		public Configuration parse(
 			final Configuration configuration,
-			final String data
+			final String        data
 		)
 		{
 			final Map<String, String> properties = new HashMap<>();
@@ -175,7 +175,7 @@ public interface ConfigurationParser
 		@Override
 		public Configuration parse(
 			final Configuration configuration,
-			final String data
+			final String        data
 		)
 		{
 			try

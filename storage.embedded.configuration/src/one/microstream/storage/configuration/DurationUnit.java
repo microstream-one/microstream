@@ -39,7 +39,9 @@ public enum DurationUnit
 	
 	private Function<Long, Duration> creator;
 
-	private DurationUnit(final Function<Long, Duration> creator)
+	private DurationUnit(
+		final Function<Long, Duration> creator
+	)
 	{
 		this.creator = creator;
 	}
@@ -48,4 +50,5 @@ public enum DurationUnit
 	{
 		return this.creator.apply(amount);
 	}
+	
 }
