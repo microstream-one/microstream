@@ -41,7 +41,10 @@ public interface DurationAssembler extends ObjectStringAssembler<Duration>
 		}
 
 		@Override
-		public VarString assemble(final VarString vs, final Duration duration)
+		public VarString assemble(
+			final VarString vs      ,
+			final Duration  duration
+		)
 		{
 			long value;
 			if((value = duration.toDays()) > 0)

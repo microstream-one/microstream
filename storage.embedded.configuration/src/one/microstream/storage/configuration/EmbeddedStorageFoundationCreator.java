@@ -42,7 +42,9 @@ public interface EmbeddedStorageFoundationCreator
 		}
 
 		@Override
-		public EmbeddedStorageFoundation<?> createFoundation(final Configuration configuration)
+		public EmbeddedStorageFoundation<?> createFoundation(
+			final Configuration configuration
+		)
 		{
 			final Path baseDirectory = XIO.unchecked.ensureDirectory(
 				XIO.Path(configuration.getBaseDirectory())
@@ -94,14 +96,18 @@ public interface EmbeddedStorageFoundationCreator
 			;
 		}
 
-		protected StorageChannelCountProvider createChannelCountProvider(final Configuration configuration)
+		protected StorageChannelCountProvider createChannelCountProvider(
+			final Configuration configuration
+		)
 		{
 			return Storage.ChannelCountProvider(
 				configuration.getChannelCount()
 			);
 		}
 
-		protected StorageHousekeepingController createHousekeepingController(final Configuration configuration)
+		protected StorageHousekeepingController createHousekeepingController(
+			final Configuration configuration
+		)
 		{
 			return Storage.HousekeepingController(
 				configuration.getHousekeepingIntervalMs  (),
@@ -109,7 +115,9 @@ public interface EmbeddedStorageFoundationCreator
 			);
 		}
 
-		protected StorageDataFileEvaluator createDataFileEvaluator(final Configuration configuration)
+		protected StorageDataFileEvaluator createDataFileEvaluator(
+			final Configuration configuration
+		)
 		{
 			return Storage.DataFileEvaluator(
 				configuration.getDataFileMinimumSize    (),
@@ -119,7 +127,9 @@ public interface EmbeddedStorageFoundationCreator
 			);
 		}
 
-		protected StorageEntityCacheEvaluator createEntityCacheEvaluator(final Configuration configuration)
+		protected StorageEntityCacheEvaluator createEntityCacheEvaluator(
+			final Configuration configuration
+		)
 		{
 			return Storage.EntityCacheEvaluator(
 				configuration.getEntityCacheTimeoutMs(),

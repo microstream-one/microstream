@@ -75,7 +75,7 @@ public interface ConfigurationStorer
 	}
 
 	public static void storeToUrl(
-		final URL     url             ,
+		final URL     url              ,
 		final String  configurationData
 	)
 	{
@@ -83,7 +83,7 @@ public interface ConfigurationStorer
 	}
 
 	public static void storeToUrl(
-		final URL     url             ,
+		final URL     url              ,
 		final Charset charset          ,
 		final String  configurationData
 	)
@@ -104,9 +104,11 @@ public interface ConfigurationStorer
 	}
 
 
-	public static ConfigurationStorer ToOutputStream(final OutputStream outputStream)
+	public static ConfigurationStorer ToOutputStream(
+		final OutputStream outputStream
+	)
 	{
-		return new OutputStreamConfigurationStorer(
+		return new ConfigurationStorerOutputStream(
 			outputStream,
 			Defaults.defaultCharset()
 		);
@@ -117,7 +119,7 @@ public interface ConfigurationStorer
 		final Charset      charset
 	)
 	{
-		return new OutputStreamConfigurationStorer(
+		return new ConfigurationStorerOutputStream(
 			notNull(outputStream)   ,
 			notNull(charset)
 		);
@@ -126,30 +128,34 @@ public interface ConfigurationStorer
 
 	public static interface Defaults
 	{
+		
 		public static Charset defaultCharset()
 		{
 			return StandardCharsets.UTF_8;
 		}
+		
 	}
 
 
-	public static class OutputStreamConfigurationStorer implements ConfigurationStorer
+	public static class ConfigurationStorerOutputStream implements ConfigurationStorer
 	{
 		private final OutputStream outputStream;
-		private final Charset      charset;
+		private final Charset      charset     ;
 
-		OutputStreamConfigurationStorer(
+		ConfigurationStorerOutputStream(
 			final OutputStream    outputStream,
 			final Charset         charset
 		)
 		{
 			super();
 			this.outputStream = outputStream;
-			this.charset      = charset;
+			this.charset      = charset     ;
 		}
 
 		@Override
-		public void storeConfiguration(final String configurationData)
+		public void storeConfiguration(
+			final String configurationData
+		)
 		{
 			try(OutputStreamWriter writer = new OutputStreamWriter(this.outputStream, this.charset))
 			{

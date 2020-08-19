@@ -25,7 +25,10 @@ public interface FileSizeParser extends ByteSizeParser
 		}
 
 		@Override
-		public long parseFileSize(final String text, final ByteMultiple defaultByteMultiple)
+		public long parseFileSize(
+			final String       text               ,
+			final ByteMultiple defaultByteMultiple
+		)
 		{
 			return super.parseByteSize(text, defaultByteMultiple);
 		}

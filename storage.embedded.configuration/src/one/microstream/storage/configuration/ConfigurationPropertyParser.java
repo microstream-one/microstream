@@ -19,7 +19,7 @@ import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 public interface ConfigurationPropertyParser
 {
 	public void parseProperties(
-		Map<String, String> properties,
+		Map<String, String> properties   ,
 		Configuration       configuration
 	);
 
@@ -62,7 +62,7 @@ public interface ConfigurationPropertyParser
 
 		@Override
 		public void parseProperties(
-			final Map<String, String> properties,
+			final Map<String, String> properties   ,
 			final Configuration       configuration
 		)
 		{
@@ -274,8 +274,8 @@ public interface ConfigurationPropertyParser
 		}
 
 		protected void parseDirectoryPath(
-			final String           value,
-			final Consumer<String> defaultPathConsumer,
+			final String           value               ,
+			final Consumer<String> defaultPathConsumer ,
 			final Consumer<String> userHomePathConsumer
 		)
 		{
@@ -290,7 +290,10 @@ public interface ConfigurationPropertyParser
 			}
 		}
 
-		protected int parseFileSize_int(final String value, final ByteMultiple defaultByteMultiple)
+		protected int parseFileSize_int(
+			final String value                    ,
+			final ByteMultiple defaultByteMultiple
+		)
 		{
 			final long fileSize = this.byteSizeParser.parseByteSize(value, defaultByteMultiple);
 			if(fileSize > Integer.MAX_VALUE)

@@ -50,7 +50,9 @@ public enum ByteMultiple
 		}
 	}
 		
-	public static ByteMultiple ofName(final String name)
+	public static ByteMultiple ofName(
+		final String name
+	)
 	{
 		return nameToUnit.get(name.toLowerCase());
 	}
@@ -79,22 +81,33 @@ public enum ByteMultiple
 	 * 
 	 * @see Conversion
 	 */
-	public static Conversion convert(final double sourceValue, final ByteMultiple sourceUnit)
+	public static Conversion convert(
+		final double       sourceValue,
+		final ByteMultiple sourceUnit
+	)
 	{
 		return targetUnit -> BigDecimal.valueOf(sourceUnit.toBytes(sourceValue)).divide(targetUnit.factor).doubleValue();
 	}
 	
-	private final BigDecimal	factor;
-	private final String[]		names;
 	
-	private ByteMultiple(final int base, final int exponent, final String... names)
+	private final BigDecimal	factor;
+	private final String[]		names ;
+	
+	private ByteMultiple(
+		final int       base    ,
+		final int       exponent,
+		final String... names
+	)
 	{
 		this.factor = BigDecimal.valueOf(base).pow(exponent);
 		this.names  = names;
 	}
 	
-	public long toBytes(final double value)
+	public long toBytes(
+		final double value
+	)
 	{
 		return BigDecimal.valueOf(value).multiply(this.factor).longValue();
 	}
+	
 }
