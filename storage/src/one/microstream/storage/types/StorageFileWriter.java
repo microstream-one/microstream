@@ -154,21 +154,26 @@ public interface StorageFileWriter
 	}
 
 	public default void delete(
-		final StorageLiveDataFile file        ,
-		final StorageFileProvider fileProvider
+		final StorageLiveDataFile    file           ,
+		final StorageWriteController writeController,
+		final StorageFileProvider    fileProvider
 	)
 	{
-		deleteFile(file, fileProvider);
+		deleteFile(file, writeController, fileProvider);
 	}
 	
 	public static void deleteFile(
-		final StorageChannelFile  file        ,
-		final StorageFileProvider fileProvider
+		final StorageChannelFile     file           ,
+		final StorageWriteController writeController,
+		final StorageFileProvider    fileProvider
 	)
 	{
 //		DEBUGStorage.println("storage file deletion");
+		
+		// validate BEFORE moving the file away. Deletion means removing the file.
+		writeController.validateIsFileDeletionEnabled();
 
-		if(rescueFromDeletion(file, fileProvider))
+		if(rescueFromDeletion(file, writeController, fileProvider))
 		{
 			return;
 		}
@@ -207,10 +212,16 @@ public interface StorageFileWriter
 	}
 	
 	public static boolean rescueFromDeletion(
-		final StorageChannelFile  file        ,
-		final StorageFileProvider fileProvider
+		final StorageChannelFile     file           ,
+		final StorageWriteController writeController,
+		final StorageFileProvider    fileProvider
 	)
 	{
+		if(!writeController.isDeletionDirectoryEnabled())
+		{
+			return false;
+		}
+		
 		final AFile deletionTargetFile = fileProvider.provideDeletionTargetFile(file);
 		if(deletionTargetFile == null)
 		{
@@ -224,6 +235,8 @@ public interface StorageFileWriter
 		
 		try
 		{
+			writeController.validateIsDeletionDirectoryEnabled();
+			
 			AFS.executeWriting(deletionTargetFile, wf ->
 			{
 				/*

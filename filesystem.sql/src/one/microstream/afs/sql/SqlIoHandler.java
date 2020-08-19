@@ -9,6 +9,7 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.AIoHandler;
 import one.microstream.afs.AReadableFile;
 import one.microstream.afs.AWritableFile;
+import one.microstream.afs.WriteController;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.io.BufferProvider;
@@ -22,11 +23,22 @@ public interface SqlIoHandler extends AIoHandler
 		final SqlConnector connector
 	)
 	{
-		return new SqlIoHandler.Default(
-			notNull(connector)
+		return New(
+			WriteController.Enabled(),
+			connector
 		);
 	}
 
+	public static SqlIoHandler New(
+		final WriteController writeController,
+		final SqlConnector    connector
+	)
+	{
+		return new SqlIoHandler.Default(
+			notNull(writeController),
+			notNull(connector)
+		);
+	}
 
 	public static final class Default
 	extends AIoHandler.Abstract<
@@ -47,9 +59,13 @@ public interface SqlIoHandler extends AIoHandler
 		// constructors //
 		/////////////////
 
-		Default(final SqlConnector sqlConnector)
+		Default(
+			final WriteController writeController,
+			final SqlConnector    sqlConnector
+		)
 		{
 			super(
+				writeController      ,
 				SqlItemWrapper .class,
 				SqlFileWrapper .class,
 				ADirectory     .class,

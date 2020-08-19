@@ -41,7 +41,8 @@ public interface EmbeddedStorageManager extends StorageManager
 
 	
 	
-	public static EmbeddedStorageManager.Default New(		final Database                               database            ,
+	public static EmbeddedStorageManager.Default New(
+		final Database                               database            ,
 		final StorageConfiguration                   configuration       ,
 		final EmbeddedStorageConnectionFoundation<?> connectionFoundation,
 		final PersistenceRootsProvider<?>            rootsProvider

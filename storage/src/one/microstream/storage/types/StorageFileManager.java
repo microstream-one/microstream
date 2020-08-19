@@ -22,7 +22,6 @@ import one.microstream.storage.exceptions.StorageExceptionIoReading;
 import one.microstream.storage.exceptions.StorageExceptionIoWritingChunk;
 import one.microstream.storage.types.StorageRawFileStatistics.FileStatistics;
 import one.microstream.storage.types.StorageTransactionsAnalysis.EntryAggregator;
-import one.microstream.time.XTime;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BufferSizeProvider;
 
@@ -72,7 +71,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 	public boolean incrementalFileCleanupCheck(long nanoTimeBudgetBound);
 
-	public boolean issuedFileCleanupCheck(long nanoTimeBudget);
+	public boolean issuedFileCleanupCheck(long nanoTimeBudgetBound);
 
 	public void exportData(StorageLiveFileProvider fileProvider);
 
@@ -125,9 +124,10 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		private final int                                  channelIndex                 ;
 		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider;
 		private final StorageTimestampProvider             timestampProvider            ;
-		private final StorageLiveFileProvider              storageFileProvider          ;
+		private final StorageLiveFileProvider              fileProvider                 ;
 		private final StorageDataFileEvaluator             dataFileEvaluator            ;
 		private final StorageEntityCache.Default           entityCache                  ;
+		private final StorageWriteController               writeController              ;
 		private final StorageFileWriter                    writer                       ;
 		private final StorageBackupHandler                 backupHandler                ;
 		
@@ -209,9 +209,10 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			final int                                  channelIndex                 ,
 			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
 			final StorageTimestampProvider             timestampProvider            ,
-			final StorageLiveFileProvider              storageFileProvider          ,
+			final StorageLiveFileProvider              fileProvider                 ,
 			final StorageDataFileEvaluator             dataFileEvaluator            ,
 			final StorageEntityCache.Default           entityCache                  ,
+			final StorageWriteController               writeController              ,
 			final StorageFileWriter                    writer                       ,
 			final BufferSizeProvider                   standardBufferSizeProvider   ,
 			final StorageBackupHandler                 backupHandler
@@ -222,8 +223,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			this.initialDataFileNumberProvider =     notNull(initialDataFileNumberProvider);
 			this.timestampProvider             =     notNull(timestampProvider)            ;
 			this.dataFileEvaluator             =     notNull(dataFileEvaluator)            ;
-			this.storageFileProvider           =     notNull(storageFileProvider)          ;
+			this.fileProvider                  =     notNull(fileProvider)                 ;
 			this.entityCache                   =     notNull(entityCache)                  ;
+			this.writeController               =     notNull(writeController)              ;
 			this.writer                        =     notNull(writer)                       ;
 			this.backupHandler                 =     mayNull(backupHandler)                ;
 			
@@ -237,6 +239,11 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		final boolean isFileCleanupEnabled()
+		{
+			return this.writeController.isFileCleanupEnabled();
+		}
 
 		final <L extends Consumer<StorageEntity.Default>> L iterateEntities(final L logic)
 		{
@@ -465,7 +472,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		{
 //			DEBUGStorage.println(this.channelIndex + " creating new head file " + fileNumber);
 
-			final AFile file = this.storageFileProvider.provideDataFile(
+			final AFile file = this.fileProvider.provideDataFile(
 				this.channelIndex(),
 				fileNumber
 			);
@@ -604,7 +611,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 //				+ "(length " + this.headFile.file().length()
 //				+ ") at " + this.headFile.totalLength()
 //			);
-			this.writer.truncate(this.headFile, this.headFile.totalLength(), this.storageFileProvider);
+			this.writer.truncate(this.headFile, this.headFile.totalLength(), this.fileProvider);
 		}
 
 		@Override
@@ -673,7 +680,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 			final StorageTransactionsAnalysis      transactionsAnalysis = this.readTransactionsFile();
 			final EqHashTable<Long, StorageDataInventoryFile> dataFiles = EqHashTable.New();
-			this.storageFileProvider.collectDataFiles(
+			this.fileProvider.collectDataFiles(
 				StorageDataInventoryFile::New,
 				f ->
 					dataFiles.add(f.number(), f),
@@ -813,7 +820,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			final long                                        fileNumber
 		)
 		{
-			final AFile missingEmptyFile = this.storageFileProvider.provideDataFile(
+			final AFile missingEmptyFile = this.fileProvider.provideDataFile(
 				this.channelIndex,
 				fileNumber
 			);
@@ -1078,7 +1085,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 		private StorageLiveTransactionsFile createTransactionsFile()
 		{
-			final AFile file = this.storageFileProvider.provideTransactionsFile(this.channelIndex());
+			final AFile file = this.fileProvider.provideTransactionsFile(this.channelIndex());
 			file.ensureExists();
 			
 			return StorageLiveTransactionsFile.New(file, this.channelIndex());
@@ -1277,7 +1284,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				this.writeTransactionsEntryFileTruncation(lastFile, timestamp, lastFileLength);
 
 				// (20.06.2014 TM)TODO: truncator function to give a chance to evaluate / rescue the doomed data
-				this.writer.truncate(lastFile, lastFileLength, this.storageFileProvider);
+				this.writer.truncate(lastFile, lastFileLength, this.fileProvider);
 			}
 		}
 		
@@ -1352,14 +1359,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		}
 
 		@Override
-		public final boolean issuedFileCleanupCheck(final long nanoTimeBudget)
+		public final boolean issuedFileCleanupCheck(final long nanoTimeBudgetBound)
 		{
-//			DEBUGStorage.println(this.channelIndex + " processing issued file cleanup check, time budget = "
-//				+ nanoTimeBudget
-//			);
-			
-			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
-
 			return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 		}
 
@@ -1389,6 +1390,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			{
 				return true;
 			}
+			
+			this.writeController.validateIsFileCleanupEnabled();
 
 			if(this.fileCleanupCursor == null)
 			{
@@ -1527,13 +1530,15 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			 */
 			this.writeTransactionsEntryFileDeletion(file, this.timestampProvider.currentNanoTimestamp());
 
+			// (12.08.2020 TM)FIXME: priv#351: where and how to check whether files may be deleted? Here? Weird!
+			
 			// physically delete file after the transactions entry is ensured
-			this.writer.delete(file, this.storageFileProvider);
+			this.writer.delete(file, this.writeController, this.fileProvider);
 		}
 
 		private boolean incrementalTransferEntities(
 			final StorageLiveDataFile.Default file               ,
-			final long                    nanoTimeBudgetBound
+			final long                        nanoTimeBudgetBound
 		)
 		{
 			// check for new head file in any case
@@ -1687,8 +1692,9 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		
 		private void terminateFile(final StorageLiveDataFile.Default file)
 		{
+			// (12.08.2020 TM)FIXME: priv#351: where and how to check whether files may be deleted? Here? Weird!
 			file.close();
-			this.writer.delete(file, this.storageFileProvider);
+			this.writer.delete(file, this.writeController, this.fileProvider);
 		}
 
 		final class ImportHelper implements Consumer<StorageChannelImportBatch>

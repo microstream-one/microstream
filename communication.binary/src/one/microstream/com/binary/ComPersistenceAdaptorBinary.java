@@ -77,7 +77,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			final BufferSizeProvider             bufferSizeProvider,
 			final PersistenceIdStrategy          hostInitIdStrategy,
 			final XGettingEnum<Class<?>>         entityTypes       ,
-			final ByteOrder                      hostByteOrder,
+			final ByteOrder                      hostByteOrder     ,
 			final PersistenceIdStrategy          hostIdStrategy
 		)
 		{
@@ -108,7 +108,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		{
 			return this.bufferSizeProvider;
 		}
-						
+		
 	}
 
 	public final class Default extends ComPersistenceAdaptorBinary.Abstract<SocketChannel>
@@ -122,7 +122,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			final BufferSizeProvider             bufferSizeProvider,
 			final PersistenceIdStrategy          hostInitIdStrategy,
 			final XGettingEnum<Class<?>>         entityTypes       ,
-			final ByteOrder                      hostByteOrder,
+			final ByteOrder                      hostByteOrder     ,
 			final PersistenceIdStrategy          hostIdStrategy
 		)
 		{
@@ -149,7 +149,8 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 				final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 					connection,
 					this.bufferSizeProvider(),
-					foundation
+					foundation,
+					this.comWriteController()
 				);
 				foundation.setPersistenceChannel(channel);
 			}
@@ -170,7 +171,8 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
 				connection,
 				this.bufferSizeProvider(),
-				foundation
+				foundation,
+				this.comWriteController()
 			);
 			foundation.setPersistenceChannel(channel);
 			

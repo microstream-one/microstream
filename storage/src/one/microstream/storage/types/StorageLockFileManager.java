@@ -6,8 +6,10 @@ import java.nio.ByteBuffer;
 
 import one.microstream.X;
 import one.microstream.afs.AFile;
+import one.microstream.afs.AFileSystem;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.collections.ArrayView;
 import one.microstream.collections.XArrays;
 import one.microstream.concurrency.XThreads;
 import one.microstream.memory.XMemory;
@@ -54,14 +56,16 @@ public interface StorageLockFileManager extends Runnable
 		private final StorageOperationController operationController;
 
 		// cached values
-		private transient boolean         isRunning        ;
-		private transient StorageLockFile lockFile         ;
-		private transient LockFileData    lockFileData     ;
-		private transient ByteBuffer[]    wrappedByteBuffer;
-		private transient ByteBuffer      directByteBuffer ;
-		private transient byte[]          stringReadBuffer ;
-		private transient byte[]          stringWriteBuffer;
-		private transient VarString       vs;
+		private transient boolean               isRunning               ;
+		private transient StorageLockFile       lockFile                ;
+		private transient LockFileData          lockFileData            ;
+		private transient ByteBuffer[]          wrappedByteBuffer       ;
+		private transient ArrayView<ByteBuffer> wrappedWrappedByteBuffer;
+		private transient ByteBuffer            directByteBuffer        ;
+		private transient byte[]                stringReadBuffer        ;
+		private transient byte[]                stringWriteBuffer       ;
+		private transient VarString             vs                      ;
+		private transient AFileSystem           fileSystem              ;
 		
 		
 		
@@ -76,11 +80,13 @@ public interface StorageLockFileManager extends Runnable
 		{
 			super();
 			this.setup               = setup              ;
+			this.fileSystem          = setup.lockFileProvider().fileSystem();
 			this.operationController = operationController;
 			this.vs                  = VarString.New()    ;
 			
 			// 2 timestamps with separators and an identifier. Should suffice.
 			this.wrappedByteBuffer = new ByteBuffer[1];
+			this.wrappedWrappedByteBuffer = X.ArrayView(this.wrappedByteBuffer);
 
 			this.stringReadBuffer = new byte[64];
 			this.stringWriteBuffer = this.stringReadBuffer.clone();
@@ -193,14 +199,14 @@ public interface StorageLockFileManager extends Runnable
 			return this.directByteBuffer;
 		}
 		
-		private ByteBuffer[] ensureWritingBuffer(final byte[] bytes)
+		private ArrayView<ByteBuffer> ensureWritingBuffer(final byte[] bytes)
 		{
 			this.ensureBufferCapacity(bytes.length);
 			this.directByteBuffer.limit(bytes.length);
 			
 			this.stringWriteBuffer = bytes;
 			
-			return this.wrappedByteBuffer;
+			return this.wrappedWrappedByteBuffer;
 		}
 		
 		private boolean ensureBufferCapacity(final int capacity)
@@ -325,16 +331,33 @@ public interface StorageLockFileManager extends Runnable
 			}
 			
 		}
+		
+		private boolean lockFileHasContent()
+		{
+			return this.lockFile.exists() && this.lockFile.size() > 0;
+		}
 				
 		private void initialize()
 		{
 			final StorageLiveFileProvider fileProvider = this.setup.lockFileProvider();
-			final AFile               lockFile     = fileProvider.provideLockFile();
+			final AFile                   lockFile     = fileProvider.provideLockFile();
 			this.lockFile = StorageLockFile.New(lockFile);
 			
-			if(this.lockFile.exists() && this.lockFile.size() > 0)
+			final LockFileData initialFileData = this.lockFileHasContent()
+				? this.validateExistingLockFileData(true)
+				: null
+			;
+			
+			if(this.isReadOnlyMode())
 			{
-				this.validateExistingLockFileData(true);
+				if(initialFileData != null)
+				{
+					// write buffer must be filled with the file's current content so the check will be successful.
+					this.setToWriteBuffer(initialFileData);
+				}
+				
+				// abort, since neither lockFileData nor writing is required/allowed in read-only mode.
+				return;
 			}
 
 			this.lockFileData = new LockFileData(this.setup.processIdentity(), this.setup.updateInterval());
@@ -346,7 +369,7 @@ public interface StorageLockFileManager extends Runnable
 			this.writeLockFileData();
 		}
 		
-		private void validateExistingLockFileData(final boolean firstAttempt)
+		private LockFileData validateExistingLockFileData(final boolean firstAttempt)
 		{
 			final LockFileData existingFiledata = this.readLockFileData();
 			
@@ -354,7 +377,7 @@ public interface StorageLockFileManager extends Runnable
 			if(identifier.equals(existingFiledata.identifier))
 			{
 				// database is already owned by "this" process (e.g. crash shorty before), so just continue and reuse.
-				return;
+				return existingFiledata;
 			}
 			
 			if(existingFiledata.isLongExpired())
@@ -363,7 +386,7 @@ public interface StorageLockFileManager extends Runnable
 				 * The lock file is no longer updated, meaning the database is not used anymore
 				 * and the lockfile is just a zombie, probably left by a crash.
 				 */
-				return;
+				return existingFiledata;
 			}
 			
 			// not owned and not expired
@@ -371,10 +394,9 @@ public interface StorageLockFileManager extends Runnable
 			{
 				// wait one interval and try a second time
 				XThreads.sleep(existingFiledata.updateInterval);
-				this.validateExistingLockFileData(false);
+				return this.validateExistingLockFileData(false);
 				
-				// reaching here means no exception (but expiration) on the second attempt, meaning success.
-				return;
+				// returning here means no exception (but expiration) on the second attempt, meaning success.
 			}
 			
 			// not owned, not expired and still active, meaning really still in use, so exception
@@ -385,6 +407,12 @@ public interface StorageLockFileManager extends Runnable
 		
 		private void checkForModifiedLockFile()
 		{
+			if(this.isReadOnlyMode() && !this.lockFileHasContent())
+			{
+				// no existing lock file can be ignored in read-only mode.
+				return;
+			}
+			
 			this.fillReadBufferFromFile();
 			
 			// performance-optimized JDK method
@@ -400,8 +428,19 @@ public interface StorageLockFileManager extends Runnable
 			throw new StorageException("Concurrent lock file modification detected.");
 		}
 		
+		private boolean isReadOnlyMode()
+		{
+			return !this.fileSystem.isWritable();
+		}
+		
 		private void writeLockFileData()
 		{
+			if(this.isReadOnlyMode())
+			{
+				// do not write in read-only mode. But everything else (modification checking etc.) is still required.
+				return;
+			}
+			
 			this.lockFileData.update();
 			
 //			XDebug.println(
@@ -411,19 +450,26 @@ public interface StorageLockFileManager extends Runnable
 //				+ this.lockFileData.identifier
 //			);
 			
+			final ArrayView<ByteBuffer> bb = this.setToWriteBuffer(this.lockFileData);
+			
+			// no need for the writer detour (for now) since it makes no sense to backup lock files.
+			this.lockFile.writeBytes(bb);
+		}
+		
+		private ArrayView<ByteBuffer> setToWriteBuffer(final LockFileData lockFileData)
+		{
 			this.vs.reset()
-			.add(this.lockFileData.lastWriteTime).add(';')
-			.add(this.lockFileData.expirationTime).add(';')
-			.add(this.lockFileData.identifier)
+			.add(lockFileData.lastWriteTime).add(';')
+			.add(lockFileData.expirationTime).add(';')
+			.add(lockFileData.identifier)
 			;
 			
 			final byte[] bytes = this.vs.encodeBy(this.setup.charset());
-			final ByteBuffer[] bb = this.ensureWritingBuffer(bytes);
+			final ArrayView<ByteBuffer> bb = this.ensureWritingBuffer(bytes);
 			
 			XMemory.copyArrayToAddress(bytes, XMemory.getDirectByteBufferAddress(this.directByteBuffer));
 			
-			// no need for the writer detour (for now) since it makes no sense to backup lock files.
-			this.lockFile.writeBytes(X.List(bb));
+			return bb;
 		}
 				
 		private void updateFile()
