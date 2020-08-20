@@ -44,7 +44,10 @@ public interface DurationParser
 		}
 		
 		@Override
-		public Duration parse(final String text, final DurationUnit defaultUnit)
+		public Duration parse(
+			final String       text       ,
+			final DurationUnit defaultUnit
+		)
 		{
 			final Matcher matcher = this.pattern.matcher(text);
 			if(matcher.matches())

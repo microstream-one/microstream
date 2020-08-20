@@ -42,7 +42,7 @@ public interface StorageLiveFileProvider extends StorageFileProvider
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLiveFileProvider.Builder}.
 	 * 
-	 * @return {@linkDoc StorageFileProvider#New(ADirectory)@return}
+	 * @return {@linkDoc StorageLiveFileProvider#New(ADirectory)@return}
 	 * 
 	 * @see StorageLiveFileProvider#New(ADirectory)
 	 * @see StorageLiveFileProvider.Builder
@@ -144,6 +144,15 @@ public interface StorageLiveFileProvider extends StorageFileProvider
 					
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageLiveFileProvider.Builder} instance
+	 * with the default file system.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageLiveFileProvider.Builder}.
+	 * 
+	 * @see Storage#DefaultFileSystem()
+	 * @return a new {@link StorageLiveFileProvider.Builder} instance.
+	 */
 	public static StorageLiveFileProvider.Builder<?> Builder()
 	{
 		return Builder(Storage.DefaultFileSystem());

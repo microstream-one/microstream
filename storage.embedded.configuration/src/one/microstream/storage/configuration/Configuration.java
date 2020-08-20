@@ -6,6 +6,7 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -148,7 +149,8 @@ public interface Configuration
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
 		final URL         url                = contextClassloader != null
 			? contextClassloader.getResource(defaultName)
-			: Configuration.class.getResource("/" + defaultName);
+			: Configuration.class.getResource("/" + defaultName)
+		;
 		if(url != null)
 		{
 			return LoadIni(url, charset);
@@ -205,7 +207,7 @@ public interface Configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static Configuration Load(
-		final String path,
+		final String  path   ,
 		final Charset charset
 	)
 	{
@@ -252,7 +254,7 @@ public interface Configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static Configuration LoadIni(
-		final String path,
+		final String  path   ,
 		final Charset charset
 	)
 	{
@@ -286,7 +288,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadIni(
-		final Path path,
+		final Path    path   ,
 		final Charset charset
 	)
 	{
@@ -320,7 +322,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadIni(
-		final File file,
+		final File    file   ,
 		final Charset charset
 	)
 	{
@@ -354,7 +356,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadIni(
-		final URL url,
+		final URL     url    ,
 		final Charset charset
 	)
 	{
@@ -365,6 +367,8 @@ public interface Configuration
 
 	/**
 	 * Tries to load the configuration INI from the {@link InputStream} <code>inputStream</code>.
+	 * <p>
+	 * Note that the given <code>inputStream</code> will not be closed by this method.
 	 *
 	 * @param inputStream the stream to read from
 	 * @return the configuration
@@ -381,6 +385,8 @@ public interface Configuration
 
 	/**
 	 * Tries to load the configuration INI from the {@link InputStream} <code>inputStream</code>.
+	 * <p>
+	 * Note that the given <code>inputStream</code> will not be closed by this method.
 	 *
 	 * @param inputStream the stream to read from
 	 * @param charset the charset used to load the configuration
@@ -389,7 +395,7 @@ public interface Configuration
 	 */
 	public static Configuration LoadIni(
 		final InputStream inputStream,
-		final Charset charset
+		final Charset     charset
 	)
 	{
 		return ConfigurationParser.Ini().parse(
@@ -434,7 +440,7 @@ public interface Configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static Configuration LoadXml(
-		final String path,
+		final String  path   ,
 		final Charset charset
 	)
 	{
@@ -468,7 +474,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadXml(
-		final Path path,
+		final Path    path   ,
 		final Charset charset
 	)
 	{
@@ -502,7 +508,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadXml(
-		final File file,
+		final File    file   ,
 		final Charset charset
 	)
 	{
@@ -536,7 +542,7 @@ public interface Configuration
 	 * @throws StorageConfigurationException if the configuration couldn't be loaded
 	 */
 	public static Configuration LoadXml(
-		final URL url,
+		final URL     url    ,
 		final Charset charset
 	)
 	{
@@ -547,6 +553,8 @@ public interface Configuration
 
 	/**
 	 * Tries to load the configuration XML from the {@link InputStream} <code>inputStream</code>.
+	 * <p>
+	 * Note that the given <code>inputStream</code> will not be closed by this method.
 	 *
 	 * @param inputStream the stream to read from
 	 * @return the configuration
@@ -563,6 +571,8 @@ public interface Configuration
 
 	/**
 	 * Tries to load the configuration XML from the {@link InputStream} <code>inputStream</code>.
+	 * <p>
+	 * Note that the given <code>inputStream</code> will not be closed by this method.
 	 *
 	 * @param inputStream the stream to read from
 	 * @param charset the charset used to load the configuration
@@ -571,11 +581,293 @@ public interface Configuration
 	 */
 	public static Configuration LoadXml(
 		final InputStream inputStream,
-		final Charset charset
+		final Charset     charset
 	)
 	{
 		return ConfigurationParser.Xml().parse(
 			ConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
+		);
+	}
+	
+	/**
+	 * Exports this configuration as XML.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final OutputStream outputStream
+	)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream).storeConfiguration(
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as XML.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final OutputStream outputStream,
+		final Charset      charset
+	)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream, charset).storeConfiguration(
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final Path path
+	)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final Path    path   ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			charset,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param file the file to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final File file
+	)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param file the file to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final File    file   ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			charset,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param url the URL to write to
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final URL url
+	)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a XML file.
+	 *
+	 * @param url the URL to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportXml(
+		final URL     url    ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			charset,
+			ConfigurationAssembler.Xml().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as INI.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final OutputStream outputStream
+	)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream).storeConfiguration(
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as INI.
+	 * <p>
+	 * Note that the given <code>outputStream</code> will not be closed by this method.
+	 *
+	 * @param outputStream the outputStream to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final OutputStream outputStream,
+		final Charset      charset
+	)
+	{
+		ConfigurationStorer.ToOutputStream(outputStream, charset).storeConfiguration(
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as an INI file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final Path path
+	)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as an INI file to the specified path.
+	 *
+	 * @param path the path to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final Path    path   ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToPath(
+			path,
+			charset,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param file the file to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final File file
+	)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param file the file to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final File    file   ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToFile(
+			file,
+			charset,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param url the URL to write to
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final URL url
+	)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			ConfigurationAssembler.Ini().assemble(this)
+		);
+	}
+
+	/**
+	 * Exports this configuration as a INI file.
+	 *
+	 * @param url the URL to write to
+	 * @param charset the charset used to export the configuration
+	 * @since 3.1
+	 */
+	public default void exportIni(
+		final URL     url    ,
+		final Charset charset
+	)
+	{
+		ConfigurationStorer.storeToUrl(
+			url,
+			charset,
+			ConfigurationAssembler.Ini().assemble(this)
 		);
 	}
 
@@ -594,7 +886,7 @@ public interface Configuration
 	/**
 	 * The base directory of the storage in the file system.
 	 */
-	public Configuration setBaseDirectory(final String baseDirectory);
+	public Configuration setBaseDirectory(String baseDirectory);
 
 	/**
 	 * The base directory of the storage in the file system.
@@ -617,7 +909,7 @@ public interface Configuration
 	/**
 	 * The deletion directory.
 	 */
-	public Configuration setDeletionDirectory(final String deletionDirectory);
+	public Configuration setDeletionDirectory(String deletionDirectory);
 
 	/**
 	 * The deletion directory.
@@ -627,7 +919,7 @@ public interface Configuration
 	/**
 	 * The truncation directory.
 	 */
-	public Configuration setTruncationDirectory(final String truncationDirectory);
+	public Configuration setTruncationDirectory(String truncationDirectory);
 
 	/**
 	 * The truncation directory.
@@ -637,7 +929,7 @@ public interface Configuration
 	/**
 	 * The backup directory.
 	 */
-	public Configuration setBackupDirectory(final String backupDirectory);
+	public Configuration setBackupDirectory(String backupDirectory);
 
 	/**
 	 * The backup directory.
@@ -1072,7 +1364,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setBaseDirectory(final String baseDirectory)
+		public Configuration setBaseDirectory(
+			final String baseDirectory
+		)
 		{
 			this.baseDirectory = notEmpty(baseDirectory);
 			return this;
@@ -1085,7 +1379,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDeletionDirectory(final String deletionDirectory)
+		public Configuration setDeletionDirectory(
+			final String deletionDirectory
+		)
 		{
 			this.deletionDirectory = deletionDirectory;
 			return this;
@@ -1098,7 +1394,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setTruncationDirectory(final String truncationDirectory)
+		public Configuration setTruncationDirectory(
+			final String truncationDirectory
+		)
 		{
 			this.truncationDirectory = truncationDirectory;
 			return this;
@@ -1111,7 +1409,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setBackupDirectory(final String backupDirectory)
+		public Configuration setBackupDirectory(
+			final String backupDirectory
+		)
 		{
 			this.backupDirectory = backupDirectory;
 			return this;
@@ -1124,7 +1424,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setChannelCount(final int channelCount)
+		public Configuration setChannelCount(
+			final int channelCount
+		)
 		{
 			StorageChannelCountProvider.Validation.validateParameters(channelCount);
 			this.channelCount = channelCount;
@@ -1138,7 +1440,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setChannelDirectoryPrefix(final String channelDirectoryPrefix)
+		public Configuration setChannelDirectoryPrefix(
+			final String channelDirectoryPrefix
+		)
 		{
 			this.channelDirectoryPrefix = notNull(channelDirectoryPrefix);
 			return this;
@@ -1151,7 +1455,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDataFilePrefix(final String dataFilePrefix)
+		public Configuration setDataFilePrefix(
+			final String dataFilePrefix
+		)
 		{
 			this.dataFilePrefix = notNull(dataFilePrefix);
 			return this;
@@ -1164,7 +1470,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDataFileSuffix(final String dataFileSuffix)
+		public Configuration setDataFileSuffix(
+			final String dataFileSuffix
+		)
 		{
 			this.dataFileSuffix = notNull(dataFileSuffix);
 			return this;
@@ -1177,7 +1485,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setTransactionFilePrefix(final String transactionFilePrefix)
+		public Configuration setTransactionFilePrefix(
+			final String transactionFilePrefix
+		)
 		{
 			this.transactionFilePrefix = notNull(transactionFilePrefix);
 			return this;
@@ -1190,7 +1500,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setTransactionFileSuffix(final String transactionFileSuffix)
+		public Configuration setTransactionFileSuffix(
+			final String transactionFileSuffix
+		)
 		{
 			this.transactionFileSuffix = notNull(transactionFileSuffix);
 			return this;
@@ -1203,7 +1515,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setTypeDictionaryFilename(final String typeDictionaryFilename)
+		public Configuration setTypeDictionaryFilename(
+			final String typeDictionaryFilename
+		)
 		{
 			this.typeDictionaryFilename = notEmpty(typeDictionaryFilename);
 			return this;
@@ -1216,7 +1530,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setRescuedFileSuffix(final String rescuedFileSuffix)
+		public Configuration setRescuedFileSuffix(
+			final String rescuedFileSuffix
+		)
 		{
 			this.rescuedFileSuffix = notEmpty(rescuedFileSuffix);
 			return this;
@@ -1229,7 +1545,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setLockFileName(final String lockFileName)
+		public Configuration setLockFileName(
+			final String lockFileName
+		)
 		{
 			this.lockFileName = lockFileName;
 			return this;
@@ -1242,7 +1560,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setHousekeepingIntervalMs(final long housekeepingIntervalMs)
+		public Configuration setHousekeepingIntervalMs(
+			final long housekeepingIntervalMs
+		)
 		{
 			StorageHousekeepingController.Validation.validateParameters(
 				housekeepingIntervalMs,
@@ -1259,7 +1579,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setHousekeepingTimeBudgetNs(final long housekeepingNanoTimeBudgetNs)
+		public Configuration setHousekeepingTimeBudgetNs(
+			final long housekeepingNanoTimeBudgetNs
+		)
 		{
 			StorageHousekeepingController.Validation.validateParameters(
 				StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs(),
@@ -1276,7 +1598,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setEntityCacheThreshold(final long entityCacheThreshold)
+		public Configuration setEntityCacheThreshold(
+			final long entityCacheThreshold
+		)
 		{
 			StorageEntityCacheEvaluator.Validation.validateParameters(
 				StorageEntityCacheEvaluator.Defaults.defaultTimeoutMs(),
@@ -1293,7 +1617,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setEntityCacheTimeoutMs(final long entityCacheTimeoutMs)
+		public Configuration setEntityCacheTimeoutMs(
+			final long entityCacheTimeoutMs
+		)
 		{
 			StorageEntityCacheEvaluator.Validation.validateParameters(
 				entityCacheTimeoutMs,
@@ -1310,7 +1636,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDataFileMinimumSize(final int dataFileMinimumSize)
+		public Configuration setDataFileMinimumSize(
+			final int dataFileMinimumSize
+		)
 		{
 			StorageDataFileEvaluator.Validation.validateParameters(
 				dataFileMinimumSize,
@@ -1328,7 +1656,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDataFileMaximumSize(final int dataFileMaximumSize)
+		public Configuration setDataFileMaximumSize(
+			final int dataFileMaximumSize
+		)
 		{
 			StorageDataFileEvaluator.Validation.validateParameters(
 				StorageDataFileEvaluator.Validation.minimumFileSize(),
@@ -1346,7 +1676,9 @@ public interface Configuration
 		}
 
 		@Override
-		public Configuration setDataFileMinimumUseRatio(final double dataFileMinimumUseRatio)
+		public Configuration setDataFileMinimumUseRatio(
+			final double dataFileMinimumUseRatio
+		)
 		{
 			StorageDataFileEvaluator.Validation.validateParameters(
 				StorageDataFileEvaluator.Defaults.defaultFileMinimumSize(),

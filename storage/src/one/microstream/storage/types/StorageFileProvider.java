@@ -18,6 +18,14 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 {
 	public AFileSystem fileSystem();
 	
+	public ADirectory baseDirectory();
+	
+	public ADirectory deletionDirectory();
+	
+	public ADirectory truncationDirectory();
+	
+	public StorageFileNameProvider fileNameProvider();
+	
 	public AFile provideDeletionTargetFile(
 		StorageChannelFile fileToBeDeleted
 	);
@@ -76,7 +84,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			private final AFileSystem fileSystem;
 			
 			private ADirectory
-				directory      ,
+				directory          ,
 				deletionDirectory  ,
 				truncationDirectory
 			;
@@ -124,9 +132,9 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			}
 
 			@Override
-			public B setDirectory(final ADirectory baseDirectory)
+			public B setDirectory(final ADirectory directory)
 			{
-				this.directory = this.fileSystem.validateMember(baseDirectory);
+				this.directory = this.fileSystem.validateMember(directory);
 				return this.$();
 			}
 			
@@ -296,9 +304,28 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			return this.fileSystem;
 		}
 
+		@Override
 		public ADirectory baseDirectory()
 		{
 			return this.baseDirectory;
+		}
+		
+		@Override
+		public ADirectory deletionDirectory()
+		{
+			return this.deletionDirectory;
+		}
+		
+		@Override
+		public ADirectory truncationDirectory()
+		{
+			return this.truncationDirectory;
+		}
+		
+		@Override
+		public StorageFileNameProvider fileNameProvider()
+		{
+			return this.fileNameProvider;
 		}
 
 		@Override
@@ -364,7 +391,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			
 			final String baseFileName = fileToBeDeleted.file().name();
 			final String fileName     = addDeletionFileNameTag(baseFileName);
-			final String fileType     = this.fileNameProvider.rescuedFileSuffix();
+			final String fileType     = this.fileNameProvider.rescuedFileType();
 			
 			return this.provideChannelFile(this.deletionDirectory, fileToBeDeleted, fileName, fileType);
 		}
@@ -387,7 +414,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			}
 
 			final String baseFileName = fileToBeTruncated.file().name();
-			final String fileType     = this.fileNameProvider.rescuedFileSuffix();
+			final String fileType     = this.fileNameProvider.rescuedFileType();
 			final String fileName     = addTruncationFileNameTag(
 				baseFileName,
 				fileToBeTruncated.size(),
@@ -451,7 +478,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		{
 			final ADirectory channelDirectory = this.provideChannelDirectory(channelIndex);
 			final String     dataFileName     = this.fileNameProvider.provideDataFileName(channelIndex, fileNumber);
-			final String     dataFileType     = this.fileNameProvider.dataFileSuffix();
+			final String     dataFileType     = this.fileNameProvider.dataFileType();
 			final AFile      file             = channelDirectory.ensureFile(dataFileName, dataFileType);
 			
 			return file;
@@ -461,7 +488,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		{
 			final ADirectory channelDirectory = this.provideChannelDirectory(channelIndex);
 			final String     dataFileName     = this.fileNameProvider.provideTransactionsFileName(channelIndex);
-			final String     dataFileType     = this.fileNameProvider.transactionsFileSuffix();
+			final String     dataFileType     = this.fileNameProvider.transactionsFileType();
 			final AFile      file             = channelDirectory.ensureFile(dataFileName, dataFileType);
 			
 			return file;

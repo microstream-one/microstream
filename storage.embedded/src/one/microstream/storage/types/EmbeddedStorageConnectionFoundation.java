@@ -17,9 +17,15 @@ extends BinaryPersistenceFoundation<F>
 	
 	public StorageSystem getStorageSystem();
 
+	public StorageWriteController writeController();
+	
+	public StorageWriteController getWriteController();
+
 	public F setStorageSystem(StorageSystem storageSystem);
 	
 	public F setStorageSystemSupplier(Supplier<? extends StorageSystem> storageSystemSupplier);
+	
+	public F setWriteController(StorageWriteController writeController);
 	
 	public StorageConnection createStorageConnection();
 
@@ -40,6 +46,7 @@ extends BinaryPersistenceFoundation<F>
 
 		private StorageSystem                     storageSystem         ;
 		private Supplier<? extends StorageSystem> storageSystemSupplier ;
+		private StorageWriteController            writeController       ;
 		private transient StorageRequestAcceptor  storageRequestAcceptor;
 		
 		
@@ -63,6 +70,22 @@ extends BinaryPersistenceFoundation<F>
 		public Supplier<? extends StorageSystem> storageSystemSupplier()
 		{
 			return this.storageSystemSupplier;
+		}
+		
+		@Override
+		public StorageWriteController writeController()
+		{
+			return this.writeController;
+		}
+		
+		@Override
+		public StorageWriteController getWriteController()
+		{
+			if(this.writeController == null)
+			{
+				this.writeController = this.dispatch(this.ensureWriteController());
+			}
+			return this.writeController;
 		}
 		
 		@Override
@@ -97,6 +120,14 @@ extends BinaryPersistenceFoundation<F>
 			return this.$();
 		}
 		
+		@Override
+		public F setWriteController(final StorageWriteController writeController)
+		{
+			this.writeController = writeController;
+			
+			return this.$();
+		}
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -116,6 +147,13 @@ extends BinaryPersistenceFoundation<F>
 			}
 			
 			throw new MissingFoundationPartException(StorageSystem.class);
+		}
+		
+		protected StorageWriteController ensureWriteController()
+		{
+			return StorageWriteController.Wrap(
+				this.getStorageSystem().fileSystem()
+			);
 		}
 
 		@Override
@@ -145,7 +183,10 @@ extends BinaryPersistenceFoundation<F>
 		@Override
 		protected EmbeddedStorageBinaryTarget ensurePersistenceTarget()
 		{
-			return new EmbeddedStorageBinaryTarget.Default(this.internalGetStorageRequestAcceptor());
+			return EmbeddedStorageBinaryTarget.New(
+				this.internalGetStorageRequestAcceptor(),
+				this.getWriteController()
+			);
 		}
 
 		protected StorageRequestAcceptor internalGetStorageRequestAcceptor()

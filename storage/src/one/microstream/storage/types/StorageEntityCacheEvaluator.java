@@ -18,7 +18,7 @@ import one.microstream.exceptions.NumberRangeException;
 public interface StorageEntityCacheEvaluator
 {
 	public boolean clearEntityCache(long totalCacheSize, long evaluationTime, StorageEntity entity);
-	
+
 	public default boolean initiallyCacheEntity(
 		final long          totalCacheSize,
 		final long          evaluationTime,
@@ -27,9 +27,9 @@ public interface StorageEntityCacheEvaluator
 	{
 		return !this.clearEntityCache(totalCacheSize, evaluationTime, entity);
 	}
-	
-	
-	
+
+
+
 	public interface Defaults
 	{
 		public static long defaultCacheThreshold()
@@ -37,14 +37,14 @@ public interface StorageEntityCacheEvaluator
 			// ~1 GB default threshold
 			return 1_000_000_000;
 		}
-		
+
 		public static long defaultTimeoutMs()
 		{
 			// 1 day default timeout
 			return 86_400_000;
 		}
 	}
-	
+
 	public interface Validation
 	{
 		public static long minimumTimeoutMs()
@@ -84,15 +84,15 @@ public interface StorageEntityCacheEvaluator
 			}
 		}
 	}
-	
+
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
 	 * using default values defined by {@link StorageEntityCacheEvaluator.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
-	 * 
+	 *
 	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}.
-	 * 
+	 *
 	 * @see StorageEntityCacheEvaluator#New(long)
 	 * @see StorageEntityCacheEvaluator#New(long, long)
 	 * @see StorageEntityCacheEvaluator.Defaults
@@ -108,19 +108,19 @@ public interface StorageEntityCacheEvaluator
 			Defaults.defaultCacheThreshold()
 		);
 	}
-	
+
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageEntityCacheEvaluator} instance
 	 * using the passed value and default values defined by {@link StorageEntityCacheEvaluator.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
-	 * 
+	 *
 	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}
-	 * 
+	 *
 	 * @throws NumberRangeException if the passed value is equal to or lower than 0.
-	 * 
+	 *
 	 * @see StorageEntityCacheEvaluator#New()
 	 * @see StorageEntityCacheEvaluator#New(long, long)
 	 * @see StorageEntityCacheEvaluator.Defaults
@@ -152,17 +152,17 @@ public interface StorageEntityCacheEvaluator
 	 * </ol>
 	 * This combination of rules is relatively accurate on keeping cached what is needed and dropping the rest,
 	 * while being easily tailorable to suit an application's needs.
-	 * 
+	 *
 	 * @param timeoutMs the time (in milliseconds, greater than 0) of not being read (the "age"), after which a particular
 	 *        entity's data will be cleared from the Storage's internal cache.
-	 * 
+	 *
 	 * @param threshold an abstract value (greater than 0) to evaluate the product of size and age of an entity in relation
 	 *        to the current cache size in order to determine if the entity's data shall be cleared from the cache.
-	 * 
+	 *
 	 * @return a new {@link StorageEntityCacheEvaluator} instance.
-	 * 
+	 *
 	 * @throws NumberRangeException if any of the passed values is equal to or lower than 0.
-	 * 
+	 *
 	 * @see StorageEntityCacheEvaluator#New()
 	 * @see StorageEntityCacheEvaluator#New(long)
 	 * @see StorageEntityCacheEvaluator.Defaults
@@ -173,7 +173,7 @@ public interface StorageEntityCacheEvaluator
 	)
 	{
 		Validation.validateParameters(timeoutMs, threshold);
-		
+
 		return new StorageEntityCacheEvaluator.Default(timeoutMs, threshold);
 	}
 
@@ -232,6 +232,17 @@ public interface StorageEntityCacheEvaluator
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		public long timeout()
+		{
+			return this.timeoutMs;
+		}
+		
+		public long threshold()
+		{
+			return this.threshold;
+		}
+
 
 		@Override
 		public final boolean clearEntityCache(

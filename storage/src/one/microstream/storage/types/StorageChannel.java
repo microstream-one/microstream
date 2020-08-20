@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 
 import one.microstream.X;
 import one.microstream.afs.AWritableFile;
+import one.microstream.collections.BulkList;
 import one.microstream.functional.ThrowingProcedure;
 import one.microstream.functional._longProcedure;
 import one.microstream.persistence.binary.types.Chunk;
@@ -45,9 +46,9 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 	public boolean issuedGarbageCollection(long nanoTimeBudget);
 
-	public boolean issuedFileCheck(long nanoTimeBudget);
+	public boolean issuedFileCleanupCheck(long nanoTimeBudget);
 
-	public boolean issuedCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
+	public boolean issuedEntityCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
 
 	public void exportData(StorageLiveFileProvider fileProvider);
 
@@ -86,7 +87,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 	
 
-	public final class Default implements StorageChannel, Unpersistable
+	public final class Default implements StorageChannel, Unpersistable, StorageHousekeepingExecutor
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -97,19 +98,15 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		private final StorageTaskBroker             taskBroker               ;
 		private final StorageOperationController    operationController      ;
 		private final StorageHousekeepingController housekeepingController   ;
+		private final StorageHousekeepingBroker     housekeepingBroker       ;
 		private final StorageFileManager.Default    fileManager              ;
 		private final StorageEntityCache.Default    entityCache              ;
 		private final boolean                       switchByteOrder          ;
 		private final BufferSizeProviderIncremental loadingBufferSizeProvider;
 		private final StorageEventLogger            eventLogger              ;
 
-		private final HousekeepingTask[] housekeepingTasks =
-		{
-			this::houseKeepingCheckFileCleanup ,
-			this::houseKeepingGarbageCollection,
-			this::houseKeepingLiveCheck
-			// (16.06.2020 TM)TODO: priv#49: housekeeping task that closes data files after a timeout.
-		};
+		private final HousekeepingTask[] housekeepingTasks;
+		
 		private int nextHouseKeepingIndex;
 
 		/**
@@ -137,6 +134,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			final StorageExceptionHandler       exceptionHandler         ,
 			final StorageTaskBroker             taskBroker               ,
 			final StorageOperationController    operationController      ,
+			final StorageHousekeepingBroker     housekeepingBroker       ,
 			final StorageHousekeepingController housekeepingController   ,
 			final StorageEntityCache.Default    entityCache              ,
 			final boolean                       switchByteOrder          ,
@@ -150,12 +148,16 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			this.exceptionHandler          =     notNull(exceptionHandler)         ;
 			this.taskBroker                =     notNull(taskBroker)               ;
 			this.operationController       =     notNull(operationController)      ;
+			this.housekeepingBroker        =     notNull(housekeepingBroker)       ;
 			this.fileManager               =     notNull(fileManager)              ;
 			this.entityCache               =     notNull(entityCache)              ;
 			this.housekeepingController    =     notNull(housekeepingController)   ;
 			this.loadingBufferSizeProvider =     notNull(loadingBufferSizeProvider);
 			this.eventLogger               =     notNull(eventLogger)              ;
 			this.switchByteOrder           =             switchByteOrder           ;
+			
+			// depends on this.fileManager!
+			this.housekeepingTasks = this.defineHouseKeepingTasks();
 		}
 
 
@@ -163,6 +165,17 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		///////////////////////////////////////////////////////////////////////////
 		// declared methods //
 		/////////////////////
+		
+		private HousekeepingTask[] defineHouseKeepingTasks()
+		{
+			final BulkList<HousekeepingTask> tasks = BulkList.New();
+			tasks.add(this::houseKeepingCheckFileCleanup);
+			tasks.add(this::houseKeepingGarbageCollection);
+			tasks.add(this::houseKeepingEntityCacheCheck);
+			// (16.06.2020 TM)TODO: priv#49: housekeeping task that closes data files after a timeout.
+
+			return tasks.toArray(HousekeepingTask.class);
+		}
 
 		private int getCurrentHouseKeepingIndexAndAdvance()
 		{
@@ -229,41 +242,133 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 //			final double ratio = (double)duration / budget * 100;
 //			DEBUGStorage.println(this.channelIndex + " ending housekeeping, total time (ns) = " + duration + " of " + budget + "(" + ratio + "%)");
 		}
+		
+		@Override
+		public boolean performIssuedGarbageCollection(final long nanoTimeBudget)
+		{
+			// turn budget into the budget bounding value for easier and faster checking
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 
-		private long calculateSpecificHousekeepingTimeBudgetBound(final long nanoTimeBudget)
+			return this.entityCache.issuedGarbageCollection(nanoTimeBudgetBound, this);
+		}
+		
+		@Override
+		public boolean performIssuedFileCleanupCheck(final long nanoTimeBudget)
+		{
+			if(!this.fileManager.isFileCleanupEnabled())
+			{
+				return true;
+			}
+			
+			// turn budget into the budget bounding value for easier and faster checking
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
+			
+			return this.fileManager.issuedFileCleanupCheck(nanoTimeBudgetBound);
+		}
+		
+		@Override
+		public boolean performIssuedEntityCacheCheck(
+			final long                        nanoTimeBudget,
+			final StorageEntityCacheEvaluator evaluator
+		)
+		{
+			// turn budget into the budget bounding value for easier and faster checking
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
+
+			return this.entityCache.issuedEntityCacheCheck(nanoTimeBudgetBound, evaluator);
+		}
+
+		@Override
+		public final boolean performFileCleanupCheck(final long nanoTimeBudget)
+		{
+			if(!this.fileManager.isFileCleanupEnabled())
+			{
+				return true;
+			}
+			
+			// turn budget into the budget bounding value for easier and faster checking
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
+			
+			return this.fileManager.incrementalFileCleanupCheck(nanoTimeBudgetBound);
+		}
+		
+		@Override
+		public boolean performGarbageCollection(final long nanoTimeBudget)
+		{
+			// turn budget into the budget bounding value for easier and faster checking
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
+			
+			return this.entityCache.incrementalGarbageCollection(nanoTimeBudgetBound, this);
+		}
+		
+		@Override
+		public boolean performEntityCacheCheck(
+			final long nanoTimeBudget
+		)
+		{
+			// turn budget into the budget bounding value for easier and faster checking
+			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
+			
+			return this.entityCache.incrementalEntityCacheCheck(nanoTimeBudgetBound);
+		}
+		
+		@Override
+		public final boolean issuedGarbageCollection(final long nanoTimeBudget)
+		{
+			return this.housekeepingBroker.performIssuedGarbageCollection(this, nanoTimeBudget);
+		}
+
+		@Override
+		public boolean issuedFileCleanupCheck(final long nanoTimeBudget)
+		{
+			return this.housekeepingBroker.performIssuedFileCleanupCheck(this, nanoTimeBudget);
+		}
+
+		@Override
+		public boolean issuedEntityCacheCheck(
+			final long                        nanoTimeBudget,
+			final StorageEntityCacheEvaluator entityEvaluator
+		)
+		{
+			return this.housekeepingBroker.performIssuedEntityCacheCheck(this, nanoTimeBudget, entityEvaluator);
+		}
+		
+		private long calculateSpecificHousekeepingTimeBudget(final long nanoTimeBudget)
 		{
 //			DEBUGStorage.println(this.channelIndex + " spec budget = " + specificBudget + ", gen budget = " + this.housekeepingIntervalBudgetNs);
-			return XTime.calculateNanoTimeBudgetBound(
-				Math.min(nanoTimeBudget, this.housekeepingIntervalBudgetNs)
-			);
+			return Math.min(nanoTimeBudget, this.housekeepingIntervalBudgetNs);
 		}
 
 		final boolean houseKeepingCheckFileCleanup()
 		{
-			return this.fileManager.incrementalFileCleanupCheck(
-				this.calculateSpecificHousekeepingTimeBudgetBound(
-					this.housekeepingController.fileCheckTimeBudgetNs()
-				)
+			if(!this.fileManager.isFileCleanupEnabled())
+			{
+				return true;
+			}
+			
+			final long nanoTimeBudget = this.calculateSpecificHousekeepingTimeBudget(
+				this.housekeepingController.fileCheckTimeBudgetNs()
 			);
+			
+			return this.housekeepingBroker.performFileCleanupCheck(this, nanoTimeBudget);
 		}
 
 		final boolean houseKeepingGarbageCollection()
 		{
-			return this.entityCache.incrementalGarbageCollection(
-				this.calculateSpecificHousekeepingTimeBudgetBound(
-					this.housekeepingController.garbageCollectionTimeBudgetNs()
-				),
-				this
+			final long nanoTimeBudget = this.calculateSpecificHousekeepingTimeBudget(
+				this.housekeepingController.garbageCollectionTimeBudgetNs()
 			);
+			
+			return this.housekeepingBroker.performGarbageCollection(this, nanoTimeBudget);
 		}
 
-		final boolean houseKeepingLiveCheck()
+		final boolean houseKeepingEntityCacheCheck()
 		{
-			return this.entityCache.incrementalLiveCheck(
-				this.calculateSpecificHousekeepingTimeBudgetBound(
-					this.housekeepingController.liveCheckTimeBudgetNs()
-				)
+			final long nanoTimeBudget = this.calculateSpecificHousekeepingTimeBudget(
+				this.housekeepingController.liveCheckTimeBudgetNs()
 			);
+			
+			return this.housekeepingBroker.performEntityCacheCheck(this, nanoTimeBudget);
 		}
 
 		private void work() throws InterruptedException
@@ -491,27 +596,6 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				loadTids.iterate(new EntityCollectorByTid(this.entityCache, chunks));
 			}
 			return chunks.complete();
-		}
-
-		@Override
-		public final boolean issuedGarbageCollection(final long nanoTimeBudget)
-		{
-			return this.entityCache.issuedGarbageCollection(nanoTimeBudget, this);
-		}
-
-		@Override
-		public boolean issuedFileCheck(final long nanoTimeBudget)
-		{
-			return this.fileManager.issuedFileCleanupCheck(nanoTimeBudget);
-		}
-
-		@Override
-		public boolean issuedCacheCheck(
-			final long                        nanoTimeBudget,
-			final StorageEntityCacheEvaluator entityEvaluator
-		)
-		{
-			return this.entityCache.issuedCacheCheck(nanoTimeBudget, entityEvaluator);
 		}
 
 		@Override

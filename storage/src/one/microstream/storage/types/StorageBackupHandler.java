@@ -63,6 +63,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		final int                        channelCount       ,
 		final StorageBackupItemQueue     itemQueue          ,
 		final StorageOperationController operationController,
+		final StorageWriteController     writeController    ,
 		final StorageDataFileValidator   validator
 	)
 	{
@@ -78,6 +79,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			notNull(backupSetup)        ,
 			notNull(itemQueue)          ,
 			notNull(operationController),
+			notNull(writeController)    ,
 			notNull(validator)
 		);
 	}
@@ -92,6 +94,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		private final ChannelInventory[]         channelInventories ;
 		private final StorageBackupItemQueue     itemQueue          ;
 		private final StorageOperationController operationController;
+		private final StorageWriteController     writeController    ;
 		private final StorageDataFileValidator   validator          ;
 		
 		private boolean running; // being "ordered" to run.
@@ -108,6 +111,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			final StorageBackupSetup         backupSetup        ,
 			final StorageBackupItemQueue     itemQueue          ,
 			final StorageOperationController operationController,
+			final StorageWriteController     writeController    ,
 			final StorageDataFileValidator   validator
 		)
 		{
@@ -116,6 +120,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			this.backupSetup         = backupSetup        ;
 			this.itemQueue           = itemQueue          ;
 			this.operationController = operationController;
+			this.writeController     = writeController    ;
 			this.validator           = validator          ;
 		}
 
@@ -367,6 +372,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				return;
 			}
 			
+			// (12.08.2020 TM)FIXME: priv#351: control backup transaction file deletion?
+			
 			final AFile deletionTargetFile = this.backupSetup.backupFileProvider()
 				.provideDeletionTargetFile(backupTransactionFile)
 			;
@@ -494,9 +501,18 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		@Override
 		public void deleteFile(final StorageLiveChannelFile<?> file)
 		{
+			if(!this.writeController.isFileDeletionEnabled())
+			{
+				return;
+			}
+			
 			final StorageBackupChannelFile backupTargetFile = file.ensureBackupFile(this);
 			
-			StorageFileWriter.deleteFile(backupTargetFile, this.backupSetup.backupFileProvider());
+			StorageFileWriter.deleteFile(
+				backupTargetFile,
+				this.writeController,
+				this.backupSetup.backupFileProvider()
+			);
 			
 			// no user decrement since only the identifier is required and the actual file can well have been deleted.
 		}

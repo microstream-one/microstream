@@ -599,6 +599,12 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 			this.connectionFoundation.setStorageSystemSupplier(() ->
 				this.createStorageSystem()
 			);
+			
+			final StorageWriteController writeController = this.writeController();
+			if(writeController != null)
+			{
+				this.connectionFoundation.setWriteController(writeController);
+			}
 
 			return this.$();
 		}
@@ -642,6 +648,20 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		{
 			this.typeEvaluatorPersistable = typeEvaluatorPersistable;
 
+			return this.$();
+		}
+		
+		@Override
+		public F setWriteController(final StorageWriteController writeController)
+		{
+			super.setWriteController(writeController);
+			
+			// tricky: must synch writeController referenc in connection foundation, if present.
+			if(this.connectionFoundation != null)
+			{
+				this.connectionFoundation.setWriteController(writeController);
+			}
+			
 			return this.$();
 		}
 

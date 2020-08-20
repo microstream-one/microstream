@@ -466,6 +466,9 @@ public interface BinaryStorer extends PersistenceStorer
 			// isEmpty locks internally
 			if(!this.isEmpty())
 			{
+				// must validate here, too, in case the WriteController disabled writing during the storer's existence.
+				this.target.validateIsStoringEnabled();
+				
 				final Binary writeData;
 				synchronized(this.head)
 				{
@@ -915,6 +918,8 @@ public interface BinaryStorer extends PersistenceStorer
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)
 			{
+				this.validateIsStoring(target);
+				
 				final BinaryStorer.Default storer = new BinaryStorer.Default(
 					objectManager         ,
 					objectRetriever       ,
@@ -937,6 +942,8 @@ public interface BinaryStorer extends PersistenceStorer
 				final BufferSizeProviderIncremental         bufferSizeProvider
 			)
 			{
+				this.validateIsStoring(target);
+				
 				final BinaryStorer.Eager storer = new BinaryStorer.Eager(
 					objectManager         ,
 					objectRetriever       ,
@@ -949,6 +956,12 @@ public interface BinaryStorer extends PersistenceStorer
 				objectManager.registerLocalRegistry(storer);
 				
 				return storer;
+			}
+			
+			protected void validateIsStoring(final PersistenceTarget<Binary> target)
+			{
+				// (06.08.2020 TM)TODO: validation should actually be done by a StorerProvider that uses the Creator
+				target.validateIsStoringEnabled();
 			}
 
 		}

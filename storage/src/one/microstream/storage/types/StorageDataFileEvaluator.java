@@ -32,9 +32,9 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * using default values specified by {@link StorageDataFileEvaluator.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
-	 * 
+	 *
 	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
-	 * 
+	 *
 	 * @see StorageDataFileEvaluator#New(int, int)
 	 * @see StorageDataFileEvaluator#New(double)
 	 * @see StorageDataFileEvaluator#New(int, int, double)
@@ -59,11 +59,11 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * using the passed value and default values specified by {@link StorageDataFileEvaluator.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
-	 * 
+	 *
 	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
-	 * 
+	 *
 	 * @see StorageDataFileEvaluator#New()
 	 * @see StorageDataFileEvaluator#New(int, int)
 	 * @see StorageDataFileEvaluator#New(int, int, double)
@@ -84,12 +84,12 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * using the passed values and default values specified by {@link StorageDataFileEvaluator.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
-	 * 
+	 *
 	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
 	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
-	 * 
+	 *
 	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
-	 * 
+	 *
 	 * @see StorageDataFileEvaluator#New()
 	 * @see StorageDataFileEvaluator#New(double)
 	 * @see StorageDataFileEvaluator#New(int, int, double)
@@ -107,7 +107,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			Defaults.defaultResolveHeadfile()
 		);
 	}
-	
+
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
 	 * using the passed values.
@@ -122,25 +122,25 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * The parameters defined here give an opportunity to configure how "aggressive" this clean up shall be performaned.
 	 * The trade-off is between acceptale gap sizes and the required performance and disk-writes to clean them up.<br>
 	 * Without specifying them, default values will be used, defined in {@link StorageDataFileEvaluator.Defaults}.
-	 * 
+	 *
 	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
 	 *        will be dissolved.
-	 * 
+	 *
 	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
 	 *        will be dissolved.<br>
 	 *        Note that a file can exceed this limit if it contains a single entity that already exceeds the limit.
 	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
 	 *        limit of, for example, 30 MB.
-	 * 
+	 *
 	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
 	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
 	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
 	 *        as a negative value length header).<br>
 	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
 	 *        file dissolving (data transfers to new files) is required and vice versa.
-	 * 
+	 *
 	 * @return a new {@link StorageDataFileEvaluator} instance.
-	 * 
+	 *
 	 * @see StorageDataFileEvaluator#New()
 	 * @see StorageDataFileEvaluator#New(double)
 	 * @see StorageDataFileEvaluator#New(int, int)
@@ -159,42 +159,42 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			Defaults.defaultResolveHeadfile()
 		);
 	}
-	
 
-	
-	
+
+
+
 	public interface Validation
 	{
 		public static int minimumFileSize()
 		{
 			return 1024;
 		}
-		
+
 		public static int maximumFileSize()
 		{
 			return Integer.MAX_VALUE;
 		}
-		
+
 		/**
 		 * How much the maximum file size must be above the minimum file size.
-		 * 
+		 *
 		 * @return the minimum file size range
 		 */
 		public static int minimumFileSizeRange()
 		{
 			return 1024;
 		}
-		
+
 		public static double useRatioLowerBound()
 		{
 			return 0.0;
 		}
-		
+
 		public static double useRatioMaximum()
 		{
 			return 1.0;
 		}
-		
+
 		public static void validateParameters(
 			final int    fileMinimumSize,
 			final int    fileMaximumSize,
@@ -211,7 +211,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 					+ minimumFileSize() + ", " + maximumFileSize() + "]."
 				);
 			}
-			
+
 			// > maximumFileSize() can technically never happen for now, but the max value might change.
 			if(fileMaximumSize < minimumFileSize() || fileMaximumSize > maximumFileSize())
 			{
@@ -222,7 +222,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 					+ minimumFileSize() + ", " + maximumFileSize() + "]."
 				);
 			}
-			
+
 			if(fileMaximumSize - minimumFileSizeRange() < fileMinimumSize)
 			{
 				 // (17.02.2020 TM)EXCP: proper exception
@@ -233,7 +233,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 					+ fileMaximumSize + "."
 				);
 			}
-			
+
 			if(minimumUseRatio <= useRatioLowerBound() || minimumUseRatio > useRatioMaximum())
 			{
 				 // (17.02.2020 TM)EXCP: proper exception
@@ -251,15 +251,15 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * using the passed values and default values specified by {@link StorageDataFileEvaluator.Defaults}.
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.
-	 * 
+	 *
 	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
 	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
 	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
 	 * @param cleanUpHeadFile a flag defining wether the current head file (the only file actively written to)
 	 *        shall be subjected to file cleanups as well.
-	 * 
+	 *
 	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
-	 * 
+	 *
 	 * @see StorageDataFileEvaluator#New()
 	 * @see StorageDataFileEvaluator#New(double)
 	 * @see StorageDataFileEvaluator#New(int, int)
@@ -276,7 +276,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		Validation.validateParameters(fileMinimumSize, fileMaximumSize, minimumUseRatio);
 		return new Default(fileMinimumSize, fileMaximumSize, minimumUseRatio, cleanUpHeadFile);
 	}
-	
+
 	public interface Defaults
 	{
 		/**
@@ -305,7 +305,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			// 75% non-gap ("useful") data.
 			return 0.75;
 		}
-		
+
 		public static boolean defaultResolveHeadfile()
 		{
 			return true;
@@ -360,6 +360,16 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		public final int fileMaximumSize()
 		{
 			return this.fileMaximumSize;
+		}
+		
+		public double minimumUseRatio()
+		{
+			return this.minimumUseRatio;
+		}
+		
+		public boolean cleanupHeadFile()
+		{
+			return this.cleanupHeadFile;
 		}
 
 		@Override

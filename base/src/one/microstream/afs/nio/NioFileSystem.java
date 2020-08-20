@@ -32,18 +32,27 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 	@Override
 	public NioIoHandler ioHandler();
 	
+	
+	public interface Defaults
+	{
+		public static String defaultProtocol()
+		{
+			/* (29.05.2020 TM)TODO: priv#49: standard protocol strings? Constants, Enums?
+			 * (02.06.2020 TM)Note: the JDK does not define such constants.
+			 * E.g. the class FileSystems just uses a plain String "file:///".
+			 * All other search results are false positives in JavaDoc and comments.
+			 * 
+			 * (19.07.2020 TM):
+			 * Downgraded to T0D0 since MicroStream does not require super clean structures regarding this point.
+			 */
+			return "file:///";
+		}
 		
+	}
+			
 	public static NioFileSystem New()
 	{
-		/* (29.05.2020 TM)TODO: priv#49: standard protocol strings? Constants, Enums?
-		 * (02.06.2020 TM)Note: the JDK does not define such constants.
-		 * E.g. the class FileSystems just uses a plain String "file:///".
-		 * All other search results are false positives in JavaDoc and comments.
-		 * 
-		 * (19.07.2020 TM):
-		 * Downgraded to T0D0 since MicroStream does not require super clean structures regarding this point.
-		 */
-		return New("file:///");
+		return New(Defaults.defaultProtocol());
 	}
 	
 	public static NioFileSystem New(
@@ -53,6 +62,16 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		return New(
 			defaultProtocol,
 			NioIoHandler.New()
+		);
+	}
+	
+	public static NioFileSystem New(
+		final NioIoHandler ioHandler
+	)
+	{
+		return New(
+			Defaults.defaultProtocol(),
+			notNull(ioHandler)
 		);
 	}
 	

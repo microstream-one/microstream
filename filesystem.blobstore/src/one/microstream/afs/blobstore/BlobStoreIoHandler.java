@@ -9,6 +9,7 @@ import one.microstream.afs.AFile;
 import one.microstream.afs.AIoHandler;
 import one.microstream.afs.AReadableFile;
 import one.microstream.afs.AWritableFile;
+import one.microstream.afs.WriteController;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.io.BufferProvider;
@@ -17,13 +18,25 @@ public interface BlobStoreIoHandler extends AIoHandler
 {
 	public BlobStoreConnector connector();
 
-
-
+	
 	public static BlobStoreIoHandler New(
 		final BlobStoreConnector connector
 	)
 	{
+		return New(
+			WriteController.Enabled(),
+			connector
+		);
+	}
+
+
+	public static BlobStoreIoHandler New(
+		final WriteController    writeController,
+		final BlobStoreConnector connector
+	)
+	{
 		return new BlobStoreIoHandler.Default(
+			notNull(writeController),
 			notNull(connector)
 		);
 	}
@@ -48,9 +61,13 @@ public interface BlobStoreIoHandler extends AIoHandler
 		// constructors //
 		/////////////////
 
-		Default(final BlobStoreConnector connector)
+		Default(
+			final WriteController    writeController,
+			final BlobStoreConnector connector
+		)
 		{
 			super(
+				writeController            ,
 				BlobStoreItemWrapper .class,
 				BlobStoreFileWrapper .class,
 				ADirectory           .class,
