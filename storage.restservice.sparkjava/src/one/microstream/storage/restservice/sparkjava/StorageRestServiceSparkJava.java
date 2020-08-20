@@ -5,14 +5,14 @@ import static one.microstream.X.notNull;
 import one.microstream.storage.restadapter.StorageRestAdapter;
 import one.microstream.storage.restadapter.StorageRestAdapterException;
 import one.microstream.storage.restservice.StorageRestService;
-import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageManager;
 import spark.Service;
 import spark.route.HttpMethod;
 
 public class StorageRestServiceSparkJava implements StorageRestService
 {
 	public static StorageRestServiceSparkJava New(
-		final EmbeddedStorageManager storage
+		final StorageManager storage
 	)
 	{
 		return new StorageRestServiceSparkJava(
