@@ -78,9 +78,9 @@ public final class Storage
 	}
 	
 	/**
-	 * {@linkDoc StorageFileProvider#New()}
+	 * {@linkDoc StorageLiveFileProvider#New()}
 	 *
-	 * @return {@linkDoc StorageFileProvider#New()@return}
+	 * @return {@linkDoc StorageLiveFileProvider#New()@return}
 	 *
 	 * @see Storage#FileProvider(Path)
 	 * @see StorageLiveFileProvider#New()
@@ -95,9 +95,9 @@ public final class Storage
 	/**
 	 * Alias for {@code FileProvider(storageDirectory.toPath())}
 	 *
-	 * @param storageDirectory {@linkDoc StorageFileProvider#New(Path):}
+	 * @param storageDirectory {@linkDoc StorageLiveFileProvider#New(ADirectory):}
 	 *
-	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
+	 * @return {@linkDoc StorageLiveFileProvider#New(ADirectory)@return}
 	 *
 	 * @deprecated replaced by {@link #FileProvider(Path)}
 	 */
@@ -108,11 +108,11 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageFileProvider#New(Path)}
+	 * {@linkDoc StorageLiveFileProvider#New(ADirectory)}
 	 *
-	 * @param storageDirectory {@linkDoc StorageFileProvider#New(Path):}
+	 * @param storageDirectory {@linkDoc StorageLiveFileProvider#New(ADirectory):}
 	 *
-	 * @return {@linkDoc StorageFileProvider#New(Path)@return}
+	 * @return {@linkDoc StorageLiveFileProvider#New(ADirectory)@return}
 	 *
 	 * @see Storage#FileProvider()
 	 * @see StorageLiveFileProvider#New(Path)
@@ -134,9 +134,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageFileProvider#Builder()}
+	 * {@linkDoc StorageLiveFileProvider#Builder()}
 	 *
-	 * @return {@linkDoc StorageFileProvider#Builder()@return}
+	 * @return {@linkDoc StorageLiveFileProvider#Builder()@return}
 	 *
 	 * @see Storage#FileProvider()
 	 * @see Storage#FileProvider(Path)
@@ -209,11 +209,11 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageConfiguration#New(StorageFileProvider)}
+	 * {@linkDoc StorageConfiguration#New(StorageLiveFileProvider)}
 	 *
-	 * @param fileProvider {@linkDoc StorageConfiguration#New(StorageFileProvider):}
+	 * @param fileProvider {@linkDoc StorageConfiguration#New(StorageLiveFileProvider):}
 	 *
-	 * @return {@linkDoc StorageConfiguration#New(StorageFileProvider)@return}
+	 * @return {@linkDoc StorageConfiguration#New(StorageLiveFileProvider)@return}
 	 *
 	 * @see Storage#Configuration()
 	 * @see StorageConfiguration#New(StorageLiveFileProvider)
@@ -443,13 +443,13 @@ public final class Storage
 	{
 		return BackupSetup(backupDirectory.toPath());
 	}
-
+	
 	/**
-	 * {@linkDoc StorageBackupSetup#New(Path)}
+	 * {@linkDoc StorageBackupSetup#New(ADirectory)}
 	 *
-	 * @param backupDirectory {@linkDoc StorageBackupSetup#New(Path):}
+	 * @param backupDirectory {@linkDoc StorageBackupSetup#New(ADirectory):}
 	 *
-	 * @return {@linkDoc StorageBackupSetup#New(Path)@return}
+	 * @return {@linkDoc StorageBackupSetup#New(ADirectory)@return}
 	 *
 	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
 	 * @see StorageBackupHandler
@@ -463,17 +463,27 @@ public final class Storage
 		return BackupSetup(dir);
 	}
 	
+	/**
+	 * {@linkDoc StorageBackupSetup#New(ADirectory)}
+	 *
+	 * @param backupDirectory {@linkDoc StorageBackupSetup#New(ADirectory):}
+	 *
+	 * @return {@linkDoc StorageBackupSetup#New(ADirectory)@return}
+	 *
+	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
+	 * @see StorageBackupHandler
+	 */
 	public static final StorageBackupSetup BackupSetup(final ADirectory backupDirectory)
 	{
 		return StorageBackupSetup.New(backupDirectory);
 	}
 
 	/**
-	 * {@linkDoc StorageBackupSetup#New(Path)}
+	 * {@linkDoc StorageBackupSetup#New(ADirectory)}
 	 *
 	 * @param backupDirectoryPath the path to the backup directory
 	 *
-	 * @return {@linkDoc StorageBackupSetup#New(Path)@return}
+	 * @return {@linkDoc StorageBackupSetup#New(ADirectory)@return}
 	 *
 	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
@@ -485,11 +495,11 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageBackupSetup#New(StorageFileProvider)}
+	 * {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider)}
 	 *
-	 * @param backupFileProvider {@linkDoc StorageBackupSetup#New(StorageFileProvider):}
+	 * @param backupFileProvider {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider):}
 	 *
-	 * @return {@linkDoc StorageBackupSetup#New(StorageFileProvider)@return}
+	 * @return {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider)@return}
 	 *
 	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupHandler

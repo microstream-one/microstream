@@ -14,6 +14,7 @@ public interface StorageBackupSetup
 	
 	public StorageBackupHandler setupHandler(
 		StorageOperationController operationController,
+		StorageWriteController     writeController    ,
 		StorageDataFileValidator   validator
 	);
 	
@@ -27,7 +28,7 @@ public interface StorageBackupSetup
 	 * 
 	 * @param backupDirectory the directory where the backup shall be located.
 	 * 
-	 * @return {@linkDoc StorageBackupSetup#New(StorageFileProvider)@return}
+	 * @return {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider)@return}
 	 * 
 	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
 	 * @see StorageBackupHandler
@@ -113,6 +114,7 @@ public interface StorageBackupSetup
 		@Override
 		public StorageBackupHandler setupHandler(
 			final StorageOperationController operationController,
+			final StorageWriteController     writeController    ,
 			final StorageDataFileValidator   validator
 		)
 		{
@@ -122,6 +124,7 @@ public interface StorageBackupSetup
 				channelCount       ,
 				this.itemQueue     ,
 				operationController,
+				writeController    ,
 				validator
 			);
 		}

@@ -12,14 +12,13 @@ import one.microstream.storage.exceptions.StorageException;
 
 public interface StorageFileNameProvider
 {
-	
 	public String provideChannelDirectoryName(int hashIndex);
 	
-	public String dataFileSuffix();
+	public String dataFileType();
 	
-	public String transactionsFileSuffix();
+	public String transactionsFileType();
 
-	public String rescuedFileSuffix();
+	public String rescuedFileType();
 	
 	public String typeDictionaryFileName();
 
@@ -146,10 +145,10 @@ public interface StorageFileNameProvider
 		private final String
 			channelDirectoryPrefix,
 			dataFilePrefix        ,
-			dataFileSuffix        ,
+			dataFileType          ,
 			transactionsFilePrefix,
-			transactionsFileSuffix,
-			rescuedFileSuffix     ,
+			transactionsFileType  ,
+			rescuedFileType       ,
 			typeDictionaryFileName,
 			lockFileName
 		;
@@ -163,10 +162,10 @@ public interface StorageFileNameProvider
 		Default(
 			final String channelDirectoryPrefix,
 			final String dataFilePrefix        ,
-			final String dataFileSuffix        ,
+			final String dataFileType          ,
 			final String transactionsFilePrefix,
-			final String transactionsFileSuffix,
-			final String rescuedFileSuffix     ,
+			final String transactionsFileType  ,
+			final String rescuedFileType       ,
 			final String typeDictionaryFileName,
 			final String lockFileName
 		)
@@ -174,17 +173,29 @@ public interface StorageFileNameProvider
 			super();
 			this.channelDirectoryPrefix = channelDirectoryPrefix;
 			this.dataFilePrefix         = dataFilePrefix        ;
-			this.dataFileSuffix         = dataFileSuffix        ;
+			this.dataFileType           = dataFileType          ;
 			this.transactionsFilePrefix = transactionsFilePrefix;
-			this.transactionsFileSuffix = transactionsFileSuffix;
-			this.rescuedFileSuffix      = rescuedFileSuffix     ;
+			this.transactionsFileType   = transactionsFileType  ;
+			this.rescuedFileType        = rescuedFileType       ;
 			this.typeDictionaryFileName = typeDictionaryFileName;
 			this.lockFileName           = lockFileName          ;
 		}
 		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		public String dataFilePrefix()
+		{
+			return this.dataFilePrefix;
+		}
+		
+		public String transactionsFilePrefix()
+		{
+			return this.transactionsFilePrefix;
+		}
 
 		public String channelDirectoryPrefix()
 		{
@@ -198,21 +209,21 @@ public interface StorageFileNameProvider
 		}
 		
 		@Override
-		public String dataFileSuffix()
+		public String dataFileType()
 		{
-			return this.dataFileSuffix;
+			return this.dataFileType;
 		}
 		
 		@Override
-		public String transactionsFileSuffix()
+		public String transactionsFileType()
 		{
-			return this.transactionsFileSuffix;
+			return this.transactionsFileType;
 		}
 		
 		@Override
-		public String rescuedFileSuffix()
+		public String rescuedFileType()
 		{
-			return this.rescuedFileSuffix;
+			return this.rescuedFileType;
 		}
 		
 		@Override
@@ -252,7 +263,7 @@ public interface StorageFileNameProvider
 			{
 				return;
 			}
-			if(!this.dataFileSuffix.equals(file.type()))
+			if(!this.dataFileType.equals(file.type()))
 			{
 				return;
 			}
@@ -261,7 +272,7 @@ public interface StorageFileNameProvider
 			 * From here on, the file must have a valid data file name.
 			 * Anything else is an error, since it is most probably a data file with a ruined file name.
 			 * If someone wants to create a backup file of a data file in the same directory,
-			 * they can/must give it another file suffix or name prefix.
+			 * they can/must give it another file type or name prefix.
 			 */
 
 			final String middlePart = filename.substring(this.dataFilePrefix.length());
@@ -310,7 +321,7 @@ public interface StorageFileNameProvider
 				.add(this.getClass().getName()).add(':').lf()
 				.blank().add("channel directory prefix").tab().add('=').blank().add(this.channelDirectoryPrefix).lf()
 				.blank().add("storage file prefix"     ).tab().add('=').blank().add(this.dataFilePrefix     ).lf()
-				.blank().add("file suffix"             ).tab().add('=').blank().add(this.dataFileSuffix     ).lf()
+				.blank().add("file suffix"             ).tab().add('=').blank().add(this.dataFileType     ).lf()
 				.blank().add("lockFileName"            ).tab().add('=').blank().add(this.lockFileName       )
 				.toString()
 			;
