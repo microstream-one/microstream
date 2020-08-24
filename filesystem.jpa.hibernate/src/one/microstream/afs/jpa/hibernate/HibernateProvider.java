@@ -36,9 +36,12 @@ import one.microstream.afs.sql.SqlOperation;
 import one.microstream.afs.sql.SqlProvider;
 import one.microstream.chars.XChars;
 
-public interface HibernateProvider extends SqlProvider
+public interface HibernateProvider extends SqlProvider, AutoCloseable
 {
 	public EntityManager entityManager();
+	
+	@Override
+	public void close();
 
 
 	public static HibernateProvider New(
@@ -451,6 +454,16 @@ public interface HibernateProvider extends SqlProvider
 			return insert.toStatementString();
 		}
 
+		@Override
+		public void close()
+		{
+			this.entityManager()
+				.unwrap(Session.class)
+				.getSessionFactory()
+				.close()
+			;
+		}
+				
 
 		private static final class Table extends org.hibernate.mapping.Table
 		{
