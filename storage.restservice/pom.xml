@@ -3,7 +3,7 @@
   <parent>
     <groupId>one.microstream</groupId>
     <artifactId>microstream</artifactId>
-    <version>03.01.00-MS-GA-SNAPSHOT</version>
+    <version>03.02.00-MS-GA-SNAPSHOT</version>
   </parent>
   <artifactId>storage.restservice</artifactId>
   
@@ -11,7 +11,7 @@
   		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>storage.restadapter</artifactId>
-			<version>03.01.00-MS-GA-SNAPSHOT</version>
+			<version>03.02.00-MS-GA-SNAPSHOT</version>
 		</dependency>				
   </dependencies>
   

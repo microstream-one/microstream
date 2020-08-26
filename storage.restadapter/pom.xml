@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream</artifactId>
-		<version>03.01.00-MS-GA-SNAPSHOT</version>
+		<version>03.02.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
   
@@ -36,19 +36,19 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>storage</artifactId>
-			<version>03.01.00-MS-GA-SNAPSHOT</version>
+			<version>03.02.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>storage.embedded</artifactId>
-			<version>03.01.00-MS-GA-SNAPSHOT</version>
+			<version>03.02.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>persistence.binary</artifactId>
-			<version>03.01.00-MS-GA-SNAPSHOT</version>
+			<version>03.02.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		
 	</dependencies>
