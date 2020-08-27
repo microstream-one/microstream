@@ -482,6 +482,14 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	
 	public StorageEventLogger getEventLogger();
 
+	public StorageWriteController writeController();
+	
+	public StorageWriteController getWriteController();
+
+	public StorageHousekeepingBroker housekeepingBroker();
+	
+	public StorageHousekeepingBroker getHousekeepingBroker();
+
 	
 	
 	/**
@@ -766,6 +774,11 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	
 	public F setEventLogger(StorageEventLogger eventLogger);
 	
+
+	public F setWriteController(StorageWriteController writeController);
+
+	public F setHousekeepingBroker(StorageHousekeepingBroker housekeepingBroker);
+	
 	
 	/**
 	 * Creates and returns a new {@link StorageSystem} instance by using the current state of all registered
@@ -786,6 +799,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
+		
+		/* (06.08.2020 TM)TODO: enlarge configuration
+		 * Some of these parts should be moved into the configuration.
+		 * E.g.
+		 * - StorageInitialDataFileNumberProvider
+		 * - StorageThreadNameProvider
+		 */
 
 		private StorageConfiguration                  configuration                ;
 		private StorageOperationController.Creator    operationControllerCreator   ;
@@ -819,6 +839,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageLockFileManager.Creator        lockFileManagerCreator       ;
 		private StorageExceptionHandler               exceptionHandler             ;
 		private StorageEventLogger                    eventLogger                  ;
+		private StorageWriteController                writeController              ;
+		private StorageHousekeepingBroker             housekeepingBroker           ;
 
 		
 		
@@ -1037,7 +1059,18 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return ByteOrder.nativeOrder();
 		}
 		
+		protected StorageWriteController ensureWriteController()
+		{
+			return StorageWriteController.Wrap(
+				this.getConfiguration().fileProvider().fileSystem()
+			);
+		}
 		
+		protected StorageHousekeepingBroker ensureHousekeepingBroker()
+		{
+			return StorageHousekeepingBroker.New();
+		}
+				
 		
 
 		@Override
@@ -1357,6 +1390,38 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			}
 			return this.eventLogger;
 		}
+		
+		@Override
+		public StorageWriteController writeController()
+		{
+			return this.writeController;
+		}
+		
+		@Override
+		public StorageWriteController getWriteController()
+		{
+			if(this.writeController == null)
+			{
+				this.writeController = this.dispatch(this.ensureWriteController());
+			}
+			return this.writeController;
+		}
+		
+		@Override
+		public StorageHousekeepingBroker housekeepingBroker()
+		{
+			return this.housekeepingBroker;
+		}
+		
+		@Override
+		public StorageHousekeepingBroker getHousekeepingBroker()
+		{
+			if(this.housekeepingBroker == null)
+			{
+				this.housekeepingBroker = this.dispatch(this.ensureHousekeepingBroker());
+			}
+			return this.housekeepingBroker;
+		}
 
 		
 		
@@ -1617,6 +1682,22 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return this.$();
 		}
 		
+		@Override
+		public F setWriteController(final StorageWriteController writeController)
+		{
+			this.writeController = writeController;
+			
+			return this.$();
+		}
+		
+		@Override
+		public F setHousekeepingBroker(final StorageHousekeepingBroker housekeepingBroker)
+		{
+			this.housekeepingBroker = housekeepingBroker;
+			
+			return this.$();
+		}
+		
 		public final boolean isByteOrderMismatch()
 		{
 			/* (11.02.2019 TM)NOTE: On byte order switching:
@@ -1643,6 +1724,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.getConfiguration()                ,
 				this.getOperationControllerCreator()   ,
 				this.getDataFileValidatorCreator()     ,
+				this.getWriteController()              ,
+				this.getHousekeepingBroker()           ,
 				this.getWriterProvider()               ,
 				this.getInitialDataFileNumberProvider(),
 				this.getRequestAcceptorCreator()       ,

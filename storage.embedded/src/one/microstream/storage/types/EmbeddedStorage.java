@@ -97,7 +97,7 @@ public final class EmbeddedStorage
 	)
 	{
 		return ConnectionFoundation(
-			PersistenceTypeDictionaryFileHandler.NewInDirectory(directory)
+			PersistenceTypeDictionaryFileHandler.New(directory)
 		);
 	}
 

@@ -43,7 +43,7 @@ public interface StorageRequestTaskFileCheck extends StorageRequestTask
 		@Override
 		protected final Void internalProcessBy(final StorageChannel channel)
 		{
-			this.completed = channel.issuedFileCheck(this.nanoTimeBudget);
+			this.completed = channel.issuedFileCleanupCheck(this.nanoTimeBudget);
 			return null;
 		}
 

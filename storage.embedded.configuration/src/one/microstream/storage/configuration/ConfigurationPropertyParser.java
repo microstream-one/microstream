@@ -19,7 +19,7 @@ import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 public interface ConfigurationPropertyParser
 {
 	public void parseProperties(
-		Map<String, String> properties,
+		Map<String, String> properties   ,
 		Configuration       configuration
 	);
 
@@ -28,18 +28,18 @@ public interface ConfigurationPropertyParser
 	{
 		return new ConfigurationPropertyParser.Default(
 			DurationParser.Default(),
-			FileSizeParser.Default()
+			ByteSizeParser.Default()
 		);
 	}
 
 	public static ConfigurationPropertyParser New(
 		final DurationParser durationParser,
-		final FileSizeParser fileSizeParser
+		final ByteSizeParser byteSizeParser
 	)
 	{
 		return new ConfigurationPropertyParser.Default(
 			notNull(durationParser),
-			notNull(fileSizeParser)
+			notNull(byteSizeParser)
 		);
 	}
 
@@ -47,22 +47,22 @@ public interface ConfigurationPropertyParser
 	public static class Default implements ConfigurationPropertyParser, ConfigurationPropertyNames
 	{
 		private final DurationParser durationParser;
-		private final FileSizeParser fileSizeParser;
+		private final ByteSizeParser byteSizeParser;
 
 		Default(
 			final DurationParser durationParser,
-			final FileSizeParser fileSizeParser
+			final ByteSizeParser byteSizeParser
 		)
 		{
 			super();
 
 			this.durationParser = durationParser;
-			this.fileSizeParser = fileSizeParser;
+			this.byteSizeParser = byteSizeParser;
 		}
 
 		@Override
 		public void parseProperties(
-			final Map<String, String> properties,
+			final Map<String, String> properties   ,
 			final Configuration       configuration
 		)
 		{
@@ -213,7 +213,7 @@ public interface ConfigurationPropertyParser
 					case ENTITY_CACHE_THRESHOLD:
 					{
 						configuration.setEntityCacheThreshold(
-							this.fileSizeParser.parseFileSize(value, ByteMultiple.B)
+							this.byteSizeParser.parseByteSize(value, ByteMultiple.B)
 						);
 					}
 					break;
@@ -274,8 +274,8 @@ public interface ConfigurationPropertyParser
 		}
 
 		protected void parseDirectoryPath(
-			final String           value,
-			final Consumer<String> defaultPathConsumer,
+			final String           value               ,
+			final Consumer<String> defaultPathConsumer ,
 			final Consumer<String> userHomePathConsumer
 		)
 		{
@@ -290,9 +290,12 @@ public interface ConfigurationPropertyParser
 			}
 		}
 
-		protected int parseFileSize_int(final String value, final ByteMultiple defaultByteMultiple)
+		protected int parseFileSize_int(
+			final String value                    ,
+			final ByteMultiple defaultByteMultiple
+		)
 		{
-			final long fileSize = this.fileSizeParser.parseFileSize(value, defaultByteMultiple);
+			final long fileSize = this.byteSizeParser.parseByteSize(value, defaultByteMultiple);
 			if(fileSize > Integer.MAX_VALUE)
 			{
 				throw new InvalidStorageConfigurationException("Invalid file size: " + value);

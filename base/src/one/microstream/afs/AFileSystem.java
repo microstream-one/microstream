@@ -8,7 +8,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingTable;
 
-public interface AFileSystem extends AResolving
+public interface AFileSystem extends AResolving, WriteController
 {
 	public String defaultProtocol();
 	
@@ -105,7 +105,7 @@ public interface AFileSystem extends AResolving
 	public String getFileName(AFile file);
 	
 	public String getFileType(AFile file);
-	
+
 	
 	
 	public abstract class Abstract<H extends AIoHandler, D, F> implements AFileSystem, AResolver<D, F>, ACreator
@@ -165,6 +165,18 @@ public interface AFileSystem extends AResolving
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final void validateIsWritable()
+		{
+			this.ioHandler.validateIsWritable();
+		}
+		
+		@Override
+		public final boolean isWritable()
+		{
+			return this.ioHandler.isWritable();
+		}
 		
 		protected ACreator ensureCreator(final ACreator.Creator creatorCreator)
 		{

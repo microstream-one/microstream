@@ -88,10 +88,15 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 		}
 	}
 	
-	// sadly, the JDK geniuses didn't have enough OOP skill to implement proper FSElement types like Directory and File.
+	@Deprecated
 	public static PersistenceTypeDictionaryFileHandler NewInDirectory(final ADirectory directory)
 	{
-		return NewInDirectory(directory, null);
+		return New(directory);
+	}
+	
+	public static PersistenceTypeDictionaryFileHandler New(final ADirectory directory)
+	{
+		return New(directory, null);
 	}
 	
 	public static PersistenceTypeDictionaryFileHandler New(final AFile file)
@@ -99,7 +104,17 @@ public class PersistenceTypeDictionaryFileHandler implements PersistenceTypeDict
 		return New(file, null);
 	}
 	
+	@Deprecated
 	public static PersistenceTypeDictionaryFileHandler NewInDirectory(
+		final ADirectory                      directory    ,
+		final PersistenceTypeDictionaryStorer writeListener
+	)
+	{
+		return New(directory, writeListener);
+	}
+	
+		
+	public static PersistenceTypeDictionaryFileHandler New(
 		final ADirectory                      directory    ,
 		final PersistenceTypeDictionaryStorer writeListener
 	)

@@ -8,25 +8,41 @@ public class InvalidStorageConfigurationException extends StorageConfigurationEx
 	}
 
 	public InvalidStorageConfigurationException(
-		String message,
-		Throwable cause,
-		boolean enableSuppression,
-		boolean writableStackTrace)
+		final String    message           ,
+		final Throwable cause             ,
+		final boolean   enableSuppression ,
+		final boolean   writableStackTrace
+	)
 	{
-		super(message, cause, enableSuppression, writableStackTrace);
+		super(
+			message           ,
+			cause             ,
+			enableSuppression ,
+			writableStackTrace
+		);
 	}
 
-	public InvalidStorageConfigurationException(String message, Throwable cause)
+	public InvalidStorageConfigurationException(
+		final String    message,
+		final Throwable cause
+	)
 	{
-		super(message, cause);
+		super(
+			message,
+			cause
+		);
 	}
 
-	public InvalidStorageConfigurationException(String message)
+	public InvalidStorageConfigurationException(
+		final String message
+	)
 	{
 		super(message);
 	}
 
-	public InvalidStorageConfigurationException(Throwable cause)
+	public InvalidStorageConfigurationException(
+		final Throwable cause
+	)
 	{
 		super(cause);
 	}
