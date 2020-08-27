@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream</artifactId>
-		<version>03.01.01-MS-RC2-SNAPSHOT</version>
+		<version>03.01.00-MS-RC2-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>filesystem.blobstore</artifactId>
-			<version>03.01.01-MS-RC2-SNAPSHOT</version>
+			<version>03.01.00-MS-RC2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.oracle.oci.sdk</groupId>
