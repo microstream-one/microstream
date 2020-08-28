@@ -374,25 +374,6 @@
 			</modules>
 		</profile>
 		<profile>
-			<id>jigsaw</id>
-			<modules>
-				<module>base</module>
-				<module>communication</module>
-				<module>communication.binary</module>
-				<module>persistence</module>
-				<module>persistence.binary</module>
-				<module>persistence.binary.jdk8</module>
-				<module>storage</module>
-				<module>storage.embedded</module>
-				<module>storage.embedded.configuration</module>
-				<module>storage.restadapter</module>
-				<module>storage.restclient</module>
-				<module>storage.restclient.jersey</module>
-				<module>storage.restservice</module>
-				<module>storage.restservice.sparkjava</module>
-			</modules>
-		</profile>		
-		<profile>
 			<id>deploy</id>
 			<build>
 				<plugins>
