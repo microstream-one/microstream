@@ -370,7 +370,7 @@
 				<module>storage.restservice</module>
 				<module>storage.restservice.sparkjava</module>
 				<module>work-in-progress</module>
-				<module>all</module>
+				<module>jigsaw</module>
 			</modules>
 		</profile>
 		<profile>
