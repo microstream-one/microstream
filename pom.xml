@@ -374,7 +374,7 @@
 			</modules>
 		</profile>
 		<profile>
-			<id>fatJar</id>
+			<id>jigsaw</id>
 			<modules>
 				<module>base</module>
 				<module>communication</module>
