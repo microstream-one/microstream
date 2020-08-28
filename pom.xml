@@ -374,18 +374,11 @@
 			</modules>
 		</profile>
 		<profile>
-			<id>withoutApp</id>
+			<id>fatJar</id>
 			<modules>
 				<module>base</module>
-				<module>cache</module>
-				<module>cache.hibernate</module>
 				<module>communication</module>
 				<module>communication.binary</module>
-				<module>filesystem.blobstore</module>
-				<module>filesystem.coherence</module>
-				<module>filesystem.oraclecloud</module>
-				<module>filesystem.oraclenosql</module>
-				<module>filesystem.sql</module>
 				<module>persistence</module>
 				<module>persistence.binary</module>
 				<module>persistence.binary.jdk8</module>

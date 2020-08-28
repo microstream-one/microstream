@@ -33,31 +33,6 @@
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
-			<artifactId>filesystem.blobstore</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>one.microstream</groupId>
-			<artifactId>filesystem.coherence</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>one.microstream</groupId>
-			<artifactId>filesystem.oraclecloud</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>one.microstream</groupId>
-			<artifactId>filesystem.oraclenosql</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>one.microstream</groupId>
-			<artifactId>filesystem.sql</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>one.microstream</groupId>
 			<artifactId>persistence</artifactId>
 			<version>${project.version}</version>
 		</dependency>
