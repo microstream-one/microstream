@@ -1,3 +1,0 @@
-mvn -P generate-fat-jar clean install
-mvn -P generate-module-info generate-sources
-mvn -P add-module-info -DoverwriteExistingFiles=true install
