@@ -13,7 +13,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>all</artifactId>
+	<artifactId>jigsaw</artifactId>
 
 	<dependencies>
 		<dependency>
