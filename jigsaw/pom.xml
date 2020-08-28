@@ -182,7 +182,7 @@
 												<artifactId>jigsaw</artifactId>
 												<version>${project.version}</version>
 											</artifact>
-											<moduleInfoFile>${project.build.directory}/generated-sources/modules/one.microstream.all/module-info.java</moduleInfoFile>
+											<moduleInfoFile>${project.build.directory}/generated-sources/modules/one.microstream.jigsaw/module-info.java</moduleInfoFile>
 										</module>
 									</modules>
 								</configuration>
