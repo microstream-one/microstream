@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream</artifactId>
-		<version>03.01.00-MS-RC3-SNAPSHOT</version>
+		<version>03.01.00-MS-IR2</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -17,7 +17,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>filesystem.blobstore</artifactId>
-			<version>03.01.00-MS-RC3-SNAPSHOT</version>
+			<version>03.01.00-MS-IR2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.oracle.coherence</groupId>
