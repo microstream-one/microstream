@@ -60,8 +60,9 @@ public interface AFile extends AItem
 	 */
 	public default long size()
 	{
-		// otherwise, reading the size throws an exception or returns a misleading result!
-		this.ensureExists();
+		// exists check is too expensive. Using logic must call it precisely when needed
+		// (20.09.2020 TM) priv#392
+//		this.ensureExists();
 		
 		return this.fileSystem().ioHandler().size(this);
 	}
@@ -126,10 +127,12 @@ public interface AFile extends AItem
 	// required to query the file size, for example
 	public default boolean ensureExists()
 	{
-		if(this.exists())
-		{
-			return false;
-		}
+		// exists is very expensive, so double-checking to avoid a lambda instance is a bad idea
+		// (20.09.2020 TM) priv#392
+//		if(this.exists())
+//		{
+//			return false;
+//		}
 		
 		return AFS.executeWriting(this, wf -> wf.ensureExists());
 	}
