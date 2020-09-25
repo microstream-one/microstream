@@ -183,8 +183,18 @@ public interface ConfigurationParser
 				final Map<String, String> properties = new HashMap<>();
 
 				final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-				factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-				factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+				try
+				{
+					factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+					factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+				}
+				catch(final IllegalArgumentException e)
+				{
+					/*
+					 * swallow
+					 * some implementations don't support attributes, e.g. Android
+					 */
+				}
 				final Document document = factory.newDocumentBuilder()
 					.parse(new InputSource(new StringReader(data)));
 				final Element  documentElement;
