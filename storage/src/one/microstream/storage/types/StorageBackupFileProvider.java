@@ -104,6 +104,7 @@ public interface StorageBackupFileProvider extends StorageFileProvider
 		)
 		{
 			final AFile file = this.provideDataFile(channelIndex, fileNumber);
+			file.ensureExists();
 			
 			return StorageBackupDataFile.New(file, channelIndex, fileNumber);
 		}
@@ -114,6 +115,7 @@ public interface StorageBackupFileProvider extends StorageFileProvider
 		)
 		{
 			final AFile file = this.provideTransactionsFile(channelIndex);
+			file.ensureExists();
 			
 			return StorageBackupTransactionsFile.New(file, channelIndex);
 		}
