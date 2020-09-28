@@ -301,6 +301,13 @@ public interface MemoryAccessor
 
 	
 	
+	// memory statistics creation //
+	
+	public MemoryStatistics createHeapMemoryStatistics();
+	
+	public MemoryStatistics createNonHeapMemoryStatistics();
+	
+	
 	
 	// byte order reversing logic //
 	

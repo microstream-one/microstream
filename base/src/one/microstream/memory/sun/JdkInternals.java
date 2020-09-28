@@ -4,6 +4,8 @@ import static one.microstream.X.coalesce;
 import static one.microstream.X.mayNull;
 
 import java.io.PrintStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.Buffer;
@@ -16,6 +18,7 @@ import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.functional.DefaultInstantiator;
 import one.microstream.memory.DirectBufferAddressGetter;
 import one.microstream.memory.DirectBufferDeallocator;
+import one.microstream.memory.MemoryStatistics;
 import one.microstream.memory.XMemory;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.XTypes;
@@ -1144,6 +1147,32 @@ public final class JdkInternals
 			offsets[i] = (int)VM.staticFieldOffset(fields[i]);
 		}
 		return offsets;
+	}
+	
+	
+	// memory statistics creation //
+	
+	private static MemoryStatistics createMemoryStatistics(final MemoryUsage usage)
+	{
+		return MemoryStatistics.New(
+			usage.getMax()      , 
+			usage.getCommitted(), 
+			usage.getUsed()
+		);
+	}
+	
+	public static MemoryStatistics createHeapMemoryStatistics()
+	{
+		return createMemoryStatistics(
+			ManagementFactory.getMemoryMXBean().getHeapMemoryUsage()
+		);
+	}
+	
+	public static MemoryStatistics createNonHeapMemoryStatistics()
+	{
+		return createMemoryStatistics(
+			ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage()
+		);
 	}
 	
 	
