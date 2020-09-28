@@ -2,11 +2,10 @@ package one.microstream.reference;
 
 import static one.microstream.X.mayNull;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
-
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
+import one.microstream.memory.MemoryStatistics;
+import one.microstream.memory.MemoryStatisticsProvider;
 import one.microstream.meta.XDebug;
 
 
@@ -431,7 +430,7 @@ public interface Lazy<T> extends Referencing<T>
 	@FunctionalInterface
 	public interface Check
 	{
-		public Boolean test(Lazy<?> lazyReference, MemoryUsage memoryUsage, long millisecondTimeout);
+		public Boolean test(Lazy<?> lazyReference, MemoryStatistics memoryStatistics, long millisecondTimeout);
 	}
 
 	
@@ -642,7 +641,7 @@ public interface Lazy<T> extends Referencing<T>
 			
 			// cycle working variables //
 			
-			private MemoryUsage cycleMemoryUsage;
+			private MemoryStatistics cycleMemoryStatistics;
 
 			private long cycleStartMs;
 			
@@ -731,15 +730,15 @@ public interface Lazy<T> extends Referencing<T>
 			{
 				if(this.cycleEvaluator != null)
 				{
-					this.cycleEvaluator.evaluateCycle(this.cycleMemoryUsage, this.cycleClearCount, this.memoryQuota);
+					this.cycleEvaluator.evaluateCycle(this.cycleMemoryStatistics, this.cycleClearCount, this.memoryQuota);
 				}
 			}
 			
 			private void updateMemoryUsage()
 			{
-				this.cycleMemoryUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
-				this.cycleMemoryLimit = this.calculateMemoryLimit(this.cycleMemoryUsage);
-				this.cycleMemoryUsed  = this.cycleMemoryUsage.getUsed();
+				this.cycleMemoryStatistics = MemoryStatisticsProvider.get().heapMemoryUsage();
+				this.cycleMemoryLimit      = this.calculateMemoryLimit(this.cycleMemoryStatistics);
+				this.cycleMemoryUsed       = this.cycleMemoryStatistics.used();
 				
 				// derived values for fast integer arithmetic for every check
 				this.sh10MemoryLimit = shift10(this.cycleMemoryLimit);
@@ -752,8 +751,8 @@ public interface Lazy<T> extends Referencing<T>
 				final VarString vs = VarString.New()
 					.lf().add("Timeout          = " + this.timeoutMs                       + " ms"   )
 					.lf().add("GraceTime        = " + this.graceTimeMs                     + " ms"   )
-					.lf().add("memory maximum   = " + format.format(this.cycleMemoryUsage.getMax()) + " bytes")
-					.lf().add("memory committed = " + format.format(this.cycleMemoryUsage.getCommitted()) + " bytes")
+					.lf().add("memory maximum   = " + format.format(this.cycleMemoryStatistics.max()) + " bytes")
+					.lf().add("memory committed = " + format.format(this.cycleMemoryStatistics.committed()) + " bytes")
 					.lf().add("cycleMemoryLimit = " + format.format(this.cycleMemoryLimit) + " bytes")
 					.lf().add("cycleMemoryUsed  = " + format.format(this.cycleMemoryUsed ) + " bytes")
 				;
@@ -797,7 +796,7 @@ public interface Lazy<T> extends Referencing<T>
 				return false;
 			}
 			
-			private long calculateMemoryLimit(final MemoryUsage memoryUsage)
+			private long calculateMemoryLimit(final MemoryStatistics memoryStatistics)
 			{
 				if(!this.isMemoryCheckEnabled())
 				{
@@ -805,7 +804,7 @@ public interface Lazy<T> extends Referencing<T>
 				}
 				
 				// committed heap is guaranteed. Max might be unsupported or not providable by the OS.
-				return (long)(memoryUsage.getCommitted() * this.memoryQuota);
+				return (long)(memoryStatistics.committed() * this.memoryQuota);
 			}
 
 			@Override
@@ -816,7 +815,7 @@ public interface Lazy<T> extends Referencing<T>
 						
 			private Boolean performCustomCheck(final Lazy<?> lazyReference)
 			{
-				return this.customCheck.test(lazyReference, this.cycleMemoryUsage, this.timeoutMs);
+				return this.customCheck.test(lazyReference, this.cycleMemoryStatistics, this.timeoutMs);
 			}
 			
 			@Override
