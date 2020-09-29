@@ -1170,6 +1170,14 @@ public final class XIO
 	)
 		throws IOException
 	{
+		if(effectiveLength == 0L)
+		{
+			/*
+			 * (28.09.2020 FH)XXX priv#383, nothing to read, abort.
+			 */
+			return 0L;
+		}
+		
 		final int  targetLimit = X.checkArrayRange(targetBuffer.position() + effectiveLength);
 		final long fileLength  = fileChannel.size();
 		
