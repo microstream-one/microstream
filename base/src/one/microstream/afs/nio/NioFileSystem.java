@@ -17,15 +17,15 @@ import one.microstream.io.XIO;
 
 public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 {
-	public static Path toPath(final AItem item)
-	{
-		return NioFileSystem.toPath(item.toPath());
-	}
-	
-	public static Path toPath(final String... pathElements)
-	{
-		return XIO.Path(pathElements);
-	}
+//	public static Path toPath(final AItem item)
+//	{
+//		return NioFileSystem.toPath(item.toPath());
+//	}
+//
+//	public static Path toPath(final String... pathElements)
+//	{
+//		return XIO.Path(pathElements);
+//	}
 		
 	
 	
@@ -173,14 +173,14 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		public Path resolve(final ADirectory directory)
 		{
 			// does not need synchronization since it only reads immutable state and creates only thread local state.
-			return NioFileSystem.toPath(directory);
+			return this.ioHandler().toPath(directory);
 		}
 
 		@Override
 		public Path resolve(final AFile file)
 		{
 			// does not need synchronization since it only reads immutable state and creates only thread local state.
-			return NioFileSystem.toPath(file);
+			return this.ioHandler().toPath(file);
 		}
 				
 		@Override
