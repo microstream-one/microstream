@@ -25,27 +25,29 @@ import one.microstream.io.XIO;
 public interface NioIoHandler extends AIoHandler
 {
 
-	public static Path toPath(final AItem item)
-	{
-		if(item instanceof NioItemWrapper)
-		{
-			return ((NioItemWrapper)item).path();
-		}
-		
-		return NioFileSystem.toPath(item);
-	}
-	
-	public static Path toPath(final String... pathElements)
-	{
-		return NioFileSystem.toPath(pathElements);
-	}
+//	public static Path toPath(final AItem item)
+//	{
+//		if(item instanceof NioItemWrapper)
+//		{
+//			return ((NioItemWrapper)item).path();
+//		}
+//
+//		return NioFileSystem.toPath(item);
+//	}
+//
+//	public static Path toPath(final String... pathElements)
+//	{
+//		return NioFileSystem.toPath(pathElements);
+//	}
 
 	
 	public NioReadableFile castReadableFile(AReadableFile file);
 	
 	public NioWritableFile castWritableFile(AWritableFile file);
 	
+	public Path toPath(final AItem item);
 	
+	public Path toPath(final String... pathElements);
 	
 	public static NioIoHandler New()
 	{
@@ -55,7 +57,26 @@ public interface NioIoHandler extends AIoHandler
 	public static NioIoHandler New(final WriteController writeController)
 	{
 		return new NioIoHandler.Default(
-			notNull(writeController)
+			notNull(writeController),
+			new NioPathResolver.Default()
+		);
+	}
+	
+	public static NioIoHandler New(final NioPathResolver pathResolver)
+	{
+		return new NioIoHandler.Default(
+			WriteController.Enabled(),
+			pathResolver
+		);
+	}
+	
+	public static NioIoHandler New(
+		final WriteController writeController,
+		final NioPathResolver pathResolver)
+	{
+		return new NioIoHandler.Default(
+			writeController,
+			pathResolver
 		);
 	}
 	
@@ -64,10 +85,19 @@ public interface NioIoHandler extends AIoHandler
 	implements NioIoHandler
 	{
 		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final NioPathResolver pathResolver;
+
+		
+		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Default(final WriteController writeController)
+		Default(
+			final WriteController writeController,
+			final NioPathResolver pathResolver)
 		{
 			super(
 				writeController,
@@ -77,6 +107,8 @@ public interface NioIoHandler extends AIoHandler
 				NioReadableFile.class,
 				NioWritableFile.class
 			);
+			
+			this.pathResolver = pathResolver;
 		}
 		
 		
@@ -85,6 +117,18 @@ public interface NioIoHandler extends AIoHandler
 		// methods //
 		////////////
 		
+		@Override
+		public Path toPath(final AItem item)
+		{
+			return this.pathResolver.toPath(item.toPath());
+		}
+		
+		@Override
+		public Path toPath(final String... pathElements)
+		{
+			return this.pathResolver.toPath(pathElements);
+		}
+						
 		@Override
 		public NioReadableFile castReadableFile(final AReadableFile file)
 		{
@@ -100,13 +144,13 @@ public interface NioIoHandler extends AIoHandler
 		@Override
 		protected Path toSubjectFile(final AFile file)
 		{
-			return NioFileSystem.toPath(file.toPath());
+			return this.pathResolver.toPath(file.toPath());
 		}
 		
 		@Override
 		protected Path toSubjectDirectory(final ADirectory directory)
 		{
-			return NioFileSystem.toPath(directory.toPath());
+			return this.pathResolver.toPath(directory.toPath());
 		}
 		
 		@Override
@@ -254,7 +298,7 @@ public interface NioIoHandler extends AIoHandler
 		@Override
 		protected void specificCreate(final ADirectory directory)
 		{
-			final Path dir = NioFileSystem.toPath(directory);
+			final Path dir = this.toPath(directory);
 			XIO.unchecked.ensureDirectory(dir);
 		}
 
