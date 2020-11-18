@@ -2,7 +2,6 @@ package one.microstream.com;
 
 import java.net.InetSocketAddress;
 
-import one.microstream.com.ComException;
 
 public interface ComClient<C>
 {
