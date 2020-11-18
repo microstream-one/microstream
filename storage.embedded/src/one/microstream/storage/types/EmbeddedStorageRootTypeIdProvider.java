@@ -3,7 +3,6 @@ package one.microstream.storage.types;
 import static one.microstream.math.XMath.positive;
 
 import one.microstream.persistence.types.PersistenceTypeManager;
-import one.microstream.storage.types.StorageRootTypeIdProvider;
 
 public interface EmbeddedStorageRootTypeIdProvider extends StorageRootTypeIdProvider
 {
