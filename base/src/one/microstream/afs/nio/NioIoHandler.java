@@ -24,23 +24,6 @@ import one.microstream.io.XIO;
 
 public interface NioIoHandler extends AIoHandler
 {
-
-//	public static Path toPath(final AItem item)
-//	{
-//		if(item instanceof NioItemWrapper)
-//		{
-//			return ((NioItemWrapper)item).path();
-//		}
-//
-//		return NioFileSystem.toPath(item);
-//	}
-//
-//	public static Path toPath(final String... pathElements)
-//	{
-//		return NioFileSystem.toPath(pathElements);
-//	}
-
-	
 	public NioReadableFile castReadableFile(AReadableFile file);
 	
 	public NioWritableFile castWritableFile(AWritableFile file);
