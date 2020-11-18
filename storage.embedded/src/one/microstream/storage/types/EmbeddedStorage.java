@@ -164,7 +164,7 @@ public final class EmbeddedStorage
 		// no directory ensuring required since the file provider does that internally
 
 		return Foundation(
-			Storage.DefaultFileSystem().ensureDirectory(directory)
+			Storage.PathFileSystem(directory).ensureDirectory(directory)
 		);
 	}
 
