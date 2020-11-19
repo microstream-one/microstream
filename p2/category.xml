@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="one.microstream.storage.embedded">
+      <category name="one.microstream"/>
+   </feature>
+   <feature id="one.microstream.storage.restservice">
+      <category name="one.microstream"/>
+   </feature>
+   <feature id="one.microstream.storage.restclient">
+      <category name="one.microstream"/>
+   </feature>
+   <feature id="one.microstream.communication.binary">
+      <category name="one.microstream"/>
+   </feature>
+   <feature id="one.microstream.filesystem.oraclecloud">
+      <category name="one.microstream"/>
+   </feature>
+   <feature id="one.microstream.filesystem.oraclenosql">
+      <category name="one.microstream"/>
+   </feature>
+   <feature id="one.microstream.filesystem.sql">
+      <category name="one.microstream"/>
+   </feature>
+   <category-def name="one.microstream" label="MicroStream"/>
+</site>
