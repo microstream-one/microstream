@@ -117,8 +117,8 @@ public interface MemoryStatisticsProvider
 			{
 				if(this.heapMemoryUsage == null || now - this.updateInterval >= this.heapMemoryUsageTimestamp)
 				{
-					this.heapMemoryUsageTimestamp = now                               ;
-					this.heapMemoryUsage          = MemoryStatistics.HeapMemoryUsage();
+					this.heapMemoryUsageTimestamp = now                                                  ;
+					this.heapMemoryUsage          = XMemory.memoryAccessor().createHeapMemoryStatistics();
 				}
 				
 				return this.heapMemoryUsage;
@@ -134,8 +134,8 @@ public interface MemoryStatisticsProvider
 			{
 				if(this.nonHeapMemoryUsage == null || now - this.updateInterval >= this.nonHeapMemoryUsageTimestamp)
 				{
-					this.nonHeapMemoryUsageTimestamp = now                               ;
-					this.nonHeapMemoryUsage          = MemoryStatistics.HeapMemoryUsage();
+					this.nonHeapMemoryUsageTimestamp = now                                                     ;
+					this.nonHeapMemoryUsage          = XMemory.memoryAccessor().createNonHeapMemoryStatistics();
 				}
 				
 				return this.nonHeapMemoryUsage;

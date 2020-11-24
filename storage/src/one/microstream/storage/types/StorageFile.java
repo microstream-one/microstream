@@ -425,7 +425,16 @@ public interface StorageFile
 					this.readAccess = this.writeAccess;
 				}
 				
-				this.writeAccess.ensureExists();
+				/*
+				 * This is too expensive (additional round trip on network calls
+				 * and even on low-level implementation like JDK NIO).
+				 * So the file must be assumed to be still properly there after being created.
+				 * Maybe it's even good to NOT ensure it since that recognizes erroneously
+				 * missing files instead of swallowing the problem by silently compensating it.
+				 */
+				// (20.09.2020 TM) priv#392
+//				this.writeAccess.ensureExists();
+				
 				return this.writeAccess.open();
 			}
 			catch(final Exception e)
@@ -444,7 +453,16 @@ public interface StorageFile
 					this.readAccess = this.file().useReading();
 				}
 				
-				this.readAccess.ensureExists();
+				/*
+				 * This is too expensive (additional round trip on network calls
+				 * and even on low-level implementation like JDK NIO).
+				 * So the file must be assumed to be still properly there after being created.
+				 * Maybe it's even good to NOT ensure it since that recognizes erroneously
+				 * missing files instead of swallowing the problem by silently compensating it.
+				 */
+				// (20.09.2020 TM) priv#392
+//				this.readAccess.ensureExists();
+				
 				return this.readAccess.open();
 			}
 			catch(final Exception e)

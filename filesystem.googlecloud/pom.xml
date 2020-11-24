@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream</artifactId>
-		<version>03.01.00-MS-GA-SNAPSHOT</version>
+		<version>04.01.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -20,7 +20,7 @@
 			<dependency>
 				<groupId>com.google.cloud</groupId>
 				<artifactId>libraries-bom</artifactId>
-				<version>5.3.0</version>
+				<version>16.1.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>filesystem.blobstore</artifactId>
-			<version>03.01.00-MS-GA-SNAPSHOT</version>
+			<version>04.01.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.cloud</groupId>

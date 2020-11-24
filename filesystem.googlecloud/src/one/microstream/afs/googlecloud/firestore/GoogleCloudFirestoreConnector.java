@@ -141,7 +141,6 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 			}
 			catch(final Exception e)
 			{
-				// TODO Proper exception
 				throw new RuntimeException(e);
 			}
 		}
@@ -169,7 +168,6 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 			}
 			catch(final Exception e)
 			{
-				// TODO Proper exception
 				throw new RuntimeException(e);
 			}
 		}
@@ -226,7 +224,6 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 			}
 			catch(final Exception e)
 			{
-				// TODO Proper exception
 				throw new RuntimeException(e);
 			}
 		}
@@ -250,7 +247,6 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 			}
 			catch(final Exception e)
 			{
-				// TODO Proper exception
 				throw new RuntimeException(e);
 			}
 		}
@@ -330,7 +326,6 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 			}
 			catch(final Exception e)
 			{
-				// TODO Proper exception
 				throw new RuntimeException(e);
 			}
 		}

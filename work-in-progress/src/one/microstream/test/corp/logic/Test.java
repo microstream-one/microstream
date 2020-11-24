@@ -2,6 +2,7 @@ package one.microstream.test.corp.logic;
 
 import static one.microstream.X.notNull;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -274,20 +275,48 @@ public class Test
 	}
 
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
-
-	public static void printInitializationTime(final EmbeddedStorageManager storage)
+	
+	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("00,000,000,000");
+		
+	public static String formatTimestamp(final Date timestamp)
 	{
-		System.out.println(TIME_FORMAT.format(new Date(storage.initializationTime())) + ": Initializing database ...");
+		return TIME_FORMAT.format(timestamp);
+	}
+	
+	public static String formatTimestamp(final long timestamp)
+	{
+		return formatTimestamp(new Date(timestamp));
+	}
+	
+	public static String formatTimespan(final long timespan)
+	{
+		return DECIMAL_FORMAT.format(timespan);
+	}
+	
+	public static String formatTimespanToNow(final long timestamp)
+	{
+		return formatTimespan(System.currentTimeMillis() - timestamp);
 	}
 
-	public static void printOperationModeTime(final EmbeddedStorageManager storage)
+	public static long printInitializationTime(final EmbeddedStorageManager storage)
 	{
-		System.out.println(TIME_FORMAT.format(new Date(storage.operationModeTime())) + ": Database initialized.");
+		final long initializationTime = storage.initializationTime();
+		System.out.println(formatTimestamp(initializationTime) + ": Initializing database ...");
+		
+		return initializationTime;
+	}
+
+	public static long printOperationModeTime(final EmbeddedStorageManager storage)
+	{
+		final long operationModeTime = storage.operationModeTime();
+		System.out.println(formatTimestamp(operationModeTime) + ": Database initialized.");
+		
+		return operationModeTime;
 	}
 	
 	public static void print(final Object object)
 	{
-		System.out.println(TIME_FORMAT.format(XTime.now())+": "+object);
+		System.out.println(formatTimestamp(XTime.now())+": "+object);
 	}
 
 	public static ADirectory provideTimestampedDirectory(final ADirectory directory, final String prefix)
@@ -304,7 +333,6 @@ public class Test
 	{
 		return provideTimestampedDirectory(null, prefix);
 	}
-
 
 	public static void printTransactionsFiles(final AFile... files)
 	{

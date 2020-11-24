@@ -407,12 +407,6 @@ public interface MongoDbConnector extends BlobStoreConnector
 				throw new RuntimeException("Write to " + file.fullQualifiedName() + " was not acknowledged.");
 			}
 
-//			final String fullQualifiedName = file.fullQualifiedName();
-//			if(!fullQualifiedName.endsWith("PersistenceTypeDictionary.ptd"))
-//			{
-//				System.out.println("Write: " + fullQualifiedName);
-//			}
-
 			return totalSize;
 		}
 
@@ -589,12 +583,6 @@ public interface MongoDbConnector extends BlobStoreConnector
 			{
 				throw new IORuntimeException(e);
 			}
-
-//			final String fullQualifiedName = file.fullQualifiedName();
-//			if(!fullQualifiedName.endsWith("PersistenceTypeDictionary.ptd"))
-//			{
-//				System.out.println("Write: " + fullQualifiedName);
-//			}
 
 			return totalSize;
 		}

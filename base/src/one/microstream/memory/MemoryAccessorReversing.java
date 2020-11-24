@@ -647,6 +647,21 @@ public class MemoryAccessorReversing implements MemoryAccessor
 	}
 	
 	
+	// memory statistics creation //
+	
+	@Override
+	public MemoryStatistics createHeapMemoryStatistics()
+	{
+		return this.actual.createHeapMemoryStatistics();
+	}
+	
+	@Override
+	public MemoryStatistics createNonHeapMemoryStatistics()
+	{
+		return this.actual.createNonHeapMemoryStatistics();
+	}
+	
+	
 	
 	// byte order reversing logic //
 	
