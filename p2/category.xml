@@ -12,10 +12,22 @@
    <feature id="one.microstream.communication.binary">
       <category name="one.microstream"/>
    </feature>
-   <feature id="one.microstream.filesystem.oraclecloud">
+   <feature id="one.microstream.filesystem.hazelcast">
+      <category name="one.microstream"/>
+   </feature>
+   <feature id="one.microstream.filesystem.jpa.hibernate">
+      <category name="one.microstream"/>
+   </feature>
+   <feature id="one.microstream.filesystem.kafka">
+      <category name="one.microstream"/>
+   </feature>
+   <feature id="one.microstream.filesystem.mongodb">
       <category name="one.microstream"/>
    </feature>
    <feature id="one.microstream.filesystem.oraclenosql">
+      <category name="one.microstream"/>
+   </feature>
+   <feature id="one.microstream.filesystem.redis">
       <category name="one.microstream"/>
    </feature>
    <feature id="one.microstream.filesystem.sql">
