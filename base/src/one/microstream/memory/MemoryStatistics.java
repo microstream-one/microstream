@@ -1,46 +1,56 @@
 
 package one.microstream.memory;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
-
-/*
- * MemoryMXBean is used to determine memory usage, because it is considerably faster than Runtime#*memory()
- */
 /**
  * 
  * @author FH
  */
 public interface MemoryStatistics
 {
+	/**
+     * Returns the maximum amount of memory in bytes that can be
+     * used for memory management.  This method returns <tt>-1</tt>
+     * if the maximum memory size is undefined.
+     *
+     * <p> This amount of memory is not guaranteed to be available
+     * for memory management if it is greater than the amount of
+     * committed memory.  The Java virtual machine may fail to allocate
+     * memory even if the amount of used memory does not exceed this
+     * maximum size.
+     *
+     * @return the maximum amount of memory in bytes;
+     * <tt>-1</tt> if undefined.
+     */
 	public long max();
 	
+	/**
+     * Returns the amount of memory in bytes that is committed for
+     * the Java virtual machine to use.  This amount of memory is
+     * guaranteed for the Java virtual machine to use.
+     *
+     * @return the amount of committed memory in bytes.
+     *
+     */
+	public long committed();
+	
+	/**
+     * Returns the amount of used memory in bytes.
+     *
+     * @return the amount of used memory in bytes.
+     *
+     */
 	public long used();
-	
-	public long available();
-	
-	public double quota();
-	
-	
-	
-	public static MemoryStatistics HeapMemoryUsage()
-	{
-		return New(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
-	}
-	
-	public static MemoryStatistics NonHeapMemoryUsage()
-	{
-		return New(ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage());
-	}
-	
-	public static MemoryStatistics New(final MemoryUsage usage)
-	{
-		final long max       = usage.getMax() ;
-		final long used      = usage.getUsed();
-		final long available = max - used     ;
 		
-		return new Default(max, used, available, (double)available / (double)max);
+	
+	public static MemoryStatistics New(
+		final long   max      ,
+		final long   committed,
+		final long   used
+	)
+	{
+		return new Default(max, committed, used);
 	}
+	
 		
 	public static class Default implements MemoryStatistics
 	{
@@ -49,9 +59,8 @@ public interface MemoryStatistics
 		////////////////////
 		
 		private final long   max      ;
+		private final long   committed;
 		private final long   used     ;
-		private final long   available;
-		private final double quota    ;
 		
 		
 		
@@ -60,18 +69,16 @@ public interface MemoryStatistics
 		/////////////////
 		
 		Default(
-			final long max      ,
-			final long used     ,
-			final long available,
-			final double quota
+			final long   max      ,
+			final long   committed,
+			final long   used
 		)
 		{
 			super();
 			
 			this.max       = max      ;
+			this.committed = committed;
 			this.used      = used     ;
-			this.available = available;
-			this.quota     = quota    ;
 		}
 		
 		
@@ -87,21 +94,15 @@ public interface MemoryStatistics
 		}
 		
 		@Override
+		public long committed()
+		{
+			return this.committed;
+		}
+		
+		@Override
 		public long used()
 		{
 			return this.used;
-		}
-		
-		@Override
-		public long available()
-		{
-			return this.available;
-		}
-		
-		@Override
-		public double quota()
-		{
-			return this.quota;
 		}
 		
 	}

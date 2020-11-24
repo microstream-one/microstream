@@ -219,7 +219,7 @@ public interface AzureStorageConnector extends BlobStoreConnector
 			{
 				final long currentBatchSize = Math.min(
 					available,
-					BlockBlobClient.MAX_UPLOAD_BLOB_BYTES
+					BlockBlobClient.MAX_STAGE_BLOCK_BYTES_LONG
 				);
 
 				try(LimitedInputStream limitedInputStream = LimitedInputStream.New(

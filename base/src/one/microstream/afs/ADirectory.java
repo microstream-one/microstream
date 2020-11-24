@@ -494,31 +494,24 @@ public interface ADirectory extends AItem, AResolving
 			final int      length
 		)
 		{
-			// length means distance in this case. 1 is the next, 0 is "self".
+			// length means distance in this case. If no more distance remains (length 0), "this" is the result.
 			if(length == 0)
 			{
-				if(pathElements[offset].equals(this.identifier()))
-				{
-					return this;
-				}
-				
-				// (19.05.2020 TM)EXCP: proper exception
-				throw new RuntimeException(
-					"Inconsistent path: identifier of this (\"" + this.identifier() +
-					"\") does not match the specified identifier \"" + pathElements[offset] + "\"."
-				);
-				
+				// note: identifier validation makes no sense at this point. Length 0 always means "this".
+				return this;
 			}
+			
+			// array bounds validation after trivial / always-correct length 0 case
+			XArrays.validateArrayRange(pathElements, offset, length);
 			
 			// requires the central lock but calls an internal method, so this lock must be acquired here
 			synchronized(this.fileSystem())
 			{
-				ADirectory directory = null;
+				ADirectory currentDirectory = this;
 				for(int o = offset, l = length; l > 0; o++, l--)
 				{
-					// lock not required since all mutating operations require a central lock on filesystem.
-					directory = this.internalGetDirectory(pathElements[o]);
-					if(directory == null)
+					final ADirectory resolvedChildDirectory = currentDirectory.getDirectory(pathElements[o]);
+					if(resolvedChildDirectory == null)
 					{
 						// (14.05.2020 TM)EXCP: proper exception
 						throw new RuntimeException(
@@ -532,9 +525,12 @@ public interface ADirectory extends AItem, AResolving
 							.toString()
 						);
 					}
+					
+					// recursion implemented as iteration instead of recursive calls (potential stack overflow)
+					currentDirectory = resolvedChildDirectory;
 				}
 				
-				return directory;
+				return currentDirectory;
 			}
 		}
 		

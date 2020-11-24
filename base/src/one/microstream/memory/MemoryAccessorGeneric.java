@@ -2007,6 +2007,28 @@ public final class MemoryAccessorGeneric implements MemoryAccessor
 	{
 		return this.defaultInstantiator.instantiate(c);
 	}
+
+	
+	// memory statistics creation //
+	
+	@Override
+	public final synchronized MemoryStatistics createHeapMemoryStatistics()
+	{
+		final Runtime runtime = Runtime.getRuntime() ;
+		final long    max     = runtime.maxMemory()  ;
+		final long    total   = runtime.totalMemory(); // ^= committed
+		final long    free    = runtime.freeMemory() ;
+		final long    used    = total - free         ;
+		
+		return MemoryStatistics.New(max, total, used);
+	}
+	
+	@Override
+	public final synchronized MemoryStatistics createNonHeapMemoryStatistics()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
 	
 	@Override
 	public final synchronized MemoryAccessor toReversing()

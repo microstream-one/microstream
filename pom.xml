@@ -6,7 +6,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream</artifactId>
-	<version>03.01.00-MS-GA-SNAPSHOT</version>
+	<version>04.01.00-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -386,43 +386,9 @@
 				<module>storage.restservice</module>
 				<module>storage.restservice.sparkjava</module>
 				<module>work-in-progress</module>
-				<module>all</module>
+				<module>jigsaw</module>
 			</modules>
 		</profile>
-		<profile>
-			<id>withoutApp</id>
-			<modules>
-				<module>base</module>
-				<module>cache</module>
-				<module>cache.hibernate</module>
-				<module>communication</module>
-				<module>communication.binary</module>
-				<module>filesystem.aws</module>
-				<module>filesystem.azure</module>
-				<module>filesystem.blobstore</module>
-				<module>filesystem.coherence</module>
-				<module>filesystem.googlecloud</module>
-				<module>filesystem.hazelcast</module>
-				<module>filesystem.jpa.hibernate</module>
-				<module>filesystem.kafka</module>
-				<module>filesystem.mongodb</module>
-				<module>filesystem.oraclecloud</module>
-				<module>filesystem.oraclenosql</module>
-				<module>filesystem.redis</module>
-				<module>filesystem.sql</module>
-				<module>persistence</module>
-				<module>persistence.binary</module>
-				<module>persistence.binary.jdk8</module>
-				<module>storage</module>
-				<module>storage.embedded</module>
-				<module>storage.embedded.configuration</module>
-				<module>storage.restadapter</module>
-				<module>storage.restclient</module>
-				<module>storage.restclient.jersey</module>
-				<module>storage.restservice</module>
-				<module>storage.restservice.sparkjava</module>
-			</modules>
-		</profile>		
 		<profile>
 			<id>deploy</id>
 			<build>

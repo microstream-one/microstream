@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import one.microstream.exceptions.InstantiationRuntimeException;
 import one.microstream.memory.MemoryAccessor;
 import one.microstream.memory.MemorySizeProperties;
+import one.microstream.memory.MemoryStatistics;
 import one.microstream.typing.XTypes;
 
 public final class JdkMemoryAccessor implements MemoryAccessor, MemorySizeProperties
@@ -642,6 +643,21 @@ public final class JdkMemoryAccessor implements MemoryAccessor, MemorySizeProper
 	public final long byteSizeArrayObject(final long elementCount)
 	{
 		return JdkInternals.byteSizeArrayObject(elementCount);
+	}
+
+	
+	// memory statistics creation //
+		
+	@Override
+	public final MemoryStatistics createHeapMemoryStatistics()
+	{
+		return JdkInternals.createHeapMemoryStatistics();
+	}
+	
+	@Override
+	public MemoryStatistics createNonHeapMemoryStatistics()
+	{
+		return JdkInternals.createNonHeapMemoryStatistics();
 	}
 	
 }

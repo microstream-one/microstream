@@ -595,7 +595,14 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			{
 				if(this.transactionFile == null)
 				{
-					this.transactionFile = this.backupFileProvider.provideBackupTransactionsFile(this.channelIndex());
+					final StorageBackupTransactionsFile transactionsfile =
+						this.backupFileProvider.provideBackupTransactionsFile(this.channelIndex())
+					;
+					
+					// ensure file existence before mutating instance state.
+					transactionsfile.file().ensureExists();
+					
+					this.transactionFile = transactionsfile;
 				}
 				
 				return this.transactionFile;
@@ -610,6 +617,10 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				if(backupFile == null)
 				{
 					backupFile = this.backupFileProvider.provideBackupDataFile(sourceFile);
+					
+					// ensure file existence before mutating instance state.
+					backupFile.file().ensureExists();
+					
 					this.registerBackupFile(backupFile);
 				}
 				

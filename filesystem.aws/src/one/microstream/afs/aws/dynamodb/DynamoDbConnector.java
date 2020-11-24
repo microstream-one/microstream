@@ -12,52 +12,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.document.BatchWriteItemOutcome;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.ItemCollection;
-import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
-import com.amazonaws.services.dynamodbv2.document.ScanFilter;
-import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
-import com.amazonaws.services.dynamodbv2.document.Table;
-import com.amazonaws.services.dynamodbv2.document.TableWriteItems;
-import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
-import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
-import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
-import com.amazonaws.services.dynamodbv2.model.Condition;
-import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
-import com.amazonaws.services.dynamodbv2.model.Delete;
-import com.amazonaws.services.dynamodbv2.model.DescribeLimitsRequest;
-import com.amazonaws.services.dynamodbv2.model.DescribeLimitsResult;
-import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
-import com.amazonaws.services.dynamodbv2.model.KeyType;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.amazonaws.services.dynamodbv2.model.QueryRequest;
-import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
-import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
-import com.amazonaws.services.dynamodbv2.model.Select;
-import com.amazonaws.services.dynamodbv2.model.TransactWriteItem;
-import com.amazonaws.services.dynamodbv2.model.TransactWriteItemsRequest;
 
 import one.microstream.afs.blobstore.BlobStoreConnector;
 import one.microstream.afs.blobstore.BlobStorePath;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeDefinition;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.CreateTableRequest;
+import software.amazon.awssdk.services.dynamodb.model.Delete;
+import software.amazon.awssdk.services.dynamodb.model.DescribeLimitsResponse;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.KeySchemaElement;
+import software.amazon.awssdk.services.dynamodb.model.KeyType;
+import software.amazon.awssdk.services.dynamodb.model.Put;
+import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
+import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
+import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
+import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
+import software.amazon.awssdk.services.dynamodb.model.Select;
+import software.amazon.awssdk.services.dynamodb.model.TableDescription;
+import software.amazon.awssdk.services.dynamodb.model.TransactWriteItem;
+import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsRequest;
 
 /**
  * Connector for the <a href="https://aws.amazon.com/dynamodb/">Amazon DynamoDB database service</a>.
  * <p>
  * First create a connection to the <a href="https://docs.aws.amazon.com/sdk-for-java/v2/developer-guide/examples-dynamodb.html">DynamoDB service</a>.
  * <pre>
- * AmazonDynamoDB client = ...
+ * DynamoDbClient client = ...
  * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
- * 	DynamoDbConnector.New(client)
+ * 	DynamoDbConnector.Caching(client)
  * );
  * </pre>
  *
@@ -69,15 +60,15 @@ public interface DynamoDbConnector extends BlobStoreConnector
 	/**
 	 * Pseude-constructor method which creates a new {@link DynamoDbConnector}.
 	 *
-	 * @param dynamoDb connection to the DynamoDB service
+	 * @param client connection to the DynamoDB service
 	 * @return a new {@link DynamoDbConnector}
 	 */
 	public static DynamoDbConnector New(
-		final AmazonDynamoDB dynamoDb
+		final DynamoDbClient client
 	)
 	{
 		return new DynamoDbConnector.Default(
-			notNull(dynamoDb),
+			notNull(client),
 			false
 		);
 	}
@@ -85,22 +76,22 @@ public interface DynamoDbConnector extends BlobStoreConnector
 	/**
 	 * Pseude-constructor method which creates a new {@link DynamoDbConnector} with cache.
 	 *
-	 * @param dynamoDb connection to the DynamoDB service
+	 * @param client connection to the DynamoDB service
 	 * @return a new {@link DynamoDbConnector}
 	 */
 	public static DynamoDbConnector Caching(
-		final AmazonDynamoDB dynamoDb
+		final DynamoDbClient client
 	)
 	{
 		return new DynamoDbConnector.Default(
-			notNull(dynamoDb),
+			notNull(client),
 			true
 		);
 	}
 
 
 	public static class Default
-	extends    BlobStoreConnector.Abstract<Item>
+	extends    BlobStoreConnector.Abstract<Map<String, AttributeValue>>
 	implements DynamoDbConnector
 	{
 		private final static String FIELD_KEY  = "key" ;
@@ -113,26 +104,24 @@ public interface DynamoDbConnector extends BlobStoreConnector
 		private final static long MAX_REQUEST_SIZE  = 4_000_000;
 		private final static long MAX_REQUEST_ITEMS =        25;
 
-		private final AmazonDynamoDB     client  ;
-		private final DynamoDB           dynamoDB;
-		private final Map<String, Table> tables  ;
+		private final DynamoDbClient                client;
+		private final Map<String, TableDescription> tables;
 
 		Default(
-			final AmazonDynamoDB client  ,
+			final DynamoDbClient client  ,
 			final boolean        useCache
 		)
 		{
 			super(
-				blob -> blob.getString(FIELD_KEY ),
-				blob -> blob.getLong  (FIELD_SIZE),
+				blob -> blob.get(FIELD_KEY).s(),
+				blob -> Long.parseLong(blob.get(FIELD_SIZE).n()),
 				useCache
 			);
-			this.client   = client              ;
-			this.dynamoDB = new DynamoDB(client);
-			this.tables   = new HashMap<>();
+			this.client = client         ;
+			this.tables = new HashMap<>();
 		}
 
-		private Table table(
+		private TableDescription table(
 			final BlobStorePath path
 		)
 		{
@@ -142,63 +131,91 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			);
 		}
 
-		private Table createTable(
-			final String name)
+		private TableDescription createTable(
+			final String name
+		)
 		{
 			try
 			{
-				this.client.describeTable(name);
-				return this.dynamoDB.getTable(name);
+				return this.client.describeTable(builder -> builder.tableName(name)).table();
 			}
 			catch(final ResourceNotFoundException e)
 			{
-				final DescribeLimitsResult limits = this.client.describeLimits(
-					new DescribeLimitsRequest()
-				);
-				final CreateTableRequest   request = new CreateTableRequest()
-					.withTableName(name)
-					.withKeySchema(
-						new KeySchemaElement(FIELD_KEY, KeyType.HASH ),
-						new KeySchemaElement(FIELD_SEQ, KeyType.RANGE)
+				final DescribeLimitsResponse limits  = this.client.describeLimits();
+				final CreateTableRequest     request = CreateTableRequest.builder()
+					.tableName(name)
+					.keySchema(
+						KeySchemaElement.builder()
+							.attributeName(FIELD_KEY)
+							.keyType(KeyType.HASH)
+							.build(),
+						KeySchemaElement.builder()
+							.attributeName(FIELD_SEQ)
+							.keyType(KeyType.RANGE)
+							.build()
 					)
-					.withAttributeDefinitions(
-						new AttributeDefinition(FIELD_KEY , ScalarAttributeType.S),
-						new AttributeDefinition(FIELD_SEQ , ScalarAttributeType.N)
+					.attributeDefinitions(
+						AttributeDefinition.builder()
+							.attributeName(FIELD_KEY)
+							.attributeType(ScalarAttributeType.S)
+							.build(),
+						AttributeDefinition.builder()
+							.attributeName(FIELD_SEQ)
+							.attributeType(ScalarAttributeType.N)
+							.build()
 					)
-					.withProvisionedThroughput(new ProvisionedThroughput(
-						limits.getTableMaxReadCapacityUnits(),
-						limits.getTableMaxWriteCapacityUnits()
-					))
+					.provisionedThroughput(builder -> builder
+						.readCapacityUnits (limits.tableMaxReadCapacityUnits ())
+						.writeCapacityUnits(limits.tableMaxWriteCapacityUnits())
+					)
+					.build()
 				;
-				return this.dynamoDB.createTable(request);
+				return this.client.createTable(request).tableDescription();
 			}
 		}
 
-		private Stream<Item> blobs(
+		private Stream<Map<String, AttributeValue>> blobs(
 			final BlobStorePath file    ,
 			final boolean       withData
 		)
 		{
-			final QuerySpec querySpec = new QuerySpec()
-				.withHashKey(FIELD_KEY, file.fullQualifiedName())
+			final Map<String, String> attributeNames = new HashMap<>();
+			attributeNames.put("#" + FIELD_KEY, FIELD_KEY);
+			attributeNames.put("#" + FIELD_SEQ, FIELD_SEQ);
+			attributeNames.put("#" + FIELD_SIZE, FIELD_SIZE);
+			
+			final Map<String, AttributeValue> attributeValues = new HashMap<>();
+			attributeValues.put(
+				":" + FIELD_KEY,
+				AttributeValue.builder()
+					.s(file.fullQualifiedName())
+					.build()
+			);
+			
+			final QueryRequest.Builder builder = QueryRequest.builder()
+				.tableName(file.container())
+				.keyConditionExpression("#" + FIELD_KEY + "=:" + FIELD_KEY)
+				.expressionAttributeNames(attributeNames)
+				.expressionAttributeValues(attributeValues)
 			;
+			
 			if(!withData)
 			{
-				querySpec.withAttributesToGet(FIELD_KEY, FIELD_SEQ, FIELD_SIZE);
+				builder.projectionExpression("#" + FIELD_KEY + ",#" + FIELD_SEQ + ",#" + FIELD_SIZE);
 			}
-
-			final ItemCollection<QueryOutcome> itemCollection = this.table(file).query(querySpec);
+			
 			try
 			{
-				if(itemCollection.iterator().hasNext())
+				final QueryResponse response = this.client.query(builder.build());
+				if(!response.hasItems())
 				{
-					return StreamSupport.stream(
-						itemCollection.spliterator(),
-						false
-					)
-					.sorted(this.blobComparator())
-					;
+					return Stream.empty();
 				}
+								
+				return response.items()
+					.stream()
+					.sorted(this.blobComparator())
+				;
 			}
 			catch(final ResourceNotFoundException e)
 			{
@@ -208,14 +225,35 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			return Stream.empty();
 		}
 
-		@Override
-		protected long blobNumber(final Item blob)
+		private Map<String, AttributeValue> createKey(
+			final BlobStorePath               file,
+			final Map<String, AttributeValue> blob
+		)
 		{
-			return blob.getLong(FIELD_SEQ);
+			final Map<String, AttributeValue> key = new HashMap<>();
+			key.put(
+				FIELD_KEY,
+				AttributeValue.builder()
+					.s(file.fullQualifiedName())
+					.build()
+			);
+			key.put(
+				FIELD_SEQ,
+				AttributeValue.builder()
+					.n(Long.toString(this.blobNumber(blob)))
+					.build()
+			);
+			return key;
 		}
 
 		@Override
-		protected Stream<Item> blobs(
+		protected long blobNumber(final Map<String, AttributeValue> blob)
+		{
+			return Long.parseLong(blob.get(FIELD_SEQ).n());
+		}
+
+		@Override
+		protected Stream<Map<String, AttributeValue>> blobs(
 			final BlobStorePath file
 		)
 		{
@@ -227,25 +265,45 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			final BlobStorePath directory
 		)
 		{
-			final Pattern                     pattern = Pattern.compile(childKeysRegexWithContainer(directory));
-			final ItemCollection<ScanOutcome> outcome = this.table(directory).scan(
-				new ScanSpec()
-					.withScanFilters(
-						new ScanFilter(FIELD_KEY)
-							.beginsWith(toChildKeysPrefixWithContainer(directory))
-					)
-					.withAttributesToGet(FIELD_KEY)
+			final Map<String, AttributeValue> expressionValues = new HashMap<>();
+			expressionValues.put(
+				":" + FIELD_KEY,
+				AttributeValue.builder()
+					.s(toChildKeysPrefixWithContainer(directory))
+					.build()
 			);
-			return StreamSupport.stream(
-				outcome.spliterator(),
-				false
-			)
-			.map(item -> item.getString(FIELD_KEY))
-			.filter(key ->
-				pattern.matcher(key).matches()
-			)
-			.distinct()
+			
+			final ScanRequest request = ScanRequest.builder()
+				.tableName(directory.container())
+				.filterExpression("begins_with(" + FIELD_KEY + ",:" + FIELD_KEY)
+				.expressionAttributeValues(expressionValues)
+				.attributesToGet(FIELD_KEY)
+				.build()
 			;
+			
+			final ScanResponse response = this.client.scan(request);
+			try
+			{
+				if(!response.hasItems())
+				{
+					return Stream.empty();
+				}
+
+				final Pattern pattern = Pattern.compile(childKeysRegexWithContainer(directory));
+				
+				return response.items()
+					.stream()
+					.map(item -> item.get(FIELD_KEY).s())
+					.filter(key -> pattern.matcher(key).matches())
+					.distinct()
+				;
+			}
+			catch(final ResourceNotFoundException e)
+			{
+				// no items found
+			}
+
+			return Stream.empty();
 		}
 
 		@Override
@@ -263,42 +321,58 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			final BlobStorePath file
 		)
 		{
-			final Map<String, Condition> keyConditions = new HashMap<>();
-			keyConditions.put(
-				FIELD_KEY,
-				new Condition()
-		        	.withComparisonOperator(ComparisonOperator.EQ)
-		        	.withAttributeValueList(new AttributeValue().withS(file.fullQualifiedName()))
+			final Map<String, String> attributeNames = new HashMap<>();
+			attributeNames.put("#" + FIELD_KEY, FIELD_KEY);
+			
+			final Map<String, AttributeValue> attributeValues = new HashMap<>();
+			attributeValues.put(
+				":" + FIELD_KEY,
+				AttributeValue.builder()
+					.s(file.fullQualifiedName())
+					.build()
 			);
-			final Integer count = this.client.query(
-				new QueryRequest(file.container())
-					.withSelect(Select.COUNT)
-					.withKeyConditions(keyConditions)
-			)
-			.getCount();
-
-			return count > 0;
+			
+			final QueryRequest request = QueryRequest.builder()
+				.tableName(file.container())
+				.select(Select.COUNT)
+				.keyConditionExpression("#" + FIELD_KEY + "=:" + FIELD_KEY)
+				.expressionAttributeNames(attributeNames)
+				.expressionAttributeValues(attributeValues)
+				.build()
+			;
+			
+			try
+			{
+				final QueryResponse response = this.client.query(request);
+				return response.count() > 0;
+			}
+			catch(final ResourceNotFoundException e)
+			{
+				// no items found
+				return false;
+			}
 		}
 
 		@Override
 		protected void internalReadBlobData(
-			final BlobStorePath file        ,
-			final Item          blob        ,
-			final ByteBuffer    targetBuffer,
-			final long          offset      ,
-			final long          length
+			final BlobStorePath               file        ,
+			final Map<String, AttributeValue> blob        ,
+			final ByteBuffer                  targetBuffer,
+			final long                        offset      ,
+			final long                        length
 		)
 		{
-			/*
-			 *  Fetch blob again with data.
-			 *  Per default they are loaded without it.
-			 */
-			final Item fullBlob = this.table(file).getItem(
-				FIELD_KEY, file.fullQualifiedName(),
-				FIELD_SEQ, this.blobNumber(blob)
-			);
+			final GetItemRequest request = GetItemRequest.builder()
+				.tableName(file.container())
+				.key(this.createKey(file, blob))
+				.attributesToGet(FIELD_DATA)
+				.build()
+			;
+			
+			final GetItemResponse response = this.client.getItem(request);
+			final Map<String, AttributeValue> item = response.item();
 			targetBuffer.put(
-				fullBlob.getBinary(FIELD_DATA),
+				item.get(FIELD_DATA).b().asByteArrayUnsafe(),
 				checkArrayRange(offset),
 				checkArrayRange(length)
 			);
@@ -306,42 +380,24 @@ public interface DynamoDbConnector extends BlobStoreConnector
 
 		@Override
 		protected boolean internalDeleteBlobs(
-			final BlobStorePath        file ,
-			final List<? extends Item> blobs
+			final BlobStorePath                               file ,
+			final List<? extends Map<String, AttributeValue>> blobs
 		)
 		{
-			boolean                       deleted = false;
-			final List<TransactWriteItem> deletes = new ArrayList<>();
-			for(final Item item : blobs)
+			final BatchDelete batchDelete = new BatchDelete(this.client);
+			for(final Map<String, AttributeValue> item : blobs)
 			{
-				final Map<String, AttributeValue> key = new HashMap<>();
-		        key.put(FIELD_KEY, new AttributeValue(item.getString(FIELD_KEY)));
-		        key.put(FIELD_SEQ, new AttributeValue().withN(Long.toString(item.getLong(FIELD_SEQ))));
-
-		        deletes.add(new TransactWriteItem().withDelete(
-		        	new Delete()
-						.withTableName(file.container())
-						.withKey(key)
-				));
-		        if(deletes.size() >= MAX_REQUEST_ITEMS)
-		        {
-		        	this.client.transactWriteItems(
-						new TransactWriteItemsRequest().withTransactItems(deletes)
-					);
-		        	deletes.clear();;
-		        	deleted = true;
-		        }
+				final Delete delete = Delete.builder()
+					.tableName(file.container())
+					.key(this.createKey(file, item))
+					.build()
+				;
+				batchDelete.add(delete);
 			}
+			
+			batchDelete.finish();
 
-			if(!deletes.isEmpty())
-			{
-				this.client.transactWriteItems(
-					new TransactWriteItemsRequest().withTransactItems(deletes)
-				);
-	        	deleted = true;
-			}
-
-			return deleted;
+			return batchDelete.hasWritten();
 		}
 
 		@Override
@@ -350,7 +406,8 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			final Iterable<? extends ByteBuffer> sourceBuffers
 		)
 		{
-			final BatchWrite            batchWrite         = new BatchWrite(this.dynamoDB, file.container());
+			final BatchPut              batchPut           = new BatchPut(this.client);
+			final String                tableName          = this.table(file).tableName();
 			      long                  nextBlobNumber     = this.nextBlobNumber(file);
 			final long                  totalSize          = this.totalSize(sourceBuffers);
 			final ByteBufferInputStream buffersInputStream = ByteBufferInputStream.New(sourceBuffers);
@@ -381,13 +438,38 @@ public interface DynamoDbConnector extends BlobStoreConnector
 						remaining -= read;
 					}
 
-					final Item item = new Item()
-						.withPrimaryKey(FIELD_KEY, file.fullQualifiedName())
-						.withKeyComponent(FIELD_SEQ, nextBlobNumber++)
-						.withNumber(FIELD_SIZE, currentBatchSize)
-						.withBinary(FIELD_DATA, batch)
+					final Map<String, AttributeValue> item = new HashMap<>();
+					item.put(
+						FIELD_KEY,
+						AttributeValue.builder()
+							.s(file.fullQualifiedName())
+							.build()
+					);
+					item.put(
+						FIELD_SEQ,
+						AttributeValue.builder()
+							.n(Long.toString(nextBlobNumber++))
+							.build()
+					);
+					item.put(
+						FIELD_SIZE,
+						AttributeValue.builder()
+							.n(Long.toString(currentBatchSize))
+							.build()
+					);
+					item.put(
+						FIELD_DATA,
+						AttributeValue.builder()
+							.b(SdkBytes.fromByteArrayUnsafe(batch))
+							.build()
+					);
+					
+					final Put put = Put.builder()
+						.tableName(tableName)
+						.item(item)
+						.build()
 					;
-					batchWrite.add(item);
+					batchPut.add(put);
 				}
 				catch(final IOException e)
 				{
@@ -397,68 +479,108 @@ public interface DynamoDbConnector extends BlobStoreConnector
 				available -= currentBatchSize;
 			}
 
-			batchWrite.finish();
+			batchPut.finish();
 
 			return totalSize;
 		}
 
-
-		private static class BatchWrite
+		private static abstract class BatchWrite
 		{
-			final DynamoDB        dynamoDb  ;
-			final String          tableName ;
-			      TableWriteItems writeItems;
+			final DynamoDbClient          client         ;
+			final List<TransactWriteItem> items          ;
+			      boolean                 written = false;
 
 			BatchWrite(
-				final DynamoDB dynamoDb ,
-				final String   tableName
+				final DynamoDbClient client
 			)
 			{
 				super();
-				this.dynamoDb  = dynamoDb ;
-				this.tableName = tableName;
+				this.client    = client           ;
+				this.items     = new ArrayList<>();
+			}
+			
+			int addItem(final TransactWriteItem item)
+			{
+				this.items.add(item);
+				return this.items.size();
+			}
+
+			void finish()
+			{
+				if(!this.items.isEmpty())
+				{
+					this.write();
+				}
+			}
+
+			void write()
+			{
+				final TransactWriteItemsRequest request = TransactWriteItemsRequest.builder()
+	        		.transactItems(this.items)
+					.build()
+				;
+	        	this.client.transactWriteItems(request);
+				this.items.clear();
+	        	this.written = true;
+			}
+			
+			boolean hasWritten()
+			{
+				return this.written;
+			}
+			
+		}
+
+		private static class BatchDelete extends BatchWrite
+		{
+			BatchDelete(
+				final DynamoDbClient client
+			)
+			{
+				super(client);
 			}
 
 
-			void add(final Item item)
+			void add(final Delete delete)
 			{
-				if(this.writeItems == null)
+				final int itemCount = this.addItem(
+					TransactWriteItem.builder()
+						.delete(delete)
+						.build()
+				);
+				if(itemCount >= MAX_REQUEST_ITEMS)
 				{
-					this.writeItems = new TableWriteItems(this.tableName);
+					this.write();
 				}
+			}
+			
+		}
 
-				this.writeItems.addItemToPut(item);
+		private static class BatchPut extends BatchWrite
+		{
+			BatchPut(
+				final DynamoDbClient client
+			)
+			{
+				super(client);
+			}
 
-				final int itemCount = this.writeItems.getItemsToPut().size();
+
+			void add(final Put put)
+			{
+				final int itemCount = this.addItem(
+					TransactWriteItem.builder()
+						.put(put)
+						.build()
+				);
 				if(itemCount >= MAX_REQUEST_ITEMS
 				|| itemCount * MAX_BLOB_SIZE >= MAX_REQUEST_SIZE
 				)
 				{
 					this.write();
-					this.writeItems = null;
 				}
 			}
-
-			void finish()
-			{
-				if(this.writeItems != null)
-				{
-					this.write();
-					this.writeItems = null;
-				}
-			}
-
-			private void write()
-			{
-				BatchWriteItemOutcome outcome = this.dynamoDb.batchWriteItem(this.writeItems);
-				while(outcome.getUnprocessedItems().size() > 0)
-				{
-					outcome = this.dynamoDb.batchWriteItemUnprocessed(
-						outcome.getUnprocessedItems()
-					);
-				}
-			}
-
+			
 		}
 
 	}

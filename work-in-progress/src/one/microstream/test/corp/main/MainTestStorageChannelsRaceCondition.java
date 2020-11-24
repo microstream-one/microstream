@@ -2,11 +2,12 @@ package one.microstream.test.corp.main;
 
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.Storage;
 import one.microstream.test.corp.logic.Test;
 import one.microstream.test.corp.logic.TestImportExport;
 
 
-public class MainTestStorageExample
+public class MainTestStorageChannelsRaceCondition
 {
 	static
 	{
@@ -14,7 +15,11 @@ public class MainTestStorageExample
 	}
 	
 	// creates and starts an embedded storage manager with all-default-settings.
-	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start();
+	static final EmbeddedStorageManager STORAGE = EmbeddedStorage.start(
+		Storage.ConfigurationBuilder().setChannelCountProvider(
+			Storage.ChannelCountProvider(16)
+		)
+	);
 
 	public static void main(final String[] args)
 	{
@@ -30,8 +35,6 @@ public class MainTestStorageExample
 			STORAGE.storeRoot();
 			Test.print("Storing completed.");
 			
-			STORAGE.issueFullFileCheck();
-			
 			Test.print("Exporting data ...");
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory("testExport"));
 			Test.print("Data export completed.");
@@ -41,8 +44,8 @@ public class MainTestStorageExample
 			// subsequent executions enter here (database reading)
 
 			Test.printInitializationTime(STORAGE);
-			final long opMdTimestamp = Test.printOperationModeTime(STORAGE);
-			Test.print("Model data loaded. (" + Test.formatTimespanToNow(opMdTimestamp) + ")");
+			Test.printOperationModeTime(STORAGE);
+			Test.print("Model data loaded.");
 			Test.print("Root instance: " + STORAGE.root());
 			
 			Test.print("Exporting data ...");

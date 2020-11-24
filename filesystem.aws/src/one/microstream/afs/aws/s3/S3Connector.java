@@ -1,7 +1,6 @@
 package one.microstream.afs.aws.s3;
 
 import static java.util.stream.Collectors.toList;
-import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
 import java.io.BufferedInputStream;
@@ -11,31 +10,35 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import com.amazonaws.RequestClientOptions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
-import com.amazonaws.services.s3.model.DeleteObjectsResult;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ListObjectsV2Request;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-
 import one.microstream.afs.blobstore.BlobStoreConnector;
 import one.microstream.afs.blobstore.BlobStorePath;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.io.ByteBufferInputStream;
+import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.core.internal.util.Mimetype;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 /**
  * Connector for the <a href="https://aws.amazon.com/s3/">Amazon Simple Storage Service (Amazon S3)</a>.
  * <p>
  * First create a connection to the <a href="https://docs.aws.amazon.com/sdk-for-java/v2/developer-guide/s3-examples.html">S3 storage</a>.
  * <pre>
- * AmazonS3 s3 = ...
+ * S3Client client = ...
  * BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
- * 	S3Connector.New(s3)
+ * 	S3Connector.Caching(client)
  * );
  * </pre>
  *
@@ -51,7 +54,7 @@ public interface S3Connector extends BlobStoreConnector
 	 * @return a new {@link S3Connector}
 	 */
 	public static S3Connector New(
-		final AmazonS3 s3
+		final S3Client s3
 	)
 	{
 		return new S3Connector.Default(
@@ -67,7 +70,7 @@ public interface S3Connector extends BlobStoreConnector
 	 * @return a new {@link S3Connector}
 	 */
 	public static S3Connector Caching(
-		final AmazonS3 s3
+		final S3Client s3
 	)
 	{
 		return new S3Connector.Default(
@@ -78,19 +81,19 @@ public interface S3Connector extends BlobStoreConnector
 
 
 	public static class Default
-	extends    BlobStoreConnector.Abstract<S3ObjectSummary>
+	extends    BlobStoreConnector.Abstract<S3Object>
 	implements S3Connector
 	{
-		private final AmazonS3 s3;
+		private final S3Client s3;
 
 		Default(
-			final AmazonS3 s3      ,
+			final S3Client s3      ,
 			final boolean  useCache
 		)
 		{
 			super(
-				S3ObjectSummary::getKey,
-				S3ObjectSummary::getSize,
+				S3Object::key,
+				S3Object::size,
 				S3PathValidator.New(),
 				useCache
 			);
@@ -98,18 +101,20 @@ public interface S3Connector extends BlobStoreConnector
 		}
 
 		@Override
-		protected Stream<S3ObjectSummary> blobs(final BlobStorePath file)
+		protected Stream<S3Object> blobs(final BlobStorePath file)
 		{
 			final String  prefix  = toBlobKeyPrefix(file);
 			final Pattern pattern = Pattern.compile(blobKeyRegex(prefix));
-			return this.s3.listObjectsV2(
-				file.container(),
-				prefix
-			)
-			.getObjectSummaries()
-			.stream()
-			.filter(summary -> pattern.matcher(summary.getKey()).matches())
-			.sorted(this.blobComparator())
+			final ListObjectsV2Request request = ListObjectsV2Request
+                .builder()
+                .bucket(file.container())
+                .prefix(prefix)
+                .build();
+			return this.s3.listObjectsV2(request)
+				.contents()
+				.stream()
+				.filter(obj -> pattern.matcher(obj.key()).matches())
+				.sorted(this.blobComparator())
 			;
 		}
 
@@ -118,68 +123,36 @@ public interface S3Connector extends BlobStoreConnector
 			final BlobStorePath directory
 		)
 		{
-			return this.s3.listObjectsV2(
-				new ListObjectsV2Request()
-					.withBucketName(directory.container())
-					.withPrefix(toChildKeysPrefix(directory))
-					.withDelimiter(BlobStorePath.SEPARATOR)
-			)
-			.getObjectSummaries()
-			.stream()
-			.map(S3ObjectSummary::getKey)
+			final ListObjectsV2Request request = ListObjectsV2Request
+                .builder()
+                .bucket(directory.container())
+                .prefix(toChildKeysPrefix(directory))
+                .delimiter(BlobStorePath.SEPARATOR)
+                .build();
+			return this.s3.listObjectsV2(request)
+				.contents()
+				.stream()
+				.map(S3Object::key)
 			;
 		}
 
 		@Override
 		protected void internalReadBlobData(
-			final BlobStorePath   file        ,
-			final S3ObjectSummary blob        ,
-			final ByteBuffer      targetBuffer,
-			final long            offset      ,
-			final long            length
+			final BlobStorePath file        ,
+			final S3Object      blob        ,
+			final ByteBuffer    targetBuffer,
+			final long          offset      ,
+			final long          length
 		)
 		{
-			final S3Object            object      = this.s3.getObject(
-				new GetObjectRequest(
-					blob.getBucketName(),
-					blob.getKey()
-				)
-				.withRange(offset, offset + length - 1)
-			);
-			final S3ObjectInputStream inputStream = object.getObjectContent();
-			try
-			{
-				final byte[] buffer    = new byte[1024 * 10];
-				      long   remaining = length;
-				      int    read;
-				while(remaining > 0 &&
-					(read = inputStream.read(
-						buffer,
-						0,
-						Math.min(buffer.length, checkArrayRange(remaining)))
-					) != -1
-				)
-				{
-					targetBuffer.put(buffer, 0, read);
-					remaining -= read;
-				}
-			}
-			catch(final IOException e)
-			{
-				inputStream.abort();
-				throw new IORuntimeException(e);
-			}
-			finally
-			{
-				try
-				{
-					inputStream.close();
-				}
-				catch(final IOException e)
-				{
-					// ignore
-				}
-			}
+			final GetObjectRequest request = GetObjectRequest.builder()
+				.bucket(file.container())
+				.key(blob.key())
+				.range("bytes=" + offset + "-" + (offset + length - 1))
+				.build()
+			;
+			final ResponseBytes<GetObjectResponse> response = this.s3.getObjectAsBytes(request);
+			targetBuffer.put(response.asByteBuffer());
 		}
 
 		@Override
@@ -187,10 +160,35 @@ public interface S3Connector extends BlobStoreConnector
 			final BlobStorePath directory
 		)
 		{
-			return this.s3.doesObjectExist(
-				directory.container(),
-				toContainerKey(directory)
-			);
+			try
+			{
+				final HeadObjectRequest request = HeadObjectRequest.builder()
+					.bucket(directory.container())
+					.key(toContainerKey(directory))
+					.build()
+				;
+				this.s3.headObject(request);
+				return true;
+			}
+			catch(final NoSuchKeyException e)
+			{
+				return false;
+			}
+		}
+		
+		@Override
+		protected boolean internalFileExists(
+			final BlobStorePath file
+		)
+		{
+			try
+			{
+				return super.internalFileExists(file);
+			}
+			catch(final NoSuchBucketException e)
+			{
+				return false;
+			}
 		}
 
 		@Override
@@ -198,29 +196,34 @@ public interface S3Connector extends BlobStoreConnector
 			final BlobStorePath directory
 		)
 		{
-			this.s3.putObject(
-				directory.container(),
-				toContainerKey(directory),
-				""
-			);
+			final PutObjectRequest request = PutObjectRequest.builder()
+				.bucket(directory.container())
+				.key(toContainerKey(directory))
+				.build()
+			;
+			final RequestBody body = RequestBody.empty();
+			this.s3.putObject(request, body);
+			
 			return true;
 		}
 
 		@Override
 		protected boolean internalDeleteBlobs(
-			final BlobStorePath                   file,
-			final List<? extends S3ObjectSummary> blobs
+			final BlobStorePath            file,
+			final List<? extends S3Object> blobs
 		)
 		{
-			final List<KeyVersion>    keys   = blobs.stream()
-				.map(summary -> new KeyVersion(summary.getKey()))
+			final List<ObjectIdentifier> objects = blobs.stream()
+				.map(obj -> ObjectIdentifier.builder().key(obj.key()).build())
 				.collect(toList())
 			;
-			final DeleteObjectsResult result = this.s3.deleteObjects(
-				new DeleteObjectsRequest(file.container())
-					.withKeys(keys)
-			);
-			return result.getDeletedObjects().size() == blobs.size();
+			final DeleteObjectsRequest request = DeleteObjectsRequest.builder()
+				.bucket(file.container())
+				.delete(Delete.builder().objects(objects).build())
+				.build()
+			;
+			final DeleteObjectsResponse response = this.s3.deleteObjects(request);
+			return response.deleted().size() == blobs.size();
 		}
 
 		@Override
@@ -232,20 +235,23 @@ public interface S3Connector extends BlobStoreConnector
 			final long nextBlobNumber = this.nextBlobNumber(file);
 			final long totalSize      = this.totalSize(sourceBuffers);
 
-			final ObjectMetadata objectMetadata = new ObjectMetadata();
-			objectMetadata.setContentLength(totalSize);
-
+			final PutObjectRequest request = PutObjectRequest.builder()
+				.bucket(file.container())
+				.key(toBlobKey(file, nextBlobNumber))
+				.build()
+			;
+			
 			try(final BufferedInputStream inputStream = new BufferedInputStream(
-				ByteBufferInputStream.New(sourceBuffers),
-				RequestClientOptions.DEFAULT_STREAM_BUFFER_SIZE
+				ByteBufferInputStream.New(sourceBuffers)
 			))
 			{
-				this.s3.putObject(
-					file.container(),
-					toBlobKey(file, nextBlobNumber),
-					inputStream,
-					objectMetadata
+				final RequestBody body = RequestBody.fromContentProvider(
+					() -> inputStream,
+					totalSize,
+					Mimetype.MIMETYPE_OCTET_STREAM
 				);
+				
+				this.s3.putObject(request, body);
 			}
 			catch(final IOException e)
 			{

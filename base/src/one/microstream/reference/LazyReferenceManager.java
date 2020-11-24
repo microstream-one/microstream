@@ -1,9 +1,9 @@
 package one.microstream.reference;
 
-import java.lang.management.MemoryUsage;
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
+import one.microstream.memory.MemoryStatistics;
 import one.microstream.meta.XDebug;
 import one.microstream.reference.Lazy.Check;
 import one.microstream.reference.Lazy.Checker;
@@ -690,7 +690,7 @@ public interface LazyReferenceManager
 	@FunctionalInterface
 	public interface CycleEvaluator
 	{
-		public void evaluateCycle(MemoryUsage memoryUsage, long cycleClearCount, double memoryQuota);
+		public void evaluateCycle(MemoryStatistics memoryStatistics, long cycleClearCount, double memoryQuota);
 				
 	}
 

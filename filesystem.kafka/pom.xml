@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream</artifactId>
-		<version>03.01.00-MS-GA-SNAPSHOT</version>
+		<version>04.01.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -17,12 +17,12 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>filesystem.blobstore</artifactId>
-			<version>03.01.00-MS-GA-SNAPSHOT</version>
+			<version>04.01.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>2.5.0</version>
+            <version>2.6.0</version>
         </dependency>
 	</dependencies>
 	
