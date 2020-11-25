@@ -126,46 +126,46 @@
 <!-- 										<artifact><id>one.microstream:filesystem.googlecloud:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
-								<feature>
-									<id>one.microstream.filesystem.hazelcast</id>
-									<version>${osgi.version}</version>
-									<label>MicroStream Filesystem Hazelcast</label>
-									<providerName>${project.organization.name}</providerName>
-									<generateSourceFeature>false</generateSourceFeature>
-									<artifacts>
-										<artifact><id>one.microstream:filesystem.hazelcast:${project.version}</id></artifact>
-									</artifacts>
-								</feature>
-								<feature>
-									<id>one.microstream.filesystem.hpa.hibernate</id>
-									<version>${osgi.version}</version>
-									<label>MicroStream Filesystem JPA Hibernate</label>
-									<providerName>${project.organization.name}</providerName>
-									<generateSourceFeature>false</generateSourceFeature>
-									<artifacts>
-										<artifact><id>one.microstream:filesystem.jpa.hibernate:${project.version}</id></artifact>
-									</artifacts>
-								</feature>
-								<feature>
-									<id>one.microstream.filesystem.kafka</id>
-									<version>${osgi.version}</version>
-									<label>MicroStream Filesystem Kafka</label>
-									<providerName>${project.organization.name}</providerName>
-									<generateSourceFeature>false</generateSourceFeature>
-									<artifacts>
-										<artifact><id>one.microstream:filesystem.kafka:${project.version}</id></artifact>
-									</artifacts>
-								</feature>
-								<feature>
-									<id>one.microstream.filesystem.mongodb</id>
-									<version>${osgi.version}</version>
-									<label>MicroStream Filesystem MongoDB</label>
-									<providerName>${project.organization.name}</providerName>
-									<generateSourceFeature>false</generateSourceFeature>
-									<artifacts>
-										<artifact><id>one.microstream:filesystem.mongodb:${project.version}</id></artifact>
-									</artifacts>
-								</feature>
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.hazelcast</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem Hazelcast</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.hazelcast:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.hpa.hibernate</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem JPA Hibernate</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.jpa.hibernate:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.kafka</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem Kafka</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.kafka:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.mongodb</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem MongoDB</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.mongodb:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
 <!-- 								<feature> -->
 <!-- 									<id>one.microstream.filesystem.oraclecloud</id> -->
 <!-- 									<version>${osgi.version}</version> -->
@@ -176,36 +176,36 @@
 <!-- 										<artifact><id>one.microstream:filesystem.oraclecloud:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
-								<feature>
-									<id>one.microstream.filesystem.oraclenosql</id>
-									<version>${osgi.version}</version>
-									<label>MicroStream Filesystem Oracle NoSQL</label>
-									<providerName>${project.organization.name}</providerName>
-									<generateSourceFeature>false</generateSourceFeature>
-									<artifacts>
-										<artifact><id>one.microstream:filesystem.oraclenosql:${project.version}</id></artifact>
-									</artifacts>
-								</feature>
-								<feature>
-									<id>one.microstream.filesystem.redis</id>
-									<version>${osgi.version}</version>
-									<label>MicroStream Filesystem Redis</label>
-									<providerName>${project.organization.name}</providerName>
-									<generateSourceFeature>false</generateSourceFeature>
-									<artifacts>
-										<artifact><id>one.microstream:filesystem.redis:${project.version}</id></artifact>
-									</artifacts>
-								</feature>
-								<feature>
-									<id>one.microstream.filesystem.sql</id>
-									<version>${osgi.version}</version>
-									<label>MicroStream Filesystem SQL</label>
-									<providerName>${project.organization.name}</providerName>
-									<generateSourceFeature>false</generateSourceFeature>
-									<artifacts>
-										<artifact><id>one.microstream:filesystem.sql:${project.version}</id></artifact>
-									</artifacts>
-								</feature>
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.oraclenosql</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem Oracle NoSQL</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.oraclenosql:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.redis</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem Redis</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.redis:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.sql</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem SQL</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.sql:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
 							</featureDefinitions>	
 						</configuration>
 					</execution>
