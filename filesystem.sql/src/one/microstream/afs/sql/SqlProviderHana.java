@@ -9,35 +9,47 @@ import javax.sql.DataSource;
 
 import one.microstream.chars.VarString;
 
-public interface SqlProviderMySql extends SqlProvider
+public interface SqlProviderHana extends SqlProvider
 {
-	public static SqlProviderMySql New(
-		final DataSource dataSource
+	public static enum StoreType
+	{
+		ROW, COLUMN
+	}
+	
+	
+	public static SqlProviderHana New(
+		final DataSource dataSource,
+		final StoreType  storeType
 	)
 	{
-		return New(null, null, dataSource);
+		return New(null, null, dataSource, storeType);
 	}
 
-	public static SqlProviderMySql New(
+	public static SqlProviderHana New(
 		final String     catalog   ,
 		final String     schema    ,
-		final DataSource dataSource
+		final DataSource dataSource,
+		final StoreType  storeType
 	)
 	{
 		return new Default(
 			mayNull(catalog)   ,
 			mayNull(schema)    ,
-			notNull(dataSource)
+			notNull(dataSource),
+			notNull(storeType)
 		);
 	}
 
 
-	public static class Default extends SqlProvider.Abstract implements SqlProviderMySql
+	public static class Default extends SqlProvider.Abstract implements SqlProviderHana
 	{
+		private final StoreType storeType;
+		
 		Default(
 			final String     catalog   ,
 			final String     schema    ,
-			final DataSource dataSource
+			final DataSource dataSource,
+			final StoreType  storeType
 		)
 		{
 			super(
@@ -45,20 +57,9 @@ public interface SqlProviderMySql extends SqlProvider
 				schema    ,
 				dataSource
 			);
+			this.storeType = storeType;
 		}
-
-		@Override
-		protected char quoteOpen()
-		{
-			return '`';
-		}
-
-		@Override
-		protected char quoteClose()
-		{
-			return '`';
-		}
-
+		
 		@Override
 		public Iterable<String> createDirectoryQueries(
 			final String tableName
@@ -66,21 +67,21 @@ public interface SqlProviderMySql extends SqlProvider
 		{
 			final VarString vs = VarString.New();
 
-			vs.add("create table ");
+			vs.add("create ").add(this.storeType.name().toLowerCase()).add(" table ");
 			this.addSqlTableName(vs, tableName);
 			vs.add(" (");
 			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
-			vs.add(" varchar(").add(IDENTIFIER_COLUMN_LENGTH).add(") collate utf8_bin not null, ");
+			vs.add(" varchar(").add(IDENTIFIER_COLUMN_LENGTH).add(") not null, ");
 			this.addSqlColumnName(vs, START_COLUMN_NAME);
-			vs.add(" bigint(20) not null, ");
+			vs.add(" bigint not null, ");
 			this.addSqlColumnName(vs, END_COLUMN_NAME);
-			vs.add(" bigint(20) not null, ");
+			vs.add(" bigint not null, ");
 			this.addSqlColumnName(vs, DATA_COLUMN_NAME);
-			vs.add(" longblob not null, primary key(");
+			vs.add(" blob not null, primary key(");
 			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
 			vs.add(", ");
 			this.addSqlColumnName(vs, START_COLUMN_NAME);
-			vs.add(")) engine=InnoDB default charset=utf8 collate=utf8_bin");
+			vs.add("))");
 
 			return Arrays.asList(vs.toString());
 		}
