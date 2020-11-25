@@ -265,6 +265,9 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			final BlobStorePath directory
 		)
 		{
+			final Map<String, String> attributeNames = new HashMap<>();
+			attributeNames.put("#" + FIELD_KEY, FIELD_KEY);
+			
 			final Map<String, AttributeValue> expressionValues = new HashMap<>();
 			expressionValues.put(
 				":" + FIELD_KEY,
@@ -275,9 +278,10 @@ public interface DynamoDbConnector extends BlobStoreConnector
 			
 			final ScanRequest request = ScanRequest.builder()
 				.tableName(directory.container())
-				.filterExpression("begins_with(" + FIELD_KEY + ",:" + FIELD_KEY)
+				.filterExpression("begins_with(#" + FIELD_KEY + ",:" + FIELD_KEY + ")")
+				.projectionExpression("#" + FIELD_KEY)
+				.expressionAttributeNames(attributeNames)
 				.expressionAttributeValues(expressionValues)
-				.attributesToGet(FIELD_KEY)
 				.build()
 			;
 			
