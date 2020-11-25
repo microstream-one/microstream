@@ -8,8 +8,6 @@ import java.nio.file.Paths;
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFileSystem;
 import one.microstream.afs.nio.NioFileSystem;
-import one.microstream.afs.nio.NioIoHandler;
-import one.microstream.afs.nio.NioPathResolver;
 import one.microstream.persistence.types.Persistence;
 
 
@@ -61,13 +59,6 @@ public final class Storage
 	public static NioFileSystem DefaultFileSystem()
 	{
 		return NioFileSystem.New();
-	}
-	
-	public static NioFileSystem PathFileSystem(final Path path)
-	{
-		return NioFileSystem.New(
-			NioIoHandler.New(
-				new NioPathResolver.Custom(path.getFileSystem())));
 	}
 	
 	public static ADirectory defaultStorageDirectory()
@@ -130,7 +121,7 @@ public final class Storage
 	 */
 	public static final StorageLiveFileProvider FileProvider(final Path storageDirectory)
 	{
-		final NioFileSystem nfs = Storage.PathFileSystem(storageDirectory);
+		final NioFileSystem nfs = NioFileSystem.New(storageDirectory.getFileSystem());
 		
 		final ADirectory dir = nfs.ensureDirectory(storageDirectory);
 		
@@ -178,7 +169,7 @@ public final class Storage
 	public static final StorageBackupFileProvider BackupFileProvider(final Path storageDirectory)
 	{
 		// note that the backup's file system may potentially be completely different from the live file system.
-		final NioFileSystem nfs = Storage.PathFileSystem(storageDirectory);
+		final NioFileSystem nfs = NioFileSystem.New(storageDirectory.getFileSystem());
 		final ADirectory    dir = nfs.resolveDirectory(storageDirectory);
 		
 		return StorageBackupFileProvider.New(dir);
@@ -466,7 +457,7 @@ public final class Storage
 	public static final StorageBackupSetup BackupSetup(final Path backupDirectory)
 	{
 		// note that the backup's file system may potentially be completely different from the live file system.
-		final NioFileSystem nfs = Storage.PathFileSystem(backupDirectory);
+		final NioFileSystem nfs = NioFileSystem.New(backupDirectory.getFileSystem());
 		final ADirectory dir = nfs.ensureDirectory(backupDirectory);
 		
 		return BackupSetup(dir);

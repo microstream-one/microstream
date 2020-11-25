@@ -2,6 +2,7 @@ package one.microstream.afs.nio;
 
 import static one.microstream.X.notNull;
 
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
 import one.microstream.afs.ADirectory;
@@ -71,6 +72,17 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		return new NioFileSystem.Default(
 			notNull(defaultProtocol),
 			notNull(ioHandler)
+		);
+	}
+	
+	public static NioFileSystem New(
+		final FileSystem fileSystem
+	)
+	{
+		return New(
+			NioIoHandler.New(
+				NioPathResolver.New(fileSystem)
+			)
 		);
 	}
 	

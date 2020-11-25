@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 import one.microstream.afs.ADirectory;
+import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
@@ -164,7 +165,8 @@ public final class EmbeddedStorage
 		// no directory ensuring required since the file provider does that internally
 
 		return Foundation(
-			Storage.PathFileSystem(directory).ensureDirectory(directory)
+			NioFileSystem.New(directory.getFileSystem())
+				.ensureDirectory(directory)
 		);
 	}
 
