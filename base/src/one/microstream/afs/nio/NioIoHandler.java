@@ -41,7 +41,7 @@ public interface NioIoHandler extends AIoHandler
 	{
 		return new NioIoHandler.Default(
 			notNull(writeController),
-			new NioPathResolver.Default()
+			NioPathResolver.New()
 		);
 	}
 	
@@ -55,11 +55,12 @@ public interface NioIoHandler extends AIoHandler
 	
 	public static NioIoHandler New(
 		final WriteController writeController,
-		final NioPathResolver pathResolver)
+		final NioPathResolver pathResolver
+	)
 	{
 		return new NioIoHandler.Default(
-			writeController,
-			pathResolver
+			notNull(writeController),
+			notNull(pathResolver)
 		);
 	}
 	
@@ -103,13 +104,18 @@ public interface NioIoHandler extends AIoHandler
 		@Override
 		public Path toPath(final AItem item)
 		{
-			return this.pathResolver.toPath(item.toPath());
+			if(item instanceof NioItemWrapper)
+			{
+				return ((NioItemWrapper)item).path();
+			}
+			
+			return this.pathResolver.resolvePath(item.toPath());
 		}
 		
 		@Override
 		public Path toPath(final String... pathElements)
 		{
-			return this.pathResolver.toPath(pathElements);
+			return this.pathResolver.resolvePath(pathElements);
 		}
 						
 		@Override
@@ -127,13 +133,13 @@ public interface NioIoHandler extends AIoHandler
 		@Override
 		protected Path toSubjectFile(final AFile file)
 		{
-			return this.pathResolver.toPath(file.toPath());
+			return this.toPath(file.toPath());
 		}
 		
 		@Override
 		protected Path toSubjectDirectory(final ADirectory directory)
 		{
-			return this.pathResolver.toPath(directory.toPath());
+			return this.toPath(directory.toPath());
 		}
 		
 		@Override

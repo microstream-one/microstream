@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -276,11 +277,21 @@ public final class XIO
 
 	public static final Path Path(final String path)
 	{
+		return Path(FileSystems.getDefault(), path);
+	}
+	
+	public static final Path Path(final FileSystem fileSystem, final String path)
+	{
 		// just for completeness' sake and ease of workflow
-		return Paths.get(path);
+		return fileSystem.getPath(path);
 	}
 	
 	public static final Path Path(final String... items)
+	{
+		return Path(FileSystems.getDefault(), items);
+	}
+	
+	public static final Path Path(final FileSystem fileSystem, final String... items)
 	{
 		/*
 		 * To workaround the JDK idiocy of conveniently ignoring empty strings in the path items.
@@ -293,11 +304,11 @@ public final class XIO
 		 */
 		if(items != null && items.length > 0 && "".equals(items[0]))
 		{
-			return Paths.get(Character.toString(XIO.filePathSeparator()), items);
+			return fileSystem.getPath(Character.toString(XIO.filePathSeparator()), items);
 		}
 		
 		// because why make it simple...
-		return Paths.get("", notNull(items));
+		return fileSystem.getPath("", notNull(items));
 	}
 
 	/**

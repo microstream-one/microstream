@@ -1,44 +1,50 @@
 package one.microstream.afs.nio;
 
+import static one.microstream.X.notNull;
+
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 import one.microstream.io.XIO;
 
+@FunctionalInterface
 public interface NioPathResolver
 {
-	public Path toPath(final String... pathElements);
+	public Path resolvePath(final String... pathElements);
 	
-	public final class Default implements NioPathResolver
+	
+	public static NioPathResolver New()
 	{
-		public Default()
-		{
-			super();
-		}
-
-		@Override
-		public Path toPath(final String... pathElements)
-		{
-			return XIO.Path(pathElements);
-		}
+		return new Default(
+			FileSystems.getDefault()
+		);
 	}
 	
-	public final class Custom implements NioPathResolver
+	public static NioPathResolver New(final FileSystem fileSystem)
+	{
+		return new Default(
+			notNull(fileSystem)
+		);
+	}
+	
+	
+	public static class Default implements NioPathResolver
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
 		private final FileSystem fileSystem;
-
+		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		public Custom(final FileSystem fileSystem)
+		Default(final FileSystem fileSystem)
 		{
+			super();
 			this.fileSystem = fileSystem;
 		}
 		 
@@ -46,20 +52,12 @@ public interface NioPathResolver
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+
 		@Override
-		public Path toPath(final String... pathElements)
+		public Path resolvePath(final String... pathElements)
 		{
-			if(pathElements.length > 1)
-			{
-				return this.fileSystem.getPath(pathElements[0], Arrays.copyOfRange(pathElements, 1, pathElements.length));
-			}
-			else if(pathElements.length == 1)
-			{
-				return this.fileSystem.getPath(pathElements[0]);
-			}
-			
-			return this.fileSystem.getPath(null);
+			return XIO.Path(this.fileSystem, pathElements);
 		}
 	}
+	
 }
