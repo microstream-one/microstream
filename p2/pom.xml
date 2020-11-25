@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream</artifactId>
+		<version>04.01.00-MS-GA-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>p2</artifactId>
+	<name>MicroStream P2 Repository</name>
+	<packaging>pom</packaging>
+
+	<properties>
+		<osgi.version>${pv.majorVersion}.${pv.minorVersion}.${pv.incrementalVersion}.qualifier</osgi.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<id>parse-version</id>
+						<goals>
+							<goal>parse-version</goal>
+						</goals>
+						<configuration>
+							<propertyPrefix>pv</propertyPrefix>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.reficio</groupId>
+				<artifactId>p2-maven-plugin</artifactId>
+				<version>1.3.0</version>
+				<executions>
+					<execution>
+						<id>default-cli</id>
+						<configuration>
+							<categoryFileURL>./category.xml</categoryFileURL>
+							<featureDefinitions>
+								<feature>
+									<id>one.microstream.storage.embedded</id>
+									<version>${osgi.version}</version>
+									<label>MicroStream Storage Embedded</label>
+									<providerName>${project.organization.name}</providerName>
+									<generateSourceFeature>false</generateSourceFeature>
+									<artifacts>
+										<artifact><id>one.microstream:persistence.binary.jdk8:${project.version}</id></artifact>
+										<artifact><id>one.microstream:storage.embedded.configuration:${project.version}</id></artifact>
+									</artifacts>
+								</feature>
+								<feature>
+									<id>one.microstream.storage.restservice</id>
+									<version>${osgi.version}</version>
+									<label>MicroStream Storage REST Service</label>
+									<providerName>${project.organization.name}</providerName>
+									<generateSourceFeature>false</generateSourceFeature>
+									<artifacts>
+										<artifact><id>one.microstream:storage.restadapter:${project.version}</id></artifact>
+										<artifact><id>one.microstream:storage.restservice:${project.version}</id></artifact>
+										<artifact><id>one.microstream:storage.restservice.sparkjava:${project.version}</id></artifact>
+									</artifacts>
+								</feature>
+								<feature>
+									<id>one.microstream.storage.restclient</id>
+									<version>${osgi.version}</version>
+									<label>MicroStream Storage REST Client</label>
+									<providerName>${project.organization.name}</providerName>
+									<generateSourceFeature>false</generateSourceFeature>
+									<artifacts>
+										<artifact><id>one.microstream:storage.restclient:${project.version}</id></artifact>
+										<artifact><id>one.microstream:storage.restclient.jersey:${project.version}</id></artifact>
+									</artifacts>
+								</feature>
+								<feature>
+									<id>one.microstream.communication.binary</id>
+									<version>${osgi.version}</version>
+									<label>MicroStream Communication</label>
+									<providerName>${project.organization.name}</providerName>
+									<generateSourceFeature>false</generateSourceFeature>
+									<artifacts>
+										<artifact><id>one.microstream:communication.binary:${project.version}</id></artifact>
+									</artifacts>
+								</feature>
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.aws</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem AWS</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.aws:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.azure</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem Azure</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.azure:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.googlecloud</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem Google Cloud</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.googlecloud:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.hazelcast</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem Hazelcast</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.hazelcast:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.hpa.hibernate</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem JPA Hibernate</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.jpa.hibernate:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.kafka</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem Kafka</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.kafka:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.mongodb</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem MongoDB</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.mongodb:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.oraclecloud</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem Oracle Cloud</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.oraclecloud:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.oraclenosql</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem Oracle NoSQL</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.oraclenosql:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.redis</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem Redis</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.redis:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+<!-- 								<feature> -->
+<!-- 									<id>one.microstream.filesystem.sql</id> -->
+<!-- 									<version>${osgi.version}</version> -->
+<!-- 									<label>MicroStream Filesystem SQL</label> -->
+<!-- 									<providerName>${project.organization.name}</providerName> -->
+<!-- 									<generateSourceFeature>false</generateSourceFeature> -->
+<!-- 									<artifacts> -->
+<!-- 										<artifact><id>one.microstream:filesystem.sql:${project.version}</id></artifact> -->
+<!-- 									</artifacts> -->
+<!-- 								</feature> -->
+							</featureDefinitions>	
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
