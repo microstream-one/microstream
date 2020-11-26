@@ -1,12 +1,12 @@
 
 package one.microstream.storage.configuration;
 
-import static one.microstream.chars.XChars.isEmpty;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import one.microstream.afs.nio.NioFileSystem;
+import one.microstream.chars.XChars;
 import one.microstream.io.XIO;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
@@ -58,11 +58,11 @@ public interface EmbeddedStorageFoundationCreator
 				.setEntityCacheEvaluator  (this.createEntityCacheEvaluator(configuration)       )
 			;
 
-			String backupDirectory;
-			if(!isEmpty(backupDirectory = configuration.getBackupDirectory()))
-			{
-				configBuilder.setBackupSetup(Storage.BackupSetup(backupDirectory));
-			}
+			Optional.ofNullable(configuration.getBackupDirectory())
+				.filter(backupDirectory -> !XChars.isEmpty(backupDirectory))
+				.ifPresent(backupDirectory -> configBuilder.setBackupSetup(
+					Storage.BackupSetup(backupDirectory)
+				));
 
 			return EmbeddedStorage.Foundation(
 				configBuilder.createConfiguration()
@@ -86,14 +86,25 @@ public interface EmbeddedStorageFoundationCreator
 			);
 
 			final NioFileSystem fileSystem = NioFileSystem.New();
-			return Storage
-				.FileProviderBuilder   (fileSystem                                                                   )
-				.setDirectory          (fileSystem.ensureDirectory(baseDirectory)                                    )
-				.setDeletionDirectory  (fileSystem.ensureDirectory(Paths.get(configuration.getDeletionDirectory()))  )
-				.setTruncationDirectory(fileSystem.ensureDirectory(Paths.get(configuration.getTruncationDirectory())))
-				.setFileNameProvider   (fileNameProvider                                                             )
-				.createFileProvider    ()
+			
+			final StorageLiveFileProvider.Builder<?> builder = Storage.FileProviderBuilder(fileSystem)
+				.setDirectory(fileSystem.ensureDirectory(baseDirectory))
+				.setFileNameProvider(fileNameProvider)
 			;
+			
+			Optional.ofNullable(configuration.getDeletionDirectory())
+				.filter(deletionDirectory -> !XChars.isEmpty(deletionDirectory))
+				.ifPresent(deletionDirectory -> builder.setDeletionDirectory(
+					fileSystem.ensureDirectory(Paths.get(deletionDirectory))
+				));
+			
+			Optional.ofNullable(configuration.getTruncationDirectory())
+				.filter(truncationDirectory -> !XChars.isEmpty(truncationDirectory))
+				.ifPresent(truncationDirectory -> builder.setTruncationDirectory(
+					fileSystem.ensureDirectory(Paths.get(truncationDirectory))
+				));
+			
+			return builder.createFileProvider();
 		}
 
 		protected StorageChannelCountProvider createChannelCountProvider(
@@ -136,7 +147,7 @@ public interface EmbeddedStorageFoundationCreator
 				configuration.getEntityCacheThreshold()
 			);
 		}
-
+		
 	}
 
 }

@@ -1332,8 +1332,8 @@ public interface Configuration
 	public static class Default implements Configuration
 	{
 		private String  baseDirectory            = StorageLiveFileProvider.Defaults.defaultStorageDirectory();
-		private String  deletionDirectory        = this.baseDirectory + "/backup/deleted";
-		private String  truncationDirectory      = this.baseDirectory + "/backup/truncated";
+		private String  deletionDirectory        = null;
+		private String  truncationDirectory      = null;
 		private String  backupDirectory          = null; // no on-the-fly backup by default
 		private String  channelDirectoryPrefix   = StorageFileNameProvider.Defaults.defaultChannelDirectoryPrefix();
 		private String  dataFilePrefix           = StorageFileNameProvider.Defaults.defaultDataFilePrefix();
