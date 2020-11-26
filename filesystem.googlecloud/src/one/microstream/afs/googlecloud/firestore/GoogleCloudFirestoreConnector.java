@@ -49,7 +49,7 @@ import one.microstream.io.LimitedInputStream;
 public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link GoogleCloudFirestoreConnector}.
+	 * Pseudo-constructor method which creates a new {@link GoogleCloudFirestoreConnector}.
 	 *
 	 * @param firestore connection to the Google firestore service
 	 * @return a new {@link GoogleCloudFirestoreConnector}
@@ -65,7 +65,7 @@ public interface GoogleCloudFirestoreConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link GoogleCloudFirestoreConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link GoogleCloudFirestoreConnector} with cache.
 	 *
 	 * @param firestore connection to the Google firestore service
 	 * @return a new {@link GoogleCloudFirestoreConnector}

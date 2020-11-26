@@ -50,7 +50,7 @@ import one.microstream.io.LimitedInputStream;
 public interface OracleCloudObjectStorageConnector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link OracleCloudObjectStorageConnector}.
+	 * Pseudo-constructor method which creates a new {@link OracleCloudObjectStorageConnector}.
 	 *
 	 * @param client connection to the Oracle cloud object storage
 	 * @return a new {@link OracleCloudObjectStorageConnector}
@@ -66,7 +66,7 @@ public interface OracleCloudObjectStorageConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link OracleCloudObjectStorageConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link OracleCloudObjectStorageConnector} with cache.
 	 *
 	 * @param client connection to the Oracle cloud object storage
 	 * @return a new {@link OracleCloudObjectStorageConnector}

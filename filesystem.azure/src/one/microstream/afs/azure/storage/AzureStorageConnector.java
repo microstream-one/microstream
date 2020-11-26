@@ -42,7 +42,7 @@ import one.microstream.io.LimitedInputStream;
 public interface AzureStorageConnector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link AzureStorageConnector}.
+	 * Pseudo-constructor method which creates a new {@link AzureStorageConnector}.
 	 *
 	 * @param serviceClient connection to the Azure storage service
 	 * @return a new {@link AzureStorageConnector}
@@ -58,7 +58,7 @@ public interface AzureStorageConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link AzureStorageConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link AzureStorageConnector} with cache.
 	 *
 	 * @param serviceClient connection to the Azure storage service
 	 * @return a new {@link AzureStorageConnector}

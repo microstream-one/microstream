@@ -33,7 +33,7 @@ import one.microstream.afs.blobstore.BlobStorePath;
 public interface RedisConnector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link RedisConnector}.
+	 * Pseudo-constructor method which creates a new {@link RedisConnector}.
 	 *
 	 * @param redisUri url to connect to
 	 * @return a new {@link RedisConnector}
@@ -50,7 +50,7 @@ public interface RedisConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link RedisConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link RedisConnector} with cache.
 	 *
 	 * @param redisUri url to connect to
 	 * @return a new {@link RedisConnector}
@@ -67,7 +67,7 @@ public interface RedisConnector extends BlobStoreConnector
 	}
 
 	/**
-	 * Pseude-constructor method which creates a new {@link RedisConnector}.
+	 * Pseudo-constructor method which creates a new {@link RedisConnector}.
 	 *
 	 * @param client Redis client connection
 	 * @return a new {@link RedisConnector}
@@ -83,7 +83,7 @@ public interface RedisConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link RedisConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link RedisConnector} with cache.
 	 *
 	 * @param client Redis client connection
 	 * @return a new {@link RedisConnector}
