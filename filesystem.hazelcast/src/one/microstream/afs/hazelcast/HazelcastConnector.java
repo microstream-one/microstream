@@ -42,7 +42,7 @@ import one.microstream.io.LimitedInputStream;
 public interface HazelcastConnector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link HazelcastConnector}.
+	 * Pseudo-constructor method which creates a new {@link HazelcastConnector}.
 	 *
 	 * @param hazelcast connection to the Hazelcast instance
 	 * @return a new {@link HazelcastConnector}
@@ -58,7 +58,7 @@ public interface HazelcastConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link HazelcastConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link HazelcastConnector} with cache.
 	 *
 	 * @param hazelcast connection to the Hazelcast instance
 	 * @return a new {@link HazelcastConnector}

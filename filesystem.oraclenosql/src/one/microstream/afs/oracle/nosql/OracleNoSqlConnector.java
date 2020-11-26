@@ -53,7 +53,7 @@ import oracle.kv.table.TableOperation;
 public interface OracleNoSqlConnector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link OracleNoSqlConnector}.
+	 * Pseudo-constructor method which creates a new {@link OracleNoSqlConnector}.
 	 *
 	 * @param kvstore connection to a key value store
 	 * @return a new {@link OracleNoSqlConnector}
@@ -69,7 +69,7 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link OracleNoSqlConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link OracleNoSqlConnector} with cache.
 	 *
 	 * @param kvstore connection to a key value store
 	 * @return a new {@link OracleNoSqlConnector}

@@ -48,7 +48,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 public interface S3Connector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link S3Connector}.
+	 * Pseudo-constructor method which creates a new {@link S3Connector}.
 	 *
 	 * @param s3 connection to the S3 storage
 	 * @return a new {@link S3Connector}
@@ -64,7 +64,7 @@ public interface S3Connector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link S3Connector} with cache.
+	 * Pseudo-constructor method which creates a new {@link S3Connector} with cache.
 	 *
 	 * @param s3 connection to the S3 storage
 	 * @return a new {@link S3Connector}

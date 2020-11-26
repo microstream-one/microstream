@@ -42,7 +42,7 @@ import one.microstream.memory.XMemory;
 public interface GoogleCloudStorageConnector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link GoogleCloudStorageConnector}.
+	 * Pseudo-constructor method which creates a new {@link GoogleCloudStorageConnector}.
 	 *
 	 * @param storage connection to the Google storage service
 	 * @return a new {@link GoogleCloudStorageConnector}
@@ -58,7 +58,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 	}
 
 	/**
-	 * Pseude-constructor method which creates a new {@link GoogleCloudStorageConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link GoogleCloudStorageConnector} with cache.
 	 *
 	 * @param storage connection to the Google storage service
 	 * @return a new {@link GoogleCloudStorageConnector}

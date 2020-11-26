@@ -48,7 +48,7 @@ import one.microstream.io.LimitedInputStream;
 public interface CoherenceConnector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link CoherenceConnector}.
+	 * Pseudo-constructor method which creates a new {@link CoherenceConnector}.
 	 *
 	 * @param cache connection to the coherence caching service
 	 * @return a new {@link CoherenceConnector}
@@ -64,7 +64,7 @@ public interface CoherenceConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link CoherenceConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link CoherenceConnector} with cache.
 	 *
 	 * @param cache connection to the coherence caching service
 	 * @return a new {@link CoherenceConnector}

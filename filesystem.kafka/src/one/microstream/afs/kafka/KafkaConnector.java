@@ -63,7 +63,7 @@ import one.microstream.io.LimitedInputStream;
 public interface KafkaConnector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link KafkaConnector}.
+	 * Pseudo-constructor method which creates a new {@link KafkaConnector}.
 	 *
 	 * @param kafkaProperties the Kafka configuration
 	 * @return a new {@link KafkaConnector}
@@ -79,7 +79,7 @@ public interface KafkaConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link KafkaConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link KafkaConnector} with cache.
 	 *
 	 * @param kafkaProperties the Kafka configuration
 	 * @return a new {@link KafkaConnector}

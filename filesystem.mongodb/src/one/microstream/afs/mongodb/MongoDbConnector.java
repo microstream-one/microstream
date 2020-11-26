@@ -61,7 +61,7 @@ import one.microstream.io.LimitedInputStream;
 public interface MongoDbConnector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link MongoDbConnector}.
+	 * Pseudo-constructor method which creates a new {@link MongoDbConnector}.
 	 *
 	 * @param database connection to the MongoDB database
 	 * @return a new {@link MongoDbConnector}
@@ -77,7 +77,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link MongoDbConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link MongoDbConnector} with cache.
 	 *
 	 * @param database connection to the MongoDB database
 	 * @return a new {@link MongoDbConnector}
@@ -93,7 +93,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 	}
 
 	/**
-	 * Pseude-constructor method which creates a new {@link MongoDbConnector} for GridFS.
+	 * Pseudo-constructor method which creates a new {@link MongoDbConnector} for GridFS.
 	 *
 	 * @param database connection to the MongoDB database
 	 * @return a new {@link MongoDbConnector}
@@ -109,7 +109,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link MongoDbConnector} for GridFS with cache.
+	 * Pseudo-constructor method which creates a new {@link MongoDbConnector} for GridFS with cache.
 	 *
 	 * @param database connection to the MongoDB database
 	 * @return a new {@link MongoDbConnector}

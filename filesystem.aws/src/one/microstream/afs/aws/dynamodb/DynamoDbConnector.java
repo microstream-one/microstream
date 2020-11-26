@@ -58,7 +58,7 @@ import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsRequest;
 public interface DynamoDbConnector extends BlobStoreConnector
 {
 	/**
-	 * Pseude-constructor method which creates a new {@link DynamoDbConnector}.
+	 * Pseudo-constructor method which creates a new {@link DynamoDbConnector}.
 	 *
 	 * @param client connection to the DynamoDB service
 	 * @return a new {@link DynamoDbConnector}
@@ -74,7 +74,7 @@ public interface DynamoDbConnector extends BlobStoreConnector
 	}
 	
 	/**
-	 * Pseude-constructor method which creates a new {@link DynamoDbConnector} with cache.
+	 * Pseudo-constructor method which creates a new {@link DynamoDbConnector} with cache.
 	 *
 	 * @param client connection to the DynamoDB service
 	 * @return a new {@link DynamoDbConnector}
