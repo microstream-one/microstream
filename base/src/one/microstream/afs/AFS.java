@@ -207,15 +207,15 @@ public class AFS
 		}
 	}
 	
-	public static void applyWriting(
+	public static void executeWriting(
 		final AFile                           file ,
 		final Consumer<? super AWritableFile> logic
 	)
 	{
-		applyWriting(file, file.defaultUser(), logic);
+		executeWriting(file, file.defaultUser(), logic);
 	}
 	
-	public static void applyWriting(
+	public static void executeWriting(
 		final AFile                           file ,
 		final Object                          user ,
 		final Consumer<? super AWritableFile> logic
@@ -234,15 +234,15 @@ public class AFS
 	}
 	
 	
-	public static <R> R executeWriting(
+	public static <R> R applyWriting(
 		final AFile                              file ,
 		final Function<? super AWritableFile, R> logic
 	)
 	{
-		return executeWriting(file, file.defaultUser(), logic);
+		return applyWriting(file, file.defaultUser(), logic);
 	}
 	
-	public static <R> R executeWriting(
+	public static <R> R applyWriting(
 		final AFile                              file ,
 		final Object                             user ,
 		final Function<? super AWritableFile, R> logic
@@ -260,33 +260,33 @@ public class AFS
 		}
 	}
 	
-	public static <R> R tryExecuteWriting(
+	public static <R> R tryApplyWriting(
 		final AFile                              file ,
 		final Function<? super AWritableFile, R> logic
 	)
 	{
-		return tryExecuteWriting(file, file.defaultUser(), logic);
+		return tryApplyWriting(file, file.defaultUser(), logic);
 	}
 	
-	public static <R> R tryExecuteWritingDefaulting(
+	public static <R> R tryApplyWritingDefaulting(
 		final AFile                              file        ,
 		final R                                  defaultValue,
 		final Function<? super AWritableFile, R> logic
 	)
 	{
-		return tryExecuteWritingDefaulting(file, file.defaultUser(), defaultValue, logic);
+		return tryApplyWritingDefaulting(file, file.defaultUser(), defaultValue, logic);
 	}
 	
-	public static <R> R tryExecuteWriting(
+	public static <R> R tryApplyWriting(
 		final AFile                              file ,
 		final Object                             user ,
 		final Function<? super AWritableFile, R> logic
 	)
 	{
-		return tryExecuteWritingDefaulting(file, user, null, logic);
+		return tryApplyWritingDefaulting(file, user, null, logic);
 	}
 	
-	public static <R> R tryExecuteWritingDefaulting(
+	public static <R> R tryApplyWritingDefaulting(
 		final AFile                              file       ,
 		final Object                             user       ,
 		final R                                  defaultValue,
