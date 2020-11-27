@@ -387,7 +387,6 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				AFS.executeWriting(deletionTargetFile, (wf) ->
 				{
 					backupTransactionFile.moveTo(wf);
-					return null;
 				});
 			}
 		}

@@ -50,7 +50,7 @@ public class BinaryFileTarget implements PersistenceTarget<Binary>
 			this.validateIsWritable();
 			
 			final ArrayView<ByteBuffer> buffers = X.ArrayView(chunk.buffers());
-			AFS.applyWriting(this.file, wf ->
+			AFS.executeWriting(this.file, wf ->
 				wf.writeBytes(buffers)
 			);
 		}

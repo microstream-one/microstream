@@ -134,7 +134,7 @@ public interface AFile extends AItem
 //			return false;
 //		}
 		
-		return AFS.executeWriting(this, wf -> wf.ensureExists());
+		return AFS.applyWriting(this, wf -> wf.ensureExists());
 	}
 	
 	public default boolean isUsed()

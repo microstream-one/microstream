@@ -202,7 +202,6 @@ public interface StorageFileWriter
 			{
 				// copyTo does ensureExists internally
 				sourceFile.copyTo(wf);
-				return null;
 			});
 		}
 		catch(final Exception e)
@@ -244,7 +243,6 @@ public interface StorageFileWriter
 				 * moving does not implicitly replace an existing file.
 				 */
 				file.moveTo(wf);
-				return null;
 			});
 		}
 		catch(final Exception e)
