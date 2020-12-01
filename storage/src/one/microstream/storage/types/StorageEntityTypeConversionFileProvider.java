@@ -64,7 +64,7 @@ public interface StorageEntityTypeConversionFileProvider
 			
 			final String fileName = typeDescription.typeName() + "_" + typeDescription.typeId();
 			final AFile targetFile = this.directory.ensureFile(fileName, this.fileSuffix);
-			
+			targetFile.ensureExists();
 			return targetFile.useWriting();
 		}
 
