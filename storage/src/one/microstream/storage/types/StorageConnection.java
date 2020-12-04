@@ -4,10 +4,13 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Predicate;
 
+import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFile;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.PersistenceManager;
+import one.microstream.persistence.types.PersistenceTypeDictionaryExporter;
 import one.microstream.persistence.types.Persister;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
@@ -194,6 +197,39 @@ public interface StorageConnection extends Persister
 	 * @see #issueCacheCheck(long)
 	 */
 	public boolean issueCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
+	
+	/**
+	 * {@linkDoc #issueFullBackup(StorageLiveFileProvider, PersistenceTypeDictionaryExporter)}
+	 * 
+	 * @param targetDirectory the directory to write the backup data into
+	 * 
+	 * @since 04.01.00
+	 */
+	public default void issueFullBackup(final ADirectory targetDirectory)
+	{
+		this.issueFullBackup(
+			StorageLiveFileProvider.New(targetDirectory),
+			PersistenceTypeDictionaryExporter.New(
+				PersistenceTypeDictionaryFileHandler.New(targetDirectory)
+			)
+		);
+	}
+	
+	/**
+	 * Issues a full backup of the whole storage to be executed. Keep in mind that this could result in a
+	 * very long running operation, depending on the storage size.<br>
+	 * Although the full backup may be a valid solution in some circumstances, the incremental backup should
+	 * be preferred, since it is by far more efficient.
+	 * 
+	 * @param targetFileProvider file provider for backup files
+	 * @param typeDictionaryExporter
+	 * 
+	 * @since 04.01.00
+	 */
+	public void issueFullBackup(
+		StorageLiveFileProvider           targetFileProvider    ,
+		PersistenceTypeDictionaryExporter typeDictionaryExporter
+	);
 
 	/**
 	 * Creates a {@link StorageRawFileStatistics} instance, (obviously) containing raw file statistics about
@@ -459,6 +495,16 @@ public interface StorageConnection extends Persister
 				// thread interrupted, task aborted, return
 				return false;
 			}
+		}
+		
+		@Override
+		public final void issueFullBackup(
+			final StorageLiveFileProvider           targetFileProvider    ,
+			final PersistenceTypeDictionaryExporter typeDictionaryExporter
+		)
+		{
+			this.exportChannels(targetFileProvider);
+			typeDictionaryExporter.exportTypeDictionary(this.persistenceManager().typeDictionary());
 		}
 
 		@Override

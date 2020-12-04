@@ -6,12 +6,19 @@ import one.microstream.chars.VarString;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.persistence.types.PersistenceTypeDictionaryAssembler;
+import one.microstream.persistence.types.PersistenceTypeDictionaryExporter;
 import one.microstream.storage.types.EmbeddedStorageConnectionFoundation;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageLiveFileProvider;
 
-
+/**
+ * 
+ * Now public API in {@link StorageConnection#issueFullBackup(ADirectory)}
+ * and {@link StorageConnection#issueFullBackup(StorageLiveFileProvider, PersistenceTypeDictionaryExporter)}
+ *
+ */
 public final class StorageBackupHelper
 {
 	/* (07.10.2019 TM)NOTE: priv#150

@@ -17,6 +17,7 @@ import one.microstream.persistence.types.PersistenceRootReference;
 import one.microstream.persistence.types.PersistenceRoots;
 import one.microstream.persistence.types.PersistenceRootsProvider;
 import one.microstream.persistence.types.PersistenceRootsView;
+import one.microstream.persistence.types.PersistenceTypeDictionaryExporter;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.reference.LazyReferenceManager;
@@ -465,6 +466,15 @@ public interface EmbeddedStorageManager extends StorageManager
 			return this.singletonConnection().issueCacheCheck(nanoTimeBudget, entityEvaluator);
 		}
 
+		@Override
+		public final void issueFullBackup(
+			final StorageLiveFileProvider           targetFileProvider    ,
+			final PersistenceTypeDictionaryExporter typeDictionaryExporter
+		)
+		{
+			this.singletonConnection().issueFullBackup(targetFileProvider, typeDictionaryExporter);
+		}
+		
 		@Override
 		public final StorageRawFileStatistics createStorageStatistics()
 		{
