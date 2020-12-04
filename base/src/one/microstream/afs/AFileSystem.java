@@ -53,6 +53,11 @@ public interface AFileSystem extends AResolving, WriteController
 	
 	public ADirectory ensureRoot(ARoot.Creator rootCreator, String identifier);
 	
+	/**
+	 * Ensures the default root directory. May not be supported by different file system implementations.
+	 */
+	public ADirectory ensureDefaultRoot();
+	
 	public ADirectory removeRoot(String identifier);
 	
 	public boolean addRoot(ADirectory rootDirectory);
@@ -308,6 +313,16 @@ public interface AFileSystem extends AResolving, WriteController
 			
 			return root;
 		}
+		
+		@Override
+		public ADirectory ensureDefaultRoot()
+		{
+			throw new UnsupportedOperationException(
+				"This file system implementation (" + this.getClass().getName() +
+				") doesn't support a default root. " +
+				"Please ensure to create files only in named parent directories."
+			);
+		}
 
 		@Override
 		public final synchronized boolean addRoot(final ADirectory rootDirectory)
@@ -378,8 +393,13 @@ public interface AFileSystem extends AResolving, WriteController
 			final int      length
 		)
 		{
-			XArrays.validateArrayRange(pathElements, offset, length);
+			if(length <= 0)
+			{
+				return this.ensureDefaultRoot();
+			}
 			
+			XArrays.validateArrayRange(pathElements, offset, length);
+						
 			final ADirectory root = this.ensureRoot(pathElements[offset]);
 			
 			ADirectory directory = root;

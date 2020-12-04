@@ -21,6 +21,13 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 	@Override
 	public NioIoHandler ioHandler();
 	
+	/**
+	 * Returns the default root directory, depending on the NIO implementation.
+	 * In local file systems it is the current working directory of this JVM instance.
+	 */
+	@Override
+	public ADirectory ensureDefaultRoot();
+		
 	
 	public interface Defaults
 	{
@@ -105,6 +112,12 @@ public interface NioFileSystem extends AFileSystem, AResolver<Path, Path>
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+		
+		@Override
+		public final synchronized ADirectory ensureDefaultRoot()
+		{
+			return this.ensureRoot("./");
+		}
 				
 		@Override
 		public String deriveFileIdentifier(final String fileName, final String fileType)
