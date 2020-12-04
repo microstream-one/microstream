@@ -28,7 +28,6 @@ public interface PersistenceAbstractTypeHandlerSearcher<D>
 		final HashEnum<Class<?>> abstractTypesForNextLevel       = HashEnum.New();
 		final BulkList<Class<?>> abstractTypesToAddFromLastLevel = BulkList.New();
 		
-		long     collectCount = abstractSuperTypesInOrder.size();
 		Class<?> currentClass = type;
 		
 		/*
@@ -39,11 +38,8 @@ public interface PersistenceAbstractTypeHandlerSearcher<D>
 		 * Note that just the count check would not be enough since a class can have a non-abstract superclass
 		 * and no interfaces. So the count would be 0 for the lowest level and the loop would abort prematurely.
 		 */
-		while(currentClass != Object.class || abstractSuperTypesInOrder.size() > collectCount)
+		while(currentClass != Object.class || !abstractTypesToAddFromLastLevel.isEmpty())
 		{
-			// keep count at the beginning of the cycle to check for new entries afterwards
-			collectCount = abstractSuperTypesInOrder.size();
-			
 			// "currentClass" is actually the previous class at the start of the cycle
 			final Class<?>[] previousClassInterfaces = currentClass.getInterfaces();
 
