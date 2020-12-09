@@ -39,7 +39,9 @@
 		<module>filesystem.azure</module>
 		<module>filesystem.blobstore</module>
 		<module>filesystem.coherence</module>
-		<module>filesystem.googlecloud</module>
+<!-- Google Cloud adapters release postponed, until priv#436 and priv#437 are resolved. -->
+<!-- We are waiting for mature Google Cloud emulators to be available. -->
+<!-- 		<module>filesystem.googlecloud</module> -->
 		<module>filesystem.hazelcast</module>
 		<module>filesystem.jpa.hibernate</module>
 		<module>filesystem.kafka</module>
@@ -406,7 +408,7 @@
 				<module>filesystem.azure</module>
 				<module>filesystem.blobstore</module>
 				<module>filesystem.coherence</module>
-				<module>filesystem.googlecloud</module>
+<!-- 				<module>filesystem.googlecloud</module> -->
 				<module>filesystem.hazelcast</module>
 				<module>filesystem.jpa.hibernate</module>
 				<module>filesystem.kafka</module>
