@@ -308,7 +308,21 @@ public interface SqlProvider
 		{
 			try(final Connection connection = this.dataSource.getConnection())
 			{
-				return operation.execute(connection);
+				connection.setAutoCommit(false);
+				
+				try
+				{
+					final T result = operation.execute(connection);
+					
+					connection.commit();
+					
+					return result;
+				}
+				catch(final SQLException e)
+				{
+					connection.rollback();
+					throw e;
+				}
 			}
 			catch(final SQLException e)
 			{
