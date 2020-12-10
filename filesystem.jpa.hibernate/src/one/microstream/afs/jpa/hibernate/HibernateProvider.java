@@ -155,14 +155,19 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 				{
 					transaction.begin();
 
-					return entityManager
+					final T result = entityManager
 						.unwrap(Session.class)
 						.doReturningWork(operation::execute)
 					;
-				}
-				finally
-				{
+					
 					transaction.commit();
+					
+					return result;
+				}
+				catch(final Exception e)
+				{
+					transaction.rollback();
+					throw e;
 				}
 			}
 		}

@@ -746,6 +746,14 @@ public interface SqlConnector
 			final long    length
 		)
 		{
+			if(length == 0L)
+			{
+				/*
+				 * (10.12.2020 FH)XXX priv#383, nothing to read, abort.
+				 */
+				return ByteBuffer.allocateDirect(0);
+			}
+			
 			final Reference   <ByteBuffer> bufferRef      = Reference.New(null);
 			final LongFunction<ByteBuffer> bufferProvider = capacity ->
 			{
@@ -774,6 +782,14 @@ public interface SqlConnector
 			final long       length
 		)
 		{
+			if(length == 0)
+			{
+				/*
+				 * (10.12.2020 FH)XXX priv#383, nothing to read, abort.
+				 */
+				return 0L;
+			}
+			
 			final LongFunction<ByteBuffer> bufferProvider = capacity ->
 			{
 				if(targetBuffer.remaining() < capacity)

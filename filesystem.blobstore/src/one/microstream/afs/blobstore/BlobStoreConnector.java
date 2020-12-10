@@ -749,6 +749,14 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
+			if(length == 0L)
+			{
+				/*
+				 * (10.12.2020 FH)XXX priv#383, nothing to read, abort.
+				 */
+				return ByteBuffer.allocateDirect(0);
+			}
+			
 			return this.internalReadData(file, offset, length);
 		}
 
@@ -763,6 +771,14 @@ public interface BlobStoreConnector extends AutoCloseable
 			this.ensureOpen();
 			this.blobStorePathValidator.validate(file);
 
+			if(length == 0)
+			{
+				/*
+				 * (10.12.2020 FH)XXX priv#383, nothing to read, abort.
+				 */
+				return 0L;
+			}
+			
 			return this.internalReadData(file, targetBuffer, offset, length);
 		}
 
