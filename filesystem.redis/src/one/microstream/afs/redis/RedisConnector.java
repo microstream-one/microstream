@@ -224,10 +224,14 @@ public interface RedisConnector extends BlobStoreConnector
 			sourceBuffers.forEach(sourceBuffer -> buffer.put(sourceBuffer));
 			buffer.flip();
 
-			this.commands().set(
+			final String result = this.commands().set(
 				toBlobKeyWithContainer(file, nextBlobNumber),
 				buffer
 			);
+			if(!"OK".equalsIgnoreCase(result))
+			{
+				throw new RuntimeException("Error writing data: " + result);
+			}
 
 			return totalSize;
 		}
