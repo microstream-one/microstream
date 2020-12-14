@@ -1,12 +1,34 @@
 package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
-import static one.microstream.chars.VarString.New;
+
+import one.microstream.chars.VarString;
 
 public interface PersistenceTypeDictionaryExporter
 {
 	public void exportTypeDictionary(PersistenceTypeDictionary typeDictionary);
 
+	
+	public static PersistenceTypeDictionaryExporter New(
+		final PersistenceTypeDictionaryStorer storer
+	)
+	{
+		return New(
+			PersistenceTypeDictionaryAssembler.New(),
+			storer
+		);
+	}
+	
+	public static PersistenceTypeDictionaryExporter New(
+		final PersistenceTypeDictionaryAssembler assembler,
+		final PersistenceTypeDictionaryStorer    storer
+	)
+	{
+		return new PersistenceTypeDictionaryExporter.Default(
+			notNull(assembler),
+			notNull(storer)
+		);
+	}
 
 
 	public final class Default implements PersistenceTypeDictionaryExporter
@@ -24,14 +46,14 @@ public interface PersistenceTypeDictionaryExporter
 		// constructors //
 		/////////////////
 
-		public Default(
+		Default(
 			final PersistenceTypeDictionaryAssembler assembler,
 			final PersistenceTypeDictionaryStorer    storer
 		)
 		{
 			super();
-			this.assembler = notNull(assembler);
-			this.storer = notNull(storer);
+			this.assembler = assembler;
+			this.storer    = storer   ;
 		}
 
 
@@ -44,7 +66,7 @@ public interface PersistenceTypeDictionaryExporter
 		public final void exportTypeDictionary(final PersistenceTypeDictionary typeDictionary)
 		{
 			final String typeDictionaryString = this.assembler.assemble(
-				New(),
+				VarString.New(),
 				typeDictionary
 			).toString();
 			

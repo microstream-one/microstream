@@ -2127,7 +2127,7 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		protected PersistenceTypeDictionaryExporter ensureTypeDictionaryExporter()
 		{
 			final PersistenceTypeDictionaryExporter newTypeDictionaryExporter =
-				new PersistenceTypeDictionaryExporter.Default(
+				PersistenceTypeDictionaryExporter.New(
 					this.getTypeDictionaryAssembler(),
 					this.getTypeDictionaryStorer()
 				)
