@@ -294,13 +294,27 @@ public interface AIoHandler extends WriteController
 		
 		protected abstract void specificTruncateFile(W file, long newSize);
 		
-		
 		protected long copyGeneric(
 			final AReadableFile source,
 			final AWritableFile target
 		)
 		{
-			return this.copyFrom(source, 0, target);
+			final long sourceSize = source.size(); // explicit variable for debugging purposes
+			
+			final ByteBuffer dbb  = XMemory.allocateDirectNative(sourceSize);
+			
+			try
+			{
+				source.readBytes(dbb);
+				dbb.flip();
+				target.writeBytes(dbb);
+			}
+			finally
+			{
+				XMemory.deallocateDirectByteBuffer(dbb);
+			}
+			
+			return sourceSize;
 		}
 		
 		protected long copyGeneric(
@@ -309,7 +323,24 @@ public interface AIoHandler extends WriteController
 			final AWritableFile target
 		)
 		{
-			return this.copyFrom(source, sourcePosition, source.size(), target);
+			final long sourceSize = source.size(); // explicit variable for debugging purposes
+			final long length     = sourceSize - sourcePosition;
+			X.validateRange(sourceSize, sourcePosition, length);
+			
+			final ByteBuffer dbb  = XMemory.allocateDirectNative(length);
+			
+			try
+			{
+				source.readBytes(dbb, sourcePosition);
+				dbb.flip();
+				target.writeBytes(dbb);
+			}
+			finally
+			{
+				XMemory.deallocateDirectByteBuffer(dbb);
+			}
+			
+			return length;
 		}
 		
 		protected long copyGeneric(
@@ -319,22 +350,16 @@ public interface AIoHandler extends WriteController
 			final long          length
 		)
 		{
-			final ByteBuffer dbb = XMemory.allocateDirectNativeDefault();
+			final long sourceSize = source.size(); // explicit variable for debugging purposes
+			X.validateRange(sourceSize, sourcePosition, length);
+			
+			final ByteBuffer dbb = XMemory.allocateDirectNative(length);
 			
 			try
 			{
-				final long sourceSize  = source.size(); // explicit variable for debugging purposes
-				final long sourceBound = X.validateRange(sourceSize, sourcePosition, length);
-				
-				for(long s = sourcePosition; s < sourceBound; s += dbb.limit())
-				{
-					XMemory.clearForLimit(dbb, sourceBound - s);
-					
-					// read and write method implementations must guarantee to write the specified byte count
-					source.readBytes(dbb, sourcePosition);
-					dbb.flip();
-					target.writeBytes(dbb);
-				}
+				source.readBytes(dbb, sourcePosition);
+				dbb.flip();
+				target.writeBytes(dbb);
 			}
 			finally
 			{
@@ -807,6 +832,17 @@ public interface AIoHandler extends WriteController
 			final AWritableFile target
 		)
 		{
+			if(sourceSubject.fileSystem() != target.fileSystem()
+			|| !this.isHandledReadableFile(sourceSubject)
+			|| !this.isHandledWritableFile(target)
+			)
+			{
+				// it is by far the most common and intuitive case for copy to ensure existence implicitely
+				target.ensureExists();
+				
+				return this.copyGeneric(sourceSubject, target);
+			}
+			
 			this.validateHandledReadableFile(sourceSubject);
 
 			// it is by far the most common and intuitive case for copy to ensure existence implicitely
@@ -822,6 +858,17 @@ public interface AIoHandler extends WriteController
 			final AWritableFile target
 		)
 		{
+			if(sourceSubject.fileSystem() != target.fileSystem()
+			|| !this.isHandledReadableFile(sourceSubject)
+			|| !this.isHandledWritableFile(target)
+			)
+			{
+				// it is by far the most common and intuitive case for copy to ensure existence implicitely
+				target.ensureExists();
+				
+				return this.copyGeneric(sourceSubject, sourcePosition, target);
+			}
+			
 			this.validateHandledReadableFile(sourceSubject);
 
 			// it is by far the most common and intuitive case for copy to ensure existence implicitely
@@ -840,6 +887,17 @@ public interface AIoHandler extends WriteController
 			final AWritableFile target
 		)
 		{
+			if(sourceSubject.fileSystem() != target.fileSystem()
+			|| !this.isHandledReadableFile(sourceSubject)
+			|| !this.isHandledWritableFile(target)
+			)
+			{
+				// it is by far the most common and intuitive case for copy to ensure existence implicitely
+				target.ensureExists();
+				
+				return this.copyGeneric(sourceSubject, sourcePosition, target, length);
+			}
+			
 			this.validateHandledReadableFile(sourceSubject);
 
 			// it is by far the most common and intuitive case for copy to ensure existence implicitely
@@ -908,6 +966,17 @@ public interface AIoHandler extends WriteController
 			final AWritableFile targetSubject
 		)
 		{
+			if(source.fileSystem() != targetSubject.fileSystem()
+			|| !this.isHandledReadableFile(source)
+			|| !this.isHandledWritableFile(targetSubject)
+			)
+			{
+				// it is by far the most common and intuitive case for copy to ensure existence implicitely
+				targetSubject.ensureExists();
+				
+				return this.copyGeneric(source, targetSubject);
+			}
+			
 			this.validateHandledWritableFile(targetSubject);
 
 			// it is by far the most common and intuitive case for copy to ensure existence implicitely
@@ -925,6 +994,17 @@ public interface AIoHandler extends WriteController
 			final AWritableFile targetSubject
 		)
 		{
+			if(source.fileSystem() != targetSubject.fileSystem()
+			|| !this.isHandledReadableFile(source)
+			|| !this.isHandledWritableFile(targetSubject)
+			)
+			{
+				// it is by far the most common and intuitive case for copy to ensure existence implicitely
+				targetSubject.ensureExists();
+				
+				return this.copyGeneric(source, sourcePosition, targetSubject);
+			}
+			
 			this.validateHandledWritableFile(targetSubject);
 
 			// it is by far the most common and intuitive case for copy to ensure existence implicitely
@@ -943,6 +1023,17 @@ public interface AIoHandler extends WriteController
 			final AWritableFile targetSubject
 		)
 		{
+			if(source.fileSystem() != targetSubject.fileSystem()
+			|| !this.isHandledReadableFile(source)
+			|| !this.isHandledWritableFile(targetSubject)
+			)
+			{
+				// it is by far the most common and intuitive case for copy to ensure existence implicitely
+				targetSubject.ensureExists();
+				
+				return this.copyGeneric(source, sourcePosition, targetSubject, length);
+			}
+			
 			this.validateHandledWritableFile(targetSubject);
 
 			// it is by far the most common and intuitive case for copy to ensure existence implicitely

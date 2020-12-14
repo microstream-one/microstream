@@ -488,11 +488,6 @@ public interface NioIoHandler extends AIoHandler
 			final AWritableFile   target
 		)
 		{
-			if(!this.isHandledWritableFile(target))
-			{
-				return this.copyGeneric(sourceSubject, target);
-			}
-			
 			final NioWritableFile handlableTarget = this.castWritableFile(target);
 			
 			try
@@ -515,11 +510,6 @@ public interface NioIoHandler extends AIoHandler
 			final AWritableFile   target
 		)
 		{
-			if(!this.isHandledWritableFile(target))
-			{
-				return this.copyGeneric(sourceSubject, sourcePosition, target);
-			}
-			
 			final NioWritableFile handlableTarget = this.castWritableFile(target);
 			
 			try
@@ -544,11 +534,6 @@ public interface NioIoHandler extends AIoHandler
 			final AWritableFile   target
 		)
 		{
-			if(!this.isHandledWritableFile(target))
-			{
-				return this.copyGeneric(sourceSubject, sourcePosition, target);
-			}
-			
 			final NioWritableFile handlableTarget = this.castWritableFile(target);
 			
 			try
