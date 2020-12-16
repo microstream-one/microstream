@@ -8,7 +8,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream</artifactId>
-	<version>04.01.00-MS-GA-SNAPSHOT</version>
+	<version>04.02.00-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -427,7 +427,7 @@
 				<module>storage.restclient.jersey</module>
 				<module>storage.restservice</module>
 				<module>storage.restservice.sparkjava</module>
-				<!--<module>work-in-progress</module>-->
+				<module>work-in-progress</module>
 				<module>jigsaw</module>
 			</modules>
 		</profile>
@@ -463,7 +463,7 @@
 				<module>storage.restclient.jersey</module>
 				<module>storage.restservice</module>
 				<module>storage.restservice.sparkjava</module>
-				<!--<module>work-in-progress</module>-->
+				<module>work-in-progress</module>
 				<module>jigsaw</module>
 			</modules>
 		</profile>
