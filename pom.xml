@@ -497,14 +497,4 @@
 		</profile>
 	</profiles>
 
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.owasp</groupId>
-				<artifactId>dependency-check-maven</artifactId>
-				<version>6.0.5</version>
-			</plugin>
-		</plugins>
-	</reporting>
-
 </project>
