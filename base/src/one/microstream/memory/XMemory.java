@@ -255,7 +255,7 @@ public final class XMemory
 				{
 					continue;
 				}
-				if(!System.getProperty(s, "").isBlank())
+				if(!System.getProperty(s, "").isEmpty())
 				{
 					return true;
 				}
