@@ -3,6 +3,8 @@ package one.microstream.configuration.types;
 import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.notEmpty;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -316,9 +318,23 @@ public interface Configuration
 	
 	public XGettingTable<String, String> coalescedTable();
 	
+	public Map<String, String> map();
+	
+	public Map<String, String> coalescedMap();
+	
 	public ConfigurationValueMapperProvider mapperProvider();
 	
 	public Configuration detach();
+	
+	public default void store(
+		final ConfigurationStorer    storer   ,
+		final ConfigurationAssembler assembler
+	)
+	{
+		storer.storeConfiguration(
+			assembler.assemble(this).toString()
+		);
+	}
 	
 	
 	public static class Default implements Configuration
@@ -506,6 +522,25 @@ public interface Configuration
 			}
 			
 			return this.coalescedTable;
+		}
+		
+		@Override
+		public Map<String, String> map()
+		{
+			return this.toMap(this.properties);
+		}
+		
+		@Override
+		public Map<String, String> coalescedMap()
+		{
+			return this.toMap(this.coalescedTable());
+		}
+		
+		private Map<String, String> toMap(final XGettingTable<String, String> table)
+		{
+			final Map<String, String> map = new HashMap<>(table.intSize());
+			table.iterate(kv -> map.put(kv.key(), kv.value()));
+			return map;
 		}
 		
 		@Override
