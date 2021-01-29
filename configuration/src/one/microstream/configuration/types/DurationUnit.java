@@ -1,5 +1,5 @@
 
-package one.microstream.storage.configuration;
+package one.microstream.configuration.types;
 
 import java.time.Duration;
 import java.util.function.Function;
