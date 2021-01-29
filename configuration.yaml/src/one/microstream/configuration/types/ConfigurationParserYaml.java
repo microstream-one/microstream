@@ -8,24 +8,24 @@ import one.microstream.configuration.types.Configuration.Builder;
 
 public interface ConfigurationParserYaml extends ConfigurationParser
 {
-	public static ConfigurationParserIni New()
+	public static ConfigurationParserYaml New()
 	{
-		return new ConfigurationParserIni.Default(
+		return new ConfigurationParserYaml.Default(
 			ConfigurationMapperMap.New()
 		);
 	}
 	
-	public static ConfigurationParserIni New(
+	public static ConfigurationParserYaml New(
 		final ConfigurationMapperMap mapper
 	)
 	{
-		return new ConfigurationParserIni.Default(
+		return new ConfigurationParserYaml.Default(
 			notNull(mapper)
 		);
 	}
 	
 	
-	public static class Default implements ConfigurationParserIni
+	public static class Default implements ConfigurationParserYaml
 	{
 		private final ConfigurationMapperMap mapper;
 		
