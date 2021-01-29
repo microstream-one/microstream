@@ -1,5 +1,7 @@
 package one.microstream.configuration.types;
 
+import static one.microstream.X.notNull;
+
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -11,26 +13,44 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import one.microstream.configuration.types.Configuration.Builder;
 import one.microstream.exceptions.IORuntimeException;
 
-public interface ConfigurationParserXml extends ConfigurationParser<Element>
+public interface ConfigurationParserXml extends ConfigurationParser
 {
 	public static ConfigurationParserXml New()
 	{
-		return new ConfigurationParserXml.Default();
+		return new ConfigurationParserXml.Default(
+			ConfigurationMapperXml.New()
+		);
+	}
+	
+	public static ConfigurationParserXml New(
+		final ConfigurationMapperXml mapper
+	)
+	{
+		return new ConfigurationParserXml.Default(
+			notNull(mapper)
+		);
 	}
 	
 	
 	public static class Default implements ConfigurationParserXml
 	{
-		Default()
+		private final ConfigurationMapperXml mapper;
+		
+		Default(
+			final ConfigurationMapperXml mapper
+		)
 		{
 			super();
+			this.mapper = mapper;
 		}
 		
 		@Override
-		public Element parseConfiguration(
-			final String  data
+		public Builder parseConfiguration(
+			final Builder builder,
+			final String  input
 		)
 		{
 			try
@@ -48,10 +68,12 @@ public interface ConfigurationParserXml extends ConfigurationParser<Element>
 					 * some implementations don't support attributes, e.g. Android
 					 */
 				}
-				return factory.newDocumentBuilder()
-					.parse(new InputSource(new StringReader(data)))
+				final Element element = factory.newDocumentBuilder()
+					.parse(new InputSource(new StringReader(input)))
 					.getDocumentElement()
 				;
+				
+				return this.mapper.mapConfiguration(builder, element);
 			}
 			catch(ParserConfigurationException | SAXException e)
 			{

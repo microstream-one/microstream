@@ -2,6 +2,8 @@ package one.microstream.configuration.types;
 
 import static one.microstream.X.notNull;
 
+import one.microstream.configuration.types.Configuration.Builder;
+
 @FunctionalInterface
 public interface ConfigurationProvider
 {
@@ -14,47 +16,40 @@ public interface ConfigurationProvider
 	
 	
 	public static <T> ConfigurationProvider New(
-		final ConfigurationLoader    loader,
-		final ConfigurationParser<T> parser,
-		final ConfigurationMapper<T> mapper
+		final ConfigurationLoader loader,
+		final ConfigurationParser parser
 	)
 	{
-		return new ConfigurationProvider.Default<>(
+		return new ConfigurationProvider.Default(
 			notNull(loader),
-			notNull(parser),
-			notNull(mapper)
+			notNull(parser)
 		);
 	}
-		
 	
-	public static class Default<T> implements ConfigurationProvider
+	
+	public static class Default implements ConfigurationProvider
 	{
-		private final ConfigurationLoader    loader;
-		private final ConfigurationParser<T> parser;
-		private final ConfigurationMapper<T> mapper;
+		private final ConfigurationLoader loader;
+		private final ConfigurationParser parser;
 		
 		Default(
-			final ConfigurationLoader    loader,
-			final ConfigurationParser<T> parser,
-			final ConfigurationMapper<T> mapper
+			final ConfigurationLoader loader,
+			final ConfigurationParser parser
 		)
 		{
 			super();
 			this.loader = loader;
 			this.parser = parser;
-			this.mapper = mapper;
 		}
 		
 		@Override
 		public Configuration provideConfiguration(
-			final Configuration.Builder builder
+			final Builder builder
 		)
 		{
-			return this.mapper.mapConfiguration(
+			return this.parser.parseConfiguration(
 				builder,
-				this.parser.parseConfiguration(
-					this.loader.loadConfiguration()
-				)
+				this.loader.loadConfiguration()
 			)
 			.buildConfiguration();
 		}
