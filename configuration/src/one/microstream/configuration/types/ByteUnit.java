@@ -1,5 +1,5 @@
 
-package one.microstream.bytes;
+package one.microstream.configuration.types;
 
 
 import java.math.BigDecimal;
@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Size units for byte multiples:
  * <p>
- * Can be used to convert between units as well, see {@link #convert(double, ByteMultiple)}.
+ * Can be used to convert between units as well, see {@link #convert(double, ByteUnit)}.
  * </p>
  *
  * @see <a href="https://en.wikipedia.org/wiki/Binary_prefix">https://en.wikipedia.org/wiki/Binary_prefix</a>
@@ -18,7 +18,7 @@ import java.util.Map;
  * @see <a href="https://physics.nist.gov/cuu/Units/binary.html">https://physics.nist.gov/cuu/Units/binary.html</a>
  *
  */
-public enum ByteMultiple
+public enum ByteUnit
 {
 	B  (1   , 1, "b" , "byte", "bytes"                           ),
 	KB (1000, 1, "k" , "kb"  , "kilo" , "kilobyte" , "kilobytes" ),
@@ -38,10 +38,10 @@ public enum ByteMultiple
 	ZiB(1024, 7, "zi", "zib" , "zebi" , "zebibyte" , "zebibytes" ),
 	YiB(1024, 8, "yi", "yib" , "yobi" , "yobibyte" , "yobibytes" );
 	                                  
-	private final static Map<String, ByteMultiple> nameToUnit = new HashMap<>();
+	private final static Map<String, ByteUnit> nameToUnit = new HashMap<>();
 	static
 	{
-		for(final ByteMultiple sizeUnit : values())
+		for(final ByteUnit sizeUnit : values())
 		{
 			for(final String name : sizeUnit.names)
 			{
@@ -50,7 +50,7 @@ public enum ByteMultiple
 		}
 	}
 		
-	public static ByteMultiple ofName(
+	public static ByteUnit ofName(
 		final String name
 	)
 	{
@@ -58,7 +58,7 @@ public enum ByteMultiple
 	}
 	
 	/**
-	 * Fluent API helper for {@link ByteMultiple#convert(double, ByteMultiple)} to get readable code like:
+	 * Fluent API helper for {@link ByteUnit#convert(double, ByteUnit)} to get readable code like:
 	 * <p>
 	 * <code>
 	 * convert(1.5, ByteMultiple.MB).to(ByteMultiple.KB);
@@ -68,11 +68,11 @@ public enum ByteMultiple
 	@FunctionalInterface
 	public static interface Conversion
 	{
-		public double to(ByteMultiple targetUnit);
+		public double to(ByteUnit targetUnit);
 	}
 	
 	/**
-	 * Starts a conversion, continue with {@link Conversion#to(ByteMultiple)}, e.g.:
+	 * Starts a conversion, continue with {@link Conversion#to(ByteUnit)}, e.g.:
 	 * <p>
 	 * <code>
 	 * convert(1.5, ByteMultiple.MB).to(ByteMultiple.KB);
@@ -83,7 +83,7 @@ public enum ByteMultiple
 	 */
 	public static Conversion convert(
 		final double       sourceValue,
-		final ByteMultiple sourceUnit
+		final ByteUnit sourceUnit
 	)
 	{
 		return targetUnit -> BigDecimal.valueOf(sourceUnit.toBytes(sourceValue)).divide(targetUnit.factor).doubleValue();
@@ -93,7 +93,7 @@ public enum ByteMultiple
 	private final BigDecimal	factor;
 	private final String[]		names ;
 	
-	private ByteMultiple(
+	private ByteUnit(
 		final int       base    ,
 		final int       exponent,
 		final String... names

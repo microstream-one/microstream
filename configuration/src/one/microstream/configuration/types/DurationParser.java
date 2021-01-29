@@ -1,15 +1,16 @@
-package one.microstream.storage.configuration;
+package one.microstream.configuration.types;
+
+import static one.microstream.X.notNull;
 
 import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 
 @FunctionalInterface
 public interface DurationParser
 {
-	public Duration parse(String text, DurationUnit defaultUnit);
+	public Duration parse(String text);
 	
 	
 	/**
@@ -17,17 +18,29 @@ public interface DurationParser
 	 * 
 	 * @see Duration#parse(CharSequence)
 	 */
-	public static DurationParser IsoParser()
+	public static DurationParser Iso()
 	{
-		return (text, defaultUnit) -> Duration.parse(text);
+		return Duration::parse;
 	}
 	
 	/**
-	 * Case insensitive, suffix based parser, for supported units see {@link DurationUnit}.
+	 * Case insensitive, suffix based parser, with {@link DurationUnit#MS} as default unit.
 	 */
-	public static DurationParser Default()
+	public static DurationParser New()
 	{
-		return new DurationParser.Default();
+		return new DurationParser.Default(DurationUnit.MS);
+	}
+	
+	/**
+	 * Case insensitive, suffix based parser.
+	 */
+	public static DurationParser New(
+		final DurationUnit defaultUnit
+	)
+	{
+		return new DurationParser.Default(
+			notNull(defaultUnit)
+		);
 	}
 	
 	
@@ -38,15 +51,19 @@ public interface DurationParser
 			Pattern.CASE_INSENSITIVE
 		);
 		
-		Default()
+		private final DurationUnit defaultUnit;
+		
+		Default(
+			final DurationUnit defaultUnit
+		)
 		{
 			super();
+			this.defaultUnit = defaultUnit;
 		}
 		
 		@Override
 		public Duration parse(
-			final String       text       ,
-			final DurationUnit defaultUnit
+			final String text
 		)
 		{
 			final Matcher matcher = this.pattern.matcher(text);
@@ -60,11 +77,11 @@ public interface DurationParser
 
 			try
 			{
-				return defaultUnit.create(Long.parseLong(text));
+				return this.defaultUnit.create(Long.parseLong(text));
 			}
 			catch(final NumberFormatException nfe)
 			{
-				throw new InvalidStorageConfigurationException(
+				throw new IllegalArgumentException(
 					"Invalid duration: " + text,
 					nfe
 				);
@@ -83,7 +100,7 @@ public interface DurationParser
 			}
 			catch(final NumberFormatException nfe)
 			{
-				throw new InvalidStorageConfigurationException(
+				throw new IllegalArgumentException(
 					"Invalid duration: " + amountText + unitText,
 					nfe
 				);
@@ -95,7 +112,7 @@ public interface DurationParser
 			}
 			catch(final IllegalArgumentException e)
 			{
-				throw new InvalidStorageConfigurationException(
+				throw new IllegalArgumentException(
 					"Invalid duration: " + amountText + unitText +
 					", unknown unit: " + unitText
 				);

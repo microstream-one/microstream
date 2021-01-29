@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import one.microstream.chars.ObjectStringAssembler;
 import one.microstream.chars.VarString;
+import one.microstream.configuration.types.DurationUnit;
 
 /**
 *

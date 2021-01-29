@@ -7,7 +7,9 @@ import static one.microstream.chars.XChars.notEmpty;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import one.microstream.bytes.ByteMultiple;
+import one.microstream.configuration.types.ByteSizeParser;
+import one.microstream.configuration.types.DurationParser;
+import one.microstream.configuration.types.DurationUnit;
 import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 
 
@@ -27,18 +29,21 @@ public interface ConfigurationPropertyParser
 	public static ConfigurationPropertyParser New()
 	{
 		return new ConfigurationPropertyParser.Default(
-			DurationParser.Default(),
-			ByteSizeParser.Default()
+			DurationParser.New(DurationUnit.MS),
+			DurationParser.New(DurationUnit.NS),
+			ByteSizeParser.New()
 		);
 	}
 
 	public static ConfigurationPropertyParser New(
-		final DurationParser durationParser,
+		final DurationParser durationParserMs,
+		final DurationParser durationParserNs,
 		final ByteSizeParser byteSizeParser
 	)
 	{
 		return new ConfigurationPropertyParser.Default(
-			notNull(durationParser),
+			notNull(durationParserMs),
+			notNull(durationParserNs),
 			notNull(byteSizeParser)
 		);
 	}
@@ -46,17 +51,20 @@ public interface ConfigurationPropertyParser
 
 	public static class Default implements ConfigurationPropertyParser, ConfigurationPropertyNames
 	{
-		private final DurationParser durationParser;
+		private final DurationParser durationParserMs;
+		private final DurationParser durationParserNs;
 		private final ByteSizeParser byteSizeParser;
 
 		Default(
-			final DurationParser durationParser,
+			final DurationParser durationParserMs,
+			final DurationParser durationParserNs,
 			final ByteSizeParser byteSizeParser
 		)
 		{
 			super();
 
-			this.durationParser = durationParser;
+			this.durationParserMs = durationParserMs;
+			this.durationParserNs = durationParserNs;
 			this.byteSizeParser = byteSizeParser;
 		}
 
@@ -196,7 +204,7 @@ public interface ConfigurationPropertyParser
 					case HOUSEKEEPING_INTERVAL_MS:
 					{
 						configuration.setHousekeepingIntervalMs(
-							this.durationParser.parse(value, DurationUnit.MS).toMillis()
+							this.durationParserMs.parse(value).toMillis()
 						);
 					}
 					break;
@@ -205,7 +213,7 @@ public interface ConfigurationPropertyParser
 					case HOUSEKEEPING_TIME_BUDGET_NS:
 					{
 						configuration.setHousekeepingTimeBudgetNs(
-							this.durationParser.parse(value, DurationUnit.NS).toNanos()
+							this.durationParserNs.parse(value).toNanos()
 						);
 					}
 					break;
@@ -213,7 +221,7 @@ public interface ConfigurationPropertyParser
 					case ENTITY_CACHE_THRESHOLD:
 					{
 						configuration.setEntityCacheThreshold(
-							this.byteSizeParser.parseByteSize(value, ByteMultiple.B)
+							this.byteSizeParser.parse(value).bytes()
 						);
 					}
 					break;
@@ -222,7 +230,7 @@ public interface ConfigurationPropertyParser
 					case ENTITY_CACHE_TIMEOUT_MS:
 					{
 						configuration.setEntityCacheTimeoutMs(
-							this.durationParser.parse(value, DurationUnit.MS).toMillis()
+							this.durationParserMs.parse(value).toMillis()
 						);
 					}
 					break;
@@ -231,7 +239,7 @@ public interface ConfigurationPropertyParser
 					case DATA_FILE_MINIMUM_SIZE:
 					{
 						configuration.setDataFileMinimumSize(
-							this.parseFileSize_int(value, ByteMultiple.B)
+							this.parseFileSize_int(value)
 						);
 					}
 					break;
@@ -240,7 +248,7 @@ public interface ConfigurationPropertyParser
 					case DATA_FILE_MAXIMUM_SIZE:
 					{
 						configuration.setDataFileMaximumSize(
-							this.parseFileSize_int(value, ByteMultiple.B)
+							this.parseFileSize_int(value)
 						);
 					}
 					break;
@@ -291,11 +299,10 @@ public interface ConfigurationPropertyParser
 		}
 
 		protected int parseFileSize_int(
-			final String value                    ,
-			final ByteMultiple defaultByteMultiple
+			final String value
 		)
 		{
-			final long fileSize = this.byteSizeParser.parseByteSize(value, defaultByteMultiple);
+			final long fileSize = this.byteSizeParser.parse(value).bytes();
 			if(fileSize > Integer.MAX_VALUE)
 			{
 				throw new InvalidStorageConfigurationException("Invalid file size: " + value);
