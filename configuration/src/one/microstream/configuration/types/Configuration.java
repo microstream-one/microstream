@@ -180,6 +180,23 @@ public interface Configuration
 		return new Builder.Default();
 	}
 	
+	public static Builder Builder(
+		final ConfigurationLoader loader,
+		final ConfigurationParser parser
+	)
+	{
+		return parser.parseConfiguration(loader.loadConfiguration());
+	}
+
+	
+	public static Configuration Load(
+		final ConfigurationLoader loader,
+		final ConfigurationParser parser
+	)
+	{
+		return Builder(loader, parser).buildConfiguration();
+	}
+	
 	
 	public String get(String key);
 	

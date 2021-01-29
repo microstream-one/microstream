@@ -1,32 +1,53 @@
 package one.microstream.configuration.types;
 
+import static one.microstream.X.notNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public interface ConfigurationParserIni extends ConfigurationParser<Map<String, String>>
+import one.microstream.configuration.types.Configuration.Builder;
+
+public interface ConfigurationParserIni extends ConfigurationParser
 {
 	public static ConfigurationParserIni New()
 	{
-		return new ConfigurationParserIni.Default();
+		return new ConfigurationParserIni.Default(
+			ConfigurationMapperMap.New()
+		);
+	}
+	
+	public static ConfigurationParserIni New(
+		final ConfigurationMapperMap mapper
+	)
+	{
+		return new ConfigurationParserIni.Default(
+			notNull(mapper)
+		);
 	}
 	
 	
 	public static class Default implements ConfigurationParserIni
 	{
-		Default()
+		private final ConfigurationMapperMap mapper;
+		
+		Default(
+			final ConfigurationMapperMap mapper
+		)
 		{
 			super();
+			this.mapper = mapper;
 		}
 	
 		@Override
-		public Map<String, String> parseConfiguration(
-			final String data
+		public Builder parseConfiguration(
+			final Builder builder,
+			final String  input
 		)
 		{
 			final Map<String, String> map = new HashMap<>();
 			
 			nextLine:
-			for(String line : data.split("\\r?\\n"))
+			for(String line : input.split("\\r?\\n"))
 			{
 				line = line.trim();
 				if(line.isEmpty())
@@ -54,7 +75,7 @@ public interface ConfigurationParserIni extends ConfigurationParser<Map<String, 
 				map.put(key, value);
 			}
 			
-			return map;
+			return this.mapper.mapConfiguration(builder, map);
 		}
 		
 	}

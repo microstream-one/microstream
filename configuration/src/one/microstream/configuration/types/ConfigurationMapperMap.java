@@ -7,24 +7,24 @@ import java.util.function.Function;
 
 import one.microstream.configuration.types.Configuration.Builder;
 
-public interface ConfigurationMapperMap<V> extends ConfigurationMapper<Map<String, V>>
+public interface ConfigurationMapperMap extends ConfigurationMapper<Map<String, ?>>
 {
-	public static <V> ConfigurationMapperMap<V> New()
+	public static ConfigurationMapperMap New()
 	{
-		return new ConfigurationMapperMap.Default<>(Object::toString);
+		return new ConfigurationMapperMap.Default(Object::toString);
 	}
 	
-	public static <V> ConfigurationMapperMap<V> New(
+	public static ConfigurationMapperMap New(
 		final Function<Object, String> toStringMapper
 	)
 	{
-		return new ConfigurationMapperMap.Default<>(
+		return new ConfigurationMapperMap.Default(
 			notNull(toStringMapper)
 		);
 	}
 	
 	
-	public static class Default<V> implements ConfigurationMapperMap<V>
+	public static class Default implements ConfigurationMapperMap
 	{
 		private final Function<Object, String> toStringMapper;
 		
@@ -39,7 +39,7 @@ public interface ConfigurationMapperMap<V> extends ConfigurationMapper<Map<Strin
 		@Override
 		public Builder mapConfiguration(
 			final Builder        builder,
-			final Map<String, V> source
+			final Map<String, ?> source
 		)
 		{
 			this.mapConfiguration(builder, source, "");
@@ -50,7 +50,7 @@ public interface ConfigurationMapperMap<V> extends ConfigurationMapper<Map<Strin
 		@SuppressWarnings("unchecked")
 		private void mapConfiguration(
 			final Builder        builder,
-			final Map<String, V> source ,
+			final Map<String, ?> source ,
 			final String         prefix
 		)
 		{
@@ -62,7 +62,7 @@ public interface ConfigurationMapperMap<V> extends ConfigurationMapper<Map<Strin
 				{
 					this.mapConfiguration(
 						builder,
-						(Map<String, V>)value,
+						(Map<String, ?>)value,
 						key + Configuration.KEY_SEPARATOR
 					);
 				}
