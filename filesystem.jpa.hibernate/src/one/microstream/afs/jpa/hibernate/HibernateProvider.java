@@ -72,7 +72,7 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 				protected EntityManager initialValue()
 				{
 					return Persistence
-						.createEntityManagerFactory(context.persistenceUnit())
+						.createEntityManagerFactory(context.persistenceUnit(), context.properties())
 						.createEntityManager()
 					;
 				}
