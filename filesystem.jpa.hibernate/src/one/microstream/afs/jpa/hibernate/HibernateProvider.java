@@ -6,10 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -49,7 +46,7 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 	)
 	{
 		return new Default(
-			HibernateIntegrator.getHibernateContext(persistenceUnit)
+			HibernateIntegrator.getHibernateContext(persistenceUnit), null
 		);
 	}
 
@@ -59,9 +56,11 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 		private final HibernateContext           context         ;
 		private final ThreadLocal<EntityManager> entityManagerRef;
 		private       Table                      dummyTable      ;
+		private       Map                        properties      ;
 
 		Default(
-			final HibernateContext context
+			final HibernateContext context,
+			final Map properties
 		)
 		{
 			super();
@@ -72,7 +71,7 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 				protected EntityManager initialValue()
 				{
 					return Persistence
-						.createEntityManagerFactory(context.persistenceUnit(), context.properties())
+						.createEntityManagerFactory(context.persistenceUnit(), properties)
 						.createEntityManager()
 					;
 				}
