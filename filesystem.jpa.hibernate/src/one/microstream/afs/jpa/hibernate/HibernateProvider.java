@@ -6,7 +6,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -56,11 +60,10 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 		private final HibernateContext           context         ;
 		private final ThreadLocal<EntityManager> entityManagerRef;
 		private       Table                      dummyTable      ;
-		private       Map                        properties      ;
 
 		Default(
 			final HibernateContext context,
-			final Map properties
+			final Map<String, String> properties
 		)
 		{
 			super();
