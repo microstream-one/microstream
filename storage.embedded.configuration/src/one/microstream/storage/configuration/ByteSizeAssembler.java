@@ -5,12 +5,11 @@ import one.microstream.chars.VarString;
 import one.microstream.configuration.types.ByteUnit;
 
 /**
- * Converts a byte size value from long into a human readable format.
- *
- * @see ByteUnit
- * @since 3.1
- *
+ * 
+ * @deprecated will be removed in a future release
+ * @see one.microstream.storage.configuration
  */
+@Deprecated
 public interface ByteSizeAssembler extends ObjectStringAssembler<Long>
 {
 	@Override

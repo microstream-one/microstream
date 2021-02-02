@@ -2,6 +2,12 @@ package one.microstream.storage.exceptions;
 
 import one.microstream.exceptions.BaseException;
 
+/**
+ * 
+ * @deprecated will be removed in a future release
+ * @see one.microstream.storage.configuration
+ */
+@Deprecated
 public class StorageConfigurationException extends BaseException
 {
 	public StorageConfigurationException()

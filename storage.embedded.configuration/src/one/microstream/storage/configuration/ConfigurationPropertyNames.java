@@ -1,10 +1,14 @@
 
 package one.microstream.storage.configuration;
 
+import one.microstream.storage.types.EmbeddedStorageConfigurationProperties;
+
 /**
- * All supported properties for external configuration files.
- *
+ * 
+ * @deprecated replaced by {@link EmbeddedStorageConfigurationProperties}, will be removed in a future release
+ * @see one.microstream.storage.configuration
  */
+@Deprecated
 public interface ConfigurationPropertyNames
 {
 	/**

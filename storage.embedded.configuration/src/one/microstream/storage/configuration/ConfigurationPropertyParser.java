@@ -12,11 +12,12 @@ import one.microstream.configuration.types.DurationParser;
 import one.microstream.configuration.types.DurationUnit;
 import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 
-
 /**
- * Property parser used by {@link ConfigurationParser}.
- *
+ * 
+ * @deprecated will be removed in a future release
+ * @see one.microstream.storage.configuration
  */
+@Deprecated
 @FunctionalInterface
 public interface ConfigurationPropertyParser
 {
@@ -79,7 +80,6 @@ public interface ConfigurationPropertyParser
 			);
 		}
 
-		@SuppressWarnings("deprecation") // keeps parsing deprecated properties
 		protected void parseProperty(
 			final String name                ,
 			final String value               ,
