@@ -20,16 +20,11 @@ import one.microstream.storage.exceptions.StorageConfigurationIoException;
 import one.microstream.storage.exceptions.StorageConfigurationNotFoundException;
 
 /**
- * Loader for external configuration resources.
- * <p>
- * Supported resource types:
- * <ul>
- * <li>{@link Path}</li>
- * <li>{@link File}</li>
- * <li>{@link URL}</li>
- * <li>{@link InputStream}</li>
- * </ul>
+ * 
+ * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationLoader}, will be removed in a future release
+ * @see one.microstream.storage.configuration
  */
+@Deprecated
 @FunctionalInterface
 public interface ConfigurationLoader
 {

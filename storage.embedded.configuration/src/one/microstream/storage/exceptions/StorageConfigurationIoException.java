@@ -1,5 +1,11 @@
 package one.microstream.storage.exceptions;
 
+/**
+ * 
+ * @deprecated will be removed in a future release
+ * @see one.microstream.storage.configuration
+ */
+@Deprecated
 public class StorageConfigurationIoException extends StorageConfigurationException
 {
 	public StorageConfigurationIoException()
