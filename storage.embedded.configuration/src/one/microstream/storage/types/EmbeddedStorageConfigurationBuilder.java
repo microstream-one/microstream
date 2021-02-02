@@ -241,7 +241,7 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	}
 	
 	
-	public static class Default implements EmbeddedStorageConfigurationBuilder, EmbeddedStorageConfigurationProperties
+	public static class Default implements EmbeddedStorageConfigurationBuilder, EmbeddedStorageConfigurationPropertyNames
 	{
 		private final Configuration.Builder delegate;
 
