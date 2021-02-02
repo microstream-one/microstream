@@ -63,7 +63,7 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 
 		Default(
 			final HibernateContext context,
-			final Map<String, String> properties
+			final Map<String, Object> properties
 		)
 		{
 			super();
