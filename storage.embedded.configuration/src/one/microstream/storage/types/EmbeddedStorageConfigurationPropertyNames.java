@@ -5,7 +5,7 @@ package one.microstream.storage.types;
  * All supported properties for external configuration files.
  *
  */
-public interface EmbeddedStorageConfigurationProperties
+public interface EmbeddedStorageConfigurationPropertyNames
 {
 	/**
 	 * @see EmbeddedStorageConfigurationBuilder#setStorageDirectory(String)

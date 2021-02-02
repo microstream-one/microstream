@@ -1,11 +1,11 @@
 
 package one.microstream.storage.configuration;
 
-import one.microstream.storage.types.EmbeddedStorageConfigurationProperties;
+import one.microstream.storage.types.EmbeddedStorageConfigurationPropertyNames;
 
 /**
  * 
- * @deprecated replaced by {@link EmbeddedStorageConfigurationProperties}, will be removed in a future release
+ * @deprecated replaced by {@link EmbeddedStorageConfigurationPropertyNames}, will be removed in a future release
  * @see one.microstream.storage.configuration
  */
 @Deprecated

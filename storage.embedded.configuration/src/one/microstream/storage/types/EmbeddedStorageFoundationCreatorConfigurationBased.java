@@ -20,7 +20,7 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 	
 	public static class Default implements
 	EmbeddedStorageFoundationCreatorConfigurationBased,
-	EmbeddedStorageConfigurationProperties
+	EmbeddedStorageConfigurationPropertyNames
 	{
 		private final Configuration configuration;
 
