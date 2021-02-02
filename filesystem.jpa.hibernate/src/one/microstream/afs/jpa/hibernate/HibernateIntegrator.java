@@ -16,7 +16,7 @@ public class HibernateIntegrator implements Integrator
 
 	static HibernateContext getHibernateContext(
 		final String persistenceUnit,
-		final Map<String, String> properties
+		final Map<String, Object> properties
 	)
 	{
 		Persistence.createEntityManagerFactory(persistenceUnit, properties).close();
