@@ -7,6 +7,9 @@ import javax.cache.configuration.Factory;
 
 import one.microstream.chars.XChars;
 import one.microstream.configuration.types.Configuration;
+import one.microstream.configuration.types.ConfigurationLoader;
+import one.microstream.configuration.types.ConfigurationParserIni;
+import one.microstream.configuration.types.ConfigurationParserXml;
 import one.microstream.storage.types.EmbeddedStorageFoundationCreatorConfigurationBased;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
@@ -100,7 +103,55 @@ public interface CacheConfigurationBuilderConfigurationBased
 				builder.enableManagement(value)
 			);
 
-			final Configuration storageConfiguration = configuration.child(STORAGE);
+			final CacheStore<K, V> cacheStore = this.buildCacheStore(configuration);
+			if(cacheStore != null)
+			{
+				builder
+					.cacheLoaderFactory(() -> cacheStore)
+					.cacheWriterFactory(() -> cacheStore)
+					.readThrough(configuration.optBoolean(READ_THROUGH).orElse(true))
+					.writeThrough(configuration.optBoolean(WRITE_THROUGH).orElse(true))
+				;
+			}
+			else
+			{
+				configuration.opt(CACHE_LOADER_FACTORY).ifPresent(value ->
+				{
+					builder
+						.cacheLoaderFactory(this.valueAsFactory(value))
+						.readThrough(configuration.optBoolean(READ_THROUGH).orElse(true))
+					;
+				});
+				configuration.opt(CACHE_WRITER_FACTORY).ifPresent(value ->
+				{
+					builder
+						.cacheWriterFactory(this.valueAsFactory(value))
+						.writeThrough(configuration.optBoolean(WRITE_THROUGH).orElse(true))
+					;
+				});
+			}
+			
+			return builder;
+		}
+		
+		private <K, V> CacheStore<K, V> buildCacheStore(
+			final Configuration configuration
+		)
+		{
+			Configuration storageConfiguration = configuration.child(STORAGE);
+			if(storageConfiguration == null)
+			{
+				final String resourceName = configuration.get(STORAGE_CONFIGURATION_RESOURCE_NAME);
+				if(!XChars.isEmpty(resourceName))
+				{
+					storageConfiguration = Configuration.Load(
+						ConfigurationLoader.New(resourceName),
+						resourceName.toLowerCase().endsWith(".xml")
+							? ConfigurationParserXml.New()
+							: ConfigurationParserIni.New()
+					);
+				}
+			}
 			if(storageConfiguration != null)
 			{
 				final EmbeddedStorageManager storageManager = EmbeddedStorageFoundationCreatorConfigurationBased
@@ -111,23 +162,10 @@ public interface CacheConfigurationBuilderConfigurationBased
 				final String cacheKey = storageConfiguration.opt(STORAGE_KEY)
 					.orElse(CachingProvider.defaultURI() + "::cache")
 				;
-				final CacheStore<K, V> cacheStore = CacheStore.New(cacheKey, storageManager);
-				builder.cacheLoaderFactory(() -> cacheStore);
-				builder.cacheWriterFactory(() -> cacheStore);
-			}
-			else
-			{
-				configuration.opt(CACHE_LOADER_FACTORY).ifPresent(value -> {
-					builder.cacheLoaderFactory(this.valueAsFactory(value));
-					builder.readThrough (configuration.optBoolean(READ_THROUGH ).orElse(true));
-				});
-				configuration.opt(CACHE_WRITER_FACTORY).ifPresent(value -> {
-					builder.cacheWriterFactory(this.valueAsFactory(value));
-					builder.writeThrough(configuration.optBoolean(WRITE_THROUGH).orElse(true));
-				});
+				return CacheStore.New(cacheKey, storageManager);
 			}
 			
-			return builder;
+			return null;
 		}
 		
 		private Class<?> getClass(
