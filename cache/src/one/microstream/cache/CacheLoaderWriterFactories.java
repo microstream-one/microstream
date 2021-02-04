@@ -8,6 +8,11 @@ import one.microstream.X;
 import one.microstream.storage.configuration.Configuration;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
+/**
+ * 
+ * @deprecated will be removed in a future release
+ */
+@Deprecated
 public interface CacheLoaderWriterFactories<K, V>
 {
 	public Factory<CacheLoader<K, V>> loaderFactory();
@@ -45,7 +50,7 @@ public interface CacheLoaderWriterFactories<K, V>
 					.start()
 				;
 				this.cacheStore = CacheStore.New(
-					"cache", 
+					"cache",
 					storageManager
 				);
 			}
@@ -63,7 +68,7 @@ public interface CacheLoaderWriterFactories<K, V>
 		public Factory<CacheWriter<? super K, ? super V>> writerFactory()
 		{
 			return this::cacheStore;
-		}		
+		}
 		
 	}
 }
