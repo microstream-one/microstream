@@ -24,10 +24,11 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 
 import one.microstream.cache.Cache;
 import one.microstream.cache.CacheConfiguration;
-import one.microstream.cache.CacheConfigurationPropertyParser;
+import one.microstream.cache.CacheConfigurationBuilderConfigurationBased;
 import one.microstream.cache.CacheManager;
 import one.microstream.cache.CachingProvider;
 import one.microstream.chars.XChars;
+import one.microstream.configuration.types.ConfigurationMapperMap;
 
 
 public class CacheRegionFactory extends RegionFactoryTemplate
@@ -159,7 +160,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		}
 
 		// 2. Check for properties in context config
-		final String                 prefix            = "hibernate.cache.microstream.";
+		final String              prefix            = "hibernate.cache.microstream.";
 		final Map<String, String> msCacheProperties = ((Map<Object, Object>)properties).entrySet().stream()
 			.filter(kv -> kv.getKey().toString().startsWith(prefix))
 			.collect(Collectors.toMap(
@@ -169,16 +170,15 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		;
 		if(msCacheProperties.size() > 0L)
 		{
-			final CacheConfiguration.Builder<Object, Object> builder =
-				CacheConfiguration.Builder(Object.class, Object.class);
-			CacheConfigurationPropertyParser.New(
+			return (CacheConfiguration<Object, Object>)CacheConfigurationBuilderConfigurationBased.New(
 				className -> this.loadClass(className, settings)
 			)
-			.parseProperties(
-				msCacheProperties,
-				builder
-			);
-			return builder.build();
+			.buildCacheConfiguration(
+				ConfigurationMapperMap.New()
+					.mapConfiguration(msCacheProperties)
+					.buildConfiguration()
+			)
+			.build();
 		}
 
 		// 3. Check for default property resource
