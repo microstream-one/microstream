@@ -1,5 +1,10 @@
 package one.microstream.cache;
 
+/**
+ * 
+ * @deprecated will be removed in a future release
+ */
+@Deprecated
 public class CacheConfigurationNotFoundException extends CacheConfigurationIoException
 {
 	public CacheConfigurationNotFoundException()
@@ -7,17 +12,17 @@ public class CacheConfigurationNotFoundException extends CacheConfigurationIoExc
 		super();
 	}
 
-	public CacheConfigurationNotFoundException(String message, Throwable cause)
+	public CacheConfigurationNotFoundException(final String message, final Throwable cause)
 	{
 		super(message, cause);
 	}
 
-	public CacheConfigurationNotFoundException(String message)
+	public CacheConfigurationNotFoundException(final String message)
 	{
 		super(message);
 	}
 
-	public CacheConfigurationNotFoundException(Throwable cause)
+	public CacheConfigurationNotFoundException(final Throwable cause)
 	{
 		super(cause);
 	}

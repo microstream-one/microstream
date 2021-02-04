@@ -20,7 +20,6 @@ import java.util.function.Predicate;
 import javax.cache.CacheManager;
 import javax.cache.configuration.CacheEntryListenerConfiguration;
 import javax.cache.configuration.CompleteConfiguration;
-import javax.cache.configuration.Configuration;
 import javax.cache.configuration.Factory;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryListener;
@@ -30,6 +29,9 @@ import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheWriter;
 
 import one.microstream.chars.XChars;
+import one.microstream.configuration.types.Configuration;
+import one.microstream.configuration.types.ConfigurationLoader;
+import one.microstream.configuration.types.ConfigurationParserIni;
 import one.microstream.reflect.XReflect;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
@@ -40,6 +42,9 @@ import one.microstream.storage.types.EmbeddedStorageManager;
  * - {@link #getEvictionManagerFactory()}<br>
  * - {@link #getSerializerFieldPredicate()}
  * </p>
+ * <p>
+ * Can be adapted to MicroStream's generic {@link Configuration} layer.
+ * 
  *
  * @param <K> the key type
  * @param <V> the value type
@@ -91,7 +96,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 */
 	public static CacheConfiguration<?, ?> Load()
 	{
-		return Load(CacheConfigurationLoader.Defaults.defaultCharset());
+		return Load(ConfigurationLoader.Defaults.defaultCharset());
 	}
 
 	/**
@@ -132,7 +137,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
 		final URL         url                = contextClassloader != null
 			? contextClassloader.getResource(defaultName)
-			: Configuration.class.getResource("/" + defaultName);
+			: javax.cache.configuration.Configuration.class.getResource("/" + defaultName);
 		if(url != null)
 		{
 			return Load(url, charset);
@@ -174,12 +179,12 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
 	public static <K, V> CacheConfiguration<K, V> Load(
-		final Class<K> keyType,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
 		return Load(
-			CacheConfigurationLoader.Defaults.defaultCharset(),
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
@@ -208,8 +213,8 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
 	public static <K, V> CacheConfiguration<K, V> Load(
-		final Charset charset,
-		final Class<K> keyType,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
@@ -227,7 +232,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
 		final URL         url                = contextClassloader != null
 			? contextClassloader.getResource(defaultName)
-			: Configuration.class.getResource("/" + defaultName);
+			: javax.cache.configuration.Configuration.class.getResource("/" + defaultName);
 		if(url != null)
 		{
 			return Load(url, charset, keyType, valueType);
@@ -264,8 +269,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		final String path
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.load(path)
+		return Load(
+			path,
+			ConfigurationLoader.Defaults.defaultCharset()
 		);
 	}
 
@@ -284,13 +290,15 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static CacheConfiguration<?, ?> Load(
-		final String path,
+		final String  path   ,
 		final Charset charset
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.load(path, charset)
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(path, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(configuration).build();
 	}
 
 	/**
@@ -309,14 +317,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static <K, V> CacheConfiguration<K, V> Load(
-		final String path,
-		final Class<K> keyType,
+		final String   path     ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
 		return Load(
 			path,
-			CacheConfigurationLoader.Defaults.defaultCharset(),
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
@@ -339,16 +347,16 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration or <code>null</code> if none was found
 	 */
 	public static <K, V> CacheConfiguration<K, V> Load(
-		final String path,
-		final Charset charset,
-		final Class<K> keyType,
+		final String   path     ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
 	          URL         url                = contextClassloader != null
 			? contextClassloader.getResource(path)
-			: Configuration.class.getResource(path);
+			: javax.cache.configuration.Configuration.class.getResource(path);
 		if(url != null)
 		{
 			return Load(url, charset, keyType, valueType);
@@ -382,8 +390,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		final Path path
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromPath(path)
+		return Load(
+			path,
+			ConfigurationLoader.Defaults.defaultCharset()
 		);
 	}
 
@@ -396,13 +405,15 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static CacheConfiguration<?, ?> Load(
-		final Path path,
+		final Path    path   ,
 		final Charset charset
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromPath(path, charset)
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(path, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(configuration).build();
 	}
 
 	/**
@@ -416,8 +427,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		final File file
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromFile(file)
+		return Load(
+			file,
+			ConfigurationLoader.Defaults.defaultCharset()
 		);
 	}
 
@@ -430,13 +442,15 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static CacheConfiguration<?, ?> Load(
-		final File file,
+		final File    file   ,
 		final Charset charset
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromFile(file, charset)
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(file, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(configuration).build();
 	}
 
 	/**
@@ -450,8 +464,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		final URL url
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromUrl(url)
+		return Load(
+			url,
+			ConfigurationLoader.Defaults.defaultCharset()
 		);
 	}
 
@@ -464,13 +479,15 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static CacheConfiguration<?, ?> Load(
-		final URL url,
+		final URL     url    ,
 		final Charset charset
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromUrl(url, charset)
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(url, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(configuration).build();
 	}
 
 	/**
@@ -484,8 +501,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		final InputStream inputStream
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.FromInputStream(inputStream).loadConfiguration()
+		return Load(
+			inputStream,
+			ConfigurationLoader.Defaults.defaultCharset()
 		);
 	}
 
@@ -499,12 +517,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 */
 	public static CacheConfiguration<?, ?> Load(
 		final InputStream inputStream,
-		final Charset charset
+		final Charset     charset
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(inputStream, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(configuration).build();
 	}
 
 	/**
@@ -517,13 +537,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
-		final Path path,
-		final Class<K> keyType,
+		final Path     path     ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromPath(path),
+		return Load(
+			path,
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
@@ -540,17 +561,17 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
-		final Path path,
-		final Charset charset,
-		final Class<K> keyType,
+		final Path     path     ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromPath(path, charset),
-			keyType,
-			valueType
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(path, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(keyType, valueType, configuration).build();
 	}
 
 	/**
@@ -563,13 +584,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
-		final File file,
-		final Class<K> keyType,
+		final File     file     ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromFile(file),
+		return Load(
+			file,
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
@@ -586,17 +608,17 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
-		final File file,
-		final Charset charset,
-		final Class<K> keyType,
+		final File     file     ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromFile(file, charset),
-			keyType,
-			valueType
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(file, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(keyType, valueType, configuration).build();
 	}
 
 	/**
@@ -609,13 +631,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
-		final URL url,
-		final Class<K> keyType,
+		final URL      url      ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromUrl(url),
+		return Load(
+			url,
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
@@ -632,17 +655,17 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
-		final URL url,
-		final Charset charset,
-		final Class<K> keyType,
+		final URL      url      ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromUrl(url, charset),
-			keyType,
-			valueType
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(url, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(keyType, valueType, configuration).build();
 	}
 
 	/**
@@ -656,12 +679,13 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
 		final InputStream inputStream,
-		final Class<K> keyType,
-		final Class<V> valueType
+		final Class<K>    keyType    ,
+		final Class<V>    valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.FromInputStream(inputStream).loadConfiguration(),
+		return Load(
+			inputStream,
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
@@ -679,16 +703,16 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 */
 	public static <K,V> CacheConfiguration<K, V> Load(
 		final InputStream inputStream,
-		final Charset charset,
-		final Class<K> keyType,
-		final Class<V> valueType
+		final Charset     charset    ,
+		final Class<K>    keyType    ,
+		final Class<V>    valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration(),
-			keyType,
-			valueType
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(inputStream, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(keyType, valueType, configuration).build();
 	}
 
 
@@ -715,7 +739,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the value type
 	 */
 	public static <K, V> Builder<K, V> Builder(
-		final Class<K> keyType,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
@@ -733,9 +757,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param storageManager the {@link EmbeddedStorageManager} to use as a backing store
 	 */
 	public static <K, V> Builder<K, V> Builder(
-		final Class<K> keyType,
-		final Class<V> valueType,
-		final String cacheName,
+		final Class<K>               keyType       ,
+		final Class<V>               valueType     ,
+		final String                 cacheName     ,
 		final EmbeddedStorageManager storageManager
 	)
 	{
@@ -779,6 +803,43 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			.readThrough()
 			.writeThrough();
 	}
+	
+	/**
+	 * Creates a new {@link Builder} for a {@link CacheConfiguration}, which uses
+	 * the generic MicroStream <code>configuration</code>'s values.
+	 *
+	 * @param configuration the {@link Configuration} to take the initial values from
+	 */
+	public static Builder<?, ?> Builder(
+		final Configuration configuration
+	)
+	{
+		return CacheConfigurationBuilderConfigurationBased.New()
+			.buildCacheConfiguration(configuration)
+		;
+	}
+	
+	/**
+	 * Creates a new {@link Builder} for a {@link CacheConfiguration}, which uses
+	 * the generic MicroStream <code>configuration</code>'s values.
+	 *
+	 * @param keyType the key type
+	 * @param valueType the value type
+	 * @param configuration the {@link Configuration} to take the initial values from
+	 */
+	public static <K, V> Builder<K, V> Builder(
+		final Class<K>      keyType      ,
+		final Class<V>      valueType    ,
+		final Configuration configuration
+	)
+	{
+		return CacheConfigurationBuilderConfigurationBased.New()
+			.buildCacheConfiguration(
+				configuration,
+				Builder(keyType, valueType)
+			);
+	}
+	
 
 	public static interface Builder<K, V>
 	{
@@ -1156,9 +1217,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * Creates a new {@link CacheConfiguration} based on a {@link Configuration}.
+	 * Creates a new {@link CacheConfiguration} based on a {@link javax.cache.configuration.Configuration}.
 	 */
-	public static <K, V> CacheConfiguration<K, V> New(final Configuration<K, V> other)
+	public static <K, V> CacheConfiguration<K, V> New(final javax.cache.configuration.Configuration<K, V> other)
 	{
 		final HashSet<CacheEntryListenerConfiguration<K, V>> listenerConfigurations = new HashSet<>();
 

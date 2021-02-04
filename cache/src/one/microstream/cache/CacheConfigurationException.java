@@ -2,6 +2,11 @@ package one.microstream.cache;
 
 import javax.cache.CacheException;
 
+/**
+ * 
+ * @deprecated will be removed in a future release
+ */
+@Deprecated
 public class CacheConfigurationException extends CacheException
 {
 	public CacheConfigurationException()
@@ -9,17 +14,17 @@ public class CacheConfigurationException extends CacheException
 		super();
 	}
 
-	public CacheConfigurationException(String message, Throwable cause)
+	public CacheConfigurationException(final String message, final Throwable cause)
 	{
 		super(message, cause);
 	}
 
-	public CacheConfigurationException(String message)
+	public CacheConfigurationException(final String message)
 	{
 		super(message);
 	}
 
-	public CacheConfigurationException(Throwable cause)
+	public CacheConfigurationException(final Throwable cause)
 	{
 		super(cause);
 	}
