@@ -25,6 +25,16 @@ public interface CacheConfigurationPropertyNames
 	public static final String STORAGE_CONFIGURATION_RESOURCE_NAME = "storageConfigurationResourceName";
 	
 	/**
+	 * Sub-configuration name for the backing store.
+	 */
+	public static final String STORAGE = "storage";
+	
+	/**
+	 * Storage key of the backing store
+	 */
+	public static final String STORAGE_KEY = "key";
+	
+	/**
 	 * @see CompleteConfiguration#getCacheLoaderFactory()
 	 */
 	public static final String CACHE_LOADER_FACTORY                = "cacheLoaderFactory";

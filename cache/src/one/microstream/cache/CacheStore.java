@@ -46,6 +46,11 @@ public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
 		{
 			synchronized(this.storage)
 			{
+				if(!this.storage.isRunning())
+				{
+					this.storage.start();
+				}
+				
 				boolean                                  storeRoot = false;
 				XTable<String, Lazy<XTable<K, Lazy<V>>>> root;
 				if((root = (XTable<String, Lazy<XTable<K, Lazy<V>>>>)this.storage.root()) == null)
