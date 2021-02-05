@@ -3,12 +3,21 @@ package one.microstream.configuration.types;
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.notNegative;
 
+/**
+ * Compound object which carries an amount paired with a {@link ByteUnit}.
+ *
+ */
 public interface ByteSize extends Comparable<ByteSize>
 {
 	public double amount();
 	
 	public ByteUnit unit();
 	
+	/**
+	 * 
+	 * @return the total number of bytes which {@link #amount()} and {@link #unit()} yield
+	 * @see ByteUnit#toBytes(double)
+	 */
 	public long bytes();
 	
 	

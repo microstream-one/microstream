@@ -16,8 +16,17 @@ import org.xml.sax.SAXException;
 import one.microstream.configuration.types.Configuration.Builder;
 import one.microstream.exceptions.IORuntimeException;
 
+/**
+ * XML format parser for configurations.
+ * 
+ */
 public interface ConfigurationParserXml extends ConfigurationParser
 {
+	/**
+	 * Pseudo-constructor to create a new XML parser.
+	 * 
+	 * @return a new XML parser
+	 */
 	public static ConfigurationParserXml New()
 	{
 		return new ConfigurationParserXml.Default(
@@ -25,6 +34,11 @@ public interface ConfigurationParserXml extends ConfigurationParser
 		);
 	}
 	
+	/**
+	 * Pseudo-constructor to create a new XML parser.
+	 * 
+	 * @return a new XML parser
+	 */
 	public static ConfigurationParserXml New(
 		final ConfigurationMapperXml mapper
 	)

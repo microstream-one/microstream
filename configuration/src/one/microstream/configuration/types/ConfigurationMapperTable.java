@@ -7,13 +7,28 @@ import java.util.function.Function;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.configuration.types.Configuration.Builder;
 
+/**
+ * Mapper which maps entries from a {@link XGettingTable} to a {@link Configuration#Builder()}.
+ *
+ */
 public interface ConfigurationMapperTable<V> extends ConfigurationMapper<XGettingTable<String, V>>
 {
+	/**
+	 * Pseudo-constructor to create a new mapper.
+	 * 
+	 * @return a new mapper
+	 */
 	public static <V> ConfigurationMapperTable<V> New()
 	{
 		return new ConfigurationMapperTable.Default<>(Object::toString);
 	}
 	
+	/**
+	 * Pseudo-constructor to create a new mapper.
+	 * 
+	 * @param toStringMapper function which converts values from the table to String values
+	 * @return a new mapper
+	 */
 	public static <V> ConfigurationMapperTable<V> New(
 		final Function<Object, String> toStringMapper
 	)

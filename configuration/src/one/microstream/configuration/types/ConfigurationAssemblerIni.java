@@ -2,8 +2,18 @@ package one.microstream.configuration.types;
 
 import one.microstream.chars.VarString;
 
+/**
+ * Assembler for configurations to export to INI (properties) format.
+ * 
+ * @see Configuration#store(ConfigurationStorer, ConfigurationAssembler)
+ */
 public interface ConfigurationAssemblerIni extends ConfigurationAssembler
 {
+	/**
+	 * Pseudo-constructor to create a new INI assembler.
+	 * 
+	 * @return a new INI assembler
+	 */
 	public static ConfigurationAssemblerIni New()
 	{
 		return new ConfigurationAssemblerIni.Default();

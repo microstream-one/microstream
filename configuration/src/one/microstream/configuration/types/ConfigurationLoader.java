@@ -28,6 +28,8 @@ import one.microstream.exceptions.IORuntimeException;
  * <li>{@link URL}</li>
  * <li>{@link InputStream}</li>
  * </ul>
+ * 
+ * @see Configuration.Builder#load(ConfigurationLoader, ConfigurationParser)
  */
 @FunctionalInterface
 public interface ConfigurationLoader

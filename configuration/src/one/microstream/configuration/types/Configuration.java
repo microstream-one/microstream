@@ -14,27 +14,215 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.configuration.exceptions.ConfigurationExceptionNoValueMapperFound;
+import one.microstream.configuration.exceptions.ConfigurationExceptionValueMappingFailed;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.cql.CQL;
 
+/**
+ * General purpose, immutable (builder-created), hierarchical configuration container.
+ * Its content consists of key value pairs, which are either value entries &lt;String, String&gt;
+ * or child-configuration entries &lt;String, Configuration&gt;.
+ * <p>
+ * The keys are just plain Strings with any content except the {@link #KEY_SEPARATOR} ('.'), because
+ * it connects simple keys to full-qualified ones.
+ * <p>
+ * Example configuration:
+ * <pre>
+ * microstream
+ *   |
+ *   +-- storage
+ *   |   |
+ *   |   +-- storageDirectory = /home/my-storage
+ *   |   |
+ *   |   +-- backupDirectory = /home/backup-storage
+ *   |
+ *   +-- cache
+ *   |   |
+ *   |   +-- keyType = java.lang.String
+ *   |   |
+ *   |   +-- valueTytpe = java.lang.Double
+ *   |
+ *   +-- version = 1.2.3
+ *   |
+ *   +-- production = true
+ * </pre>
+ * To access the <code>storageDirectory</code> entry there are following ways.
+ * Either get the child configurations and then the value entry
+ * <pre>
+ * String directory = configuration.child("microstream").child("storage").get("storageDirectory");
+ * </pre>
+ * or just use the full-qualified key, as a shortcut
+ * <pre>
+ * String directory = configuration.get("microstream.storage.storageDirectory");
+ * </pre>
+ * In order to translate the value entries into different types, {@link ConfigurationValueMapper}s are used.
+ * Predefined value mappers are there for the most commonly used types in configurations:
+ * {@link ConfigurationValueMapperProvider#Default()}.
+ * <p>
+ * Custom value mappers can be used as well, of course.
+ * <pre>
+ * ConfigurationValueMapperProvider mapperProvider = ConfigurationValueMapperProvider.Default()
+ * 	.add(new MyValueMapper())
+ * 	.build();
+ * Configuration configuration = Configuration.Builder()
+ * 	.mapperProvider(mapperProvider)
+ * 	.build();
+ * 
+ * boolean production = configuration.getBoolean("microstream.production");
+ * MyType  myType     = configuration.get("key", MyType.class);
+ * </pre>
+ * <p>
+ * Configurations can be created with a {@link Configuration.Builder}. Builders are populated programmatically,
+ * by a {@link ConfigurationMapper} or a {@link ConfigurationParser}.
+ * <pre>
+ * // create configuration from external file
+ * Configuration configuration = Configuration.Load(
+ * 	ConfigurationLoader.New("config-production.xml"),
+ * 	ConfigurationParserXml.New()
+ * );
+ * 
+ * // create configuration from Map
+ * Map&lt;String, Object&gt; otherFrameworkConfig = ...;
+ * Configuration configuration = ConfigurationMapperMap.New()
+ * 	.mapConfiguration(otherFrameworkConfig)
+ * 	.buildConfiguration();
+ * 
+ * // create configuration from different sources
+ * Configuration.Builder()
+ * 	.load(
+ * 		ConfigurationLoader.New("config-base.xml"),
+ *		ConfigurationParserXml.New()
+ *	)
+ *	.load(
+ *		ConfigurationLoader.New("config-production.xml"),
+ *		ConfigurationParserXml.New()
+ *	)
+ *	.buildConfiguration();
+ * </pre>
+ * Configurations can be exported as well:
+ * <pre>
+ * configuration.store(
+ * 	ConfigurationStorer.New(Paths.get("home", "config-export.xml")),
+ * 	ConfigurationAssemblerXml.New()
+ * );
+ * </pre>
+ */
 public interface Configuration
 {
+	/**
+	 * The separator char ('.') which is used to connect simple keys to full-qualified ones.
+	 */
 	public final static char KEY_SEPARATOR = '.';
 	
 	
+	/**
+	 * Builder for {@link Configuration}s.
+	 * <p>
+	 * child-configurations can be built by either using {@link #child(String)} builders,
+	 * or with full-qualified keys, as described in {@link Configuration}.
+	 *
+	 */
 	public static interface Builder
 	{
+		/**
+		 * Maps values and child-configurations from the specified source into this builder.
+		 * This can be used to get values from one or more external resources.
+		 * 
+		 * @param mapper the mapper for the source
+		 * @param source the input source
+		 * @return this builder
+		 * @see ConfigurationMapper
+		 */
+		public default <S> Builder map(
+			final ConfigurationMapper<S> mapper,
+			final S                      source
+		)
+		{
+			return mapper.mapConfiguration(this, source);
+		}
+		
+		/**
+		 * Loads values and child-configurations from the specified source into this builder.
+		 * This can be used to get values from one or more external resources.
+		 * 
+		 * @param loader the loader to retrieve the input
+		 * @param parser the parser to parse the input
+		 * @return this builder
+		 * @see ConfigurationLoader
+		 * @see ConfigurationParser
+		 */
+		public default Builder load(
+			final ConfigurationLoader loader,
+			final ConfigurationParser parser
+		)
+		{
+			return parser.parseConfiguration(this, loader.loadConfiguration());
+		}
+		
+		/**
+		 * Sets the {@link ConfigurationValueMapperProvider}.
+		 * Use this method to insert user-defined value mappers.
+		 * 
+		 * @param mapperProvider the new mapper provider
+		 * @return this builder
+		 */
 		public Builder mapperProvider(ConfigurationValueMapperProvider mapperProvider);
 		
+		/**
+		 * Sets either a simple key-value pair (foo=bar) or an entry in a child-configuration (full.qualified.foo=bar).
+		 * 
+		 * @param key simple or full-qualified key, cannot be empty or <code>null</code>
+		 * @param value the value to set, cannot be <code>null</code>
+		 * @return this builder
+		 */
 		public Builder set(String key, String value);
 		
+		/**
+		 * Sets many entries at once.
+		 * 
+		 * @param properties the key-value pairs
+		 * @return this builder
+		 * @see #set(String, String)
+		 */
 		public Builder setAll(XGettingCollection<KeyValue<String, String>> properties);
 
+		/**
+		 * Sets many entries at once.
+		 * 
+		 * @param properties the key-value pairs
+		 * @return this builder
+		 * @see #set(String, String)
+		 */
 		@SuppressWarnings("unchecked")
 		public Builder setAll(KeyValue<String, String>... properties);
 		
+		/**
+		 * Creates a builder for a child configuration.
+		 * 
+		 * @param key the key for the child configuration
+		 * @return a new builder
+		 * @see #child(String, Consumer)
+		 */
 		public Builder child(String key);
 		
+		/**
+		 * Creates a child configuration.
+		 * 
+		 * @param key the key for the child configuration
+		 * @param childBuilder the builder consumer for method chaining
+		 * @return this builder
+		 */
+		public default Builder child(final String key, final Consumer<Builder> childBuilder)
+		{
+			childBuilder.accept(this.child(key));
+			return this;
+		}
+		
+		/**
+		 * Finishes the building and returns the resulting {@link Configuration}.
+		 * 
+		 * @return the {@link Configuration} with all values and child-configurations from this builder
+		 */
 		public Configuration buildConfiguration();
 		
 		
@@ -177,130 +365,334 @@ public interface Configuration
 	}
 	
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link Builder}.
+	 * 
+	 * @return a new builder
+	 */
 	public static Builder Builder()
 	{
 		return new Builder.Default();
 	}
-	
-	public static Builder Builder(
-		final ConfigurationLoader loader,
-		final ConfigurationParser parser
-	)
-	{
-		return parser.parseConfiguration(loader.loadConfiguration());
-	}
 
-	
+	/**
+	 * Convenience method to load a configuration from an external source.
+	 * <p>
+	 * This is shortcut for
+	 * <pre>Configuration.Builder().load(loader, parser).buildConfiguration()</pre>
+	 * 
+	 * @param loader the loader to retrieve the input
+	 * @param parser the parser to parse the input
+	 * @return the created configuration
+	 */
 	public static Configuration Load(
 		final ConfigurationLoader loader,
 		final ConfigurationParser parser
 	)
 	{
-		return Builder(loader, parser).buildConfiguration();
+		return Builder().load(loader, parser).buildConfiguration();
 	}
 	
-	
+	/**
+	 * Gets the assigned value of the specified key,
+	 * or <code>null</code> if the configuration doesn't contain the key.
+	 * 
+	 * @param key the key to look up
+	 * @return the assigned value, or <code>null</code>
+	 */
 	public String get(String key);
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Boolean},
+	 * or <code>null</code> if the configuration doesn't contain the key.
+	 * <p>
+	 * The String value is parsed according to {@link Boolean#parseBoolean(String)}.
+	 * 
+	 * @param key the key to look up
+	 * @return the assigned value, or <code>null</code>
+	 */
 	public default Boolean getBoolean(final String key)
 	{
 		return this.get(key, Boolean.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Byte},
+	 * or <code>null</code> if the configuration doesn't contain the key.
+	 * <p>
+	 * The String value is parsed according to {@link Byte#parseByte(String)}.
+	 * 
+	 * @param key the key to look up
+	 * @return the assigned value, or <code>null</code>
+	 */
 	public default Byte getByte(final String key)
 	{
 		return this.get(key, Byte.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Short},
+	 * or <code>null</code> if the configuration doesn't contain the key.
+	 * <p>
+	 * The String value is parsed according to {@link Short#parseShort(String)}.
+	 * 
+	 * @param key the key to look up
+	 * @return the assigned value, or <code>null</code>
+	 */
 	public default Short getShort(final String key)
 	{
 		return this.get(key, Short.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Integer},
+	 * or <code>null</code> if the configuration doesn't contain the key.
+	 * <p>
+	 * The String value is parsed according to {@link Integer#parseInteger(String)}.
+	 * 
+	 * @param key the key to look up
+	 * @return the assigned value, or <code>null</code>
+	 */
 	public default Integer getInteger(final String key)
 	{
 		return this.get(key, Integer.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Long},
+	 * or <code>null</code> if the configuration doesn't contain the key.
+	 * <p>
+	 * The String value is parsed according to {@link Long#parseLong(String)}.
+	 * 
+	 * @param key the key to look up
+	 * @return the assigned value, or <code>null</code>
+	 */
 	public default Long getLong(final String key)
 	{
 		return this.get(key, Long.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Float},
+	 * or <code>null</code> if the configuration doesn't contain the key.
+	 * <p>
+	 * The String value is parsed according to {@link Float#parseFloat(String)}.
+	 * 
+	 * @param key the key to look up
+	 * @return the assigned value, or <code>null</code>
+	 */
 	public default Float getFloat(final String key)
 	{
 		return this.get(key, Float.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Double},
+	 * or <code>null</code> if the configuration doesn't contain the key.
+	 * <p>
+	 * The String value is parsed according to {@link Double#parseDouble(String)}.
+	 * 
+	 * @param key the key to look up
+	 * @return the assigned value, or <code>null</code>
+	 */
 	public default Double getDouble(final String key)
 	{
 		return this.get(key, Double.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key.
+	 * or <code>null</code> if the configuration doesn't contain the key.
+	 * <p>
+	 * The String value is parsed by the registered {@link ConfigurationValueMapper} for the specified type.
+	 * 
+	 * @param key the key to look up
+	 * @param type the type to map to
+	 * @return the assigned value, or <code>null</code>
+	 * @throws ConfigurationExceptionNoValueMapperFound if no {@link ConfigurationValueMapper} is found for the type
+	 * @throws ConfigurationExceptionValueMappingFailed if the mapping to the target type fails
+	 */
 	public <T> T get(String key, Class<T> type);
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Optional},
+	 * which is empty if the configuration doesn't contain the key.
+	 * 
+	 * @param key the key to look up
+	 * @return a filled or empty {@link Optional}
+	 */
 	public default Optional<String> opt(final String key)
 	{
 		return Optional.ofNullable(this.get(key));
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Optional},
+	 * which is empty if the configuration doesn't contain the key.
+	 * 
+	 * @param key the key to look up
+	 * @return a filled or empty {@link Optional}
+	 * @see #getBoolean(String)
+	 */
 	public default Optional<Boolean> optBoolean(final String key)
 	{
 		return this.opt(key, Boolean.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Optional},
+	 * which is empty if the configuration doesn't contain the key.
+	 * 
+	 * @param key the key to look up
+	 * @return a filled or empty {@link Optional}
+	 * @see #getByte(String)
+	 */
 	public default Optional<Byte> optByte(final String key)
 	{
 		return this.opt(key, Byte.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Optional},
+	 * which is empty if the configuration doesn't contain the key.
+	 * 
+	 * @param key the key to look up
+	 * @return a filled or empty {@link Optional}
+	 * @see #getShort(String)
+	 */
 	public default Optional<Short> optShort(final String key)
 	{
 		return this.opt(key, Short.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Optional},
+	 * which is empty if the configuration doesn't contain the key.
+	 * 
+	 * @param key the key to look up
+	 * @return a filled or empty {@link Optional}
+	 * @see #getInteger(String)
+	 */
 	public default Optional<Integer> optInteger(final String key)
 	{
 		return this.opt(key, Integer.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Optional},
+	 * which is empty if the configuration doesn't contain the key.
+	 * 
+	 * @param key the key to look up
+	 * @return a filled or empty {@link Optional}
+	 * @see #getLong(String)
+	 */
 	public default Optional<Long> optLong(final String key)
 	{
 		return this.opt(key, Long.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Optional},
+	 * which is empty if the configuration doesn't contain the key.
+	 * 
+	 * @param key the key to look up
+	 * @return a filled or empty {@link Optional}
+	 * @see #getFloat(String)
+	 */
 	public default Optional<Float> optFloat(final String key)
 	{
 		return this.opt(key, Float.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Optional},
+	 * which is empty if the configuration doesn't contain the key.
+	 * 
+	 * @param key the key to look up
+	 * @return a filled or empty {@link Optional}
+	 * @see #getDouble(String)
+	 */
 	public default Optional<Double> optDouble(final String key)
 	{
 		return this.opt(key, Double.class);
 	}
 	
+	/**
+	 * Gets the assigned value of the specified key as {@link Optional},
+	 * which is empty if the configuration doesn't contain the key.
+	 * 
+	 * @param key the key to look up
+	 * @param type the type to map to
+	 * @return a filled or empty {@link Optional}
+	 * @see #get(String, Class)
+	 * @throws ConfigurationExceptionNoValueMapperFound if no {@link ConfigurationValueMapper} is found for the type
+	 * @throws ConfigurationExceptionValueMappingFailed if the mapping to the target type fails
+	 */
 	public default <T> Optional<T> opt(final String key, final Class<T> type)
 	{
 		return Optional.ofNullable(this.get(key, type));
 	}
 	
+	/**
+	 * Checks if this configuration contains the specified key.
+	 * 
+	 * @param key the key to look up
+	 * @return <code>true</code> if this configuration contains the key, <code>false</code> otherwise
+	 */
 	public boolean contains(String key);
 	
+	/**
+	 * Gets the key of this child-configuration or <code>null</code> if this is the root configuration.
+	 * 
+	 * @return this child-configuration's key
+	 */
 	public String key();
 	
+	/**
+	 * Gets all keys of this configuration, but not of the child-configurations.
+	 * 
+	 * @return an iterable with all keys
+	 */
 	public Iterable<String> keys();
 	
+	/**
+	 * Gets the assigned child-configuration of the specified key,
+	 * or <code>null</code> if the configuration doesn't contain the key.
+	 * 
+	 * @param key the key to look up
+	 * @return the assigned child-configuration, or <code>null</code>
+	 */
 	public Configuration child(String key);
 	
+	/**
+	 * Gets all direct child-configurations.
+	 * 
+	 * @return all child-configurations
+	 */
 	public Iterable<? extends Configuration> children();
 		
+	/**
+	 * Gets this configuration's parent, or <code>null</code> if this is the root configuration.
+	 * 
+	 * @return the parent or <code>null</code>
+	 */
 	public Configuration parent();
 	
+	/**
+	 * Checks if this configuration is the root, meaning it has no parent.
+	 * 
+	 * @return <code>true</code> if this configuration is the root, <code>false</code> otherwise
+	 */
 	public default boolean isRoot()
 	{
 		return this.parent() == null;
 	}
 	
+	/**
+	 * Gets the root configuration, which may be this.
+	 * 
+	 * @return the configuration's root
+	 */
 	public default Configuration root()
 	{
 		Configuration root = this;
@@ -312,20 +704,67 @@ public interface Configuration
 		return root;
 	}
 	
+	/**
+	 * Traverses this and all child-configurations recursively.
+	 * 
+	 * @param consumer the consumer to accept all configurations
+	 */
 	public void traverse(Consumer<Configuration> consumer);
 
+	/**
+	 * Converts all entries of this configuration to a table.
+	 * 
+	 * @return a table containing all entries of this configurations
+	 * @see #coalescedTable()
+	 */
 	public XGettingTable<String, String> table();
 	
+	/**
+	 * Converts all entries of this configuration and all child-configurations recursively to a table.
+	 * 
+	 * @return a table containing all entries of this and all child-configurations
+	 */
 	public XGettingTable<String, String> coalescedTable();
 	
+	/**
+	 * Converts all entries of this configuration to a map.
+	 * 
+	 * @return a map containing all entries of this configurations
+	 * @see #coalescedMap()
+	 */
 	public Map<String, String> map();
 	
+	/**
+	 * Converts all entries of this configuration and all child-configurations recursively to a map.
+	 * 
+	 * @return a map containing all entries of this and all child-configurations
+	 */
 	public Map<String, String> coalescedMap();
 	
+	/**
+	 * Gets the value mapper provider which is assigned to this configuration.
+	 * 
+	 * @return the assigned value mapper
+	 * @see #get(String, Class)
+	 */
 	public ConfigurationValueMapperProvider mapperProvider();
 	
+	/**
+	 * Creates a new Configuration instance with all entries and child-configurations of this configuration,
+	 * but with no parent, which makes it a root configuration.
+	 * <p>
+	 * The original configuration (this) remains untouched.
+	 * 
+	 * @return a new, detached configuration
+	 */
 	public Configuration detach();
 	
+	/**
+	 * Stores this configuration to an external target.
+	 * 
+	 * @param storer the storer to write to
+	 * @param assembler the assembler for the desired format
+	 */
 	public default void store(
 		final ConfigurationStorer    storer   ,
 		final ConfigurationAssembler assembler

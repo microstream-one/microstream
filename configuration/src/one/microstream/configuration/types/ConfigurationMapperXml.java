@@ -10,8 +10,17 @@ import org.w3c.dom.Text;
 import one.microstream.chars.XChars;
 import one.microstream.configuration.types.Configuration.Builder;
 
+/**
+ * Mapper which maps entries from a XML {@link Element} to a {@link Configuration#Builder()}.
+ *
+ */
 public interface ConfigurationMapperXml extends ConfigurationMapper<Element>
 {
+	/**
+	 * Pseudo-constructor to create a new mapper.
+	 * 
+	 * @return a new mapper
+	 */
 	public static ConfigurationMapperXml New()
 	{
 		return new ConfigurationMapperXml.Default();

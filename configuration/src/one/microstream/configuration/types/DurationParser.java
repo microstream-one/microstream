@@ -7,9 +7,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
+/**
+ * Parser for {@link Duration}s out of textual representation.
+ * 
+ */
 @FunctionalInterface
 public interface DurationParser
 {
+	/**
+	 * Tries to parse a {@link Duration} out of <code>text</code>.
+	 * It usually consists of an amount and an unit, e.g. <code>"1S"</code>
+	 * or the ISO format, as described here {@link Duration#parse(CharSequence)}.
+	 * 
+	 * @param text the textual input
+	 * @return the parsed {@link Duration}
+	 * @throws IllegalArgumentException if the text couldn't be parsed to a {@link Duration}
+	 * @see DurationUnit
+	 */
 	public Duration parse(String text);
 	
 	

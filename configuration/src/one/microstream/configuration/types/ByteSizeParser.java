@@ -5,17 +5,41 @@ import static one.microstream.X.notNull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Parser for {@link ByteSize}s out of textual representation.
+ * 
+ */
 @FunctionalInterface
 public interface ByteSizeParser
 {
+	/**
+	 * Tries to parse a {@link ByteSize} out of <code>text</code>.
+	 * It usually consists of an amount and an unit, e.g. <code>"1MB"</code> or <code>"1.2 GB"</code>.
+	 * 
+	 * @param text the textual input
+	 * @return the parsed {@link ByteSize}
+	 * @throws IllegalArgumentException if the text couldn't be parsed to a {@link ByteSize}
+	 * @see ByteSize
+	 * @see ByteUnit
+	 */
 	public ByteSize parse(String text);
 	
 	
+	/**
+	 * Preudo-constructor method to create a new {@link ByteSizeParser}.
+	 * @return a new {@link ByteSizeParser}
+	 */
 	public static ByteSizeParser New()
 	{
 		return new ByteSizeParser.Default(ByteUnit.B);
 	}
 		
+	/**
+	 * Preudo-constructor method to create a new {@link ByteSizeParser}.
+	 * 
+	 * @param defaultUnit the default unit which is used if no unit is given in the input
+	 * @return a new {@link ByteSizeParser}
+	 */
 	public static ByteSizeParser New(
 		final ByteUnit defaultUnit
 	)

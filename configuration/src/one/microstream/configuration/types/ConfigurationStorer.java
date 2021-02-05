@@ -17,12 +17,30 @@ import java.nio.file.Path;
 
 import one.microstream.exceptions.IORuntimeException;
 
+/**
+ * Storer which exports configuration data to external targets.
+ *
+ * @see Configuration#store(ConfigurationStorer, ConfigurationAssembler)
+ */
 @FunctionalInterface
 public interface ConfigurationStorer
 {
+	/**
+	 * Stores the configuration data to an external target.
+	 * 
+	 * @param configurationData the data to export
+	 */
 	public void storeConfiguration(String configurationData);
 	
 
+	/**
+	 * Pseudo-constructor method to create a new {@link ConfigurationStorer}.
+	 * 
+	 * @param path the target path
+	 * @return a new {@link ConfigurationStorer}
+	 * @see #New(Path, Charset)
+	 * @see Defaults#defaultCharset()
+	 */
 	public static ConfigurationStorer New(
 		final Path path
 	)
@@ -33,6 +51,13 @@ public interface ConfigurationStorer
 		);
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link ConfigurationStorer}.
+	 * 
+	 * @param path the target path
+	 * @param charset the charset to use to convert the configuration data into binary form
+	 * @return a new {@link ConfigurationStorer}
+	 */
 	public static ConfigurationStorer New(
 		final Path    path   ,
 		final Charset charset
@@ -44,6 +69,14 @@ public interface ConfigurationStorer
 		);
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link ConfigurationStorer}.
+	 * 
+	 * @param file the target file
+	 * @return a new {@link ConfigurationStorer}
+	 * @see #New(File, Charset)
+	 * @see Defaults#defaultCharset()
+	 */
 	public static ConfigurationStorer New(
 		final File file
 	)
@@ -54,6 +87,13 @@ public interface ConfigurationStorer
 		);
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link ConfigurationStorer}.
+	 * 
+	 * @param file the target file
+	 * @param charset the charset to use to convert the configuration data into binary form
+	 * @return a new {@link ConfigurationStorer}
+	 */
 	public static ConfigurationStorer New(
 		final File    file   ,
 		final Charset charset
@@ -65,6 +105,14 @@ public interface ConfigurationStorer
 		);
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link ConfigurationStorer}.
+	 * 
+	 * @param url the target url
+	 * @return a new {@link ConfigurationStorer}
+	 * @see #New(URL, Charset)
+	 * @see Defaults#defaultCharset()
+	 */
 	public static ConfigurationStorer New(
 		final URL url
 	)
@@ -75,6 +123,13 @@ public interface ConfigurationStorer
 		);
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link ConfigurationStorer}.
+	 * 
+	 * @param url the target url
+	 * @param charset the charset to use to convert the configuration data into binary form
+	 * @return a new {@link ConfigurationStorer}
+	 */
 	public static ConfigurationStorer New(
 		final URL     url    ,
 		final Charset charset
@@ -86,6 +141,14 @@ public interface ConfigurationStorer
 		);
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link ConfigurationStorer}.
+	 * 
+	 * @param outputStream the target output stream
+	 * @return a new {@link ConfigurationStorer}
+	 * @see #New(OutputStream, Charset)
+	 * @see Defaults#defaultCharset()
+	 */
 	public static ConfigurationStorer New(
 		final OutputStream outputStream
 	)
@@ -96,6 +159,13 @@ public interface ConfigurationStorer
 		);
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link ConfigurationStorer}.
+	 * 
+	 * @param outputStream the target output stream
+	 * @param charset the charset to use to convert the configuration data into binary form
+	 * @return a new {@link ConfigurationStorer}
+	 */
 	public static ConfigurationStorer New(
 		final OutputStream outputStream,
 		final Charset      charset
@@ -110,6 +180,9 @@ public interface ConfigurationStorer
 	
 	public static interface Defaults
 	{
+		/**
+		 * @return the default charset (UTF-8) which is used to convert the configuration data into binary form
+		 */
 		public static Charset defaultCharset()
 		{
 			return StandardCharsets.UTF_8;
