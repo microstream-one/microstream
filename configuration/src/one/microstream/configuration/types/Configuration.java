@@ -61,11 +61,11 @@ import one.microstream.util.cql.CQL;
  * <p>
  * Custom value mappers can be used as well, of course.
  * <pre>
- * ConfigurationValueMapperProvider mapperProvider = ConfigurationValueMapperProvider.Default()
+ * ConfigurationValueMapperProvider valueMapperProvider = ConfigurationValueMapperProvider.Default()
  * 	.add(new MyValueMapper())
  * 	.build();
  * Configuration configuration = Configuration.Builder()
- * 	.mapperProvider(mapperProvider)
+ * 	.valueMapperProvider(valueMapperProvider)
  * 	.build();
  * 
  * boolean production = configuration.getBoolean("microstream.production");
@@ -163,10 +163,10 @@ public interface Configuration
 		 * Sets the {@link ConfigurationValueMapperProvider}.
 		 * Use this method to insert user-defined value mappers.
 		 * 
-		 * @param mapperProvider the new mapper provider
+		 * @param valueMapperProvider the new mapper provider
 		 * @return this builder
 		 */
-		public Builder mapperProvider(ConfigurationValueMapperProvider mapperProvider);
+		public Builder valueMapperProvider(ConfigurationValueMapperProvider valueMapperProvider);
 		
 		/**
 		 * Sets either a simple key-value pair (foo=bar) or an entry in a child-configuration (full.qualified.foo=bar).
@@ -228,8 +228,8 @@ public interface Configuration
 		
 		public static class Default implements Builder
 		{
-			private final String                               key;
-			private       ConfigurationValueMapperProvider     mapperProvider;
+			private final String                               key                           ;
+			private       ConfigurationValueMapperProvider     valueMapperProvider           ;
 			private final EqHashTable<String, Builder.Default> children   = EqHashTable.New();
 			private final EqHashTable<String, String>          properties = EqHashTable.New();
 			
@@ -259,11 +259,11 @@ public interface Configuration
 			}
 
 			@Override
-			public Builder mapperProvider(
-				final ConfigurationValueMapperProvider mapperProvider
+			public Builder valueMapperProvider(
+				final ConfigurationValueMapperProvider valueMapperProvider
 			)
 			{
-				this.mapperProvider = mapperProvider;
+				this.valueMapperProvider = valueMapperProvider;
 				
 				return this;
 			}
@@ -337,8 +337,8 @@ public interface Configuration
 			@Override
 			public Configuration.Default buildConfiguration()
 			{
-				final ConfigurationValueMapperProvider mapperProvider = this.mapperProvider != null
-					? this.mapperProvider
+				final ConfigurationValueMapperProvider valueMapperProvider = this.valueMapperProvider != null
+					? this.valueMapperProvider
 					: ConfigurationValueMapperProvider.Default().build()
 				;
 				
@@ -349,10 +349,10 @@ public interface Configuration
 				;
 				
 				final Configuration.Default config = new Configuration.Default(
-					this.key,
-					children.immure(),
+					this.key                ,
+					children.immure()       ,
 					this.properties.immure(),
-					mapperProvider
+					valueMapperProvider
 				);
 				
 				children.values().iterate(child -> child.setParent(config));
@@ -712,32 +712,36 @@ public interface Configuration
 	public void traverse(Consumer<Configuration> consumer);
 
 	/**
-	 * Converts all entries of this configuration to a table.
+	 * Converts all entries of this configuration to a {@link XGettingTable}.
 	 * 
-	 * @return a table containing all entries of this configurations
+	 * @return a {@link XGettingTable} containing all entries of this configurations
 	 * @see #coalescedTable()
 	 */
 	public XGettingTable<String, String> table();
 	
 	/**
-	 * Converts all entries of this configuration and all child-configurations recursively to a table.
+	 * Converts all entries of this configuration and all child-configurations recursively to a {@link XGettingTable}.
 	 * 
-	 * @return a table containing all entries of this and all child-configurations
+	 * @return a {@link XGettingTable} containing all entries of this and all child-configurations
 	 */
 	public XGettingTable<String, String> coalescedTable();
 	
 	/**
-	 * Converts all entries of this configuration to a map.
+	 * Converts all entries of this configuration to a {@link Map}.
+	 * <p>
+	 * Because configurations are immutable, changes made in the resulting map will not reflect back.
 	 * 
-	 * @return a map containing all entries of this configurations
+	 * @return a {@link Map} containing all entries of this configurations
 	 * @see #coalescedMap()
 	 */
 	public Map<String, String> map();
 	
 	/**
-	 * Converts all entries of this configuration and all child-configurations recursively to a map.
+	 * Converts all entries of this configuration and all child-configurations recursively to a {@link Map}.
+	 * <p>
+	 * Because configurations are immutable, changes made in the resulting map will not reflect back.
 	 * 
-	 * @return a map containing all entries of this and all child-configurations
+	 * @return a {@link Map} containing all entries of this and all child-configurations
 	 */
 	public Map<String, String> coalescedMap();
 	
@@ -747,7 +751,7 @@ public interface Configuration
 	 * @return the assigned value mapper
 	 * @see #get(String, Class)
 	 */
-	public ConfigurationValueMapperProvider mapperProvider();
+	public ConfigurationValueMapperProvider valueMapperProvider();
 	
 	/**
 	 * Creates a new Configuration instance with all entries and child-configurations of this configuration,
@@ -778,25 +782,25 @@ public interface Configuration
 	
 	public static class Default implements Configuration
 	{
-		private final String                                         key           ;
-		private       Configuration                                  parent        ;
-		private final XGettingTable<String, ? extends Configuration> children      ;
-		private final XGettingTable<String, String>                  properties    ;
-		private final ConfigurationValueMapperProvider               mapperProvider;
-		private       XGettingTable<String, String>                  coalescedTable;
+		private final              String                                         key                ;
+		private                    Configuration                                  parent             ;
+		private final              XGettingTable<String, ? extends Configuration> children           ;
+		private final              XGettingTable<String, String>                  properties         ;
+		private final              ConfigurationValueMapperProvider               valueMapperProvider;
+		private transient volatile XGettingTable<String, String>                  coalescedTable     ;
 		
 		Default(
-			final String                                         key           ,
-			final XGettingTable<String, ? extends Configuration> children      ,
-			final XGettingTable<String, String>                  properties    ,
-			final ConfigurationValueMapperProvider               mapperProvider
+			final String                                         key                ,
+			final XGettingTable<String, ? extends Configuration> children           ,
+			final XGettingTable<String, String>                  properties         ,
+			final ConfigurationValueMapperProvider               valueMapperProvider
 		)
 		{
 			super();
-			this.key            = key           ;
-			this.children       = children      ;
-			this.properties     = properties    ;
-			this.mapperProvider = mapperProvider;
+			this.key                 = key                ;
+			this.children            = children           ;
+			this.properties          = properties         ;
+			this.valueMapperProvider = valueMapperProvider;
 		}
 		
 		void setParent(final Configuration parent)
@@ -858,7 +862,7 @@ public interface Configuration
 				return null;
 			}
 			
-			final ConfigurationValueMapper<T> mapper = this.mapperProvider.get(type);
+			final ConfigurationValueMapper<T> mapper = this.valueMapperProvider.get(type);
 			if(mapper == null)
 			{
 				throw new ConfigurationExceptionNoValueMapperFound(this, type);
@@ -915,52 +919,68 @@ public interface Configuration
 		}
 		
 		@Override
-		public synchronized XGettingTable<String, String> coalescedTable()
+		public XGettingTable<String, String> coalescedTable()
 		{
-			if(this.coalescedTable == null)
+			/*
+			 * Double-checked locking to reduce the overhead of acquiring a lock
+			 * by testing the locking criterion.
+			 */
+			XGettingTable<String, String> coalescedTable;
+			if((coalescedTable = this.coalescedTable) == null)
 			{
-				final EqHashTable<String, String> coalescedTable = EqHashTable.New();
-				
-				if(this.key == null)
+				synchronized(this)
 				{
-					coalescedTable.putAll(this.properties);
-				}
-				else
-				{
-					this.properties.iterate(kv ->
+					if((coalescedTable = this.coalescedTable) == null)
 					{
-						coalescedTable.put(
-							VarString.New()
-								.add(this.key)
-								.add(KEY_SEPARATOR)
-								.add(kv.key())
-								.toString(),
-							kv.value()
-						);
-					});
+						coalescedTable = this.coalescedTable = this.createCoalescedTable();
+					}
 				}
-				
-				this.children.values().iterate(child ->
-				{
-					final XGettingTable<String, String> childTable = child.coalescedTable();
-					childTable.iterate(kv ->
-					{
-						final String coalescedKey = this.key == null
-							? kv.key()
-							: VarString.New()
-								.add(this.key)
-								.add(KEY_SEPARATOR)
-								.add(kv.key())
-								.toString()
-						;
-						coalescedTable.put(coalescedKey, kv.value());
-					});
-				});
-				
-				this.coalescedTable = coalescedTable.immure();
 			}
 			
-			return this.coalescedTable;
+			return coalescedTable;
+		}
+		
+		private XGettingTable<String, String> createCoalescedTable()
+		{
+			final EqHashTable<String, String> coalescedTable = EqHashTable.New();
+			
+			if(this.key == null)
+			{
+				coalescedTable.putAll(this.properties);
+			}
+			else
+			{
+				this.properties.iterate(kv ->
+				{
+					coalescedTable.put(
+						VarString.New()
+							.add(this.key)
+							.add(KEY_SEPARATOR)
+							.add(kv.key())
+							.toString(),
+						kv.value()
+					);
+				});
+			}
+			
+			this.children.values().iterate(child ->
+			{
+				final XGettingTable<String, String> childTable = child.coalescedTable();
+				childTable.iterate(kv ->
+				{
+					final String coalescedKey = this.key == null
+						? kv.key()
+						: VarString.New()
+							.add(this.key)
+							.add(KEY_SEPARATOR)
+							.add(kv.key())
+							.toString()
+					;
+					coalescedTable.put(coalescedKey, kv.value());
+				});
+			});
+			
+			return coalescedTable.immure();
 		}
 		
 		@Override
@@ -983,19 +1003,19 @@ public interface Configuration
 		}
 		
 		@Override
-		public ConfigurationValueMapperProvider mapperProvider()
+		public ConfigurationValueMapperProvider valueMapperProvider()
 		{
-			return this.mapperProvider;
+			return this.valueMapperProvider;
 		}
 		
 		@Override
 		public Configuration detach()
 		{
 			return new Configuration.Default(
-				this.key,
-				this.children,
-				this.properties,
-				this.mapperProvider
+				this.key                ,
+				this.children           ,
+				this.properties         ,
+				this.valueMapperProvider
 			);
 		}
 		

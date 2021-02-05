@@ -258,11 +258,11 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 		// ############################
 		
 		@Override
-		public EmbeddedStorageConfigurationBuilder mapperProvider(
-			final ConfigurationValueMapperProvider mapperProvider
+		public EmbeddedStorageConfigurationBuilder valueMapperProvider(
+			final ConfigurationValueMapperProvider valueMapperProvider
 		)
 		{
-			this.delegate.mapperProvider(mapperProvider);
+			this.delegate.valueMapperProvider(valueMapperProvider);
 			return this;
 		}
 
