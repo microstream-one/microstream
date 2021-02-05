@@ -7,8 +7,17 @@ import java.util.Map;
 
 import one.microstream.configuration.types.Configuration.Builder;
 
+/**
+ * INI format parser for configurations.
+ * 
+ */
 public interface ConfigurationParserIni extends ConfigurationParser
 {
+	/**
+	 * Pseudo-constructor to create a new INI parser.
+	 * 
+	 * @return a new INI parser
+	 */
 	public static ConfigurationParserIni New()
 	{
 		return new ConfigurationParserIni.Default(
@@ -16,6 +25,11 @@ public interface ConfigurationParserIni extends ConfigurationParser
 		);
 	}
 	
+	/**
+	 * Pseudo-constructor to create a new INI parser.
+	 * 
+	 * @return a new INI parser
+	 */
 	public static ConfigurationParserIni New(
 		final ConfigurationMapperMap mapper
 	)

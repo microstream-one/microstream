@@ -103,6 +103,12 @@ public enum ByteUnit
 		this.names  = names;
 	}
 	
+	/**
+	 * Returns the number of bytes, which this unit multiplied by <code>value</code> yield
+	 * 
+	 * @param value
+	 * @return
+	 */
 	public long toBytes(
 		final double value
 	)

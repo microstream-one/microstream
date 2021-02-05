@@ -19,8 +19,18 @@ import org.w3c.dom.Element;
 import one.microstream.chars.VarString;
 import one.microstream.configuration.exceptions.ConfigurationException;
 
+/**
+ * Assembler for configurations to export to XML format.
+ * 
+ * @see Configuration#store(ConfigurationStorer, ConfigurationAssembler)
+ */
 public interface ConfigurationAssemblerXml extends ConfigurationAssembler
 {
+	/**
+	 * Pseudo-constructor to create a new XML assembler.
+	 * 
+	 * @return a new XML assembler
+	 */
 	public static ConfigurationAssemblerXml New()
 	{
 		return new ConfigurationAssemblerXml.Default();

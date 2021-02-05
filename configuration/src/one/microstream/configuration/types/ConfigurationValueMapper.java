@@ -4,6 +4,8 @@ import static one.microstream.X.notNull;
 
 import java.time.Duration;
 
+import one.microstream.configuration.exceptions.ConfigurationExceptionValueMappingFailed;
+
 public interface ConfigurationValueMapper<T> extends ConfigurationValueMappingFunction<T>
 {
 	public Class<T> type();
@@ -21,38 +23,108 @@ public interface ConfigurationValueMapper<T> extends ConfigurationValueMappingFu
 	
 	public static ConfigurationValueMapper<Byte> Byte()
 	{
-		return New(Byte.class, (config, key, value) -> Byte.parseByte(value));
+		return New(Byte.class, (config, key, value) ->
+		{
+			try
+			{
+				return Byte.parseByte(value);
+			}
+			catch(final NumberFormatException e)
+			{
+				throw new ConfigurationExceptionValueMappingFailed(config, e, key, value);
+			}
+		});
 	}
 	
 	public static ConfigurationValueMapper<Short> Short()
 	{
-		return New(Short.class, (config, key, value) -> Short.parseShort(value));
+		return New(Short.class, (config, key, value) ->
+		{
+			try
+			{
+				return Short.parseShort(value);
+			}
+			catch(final NumberFormatException e)
+			{
+				throw new ConfigurationExceptionValueMappingFailed(config, e, key, value);
+			}
+		});
 	}
 	
 	public static ConfigurationValueMapper<Integer> Integer()
 	{
-		return New(Integer.class, (config, key, value) -> Integer.parseInt(value));
+		return New(Integer.class, (config, key, value) ->
+		{
+			try
+			{
+				return Integer.parseInt(value);
+			}
+			catch(final NumberFormatException e)
+			{
+				throw new ConfigurationExceptionValueMappingFailed(config, e, key, value);
+			}
+		});
 	}
 	
 	public static ConfigurationValueMapper<Long> Long()
 	{
-		return New(Long.class, (config, key, value) -> Long.parseLong(value));
+		return New(Long.class, (config, key, value) ->
+		{
+			try
+			{
+				return Long.parseLong(value);
+			}
+			catch(final NumberFormatException e)
+			{
+				throw new ConfigurationExceptionValueMappingFailed(config, e, key, value);
+			}
+		});
 	}
 	
 	public static ConfigurationValueMapper<Float> Float()
 	{
-		return New(Float.class, (config, key, value) -> Float.parseFloat(value));
+		return New(Float.class, (config, key, value) ->
+		{
+			try
+			{
+				return Float.parseFloat(value);
+			}
+			catch(final NumberFormatException e)
+			{
+				throw new ConfigurationExceptionValueMappingFailed(config, e, key, value);
+			}
+		});
 	}
 	
 	public static ConfigurationValueMapper<Double> Double()
 	{
-		return New(Double.class, (config, key, value) -> Double.parseDouble(value));
+		return New(Double.class, (config, key, value) ->
+		{
+			try
+			{
+				return Double.parseDouble(value);
+			}
+			catch(final NumberFormatException e)
+			{
+				throw new ConfigurationExceptionValueMappingFailed(config, e, key, value);
+			}
+		});
 	}
 	
 	public static ConfigurationValueMapper<ByteSize> ByteSize()
 	{
 		final ByteSizeParser parser = ByteSizeParser.New();
-		return New(ByteSize.class, (config, key,value) -> parser.parse(value));
+		return New(ByteSize.class, (config, key,value) ->
+		{
+			try
+			{
+				return parser.parse(value);
+			}
+			catch(final Exception e)
+			{
+				throw new ConfigurationExceptionValueMappingFailed(config, e, key, value);
+			}
+		});
 	}
 	
 	public static ConfigurationValueMapper<ByteSize> ByteSize(
@@ -60,13 +132,33 @@ public interface ConfigurationValueMapper<T> extends ConfigurationValueMappingFu
 	)
 	{
 		final ByteSizeParser parser = ByteSizeParser.New(defaultUnit);
-		return New(ByteSize.class, (config, key,value) -> parser.parse(value));
+		return New(ByteSize.class, (config, key,value) ->
+		{
+			try
+			{
+				return parser.parse(value);
+			}
+			catch(final Exception e)
+			{
+				throw new ConfigurationExceptionValueMappingFailed(config, e, key, value);
+			}
+		});
 	}
 	
 	public static ConfigurationValueMapper<Duration> Duration()
 	{
 		final DurationParser parser = DurationParser.New();
-		return New(Duration.class, (config, key,value) -> parser.parse(value));
+		return New(Duration.class, (config, key,value) ->
+		{
+			try
+			{
+				return parser.parse(value);
+			}
+			catch(final Exception e)
+			{
+				throw new ConfigurationExceptionValueMappingFailed(config, e, key, value);
+			}
+		});
 	}
 	
 	public static ConfigurationValueMapper<Duration> Duration(
@@ -74,7 +166,17 @@ public interface ConfigurationValueMapper<T> extends ConfigurationValueMappingFu
 	)
 	{
 		final DurationParser parser = DurationParser.New(defaultUnit);
-		return New(Duration.class, (config, key,value) -> parser.parse(value));
+		return New(Duration.class, (config, key,value) ->
+		{
+			try
+			{
+				return parser.parse(value);
+			}
+			catch(final Exception e)
+			{
+				throw new ConfigurationExceptionValueMappingFailed(config, e, key, value);
+			}
+		});
 	}
 	
 	
