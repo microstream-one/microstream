@@ -346,6 +346,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		@Override
 		public final boolean shutdown()
 		{
+			LazyReferenceManager.get().removeController(this);
 			return this.storageSystem.shutdown();
 		}
 
