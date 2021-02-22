@@ -7,8 +7,19 @@ import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.XChars;
 import one.microstream.configuration.types.Configuration;
 
+/**
+ * Creator for a storage foundation, based on a configuration.
+ * 
+ * @since 04.02.00
+ *
+ */
 public interface EmbeddedStorageFoundationCreatorConfigurationBased extends EmbeddedStorageFoundation.Creator
 {
+	/**
+	 * Pseudo-constructor method to create a new foundation creator.
+	 * @param configuration the configuration the foundation will be based on
+	 * @return a new foundation creator
+	 */
 	public static EmbeddedStorageFoundationCreatorConfigurationBased New(
 		final Configuration configuration
 	)

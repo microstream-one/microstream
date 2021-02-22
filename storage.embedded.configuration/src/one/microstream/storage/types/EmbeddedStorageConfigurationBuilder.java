@@ -10,6 +10,15 @@ import one.microstream.configuration.types.Configuration;
 import one.microstream.configuration.types.ConfigurationValueMapperProvider;
 import one.microstream.typing.KeyValue;
 
+/**
+ * A specialized {@link Configuration.Builder}, containing setter methods for
+ * properties used in storage configurations.
+ * 
+ * @see EmbeddedStorageConfiguration
+ * @see EmbeddedStorageConfigurationPropertyNames
+ * @since 04.02.00
+ *
+ */
 public interface EmbeddedStorageConfigurationBuilder extends Configuration.Builder
 {
 	/**
@@ -20,8 +29,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	/**
 	 * The base directory of the storage in the file system.
 	 *
-	 * @param storageDirectoryInUserHome
 	 *            relative location in the user home directory
+	 * @param storageDirectoryInUserHome
 	 */
 	public default EmbeddedStorageConfigurationBuilder setStorageDirectoryInUserHome(final String storageDirectoryInUserHome)
 	{
@@ -212,8 +221,14 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * @param dataFileCleanupHeadFile
 	 */
 	public EmbeddedStorageConfigurationBuilder setDataFileCleanupHeadFile(boolean dataFileCleanupHeadFile);
-	
-	
+		
+	/**
+	 * Creates an {@link EmbeddedStorageFoundation} based on the settings of this builder.
+	 *
+	 * @return an {@link EmbeddedStorageFoundation}
+	 *
+	 * @see EmbeddedStorageFoundationCreatorConfigurationBased
+	 */
 	public default EmbeddedStorageFoundation<?> createEmbeddedStorageFoundation()
 	{
 		return EmbeddedStorageFoundationCreatorConfigurationBased.New(
@@ -225,12 +240,22 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	
 	
 	
-	
+	/**
+	 * Pseude-constructor method to create a new builder.
+	 * 
+	 * @return a new {@link EmbeddedStorageConfigurationBuilder}
+	 */
 	public static EmbeddedStorageConfigurationBuilder New()
 	{
 		return new Default(Configuration.Builder());
 	}
 	
+	/**
+	 * Pseude-constructor method to create a new builder, wrapping an existing one.
+	 * 
+	 * @param delegate the delegate to wrap
+	 * @return a new {@link EmbeddedStorageConfigurationBuilder}
+	 */
 	public static EmbeddedStorageConfigurationBuilder New(
 		final Configuration.Builder delegate
 	)

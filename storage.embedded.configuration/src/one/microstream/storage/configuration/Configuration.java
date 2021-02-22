@@ -14,6 +14,7 @@ import java.time.Duration;
 
 import one.microstream.chars.XChars;
 import one.microstream.storage.exceptions.StorageConfigurationException;
+import one.microstream.storage.types.EmbeddedStorageConfiguration;
 import one.microstream.storage.types.EmbeddedStorageConfigurationBuilder;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.StorageChannelCountProvider;
@@ -27,6 +28,7 @@ import one.microstream.storage.types.StorageLiveFileProvider;
 /**
  * 
  * @deprecated replaced by {@link EmbeddedStorageConfigurationBuilder}, will be removed in a future release
+ * @see EmbeddedStorageConfiguration
  * @see one.microstream.storage.configuration
  */
 @Deprecated

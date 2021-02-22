@@ -118,7 +118,7 @@ public interface Configuration
 	/**
 	 * Builder for {@link Configuration}s.
 	 * <p>
-	 * child-configurations can be built by either using {@link #child(String)} builders,
+	 * Child-configurations can be built by either using {@link #child(String)} builders,
 	 * or with full-qualified keys, as described in {@link Configuration}.
 	 *
 	 */
