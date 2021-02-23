@@ -15,7 +15,7 @@ public class HibernateIntegrator implements Integrator
 	private static Map<String, HibernateContext> contexts = new HashMap<>();
 
 	static HibernateContext getHibernateContext(
-		final String persistenceUnit,
+		final String              persistenceUnit,
 		final Map<String, Object> properties
 	)
 	{

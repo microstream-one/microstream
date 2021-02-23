@@ -50,7 +50,19 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 	)
 	{
 		return new Default(
-			HibernateIntegrator.getHibernateContext(persistenceUnit), null
+			HibernateIntegrator.getHibernateContext(persistenceUnit),
+			null
+		);
+	}
+	
+	public static HibernateProvider New(
+		final String              persistenceUnit,
+		final Map<String, Object> properties
+	)
+	{
+		return new Default(
+			HibernateIntegrator.getHibernateContext(persistenceUnit, properties),
+			properties
 		);
 	}
 
@@ -62,7 +74,7 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 		private       Table                      dummyTable      ;
 
 		Default(
-			final HibernateContext context,
+			final HibernateContext    context   ,
 			final Map<String, Object> properties
 		)
 		{
