@@ -2,10 +2,14 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import java.util.function.Supplier;
+
 import one.microstream.afs.ADirectory;
+import one.microstream.afs.AFileSystem;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.XChars;
 import one.microstream.configuration.types.Configuration;
+import one.microstream.configuration.types.ConfigurationBasedCreator;
 
 /**
  * Creator for a storage foundation, based on a configuration.
@@ -46,8 +50,13 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 		@Override
 		public EmbeddedStorageFoundation<?> createEmbeddedStorageFoundation()
 		{
+			final AFileSystem fileSystem = this.createFileSystem(
+				STORAGE_FILESYSTEM,
+				NioFileSystem::New
+			);
+			
 			final StorageConfiguration.Builder<?> configBuilder = Storage.ConfigurationBuilder()
-				.setStorageFileProvider   (this.createFileProvider()          )
+				.setStorageFileProvider   (this.createFileProvider(fileSystem))
 				.setChannelCountProvider  (this.createChannelCountProvider()  )
 				.setHousekeepingController(this.createHousekeepingController())
 				.setDataFileEvaluator     (this.createDataFileEvaluator()     )
@@ -56,20 +65,47 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 
 			this.configuration.opt(BACKUP_DIRECTORY)
 				.filter(backupDirectory -> !XChars.isEmpty(backupDirectory))
-				.ifPresent(backupDirectory -> configBuilder.setBackupSetup(
-					Storage.BackupSetup(backupDirectory)
-				))
+				.ifPresent(backupDirectory ->
+				{
+					final AFileSystem backupFileSystem = this.createFileSystem(
+						BACKUP_FILESYSTEM,
+						() -> fileSystem
+					);
+					configBuilder.setBackupSetup(Storage.BackupSetup(
+						backupFileSystem.ensureDirectoryPath(backupDirectory)
+					));
+				})
 			;
 
 			return EmbeddedStorage.Foundation(
 				configBuilder.createConfiguration()
 			);
 		}
-
-		private StorageLiveFileProvider createFileProvider()
+		
+		private AFileSystem createFileSystem(
+			final String                configurationKey         ,
+			final Supplier<AFileSystem> defaultFileSystemSupplier
+		)
 		{
-			final NioFileSystem fileSystem = NioFileSystem.New();
+			final Configuration configuration = this.configuration.child(configurationKey);
+			if(configuration != null)
+			{
+				for(final ConfigurationBasedCreator<AFileSystem> creator :
+					ConfigurationBasedCreator.registeredCreators(AFileSystem.class))
+				{
+					final AFileSystem fileSystem = creator.create(configuration);
+					if(fileSystem != null)
+					{
+						return fileSystem;
+					}
+				}
+			}
 			
+			return defaultFileSystemSupplier.get();
+		}
+
+		private StorageLiveFileProvider createFileProvider(final AFileSystem fileSystem)
+		{
 			final ADirectory baseDirectory = fileSystem.ensureDirectoryPath(
 				this.configuration.opt(STORAGE_DIRECTORY)
 					.orElse(StorageLiveFileProvider.Defaults.defaultStorageDirectory())
@@ -116,7 +152,7 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 			return builder.createFileProvider();
 		}
 
-		protected StorageChannelCountProvider createChannelCountProvider()
+		private StorageChannelCountProvider createChannelCountProvider()
 		{
 			return Storage.ChannelCountProvider(
 				this.configuration.optInteger(CHANNEL_COUNT)
