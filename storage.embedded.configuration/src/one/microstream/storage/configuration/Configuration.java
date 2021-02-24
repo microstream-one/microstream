@@ -76,7 +76,10 @@ public interface Configuration
 	 * @see #DefaultResourceName()
 	 *
 	 * @return the loaded configuration or <code>null</code> if none was found
+	 * 
+	 * @deprecated replaced by {@link EmbeddedStorageConfiguration#load()}
 	 */
+	@Deprecated
 	public static Configuration Load()
 	{
 		return Load(ConfigurationLoader.Defaults.defaultCharset());
@@ -101,7 +104,10 @@ public interface Configuration
 	 *
 	 * @param charset the charset used to load the configuration
 	 * @return the loaded configuration or <code>null</code> if none was found
+	 * 
+	 * @deprecated replaced by {@link EmbeddedStorageConfiguration#load(Charset)}
 	 */
+	@Deprecated
 	public static Configuration Load(
 		final Charset charset
 	)
@@ -154,7 +160,10 @@ public interface Configuration
 	 *
 	 * @param path a classpath resource, a file path or an URL
 	 * @return the configuration or <code>null</code> if none was found
+	 * 
+	 * @deprecated replaced by {@link EmbeddedStorageConfiguration#load(String)}
 	 */
+	@Deprecated
 	public static Configuration Load(
 		final String path
 	)
@@ -176,7 +185,10 @@ public interface Configuration
 	 * @param path a classpath resource, a file path or an URL
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration or <code>null</code> if none was found
+	 * 
+	 * @deprecated replaced by {@link EmbeddedStorageConfiguration#load(String, Charset)}
 	 */
+	@Deprecated
 	public static Configuration Load(
 		final String  path   ,
 		final Charset charset
