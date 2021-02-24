@@ -3,6 +3,7 @@ package one.microstream.configuration.types;
 import static one.microstream.X.notNull;
 
 import java.time.Duration;
+import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,19 +27,8 @@ public interface DurationParser
 	 */
 	public Duration parse(String text);
 	
-	
 	/**
-	 * <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a> duration parser.
-	 * 
-	 * @see Duration#parse(CharSequence)
-	 */
-	public static DurationParser Iso()
-	{
-		return Duration::parse;
-	}
-	
-	/**
-	 * Case insensitive, suffix based parser, with {@link DurationUnit#MS} as default unit.
+	 * Pseudo-constructor method to create a new {@link DurationParser}, with {@link DurationUnit#MS} as default unit.
 	 */
 	public static DurationParser New()
 	{
@@ -46,7 +36,7 @@ public interface DurationParser
 	}
 	
 	/**
-	 * Case insensitive, suffix based parser.
+	 * Pseudo-constructor method to create a new {@link DurationParser}.
 	 */
 	public static DurationParser New(
 		final DurationUnit defaultUnit
@@ -60,7 +50,13 @@ public interface DurationParser
 	
 	public static class Default implements DurationParser
 	{
-		private final Pattern pattern = Pattern.compile(
+		private final static Pattern ISO_PATTERN = Pattern.compile(
+			"([-+]?)P(?:([-+]?[0-9]+)D)?" +
+				"(T(?:([-+]?[0-9]+)H)?(?:([-+]?[0-9]+)M)?(?:([-+]?[0-9]+)(?:[.,]([0-9]{0,9}))?S)?)?",
+			Pattern.CASE_INSENSITIVE
+		);
+		
+		private final static Pattern AMOUNT_UNIT_PATTERN = Pattern.compile(
 			"(?<amount>[0-9]*)(?:\\s*)(?<unit>[a-z]+)",
 			Pattern.CASE_INSENSITIVE
 		);
@@ -80,7 +76,24 @@ public interface DurationParser
 			final String text
 		)
 		{
-			final Matcher matcher = this.pattern.matcher(text);
+			if(ISO_PATTERN.matcher(text).matches())
+			{
+				// ISO format
+				
+				try
+				{
+					return Duration.parse(text);
+				}
+				catch(final DateTimeParseException e)
+				{
+					throw new IllegalArgumentException(
+						"Invalid duration: " + text,
+						e
+					);
+				}
+			}
+			
+			final Matcher matcher = AMOUNT_UNIT_PATTERN.matcher(text);
 			if(matcher.matches())
 			{
 				return this.parseDurationWithUnit(
