@@ -19,7 +19,7 @@ import one.microstream.configuration.types.ConfigurationParserXml;
  * @since 04.02.00
  *
  */
-public class EmbeddedStorageConfiguration
+public final class EmbeddedStorageConfiguration
 {
 	/**
 	 * The property name which is used to hand the external configuration file path to the application.

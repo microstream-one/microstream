@@ -156,7 +156,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 			{
 				throw new CacheException("Storage configuration not found: " + configurationResourceName);
 			}
-			return CacheConfiguration.Load(url, Object.class, Object.class);
+			return CacheConfiguration.load(url, Object.class, Object.class);
 		}
 
 		// 2. Check for properties in context config
@@ -183,7 +183,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 
 		// 3. Check for default property resource
 		final CacheConfiguration<Object, Object> configuration =
-			CacheConfiguration.Load(Object.class, Object.class);
+			CacheConfiguration.load(Object.class, Object.class);
 		return configuration != null
 			? configuration
 		// 4. Otherwise use simple default configuration
