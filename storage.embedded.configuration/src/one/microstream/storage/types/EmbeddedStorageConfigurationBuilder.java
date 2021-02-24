@@ -13,6 +13,22 @@ import one.microstream.typing.KeyValue;
 /**
  * A specialized {@link Configuration.Builder}, containing setter methods for
  * properties used in storage configurations.
+ * <p>
+ * Use {@link #createEmbeddedStorageFoundation()} as a shortcut to create a
+ * storage foundation and finally a storage manager:
+ * <pre>
+ * EmbeddedStorageManager storage = EmbeddedStorageConfigurationBuilder.New()
+ * 	.setChannelCount(4)
+ * 	.setStorageDirectory("/path/to/storage/")
+ * 	.createEmbeddedStorageFoundation()
+ * 	.start();
+ * </pre>
+ * Or load a configuration from an external source:
+ * <pre>
+ * EmbeddedStorageManager storage = EmbeddedStorageConfiguration.load()
+ * 	.createEmbeddedStorageFoundation()
+ * 	.start();
+ * </pre>
  * 
  * @see EmbeddedStorageConfiguration
  * @see EmbeddedStorageConfigurationPropertyNames
