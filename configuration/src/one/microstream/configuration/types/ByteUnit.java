@@ -82,7 +82,7 @@ public enum ByteUnit
 	 * @see Conversion
 	 */
 	public static Conversion convert(
-		final double       sourceValue,
+		final double   sourceValue,
 		final ByteUnit sourceUnit
 	)
 	{

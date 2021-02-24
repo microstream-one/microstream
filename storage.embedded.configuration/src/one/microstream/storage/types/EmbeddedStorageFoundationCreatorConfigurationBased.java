@@ -2,12 +2,15 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.function.Supplier;
 
 import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFileSystem;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.XChars;
+import one.microstream.configuration.types.ByteSize;
 import one.microstream.configuration.types.Configuration;
 import one.microstream.configuration.types.ConfigurationBasedCreator;
 
@@ -65,6 +68,7 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 
 			this.configuration.opt(BACKUP_DIRECTORY)
 				.filter(backupDirectory -> !XChars.isEmpty(backupDirectory))
+				.map(this::createDirectoryPath)
 				.ifPresent(backupDirectory ->
 				{
 					final AFileSystem backupFileSystem = this.createFileSystem(
@@ -107,8 +111,10 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 		private StorageLiveFileProvider createFileProvider(final AFileSystem fileSystem)
 		{
 			final ADirectory baseDirectory = fileSystem.ensureDirectoryPath(
-				this.configuration.opt(STORAGE_DIRECTORY)
-					.orElse(StorageLiveFileProvider.Defaults.defaultStorageDirectory())
+				this.createDirectoryPath(
+					this.configuration.opt(STORAGE_DIRECTORY)
+						.orElse(StorageLiveFileProvider.Defaults.defaultStorageDirectory())
+				)
 			);
 			
 			final StorageFileNameProvider fileNameProvider = StorageFileNameProvider.New(
@@ -163,9 +169,11 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 		private StorageHousekeepingController createHousekeepingController()
 		{
 			return Storage.HousekeepingController(
-				this.configuration.optLong(HOUSEKEEPING_INTERVAL_MS)
+				this.configuration.opt(HOUSEKEEPING_INTERVAL, Duration.class)
+					.map(Duration::toMillis)
 					.orElse(StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs()),
-				this.configuration.optLong(HOUSEKEEPING_TIME_BUDGET_NS)
+				this.configuration.opt(HOUSEKEEPING_TIME_BUDGET, Duration.class)
+					.map(Duration::toNanos)
 					.orElse(StorageHousekeepingController.Defaults.defaultHousekeepingTimeBudgetNs())
 			);
 		}
@@ -173,9 +181,11 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 		private StorageDataFileEvaluator createDataFileEvaluator()
 		{
 			return Storage.DataFileEvaluator(
-				this.configuration.optInteger(DATA_FILE_MINIMUM_SIZE)
+				this.configuration.opt(DATA_FILE_MINIMUM_SIZE, ByteSize.class)
+					.map(byteSize -> (int)byteSize.bytes())
 					.orElse(StorageDataFileEvaluator.Defaults.defaultFileMinimumSize()),
-				this.configuration.optInteger(DATA_FILE_MAXIMUM_SIZE)
+				this.configuration.opt(DATA_FILE_MAXIMUM_SIZE, ByteSize.class)
+					.map(byteSize -> (int)byteSize.bytes())
 					.orElse(StorageDataFileEvaluator.Defaults.defaultFileMaximumSize()),
 				this.configuration.optDouble(DATA_FILE_MINIMUM_USE_RATIO)
 					.orElse(StorageDataFileEvaluator.Defaults.defaultMinimumUseRatio()),
@@ -187,11 +197,22 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 		private StorageEntityCacheEvaluator createEntityCacheEvaluator()
 		{
 			return Storage.EntityCacheEvaluator(
-				this.configuration.optLong(ENTITY_CACHE_TIMEOUT_MS)
+				this.configuration.opt(ENTITY_CACHE_TIMEOUT, Duration.class)
+					.map(Duration::toMillis)
 					.orElse(StorageEntityCacheEvaluator.Defaults.defaultTimeoutMs()),
 				this.configuration.optLong(ENTITY_CACHE_THRESHOLD)
 					.orElse(StorageEntityCacheEvaluator.Defaults.defaultCacheThreshold())
 			);
+		}
+		
+		private String createDirectoryPath(
+			final String path
+		)
+		{
+			return path.startsWith("~/") || path.startsWith("~\\")
+				? Paths.get(System.getProperty("user.home"), path.substring(2)).toString()
+				: path
+			;
 		}
 		
 	}

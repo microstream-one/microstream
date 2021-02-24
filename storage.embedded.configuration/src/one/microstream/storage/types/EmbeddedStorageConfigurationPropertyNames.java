@@ -78,14 +78,14 @@ public interface EmbeddedStorageConfigurationPropertyNames
 	public final static String LOCK_FILE_NAME                = "lock-file-name";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setHousekeepingIntervalMs(long)
+	 * @see EmbeddedStorageConfigurationBuilder#setHousekeepingInterval(java.time.Duration)
 	 */
-	public final static String HOUSEKEEPING_INTERVAL_MS      = "housekeeping-interval-ms";
+	public final static String HOUSEKEEPING_INTERVAL         = "housekeeping-interval";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setHousekeepingTimeBudgetNs(long)
+	 * @see EmbeddedStorageConfigurationBuilder#setHousekeepingTimeBudget(java.time.Duration)
 	 */
-	public final static String HOUSEKEEPING_TIME_BUDGET_NS   = "housekeeping-time-budget-ns";
+	public final static String HOUSEKEEPING_TIME_BUDGET      = "housekeeping-time-budget";
 
 	/**
 	 * @see EmbeddedStorageConfigurationBuilder#setEntityCacheThreshold(long)
@@ -95,7 +95,7 @@ public interface EmbeddedStorageConfigurationPropertyNames
 	/**
 	 * @see EmbeddedStorageConfigurationBuilder#setEntityCacheTimeout(long)
 	 */
-	public final static String ENTITY_CACHE_TIMEOUT_MS       = "entity-cache-timeout-ms";
+	public final static String ENTITY_CACHE_TIMEOUT          = "entity-cache-timeout";
 
 	/**
 	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMinimumSize(int)

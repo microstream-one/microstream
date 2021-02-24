@@ -6,6 +6,7 @@ import java.io.File;
 import java.time.Duration;
 
 import one.microstream.collections.types.XGettingCollection;
+import one.microstream.configuration.types.ByteSize;
 import one.microstream.configuration.types.Configuration;
 import one.microstream.configuration.types.ConfigurationValueMapperProvider;
 import one.microstream.typing.KeyValue;
@@ -48,7 +49,9 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 *            relative location in the user home directory
 	 * @param storageDirectoryInUserHome
 	 */
-	public default EmbeddedStorageConfigurationBuilder setStorageDirectoryInUserHome(final String storageDirectoryInUserHome)
+	public default EmbeddedStorageConfigurationBuilder setStorageDirectoryInUserHome(
+		final String storageDirectoryInUserHome
+	)
 	{
 		final File userHomeDir = new File(System.getProperty("user.home"));
 		this.setStorageDirectory(new File(userHomeDir, storageDirectoryInUserHome).getAbsolutePath());
@@ -76,7 +79,9 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * @param backupDirectoryInUserHome
 	 *            relative location in the user home directory
 	 */
-	public default EmbeddedStorageConfigurationBuilder setBackupDirectoryInUserHome(final String backupDirectoryInUserHome)
+	public default EmbeddedStorageConfigurationBuilder setBackupDirectoryInUserHome(
+		final String backupDirectoryInUserHome
+	)
 	{
 		final File userHomeDir = new File(System.getProperty("user.home"));
 		this.setBackupDirectory(new File(userHomeDir, backupDirectoryInUserHome).getAbsolutePath());
@@ -146,76 +151,78 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	public EmbeddedStorageConfigurationBuilder setRescuedFileSuffix(String rescuedFileSuffix);
 
 	public EmbeddedStorageConfigurationBuilder setLockFileName(String lockFileName);
-
+	
 	/**
-	 * Interval in milliseconds for the houskeeping. This is work like garbage
+	 * Interval for the houskeeping. This is work like garbage
 	 * collection or cache checking. In combination with
-	 * {@link #setHousekeepingTimeBudgetNs(long)} the maximum processor
-	 * time for housekeeping work can be set. Default is <code>1000</code>
-	 * (every second).
+	 * {@link #setHousekeepingTimeBudget(Duration)} the maximum processor
+	 * time for housekeeping work can be set. Default is one second.
 	 *
-	 * @param houseKeepingIntervalMs
+	 * @param houseKeepingInterval
 	 *            the new interval
 	 *
-	 * @see #setHousekeepingTimeBudgetNs(long)
+	 * @see #setHousekeepingTimeBudget(Duration)
 	 */
-	public EmbeddedStorageConfigurationBuilder setHousekeepingIntervalMs(long houseKeepingIntervalMs);
-
+	public EmbeddedStorageConfigurationBuilder setHousekeepingInterval(Duration housekeepingInterval);
+	
 	/**
-	 * Number of nanoseconds used for each housekeeping cycle. However, no
+	 * Duration used for each housekeeping cycle. However, no
 	 * matter how low the number is, one item of work will always be completed.
 	 * But if there is nothing to clean up, no processor time will be wasted.
-	 * Default is <code>10000000</code> (10 million nanoseconds = 10
-	 * milliseconds = 0.01 seconds).
+	 * Default is 10 milliseconds = 0.01 seconds.
 	 *
-	 * @param housekeepingTimeBudgetNs
+	 * @param housekeepingTimeBudget
 	 *            the new time budget
 	 *
-	 * @see #setHousekeepingIntervalMs(long)
+	 * @see #setHousekeepingInterval(Duration)
 	 */
-	public EmbeddedStorageConfigurationBuilder setHousekeepingTimeBudgetNs(long housekeepingTimeBudgetNs);
+	public EmbeddedStorageConfigurationBuilder setHousekeepingTimeBudget(Duration housekeepingTimeBudget);
+
 
 	/**
 	 * Abstract threshold value for the lifetime of entities in the cache. See
-	 * {@link StorageEntityCacheEvaluator}. Default is <code>1000000000</code>.
+	 * {@link StorageEntityCacheEvaluator#New(long, long)}. Default is <code>1.000.000.000</code>.
 	 *
 	 * @param entityCacheThreshold
 	 *            the new threshold
+	 * 
+	 * @see #setEntityCacheTimeout(Duration)
 	 */
 	public EmbeddedStorageConfigurationBuilder setEntityCacheThreshold(long entityCacheThreshold);
 
 	/**
-	 * Timeout in milliseconds for the entity cache evaluator. If an entity
+	 * Timeout for the entity cache evaluator. If an entity
 	 * wasn't accessed in this timespan it will be removed from the cache.
-	 * Default is <code>86400000</code> (1 day).
+	 * Default is one day.
+	 * See {@link StorageEntityCacheEvaluator#New(long, long)}.
 	 *
-	 * @param entityCacheTimeoutMs
+	 * @param entityCacheTimeout
+	 *            the new timeout
 	 *
 	 * @see Duration
+	 * @see #setEntityCacheThreshold(long)
 	 */
-	public EmbeddedStorageConfigurationBuilder setEntityCacheTimeoutMs(long entityCacheTimeoutMs);
+	public EmbeddedStorageConfigurationBuilder setEntityCacheTimeout(Duration entityCacheTimeout);
 
 	/**
-	 * Minimum file size for a data file to avoid cleaning it up. Default is
-	 * 1024^2 = 1 MiB.
+	 * Minimum file size for a data file to avoid cleaning it up. Default is 1 MiB.
 	 *
 	 * @param dataFileMinimumSize
 	 *            the new minimum file size
 	 *
 	 * @see #setDataFileMinimumUseRatio(double)
 	 */
-	public EmbeddedStorageConfigurationBuilder setDataFileMinimumSize(int dataFileMinimumSize);
+	public EmbeddedStorageConfigurationBuilder setDataFileMinimumSize(ByteSize dataFileMinimumSize);
 
 	/**
-	 * Maximum file size for a data file to avoid cleaning it up. Default is
-	 * 1024^2*8 = 8 MiB.
+	 * Maximum file size for a data file to avoid cleaning it up. Default is 8 MiB.
 	 *
 	 * @param dataFileMaximumSize
 	 *            the new maximum file size
 	 *
 	 * @see #setDataFileMinimumUseRatio(double)
 	 */
-	public EmbeddedStorageConfigurationBuilder setDataFileMaximumSize(int dataFileMaximumSize);
+	public EmbeddedStorageConfigurationBuilder setDataFileMaximumSize(ByteSize dataFileMaximumSize);
 
 	/**
 	 * The ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
@@ -461,19 +468,19 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 		}
 
 		@Override
-		public EmbeddedStorageConfigurationBuilder setHousekeepingIntervalMs(
-			final long houseKeepingIntervalMs
+		public EmbeddedStorageConfigurationBuilder setHousekeepingInterval(
+			final Duration houseKeepingInterval
 		)
 		{
-			return this.set(HOUSEKEEPING_INTERVAL_MS, Long.toString(houseKeepingIntervalMs));
+			return this.set(HOUSEKEEPING_INTERVAL, houseKeepingInterval.toString());
 		}
 
 		@Override
-		public EmbeddedStorageConfigurationBuilder setHousekeepingTimeBudgetNs(
-			final long housekeepingTimeBudgetNs
+		public EmbeddedStorageConfigurationBuilder setHousekeepingTimeBudget(
+			final Duration housekeepingTimeBudget
 		)
 		{
-			return this.set(HOUSEKEEPING_TIME_BUDGET_NS, Long.toString(housekeepingTimeBudgetNs));
+			return this.set(HOUSEKEEPING_TIME_BUDGET, housekeepingTimeBudget.toString());
 		}
 
 		@Override
@@ -485,27 +492,27 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 		}
 
 		@Override
-		public EmbeddedStorageConfigurationBuilder setEntityCacheTimeoutMs(
-			final long entityCacheTimeoutMs
+		public EmbeddedStorageConfigurationBuilder setEntityCacheTimeout(
+			final Duration entityCacheTimeout
 		)
 		{
-			return this.set(ENTITY_CACHE_TIMEOUT_MS, Long.toString(entityCacheTimeoutMs));
+			return this.set(ENTITY_CACHE_TIMEOUT, entityCacheTimeout.toString());
 		}
 
 		@Override
 		public EmbeddedStorageConfigurationBuilder setDataFileMinimumSize(
-			final int dataFileMinimumSize
+			final ByteSize dataFileMinimumSize
 		)
 		{
-			return this.set(DATA_FILE_MINIMUM_SIZE, Integer.toString(dataFileMinimumSize));
+			return this.set(DATA_FILE_MINIMUM_SIZE, dataFileMinimumSize.toString());
 		}
 
 		@Override
 		public EmbeddedStorageConfigurationBuilder setDataFileMaximumSize(
-			final int dataFileMaximumSize
+			final ByteSize dataFileMaximumSize
 		)
 		{
-			return this.set(DATA_FILE_MAXIMUM_SIZE, Integer.toString(dataFileMaximumSize));
+			return this.set(DATA_FILE_MAXIMUM_SIZE, dataFileMaximumSize.toString());
 		}
 
 		@Override
