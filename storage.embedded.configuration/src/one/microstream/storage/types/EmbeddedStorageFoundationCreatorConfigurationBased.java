@@ -10,6 +10,7 @@ import one.microstream.afs.ADirectory;
 import one.microstream.afs.AFileSystem;
 import one.microstream.afs.nio.NioFileSystem;
 import one.microstream.chars.XChars;
+import one.microstream.configuration.exceptions.ConfigurationException;
 import one.microstream.configuration.types.ByteSize;
 import one.microstream.configuration.types.Configuration;
 import one.microstream.configuration.types.ConfigurationBasedCreator;
@@ -52,6 +53,23 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 
 		@Override
 		public EmbeddedStorageFoundation<?> createEmbeddedStorageFoundation()
+		{
+			try
+			{
+				return this.internalCreateEmbeddedStorageFoundation();
+			}
+			catch(final ConfigurationException e)
+			{
+				throw e;
+			}
+			catch(final Exception e)
+			{
+				throw new ConfigurationException(this.configuration, e);
+			}
+		}
+		
+		
+		private EmbeddedStorageFoundation<?> internalCreateEmbeddedStorageFoundation()
 		{
 			final AFileSystem fileSystem = this.createFileSystem(
 				STORAGE_FILESYSTEM,
