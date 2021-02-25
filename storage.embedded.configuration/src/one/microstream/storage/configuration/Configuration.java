@@ -14,6 +14,8 @@ import java.time.Duration;
 
 import one.microstream.chars.XChars;
 import one.microstream.storage.exceptions.StorageConfigurationException;
+import one.microstream.storage.types.EmbeddedStorageConfiguration;
+import one.microstream.storage.types.EmbeddedStorageConfigurationBuilder;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.StorageChannelCountProvider;
 import one.microstream.storage.types.StorageDataFileEvaluator;
@@ -24,43 +26,12 @@ import one.microstream.storage.types.StorageHousekeepingController;
 import one.microstream.storage.types.StorageLiveFileProvider;
 
 /**
- * <p>
- * Mutable configuration type, which serves as a template for an {@link EmbeddedStorageFoundation}.
- * </p>
- * <p>
- * Its purposes are:<br>
- * - To offer all possible settings of the MicroStream Storage in one place.<br>
- * - And to enable external configuration.
- * </p>
- * <p>
- * Code example:
- * <pre>
- * EmbeddedStorageManager storageManager = Configuration.Default()
- *     .setBaseDirectoryInUserHome("data-dir")
- *     .setBackupDirectory("backup-dir")
- *     .setChannelCount(4)
- *     .createEmbeddedStorageFoundation()
- *     .createEmbeddedStorageManager();
- * </pre>
- * </p>
- * <p>
- * External configuration example with properties file<br>
- * <pre>
- * baseDirectory = ~/data-dir
- * backupDirectory = backup-dir
- * channelCount = 4
- *
- * Configuration configuration = Configuration.LoadIni(
- *     "path-to-properties-file"
- * );
- * </pre>
- * </p>
- *
- * @see ConfigurationLoader
- * @see ConfigurationParser
- * @see ConfigurationPropertyNames
- * @see <a href="https://manual.docs.microstream.one/data-store/configuration#external-configuration">MicroStream Reference Manual</a>
+ * 
+ * @deprecated replaced by {@link EmbeddedStorageConfigurationBuilder}, will be removed in a future release
+ * @see EmbeddedStorageConfiguration
+ * @see one.microstream.storage.configuration
  */
+@Deprecated
 public interface Configuration
 {
 	/**
@@ -105,7 +76,10 @@ public interface Configuration
 	 * @see #DefaultResourceName()
 	 *
 	 * @return the loaded configuration or <code>null</code> if none was found
+	 * 
+	 * @deprecated replaced by {@link EmbeddedStorageConfiguration#load()}
 	 */
+	@Deprecated
 	public static Configuration Load()
 	{
 		return Load(ConfigurationLoader.Defaults.defaultCharset());
@@ -130,7 +104,10 @@ public interface Configuration
 	 *
 	 * @param charset the charset used to load the configuration
 	 * @return the loaded configuration or <code>null</code> if none was found
+	 * 
+	 * @deprecated replaced by {@link EmbeddedStorageConfiguration#load(Charset)}
 	 */
+	@Deprecated
 	public static Configuration Load(
 		final Charset charset
 	)
@@ -183,7 +160,10 @@ public interface Configuration
 	 *
 	 * @param path a classpath resource, a file path or an URL
 	 * @return the configuration or <code>null</code> if none was found
+	 * 
+	 * @deprecated replaced by {@link EmbeddedStorageConfiguration#load(String)}
 	 */
+	@Deprecated
 	public static Configuration Load(
 		final String path
 	)
@@ -205,7 +185,10 @@ public interface Configuration
 	 * @param path a classpath resource, a file path or an URL
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration or <code>null</code> if none was found
+	 * 
+	 * @deprecated replaced by {@link EmbeddedStorageConfiguration#load(String, Charset)}
 	 */
+	@Deprecated
 	public static Configuration Load(
 		final String  path   ,
 		final Charset charset

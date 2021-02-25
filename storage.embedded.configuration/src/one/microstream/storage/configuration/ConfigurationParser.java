@@ -24,14 +24,11 @@ import one.microstream.storage.exceptions.StorageConfigurationException;
 import one.microstream.storage.exceptions.StorageConfigurationIoException;
 
 /**
- * Parser for various configuration formats.
- * <p>
- * Supported formats:
- * <ul>
- * <li>XML</li>
- * <li>INI / Properties</li>
- * </ul>
+ * 
+ * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationParser}, will be removed in a future release
+ * @see one.microstream.storage.configuration
  */
+@Deprecated
 @FunctionalInterface
 public interface ConfigurationParser
 {

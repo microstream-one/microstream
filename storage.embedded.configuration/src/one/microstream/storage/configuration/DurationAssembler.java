@@ -4,12 +4,14 @@ import java.time.Duration;
 
 import one.microstream.chars.ObjectStringAssembler;
 import one.microstream.chars.VarString;
+import one.microstream.configuration.types.DurationUnit;
 
 /**
-*
-* @since 3.1
-*
-*/
+ *
+ * @deprecated will be removed in a future release
+ * @see one.microstream.storage.configuration
+ */
+@Deprecated
 public interface DurationAssembler extends ObjectStringAssembler<Duration>
 {
 	@Override

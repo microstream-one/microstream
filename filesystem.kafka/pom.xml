@@ -20,6 +20,11 @@
 			<version>04.02.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>configuration</artifactId>
+			<version>04.02.00-MS-GA-SNAPSHOT</version>
+		</dependency>
+		<dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>2.6.0</version>

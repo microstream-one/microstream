@@ -24,11 +24,11 @@ import one.microstream.chars.VarString;
 import one.microstream.storage.exceptions.StorageConfigurationException;
 
 /**
-* Assembles a configuration object into an exportable format.
-*
-* @since 3.1
-*
-*/
+ * 
+ * @deprecated will be removed in a future release
+ * @see one.microstream.storage.configuration
+ */
+@Deprecated
 public interface ConfigurationAssembler extends ObjectStringAssembler<Configuration>
 {
 	@Override

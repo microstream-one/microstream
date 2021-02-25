@@ -13,9 +13,9 @@ import one.microstream.storage.configuration.Configuration;
 import one.microstream.storage.configuration.ConfigurationPropertyParser;
 
 /**
- * Property parser used by {@link CacheConfigurationParser}.
- *
+ * @deprecated replaced by {@link CacheConfigurationBuilderConfigurationBased}, will be removed in a future release
  */
+@Deprecated
 public interface CacheConfigurationPropertyParser
 {
 	@FunctionalInterface
