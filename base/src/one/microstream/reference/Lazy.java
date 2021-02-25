@@ -570,7 +570,7 @@ public interface Lazy<T> extends Referencing<T>
 			}
 			
 			// (28.01.2020 TM)EXCP: proper exception
-			throw new RuntimeException("Memory quora must be in the range [0.0; 1.0].");
+			throw new RuntimeException("Memory quota must be in the range [0.0; 1.0].");
 		}
 				
 
