@@ -1611,6 +1611,14 @@ public final class XMath
 		return minimum;
 	}
 	
+	public static boolean isMathematicalInteger(final double value)
+	{
+		return !Double.isNaN(value)
+			&& !Double.isInfinite(value)
+			&& value == Math.rint(value)
+		;
+	}
+	
 
 	
 	///////////////////////////////////////////////////////////////////////////

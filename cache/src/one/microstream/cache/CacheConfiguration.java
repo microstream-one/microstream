@@ -20,7 +20,6 @@ import java.util.function.Predicate;
 import javax.cache.CacheManager;
 import javax.cache.configuration.CacheEntryListenerConfiguration;
 import javax.cache.configuration.CompleteConfiguration;
-import javax.cache.configuration.Configuration;
 import javax.cache.configuration.Factory;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.event.CacheEntryListener;
@@ -30,6 +29,9 @@ import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheWriter;
 
 import one.microstream.chars.XChars;
+import one.microstream.configuration.types.Configuration;
+import one.microstream.configuration.types.ConfigurationLoader;
+import one.microstream.configuration.types.ConfigurationParserIni;
 import one.microstream.reflect.XReflect;
 import one.microstream.storage.types.EmbeddedStorageManager;
 
@@ -40,6 +42,9 @@ import one.microstream.storage.types.EmbeddedStorageManager;
  * - {@link #getEvictionManagerFactory()}<br>
  * - {@link #getSerializerFieldPredicate()}
  * </p>
+ * <p>
+ * Can be adapted to MicroStream's generic {@link Configuration} layer.
+ * 
  *
  * @param <K> the key type
  * @param <V> the value type
@@ -61,7 +66,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	/**
 	 * The default name of the cache configuration resource.
 	 *
-	 * @see #Load()
+	 * @see #load()
 	 *
 	 * @return "microstream-cache.properties"
 	 */
@@ -71,6 +76,15 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
+	 * @deprecated replaced by {@link #load()}, will be removed in a future release
+	 */
+	@Deprecated
+	public static CacheConfiguration<?, ?> Load()
+	{
+		return load();
+	}
+
+	/**
 	 * Tries to load the default configuration file.
 	 * <p>
 	 * The search order is as follows:
@@ -89,9 +103,20 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 *
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
-	public static CacheConfiguration<?, ?> Load()
+	public static CacheConfiguration<?, ?> load()
 	{
-		return Load(CacheConfigurationLoader.Defaults.defaultCharset());
+		return load(ConfigurationLoader.Defaults.defaultCharset());
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(Charset)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static CacheConfiguration<?, ?> Load(
+		final Charset charset
+	)
+	{
+		return load(charset);
 	}
 
 	/**
@@ -114,14 +139,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param charset the charset used to load the configuration
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
-	public static CacheConfiguration<?, ?> Load(
+	public static CacheConfiguration<?, ?> load(
 		final Charset charset
 	)
 	{
 		final String path = System.getProperty(PathProperty());
 		if(!XChars.isEmpty(path))
 		{
-			final CacheConfiguration<?, ?> configuration = Load(path, charset);
+			final CacheConfiguration<?, ?> configuration = load(path, charset);
 			if(configuration != null)
 			{
 				return configuration;
@@ -132,24 +157,36 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
 		final URL         url                = contextClassloader != null
 			? contextClassloader.getResource(defaultName)
-			: Configuration.class.getResource("/" + defaultName);
+			: javax.cache.configuration.Configuration.class.getResource("/" + defaultName);
 		if(url != null)
 		{
-			return Load(url, charset);
+			return load(url, charset);
 		}
 
 		File file = new File(defaultName);
 		if(file.exists())
 		{
-			return Load(file, charset);
+			return load(file, charset);
 		}
 		file = new File(System.getProperty("user.home"), defaultName);
 		if(file.exists())
 		{
-			return Load(file, charset);
+			return load(file, charset);
 		}
 
 		return null;
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K, V> CacheConfiguration<K, V> Load(
+		final Class<K> keyType  ,
+		final Class<V> valueType
+	)
+	{
+		return load(keyType, valueType);
 	}
 
 	/**
@@ -173,16 +210,29 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the value type
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
-	public static <K, V> CacheConfiguration<K, V> Load(
-		final Class<K> keyType,
+	public static <K, V> CacheConfiguration<K, V> load(
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return Load(
-			CacheConfigurationLoader.Defaults.defaultCharset(),
+		return load(
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(Charset,Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K, V> CacheConfiguration<K, V> Load(
+		final Charset  charset  ,
+		final Class<K> keyType  ,
+		final Class<V> valueType
+	)
+	{
+		return load(charset, keyType, valueType);
 	}
 
 	/**
@@ -207,16 +257,16 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the value type
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
-	public static <K, V> CacheConfiguration<K, V> Load(
-		final Charset charset,
-		final Class<K> keyType,
+	public static <K, V> CacheConfiguration<K, V> load(
+		final Charset  charset  ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
 		final String path = System.getProperty(PathProperty());
 		if(!XChars.isEmpty(path))
 		{
-			final CacheConfiguration<K, V> configuration = Load(path, charset, keyType, valueType);
+			final CacheConfiguration<K, V> configuration = load(path, charset, keyType, valueType);
 			if(configuration != null)
 			{
 				return configuration;
@@ -227,46 +277,70 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
 		final URL         url                = contextClassloader != null
 			? contextClassloader.getResource(defaultName)
-			: Configuration.class.getResource("/" + defaultName);
+			: javax.cache.configuration.Configuration.class.getResource("/" + defaultName);
 		if(url != null)
 		{
-			return Load(url, charset, keyType, valueType);
+			return load(url, charset, keyType, valueType);
 		}
 
 		File file = new File(defaultName);
 		if(file.exists())
 		{
-			return Load(file, charset, keyType, valueType);
+			return load(file, charset, keyType, valueType);
 		}
 		file = new File(System.getProperty("user.home"), defaultName);
 		if(file.exists())
 		{
-			return Load(file, charset, keyType, valueType);
+			return load(file, charset, keyType, valueType);
 		}
 
 		return null;
 	}
 
 	/**
-	 * Tries to load the configuration file from <code>path</code>.
-	 * <p>
-	 * The load order is as follows:
-	 * <ul>
-	 * <li>The classpath</li>
-	 * <li>As an URL</li>
-	 * <li>As a file</li>
-	 * </ul>
-	 *
-	 * @param path a classpath resource, a file path or an URL
-	 * @return the configuration or <code>null</code> if none was found
+	 * @deprecated replaced by {@link #load(String)}, will be removed in a future release
 	 */
+	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
 		final String path
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.load(path)
+		return load(path);
+	}
+
+	/**
+	 * Tries to load the configuration file from <code>path</code>.
+	 * <p>
+	 * The load order is as follows:
+	 * <ul>
+	 * <li>The classpath</li>
+	 * <li>As an URL</li>
+	 * <li>As a file</li>
+	 * </ul>
+	 *
+	 * @param path a classpath resource, a file path or an URL
+	 * @return the configuration or <code>null</code> if none was found
+	 */
+	public static CacheConfiguration<?, ?> load(
+		final String path
+	)
+	{
+		return load(
+			path,
+			ConfigurationLoader.Defaults.defaultCharset()
 		);
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(String,Charset)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static CacheConfiguration<?, ?> Load(
+		final String  path   ,
+		final Charset charset
+	)
+	{
+		return load(path, charset);
 	}
 
 	/**
@@ -283,14 +357,29 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 */
-	public static CacheConfiguration<?, ?> Load(
-		final String path,
+	public static CacheConfiguration<?, ?> load(
+		final String  path   ,
 		final Charset charset
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.load(path, charset)
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(path, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(configuration).build();
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(String,Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K, V> CacheConfiguration<K, V> Load(
+		final String   path     ,
+		final Class<K> keyType  ,
+		final Class<V> valueType
+	)
+	{
+		return load(path, keyType, valueType);
 	}
 
 	/**
@@ -308,21 +397,35 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the value type
 	 * @return the configuration or <code>null</code> if none was found
 	 */
-	public static <K, V> CacheConfiguration<K, V> Load(
-		final String path,
-		final Class<K> keyType,
+	public static <K, V> CacheConfiguration<K, V> load(
+		final String   path     ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return Load(
+		return load(
 			path,
-			CacheConfigurationLoader.Defaults.defaultCharset(),
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
 	}
 
 	/**
+	 * @deprecated replaced by {@link #load(String,Charset,Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K, V> CacheConfiguration<K, V> Load(
+		final String   path     ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
+		final Class<V> valueType
+	)
+	{
+		return load(path, charset, keyType, valueType);
+	}
+
+	/**
 	 * Tries to load the configuration file from <code>path</code>.
 	 * <p>
 	 * The load order is as follows:
@@ -338,33 +441,33 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the value type
 	 * @return the configuration or <code>null</code> if none was found
 	 */
-	public static <K, V> CacheConfiguration<K, V> Load(
-		final String path,
-		final Charset charset,
-		final Class<K> keyType,
+	public static <K, V> CacheConfiguration<K, V> load(
+		final String   path     ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
 	          URL         url                = contextClassloader != null
 			? contextClassloader.getResource(path)
-			: Configuration.class.getResource(path);
+			: javax.cache.configuration.Configuration.class.getResource(path);
 		if(url != null)
 		{
-			return Load(url, charset, keyType, valueType);
+			return load(url, charset, keyType, valueType);
 		}
 
 		try
 		{
 			url = new URL(path);
-			return Load(url, charset, keyType, valueType);
+			return load(url, charset, keyType, valueType);
 		}
 		catch(final MalformedURLException e)
 		{
 			final File file = new File(path);
 			if(file.exists())
 			{
-				return Load(file, charset, keyType, valueType);
+				return load(file, charset, keyType, valueType);
 			}
 		}
 
@@ -372,19 +475,43 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * Tries to load the configuration from <code>path</code>.
-	 *
-	 * @param path file system path
-	 * @return the configuration
-	 * @throws CacheConfigurationException if the configuration couldn't be loaded
+	 * @deprecated replaced by {@link #load(Path)}, will be removed in a future release
 	 */
+	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
 		final Path path
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromPath(path)
+		return load(path);
+	}
+
+	/**
+	 * Tries to load the configuration from <code>path</code>.
+	 *
+	 * @param path file system path
+	 * @return the configuration
+	 * @throws CacheConfigurationException if the configuration couldn't be loaded
+	 */
+	public static CacheConfiguration<?, ?> load(
+		final Path path
+	)
+	{
+		return load(
+			path,
+			ConfigurationLoader.Defaults.defaultCharset()
 		);
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(Path,Charset)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static CacheConfiguration<?, ?> Load(
+		final Path    path   ,
+		final Charset charset
+	)
+	{
+		return load(path, charset);
 	}
 
 	/**
@@ -395,30 +522,56 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
-	public static CacheConfiguration<?, ?> Load(
-		final Path path,
+	public static CacheConfiguration<?, ?> load(
+		final Path    path   ,
 		final Charset charset
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromPath(path, charset)
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(path, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(configuration).build();
 	}
 
 	/**
-	 * Tries to load the configuration from the file <code>file</code>.
-	 *
-	 * @param file file path
-	 * @return the configuration
-	 * @throws CacheConfigurationException if the configuration couldn't be loaded
+	 * @deprecated replaced by {@link #load(File)}, will be removed in a future release
 	 */
+	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
 		final File file
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromFile(file)
+		return load(file);
+	}
+
+	/**
+	 * Tries to load the configuration from the file <code>file</code>.
+	 *
+	 * @param file file path
+	 * @return the configuration
+	 * @throws CacheConfigurationException if the configuration couldn't be loaded
+	 */
+	public static CacheConfiguration<?, ?> load(
+		final File file
+	)
+	{
+		return load(
+			file,
+			ConfigurationLoader.Defaults.defaultCharset()
 		);
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(File,Charset)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static CacheConfiguration<?, ?> Load(
+		final File    file   ,
+		final Charset charset
+	)
+	{
+		return load(file, charset);
 	}
 
 	/**
@@ -429,30 +582,56 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
-	public static CacheConfiguration<?, ?> Load(
-		final File file,
+	public static CacheConfiguration<?, ?> load(
+		final File    file   ,
 		final Charset charset
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromFile(file, charset)
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(file, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(configuration).build();
 	}
 
 	/**
-	 * Tries to load the configuration from the URL <code>url</code>.
-	 *
-	 * @param url URL path
-	 * @return the configuration
-	 * @throws CacheConfigurationException if the configuration couldn't be loaded
+	 * @deprecated replaced by {@link #load(URL)}, will be removed in a future release
 	 */
+	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
 		final URL url
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromUrl(url)
+		return load(url);
+	}
+
+	/**
+	 * Tries to load the configuration from the URL <code>url</code>.
+	 *
+	 * @param url URL path
+	 * @return the configuration
+	 * @throws CacheConfigurationException if the configuration couldn't be loaded
+	 */
+	public static CacheConfiguration<?, ?> load(
+		final URL url
+	)
+	{
+		return load(
+			url,
+			ConfigurationLoader.Defaults.defaultCharset()
 		);
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(URL,Charset)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static CacheConfiguration<?, ?> Load(
+		final URL     url    ,
+		final Charset charset
+	)
+	{
+		return load(url, charset);
 	}
 
 	/**
@@ -463,48 +642,89 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
-	public static CacheConfiguration<?, ?> Load(
-		final URL url,
+	public static CacheConfiguration<?, ?> load(
+		final URL     url    ,
 		final Charset charset
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromUrl(url, charset)
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(url, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(configuration).build();
 	}
 
 	/**
-	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
-	 *
-	 * @param inputStream the stream to read from
-	 * @return the configuration
-	 * @throws CacheConfigurationException if the configuration couldn't be loaded
+	 * @deprecated replaced by {@link #load(InputStream)}, will be removed in a future release
 	 */
+	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
 		final InputStream inputStream
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.FromInputStream(inputStream).loadConfiguration()
-		);
+		return load(inputStream);
 	}
 
 	/**
 	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
 	 *
 	 * @param inputStream the stream to read from
-	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
+	public static CacheConfiguration<?, ?> load(
+		final InputStream inputStream
+	)
+	{
+		return load(
+			inputStream,
+			ConfigurationLoader.Defaults.defaultCharset()
+		);
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(InputStream,Charset)}, will be removed in a future release
+	 */
+	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
 		final InputStream inputStream,
-		final Charset charset
+		final Charset     charset
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration()
+		return load(inputStream, charset);
+	}
+
+	/**
+	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
+	 *
+	 * @param inputStream the stream to read from
+	 * @param charset the charset used to load the configuration
+	 * @return the configuration
+	 * @throws CacheConfigurationException if the configuration couldn't be loaded
+	 */
+	public static CacheConfiguration<?, ?> load(
+		final InputStream inputStream,
+		final Charset     charset
+	)
+	{
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(inputStream, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(configuration).build();
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(Path,Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final Path     path     ,
+		final Class<K> keyType  ,
+		final Class<V> valueType
+	)
+	{
+		return load(path, keyType, valueType);
 	}
 
 	/**
@@ -516,17 +736,32 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final Path path,
-		final Class<K> keyType,
+	public static <K,V> CacheConfiguration<K, V> load(
+		final Path     path     ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromPath(path),
+		return load(
+			path,
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(Path,Charset,Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final Path     path     ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
+		final Class<V> valueType
+	)
+	{
+		return load(path, charset, keyType, valueType);
 	}
 
 	/**
@@ -539,18 +774,31 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final Path path,
-		final Charset charset,
-		final Class<K> keyType,
+	public static <K,V> CacheConfiguration<K, V> load(
+		final Path     path     ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromPath(path, charset),
-			keyType,
-			valueType
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(path, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(keyType, valueType, configuration).build();
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(File,Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final File     file     ,
+		final Class<K> keyType  ,
+		final Class<V> valueType
+	)
+	{
+		return load(file, keyType, valueType);
 	}
 
 	/**
@@ -562,17 +810,32 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final File file,
-		final Class<K> keyType,
+	public static <K,V> CacheConfiguration<K, V> load(
+		final File     file     ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromFile(file),
+		return load(
+			file,
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(File,Charset,Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final File     file     ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
+		final Class<V> valueType
+	)
+	{
+		return load(file, charset, keyType, valueType);
 	}
 
 	/**
@@ -585,18 +848,31 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final File file,
-		final Charset charset,
-		final Class<K> keyType,
+	public static <K,V> CacheConfiguration<K, V> load(
+		final File     file     ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromFile(file, charset),
-			keyType,
-			valueType
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(file, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(keyType, valueType, configuration).build();
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(URL,Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final URL      url      ,
+		final Class<K> keyType  ,
+		final Class<V> valueType
+	)
+	{
+		return load(url, keyType, valueType);
 	}
 
 	/**
@@ -608,17 +884,32 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final URL url,
-		final Class<K> keyType,
+	public static <K,V> CacheConfiguration<K, V> load(
+		final URL      url      ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromUrl(url),
+		return load(
+			url,
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(URL,Charset,Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final URL      url      ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
+		final Class<V> valueType
+	)
+	{
+		return load(url, charset, keyType, valueType);
 	}
 
 	/**
@@ -631,18 +922,31 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final URL url,
-		final Charset charset,
-		final Class<K> keyType,
+	public static <K,V> CacheConfiguration<K, V> load(
+		final URL      url      ,
+		final Charset  charset  ,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.loadFromUrl(url, charset),
-			keyType,
-			valueType
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(url, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(keyType, valueType, configuration).build();
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(InputStream,Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final InputStream inputStream,
+		final Class<K>    keyType    ,
+		final Class<V>    valueType
+	)
+	{
+		return load(inputStream, keyType, valueType);
 	}
 
 	/**
@@ -654,17 +958,32 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
-	public static <K,V> CacheConfiguration<K, V> Load(
+	public static <K,V> CacheConfiguration<K, V> load(
 		final InputStream inputStream,
-		final Class<K> keyType,
-		final Class<V> valueType
+		final Class<K>    keyType    ,
+		final Class<V>    valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.FromInputStream(inputStream).loadConfiguration(),
+		return load(
+			inputStream,
+			ConfigurationLoader.Defaults.defaultCharset(),
 			keyType,
 			valueType
 		);
+	}
+
+	/**
+	 * @deprecated replaced by {@link #load(InputStream,Charset,Class,Class)}, will be removed in a future release
+	 */
+	@Deprecated
+	public static <K,V> CacheConfiguration<K, V> Load(
+		final InputStream inputStream,
+		final Charset     charset    ,
+		final Class<K>    keyType    ,
+		final Class<V>    valueType
+	)
+	{
+		return load(inputStream, charset, keyType, valueType);
 	}
 
 	/**
@@ -677,18 +996,18 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
-	public static <K,V> CacheConfiguration<K, V> Load(
+	public static <K,V> CacheConfiguration<K, V> load(
 		final InputStream inputStream,
-		final Charset charset,
-		final Class<K> keyType,
-		final Class<V> valueType
+		final Charset     charset    ,
+		final Class<K>    keyType    ,
+		final Class<V>    valueType
 	)
 	{
-		return CacheConfigurationParser.New().parse(
-			CacheConfigurationLoader.FromInputStream(inputStream, charset).loadConfiguration(),
-			keyType,
-			valueType
+		final Configuration configuration = Configuration.Load(
+			ConfigurationLoader.New(inputStream, charset),
+			ConfigurationParserIni.New()
 		);
+		return Builder(keyType, valueType, configuration).build();
 	}
 
 
@@ -715,7 +1034,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the value type
 	 */
 	public static <K, V> Builder<K, V> Builder(
-		final Class<K> keyType,
+		final Class<K> keyType  ,
 		final Class<V> valueType
 	)
 	{
@@ -733,9 +1052,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param storageManager the {@link EmbeddedStorageManager} to use as a backing store
 	 */
 	public static <K, V> Builder<K, V> Builder(
-		final Class<K> keyType,
-		final Class<V> valueType,
-		final String cacheName,
+		final Class<K>               keyType       ,
+		final Class<V>               valueType     ,
+		final String                 cacheName     ,
 		final EmbeddedStorageManager storageManager
 	)
 	{
@@ -779,6 +1098,43 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			.readThrough()
 			.writeThrough();
 	}
+	
+	/**
+	 * Creates a new {@link Builder} for a {@link CacheConfiguration}, which uses
+	 * the generic MicroStream <code>configuration</code>'s values.
+	 *
+	 * @param configuration the {@link Configuration} to take the initial values from
+	 */
+	public static Builder<?, ?> Builder(
+		final Configuration configuration
+	)
+	{
+		return CacheConfigurationBuilderConfigurationBased.New()
+			.buildCacheConfiguration(configuration)
+		;
+	}
+	
+	/**
+	 * Creates a new {@link Builder} for a {@link CacheConfiguration}, which uses
+	 * the generic MicroStream <code>configuration</code>'s values.
+	 *
+	 * @param keyType the key type
+	 * @param valueType the value type
+	 * @param configuration the {@link Configuration} to take the initial values from
+	 */
+	public static <K, V> Builder<K, V> Builder(
+		final Class<K>      keyType      ,
+		final Class<V>      valueType    ,
+		final Configuration configuration
+	)
+	{
+		return CacheConfigurationBuilderConfigurationBased.New()
+			.buildCacheConfiguration(
+				configuration,
+				Builder(keyType, valueType)
+			);
+	}
+	
 
 	public static interface Builder<K, V>
 	{
@@ -1156,9 +1512,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * Creates a new {@link CacheConfiguration} based on a {@link Configuration}.
+	 * Creates a new {@link CacheConfiguration} based on a {@link javax.cache.configuration.Configuration}.
 	 */
-	public static <K, V> CacheConfiguration<K, V> New(final Configuration<K, V> other)
+	public static <K, V> CacheConfiguration<K, V> New(final javax.cache.configuration.Configuration<K, V> other)
 	{
 		final HashSet<CacheEntryListenerConfiguration<K, V>> listenerConfigurations = new HashSet<>();
 

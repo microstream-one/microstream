@@ -39,6 +39,12 @@ import one.microstream.persistence.types.PersistenceTypeManager;
  */
 public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>> extends StorageFoundation<F>
 {
+	public static interface Creator
+	{
+		public EmbeddedStorageFoundation<?> createEmbeddedStorageFoundation();
+	}
+	
+	
 	/**
 	 * Returns the currently set {@link StorageConfiguration} instance.
 	 * <p>

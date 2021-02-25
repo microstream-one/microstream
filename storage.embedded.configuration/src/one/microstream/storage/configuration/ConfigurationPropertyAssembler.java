@@ -9,11 +9,11 @@ import java.util.Map;
 import one.microstream.storage.exceptions.InvalidStorageConfigurationException;
 
 /**
-* Property assembler used by {@link ConfigurationAssembler}.
-*
-* @since 3.1
-*
-*/
+ * 
+ * @deprecated will be removed in a future release
+ * @see one.microstream.storage.configuration
+ */
+@Deprecated
 public interface ConfigurationPropertyAssembler
 {
 	public Map<String, String> assemble(Configuration configuration);

@@ -7,6 +7,11 @@ import java.util.Map;
 
 import one.microstream.chars.XChars;
 
+/**
+ * 
+ * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationParser}, will be removed in a future release
+ */
+@Deprecated
 public interface CacheConfigurationParser
 {
 	/**

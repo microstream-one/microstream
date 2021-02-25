@@ -1,5 +1,10 @@
 package one.microstream.cache;
 
+/**
+ * 
+ * @deprecated will be removed in a future release
+ */
+@Deprecated
 public class CacheConfigurationIoException extends CacheConfigurationException
 {
 	public CacheConfigurationIoException()
@@ -7,17 +12,17 @@ public class CacheConfigurationIoException extends CacheConfigurationException
 		super();
 	}
 
-	public CacheConfigurationIoException(String message, Throwable cause)
+	public CacheConfigurationIoException(final String message, final Throwable cause)
 	{
 		super(message, cause);
 	}
 
-	public CacheConfigurationIoException(String message)
+	public CacheConfigurationIoException(final String message)
 	{
 		super(message);
 	}
 
-	public CacheConfigurationIoException(Throwable cause)
+	public CacheConfigurationIoException(final Throwable cause)
 	{
 		super(cause);
 	}
