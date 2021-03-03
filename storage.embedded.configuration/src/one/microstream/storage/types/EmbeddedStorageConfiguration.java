@@ -46,6 +46,19 @@ public final class EmbeddedStorageConfiguration
 	}
 	
 	/**
+	 * Creates a new {@link EmbeddedStorageConfigurationBuilder} instance.
+	 * <p>
+	 * This is a synonym for <code>EmbeddedStorageConfigurationBuilder.New()</code>.
+	 * 
+	 * @return a newly created {@link EmbeddedStorageConfigurationBuilder}
+	 * @see EmbeddedStorageConfigurationBuilder#New()
+	 */
+	public static EmbeddedStorageConfigurationBuilder Builder()
+	{
+		return EmbeddedStorageConfigurationBuilder.New();
+	}
+	
+	/**
 	 * Tries to load the default storage configuration properties file.
 	 * <p>
 	 * The resource name is either set via the system property "microstream.storage.configuration.path"
