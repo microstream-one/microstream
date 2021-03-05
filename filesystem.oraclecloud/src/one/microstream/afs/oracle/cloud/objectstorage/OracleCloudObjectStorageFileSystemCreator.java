@@ -25,12 +25,12 @@ import one.microstream.configuration.types.ConfigurationBasedCreator;
 public class OracleCloudObjectStorageFileSystemCreator extends ConfigurationBasedCreator.Abstract<AFileSystem>
 {
 	private final static String CLASSPATH_PREFIX = "classpath:";
-	
+
 	public OracleCloudObjectStorageFileSystemCreator()
 	{
 		super(AFileSystem.class);
 	}
-	
+
 	@Override
 	public AFileSystem create(
 		final Configuration configuration
@@ -41,7 +41,7 @@ public class OracleCloudObjectStorageFileSystemCreator extends ConfigurationBase
 		{
 			return null;
 		}
-				
+
 		String              filePath                = null;
 		String              profile                 = null;
 		Charset             charset                 = StandardCharset.UTF_8;
@@ -50,14 +50,14 @@ public class OracleCloudObjectStorageFileSystemCreator extends ConfigurationBase
 		{
 			filePath = configFileConfiguration.get("path");
 			profile  = configFileConfiguration.get("profile");
-			
+
 			final String charsetName = configFileConfiguration.get("charset");
 			if(charsetName != null)
 			{
 				charset = Charset.forName(charsetName);
 			}
 		}
-		
+
 		try
 		{
 			final ConfigFileReader.ConfigFile configFile = XChars.isEmpty(filePath)
@@ -71,7 +71,7 @@ public class OracleCloudObjectStorageFileSystemCreator extends ConfigurationBase
 			final AuthenticationDetailsProvider authDetailsProvider =
 				new ConfigFileAuthenticationDetailsProvider(configFile)
 			;
-			
+
 			final ClientConfigurationBuilder clientConfigurationBuilder = ClientConfiguration.builder();
 			final Configuration              clientConfiguration        = objectStorageConfiguration.child("client");
 			if(clientConfiguration != null)
@@ -81,7 +81,7 @@ public class OracleCloudObjectStorageFileSystemCreator extends ConfigurationBase
 					clientConfiguration
 				);
 			}
-			
+
 			final ObjectStorageClient client = new ObjectStorageClient(
 				authDetailsProvider,
 				clientConfigurationBuilder.build()
@@ -92,7 +92,7 @@ public class OracleCloudObjectStorageFileSystemCreator extends ConfigurationBase
 			objectStorageConfiguration.opt("endpoint").ifPresent(
 				value -> client.setEndpoint(value)
 			);
-			
+
 			final boolean        cache           = configuration.optBoolean("cache").orElse(true);
 			final OracleCloudObjectStorageConnector connector       = cache
 				? OracleCloudObjectStorageConnector.Caching(client)
@@ -105,7 +105,7 @@ public class OracleCloudObjectStorageFileSystemCreator extends ConfigurationBase
 			throw new ConfigurationException(objectStorageConfiguration, e);
 		}
 	}
-	
+
 	private InputStream configFileInputStream(
 		final Configuration configuration,
 		final String        path
@@ -116,7 +116,7 @@ public class OracleCloudObjectStorageFileSystemCreator extends ConfigurationBase
 		{
 			return this.getClass().getResourceAsStream(path.substring(CLASSPATH_PREFIX.length()));
 		}
-	
+
 		try
 		{
 			final URL url = new URL(path);
@@ -136,22 +136,14 @@ public class OracleCloudObjectStorageFileSystemCreator extends ConfigurationBase
 		configuration.optInteger("connection-timeout-millis").ifPresent(
 			value -> builder.connectionTimeoutMillis(value)
 		);
-		
+
 		configuration.optInteger("read-timeout-millis").ifPresent(
 			value -> builder.readTimeoutMillis(value)
 		);
-		
+
 		configuration.optInteger("max-async-threads").ifPresent(
 			value -> builder.maxAsyncThreads(value)
 		);
-		
-		configuration.optBoolean("disable-data-buffering-on-upload").ifPresent(
-			value -> builder.disableDataBufferingOnUpload(value)
-		);
-		
-		configuration.optBoolean("disable-data-buffering-on-upload").ifPresent(
-			value -> builder.circuitBreakerConfiguration(null)
-		);
 	}
-		
+
 }

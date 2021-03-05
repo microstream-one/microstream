@@ -12,7 +12,7 @@ public interface EmbeddedStorageConfigurationPropertyNames
 	 * @see EmbeddedStorageConfigurationBuilder#setStorageDirectory(String)
 	 */
 	public final static String STORAGE_DIRECTORY             = "storage-directory";
-	
+
 	public final static String STORAGE_FILESYSTEM            = "storage-filesystem";
 
 	/**
@@ -63,9 +63,9 @@ public interface EmbeddedStorageConfigurationPropertyNames
 	public final static String TRANSACTION_FILE_SUFFIX       = "transaction-file-suffix";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setTypeDictionaryFilename(String)
+	 * @see EmbeddedStorageConfigurationBuilder#setTypeDictionaryFileName(String)
 	 */
-	public final static String TYPE_DICTIONARY_FILENAME      = "type-dictionary-filename";
+	public final static String TYPE_DICTIONARY_FILE_NAME      = "type-dictionary-file-name";
 
 	/**
 	 * @see EmbeddedStorageConfigurationBuilder#setRescuedFileSuffix(String)

@@ -30,7 +30,7 @@ import one.microstream.typing.KeyValue;
  * 	.createEmbeddedStorageFoundation()
  * 	.start();
  * </pre>
- * 
+ *
  * @see EmbeddedStorageConfiguration
  * @see EmbeddedStorageConfigurationPropertyNames
  * @since 04.02.00
@@ -42,7 +42,7 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * The base directory of the storage in the file system.
 	 */
 	public EmbeddedStorageConfigurationBuilder setStorageDirectory(String storageDirectory);
-	
+
 	/**
 	 * The base directory of the storage in the file system.
 	 *
@@ -57,17 +57,17 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 		this.setStorageDirectory(new File(userHomeDir, storageDirectoryInUserHome).getAbsolutePath());
 		return this;
 	}
-	
+
 	/**
 	 * The deletion directory.
 	 */
 	public EmbeddedStorageConfigurationBuilder setDeletionDirectory(String deletionDirectory);
-	
+
 	/**
 	 * The truncation directory.
 	 */
 	public EmbeddedStorageConfigurationBuilder setTruncationDirectory(String truncationDirectory);
-	
+
 	/**
 	 * The backup directory.
 	 */
@@ -143,15 +143,15 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * The name of the dictionary file. Default is
 	 * <code>"PersistenceTypeDictionary.ptd"</code>.
 	 *
-	 * @param typeDictionaryFilename
+	 * @param typeDictionaryFileName
 	 *            new name
 	 */
-	public EmbeddedStorageConfigurationBuilder setTypeDictionaryFilename(String typeDictionaryFilename);
+	public EmbeddedStorageConfigurationBuilder setTypeDictionaryFileName(String typeDictionaryFileName);
 
 	public EmbeddedStorageConfigurationBuilder setRescuedFileSuffix(String rescuedFileSuffix);
 
 	public EmbeddedStorageConfigurationBuilder setLockFileName(String lockFileName);
-	
+
 	/**
 	 * Interval for the houskeeping. This is work like garbage
 	 * collection or cache checking. In combination with
@@ -164,7 +164,7 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * @see #setHousekeepingTimeBudget(Duration)
 	 */
 	public EmbeddedStorageConfigurationBuilder setHousekeepingInterval(Duration housekeepingInterval);
-	
+
 	/**
 	 * Duration used for each housekeeping cycle. However, no
 	 * matter how low the number is, one item of work will always be completed.
@@ -185,7 +185,7 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 *
 	 * @param entityCacheThreshold
 	 *            the new threshold
-	 * 
+	 *
 	 * @see #setEntityCacheTimeout(Duration)
 	 */
 	public EmbeddedStorageConfigurationBuilder setEntityCacheThreshold(long entityCacheThreshold);
@@ -244,7 +244,7 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * @param dataFileCleanupHeadFile
 	 */
 	public EmbeddedStorageConfigurationBuilder setDataFileCleanupHeadFile(boolean dataFileCleanupHeadFile);
-		
+
 	/**
 	 * Creates an {@link EmbeddedStorageFoundation} based on the settings of this builder.
 	 *
@@ -260,22 +260,22 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 		.createEmbeddedStorageFoundation()
 		;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Pseude-constructor method to create a new builder.
-	 * 
+	 *
 	 * @return a new {@link EmbeddedStorageConfigurationBuilder}
 	 */
 	public static EmbeddedStorageConfigurationBuilder New()
 	{
 		return new Default(Configuration.Builder());
 	}
-	
+
 	/**
 	 * Pseude-constructor method to create a new builder, wrapping an existing one.
-	 * 
+	 *
 	 * @param delegate the delegate to wrap
 	 * @return a new {@link EmbeddedStorageConfigurationBuilder}
 	 */
@@ -287,8 +287,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 			notNull(delegate)
 		);
 	}
-	
-	
+
+
 	public static class Default implements EmbeddedStorageConfigurationBuilder, EmbeddedStorageConfigurationPropertyNames
 	{
 		private final Configuration.Builder delegate;
@@ -300,11 +300,11 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 			super();
 			this.delegate = delegate;
 		}
-		
+
 		// ############################
 		// Delegate methods
 		// ############################
-		
+
 		@Override
 		public EmbeddedStorageConfigurationBuilder valueMapperProvider(
 			final ConfigurationValueMapperProvider valueMapperProvider
@@ -357,7 +357,7 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 		{
 			return this.delegate.buildConfiguration();
 		}
-		
+
 		// ############################
 		// Builder methods
 		// ############################
@@ -443,11 +443,11 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 		}
 
 		@Override
-		public EmbeddedStorageConfigurationBuilder setTypeDictionaryFilename(
-			final String typeDictionaryFilename
+		public EmbeddedStorageConfigurationBuilder setTypeDictionaryFileName(
+			final String typeDictionaryFileName
 		)
 		{
-			return this.set(TYPE_DICTIONARY_FILENAME, typeDictionaryFilename);
+			return this.set(TYPE_DICTIONARY_FILE_NAME, typeDictionaryFileName);
 		}
 
 		@Override
@@ -530,7 +530,7 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 		{
 			return this.set(DATA_FILE_CLEANUP_HEAD_FILE, Boolean.toString(dataFileCleanupHeadFile));
 		}
-		
+
 	}
-	
+
 }
