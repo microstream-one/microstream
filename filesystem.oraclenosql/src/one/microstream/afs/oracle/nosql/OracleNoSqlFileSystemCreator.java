@@ -22,7 +22,7 @@ public class OracleNoSqlFileSystemCreator extends ConfigurationBasedCreator.Abst
 	{
 		super(AFileSystem.class);
 	}
-	
+
 	@Override
 	public AFileSystem create(
 		final Configuration configuration
@@ -33,12 +33,12 @@ public class OracleNoSqlFileSystemCreator extends ConfigurationBasedCreator.Abst
 		{
 			return null;
 		}
-		
+
 		final KVStoreConfig kvStoreConfig = this.createKVStoreConfig(nosqlConfiguration);
-		
+
 		final String username = nosqlConfiguration.get("username");
 		final String password = nosqlConfiguration.get("password");
-		
+
 		final KVStore kvStore = username != null && password != null
 			? KVStoreFactory.getStore(
 				kvStoreConfig,
@@ -47,7 +47,7 @@ public class OracleNoSqlFileSystemCreator extends ConfigurationBasedCreator.Abst
 			)
 			: KVStoreFactory.getStore(kvStoreConfig)
 		;
-				
+
 		final boolean              cache     = configuration.optBoolean("cache").orElse(true);
 		final OracleNoSqlConnector connector = cache
 			? OracleNoSqlConnector.Caching(kvStore)
@@ -64,79 +64,75 @@ public class OracleNoSqlFileSystemCreator extends ConfigurationBasedCreator.Abst
 			configuration.get("store-name"),
 			configuration.get("helper-hosts").split(",")
 		);
-		
+
 		configuration.opt("check-interval", Duration.class).ifPresent(
 			value -> storeConfig.setCheckInterval(value.toMillis(), TimeUnit.MILLISECONDS)
 		);
-				
+
 		this.optConsistency(configuration, "consistency").ifPresent(
 			value -> storeConfig.setConsistency(value)
 		);
-		
+
 		this.optDurability(configuration, "durability").ifPresent(
 			value -> storeConfig.setDurability(value)
 		);
-		
+
 		configuration.optInteger("lob-chunk-size").ifPresent(
 			value -> storeConfig.setLOBChunkSize(value)
 		);
-		
+
 		configuration.optInteger("lob-chunks-per-partition").ifPresent(
 			value -> storeConfig.setLOBChunksPerPartition(value)
 		);
-		
-		configuration.opt("lob-suffix").ifPresent(
-			value -> storeConfig.setLOBSuffix(value)
-		);
-		
+
 		configuration.opt("lob-timeout", Duration.class).ifPresent(
 			value -> storeConfig.setLOBTimeout(value.toMillis(), TimeUnit.MILLISECONDS)
 		);
-		
+
 		configuration.optLong("lob-verification-bytes").ifPresent(
 			value -> storeConfig.setLOBVerificationBytes(value)
 		);
-		
+
 		configuration.optInteger("max-check-retries").ifPresent(
 			value -> storeConfig.setMaxCheckRetries(value)
 		);
-		
+
 		configuration.opt("network-roundtrip-timeout", Duration.class).ifPresent(
 			value -> storeConfig.setNetworkRoundtripTimeout(value.toMillis(), TimeUnit.MILLISECONDS)
 		);
-		
-		configuration.opt("readZones").ifPresent(
+
+		configuration.opt("read-zones").ifPresent(
 			value -> storeConfig.setReadZones(value.split(","))
 		);
-		
+
 		configuration.opt("registry-open-timeout", Duration.class).ifPresent(
 			value -> storeConfig.setRegistryOpenTimeout(value.toMillis(), TimeUnit.MILLISECONDS)
 		);
-		
+
 		configuration.opt("registry-read-timeout", Duration.class).ifPresent(
 			value -> storeConfig.setRegistryReadTimeout(value.toMillis(), TimeUnit.MILLISECONDS)
 		);
-		
+
 		configuration.opt("request-timeout", Duration.class).ifPresent(
 			value -> storeConfig.setRequestTimeout(value.toMillis(), TimeUnit.MILLISECONDS)
 		);
-		
+
 		configuration.optInteger("sg-attrs-cache-timeout").ifPresent(
 			value -> storeConfig.setSGAttrsCacheTimeout(value)
 		);
-		
+
 		configuration.opt("socket-open-timeout", Duration.class).ifPresent(
 			value -> storeConfig.setSocketOpenTimeout(value.toMillis(), TimeUnit.MILLISECONDS)
 		);
-		
+
 		configuration.opt("socket-read-timeout", Duration.class).ifPresent(
 			value -> storeConfig.setSocketReadTimeout(value.toMillis(), TimeUnit.MILLISECONDS)
 		);
-		
+
 		configuration.optBoolean("use-async").ifPresent(
 			value -> storeConfig.setUseAsync(value)
 		);
-		
+
 		final Configuration securityPropertiesConfiguration = configuration.child("security-properties");
 		if(securityPropertiesConfiguration != null)
 		{
@@ -144,10 +140,10 @@ public class OracleNoSqlFileSystemCreator extends ConfigurationBasedCreator.Abst
 			securityProperties.putAll(securityPropertiesConfiguration.coalescedMap());
 			storeConfig.setSecurityProperties(securityProperties);
 		}
-		
+
 		return storeConfig;
 	}
-	
+
 	private Optional<Consistency> optConsistency(
 		final Configuration nosqlConfiguration,
 		final String        key
@@ -163,7 +159,7 @@ public class OracleNoSqlFileSystemCreator extends ConfigurationBasedCreator.Abst
 			}
 		});
 	}
-	
+
 	private Optional<Durability> optDurability(
 		final Configuration nosqlConfiguration,
 		final String        key
@@ -180,5 +176,5 @@ public class OracleNoSqlFileSystemCreator extends ConfigurationBasedCreator.Abst
 			}
 		});
 	}
-		
+
 }

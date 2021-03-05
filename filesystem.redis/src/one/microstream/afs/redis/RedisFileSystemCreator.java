@@ -12,24 +12,24 @@ public class RedisFileSystemCreator extends ConfigurationBasedCreator.Abstract<A
 	{
 		super(AFileSystem.class);
 	}
-	
+
 	@Override
 	public AFileSystem create(
 		final Configuration configuration
 	)
 	{
-		final String redisUrl = configuration.get("redis-url");
-		if(XChars.isEmpty(redisUrl))
+		final String redisUri = configuration.get("redis.uri");
+		if(XChars.isEmpty(redisUri))
 		{
 			return null;
 		}
-		
+
 		final boolean        cache     = configuration.optBoolean("cache").orElse(true);
 		final RedisConnector connector = cache
-			? RedisConnector.Caching(redisUrl)
-			: RedisConnector.New(redisUrl)
+			? RedisConnector.Caching(redisUri)
+			: RedisConnector.New(redisUri)
 		;
 		return BlobStoreFileSystem.New(connector);
 	}
-	
+
 }

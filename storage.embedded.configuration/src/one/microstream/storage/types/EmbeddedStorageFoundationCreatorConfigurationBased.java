@@ -148,7 +148,7 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 					.orElse(StorageFileNameProvider.Defaults.defaultTransactionsFileSuffix()),
 				this.configuration.opt(RESCUED_FILE_SUFFIX)
 					.orElse(StorageFileNameProvider.Defaults.defaultRescuedFileSuffix()),
-				this.configuration.opt(TYPE_DICTIONARY_FILENAME)
+				this.configuration.opt(TYPE_DICTIONARY_FILE_NAME)
 					.orElse(StorageFileNameProvider.Defaults.defaultTypeDictionaryFileName()),
 				this.configuration.opt(LOCK_FILE_NAME)
 					.orElse(StorageFileNameProvider.Defaults.defaultLockFileName())
