@@ -60,6 +60,7 @@ import one.microstream.java.nio.file.BinaryHandlerPath;
 import one.microstream.java.sql.BinaryHandlerSqlDate;
 import one.microstream.java.sql.BinaryHandlerSqlTime;
 import one.microstream.java.sql.BinaryHandlerSqlTimestamp;
+import one.microstream.java.time.BinaryHandlerZoneId;
 import one.microstream.java.util.BinaryHandlerArrayDeque;
 import one.microstream.java.util.BinaryHandlerArrayList;
 import one.microstream.java.util.BinaryHandlerCopyOnWriteArrayList;
@@ -124,7 +125,7 @@ public final class BinaryPersistence extends Persistence
 		;
 		return foundation;
 	}
-	
+
 	public static final PersistenceCustomTypeHandlerRegistry<Binary> createDefaultCustomTypeHandlerRegistry(
 		final Referencing<PersistenceTypeHandlerManager<Binary>>              typeHandlerManager,
 		final PersistenceSizedArrayLengthController                           controller        ,
@@ -143,7 +144,7 @@ public final class BinaryPersistence extends Persistence
 		final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlersReferencingTypes =
 			createNativeHandlersReferencingTypes(typeHandlerManager, controller, typeHandlerCreator)
 		;
-		
+
 		final PersistenceCustomTypeHandlerRegistry.Default<Binary> defaultCustomTypeHandlerRegistry =
 			PersistenceCustomTypeHandlerRegistry.<Binary>New()
 			.registerTypeHandlers(nativeHandlersValueTypes)
@@ -151,10 +152,10 @@ public final class BinaryPersistence extends Persistence
 			.registerTypeHandlers(defaultCustomHandlers(controller))
 			.registerTypeHandlers(customHandlers)
 		;
-		
+
 		return defaultCustomTypeHandlerRegistry;
 	}
-		
+
 	static final void initializeNativeTypeId(
 		final PersistenceTypeHandler<Binary, ?> typeHandler       ,
 		final PersistenceTypeIdLookup           nativeTypeIdLookup
@@ -166,10 +167,10 @@ public final class BinaryPersistence extends Persistence
 			// (07.11.2018 TM)EXCP: proper exception
 			throw new PersistenceException("No native TypeId found for type " + typeHandler.type());
 		}
-		
+
 		typeHandler.initialize(nativeTypeId);
 	}
-	
+
 	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> createNativeHandlersValueTypes(
 		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager,
 		final PersistenceSizedArrayLengthController              controller        ,
@@ -187,7 +188,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerPrimitive.New(double .class),
 
 			BinaryHandlerClass.New(typeHandlerManager),
-			
+
 			BinaryHandlerByte.New()     ,
 			BinaryHandlerBoolean.New()  ,
 			BinaryHandlerShort.New()    ,
@@ -198,7 +199,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerDouble.New()   ,
 			BinaryHandlerVoid.New()     ,
 			BinaryHandlerObject.New()   ,
-			
+
 			BinaryHandlerString.New()       ,
 			BinaryHandlerStringBuffer.New() ,
 			BinaryHandlerStringBuilder.New(),
@@ -211,36 +212,38 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerNativeArray_float.New()  ,
 			BinaryHandlerNativeArray_long.New()   ,
 			BinaryHandlerNativeArray_double.New() ,
-			
+
 			BinaryHandlerBigInteger.New(),
 			BinaryHandlerBigDecimal.New(),
-			
+
 			BinaryHandlerFile.New()    ,
 			BinaryHandlerDate.New()    ,
 			BinaryHandlerLocale.New()  ,
 			BinaryHandlerCurrency.New(),
 			BinaryHandlerPattern.New() ,
-			
+
 			BinaryHandlerInetAddress.New() ,
 			BinaryHandlerInet4Address.New(),
 			BinaryHandlerInet6Address.New(),
-			
+
 			BinaryHandlerPath.New(), // "abstract type" TypeHandler
-			
+
 			BinaryHandlerInetSocketAddress.New(),
-			
+
 			BinaryHandlerURI.New(),
 			BinaryHandlerURL.New(),
+
+			BinaryHandlerZoneId.New(),
 
 			// non-sensical handlers required for confused developers
 			BinaryHandlerSqlDate.New()     ,
 			BinaryHandlerSqlTime.New()     ,
 			BinaryHandlerSqlTimestamp.New(),
-			
+
 			BinaryHandlerOptionalInt.New(),
 			BinaryHandlerOptionalLong.New(),
 			BinaryHandlerOptionalDouble.New(),
-			
+
 			/* (12.11.2019 TM)NOTE:
 			 * One might think that "empty" implementations of a collection interface would have no fields, anyway.
 			 * But no-ho-ho, not when the JDK geniuses are involved.
@@ -252,25 +255,25 @@ public final class BinaryPersistence extends Persistence
 			 * (and Java in general), it is necessary to explicitly define stateless handlers for those
 			 * pseudo-stateless empty types with useless fields.
 			 * Rant over. Yes, I feel much better now.
-			 * 
+			 *
 			 * Also, to avoid an erroneous instance creation that BinaryHandlerStateless might perform
 			 * (e.g. when using a dummy object registry as tools might do), the constant instance itself
 			 * has to be returned in case the create should ever be invoked.
 			 */
 			BinaryHandlerStatelessConstant.New(Collections.emptyNavigableSet()),
 			BinaryHandlerStatelessConstant.New(Collections.emptyNavigableMap()),
-			
+
 			// not an enum, as opposed to NaturalOrderComparator.
 			BinaryHandlerStatelessConstant.New(Collections.reverseOrder())
 		);
-		
+
 		/* (24.10.2013 TM)TODO: priv#117 more native handlers (Path, Instant and whatnot)
 		 * Also see class Persistence for default TypeIds
 		 */
-		
+
 		return nativeHandlersValueTypes;
 	}
-	
+
 	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> createNativeHandlersReferencingTypes(
 		final Referencing<PersistenceTypeHandlerManager<Binary>> typeHandlerManager,
 		final PersistenceSizedArrayLengthController              controller        ,
@@ -278,13 +281,13 @@ public final class BinaryPersistence extends Persistence
 	)
 	{
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers = ConstList.New(
-			
+
 			// creepy JDK 1.0 collections
 			BinaryHandlerVector.New()               ,
 			BinaryHandlerStack.New()                ,
 			BinaryHandlerHashtable.New()            ,
 			BinaryHandlerProperties.New()           ,
-			
+
 			// still creepy JDK 1.2 collections
 			BinaryHandlerArrayList.New(),
 			BinaryHandlerHashSet.New()              ,
@@ -293,20 +296,20 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerLinkedList.New()           ,
 			BinaryHandlerTreeMap.New()              ,
 			BinaryHandlerTreeSet.New()              ,
-			
+
 			// still creepy JDK 1.4 collections
 			BinaryHandlerIdentityHashMap.New()      ,
 			BinaryHandlerLinkedHashMap.New()        ,
 			BinaryHandlerLinkedHashSet.New()        ,
-			
+
 			// still creepy JDK 1.5 collections
 			BinaryHandlerPriorityQueue.New()        ,
 			BinaryHandlerConcurrentHashMap.New()    ,
 			BinaryHandlerConcurrentLinkedQueue.New(),
 			BinaryHandlerCopyOnWriteArrayList.New() ,
-			
+
 			// remaining JDK collections (wrappers and the like) are handled dynamically
-			
+
 			/*
 			 * Would work for these, but Iterators are generally unpersistable for good reason.
 			 * See Persistence#unpersistableTypes
@@ -314,26 +317,26 @@ public final class BinaryPersistence extends Persistence
 //			BinaryHandlerStateless.New(Collections.emptyEnumeration().getClass()),
 //			BinaryHandlerStateless.New(Collections.emptyIterator().getClass()),
 //			BinaryHandlerStateless.New(Collections.emptyListIterator().getClass()),
-			
+
 			// changed with support of enums. And must change to keep TypeDictionary etc. consistent
 			BinaryHandlerSingletonStatelessEnum.New(Comparator.naturalOrder().getClass()),
 //			typeHandlerCreator.createTypeHandler(Comparator.naturalOrder().getClass()),
 //			BinaryHandlerStateless.New(Comparator.naturalOrder().getClass()),
-						
+
 			// still creepy JDK 1.6 collections
 			BinaryHandlerArrayDeque.New()           ,
 			BinaryHandlerConcurrentSkipListMap.New(),
 			BinaryHandlerConcurrentSkipListSet.New(),
-			
+
 			// still creepy JDK 1.7 collections
 			BinaryHandlerConcurrentLinkedDeque.New(),
 
 			BinaryHandlerLazyDefault.New(),
-			
+
 			// the way Optional is implemented, only a generically (low-level) working handler can handle it correctly
 			typeHandlerCreator.createTypeHandlerGeneric(Optional.class)
 		);
-		
+
 		return nativeHandlers;
 	}
 
@@ -363,11 +366,11 @@ public final class BinaryPersistence extends Persistence
 			 * - _intList etc.
 			 */
 		);
-		
+
 		// default custom handlers have no fixed typeId like native handlers.
 		return defaultHandlers;
 	}
-	
+
 	public static final long resolveFieldBinaryLength(final Class<?> fieldType)
 	{
 		return fieldType.isPrimitive()
@@ -385,7 +388,7 @@ public final class BinaryPersistence extends Persistence
 	{
 		return new BinaryFieldLengthResolver.Default();
 	}
-		
+
 	public static PersistenceTypeDictionary provideTypeDictionaryFromFile(final AFile dictionaryFile)
 	{
 		final BinaryPersistenceFoundation<?> f = BinaryPersistenceFoundation.New()
@@ -395,7 +398,7 @@ public final class BinaryPersistence extends Persistence
 		;
 		return f.getTypeDictionaryProvider().provideTypeDictionary();
 	}
-	
+
 	public static final int binaryValueSize(final Class<?> type)
 	{
 		return type.isPrimitive()
@@ -433,15 +436,15 @@ public final class BinaryPersistence extends Persistence
 		}
 	}
 
-	
-	
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
-	 * 
+	 *
 	 * @throws UnsupportedOperationException
 	 */
 	private BinaryPersistence()
@@ -449,5 +452,5 @@ public final class BinaryPersistence extends Persistence
 		// static only
 		throw new UnsupportedOperationException();
 	}
-	
+
 }
