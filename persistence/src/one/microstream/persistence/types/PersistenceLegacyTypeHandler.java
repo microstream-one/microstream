@@ -12,7 +12,7 @@ public interface PersistenceLegacyTypeHandler<D, T> extends PersistenceTypeHandl
 		{
 			return this;
 		}
-		
+
 		// (01.06.2018 TM)NOTE: /!\ copied from PersistenceTypeHandler#initializeTypeId
 		// (26.04.2017 TM)EXCP: proper exception
 		throw new IllegalArgumentException(
@@ -37,15 +37,15 @@ public interface PersistenceLegacyTypeHandler<D, T> extends PersistenceTypeHandl
 			+ " may never store anything."
 		);
 	}
-	
+
 	@Override
 	public default Object[] collectEnumConstants()
 	{
 		// indicate discarding of constants root entry during root resolving
 		return null;
 	}
-	
-	
+
+
 	public static <T, D> T resolveEnumConstant(
 		final PersistenceLegacyTypeHandler<D, T> typeHandler,
 		final D                                  data       ,
@@ -53,27 +53,30 @@ public interface PersistenceLegacyTypeHandler<D, T> extends PersistenceTypeHandl
 	)
 	{
 		final int     persistedEnumOrdinal = typeHandler.getPersistedEnumOrdinal(data);
-		final Integer mappedOrdinal        = ordinalMap[persistedEnumOrdinal];
+		final Integer mappedOrdinal        = persistedEnumOrdinal < ordinalMap.length
+			? ordinalMap[persistedEnumOrdinal]
+			: null
+		;
 		if(mappedOrdinal == null)
 		{
 			// enum constant intentionally deleted, return null as instance (effectively "deleting" it on load)
 			return null;
 		}
-		
+
 		return XReflect.resolveEnumConstantInstanceTyped(typeHandler.type(), mappedOrdinal.intValue());
 	}
-	
-	
-	
+
+
+
 	public abstract class Abstract<D, T> implements PersistenceLegacyTypeHandler<D, T>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
+
 		private final PersistenceTypeDefinition typeDefinition;
-		
-		
+
+
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -84,19 +87,19 @@ public interface PersistenceLegacyTypeHandler<D, T> extends PersistenceTypeHandl
 			super();
 			this.typeDefinition = typeDefinition;
 		}
-		
-		
-		
+
+
+
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+
 		@Override
 		public final long typeId()
 		{
 			return this.typeDefinition.typeId();
 		}
-		
+
 		@Override
 		public final String runtimeTypeName()
 		{
@@ -116,7 +119,7 @@ public interface PersistenceLegacyTypeHandler<D, T> extends PersistenceTypeHandl
 		}
 
 		// persisted-form-related methods, so the old type definition has be used //
-		
+
 		public PersistenceTypeDefinition legacyTypeDefinition()
 		{
 			return this.typeDefinition;
@@ -133,13 +136,13 @@ public interface PersistenceLegacyTypeHandler<D, T> extends PersistenceTypeHandl
 		{
 			return this.typeDefinition.instanceMembers();
 		}
-		
+
 		@Override
 		public final long membersPersistedLengthMinimum()
 		{
 			return this.typeDefinition.membersPersistedLengthMinimum();
 		}
-		
+
 		@Override
 		public final long membersPersistedLengthMaximum()
 		{
@@ -163,10 +166,10 @@ public interface PersistenceLegacyTypeHandler<D, T> extends PersistenceTypeHandl
 		{
 			return this.typeDefinition.hasVaryingPersistedLengthInstances();
 		}
-		
+
 		// end of persisted-form-related methods //
-	
+
 	}
-	
+
 }
 
