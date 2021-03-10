@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>04.02.00-MS-BONUS-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -19,12 +19,12 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>filesystem.blobstore</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>04.02.00-MS-BONUS-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>configuration</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>04.02.00-MS-BONUS-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.oracle.kv</groupId>
