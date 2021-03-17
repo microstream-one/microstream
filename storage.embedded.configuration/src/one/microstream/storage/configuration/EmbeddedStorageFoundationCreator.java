@@ -10,6 +10,7 @@ import one.microstream.chars.XChars;
 import one.microstream.io.XIO;
 import one.microstream.storage.types.EmbeddedStorage;
 import one.microstream.storage.types.EmbeddedStorageFoundation;
+import one.microstream.storage.types.EmbeddedStorageFoundationCreatorConfigurationBased;
 import one.microstream.storage.types.Storage;
 import one.microstream.storage.types.StorageChannelCountProvider;
 import one.microstream.storage.types.StorageConfiguration;
@@ -20,8 +21,11 @@ import one.microstream.storage.types.StorageHousekeepingController;
 import one.microstream.storage.types.StorageLiveFileProvider;
 
 /**
- * Function to create an {@link EmbeddedStorageFoundation} based on a {@link Configuration}.
+ * 
+ * @deprecated replaced by {@link EmbeddedStorageFoundationCreatorConfigurationBased}, will be removed in a future release
+ * @see one.microstream.storage.configuration
  */
+@Deprecated
 @FunctionalInterface
 public interface EmbeddedStorageFoundationCreator
 {

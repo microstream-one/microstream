@@ -1,9 +1,14 @@
 
-package one.microstream.storage.configuration;
+package one.microstream.configuration.types;
 
 import java.time.Duration;
 import java.util.function.Function;
 
+/**
+ * Enumeration of time durations at a given unit of granularity.
+ * 
+ *
+ */
 public enum DurationUnit
 {
 	/**

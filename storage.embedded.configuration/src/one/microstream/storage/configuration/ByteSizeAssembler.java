@@ -1,16 +1,15 @@
 package one.microstream.storage.configuration;
 
-import one.microstream.bytes.ByteMultiple;
 import one.microstream.chars.ObjectStringAssembler;
 import one.microstream.chars.VarString;
+import one.microstream.configuration.types.ByteUnit;
 
 /**
- * Converts a byte size value from long into a human readable format.
- *
- * @see ByteMultiple
- * @since 3.1
- *
+ * 
+ * @deprecated will be removed in a future release
+ * @see one.microstream.storage.configuration
  */
+@Deprecated
 public interface ByteSizeAssembler extends ObjectStringAssembler<Long>
 {
 	@Override
@@ -39,21 +38,21 @@ public interface ByteSizeAssembler extends ObjectStringAssembler<Long>
 		@Override
 		public VarString assemble(final VarString vs, final Long byteSize)
 		{
-			final ByteMultiple[] byteMultiples =
+			final ByteUnit[] byteMultiples =
 			{
-				ByteMultiple.KB,
-				ByteMultiple.MB,
-				ByteMultiple.GB,
-				ByteMultiple.TB,
-				ByteMultiple.PB,
-				ByteMultiple.EB,
-				ByteMultiple.ZB,
-				ByteMultiple.YB
+				ByteUnit.KB,
+				ByteUnit.MB,
+				ByteUnit.GB,
+				ByteUnit.TB,
+				ByteUnit.PB,
+				ByteUnit.EB,
+				ByteUnit.ZB,
+				ByteUnit.YB
 			};
 
-			for(final ByteMultiple byteMultiple : byteMultiples)
+			for(final ByteUnit byteMultiple : byteMultiples)
 			{
-				final double value     = ByteMultiple.convert(byteSize, ByteMultiple.B).to(byteMultiple);
+				final double value     = ByteUnit.convert(byteSize, ByteUnit.B).to(byteMultiple);
 				final long   longValue = (long)value;
 				if(longValue > 0 && longValue < 1000)
 				{

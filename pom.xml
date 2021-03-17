@@ -35,6 +35,9 @@
 		<module>cache.hibernate</module>
 		<module>communication</module>
 		<module>communication.binary</module>
+		<module>configuration</module>
+		<module>configuration.hocon</module>
+		<module>configuration.yaml</module>
 		<module>filesystem.aws</module>
 		<module>filesystem.azure</module>
 		<module>filesystem.blobstore</module>
@@ -150,7 +153,7 @@
 					<dependency>
 						<groupId>org.eclipse.jdt</groupId>
 						<artifactId>ecj</artifactId>
-						<version>3.18.0</version>
+						<version>3.24.0</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -211,7 +214,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.1.1</version>
+					<version>3.2.0</version>
 					<configuration>
 						<archive>
 							<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -245,7 +248,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.1.1</version>
+					<version>3.2.0</version>
 					<configuration>
 						<doclint>none</doclint>
 						<failOnError>false</failOnError>
@@ -302,7 +305,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>flatten-maven-plugin</artifactId>
-					<version>1.0.1</version>
+					<version>1.2.5</version>
 					<executions>
 						<execution>
 							<id>flatten</id>

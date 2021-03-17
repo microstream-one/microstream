@@ -22,6 +22,11 @@
 			<version>04.02.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>configuration</artifactId>
+			<version>04.02.00-MS-GA-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>com.oracle.kv</groupId>
 			<artifactId>oracle-nosql-client</artifactId>
 			<version>18.3.10</version>

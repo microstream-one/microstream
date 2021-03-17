@@ -20,6 +20,11 @@
 			<version>04.02.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>configuration</artifactId>
+			<version>04.02.00-MS-GA-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>com.azure</groupId>
 			<artifactId>azure-storage-blob</artifactId>
 			<version>12.9.0</version>
