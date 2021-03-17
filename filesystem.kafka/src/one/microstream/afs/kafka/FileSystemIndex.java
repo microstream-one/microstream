@@ -13,7 +13,6 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.RecordsToDelete;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -192,7 +191,7 @@ public interface FileSystemIndex extends AutoCloseable
 						new TopicPartition(this.topicName(), 0),
 						RecordsToDelete.beforeOffset(0xFFFFFFFFFFFFFFFFL)
 					);
-					try(AdminClient admin = KafkaAdminClient.create(this.kafkaProperties))
+					try(AdminClient admin = AdminClient.create(this.kafkaProperties))
 					{
 						admin.deleteRecords(recordsToDelete)
 							.all()

@@ -8,10 +8,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import one.microstream.X;
-import one.microstream.collections.BulkList;
-import one.microstream.collections.IndexExceededException;
-import one.microstream.collections.ListView;
-import one.microstream.collections.XArrays;
 import one.microstream.collections.old.OldList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingList;

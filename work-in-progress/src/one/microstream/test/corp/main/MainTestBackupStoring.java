@@ -21,7 +21,7 @@ public class MainTestBackupStoring
 	static final ADirectory DIRECTORY_BACKUP    = DIRECTORY_STORAGE.ensureDirectory("backup");
 	static final ADirectory DIRECTORY_DELETED   = DIRECTORY_BACKUP.ensureDirectory("deleted");
 	static final ADirectory DIRECTORY_TRUNCATED = DIRECTORY_BACKUP.ensureDirectory("truncated");
-	
+
 	// creates and start an embedded storage manager with all-default-settings.
 	static final EmbeddedStorageManager STORAGE = EmbeddedStorage
 		.Foundation(
@@ -58,7 +58,7 @@ public class MainTestBackupStoring
 		)
 		.start()
 	;
-	
+
 	static Object[] createArray(final int size)
 	{
 		return X.Array(Object.class, size, i -> "Element" + i);
@@ -71,7 +71,7 @@ public class MainTestBackupStoring
 		STORAGE.setRoot(array);
 		Test.print("STORAGE: storing ...");
 		STORAGE.storeRoot();
-		
+
 		for(int i = 0; i < 10; i++)
 		{
 			XThreads.sleep(500);
@@ -81,5 +81,5 @@ public class MainTestBackupStoring
 		XThreads.sleep(1000);
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
-	
+
 }

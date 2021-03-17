@@ -1,7 +1,5 @@
 package one.microstream.entity;
 
-import one.microstream.entity.Entity;
-
 public interface Address extends Entity
 {
 	public String line1();

@@ -13,7 +13,7 @@ public class MainTestBackupDirectoryAFSValidation
 	{
 		final NioFileSystem fileSystem = NioFileSystem.New();
 
-		final StorageConfiguration configuration = StorageConfiguration.Builder()
+		StorageConfiguration.Builder()
 			.setStorageFileProvider(StorageLiveFileProvider.New(fileSystem.ensureDirectory(
 				Paths.get(System.getProperty("user.home"), "logger-storage"))
 			))

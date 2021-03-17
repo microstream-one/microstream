@@ -72,7 +72,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 			true
 		);
 	}
-	
+
 
 	public static class Default
 	extends    BlobStoreConnector.Abstract<Blob>
@@ -172,7 +172,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 					}
 					while(targetBuffer.hasRemaining() && readChannel.read(targetBuffer) >= 0)
 					{
-						;
+						// empty loop
 					}
 				}
 				catch(final IOException e)
@@ -194,7 +194,7 @@ public interface GoogleCloudStorageConnector extends BlobStoreConnector
 					}
 					while(targetBuffer.hasRemaining() && readChannel.read(blobBuffer) >= 0)
 					{
-						;
+						// empty loop
 					}
 				}
 				catch(final IOException e)

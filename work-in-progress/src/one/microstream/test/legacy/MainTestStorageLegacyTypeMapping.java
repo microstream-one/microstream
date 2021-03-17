@@ -1,6 +1,6 @@
 package one.microstream.test.legacy;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -27,7 +27,7 @@ public class MainTestStorageLegacyTypeMapping
 			)
 		)
 		.setRefactoringMappingProvider(
-			Persistence.RefactoringMapping(new File("Refactorings.csv"))
+			Persistence.RefactoringMapping(Paths.get("Refactorings.csv"))
 		)
 		.start()
 	;
@@ -35,37 +35,37 @@ public class MainTestStorageLegacyTypeMapping
 	public static void main(final String[] args)
 	{
 		// either loaded on startup from an existing DB or required to be generated.
-		if(STORAGE.defaultRoot().get() == null)
+		if(STORAGE.root() == null)
 		{
 			// first execution enters here
 
 			Test.print("TEST: graph required." );
-			STORAGE.defaultRoot().set(generateGraph());
+			STORAGE.setRoot(generateGraph());
 			Test.print("STORAGE: storing ...");
-			STORAGE.storeDefaultRoot();
+			STORAGE.storeRoot();
 			Test.print("STORAGE: storing completed.");
 		}
 		else
 		{
 			// subsequent executions enter here
-			
+
 			Test.print("TEST: graph loaded." );
-			Test.print(STORAGE.defaultRoot().get());
+			Test.print(STORAGE.root());
 			Test.print("TEST: exporting data ..." );
 			TestImportExport.testExport(STORAGE, Test.provideTimestampedDirectory(MainTestStorageLegacyTypeMapping.class.getName()));
 			Test.print("TEST: data export completed.");
 		}
-		
+
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
-	
+
 	static Object generateGraph()
 	{
 //		return new User137();
 //		return new Person();
 		return new TestEntity(47, "testi", "A", "B", "C");
 	}
-		
+
 	static class TestEntity
 	{
 		Integer            id       ;
@@ -77,8 +77,8 @@ public class MainTestStorageLegacyTypeMapping
 		String             name2     ;
 		String             name3     ;
 //		String             lastName     ;
-		
-		
+
+
 		public TestEntity(final Integer id, final String name, final String... moreStuff)
 		{
 			super();
@@ -103,20 +103,20 @@ public class MainTestStorageLegacyTypeMapping
 				+ "]"
 			;
 		}
-		
+
 	}
-	
+
 	// "137": to test legacy type mapping with inheritance. There was a (now fixed) bug in the TypeId registration order.
 	static class Person137
 	{
 		String fieldp1;
 		String fieldp2;
 	}
-	
+
 	static class User137 extends Person137
 	{
 //		String fieldu3;
 		String fieldu4;
 	}
-	
+
 }

@@ -11,7 +11,6 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.RecordsToDelete;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -290,7 +289,7 @@ public interface TopicIndex extends AutoCloseable
 				});
 				if(removeCount > 0L)
 				{
-					try(AdminClient admin = KafkaAdminClient.create(this.kafkaProperties))
+					try(AdminClient admin = AdminClient.create(this.kafkaProperties))
 					{
 						admin.deleteRecords(recordsToDelete)
 							.all()

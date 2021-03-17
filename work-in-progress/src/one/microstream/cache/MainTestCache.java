@@ -17,7 +17,7 @@ public class MainTestCache
 	{
 		String string;
 		double number;
-		
+
 		Entity(final String string, final double number)
 		{
 			super();
@@ -25,7 +25,7 @@ public class MainTestCache
 			this.number = number;
 		}
 	}
-	
+
 	public static void main(final String[] args)
 	{
 		final EmbeddedStorageManager               storageManager =
@@ -35,19 +35,19 @@ public class MainTestCache
 				.enableStatistics()
 				.storeByReference()
 				.build();
-		
-		final Cache<String, Entity> cache  =
-			Caching.getCachingProvider().getCacheManager().createCache("test", configuration);
-		
-		final Random                random = new Random();
-		for(int i = 0; i < 1_000; i++)
+
+		try(final Cache<String, Entity> cache  =
+			Caching.getCachingProvider().getCacheManager().createCache("test", configuration))
 		{
-			cache.put("e" + i, new Entity("entity" + i, random.nextDouble()));
+			final Random                random = new Random();
+			for(int i = 0; i < 1_000; i++)
+			{
+				cache.put("e" + i, new Entity("entity" + i, random.nextDouble()));
+			}
+
+			System.out.println(cache.get("e500"));
 		}
-		
-		System.out.println(cache.get("e500"));
-				
-		cache.close();
+
 		storageManager.shutdown();
 	}
 }

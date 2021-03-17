@@ -1,3 +1,4 @@
+package one.microstream.test;
 
 
 import java.lang.reflect.Field;
@@ -9,13 +10,13 @@ import one.microstream.collections.types.XReference;
 
 public class MainTestGenericTypeStuff
 {
-	
+
 	public static void main(final String[] args)
 	{
 		doit(MyClass2.class);
 	}
-	
-	
+
+
 	static void doit(final Class<?> clazz)
 	{
 		for(Class<?> c = clazz; c != Object.class; c = c.getSuperclass())
@@ -23,7 +24,7 @@ public class MainTestGenericTypeStuff
 			for(final Field field : c.getDeclaredFields())
 			{
 				System.out.println("Field " + field);
-				
+
 				final Type genericType = field.getGenericType();
 				if(genericType instanceof ParameterizedType)
 				{
@@ -36,12 +37,12 @@ public class MainTestGenericTypeStuff
 				{
 					System.out.println(" has an omitted generic type.");
 				}
-				
+
 				System.out.println();
 			}
 		}
 	}
-	
+
 }
 
 
@@ -53,5 +54,6 @@ class MyClass1<T>
 class MyClass2 extends MyClass1<String>
 {
 	XReference<String> reference2;
+	@SuppressWarnings("rawtypes")
 	XReference reference3;
 }

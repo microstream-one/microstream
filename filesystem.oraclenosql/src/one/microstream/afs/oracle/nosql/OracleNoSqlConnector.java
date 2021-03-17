@@ -67,7 +67,7 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 			false
 		);
 	}
-	
+
 	/**
 	 * Pseudo-constructor method which creates a new {@link OracleNoSqlConnector} with cache.
 	 *
@@ -234,7 +234,6 @@ public interface OracleNoSqlConnector extends BlobStoreConnector
 						keys.add(key);
 					}
 				});
-			;
 			return keys.stream();
 		}
 

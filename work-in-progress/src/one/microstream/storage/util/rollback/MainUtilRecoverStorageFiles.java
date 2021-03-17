@@ -33,7 +33,7 @@ public class MainUtilRecoverStorageFiles
 		OBJECTID_LOWER_VALUE = Persistence.defaultStartObjectId(),
 		OBJECTID_UPPER_BOUND = 1000000000001000000L
 	;
-	
+
 	public static void main(final String[] args) throws Exception
 	{
 		rollbackTransfers();
@@ -53,7 +53,8 @@ public class MainUtilRecoverStorageFiles
 			BulkList.New(),
 			0
 		);
-		
+
+		@SuppressWarnings("deprecation")
 		final StorageDataFileValidator dfv = StorageDataFileValidator.DebugLogging(
 			BinaryEntityRawDataIterator.New(),
 			StorageEntityDataValidator.DebugLogging(
@@ -65,13 +66,13 @@ public class MainUtilRecoverStorageFiles
 			),
 			StorageFileEntityDataIterator.New()
 		);
-		
+
 		for(final StorageDataInventoryFile file : storageFiles)
 		{
 			dfv.validateFile(file);
 		}
 	}
-	
+
 	static void printTransactionsFile()
 	{
 		final StorageTransactionsEntries tf = StorageTransactionsEntries.parseFile(
@@ -79,14 +80,14 @@ public class MainUtilRecoverStorageFiles
 		);
 		tf.entries().iterate(System.out::println);
 	}
-	
+
 	static void rollbackTransfers() throws Exception
 	{
 		final AFile sourceFile = PATH_CORRUPTED.ensureDirectory("channel_0").ensureFile("channel_0_491.dat");
-				
+
 		final ADirectory dir = AFS.ensureExists(PATH_CORRUPTED.ensureDirectory("strings"));
 		XDebug.deleteAllFiles(dir, false);
-		
+
 		// 2019-03-13 (2019-03-14)
 //		final StorageRollbacker sr = new StorageRollbacker(
 //			863,
@@ -98,7 +99,7 @@ public class MainUtilRecoverStorageFiles
 //				OBJECTID_LOWER_VALUE, OBJECTID_UPPER_BOUND
 //			)
 //		);
-		
+
 		// 2019-01-10 (2019-04-05)
 		final StorageRollbacker sr = new StorageRollbacker(
 			490L,
@@ -115,9 +116,9 @@ public class MainUtilRecoverStorageFiles
 //			new File(PATH_CORRUPTED + "/channel_0/transactions_0.sft")
 //		);
 //		sr.rollbackTransfers(tf);
-		
+
 //		sr.cleanUpDirect();
 		sr.recoverStringsAndPrint();
 	}
-	
+
 }

@@ -1,6 +1,6 @@
 package one.microstream.test.legacy;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 import one.microstream.X;
 import one.microstream.collections.types.XList;
@@ -18,7 +18,7 @@ import one.microstream.util.similarity.MatchValidator;
 public class MainTestStorageLegacyMapping
 {
 	static final Reference<XList<OldContact>> ROOT = X.Reference(null);
-	
+
 	// create a storage manager, link the root, start the "embedded" database
 	static final EmbeddedStorageManager STORAGE = X.on(EmbeddedStorage
 		.Foundation(),
@@ -26,12 +26,12 @@ public class MainTestStorageLegacyMapping
 //			.setLegacyTypeMappingResultor(InquiringLegacyTypeMappingResultor.New(new MappingPrinter()))
 //			.setLegacyMemberMatchingProvider(new MatchProvider())
 			.setRefactoringMappingProvider(
-				Persistence.RefactoringMapping(new File("Refactorings.csv"))
+				Persistence.RefactoringMapping(Paths.get("Refactorings.csv"))
 			)
 		)
 		.start(ROOT)
 	;
-	
+
 	static XList<OldContact> createTestModel()
 	{
 		return X.List(new OldContact());
@@ -68,7 +68,7 @@ public class MainTestStorageLegacyMapping
 		}
 		System.exit(0); // no shutdown required, the storage concept is inherently crash-safe
 	}
-	
+
 	static void handleLoadedSimpleClass(final XList<SimpleClass> entities)
 	{
 		X.on(entities.get(), e -> {
@@ -84,9 +84,9 @@ public class MainTestStorageLegacyMapping
 			STORAGE.store(e);
 		});
 	}
-		
 
-	
+
+
 	static class MatchValidator1 implements MatchValidator<PersistenceTypeDefinitionMember>
 	{
 
@@ -104,12 +104,12 @@ public class MainTestStorageLegacyMapping
 				+ "\t<--"+ similarity+", "+sourceCandidateCount+"/"+targetCandidateCount+"-->\t"
 				+ target.name()
 			);
-			
+
 			return true;
 		}
-		
+
 	}
-	
+
 	static class MatchProvider implements PersistenceMemberMatchingProvider
 	{
 		@Override
@@ -118,5 +118,5 @@ public class MainTestStorageLegacyMapping
 			return new MatchValidator1();
 		}
 	}
-			
+
 }

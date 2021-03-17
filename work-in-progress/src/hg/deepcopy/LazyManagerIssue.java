@@ -37,6 +37,7 @@ at hg.deepcopy.LazyManagerIssue.main(LazyManagerIssue.java:30)
 
 public class LazyManagerIssue
 {
+	@SuppressWarnings("unchecked")
 	public static void main(final String args[])
 	{
 
@@ -59,6 +60,7 @@ public class LazyManagerIssue
 		});
 
 		final Lazy<String> dataObject2 = (Lazy<String>) storage2.root();
+		System.out.println(dataObject2);
 		storage2.shutdown();
 
 		XDebug.println("done");

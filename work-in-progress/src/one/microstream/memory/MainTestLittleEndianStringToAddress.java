@@ -2,7 +2,6 @@ package one.microstream.memory;
 
 import java.nio.ByteBuffer;
 
-import one.microstream.memory.XMemory;
 import one.microstream.math.XMath;
 import one.microstream.memory.sun.JdkInternals;
 import sun.misc.Unsafe;

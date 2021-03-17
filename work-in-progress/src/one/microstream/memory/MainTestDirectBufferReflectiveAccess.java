@@ -3,7 +3,6 @@ package one.microstream.memory;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 
-import one.microstream.memory.XMemory;
 import one.microstream.chars.XChars;
 
 public class MainTestDirectBufferReflectiveAccess

@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 
 import one.microstream.collections.BulkList;
 import one.microstream.collections.interfaces.OptimizableCollection;
-import one.microstream.collections.interfaces.Sized;
 import one.microstream.collections.types.XList;
 import one.microstream.functional._longProcedure;
 import one.microstream.math.XMath;
@@ -21,7 +20,7 @@ import one.microstream.typing.XTypes;
  *
  */
 @Deprecated
-public final class WeakHashMapObject_long<T> implements Sized, OptimizableCollection
+public final class WeakHashMapObject_long<T> implements OptimizableCollection
 {
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //

@@ -62,7 +62,7 @@ public interface CoherenceConnector extends BlobStoreConnector
 			false
 		);
 	}
-	
+
 	/**
 	 * Pseudo-constructor method which creates a new {@link CoherenceConnector} with cache.
 	 *
@@ -172,7 +172,6 @@ public interface CoherenceConnector extends BlobStoreConnector
 			final BlobStorePath file
 		)
 		{
-			@SuppressWarnings("unchecked")
 			final Map<String, Long> result = this.cache.invokeAll(
 				fileFilter(file),
 				new ExtractorProcessor(valueExtractor(SIZE))
@@ -188,7 +187,6 @@ public interface CoherenceConnector extends BlobStoreConnector
 			final BlobStorePath directory
 		)
 		{
-			@SuppressWarnings("unchecked")
 			final Map<String, ?> result = this.cache.invokeAll(
 				childKeysFilter(directory),
 				new ExtractorProcessor(new KeyExtractor())
