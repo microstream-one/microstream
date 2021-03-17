@@ -6,7 +6,6 @@ import one.microstream.concurrency.XThreads;
 import one.microstream.persistence.internal.DefaultObjectRegistry;
 import one.microstream.typing.XTypes;
 
-@SuppressWarnings("deprecation")
 public class MainTestObjectRegistryConcurrency
 {
 	static final int   COUNT        = 1_000_000;
@@ -16,7 +15,7 @@ public class MainTestObjectRegistryConcurrency
 	static final Object[] objects   = new Object[COUNT];
 	static final long[]   objectIds = new long[COUNT];
 	static final DefaultObjectRegistry reg = DefaultObjectRegistry.New(HASH_DENSITY);
-	
+
 	static
 	{
 		long objectId = 1_000_000_000_000L;

@@ -40,7 +40,7 @@ import one.microstream.chars.XChars;
 public interface HibernateProvider extends SqlProvider, AutoCloseable
 {
 	public EntityManager entityManager();
-	
+
 	@Override
 	public void close();
 
@@ -54,7 +54,7 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 			null
 		);
 	}
-	
+
 	public static HibernateProvider New(
 		final String              persistenceUnit,
 		final Map<String, Object> properties
@@ -173,9 +173,9 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 						.unwrap(Session.class)
 						.doReturningWork(operation::execute)
 					;
-					
+
 					transaction.commit();
-					
+
 					return result;
 				}
 				catch(final Exception e)
@@ -208,7 +208,7 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 				(SharedSessionContractImplementor)session
 			);
 		}
-		
+
 		@Override
 		public boolean queryDirectoryExists(
 			final Connection connection,
@@ -226,7 +226,7 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 				return result.next();
 			}
 		}
-		
+
 		@Override
 		public Set<String> queryDirectories(
 			final Connection connection,
@@ -235,7 +235,7 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 			throws SQLException
 		{
 			final Set<String> directories = new HashSet<>();
-			
+
 			try(final ResultSet result = connection.getMetaData().getTables(
 				this.catalog(),
 				this.schema(),
@@ -248,7 +248,7 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 					directories.add(result.getString("TABLE_NAME"));
 				}
 			}
-			
+
 			return directories;
 		}
 
@@ -423,7 +423,6 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 			final Table   table   = this.table(tableName);
 			final Insert  insert  = new Insert(dialect);
 			insert.setTableName(table.sqlName());
-			@SuppressWarnings("unchecked")
 			final Iterator<Column> columnIterator = table.getColumnIterator();
 			while(columnIterator.hasNext())
 			{
@@ -482,7 +481,7 @@ public interface HibernateProvider extends SqlProvider, AutoCloseable
 				.close()
 			;
 		}
-				
+
 
 		private static final class Table extends org.hibernate.mapping.Table
 		{

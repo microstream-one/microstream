@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-import one.microstream.memory.XMemory;
 import one.microstream.exceptions.IORuntimeException;
+import one.microstream.memory.XMemory;
 import one.microstream.network.types.NetworkUserSession;
 import one.microstream.network.types.NetworkUserSessionManager;
 

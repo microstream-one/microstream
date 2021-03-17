@@ -1,7 +1,5 @@
 package one.microstream.collections;
 
-import one.microstream.collections.EqHashEnum;
-
 public class MainTestRehash
 {
 	public static void main(final String[] args)

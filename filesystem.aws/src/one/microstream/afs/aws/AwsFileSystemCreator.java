@@ -21,7 +21,7 @@ public abstract class AwsFileSystemCreator extends ConfigurationBasedCreator.Abs
 	{
 		super(AFileSystem.class);
 	}
-	
+
 	protected void populateBuilder(
 		final AwsClientBuilder<?, ?> clientBuilder,
 		final Configuration          configuration
@@ -50,13 +50,13 @@ public abstract class AwsFileSystemCreator extends ConfigurationBasedCreator.Abs
 					clientBuilder.credentialsProvider(EnvironmentVariableCredentialsProvider.create());
 				}
 				break;
-				
+
 				case "system-properties":
 				{
 					clientBuilder.credentialsProvider(SystemPropertyCredentialsProvider.create());
 				}
 				break;
-				
+
 				case "static":
 				{
 					clientBuilder.credentialsProvider(
@@ -69,14 +69,17 @@ public abstract class AwsFileSystemCreator extends ConfigurationBasedCreator.Abs
 					);
 				}
 				break;
-				
+
 				case "default":
 				{
 					clientBuilder.credentialsProvider(DefaultCredentialsProvider.create());
 				}
 				break;
+
+				default:
+					// no credentials provider is used if not explicitly set
 			}
 		});
 	}
-	
+
 }

@@ -75,7 +75,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 			false
 		);
 	}
-	
+
 	/**
 	 * Pseudo-constructor method which creates a new {@link MongoDbConnector} with cache.
 	 *
@@ -107,7 +107,7 @@ public interface MongoDbConnector extends BlobStoreConnector
 			false
 		);
 	}
-	
+
 	/**
 	 * Pseudo-constructor method which creates a new {@link MongoDbConnector} for GridFS with cache.
 	 *
@@ -269,7 +269,6 @@ public interface MongoDbConnector extends BlobStoreConnector
 			final FindIterable<Document> iterable = this.collection(directory)
 				.find(this.filterForChildren(directory))
 				.projection(Projections.include(FIELD_KEY));
-			;
 			return StreamSupport.stream(
 				iterable.spliterator(),
 				false

@@ -8,8 +8,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import one.microstream.collections.ListView;
-import one.microstream.collections.SubListView;
 import one.microstream.collections.interfaces.CapacityCarrying;
 import one.microstream.collections.interfaces.CapacityExtendable;
 import one.microstream.collections.interfaces.ConsolidatableCollection;

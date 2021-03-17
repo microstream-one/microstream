@@ -30,14 +30,14 @@ import javax.crypto.spec.SecretKeySpec;
 
 /*
  * Ein Experiment das AES File-Verschlüsselung im Counter Mode (CTR) zeigt.
- * 
+ *
  * Grundsätzlich ist es möglich ein File (oder auch nur Byte-Folgen) so zu verschlüsseln dass
- * 
+ *
  * - beliebige Blöcke unabhängig voneinander entschlüsselt werden können
  * - es möglich ist weiter Daten anzuhängen
- * 
+ *
  * zur "Sicherheit" dieser Methode treff ich hier keine Zusage!
- * 
+ *
  */
 
 public class AES_CTR
@@ -57,47 +57,46 @@ public class AES_CTR
 		IllegalBlockSizeException,
 		BadPaddingException
 	{
-	
+
 		final char[] password = {'1','2','3','4'};
 		final byte[] salt = {'s','a','l','t','z'};
-		
+
 		final SecretKey key1 = createKey(password, salt);
 		final SecretKey key2 = createKey(password, salt);
-		
+
 		final boolean eq = Arrays.equals(key1.getEncoded(), key2.getEncoded());
-				
+
 		System.out.println("keys are equal: " + eq);
-		
+
 		final IvParameterSpec paramSpec = new IvParameterSpec(new byte[BLOCK_SIZE]);
 		final Cipher cipherEncrypt = initCipher(Cipher.ENCRYPT_MODE, key1, paramSpec);
 		final Cipher cipherDecrypt = initCipher(Cipher.DECRYPT_MODE, key2, paramSpec);
-		
-		final SeekableByteChannel sbc = openSeekChannel();
-			
-		if( sbc.size() > 0 )
+
+		try(final SeekableByteChannel sbc = openSeekChannel())
 		{
-			//File is not empty
-			decryptFull(sbc, cipherDecrypt);
+			if( sbc.size() > 0 )
+			{
+				//File is not empty
+				decryptFull(sbc, cipherDecrypt);
+			}
+			else
+			{
+				final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+				System.out.print("enter some text: ");
+				final String input = br.readLine();
+
+				encrypt(sbc, cipherEncrypt, input.getBytes());
+			}
 		}
-		else
-		{
-			final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-			System.out.print("enter some text: ");
-			final String input = br.readLine();
-			
-			encrypt(sbc, cipherEncrypt, input.getBytes());
-		}
-		
-		sbc.close();
-				
+
 		decryptBlocks(key2);
-		
+
 		append(key1);
-		
+
 		decryptBlocks(key2);
-								
+
 	}
-	
+
 	private static void append(final SecretKey key)
 		throws
 		IOException,
@@ -112,29 +111,29 @@ public class AES_CTR
 		final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		System.out.print("enter some text: ");
 		final byte[] input = br.readLine().getBytes();
-		
-		final SeekableByteChannel sbc = openSeekChannel();
-		
-		//decrypt last block
-		final int lastBlockIndex = ((int)sbc.size() + BLOCK_SIZE -1) / BLOCK_SIZE - 1;
-		final byte[] lastBytes = decryptBlock(sbc, lastBlockIndex, key);
-		
-		System.out.println("last block " + lastBlockIndex + ": " + new String(lastBytes));
-		
-		final ByteBuffer inBuffer = ByteBuffer.allocate(lastBytes.length + input.length);
-		inBuffer.put(lastBytes);
-		inBuffer.put(input);
-		inBuffer.rewind();
-		
-		final ByteBuffer encryptedBuffer = ByteBuffer.allocate(lastBytes.length + input.length);
-				
-		final Cipher cipher = initCipher(Cipher.ENCRYPT_MODE, key, 0, lastBlockIndex);
-		cipher.doFinal(inBuffer, encryptedBuffer);
-		encryptedBuffer.rewind();
-		
-		sbc.position(lastBlockIndex * BLOCK_SIZE);
-		sbc.write(encryptedBuffer);
-		sbc.close();
+
+		try(final SeekableByteChannel sbc = openSeekChannel())
+		{
+			//decrypt last block
+			final int lastBlockIndex = ((int)sbc.size() + BLOCK_SIZE -1) / BLOCK_SIZE - 1;
+			final byte[] lastBytes = decryptBlock(sbc, lastBlockIndex, key);
+
+			System.out.println("last block " + lastBlockIndex + ": " + new String(lastBytes));
+
+			final ByteBuffer inBuffer = ByteBuffer.allocate(lastBytes.length + input.length);
+			inBuffer.put(lastBytes);
+			inBuffer.put(input);
+			inBuffer.rewind();
+
+			final ByteBuffer encryptedBuffer = ByteBuffer.allocate(lastBytes.length + input.length);
+
+			final Cipher cipher = initCipher(Cipher.ENCRYPT_MODE, key, 0, lastBlockIndex);
+			cipher.doFinal(inBuffer, encryptedBuffer);
+			encryptedBuffer.rewind();
+
+			sbc.position(lastBlockIndex * BLOCK_SIZE);
+			sbc.write(encryptedBuffer);
+		}
 	}
 
 	private static void decryptBlocks(final SecretKey key)
@@ -147,22 +146,20 @@ public class AES_CTR
 		IllegalBlockSizeException,
 		BadPaddingException
 	{
-		final SeekableByteChannel sbc = openSeekChannel();
-		
-				
-		final int numBlocks = ((int)sbc.size() + BLOCK_SIZE -1) / BLOCK_SIZE;
-		
-		//read blocks from end to start to show that the decryption does not depend on previous blocks
-		for(int block = numBlocks -1 ; block >= 0; block--)
+		try(final SeekableByteChannel sbc = openSeekChannel())
 		{
-			final byte[] decrypted = decryptBlock(sbc, block, key);
-			
-			System.out.println("Decrypted block "+ block + ": \n" + new String(decrypted) + "\n");
+			final int numBlocks = ((int)sbc.size() + BLOCK_SIZE -1) / BLOCK_SIZE;
+
+			//read blocks from end to start to show that the decryption does not depend on previous blocks
+			for(int block = numBlocks -1 ; block >= 0; block--)
+			{
+				final byte[] decrypted = decryptBlock(sbc, block, key);
+
+				System.out.println("Decrypted block "+ block + ": \n" + new String(decrypted) + "\n");
+			}
 		}
-			
-		sbc.close();
 	}
-	
+
 	private static byte[] decryptBlock(final SeekableByteChannel sbc, final int block, final SecretKey key)
 		throws
 		InvalidKeyException,
@@ -174,14 +171,14 @@ public class AES_CTR
 		BadPaddingException
 	{
 		final Cipher cipher = initCipher(Cipher.DECRYPT_MODE, key, 0, block);
-		
+
 		sbc.position(block * BLOCK_SIZE);
-		
+
 		final ByteBuffer blockBuffer = ByteBuffer.allocate(BLOCK_SIZE);
 		final int readBytes = sbc.read(blockBuffer);
-		
+
 		final byte[] decrypted = cipher.doFinal(blockBuffer.array(), 0, readBytes);
-				
+
 		return decrypted;
 	}
 
@@ -206,12 +203,12 @@ public class AES_CTR
 	{
 		final ByteBuffer sourceBuffer = ByteBuffer.allocate(bytes.length).put(bytes);
 		sourceBuffer.rewind();
-		
+
 		final ByteBuffer encryptedBuffer = ByteBuffer.allocate(bytes.length);
-		
+
 		cipher.doFinal(sourceBuffer, encryptedBuffer);
 		encryptedBuffer.rewind();
-		
+
 		sbc.write(encryptedBuffer);
 
 	}
@@ -226,12 +223,12 @@ public class AES_CTR
 		final ByteBuffer inBuffer = ByteBuffer.allocate((int)sbc.size());
 		sbc.read(inBuffer);
 		inBuffer.rewind();
-		
+
 		final ByteBuffer outBuffer= ByteBuffer.allocate((int)sbc.size());
 		cipher.doFinal(inBuffer, outBuffer);
-	
+
 		final String decrypted = new String(outBuffer.array());
-		
+
 		System.out.println("Decrypted: \n" + decrypted + "\n");
 	}
 
@@ -245,11 +242,11 @@ public class AES_CTR
 		final ByteBuffer ivBuffer = ByteBuffer.allocate(BLOCK_SIZE);
 		ivBuffer.putLong(ivA);
 		ivBuffer.putLong(ivB);
-			
+
 		final IvParameterSpec paramSpec = new IvParameterSpec(ivBuffer.array());
 		return initCipher(mode, key, paramSpec);
 	}
-	
+
 	private static Cipher initCipher(final int mode, final SecretKey key, final IvParameterSpec paramSpec)
 		throws
 		NoSuchAlgorithmException,
@@ -268,9 +265,9 @@ public class AES_CTR
 		InvalidKeySpecException
 	{
 		final SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-		
+
 		//final KeySpec spec = new PBEKeySpec(password, salt, 65536, 256);
-		
+
 		// Using 128Bit AES key to run this on older JAVA versions without configured longer key support.
 		final KeySpec spec = new PBEKeySpec(password, salt, 65536, 128);
 		final SecretKey tmp = factory.generateSecret(spec);
@@ -283,7 +280,7 @@ public class AES_CTR
 							);
 		return secret;
 	}
-	
+
 
 
 }

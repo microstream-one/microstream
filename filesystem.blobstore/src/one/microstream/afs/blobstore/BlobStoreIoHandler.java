@@ -18,7 +18,7 @@ public interface BlobStoreIoHandler extends AIoHandler
 {
 	public BlobStoreConnector connector();
 
-	
+
 	public static BlobStoreIoHandler New(
 		final BlobStoreConnector connector
 	)
@@ -149,7 +149,7 @@ public interface BlobStoreIoHandler extends AIoHandler
 				this.toSubjectDirectory(directory)
 			);
 		}
-		
+
 		@Override
 		protected XGettingEnum<String> specificListItems(
 			final ADirectory parent
@@ -157,7 +157,7 @@ public interface BlobStoreIoHandler extends AIoHandler
 		{
 			final EqHashEnum<String> items         = EqHashEnum.New();
 			final BlobStorePath      directoryPath = this.toSubjectDirectory(parent);
-			
+
 			this.connector.visitChildren(directoryPath, new BlobStorePathVisitor()
 			{
 				@Override
@@ -178,10 +178,10 @@ public interface BlobStoreIoHandler extends AIoHandler
 					items.add(fileName);
 				}
 			});
-			
+
 			return items;
 		}
-		
+
 		@Override
 		protected XGettingEnum<String> specificListDirectories(
 			final ADirectory parent
@@ -189,7 +189,7 @@ public interface BlobStoreIoHandler extends AIoHandler
 		{
 			final EqHashEnum<String> items         = EqHashEnum.New();
 			final BlobStorePath      directoryPath = this.toSubjectDirectory(parent);
-			
+
 			this.connector.visitChildren(directoryPath, new BlobStorePathVisitor()
 			{
 				@Override
@@ -207,12 +207,13 @@ public interface BlobStoreIoHandler extends AIoHandler
 					final String        fileName
 				)
 				{
+					// no-op
 				}
 			});
-			
+
 			return items;
 		}
-		
+
 		@Override
 		protected XGettingEnum<String> specificListFiles(
 			final ADirectory parent
@@ -220,7 +221,7 @@ public interface BlobStoreIoHandler extends AIoHandler
 		{
 			final EqHashEnum<String> items         = EqHashEnum.New();
 			final BlobStorePath      directoryPath = this.toSubjectDirectory(parent);
-			
+
 			this.connector.visitChildren(directoryPath, new BlobStorePathVisitor()
 			{
 				@Override
@@ -229,6 +230,7 @@ public interface BlobStoreIoHandler extends AIoHandler
 					final String        directoryName
 				)
 				{
+					// no-op
 				}
 
 				@Override
@@ -240,7 +242,7 @@ public interface BlobStoreIoHandler extends AIoHandler
 					items.add(fileName);
 				}
 			});
-			
+
 			return items;
 		}
 

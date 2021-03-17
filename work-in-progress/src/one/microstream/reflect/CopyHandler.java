@@ -3,7 +3,6 @@ package one.microstream.reflect;
 import java.lang.reflect.Field;
 
 import one.microstream.exceptions.IllegalAccessRuntimeException;
-import one.microstream.reflect.XReflect;
 
 
 

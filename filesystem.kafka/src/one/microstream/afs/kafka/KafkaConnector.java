@@ -22,7 +22,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.RecordsToDelete;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -77,7 +76,7 @@ public interface KafkaConnector extends BlobStoreConnector
 			false
 		);
 	}
-	
+
 	/**
 	 * Pseudo-constructor method which creates a new {@link KafkaConnector} with cache.
 	 *
@@ -272,7 +271,7 @@ public interface KafkaConnector extends BlobStoreConnector
 			try
 			{
 				final String topicName = topicName(file);
-				try(AdminClient admin = KafkaAdminClient.create(this.kafkaProperties))
+				try(AdminClient admin = AdminClient.create(this.kafkaProperties))
 				{
 					admin.deleteTopics(Arrays.asList(
 						topicName,
@@ -343,7 +342,7 @@ public interface KafkaConnector extends BlobStoreConnector
 			/*
 			 * Delete old data
 			 */
-			try(AdminClient admin = KafkaAdminClient.create(this.kafkaProperties))
+			try(AdminClient admin = AdminClient.create(this.kafkaProperties))
 			{
 				admin.deleteRecords(deletionMap)
 					.all()

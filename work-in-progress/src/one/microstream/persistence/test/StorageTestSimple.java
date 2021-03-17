@@ -1,6 +1,6 @@
 package one.microstream.persistence.test;
 
-import java.io.File;
+import java.nio.file.Paths;
 
 import one.microstream.X;
 import one.microstream.reference.Reference;
@@ -17,7 +17,7 @@ public class StorageTestSimple extends TestStorage
 	// configure, create and start embedded storage manager (roughly equivalent to an "embedded object database")
 	static final EmbeddedStorageManager STORAGE =
 		EmbeddedStorage.Foundation(                // create manager building foundation with mostly defaults
-			new File("c:/simpleTestStorage")             // set storage directory (instead of using working directory)
+			Paths.get("c:/simpleTestStorage")      // set storage directory (instead of using working directory)
 		)
 		.start(ROOT) // binding between graph's root instance and the storage
 	;
