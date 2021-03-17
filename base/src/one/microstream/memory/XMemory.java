@@ -56,7 +56,7 @@ public final class XMemory
 			 * Of course there is still the possibility that an implementation returns the correct
 			 * vendor but is not "compatible enough". But then that's simply a platform insufficiency
 			 * that can't be handled here.
-			 * The purpose of this check is to create are more informative exception for recognizably
+			 * The purpose of this check is to create a more informative exception for recognizably
 			 * diverging cases instead of just defaulting to the JdkInternals and getting a
 			 * weird error of it not working.
 			 */
@@ -64,6 +64,18 @@ public final class XMemory
 				XMemory::throwUnhandledPlatformException,
 				entry("java.vendor"   , "Android"),
 				entry("java.vm.vendor", " Android")
+			),
+			
+			/*
+			 * See
+			 * https://www.graalvm.org/sdk/javadoc/index.html?constant-values.html
+			 * 
+			 * Check if microstream is run in a GraalVM native image, if so we need to switch to the android Memory accessing/handling
+			 * 
+			 */
+			VmCheckNotBlank("GraalVM native image",
+				MicroStreamAndroidAdapter::setupFull,
+				entry("org.graalvm.nativeimage.imagecode")
 			)
 
 			// add additional checks here
@@ -85,6 +97,11 @@ public final class XMemory
 		);
 	}
 
+	private static String entry(final String key)
+	{
+		return key;
+	}
+	
 	private static String[] entry(final String key, final String value)
 	{
 		return new String[]{key, value};
@@ -144,19 +161,36 @@ public final class XMemory
 			action
 		);
 	}
+	
+	private static VmCheck VmCheckNotBlank(
+		final String      name                         ,
+		final Runnable    action                       ,
+		final String...   systemPropertyChecksNotNull
+	)
+	{
+		return new VmCheck(
+			name,
+			systemPropertyCheckNotBlank(
+				systemPropertyChecksNotNull
+			),
+			action
+		);
+	}
 
 	static final VmCheck VmInitializer(
 		final String     name                         ,
 		final Runnable   action                       ,
 		final String[][] systemPropertyChecksEquality ,
-		final String[][] systemPropertyChecksContained
+		final String[][] systemPropertyChecksContained,
+		final String[]   systemPropertyChecksNotNull
 	)
 	{
 		return new VmCheck(
 			name,
 			SystemPropertyCheck(
 				systemPropertyChecksEquality,
-				systemPropertyChecksContained
+				systemPropertyChecksContained,
+				systemPropertyChecksNotNull
 			),
 			action
 		);
@@ -166,19 +200,27 @@ public final class XMemory
 		final String[][] systemPropertyChecksEquality
 	)
 	{
-		return SystemPropertyCheck(systemPropertyChecksEquality, new String[0][]);
+		return SystemPropertyCheck(systemPropertyChecksEquality, new String[0][], new String[0]);
 	}
 
 	private static Predicate<VmCheck> SystemPropertyCheckContained(
 		final String[][] systemPropertyChecksContained
 	)
 	{
-		return SystemPropertyCheck(new String[0][], systemPropertyChecksContained);
+		return SystemPropertyCheck(new String[0][], systemPropertyChecksContained, new String[0]);
+	}
+	
+	private static Predicate<VmCheck> systemPropertyCheckNotBlank(
+		final String[] systemPropertyChecksNotBlank
+	)
+	{
+		return SystemPropertyCheck(new String[0][], new String[0][], systemPropertyChecksNotBlank);
 	}
 
 	private static Predicate<VmCheck> SystemPropertyCheck(
 		final String[][] systemPropertyChecksEquality,
-		final String[][] systemPropertyChecksContained
+		final String[][] systemPropertyChecksContained,
+		final String[]   systemPropertyChecksNotBlank
 	)
 	{
 		return check ->
@@ -202,6 +244,18 @@ public final class XMemory
 					continue;
 				}
 				if(System.getProperty(s[0], "").toUpperCase().contains(s[1].toUpperCase()))
+				{
+					return true;
+				}
+			}
+			
+			for(final String s: systemPropertyChecksNotBlank)
+			{
+				if(s == null)
+				{
+					continue;
+				}
+				if(!System.getProperty(s, "").isEmpty())
 				{
 					return true;
 				}
