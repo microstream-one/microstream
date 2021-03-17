@@ -57,11 +57,11 @@ import one.microstream.util.xcsv.XCsvDataType;
 public class Persistence
 {
 	// (23.11.2018 TM)TODO: cleanup Persistence class
-	
+
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
-	
+
 	static final long START_CID_BASE =  9_000_000_000_000_000_000L; // first assigned CID is 9...1
 	static final long START_OID_BASE =  1_000_000_000_000_000_000L; // first assigned OID is 1...1
 	static final long START_TID_BASE =                          0L; // first assigned TID is 1 (see below)
@@ -166,6 +166,8 @@ public class Persistence
 
 	static final long TID_java_util_Locale                 = 68L;
 
+	static final long TID_java_time_ZoneId                 = 69L;
+
 	// arrays (only 1D) of common types
 	static final long TID_ARRAY_byte           = 100L + TID_PRIMITIVE_byte   ;
 	static final long TID_ARRAY_boolean        = 100L + TID_PRIMITIVE_boolean;
@@ -194,7 +196,7 @@ public class Persistence
 	static final long TID_ARRAY_AbsStringBuffr = 100L + TID_AbstractStringBuilder;
 	static final long TID_ARRAY_StringBuffer   = 100L + TID_StringBuffer         ;
 	static final long TID_ARRAY_StringBuilder  = 100L + TID_StringBuilder        ;
-	
+
 	static final long TID_persistence_Lazy_Default = 10000L;
 
 	// CHECKSTYLE.ON: ConstantName
@@ -203,7 +205,7 @@ public class Persistence
 	static final String OBJECT_ID_LABEL_SHORT = "OID";
 
 
-	
+
 	public static String engineName()
 	{
 		/*
@@ -232,7 +234,7 @@ public class Persistence
 	{
 		return long.class;
 	}
-	
+
 	public static final PersistenceTypeIdLookup createDefaultTypeLookup()
 	{
 		return new PersistenceTypeIdLookup()
@@ -264,7 +266,7 @@ public class Persistence
 	{
 		return START_OID_BASE;
 	}
-	
+
 	public static final long defaultBoundConstantId()
 	{
 		return BOUND_CID;
@@ -336,7 +338,7 @@ public class Persistence
 		NATIVE_TYPES.add(java.util.Vector                   .class, TID_java_util_Vector                );
 		NATIVE_TYPES.add(java.util.Stack                    .class, TID_java_util_Stack                 );
 		NATIVE_TYPES.add(java.util.Properties               .class, TID_java_util_Properties            );
-		
+
 		/*
 		 * (18.07.2019 TM)NOTE: intentionally no native TypeId for the later added WeakHashMap
 		 * A special runtime construct like that should not be part of a persistent entity graph
@@ -353,11 +355,8 @@ public class Persistence
 		NATIVE_TYPES.add(java.util.concurrent.ConcurrentSkipListSet.class, TID_java_util_ConcurrentSkipListSet);
 
 		NATIVE_TYPES.add(java.util.Locale.class, TID_java_util_Locale);
-		
-		/* (27.03.2012 TM)FIXME more native types
-		 * java.nio.Path etc.
-		 * Also see class BinaryPersistence for TypeHandlers
-		 */
+
+		NATIVE_TYPES.add(java.time.ZoneId.class, TID_java_time_ZoneId);
 
 		// basic array types (arrays of java.lang. types)
 		NATIVE_TYPES.add(byte[]         .class, TID_ARRAY_byte   );
@@ -420,16 +419,16 @@ public class Persistence
 		{
 			registry.registerType(tid, c);
 		});
-		
+
 		return registry;
 	}
-	
+
 	public static final <C extends BiConsumer<Class<?>, Long>> C iterateJavaBasicTypes(final C iterator)
 	{
 		NATIVE_TYPES.iterate(e ->
 			iterator.accept(e.key(), e.value())
 		);
-		
+
 		return iterator;
 	}
 
@@ -443,13 +442,13 @@ public class Persistence
 			oidInteger   = START_CID_INTEGER  ,
 			oidLong      = START_CID_LONG
 		;
-		
+
 		// Booleans
 		{
 			registry.registerConstant(oidBoolean++, Boolean.FALSE);
 			registry.registerConstant(oidBoolean++, Boolean.TRUE );
 		}
-		
+
 		// primitive numeric wrappers (Byte, Short, Integer, Long)
 		for(int i = JSL_CACHE_INTEGER_START; i < JSL_CACHE_INTEGER_BOUND; i++)
 		{
@@ -464,7 +463,7 @@ public class Persistence
 		{
 			registry.registerConstant(oidCharacter++, Character.valueOf((char)i));
 		}
-		
+
 		return registry;
 	}
 
@@ -515,7 +514,7 @@ public class Persistence
 			iterator.apply(element);
 		}
 	}
-	
+
 	public static final void iterateReferencesMap(final PersistenceFunction iterator, final Map<?, ?> elements)
 	{
 		// using forEach would create two temporary instances, this (and the method above) only creates one.
@@ -537,23 +536,23 @@ public class Persistence
 	{
 		return XChars.utf8();
 	}
-	
+
 	public static String defaultFilenameTypeDictionary()
 	{
 		// why permanently occupy additional memory with fields and instances for constant values?
 		return "PersistenceTypeDictionary.ptd";
 	}
-	
-	
+
+
 
 	/*
 	 * Rationale:
-	 * 
+	 *
 	 * Composition:
 	 * The very nature of this interface is to indicate that instances of that type are NOT meant
 	 * to be treated as autonomous entities. It's like a "NoEntity" type and therefore not allowed to be
 	 * treated as one.
-	 * 
+	 *
 	 * Enumerations and Iterators:
 	 * Iterators are basically logic-helpers, like an implemented for loop on a complex structure.
 	 * Such a thing can never meant to be a reasonably persistable entity.
@@ -561,7 +560,7 @@ public class Persistence
 	 * In other words: The Iterator implementation is a composition type of an actual entity-worthy type.
 	 * Should the special case ever occur, that a proper entity type implements Iterator (despite not being
 	 * supposed to do so), it can still be handled by explicitely registering a custom type handler for it.
-	 * 
+	 *
 	 * Various SubLists:
 	 * The JDK in its usual progamming quality, lacking use of proper interfaces, etc., sadly provides no way
 	 * of reading the offset values used in sub lists (similar to loadFactor in hashing collections).
@@ -569,10 +568,10 @@ public class Persistence
 	 * A tailored (and JDK-version-specific) custom handler implementation can always be registered as an override
 	 */
 	private static final ConstHashEnum<Class<?>> UNPERSISTABLE_TYPES = ConstHashEnum.New(
-		
+
 		// types that are explicitly marked as unpersistable. E.g. the persistence logic itself!
 		Unpersistable.class,
-		
+
 		// system stuff (cannot be restored intrinsically due to ties to JVM internals)
 		ClassLoader.class,
 		Thread.class,
@@ -589,38 +588,38 @@ public class Persistence
 		ChainStorage.class,
 		ChainStorage.Entry.class,
 		Map.Entry.class,
-		
+
 		// there is sadly no (plain-string-independant) sane way to get these. Classical JDK.
 		new LinkedList<>().subList(0, 0).getClass()          , // java.util.SubList
 		new ArrayList<>(0).subList(0, 0).getClass()          , // java.util.ArrayList$SubList
 		Collections.emptyList().subList(0, 0).getClass()     , // java.util.RandomAccessSubList
 		new CopyOnWriteArrayList<>().subList(0, 0).getClass(), // java.util.concurrent.CopyOnWriteArrayList$COWSubList
-		
+
 		Enumeration.class,
 		Iterator.class,
-		
+
 		// it makes no sense to support/allow these "magical" volatile references in a persistent context.
 		Reference.class,
-		
+
 		// for now, not supported because of JVM-managed fields etc.
 		Throwable.class
-		
+
 		// note: lambdas don't have a super class as such. See usages of "LambdaTypeRecognizer" instead
 	);
-	
+
 	/**
 	 * Types whose instances cannot be persisted. E.g. {@link Unpersistable}, {@link Thread}, {@link ClassLoader}, etc.
-	 * 
+	 *
 	 * Note that the {@link Class} instances representing these types are very well persistable and will get
 	 * empty type descriptions to assign type ids to them. Only their instances cannot be persisted.
-	 * 
+	 *
 	 */
 	public static XGettingEnum<Class<?>> unpersistableTypes()
 	{
 		return UNPERSISTABLE_TYPES;
 	}
 
-	
+
 
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -635,12 +634,12 @@ public class Persistence
 	{
 		return XReflect.isOfAnyType(type, unpersistableTypes());
 	}
-	
+
 	public static final <D> PersistenceTypeMismatchValidator<D> typeMismatchValidatorFailing()
 	{
 		return PersistenceTypeMismatchValidator.Failing();
 	}
-	
+
 	public static final <D> PersistenceTypeMismatchValidator<D> typeMismatchValidatorNoOp()
 	{
 		return PersistenceTypeMismatchValidator.NoOp();
@@ -652,7 +651,7 @@ public class Persistence
 			isPersistable(type)
 		;
 	}
-	
+
 	public static final boolean isPersistableField(final Class<?> entityType, final Field field)
 	{
 		return !XReflect.isTransient(field);
@@ -662,7 +661,7 @@ public class Persistence
 	{
 		return Persistence::isPersistableField;
 	}
-	
+
 	public static final PersistenceFieldEvaluator defaultFieldEvaluatorPersister()
 	{
 		// the type check is hardcoded to be unremovable. The evaluator only enables the feature and covers customizing.
@@ -670,18 +669,18 @@ public class Persistence
 			true
 		;
 	}
-	
+
 	public static final boolean isPersisterField(final Field field)
 	{
 		// the field's type must be Persister or "lower" / more specific, e.g. StorageManager.
 		return Persister.class.isAssignableFrom(field.getType());
 	}
-	
+
 	public static boolean isHandleableEnumField(final Class<?> enumClass, final Field field)
 	{
 		// actually, even the crazy sh*t enum sub types with persistent state should be safely handleable.
 		return true;
-		
+
 //		// just in case and to guarantee the correctness of the algorithm below
 //		if(!XReflect.isEnum(enumClass)) // Class#isEnum is bugged!
 //		{
@@ -722,36 +721,36 @@ public class Persistence
 			isHandleableEnumField(entityType, field)
 		;
 	}
-	
+
 	public static boolean isHandleableCollectionField(final Class<?> collectionClass, final Field field)
 	{
 		final Class<?> fieldType = field.getType();
-		
+
 		// primitives are, of course, never a problem
 		if(fieldType.isPrimitive())
 		{
 			return true;
 		}
-		
+
 		// having a Comparator type of any sort is unproblematic and occurs in sorted collections
 		if(Comparator.class.isAssignableFrom(collectionClass))
 		{
 			return true;
 		}
-		
+
 		// referencing another collection means the collection type being analyzed is just a wrapper implementation.
 		if(XReflect.isJavaUtilCollectionType(collectionClass))
 		{
 			return true;
 		}
-		
+
 		// referencing element types directly is also not a problem
 		final XGettingSet<Type> entityClassTypeVairable = getTypeVariales(collectionClass);
 		if(entityClassTypeVairable.contains(field.getGenericType()))
 		{
 			return true;
 		}
-		
+
 		/*
 		 * Kind of an overkill / loophole, but the idea is that mutex references are usually just Object-typed
 		 * fields. It is highly unlikely that an internal collection structure (array, Entry type, etc.) would
@@ -761,28 +760,28 @@ public class Persistence
 		{
 			return true;
 		}
-		
+
 		// required to handle wrappers like Arrays$ArrayList correctly and not a big overhead in general
 		if(fieldType.isArray())
 		{
 			final Class<?> componentType = fieldType.getComponentType();
-			
+
 			// check for element type
 			if(entityClassTypeVairable.contains(componentType))
 			{
 				return true;
 			}
-			
+
 			// assume an Object[] is a non-type-parametrized element array
 			if(componentType == Object.class)
 			{
 				return true;
 			}
-			
+
 			// anything else (like Entry[] of a complex datastructure] is intentionally not supported.
 			return false;
 		}
-		
+
 		/*
 		 * Any other typed field is assumed to point to a complex data structure (like arrays,
 		 * lists/trees of Entry instances, etc.). While technically handleable, this is rejected by the
@@ -800,7 +799,7 @@ public class Persistence
 		 */
 		return false;
 	}
-	
+
 	public static final PersistenceFieldEvaluator defaultFieldEvaluatorCollection()
 	{
 		/* No transient check necessary since transient fields are filtered out in general
@@ -812,7 +811,7 @@ public class Persistence
 			isHandleableCollectionField(entityType, field)
 		;
 	}
-	
+
 	private static XGettingSet<Type> getTypeVariales(final Class<?> entityType)
 	{
 		final TypeVariable<?>[] tvs = entityType.getTypeParameters();
@@ -820,11 +819,11 @@ public class Persistence
 		{
 			return X.empty();
 		}
-		
+
 		// identity equality is sufficient, tested via debugger
 		return HashEnum.New(tvs);
 	}
-	
+
 	public static final PersistenceEagerStoringFieldEvaluator defaultReferenceFieldEagerEvaluator()
 	{
 		// by default, no field is eager
@@ -846,23 +845,23 @@ public class Persistence
 		{
 			return null;
 		}
-		
+
 		final String properTypeName = typeName.substring(0, sepIndex);
 		final Class<?> type = resolveType(properTypeName, classLoader, substituteClassIdentifierSeparator);
-		
+
 		if(!XReflect.isDeclaredEnum(type))
 		{
 			// it could also be used for anonymous inner classes, but Class provides no way to query those...
 			throw new UnsupportedOperationException("EnumeratedClassIdentifierNaming is only supported for sub enums");
 		}
-		
+
 		final String enumConstantName = typeName.substring(sepIndex + substituteClassIdentifierSeparator.length());
-		
+
 		final Enum<?> enumConstant = Enum.valueOf((Class<Enum>)type, enumConstantName);
-		
+
 		return (Class<T>)enumConstant.getClass();
 	}
-	
+
 	// type safety guaranteed by the passed typename. The typename String "is" the T.
 	public static <T> Class<T> resolveType(final String typeName, final ClassLoader classLoader)
 	{
@@ -885,7 +884,7 @@ public class Persistence
 		{
 			return (Class<T>)c;
 		}
-		
+
 		try
 		{
 			return (Class<T>)XReflect.resolveType(typeName, classLoader);
@@ -895,7 +894,7 @@ public class Persistence
 			throw new PersistenceExceptionTypeConsistencyDefinitionResolveTypeName(typeName, e);
 		}
 	}
-	
+
 	public static <T> Class<T> tryResolveType(final String typeName, final ClassLoader classLoader)
 	{
 		try
@@ -908,11 +907,11 @@ public class Persistence
 			return null;
 		}
 	}
-			
+
 	public static String deriveEnumRootIdentifier(final PersistenceTypeHandler<?, ?> typeHandler)
 	{
 		XReflect.validateIsEnum(typeHandler.type());
-		
+
 		if(Swizzling.isNotProperId(typeHandler.typeId()))
 		{
 			// (07.08.2019 TM)EXCP: proper exception
@@ -921,35 +920,35 @@ public class Persistence
 				+ ". This is probably caused by a missing type dictionary entry for that type."
 			);
 		}
-		
+
 		return XReflect.typename_enum() + " " + typeHandler.typeId();
 	}
-	
+
 	public static Object[] collectEnumConstants(final PersistenceTypeHandler<?, ?> typeHandler)
 	{
 		XReflect.validateIsEnum(typeHandler.type());
-		
+
 		final Object[] enumConstants = typeHandler.type().getEnumConstants();
-		
+
 		// intentionally type Object[], not some T[] in covariant disguise.
 		final Object[] copy = new Object[enumConstants.length];
 		System.arraycopy(enumConstants, 0, copy, 0, enumConstants.length);
 
 		return copy;
 	}
-	
+
 	/*
 	 * This is important:
 	 * A lot of custom enum identifiers can start with the 4 letter e, n, u, m. E.h. "enumerationsStuffs",
 	 * but the defined enum root identifier is exactely "enum ".
 	 */
 	private static final String ENUM_ROOT_IDENTIFIER_START = XReflect.typename_enum() + " ";
-	
+
 	public static String enumRootIdentifierStart()
 	{
 		return ENUM_ROOT_IDENTIFIER_START;
 	}
-	
+
 	public static Long parseEnumRootIdentifierTypeId(final String enumRootIdentifier)
 	{
 		// quick check before doing any instantiation. Has virtually no redundancy to the code below
@@ -957,7 +956,7 @@ public class Persistence
 		{
 			return null;
 		}
-		
+
 		final String typeIdPart = enumRootIdentifier.substring(enumRootIdentifierStart().length());
 		try
 		{
@@ -969,19 +968,19 @@ public class Persistence
 			return null;
 		}
 	}
-	
+
 	public static boolean isEnumRootIdentifier(final String enumRootIdentifier)
 	{
 		return isPotentialEnumRootIdentifier(enumRootIdentifier)
 			&& XChars.applies(enumRootIdentifier, enumRootIdentifierStart().length(), XChars::isDigit)
 		;
 	}
-	
+
 	public static boolean isPotentialEnumRootIdentifier(final String enumRootIdentifier)
 	{
 		return enumRootIdentifier != null && enumRootIdentifier.startsWith(enumRootIdentifierStart());
 	}
-	
+
 	@Deprecated
 	public static final String defaultRootIdentifier()
 	{
@@ -993,13 +992,13 @@ public class Persistence
 	{
 		return "root";
 	}
-	
+
 	public static final String rootIdentifier()
 	{
 		// must be upper case to be distinct from old custom root concept for automatic version change detection.
 		return "ROOT";
 	}
-		
+
 	/**
 	 * @deprecated replaced by {@link #RefactoringMapping(Path)}
 	 */
@@ -1010,7 +1009,7 @@ public class Persistence
 	{
 		return RefactoringMapping(refactoringsFile.toPath());
 	}
-	
+
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final Path refactoringsFile
 	)
@@ -1019,7 +1018,7 @@ public class Persistence
 			readRefactoringMappings(refactoringsFile)
 		);
 	}
-	
+
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final String refactoringMappings
 	)
@@ -1028,7 +1027,7 @@ public class Persistence
 			readRefactoringMappings(refactoringMappings)
 		);
 	}
-	
+
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final String refactoringMappings,
 		final char   valueSeparator
@@ -1038,7 +1037,7 @@ public class Persistence
 			readRefactoringMappings(refactoringMappings, valueSeparator)
 		);
 	}
-	
+
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final String       refactoringMappings,
 		final XCsvDataType dataType
@@ -1048,7 +1047,7 @@ public class Persistence
 			readRefactoringMappings(refactoringMappings, dataType)
 		);
 	}
-	
+
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final String            refactoringMappings,
 		final XCsvConfiguration configuration
@@ -1058,14 +1057,14 @@ public class Persistence
 			readRefactoringMappings(refactoringMappings, configuration)
 		);
 	}
-	
+
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final XGettingSequence<KeyValue<String, String>> refactoringMappings
 	)
 	{
 		return PersistenceRefactoringMappingProvider.New(refactoringMappings);
 	}
-	
+
 	/**
 	 * @deprecated replaced by {@link #readRefactoringMappings(Path)}
 	 */
@@ -1074,64 +1073,64 @@ public class Persistence
 	{
 		return readRefactoringMappings(file.toPath());
 	}
-	
+
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final Path file)
 	{
 		final StringTable stringTable = XCSV.readFromFile(file);
-		
+
 		return parseRefactoringMappings(stringTable);
 	}
-	
+
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final AFile file)
 	{
 		final StringTable stringTable = XCSV.readFromFile(file);
-		
+
 		return parseRefactoringMappings(stringTable);
 	}
-	
+
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(
 		final String string
 	)
 	{
 		final StringTable stringTable = XCSV.parse(string);
-		
+
 		return parseRefactoringMappings(stringTable);
 	}
-	
+
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(
 		final String string        ,
 		final char   valueSeparator
 	)
 	{
 		final StringTable stringTable = XCSV.parse(string, valueSeparator);
-		
+
 		return parseRefactoringMappings(stringTable);
 	}
-	
+
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(
 		final String       string  ,
 		final XCsvDataType dataType
 	)
 	{
 		final StringTable stringTable = XCSV.parse(string, dataType);
-		
+
 		return parseRefactoringMappings(stringTable);
 	}
-	
+
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(
 		final String            string       ,
 		final XCsvConfiguration configuration
 	)
 	{
 		final StringTable stringTable = XCSV.parse(string, configuration);
-		
+
 		return parseRefactoringMappings(stringTable);
 	}
-		
+
 	public static XGettingSequence<KeyValue<String, String>> parseRefactoringMappings(final StringTable stringTable)
 	{
 		final BulkList<KeyValue<String, String>> entries = BulkList.New(stringTable.rows().size());
-		
+
 		stringTable.mapTo(
 			(k, v) ->
 				entries.add(X.KeyValue(k, v)),
@@ -1140,10 +1139,10 @@ public class Persistence
 			row ->
 				XChars.trimEmptyToNull(row[1])  // debuggability line break, do not remove!
 		);
-		
+
 		return entries;
 	}
-	
+
 	/**
 	 * Persistence-specific separator between a class name and a proper identifier
 	 * that replaces unreliable class names (like "$1", "$2" etc.) by a reliably identifying substitute name.
@@ -1152,12 +1151,12 @@ public class Persistence
 	{
 		return "$§";
 	}
-	
+
 	public static final String derivePersistentTypeName(final Class<?> type)
 	{
 		return derivePersistentTypeName(type, substituteClassIdentifierSeparator());
 	}
-	
+
 	public static final String derivePersistentTypeName(
 		final Class<?> type,
 		final String   substituteClassIdentifierSeparator
@@ -1168,7 +1167,7 @@ public class Persistence
 		{
 			return derivePersistentTypeNameEnum(type, substituteClassIdentifierSeparator);
 		}
-		
+
 		// unhandleable general case of classes with enumerating class names.
 		if(XReflect.hasEnumeratedTypeName(type))
 		{
@@ -1182,11 +1181,11 @@ public class Persistence
 				+ " complete responsibility for correctly handling synthetic class names."
 			);
 		}
-		
+
 		// "normal" types without problematic enumerating class names.
 		return type.getName();
 	}
-	
+
 	public static final String derivePersistentTypeNameEnum(
 		final Class<?> type,
 		final String   substituteClassIdentifierSeparator
@@ -1197,11 +1196,11 @@ public class Persistence
 			// (05.08.2019 TM)EXCP: proper exception
 			throw new PersistenceException("Not an Enum type: " + type.getName());
 		}
-		
+
 		notNull(substituteClassIdentifierSeparator);
-		
+
 		final Class<?> declaredEnumType = XReflect.getDeclaredEnumClass(type);
-		
+
 		for(final Object enumConstant : declaredEnumType.getEnumConstants())
 		{
 			if(enumConstant.getClass() == type)
@@ -1209,12 +1208,12 @@ public class Persistence
 				return declaredEnumType.getName() + substituteClassIdentifierSeparator + ((Enum<?>)enumConstant).name();
 			}
 		}
-		
+
 		// (02.08.2019 TM)EXCP: proper exception
 		throw new PersistenceException("Orphan sub enum type: " + type.getName());
 	}
 
-	
+
 	/**
 	 * Searches the methods of the passed entityType for a static method with arbitrary name and visibility,
 	 * no arguments and {@link PersistenceTypeHandler} or a sub type of it as its return type.<p>
@@ -1224,7 +1223,7 @@ public class Persistence
 	 * <p>
 	 * This mechanism is a convenience shortcut alternative to
 	 * {@link PersistenceFoundation#registerCustomTypeHandler(PersistenceTypeHandler)}.
-	 * 
+	 *
 	 * @param <D>
 	 * @param <T>
 	 * @param dataType
@@ -1259,10 +1258,10 @@ public class Persistence
 			{
 				continue;
 			}
-			
+
 			m.setAccessible(true);
 			final PersistenceTypeHandler<?, ?> providedTypeHandler = (PersistenceTypeHandler<?, ?>)m.invoke(null);
-			
+
 			// context checks
 			if(providedTypeHandler.dataType() != dataType)
 			{
@@ -1272,7 +1271,7 @@ public class Persistence
 			{
 				continue;
 			}
-			
+
 			// hook for custom selector logic, e.g. filtering for a certain annotation or name.
 			if(selector != null && !selector.test(m))
 			{
@@ -1281,22 +1280,22 @@ public class Persistence
 
 			@SuppressWarnings("unchecked")
 			final PersistenceTypeHandler<D, T> applicableTypeHandler = (PersistenceTypeHandler<D, T>)providedTypeHandler;
-			
+
 			return applicableTypeHandler;
 		}
-		
+
 		return null;
 	}
-	
-	
-	
+
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
-		
+
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
-	 * 
+	 *
 	 * @throws UnsupportedOperationException
 	 */
 	protected Persistence()
@@ -1304,8 +1303,8 @@ public class Persistence
 		// static only
 		throw new UnsupportedOperationException();
 	}
-	
-	
+
+
 	public static enum IdType
 	{
 		NULL

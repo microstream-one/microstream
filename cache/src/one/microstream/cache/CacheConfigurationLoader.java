@@ -17,16 +17,10 @@ import java.nio.file.Path;
 import one.microstream.chars.XChars;
 
 /**
- * Loader for external configuration resources.
- * <p>
- * Supported resource types:
- * <ul>
- * <li>{@link Path}</li>
- * <li>{@link File}</li>
- * <li>{@link URL}</li>
- * <li>{@link InputStream}</li>
- * </ul>
+ *
+ * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationLoader}, will be removed in a future release
  */
+@Deprecated
 @FunctionalInterface
 public interface CacheConfigurationLoader
 {
@@ -48,7 +42,7 @@ public interface CacheConfigurationLoader
 	 * <li>As a file</li>
 	 * </ul>
 	 * 
-	 * @param path a classpath resource, a file path or an URL 
+	 * @param path a classpath resource, a file path or an URL
 	 * @return the configuration resource's content.
 	 * @throws CacheConfigurationException if an error occurs while loading the resource
 	 */
@@ -70,7 +64,7 @@ public interface CacheConfigurationLoader
 			url = new URL(path);
 			return loadFromUrl(url);
 		}
-		catch(MalformedURLException e)
+		catch(final MalformedURLException e)
 		{
 			final File file = new File(path);
 			if(file.exists())
@@ -93,7 +87,7 @@ public interface CacheConfigurationLoader
 	 * </ul>
 	 * 
 	 * @return the configuration resource's content.
-	 * @param path a classpath resource, a file path or an URL 
+	 * @param path a classpath resource, a file path or an URL
 	 * @param charset the charset used to load the configuration
 	 * @throws CacheConfigurationException if an error occurs while loading the resource
 	 */
@@ -116,7 +110,7 @@ public interface CacheConfigurationLoader
 			url = new URL(path);
 			return loadFromUrl(url, charset);
 		}
-		catch(MalformedURLException e)
+		catch(final MalformedURLException e)
 		{
 			final File file = new File(path);
 			if(file.exists())
@@ -131,7 +125,7 @@ public interface CacheConfigurationLoader
 	/**
 	 * Tries to load the configuration from <code>path</code>.
 	 * 
-	 * @param path file system path 
+	 * @param path file system path
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
@@ -146,13 +140,13 @@ public interface CacheConfigurationLoader
 	/**
 	 * Tries to load the configuration from <code>path</code>.
 	 * 
-	 * @param path file system path 
+	 * @param path file system path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static String loadFromPath(
-		final Path path, 
+		final Path path,
 		final Charset charset
 	)
 	{
@@ -169,7 +163,7 @@ public interface CacheConfigurationLoader
 	/**
 	 * Tries to load the configuration from <code>file</code>.
 	 * 
-	 * @param file file path 
+	 * @param file file path
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
@@ -183,13 +177,13 @@ public interface CacheConfigurationLoader
 	/**
 	 * Tries to load the configuration from <code>file</code>.
 	 * 
-	 * @param file file path 
+	 * @param file file path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static String loadFromFile(
-		final File file, 
+		final File file,
 		final Charset charset
 	)
 	{
@@ -206,7 +200,7 @@ public interface CacheConfigurationLoader
 	/**
 	 * Tries to load the configuration from the URL <code>url</code>.
 	 * 
-	 * @param url URL path 
+	 * @param url URL path
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
@@ -220,13 +214,13 @@ public interface CacheConfigurationLoader
 	/**
 	 * Tries to load the configuration from the URL <code>url</code>.
 	 * 
-	 * @param url URL path 
+	 * @param url URL path
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static String loadFromUrl(
-		final URL url, 
+		final URL url,
 		final Charset charset
 	)
 	{
@@ -243,7 +237,7 @@ public interface CacheConfigurationLoader
 	/**
 	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
 	 * 
-	 * @param inputStream the stream to read from 
+	 * @param inputStream the stream to read from
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
@@ -257,13 +251,13 @@ public interface CacheConfigurationLoader
 	/**
 	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
 	 * 
-	 * @param inputStream the stream to read from 
+	 * @param inputStream the stream to read from
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * @throws CacheConfigurationException if the configuration couldn't be loaded
 	 */
 	public static CacheConfigurationLoader FromInputStream(
-		final InputStream inputStream, 
+		final InputStream inputStream,
 		final Charset charset
 	)
 	{
@@ -289,11 +283,11 @@ public interface CacheConfigurationLoader
 		private final Charset     charset;
 		
 		InputStreamConfigurationLoader(
-			final InputStream inputStream, 
+			final InputStream inputStream,
 			final Charset charset
 		)
 		{
-			super();			
+			super();
 			this.inputStream = inputStream;
 			this.charset     = charset;
 		}

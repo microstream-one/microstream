@@ -17,10 +17,11 @@ import java.nio.file.Path;
 import one.microstream.storage.exceptions.StorageConfigurationIoException;
 
 /**
-*
-* @since 3.1
-*
-*/
+ *
+ * @deprecated will be removed in a future release
+ * @see one.microstream.storage.configuration
+ */
+@Deprecated
 public interface ConfigurationStorer
 {
 	public void storeConfiguration(String configurationData);
