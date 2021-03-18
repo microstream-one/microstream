@@ -65,18 +65,26 @@ public interface CqlResultor<O, R>
 	public static <O, T> CqlResultor<O, T> NewFromSupplier(final Supplier<T> supplier, final BiConsumer<O, T> linker)
 	{
 		final T target = supplier.get();
-		return e -> new Aggregator<O, T>()
+
+		return new CqlResultor<O, T>()
 		{
 			@Override
-			public void accept(final O element)
+			public Aggregator<O, T> prepareCollector(final XIterable<?> source)
 			{
-				linker.accept(element, target);
-			}
+				return new Aggregator<O, T>()
+				{
+					@Override
+					public void accept(final O element)
+					{
+						linker.accept(element, target);
+					}
 
-			@Override
-			public T yield()
-			{
-				return target;
+					@Override
+					public T yield()
+					{
+						return target;
+					}
+				};
 			}
 		};
 	}
