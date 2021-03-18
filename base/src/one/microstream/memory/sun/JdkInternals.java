@@ -7,6 +7,8 @@ import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -29,14 +31,14 @@ public final class JdkInternals
 	///////////////////////////////////////////////////////////////////////////
 	// system access //
 	//////////////////
-	
+
 	/*
 	 * Used by other classes in other projects but same package, so do not change to private.
 	 * Also note: this must be the very first field to be initialized, otherwise other field
 	 * initializations using it will fail with an NPE.
 	 */
 	static final Unsafe VM = getMemoryAccess();
-	
+
 	/*
 	 * If magic values should be represented by constants and constants should be encapsulated by methods
 	 * like instance fields should, then why use the code and memory detour of constants in the first place?
@@ -46,7 +48,7 @@ public final class JdkInternals
 	{
 		return "theUnsafe";
 	}
-	
+
 	public static final Unsafe getMemoryAccess()
 	{
 		if(JdkInternals.class.getClassLoader() == null)
@@ -64,9 +66,8 @@ public final class JdkInternals
 			throw new Error("Could not obtain access to \"" + fieldNameUnsafe() + "\"", e);
 		}
 	}
-	
-	
-	
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
 	//////////////
@@ -80,7 +81,7 @@ public final class JdkInternals
 		MEMORY_ALIGNMENT_MODULO = MEMORY_ALIGNMENT_FACTOR - 1,
 		MEMORY_ALIGNMENT_MASK   = ~MEMORY_ALIGNMENT_MODULO
 	;
-		
+
 	/*
 	 * Rationale for these local constants:
 	 * For Unsafe putting methods like Unsafe#putInt etc, there were two versions before Java 9:
@@ -104,15 +105,15 @@ public final class JdkInternals
 		ARRAY_DOUBLE_BASE_OFFSET  = Unsafe.ARRAY_DOUBLE_BASE_OFFSET ,
 		ARRAY_OBJECT_BASE_OFFSET  = Unsafe.ARRAY_OBJECT_BASE_OFFSET
 	;
-	
-	
-	
+
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// initialization //
 	///////////////////
-	
+
 	// direct byte buffer handling //
-	
+
 	/*
 	 * A basic principle of this handling logic is to never throw exceptions if the resolving attempts should fail.
 	 * The reason is that doing so would prevent using the library in an absolute fashion, even if the low-level
@@ -121,10 +122,10 @@ public final class JdkInternals
 	 * Using parts of the library that require that low-level functionality will fail very fast and thus prevent
 	 * any damage / inconsistencies.
 	 */
-	
+
 	// must be initialized first for the initializing methods to be able to use it.
 	static final ArrayList<Warning> INITIALIZATION_WARNINGS = new ArrayList<>();
-			
+
 	/*
 	 * See
 	 * http://stackoverflow.com/questions/8462200/examples-of-forcing-freeing-of-native-memory-direct-bytebuffer-has-allocated-us
@@ -136,7 +137,7 @@ public final class JdkInternals
 		"jdk.internal.ref.Cleaner"
 		// future changes here ... (maybe other JDKs as well? Android?)
 	);
-	
+
 	static final String FIELD_NAME_address  = "address";
 	static final String FIELD_NAME_cleaner  = "cleaner";
 	static final String FIELD_NAME_thunk    = "thunk"  ;
@@ -154,17 +155,17 @@ public final class JdkInternals
 		{
 			return type;
 		}
-		
+
 		addInitializationWarning("No runtime type could have been found for the given type name list "
 			+ Arrays.toString(typeNames)
 		);
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Guarantees the full usability of this class by validating if all functionality is usable.
-	 * 
+	 *
 	 * @throws Error
 	 */
 	public static void guaranteeUsability()
@@ -175,7 +176,7 @@ public final class JdkInternals
 				"No means to obtain the DirectByteBuffer address value. Use #setDirectBufferAddressGetter."
 			);
 		}
-		
+
 		if(directBufferDeallocator == null)
 		{
 			throw new Error(
@@ -183,33 +184,33 @@ public final class JdkInternals
 			);
 		}
 	}
-	
-	
-	
+
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// warning handling //
 	/////////////////////
-	
+
 	static final String localWarningHeader()
 	{
 		return "WARNING (" + JdkInternals.class.getName()+"): ";
 	}
-	
+
 	private static void addInitializationWarning(final String message)
 	{
 		addInitializationWarning(message, null);
 	}
-	
+
 	private static void addInitializationWarning(final String message, final Throwable cause)
 	{
 		INITIALIZATION_WARNINGS.add(new Warning.Default(message, cause));
 	}
-	
+
 	public static final List<Warning> initializationWarnings()
 	{
 		return INITIALIZATION_WARNINGS;
 	}
-	
+
 	public static final void printInitializationWarnings(final PrintStream printStream)
 	{
 		for(final Warning warning : INITIALIZATION_WARNINGS)
@@ -218,22 +219,22 @@ public final class JdkInternals
 			printStream.println();
 		}
 	}
-	
+
 	public interface Warning
 	{
 		public String message();
-		
+
 		public Throwable cause();
-		
+
 		public void print(PrintStream printStream);
-		
-		
-		
+
+
+
 		final class Default implements Warning
 		{
 			final String    message;
 			final Throwable cause  ;
-			
+
 			Default(final String message, final Throwable cause)
 			{
 				super();
@@ -252,7 +253,7 @@ public final class JdkInternals
 			{
 				return this.cause;
 			}
-			
+
 			@Override
 			public final void print(final PrintStream printStream)
 			{
@@ -263,9 +264,9 @@ public final class JdkInternals
 					this.cause.printStackTrace(printStream);
 				}
 			}
-			
+
 		}
-		
+
 	}
 
 	static final long tryGetFieldOffset(final Class<?> type, final String declaredFieldName)
@@ -278,9 +279,9 @@ public final class JdkInternals
 			);
 			return -1;
 		}
-		
+
 		Throwable cause = null;
-					
+
 		// minimal algorithm, only for local use
 		for(Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass())
 		{
@@ -308,10 +309,10 @@ public final class JdkInternals
 		);
 		return -1;
 	}
-	
+
 	private static DirectBufferDeallocator   directBufferDeallocator   = initializeDirectBufferDeallocator();
 	private static DirectBufferAddressGetter directBufferAddressGetter = initializeDirectBufferAddressGetter();
-	
+
 	private static DirectBufferAddressGetter initializeDirectBufferAddressGetter()
 	{
 		if(FIELD_OFFSET_Buffer_address < 0)
@@ -319,10 +320,10 @@ public final class JdkInternals
 			// address getter is left null and must be provided/set explicitely by the user
 			return null;
 		}
-		
+
 		return new JdkDirectBufferAddressGetter();
 	}
-	
+
 	private static DirectBufferDeallocator initializeDirectBufferDeallocator()
 	{
 		if(FIELD_OFFSET_DirectByteBuffer_cleaner < 0
@@ -333,10 +334,10 @@ public final class JdkInternals
 			// deallocator is left as NoOp and must be provided/set explicitely by the user
 			return DirectBufferDeallocator.NoOp();
 		}
-		
+
 		return new JdkDirectBufferDeallocator();
 	}
-	
+
 	/**
 	 * Allows to set the {@link DirectBufferDeallocator} used by
 	 * {@link #deallocateDirectBuffer(ByteBuffer)} as an override to the means this class inherently tries to provide.<br>
@@ -346,9 +347,9 @@ public final class JdkInternals
 	 * but ultimately, the responsibility resides with the author of the instance's implementation.
 	 * <p>
 	 * Passing a {@literal null} resets the behavior of {@link #deallocateDirectBuffer(ByteBuffer)} to the inherent logic.
-	 * 
+	 *
 	 * @param deallocator the deallocator to be used, potentially {@literal null}.
-	 * 
+	 *
 	 * @see DirectBufferDeallocator
 	 */
 	public static synchronized void setDirectBufferDeallocator(
@@ -357,12 +358,12 @@ public final class JdkInternals
 	{
 		directBufferDeallocator = notNull(deallocator);
 	}
-	
+
 	public static synchronized DirectBufferDeallocator getDirectBufferDeallocator()
 	{
 		return directBufferDeallocator;
 	}
-	
+
 	/**
 	 * Allows to set the {@link DirectBufferAddressGetter} used by
 	 * {@link #getDirectByteBufferAddress(ByteBuffer)} as an override to the means this class inherently tries to provide.<br>
@@ -372,9 +373,9 @@ public final class JdkInternals
 	 * but ultimately, the responsibility resides with the author of the instance's implementation.
 	 * <p>
 	 * Passing a {@literal null} resets the behavior of {@link #getDirectByteBufferAddress(ByteBuffer)} to the inherent logic.
-	 * 
+	 *
 	 * @param addressGetter the addressGetter to be used, potentially {@literal null}.
-	 * 
+	 *
 	 * @see DirectBufferDeallocator
 	 */
 	public static synchronized void setDirectBufferAddressGetter(
@@ -383,7 +384,7 @@ public final class JdkInternals
 	{
 		directBufferAddressGetter = mayNull(addressGetter);
 	}
-	
+
 	public static synchronized DirectBufferAddressGetter getDirectBufferAddressGetter()
 	{
 		return directBufferAddressGetter;
@@ -395,7 +396,7 @@ public final class JdkInternals
 		XTypes.guaranteeDirectByteBuffer(directBuffer);
 		return JdkInternals.get_long(directBuffer, JdkInternals.FIELD_OFFSET_Buffer_address);
 	}
-	
+
 	public static final long getDirectByteBufferAddress(final ByteBuffer directBuffer)
 	{
 		if(directBufferAddressGetter == null)
@@ -404,7 +405,7 @@ public final class JdkInternals
 		}
 		return directBufferAddressGetter.getDirectBufferAddress(directBuffer);
 	}
-	
+
 	// "internal" prefixed method that is public, to indicate that it uses VM-internal details.
 	public static final boolean internalDeallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
@@ -413,23 +414,23 @@ public final class JdkInternals
 		{
 			return false;
 		}
-		
+
 		XTypes.guaranteeDirectByteBuffer(directBuffer);
-		
+
 		final Object cleaner = getObject(directBuffer, FIELD_OFFSET_DirectByteBuffer_cleaner);
 		final Object cleanerThunkDeallocatorRunnable = getObject(cleaner, FIELD_OFFSET_Cleaner_thunk);
-		
+
 		if(!(cleanerThunkDeallocatorRunnable instanceof Runnable))
 		{
 			// better to not deallocate and hope the DBB will get cleaned up by the GC instead of an exception
 			return false;
 		}
-		
+
 		// at least secure this call externally against race conditions if the geniuses can't do it internally
 		synchronized(cleanerThunkDeallocatorRunnable)
 		{
 			((Runnable)cleanerThunkDeallocatorRunnable).run();
-			
+
 			/*
 			 * Must be set explicitely since the deallocator only sets his copy of the address to 0.
 			 * It might seem dangerous to zero out the address of a still reachable and potentially used
@@ -443,10 +444,10 @@ public final class JdkInternals
 			 */
 			set_long(directBuffer, FIELD_OFFSET_Buffer_address, 0);
 		}
-		
+
 		return true;
 	}
-	
+
 	public static final boolean deallocateDirectBuffer(final ByteBuffer directBuffer)
 	{
 		// If no buffer to be deallocated is passed, no code is executed at all.
@@ -454,13 +455,13 @@ public final class JdkInternals
 		{
 			return false;
 		}
-		
+
 		return directBufferDeallocator.deallocateDirectBuffer(directBuffer);
 	}
-	
-	
+
+
 	// memory allocation //
-	
+
 	public static final long allocateMemory(final long bytes)
 	{
 		return VM.allocateMemory(bytes);
@@ -475,16 +476,16 @@ public final class JdkInternals
 	{
 		VM.freeMemory(address);
 	}
-	
+
 	public static final void fillMemory(final long address, final long length, final byte value)
 	{
 		VM.setMemory(address, length, value);
 	}
-		
-		
+
+
 
 	// address-based getters for primitive values //
-	
+
 	public static final byte get_byte(final long address)
 	{
 		return VM.getByte(address);
@@ -526,11 +527,11 @@ public final class JdkInternals
 	}
 
 	// note: getting a pointer from a non-Object-relative address makes no sense.
-	
-	
+
+
 
 	// object-based getters for primitive values and references //
-	
+
 	public static byte get_byte(final Object instance, final long offset)
 	{
 		return VM.getByte(instance, offset);
@@ -575,11 +576,11 @@ public final class JdkInternals
 	{
 		return VM.getObject(instance, offset);
 	}
-	
-	
+
+
 
 	// address-based setters for primitive values //
-	
+
 	public static void set_byte(final long address, final byte value)
 	{
 		VM.putByte(address, value);
@@ -622,8 +623,8 @@ public final class JdkInternals
 	}
 
 	// note: setting a pointer to a non-Object-relative address makes no sense.
-	
-	
+
+
 
 	// object-based setters for primitive values and references //
 
@@ -671,16 +672,16 @@ public final class JdkInternals
 	{
 		VM.putObject(instance, offset, value);
 	}
-	
+
 
 
 	// transformative byte array primitive value setters //
-	
+
 	public static final void set_byteInBytes(final byte[] bytes, final int index, final byte value)
 	{
 		VM.putByte(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
-	
+
 	public static final void set_booleanInBytes(final byte[] bytes, final int index, final boolean value)
 	{
 		VM.putBoolean(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
@@ -716,10 +717,10 @@ public final class JdkInternals
 		VM.putDouble(bytes, ARRAY_BYTE_BASE_OFFSET + index, value);
 	}
 
-	
-	
+
+
 	// generic variable-length range copying //
-	
+
 	public static final void copyRange(
 		final long sourceAddress,
 		final long targetAddress,
@@ -740,15 +741,15 @@ public final class JdkInternals
 		VM.copyMemory(source, sourceOffset, target, targetOffset, length);
 	}
 
-	
-	
+
+
 	// address-to-array range copying //
-	
+
 	public static final void copyRangeToArray(final long sourceAddress, final byte[] target)
 	{
 		VM.copyMemory(null, sourceAddress, target, ARRAY_BYTE_BASE_OFFSET, target.length);
 	}
-	
+
 	public static final void copyRangeToArray(final long sourceAddress, final boolean[] target)
 	{
 		VM.copyMemory(null, sourceAddress, target, ARRAY_BOOLEAN_BASE_OFFSET, target.length);
@@ -763,7 +764,7 @@ public final class JdkInternals
 	{
 		VM.copyMemory(null, sourceAddress, target, ARRAY_CHAR_BASE_OFFSET, (long)target.length * Character.BYTES);
 	}
-	
+
 	public static final void copyRangeToArray(final long sourceAddress, final int[] target)
 	{
 		VM.copyMemory(null, sourceAddress, target, ARRAY_INT_BASE_OFFSET, (long)target.length * Integer.BYTES);
@@ -783,21 +784,21 @@ public final class JdkInternals
 	{
 		VM.copyMemory(null, sourceAddress, target, ARRAY_DOUBLE_BASE_OFFSET, (long)target.length * Double.BYTES);
 	}
-	
-	
+
+
 
 	// array-to-address range copying //
-	
+
 	public static final void copyArrayToAddress(final byte[] array, final long targetAddress)
 	{
 		VM.copyMemory(array, ARRAY_BYTE_BASE_OFFSET, null, targetAddress, array.length);
 	}
-	
+
 	public static final void copyArrayToAddress(final boolean[] array, final long targetAddress)
 	{
 		VM.copyMemory(array, ARRAY_BOOLEAN_BASE_OFFSET, null, targetAddress, array.length);
 	}
-	
+
 	public static final void copyArrayToAddress(final short[] array, final long targetAddress)
 	{
 		VM.copyMemory(array, ARRAY_SHORT_BASE_OFFSET, null, targetAddress, (long)array.length * Short.BYTES);
@@ -807,31 +808,31 @@ public final class JdkInternals
 	{
 		VM.copyMemory(array, ARRAY_CHAR_BASE_OFFSET, null, targetAddress, (long)array.length * Character.BYTES);
 	}
-	
+
 	public static final void copyArrayToAddress(final int[] array, final long targetAddress)
 	{
 		VM.copyMemory(array, ARRAY_INT_BASE_OFFSET, null, targetAddress, (long)array.length * Integer.BYTES);
 	}
-	
+
 	public static final void copyArrayToAddress(final float[] array, final long targetAddress)
 	{
 		VM.copyMemory(array, ARRAY_FLOAT_BASE_OFFSET, null, targetAddress, (long)array.length * Float.BYTES);
 	}
-	
+
 	public static final void copyArrayToAddress(final long[] array, final long targetAddress)
 	{
 		VM.copyMemory(array, ARRAY_LONG_BASE_OFFSET, null, targetAddress, (long)array.length * Long.BYTES);
 	}
-	
+
 	public static final void copyArrayToAddress(final double[] array, final long targetAddress)
 	{
 		VM.copyMemory(array, ARRAY_DOUBLE_BASE_OFFSET, null, targetAddress, (long)array.length * Double.BYTES);
 	}
-	
-	
-	
+
+
+
 	// conversion to byte array //
-	
+
 	public static final byte[] asByteArray(final long[] longArray)
 	{
 		final byte[] bytes = new byte[checkArrayRange((long)longArray.length * Long.BYTES)];
@@ -846,21 +847,119 @@ public final class JdkInternals
 		return bytes;
 	}
 
-	
-	
+
+
 	// field offset abstraction //
-	
+
+	/*
+	 * Object field offset access is prohibited in sun.misc.Unsafe for records in Java >= 16.
+	 * As a workaround jdk.internal.misc.Unsafe is used.
+	 * For this to work the VM has to be started with
+	 * --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
+	 */
+	private static Object internalVM;
+	private static Method internalObjectFieldOffset;
+
+	private static Object internalVM()
+	{
+		Object internalVM = JdkInternals.internalVM;
+		if(internalVM == null)
+		{
+			synchronized(JdkInternals.class)
+			{
+				if((internalVM = JdkInternals.internalVM) == null)
+				{
+					internalVM = JdkInternals.internalVM = createInternalVM();
+				}
+			}
+		}
+		return internalVM;
+	}
+
+	private static Object createInternalVM()
+	{
+		try
+		{
+			return Class.forName("jdk.internal.misc.Unsafe")
+				.getMethod("getUnsafe")
+				.invoke(null)
+			;
+		}
+		catch(IllegalAccessException
+			| IllegalArgumentException
+			| InvocationTargetException
+			| NoSuchMethodException
+			| SecurityException
+			| ClassNotFoundException e
+		)
+		{
+			throw new Error(
+				"Could not obtain access to \"jdk.internal.misc.Unsafe\", " +
+				"please start the VM with --add-exports java.base/jdk.internal.misc=ALL-UNNAMED",
+				e
+			);
+		}
+	}
+
+	private static Method internalObjectFieldOffset()
+	{
+		Method internalObjectFieldOffset = JdkInternals.internalObjectFieldOffset;
+		if(internalObjectFieldOffset == null)
+		{
+			synchronized(JdkInternals.class)
+			{
+				if((internalObjectFieldOffset = JdkInternals.internalObjectFieldOffset) == null)
+				{
+					internalObjectFieldOffset = JdkInternals.internalObjectFieldOffset = createInternalObjectFieldOffset();
+				}
+			}
+		}
+		return internalObjectFieldOffset;
+	}
+
+	private static Method createInternalObjectFieldOffset()
+	{
+		try
+		{
+			return internalVM().getClass()
+				.getMethod("objectFieldOffset", Field.class)
+			;
+		}
+		catch(NoSuchMethodException | SecurityException e
+		)
+		{
+			throw new Error("Could not obtain access to \"jdk.internal.misc.Unsafe#objectFieldOffset\"", e);
+		}
+	}
+
 	/**
 	 * Return the field value's arithmetic memory offset relative to the object base offset.
-	 * 
+	 *
 	 * @param field
 	 * @return the field value's memory offset.
 	 */
 	public static final long objectFieldOffset(final Field field)
 	{
-		return VM.objectFieldOffset(field);
+		try
+		{
+			return VM.objectFieldOffset(field);
+		}
+		catch(final UnsupportedOperationException uoe)
+		{
+			try
+			{
+				return (long) internalObjectFieldOffset().invoke(
+					internalVM(),
+					field
+				);
+			}
+			catch(final IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+			{
+				throw new Error("Error invoking \"jdk.internal.misc.Unsafe#objectFieldOffset\"", e);
+			}
+		}
 	}
-	
+
 	/**
 	 * Array alias vor #objectFieldOffset(Field).
 	 */
@@ -875,19 +974,19 @@ public final class JdkInternals
 			}
 			offsets[i] = objectFieldOffset(fields[i]);
 		}
-		
+
 		return offsets;
 	}
-	
-	
-	
+
+
+
 	// special system methods, not really memory-related //
-	
+
 	public static final void ensureClassInitialized(final Class<?> c)
 	{
 		VM.ensureClassInitialized(c);
 	}
-	
+
 	public static final void ensureClassInitialized(final Class<?>... classes)
 	{
 		for(final Class<?> c : classes)
@@ -895,7 +994,7 @@ public final class JdkInternals
 			ensureClassInitialized(c);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static final <T> T instantiateBlank(final Class<T> c) throws InstantiationRuntimeException
 	{
@@ -908,31 +1007,31 @@ public final class JdkInternals
 			throw new InstantiationRuntimeException(e);
 		}
 	}
-	
+
 	public static final DefaultInstantiator InstantiatorBlank()
 	{
 		return JdkInstantiatorBlank.New();
 	}
-	
+
 	public static final DirectBufferDeallocator DirectBufferDeallocator()
 	{
 		return new JdkDirectBufferDeallocator();
 	}
-		
-	
+
+
 
 	// memory size querying logic //
-	
+
 	public static int pageSize()
 	{
 		return VM.pageSize();
 	}
-	
+
 	public static final int byteSizeReference()
 	{
 		return Unsafe.ARRAY_OBJECT_INDEX_SCALE;
 	}
-	
+
 	public static int byteSizeInstance(final Class<?> type)
 	{
 		if(type.isPrimitive())
@@ -983,7 +1082,7 @@ public final class JdkInternals
 	{
 		return BYTE_SIZE_OBJECT_HEADER;
 	}
-	
+
 	private static final int calculateByteSizeObjectHeader()
 	{
 		// min logic should be unnecessary but better exclude any source for potential errors
@@ -996,7 +1095,7 @@ public final class JdkInternals
 			{
 				continue;
 			}
-			
+
 			// requires the dummy field calculateByteSizeObjectHeaderFieldOffsetDummy
 			if(VM.objectFieldOffset(field) < minOffset)
 			{
@@ -1007,10 +1106,10 @@ public final class JdkInternals
 		{
 			throw new Error("Could not find object header dummy field in class " + ObjectHeaderSizeDummy.class);
 		}
-		
+
 		return (int)minOffset; // offset of first instance field is guaranteed to be in int range ^^.
 	}
-	
+
 	public static final int byteSizeFieldValue(final Class<?> type)
 	{
 		return type.isPrimitive()
@@ -1018,7 +1117,7 @@ public final class JdkInternals
 			: byteSizeReference()
 		;
 	}
-	
+
 	public static final long byteSizeArray_byte(final long elementCount)
 	{
 		return ARRAY_BYTE_BASE_OFFSET + elementCount;
@@ -1063,25 +1162,25 @@ public final class JdkInternals
 	{
 		return ARRAY_OBJECT_BASE_OFFSET + elementCount * byteSizeReference();
 	}
-	
-	
-	
+
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// SUN-specific low-level logic //
 	/////////////////////////////////
-	
+
 	// unchecked throwing magic //
-	
+
 	public static final void throwUnchecked(final Throwable t) // magically throws Throwable
 	{
 		// magic!
 		VM.throwException(t);
 	}
-	
-	
-	
+
+
+
 	// compar and swap //
-	
+
 	public static final boolean compareAndSwap_int(
 		final Object subject    ,
 		final long   offset     ,
@@ -1111,11 +1210,11 @@ public final class JdkInternals
 	{
 		return VM.compareAndSwapObject(subject, offset, expected, replacement);
 	}
-	
-	
-	
+
+
+
 	// memory aligning arithmetic //
-	
+
 	public static final long alignAddress(final long address)
 	{
 		if((address & MEMORY_ALIGNMENT_MODULO) == 0)
@@ -1125,16 +1224,16 @@ public final class JdkInternals
 		// According to tests and investigation, memory alignment is always 8 bytes, even for 32 bit JVMs.
 		return (address & MEMORY_ALIGNMENT_MASK) + MEMORY_ALIGNMENT_FACTOR;
 	}
-	
-	
-	
+
+
+
 	// static field base and offsets //
-	
+
 	public static Object getStaticFieldBase(final Field field)
 	{
 		return VM.staticFieldBase(notNull(field)); // throws IllegalArgumentException, so no need to check here
 	}
-	
+
 	public static long[] getStaticFieldOffsets(final Field[] fields)
 	{
 		final long[] offsets = new long[fields.length];
@@ -1148,68 +1247,68 @@ public final class JdkInternals
 		}
 		return offsets;
 	}
-	
-	
+
+
 	// memory statistics creation //
-	
+
 	private static MemoryStatistics createMemoryStatistics(final MemoryUsage usage)
 	{
 		return MemoryStatistics.New(
-			usage.getMax()      , 
-			usage.getCommitted(), 
+			usage.getMax()      ,
+			usage.getCommitted(),
 			usage.getUsed()
 		);
 	}
-	
+
 	public static MemoryStatistics createHeapMemoryStatistics()
 	{
 		return createMemoryStatistics(
 			ManagementFactory.getMemoryMXBean().getHeapMemoryUsage()
 		);
 	}
-	
+
 	public static MemoryStatistics createNonHeapMemoryStatistics()
 	{
 		return createMemoryStatistics(
 			ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage()
 		);
 	}
-	
-	
-	
+
+
+
 	////////////////////////////////////////////////////////
 	// copies of general logic to eliminate dependencies //
 	//////////////////////////////////////////////////////
-	
+
 	private static final int checkArrayRange(final long capacity)
 	{
 		if(capacity > Integer.MAX_VALUE)
 		{
 			throw new IllegalArgumentException("Invalid array length: " + capacity);
 		}
-		
+
 		return (int)capacity;
 	}
-	
+
 	private static final <T> T notNull(final T object) throws NullPointerException
 	{
 		if(object == null)
 		{
 			throw new NullPointerException();
 		}
-		
+
 		return object;
 	}
-	
-	
-	
+
+
+
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
-	
+
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
-	 * 
+	 *
 	 * @throws UnsupportedOperationException
 	 */
 	private JdkInternals()
@@ -1217,14 +1316,14 @@ public final class JdkInternals
 		// static only
 		throw new UnsupportedOperationException();
 	}
-	
-	
-	
+
+
+
 	// extra class to keep MemoryAccessorSun instances stateless
 	static final class ObjectHeaderSizeDummy
 	{
 		// implicitely used in #calculateByteSizeObjectHeader
 		Object calculateByteSizeObjectHeaderFieldOffsetDummy;
 	}
-	
+
 }
