@@ -858,7 +858,7 @@ public final class JdkInternals
 	 * --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
 	 */
 	private static Object internalVM;
-	private static Method internalObjectFieldOffset;
+	private static Method internalObjectFieldOffsetMethod;
 
 	private static Object internalVM()
 	{
@@ -901,23 +901,23 @@ public final class JdkInternals
 		}
 	}
 
-	private static Method internalObjectFieldOffset()
+	private static Method internalObjectFieldOffsetMethod()
 	{
-		Method internalObjectFieldOffset = JdkInternals.internalObjectFieldOffset;
-		if(internalObjectFieldOffset == null)
+		Method internalObjectFieldOffsetMethod = JdkInternals.internalObjectFieldOffsetMethod;
+		if(internalObjectFieldOffsetMethod == null)
 		{
 			synchronized(JdkInternals.class)
 			{
-				if((internalObjectFieldOffset = JdkInternals.internalObjectFieldOffset) == null)
+				if((internalObjectFieldOffsetMethod = JdkInternals.internalObjectFieldOffsetMethod) == null)
 				{
-					internalObjectFieldOffset = JdkInternals.internalObjectFieldOffset = createInternalObjectFieldOffset();
+					internalObjectFieldOffsetMethod = JdkInternals.internalObjectFieldOffsetMethod = lookupInternalObjectFieldOffsetMethod();
 				}
 			}
 		}
-		return internalObjectFieldOffset;
+		return internalObjectFieldOffsetMethod;
 	}
 
-	private static Method createInternalObjectFieldOffset()
+	private static Method lookupInternalObjectFieldOffsetMethod()
 	{
 		try
 		{
@@ -948,7 +948,7 @@ public final class JdkInternals
 		{
 			try
 			{
-				return (long) internalObjectFieldOffset().invoke(
+				return (long) internalObjectFieldOffsetMethod().invoke(
 					internalVM(),
 					field
 				);
