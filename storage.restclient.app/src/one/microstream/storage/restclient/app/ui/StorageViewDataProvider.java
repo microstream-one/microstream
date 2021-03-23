@@ -4,6 +4,7 @@ package one.microstream.storage.restclient.app.ui;
 import static one.microstream.X.notNull;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -23,26 +24,27 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 		notNull(storageView);
 		return new Default<>(() -> storageView.root());
 	}
-	
+
 	public static <F> StorageViewDataProvider<F> New(final StorageViewElement root)
 	{
 		notNull(root);
 		return new Default<>(() -> root);
 	}
-	
-	
+
+
 	public static class Default<F>
 		extends AbstractBackEndHierarchicalDataProvider<StorageViewElement, F>
 		implements StorageViewDataProvider<F>
 	{
 		private final Supplier<StorageViewElement> rootSupplier;
-		
+		private final HashSet<StorageViewElement>  dirtyElements = new HashSet<>();
+
 		Default(final Supplier<StorageViewElement> rootSupplier)
 		{
 			super();
 			this.rootSupplier = rootSupplier;
 		}
-		
+
 		@Override
 		public boolean hasChildren(
 			final StorageViewElement item
@@ -52,13 +54,13 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 			{
 				return item.hasMembers();
 			}
-			catch(Exception e)
+			catch(final Exception e)
 			{
 				ApplicationErrorHandler.handle(e);
 				return false;
 			}
 		}
-		
+
 		@Override
 		public int getChildCount(
 			final HierarchicalQuery<StorageViewElement, F> query
@@ -70,16 +72,16 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 				return parent == null
 					? 1 // root
 					: parent.hasMembers()
-						? parent.members(false).size()
+						? parent.members(this.dirtyElements.remove(parent)).size()
 						: 0;
 			}
-			catch(Exception e)
+			catch(final Exception e)
 			{
 				ApplicationErrorHandler.handle(e);
 				return 0;
 			}
 		}
-		
+
 		@Override
 		protected Stream<StorageViewElement> fetchChildrenFromBackEnd(
 			final HierarchicalQuery<StorageViewElement, F> query
@@ -90,7 +92,7 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 				final StorageViewElement parent = query.getParent();
 				Stream<StorageViewElement> stream = parent == null
 					? Stream.of(this.rootSupplier.get())
-					: query.getParent().members(false).stream();
+					: parent.members(this.dirtyElements.remove(parent)).stream();
 				final Comparator<StorageViewElement> comparator = query.getInMemorySorting();
 				if(comparator != null)
 				{
@@ -100,13 +102,13 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 					.skip(query.getOffset())
 					.limit(query.getLimit());
 			}
-			catch(Exception e)
+			catch(final Exception e)
 			{
 				ApplicationErrorHandler.handle(e);
 				return Stream.empty();
 			}
 		}
-		
+
 		@Override
 		public void refreshItem(
 			final StorageViewElement item,
@@ -115,19 +117,16 @@ public interface StorageViewDataProvider<F> extends HierarchicalDataProvider<Sto
 		{
 			try
 			{
-				if(refreshChildren)
-				{
-					item.members(true);
-				}
-				
+				this.dirtyElements.add(item);
+
 				super.refreshItem(item, refreshChildren);
 			}
-			catch(Exception e)
+			catch(final Exception e)
 			{
 				ApplicationErrorHandler.handle(e);
 			}
 		}
-		
+
 	}
-	
+
 }

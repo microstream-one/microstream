@@ -4,6 +4,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.treegrid.TreeGrid;
+import com.vaadin.flow.data.provider.hierarchy.HierarchicalDataProvider;
+import com.vaadin.flow.function.SerializablePredicate;
 
 import one.microstream.storage.restclient.StorageView;
 import one.microstream.storage.restclient.StorageViewConfiguration;
@@ -20,14 +22,14 @@ public class StorageViewComponent extends SplitLayout
 		this.setOrientation(Orientation.VERTICAL);
 		this.setSplitterPosition(65);
 		this.setSizeFull();
-		
+
 		final TreeGrid<StorageViewElement> treeGrid = StorageViewTreeGridBuilder.New(this).build();
 		treeGrid.setId(ElementIds.GRID_DATA);
-		this.addToPrimary(treeGrid);	
-		
+		this.addToPrimary(treeGrid);
+
 		final Div secondaryDiv = new Div();
 		this.addToSecondary(secondaryDiv);
-		
+
 		treeGrid.addSelectionListener(event -> {
 			final StorageViewElement element = event.getFirstSelectedItem().orElse(null);
 			secondaryDiv.removeAll();
@@ -54,7 +56,14 @@ public class StorageViewComponent extends SplitLayout
 				}
 			}
 		});
-		
+
+		treeGrid.addCollapseListener(event -> {
+			final HierarchicalDataProvider<StorageViewElement, SerializablePredicate<StorageViewElement>>
+				dataProvider = treeGrid.getDataProvider()
+			;
+			event.getItems().forEach(item -> dataProvider.refreshItem(item, true));
+		});
+
 		this.addAttachListener(event -> {
 			final SessionData sessionData = event.getUI().getSession().getAttribute(SessionData.class);
 			final StorageView storageView = StorageView.New(
