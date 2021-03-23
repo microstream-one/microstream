@@ -166,8 +166,6 @@ public class Persistence
 
 	static final long TID_java_util_Locale                 = 68L;
 
-	static final long TID_java_time_ZoneId                 = 69L;
-
 	// arrays (only 1D) of common types
 	static final long TID_ARRAY_byte           = 100L + TID_PRIMITIVE_byte   ;
 	static final long TID_ARRAY_boolean        = 100L + TID_PRIMITIVE_boolean;
@@ -355,8 +353,6 @@ public class Persistence
 		NATIVE_TYPES.add(java.util.concurrent.ConcurrentSkipListSet.class, TID_java_util_ConcurrentSkipListSet);
 
 		NATIVE_TYPES.add(java.util.Locale.class, TID_java_util_Locale);
-
-		NATIVE_TYPES.add(java.time.ZoneId.class, TID_java_time_ZoneId);
 
 		// basic array types (arrays of java.lang. types)
 		NATIVE_TYPES.add(byte[]         .class, TID_ARRAY_byte   );

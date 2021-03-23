@@ -60,7 +60,7 @@ import one.microstream.java.nio.file.BinaryHandlerPath;
 import one.microstream.java.sql.BinaryHandlerSqlDate;
 import one.microstream.java.sql.BinaryHandlerSqlTime;
 import one.microstream.java.sql.BinaryHandlerSqlTimestamp;
-import one.microstream.java.time.BinaryHandlerZoneId;
+import one.microstream.java.time.BinaryHandlerZoneOffset;
 import one.microstream.java.util.BinaryHandlerArrayDeque;
 import one.microstream.java.util.BinaryHandlerArrayList;
 import one.microstream.java.util.BinaryHandlerCopyOnWriteArrayList;
@@ -233,7 +233,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerURI.New(),
 			BinaryHandlerURL.New(),
 
-			BinaryHandlerZoneId.New(),
+			BinaryHandlerZoneOffset.New(),
 
 			// non-sensical handlers required for confused developers
 			BinaryHandlerSqlDate.New()     ,
