@@ -5,12 +5,12 @@ import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 
+import one.microstream.X;
 import one.microstream.collections.BulkList;
-import one.microstream.collections.EqHashTable;
+import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingMap;
-import one.microstream.collections.types.XGettingTable;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandler;
 import one.microstream.persistence.types.PersistenceLegacyTypeHandlerCreator;
@@ -23,6 +23,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldRef
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerReflective;
 import one.microstream.reflect.XReflect;
+import one.microstream.typing.KeyValue;
 import one.microstream.util.similarity.Similarity;
 
 public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHandlerCreator<Binary>
@@ -39,7 +40,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			switchByteOrder
 		);
 	}
-	
+
 	public final class Default
 	extends PersistenceLegacyTypeHandlerCreator.Abstract<Binary>
 	implements BinaryLegacyTypeHandlerCreator
@@ -47,17 +48,17 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
-		
+
 		private final BinaryValueTranslatorProvider                 valueTranslatorProvider   ;
 		private final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener;
 		private final boolean                                       switchByteOrder           ;
-		
-		
-		
+
+
+
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
-		
+
 		Default(
 			final BinaryValueTranslatorProvider                 valueTranslatorProvider   ,
 			final PersistenceLegacyTypeHandlingListener<Binary> legacyTypeHandlingListener,
@@ -69,13 +70,13 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			this.legacyTypeHandlingListener = legacyTypeHandlingListener;
 			this.switchByteOrder            = switchByteOrder           ;
 		}
-		
-		
-		
+
+
+
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-					
+
 		private static HashTable<PersistenceTypeDefinitionMember, Long> createBinaryOffsetMap(
 			final XGettingEnum<? extends PersistenceTypeDefinitionMember> members
 		)
@@ -87,10 +88,10 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				memberOffsets.add(member, totalOffset);
 				totalOffset += member.persistentMaximumLength();
 			}
-			
+
 			return memberOffsets;
 		}
-				
+
 		private static HashTable<PersistenceTypeDefinitionMember, Long> createFieldOffsetMap(
 			final Class<?>                                                               entityClass,
 			final XGettingEnum<? extends PersistenceTypeDefinitionMemberFieldReflective> members
@@ -102,7 +103,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				.toArray(Field.class)
 			;
 			final long[] offsets = XMemory.objectFieldOffsets(entityClass, fields);
-			
+
 			final HashTable<PersistenceTypeDefinitionMember, Long> memberOffsets = HashTable.New();
 			int i = 0;
 			for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
@@ -114,11 +115,11 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 //				final long fieldOffset = XMemory.objectFieldOffset(field);
 //				memberOffsets.add(member, fieldOffset);
 			}
-			
+
 			return memberOffsets;
 		}
-		
-		private XGettingTable<Long, BinaryValueSetter> deriveValueTranslators(
+
+		private XGettingEnum<KeyValue<Long, BinaryValueSetter>> deriveValueTranslators(
 			final PersistenceTypeDefinition                                                                 legacyTypeDefinition ,
 			final PersistenceTypeHandler<Binary, ?>                                                         currentTypeHandler   ,
 			final XGettingMap<PersistenceTypeDefinitionMember, Similarity<PersistenceTypeDefinitionMember>> legacyToTargetMembers,
@@ -126,8 +127,8 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			final boolean                                                                                   resolveReferences
 		)
 		{
-			final EqHashTable<Long, BinaryValueSetter> translatorsWithTargetOffsets = EqHashTable.New();
-			
+			final HashEnum<KeyValue<Long, BinaryValueSetter>> translatorsWithTargetOffsets = HashEnum.New();
+
 			final BinaryValueTranslatorProvider creator = this.valueTranslatorProvider;
 
 			for(final PersistenceTypeDefinitionMember legacyMember : legacyTypeDefinition.instanceMembers())
@@ -136,23 +137,19 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				final PersistenceTypeDefinitionMember currentMember = Similarity.targetElement(
 					legacyToTargetMembers.get(legacyMember)
 				);
-				
+
 				final BinaryValueSetter translator = resolveReferences
 					? creator.provideTargetValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)
 					: creator.provideBinaryValueTranslator(legacyTypeDefinition, legacyMember, currentTypeHandler, currentMember)
 				;
-					
-				// can be null if the currentMember is not a settingMember. Must be discarded here, then.
+
 				final Long targetOffset = targetMemberOffsets.get(currentMember);
-				if(targetOffset != null)
-				{
-					translatorsWithTargetOffsets.add(targetOffset, translator);
-				}
+				translatorsWithTargetOffsets.add(X.KeyValue(targetOffset, translator));
 			}
-			
+
 			return translatorsWithTargetOffsets;
 		}
-		
+
 		@Override
 		protected <T> PersistenceLegacyTypeHandler<Binary, T> deriveCustomWrappingHandler(
 			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult
@@ -167,19 +164,19 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 					+ " Use a custom handler for type" + currentTypeHandler.toRuntimeTypeIdentifier()
 				);
 			}
-			
+
 			final HashTable<PersistenceTypeDefinitionMember, Long> targetMemberOffsets = createBinaryOffsetMap(
 				mappingResult.currentTypeHandler().instanceMembers()
 			);
-			
-			final XGettingTable<Long, BinaryValueSetter> translatorsWithTargetOffsets = this.deriveValueTranslators(
+
+			final XGettingEnum<KeyValue<Long, BinaryValueSetter>> translatorsWithTargetOffsets = this.deriveValueTranslators(
 				mappingResult.legacyTypeDefinition()  ,
 				mappingResult.currentTypeHandler()    ,
 				mappingResult.legacyToCurrentMembers(),
-				targetMemberOffsets,
+				targetMemberOffsets                   ,
 				false
 			);
-			
+
 			final BinaryLegacyTypeHandlerRerouting<T> reroutingTypeHandler = BinaryLegacyTypeHandlerRerouting.New(
 				mappingResult.legacyTypeDefinition(),
 				currentTypeHandler                  ,
@@ -187,18 +184,18 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				this.legacyTypeHandlingListener     ,
 				this.switchByteOrder
 			);
-			
+
 			if(XReflect.isEnum(currentTypeHandler.type()))
 			{
 				return this.deriveCustomWrappingHandlerEnum(mappingResult, reroutingTypeHandler);
 			}
-						
+
 			return reroutingTypeHandler;
 		}
-		
+
 		protected <T> PersistenceLegacyTypeHandler<Binary, T> deriveCustomWrappingHandlerEnum(
-			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult,
-			final BinaryLegacyTypeHandlerRerouting<T> reroutingTypeHandler
+			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult       ,
+			final BinaryLegacyTypeHandlerRerouting<T>           reroutingTypeHandler
 		)
 		{
 			if(PersistenceLegacyTypeMappingResult.isUnchangedStaticStructure(mappingResult))
@@ -211,10 +208,10 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				 */
 				return reroutingTypeHandler;
 			}
-			
+
 			// "almost sufficient" reroutingTypeHandler has to be wrapped with an ordinal mapping
 			final Integer[] ordinalMapping = deriveEnumOrdinalMapping(mappingResult);
-			
+
 			return PersistenceLegacyTypeHandlerWrapperEnum.New(
 				mappingResult.legacyTypeDefinition(),
 				reroutingTypeHandler,
@@ -224,7 +221,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 
 		@Override
 		protected <T> AbstractBinaryLegacyTypeHandlerReflective<T> deriveReflectiveHandler(
-			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult,
+			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult     ,
 			final PersistenceTypeHandlerReflective<Binary, T>   currentTypeHandler
 		)
 		{
@@ -233,25 +230,25 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				currentTypeHandler.type(),
 				currentTypeHandler.settingMembers()
 			);
-			
-			final XGettingTable<Long, BinaryValueSetter> valueTranslators = this.deriveValueTranslators(
-				mappingResult.legacyTypeDefinition(),
-				mappingResult.currentTypeHandler(),
+
+			final XGettingEnum<KeyValue<Long, BinaryValueSetter>> valueTranslators = this.deriveValueTranslators(
+				mappingResult.legacyTypeDefinition()  ,
+				mappingResult.currentTypeHandler()    ,
 				mappingResult.legacyToCurrentMembers(),
-				targetMemberOffsets,
+				targetMemberOffsets                   ,
 				true
 			);
-			
+
 			return XReflect.isEnum(currentTypeHandler.type())
 				? this.deriveReflectiveHandlerGenericEnum(mappingResult, currentTypeHandler, valueTranslators)
 				: this.deriveReflectiveHandlerGenericType(mappingResult, currentTypeHandler, valueTranslators)
 			;
 		}
-		
+
 		private <T> AbstractBinaryLegacyTypeHandlerReflective<T> deriveReflectiveHandlerGenericEnum(
-			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult               ,
-			final PersistenceTypeHandler<Binary, T>             currentTypeHandler          ,
-			final XGettingTable<Long, BinaryValueSetter>        translatorsWithTargetOffsets
+			final PersistenceLegacyTypeMappingResult<Binary, T>   mappingResult               ,
+			final PersistenceTypeHandler<Binary, T>               currentTypeHandler          ,
+			final XGettingEnum<KeyValue<Long, BinaryValueSetter>> translatorsWithTargetOffsets
 		)
 		{
 			if(PersistenceLegacyTypeMappingResult.isUnchangedStaticStructure(mappingResult))
@@ -264,9 +261,9 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 					this.switchByteOrder
 				);
 			}
-			
+
 			final Integer[] ordinalMapping = deriveEnumOrdinalMapping(mappingResult);
-			
+
 			return BinaryLegacyTypeHandlerGenericEnumMapped.New(
 				mappingResult.legacyTypeDefinition(),
 				currentTypeHandler,
@@ -276,11 +273,11 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				this.switchByteOrder
 			);
 		}
-		
+
 		private <T> BinaryLegacyTypeHandlerGenericType<T> deriveReflectiveHandlerGenericType(
-			final PersistenceLegacyTypeMappingResult<Binary, T> mappingResult               ,
-			final PersistenceTypeHandlerReflective<Binary, T>   currentTypeHandler          ,
-			final XGettingTable<Long, BinaryValueSetter>        translatorsWithTargetOffsets
+			final PersistenceLegacyTypeMappingResult<Binary, T>   mappingResult               ,
+			final PersistenceTypeHandlerReflective<Binary, T>     currentTypeHandler          ,
+			final XGettingEnum<KeyValue<Long, BinaryValueSetter>> translatorsWithTargetOffsets
 		)
 		{
 			return BinaryLegacyTypeHandlerGenericType.New(
@@ -291,7 +288,7 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 				this.switchByteOrder
 			);
 		}
-		
+
 	}
-	
+
 }
