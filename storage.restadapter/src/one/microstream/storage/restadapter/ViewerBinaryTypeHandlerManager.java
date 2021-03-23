@@ -94,6 +94,11 @@ public class ViewerBinaryTypeHandlerManager implements PersistenceTypeHandlerMan
 		return genericHandler;
 	}
 
+	private PersistenceTypeHandler<Binary, ?> createTypeHandler(final long typeId)
+	{
+		this.viewerTypeHandlers.add(typeId, this.deriveTypeHandler(typeId));
+		return this.viewerTypeHandlers.get(typeId);
+	}
 
 	@Override
 	public long currentTypeId()
@@ -198,7 +203,13 @@ public class ViewerBinaryTypeHandlerManager implements PersistenceTypeHandlerMan
 	@Override
 	public PersistenceTypeHandler<Binary, ?> lookupTypeHandler(final long typeId)
 	{
-		return this.viewerTypeHandlers.get(typeId);
+		PersistenceTypeHandler<Binary, ?> handler = this.viewerTypeHandlers.get(typeId);
+		
+		if(handler==null)
+		{
+			handler = this.createTypeHandler(typeId);
+		}
+		return handler;
 	}
 
 	@Override
