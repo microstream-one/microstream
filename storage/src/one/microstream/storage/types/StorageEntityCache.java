@@ -53,7 +53,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		
 		// (11.02.2021 FH)XXX:  re-deactivate before release
 		// (24.11.2017 TM)TODO: there seems to still be a GC race condition bug, albeit only very rarely.
-		private static boolean debugGcEnabled = true;
+		private static boolean debugGcEnabled = false;
 		
 		/**
 		 * <b><u>/!\</u></b> Storage-level garbage collection is an unfinished feature with a still tiny race condition problem
