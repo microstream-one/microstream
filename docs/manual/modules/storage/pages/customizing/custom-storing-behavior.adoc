@@ -1,0 +1,41 @@
+= Custom Storing Behavior
+
+Implementing the `PersistenceEagerStoringFieldEvaluator` interface allows you to handle the eager/lazy storing behavior of any known member.
+The default implementation of the MicroStream engine threads all fields as lazy storing.
+See xref:storing-data/lazy-eager-full.adoc[Lazy and Eager Storing] for details on lazy and eager storing.
+
+The `PersistenceEagerStoringFieldEvaluator` has only one method to be implemented: `public boolean isEagerStoring(Class<?> t, Field u)` return true if the field has to be eager, otherwise return false.
+
+[source, java]
+----
+public class CustomEagerStoringFieldEvaluator
+	implements PersistenceEagerStoringFieldEvaluator
+{
+	@Override
+	public boolean isEagerStoring(Class<?> clazz, Field field)
+	{
+		if(clazz == MyClass.class && field.getName().equals("eagerField")
+		{
+			return true;
+		}
+		
+		return false;
+	}
+}
+----
+
+To register the customized `PersistenceEagerStoringFieldEvaluator` add it using the `one.microstream.persistence.types.PersistenceFoundation.setReferenceFieldEagerEvaluator(PersistenceEagerStoringFieldEvaluator)` method during the storage initialization.
+
+[source, java]
+----
+NioFileSystem          fileSystem = NioFileSystem.New();
+
+EmbeddedStorageManager storage    = EmbeddedStorage
+	.Foundation(fileSystem.ensureDirectoryPath(WORKINGDIR))
+	.onConnectionFoundation(f ->
+	{
+	    f.setReferenceFieldEagerEvaluator(new CustomEagerStoringFieldEvaluator());
+	})
+	.start(ROOT)
+;
+----

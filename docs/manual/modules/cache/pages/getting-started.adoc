@@ -1,0 +1,66 @@
+= Getting Started
+
+== Prerequisites
+
+[source, xml, subs=attributes+, title="pom.xml"]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-cache</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+== Hello World
+
+[source, java]
+----
+CachingProvider provider     = Caching.getCachingProvider();
+CacheManager    cacheManager = provider.getCacheManager();
+MutableConfiguration<Integer, String> configuration = new MutableConfiguration<>()
+	.setTypes(Integer.class, String.class)
+	.setStoreByValue(false)
+	.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE));
+Cache<Integer, String> cache = cacheManager.createCache("jCache", configuration);
+cache.put(1, "Hello World");
+String value = cache.get(1);
+----
+
+. Get the default `CachingProvider` implementation from the application's classpath.
+This method will work if and only if there is only one JCache implementation available in the classpath.
+If there are multiple providers then use the fully qualified name + `Caching.getCachingProvider("one.microstream.cache.types.CachingProvider")` instead.
+
+. Get the default `CacheManager` instance using the provider.
+
+. Create a cache configuration using `MutableConfiguration`
+
+. with key type and value type as `Integer` and `String` respectively
+
+. configured to store the cache entries by reference (not by value)
+
+. and with an expiry time of one minute defined for entries from the moment they are created.
+
+. Using the cache manager, create a cache named `jCache` with the configuration created in step 3.
+
+. Put some data into the cache
+
+. And retrieve it.
+
+The same can be done using MicroSteam's `CacheConfiguration` API.
+This time we use a `EmbeddedStorageManager` as a backing store for the cache.
+
+[source, java]
+----
+EmbeddedStorageManager storageManager = EmbeddedStorage.start();
+CachingProvider provider     = (one.microstream.cache.CachingProvider)Caching.getCachingProvider();
+CacheManager    cacheManager = provider.getCacheManager();
+CacheConfiguration<Integer, String> configuration = CacheConfiguration
+	.Builder(Integer.class, String.class, "jCache", storageManager)
+	.expiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_HOUR))
+	.build();
+Cache<Integer, String> cache = cacheManager.createCache("jCache", configuration);
+cache.put(1, "one");
+String value = cache.get(1);
+----

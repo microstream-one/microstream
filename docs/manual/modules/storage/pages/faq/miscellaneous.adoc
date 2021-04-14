@@ -1,0 +1,41 @@
+= Miscellaneous
+
+== Are transactions possible in MicroStream?
+
+Yes.
+In fact, every storing of data is executed as a transaction, an atomic all-or-nothing action.
+When one or more entities are stored, their data is collected into a continuous block of bytes and that block is written to the physical form (the "files") in one fell swoop.
+Any problem during the IO-operation causes the whole block to be deleted (rolled back).
+
+== Is MicroStream multi-threaded?
+
+Yes.
+The storing and loading process can be parallelized by using multiple threads and thus be strongly accelerated.
+There is no limitation on how many threads can be used, apart from the mathematical constraint that the thread count must be a power of 2 (1, 2, 4, 8, 16, etc.).
+
+== Does MicroStream support a backup strategy?
+
+Yes.
+There are currently two options available to create backups: An on-the-fly backup that copies and validates stored entity data after it has been written and the possibility to export all database files to a target location (which is in fact just a low-level file copying, but executed in a concurrency-safe way).
+
+== Does MicroStream provide data export/import functionality?
+
+Yes.
+MicroStream provides a per-type export of binary data and a utility to convert its binary data into the CSV format.
+The other way around (convert CSV to binary an import binary files) is also possible.
+
+== Does MicroStream provide a user management, authentication and authorization etc., like conventional DBMS ?
+
+No, because it doesn't need to.
+Such concerns are long covered by the application itself, with the DBMS usually being degraded to only being the application's exclusive database.
+Thus, all that is needed for a modern business application is just an application-exclusive data storage solution, which is exactly what MicroStream is.
+
+== Is it possible to migrate an existing database to MicroStream?
+
+Yes, if the data is structured in a format conforming to the entity classes and with references being represented in globally unique and bijective numbers.
+How hard that is for a given database depends on its specifics, but it can be as easy as executing one generically created SELECT per table.
+
+== Is MicroStream usable in an OSGi Environment?
+
+Yes, since Version 4.1 the released jar files contain the necessary OSGi Headers.
+Also a P2 Update Site distribution is available at: https://repo.microstream.one/repository/update-site/{maven-version}

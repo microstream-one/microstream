@@ -1,0 +1,12 @@
+= Custom Legacy Type Handler
+
+In addition to the methods for legacy type mapping described in chapter xref:legacy-type-mapping/index.adoc[Legacy Type Mapping] there is also the possibility to implement custom legacy type handlers.
+Those handlers are the most flexible way to do the mapping from old to new types.
+
+The basic interface that has to be implemented is `one.microstream.persistence.types.PersistenceLegacyTypeHandler.`
+
+Fortunately the standard persistence implementation provides the abstract class `one.microstream.persistence.binary.types.BinaryLegacyTypeHandler.AbstractCustom` that should be sufficient to start with a custom implementation in most cases.
+
+NOTE: See the example *customLegacyTypeHandler* on https://github.com/microstream-one/examples/tree/master/customLegacyTypeHandler[GitHub]
+
+NOTE: Please note the this example requires manual code modifications as described in it's main class.

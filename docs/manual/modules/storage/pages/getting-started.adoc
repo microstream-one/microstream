@@ -1,0 +1,135 @@
+= Getting Started
+
+== Prerequisites
+
+[source,xml,title="pom.xml"]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-storage-embedded</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-storage-embedded-configuration</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+== Hello World
+
+[source, java]
+----
+// Initialize a storage manager ("the database") with purely defaults.
+final EmbeddedStorageManager storageManager = EmbeddedStorage.start();
+
+// print the last loaded root instance,
+// replace it with a current version and store it
+System.out.println(storageManager.root());
+storageManager.setRoot("Hello World! @ " + new Date());
+storageManager.storeRoot();
+
+// shutdown storage
+storageManager.shutdown();
+----
+
+This simplest example will create a new storage if no existing storage is found, if a existing storage is found it will be loaded (this is all done at line 2 in the example above).
+
+In line 6 the current storage's content is printed.
+
+Line 7 assigns some data to the storage, replacing existing data if there is some.
+
+In line 8 everything gets stored.
+
+== The Root Instance
+
+When using MicroStream, your entire database is accessed starting at a root instance.
+This instance is the root object of an object graph that gets persisted by the MicroStream storage logic.
+While the root instance can be of any type (for example just a collection or an array), it is a good idea to define an explicit root type specific for the application.
+In this simple example, it is a class called `DataRoot`, which wraps a single `String`.
+
+[source, java]
+----
+public class DataRoot
+{
+	private String content;
+	
+	public DataRoot()
+	{
+		super();
+	}
+	
+	public String getContent()
+	{
+		return this.content;
+	}
+	
+	public void setContent(final String content)
+	{
+		this.content = content;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Root: " + this.content;
+	}
+}
+----
+
+For further information, see xref:root-instances.adoc[root instances].
+
+[#creating-a-database]
+== Creating a Database
+
+The following code is all that is required to setup a an application backed by a MicroStream database.
+The application's convenience root instance is defined and an `EmbeddedStorageManager` instance, linked to the root, is created (and its database managing threads are started).
+This is a fully operational Java database application.
+
+[source, java]
+----
+// Application-specific root instance
+final DataRoot root = new DataRoot();
+
+// Initialize a storage manager ("the database") with the given directory.
+final EmbeddedStorageManager storageManager = EmbeddedStorage.start(
+	root,             // root object
+	Paths.get("data") // storage directory
+);
+----
+
+== Storing Data
+
+[source, java]
+----
+// Set content data to the root element, including the time to visualize
+// changes on the next execution.
+root.setContent("Hello World! @ " + new Date());
+
+// Store the modified root and its content.
+storageManager.storeRoot();
+----
+
+This call is all that is necessary to store data in the simplest case.
+
+== Stopping a Live Database
+
+Best practice is to safely shutdown the storage manager by simply calling:
+
+[source, java]
+----
+storageManager.shutdown();
+----
+
+[TIP]
+====
+`storageManager.storeRoot()` is a special case method that always stores the root object.
+If you want to store any other object than the root itself, just call `storageManager.store(modifiedObject)`
+====
+
+[TIP]
+====
+The full code for the Hello World example is on https://github.com/microstream-one/examples/tree/master/helloworld[GitHub].
+====

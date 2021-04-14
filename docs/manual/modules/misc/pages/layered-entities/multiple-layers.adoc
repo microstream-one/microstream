@@ -1,0 +1,20 @@
+= Multiple Layers
+
+Entities can be created with an arbitrary amount of layers, so feel free to combine them as you like:
+
+[source, java]
+----
+EntityVersionContext<Long> versionContext =
+	EntityVersionContext.AutoIncrementingLong();
+		
+JulLogger logger = new JulLogger();
+		
+Person john = PersonCreator.New()
+	.addLayer(versionContext)
+	.addLayer(logger)
+	.firstName("John")
+	.lastName("Doe")
+	.create();
+----
+
+TIP: The example on https://github.com/microstream-one/examples/tree/master/layeredEntities[GitHub] makes use of all the described features.

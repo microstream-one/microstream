@@ -1,0 +1,52 @@
+= Custom Class Loader
+
+In certain environments or setups it is necessary to provide specific `ClassLoader` instances.
+This can be done by customizing the connection foundation.
+
+If a single `ClassLoader` is sufficient, just create a new provider by handing over the instance:
+
+[source,java]
+----
+EmbeddedStorageManager storage = EmbeddedStorage.Foundation(Paths.get("mydb"))
+	.onConnectionFoundation(cf ->
+		cf.setClassLoaderProvider(ClassLoaderProvider.New(myClassLoader))
+	)
+	.start();
+----
+
+Or return a `ClassLoader` depending on the requested type:
+
+[source,java]
+----
+EmbeddedStorageManager storage = EmbeddedStorage.Foundation(Paths.get("mydb"))
+	.onConnectionFoundation(cf ->
+		cf.setClassLoaderProvider(typeName -> {
+			if(typeName.startsWith("com.company.module1."))
+			{
+				return module1ClassLoader;
+			}
+			if(typeName.startsWith("com.company.module2."))
+			{
+				return module2ClassLoader;
+			}
+			return ClassLoader.getSystemClassLoader();
+		})
+	)
+	.start();
+----
+
+== Class Loader in Application Server
+
+Most application servers load the session's classes with the context class loader.
+Just use the one of the current thread:
+
+[source, java]
+----
+EmbeddedStorageManager storage = EmbeddedStorage.Foundation(Paths.get("mydb"))
+	.onConnectionFoundation(cf ->
+		cf.setClassLoaderProvider(ClassLoaderProvider.New(
+			Thread.currentThread().getContextClassLoader()
+		))
+	)
+	.start();
+----

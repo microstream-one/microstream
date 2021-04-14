@@ -1,0 +1,54 @@
+= Continuous Backup
+
+By default, the continuous backup is disabled.
+If enabled the MicroStream instance will clone all changes to another directory.
+The backup is identical to the primary MicroStream storage.
+
+To enable the continuous backup just set the backup directory:
+
+With  `microstream-storage-embedded-configuration` API:
+
+[source,java,title="Java"]
+----
+EmbeddedStorageManager storageManager = Configuration.Default()
+	.setBackupDirectory("A safe place")
+	.createEmbeddedStorageFoundation()
+	.createEmbeddedStorageManager();
+----
+
+[source,xml,title="XML"]
+----
+<properties>
+	<property name="backupDirectory" value ="/save/backup" />
+	...
+</properties>
+----
+
+[source,text,title="INI"]
+----
+backupDirectory = backupDir
+----
+
+With MicroStream foundation classes:
+
+[source,java,title="Java"]
+----
+NioFileSystem      fileSystem  = NioFileSystem.New();
+		
+StorageBackupSetup backupSetup = StorageBackupSetup.New(
+	Sorage.BackupFileProviderBuilder(fileSystem)
+		.setDirectory(fileSystem.ensureDirectoryPath(BACKUPDIR))						
+		.setTruncationDirectory(fileSystem.ensureDirectoryPath(TRUNCATIONDIR))
+		.setDeletionDirectory(fileSystem.ensureDirectoryPath(DELETIONDIR))
+		.createFileProvider()
+);	
+				
+StorageConfiguration configuration = StorageConfiguration.Builder()
+	.setBackupSetup(backupSetup)
+	.setStorageFileProvider(StorageLiveFileProvider.New(
+		fileSystem.ensureDirectoryPath(WORKINGDIR)
+	))
+	.createConfiguration()
+;
+----
+

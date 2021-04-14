@@ -1,0 +1,23 @@
+= Queries
+
+The MicroStream engine takes care of persisting your object graph.
+When you do queries, they are not run on the data stored by MicroStream, queries run on your data in the local system memory.
+There is no need to use special query languages like SQL.
+All operations can be done with plain Java.
+MicroStream does not restrict you in the way you query your object graph.
+You are totally free to choose the best method fitting to your application.
+
+One possibility may be Streams if you use the standard Java collections.
+
+[source, java]
+----
+public List<Article> getUnAvailableArticles()
+{
+	return shop.getArticles().stream()
+		.filter(a -> !a.available())
+		.collect(Collectors.toList())
+	;
+}
+----
+
+NOTE: Of course you must care about xref:loading-data/lazy-loading/index.adoc[lazy loading] if you use that feature.

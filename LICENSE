@@ -1,70 +1,277 @@
-MicroStream License Agreement
-Version 1, September 16, 2019
-MicroStream Software GmbH
+Eclipse Public License - v 2.0
 
-IMPORTANT: READ THE TERMS OF THIS AGREEMENT CAREFULLY BEFORE DOWNLOADING AND USING THE SOFTWARE. BY DOWNLOADING, INSTALLING, COPYING, ACCESSING, OR USING THE SOFTWARE YOU AGREE TO THE TERMS OF THIS AGREEMENT. IF YOU ARE ACCEPTING THESE TERMS ON BEHALF OF ANOTHER PERSON OR A COMPANY OR OTHER LEGAL ENTITY, YOU REPRESENT AND WARRANT THAT YOU HAVE FULL AUTHORITY TO BIND THAT PERSON, COMPANY, OR LEGAL ENTITY TO THESE TERMS. IF YOU DO NOT AGREE TO ALL THESE TERMS, YOU MUST NOT DOWNLOAD, INSTALL, COPY, ACCESS, OR USE THE SOFTWARE; AND YOU MUST PROMPTLY DESTROY ALL COPIES OF SOFTWARE AND ALL RELATED MATERIALS.
+    THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE
+    PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION
+    OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
 
-1. DEFINITIONS.
-"MicroStream Software GmbH" is a software developing firm based in Regensburg, Germany, hereafter referred to as "MicroStream" or "Licensor", www.microstream.one.
-"Licensor" refers either to an individual person or to a single legal entity.
-"Software" is the following, including the original and all whole or partial copies: (i) machine-readable instructions and data, (ii) components, (iii) audio-visual content (such as images, text, recordings, or pictures), (iv) related licensed materials, and (v) license use documents or keys, and documentation.
-"Agreement" refers to this MicroStream License Agreement.
+1. DEFINITIONS
 
-2. LICENSE TO USE.
-As between the parties, Licensor reserves all rights in and to the MicroStream software. 
-1. License to internal use and development. Subject to the terms and conditions of this agreement, MicroStream grants you a non-exclusive, non-transferable, limited license to
-reproduce and use internally Software complete and unmodified for the sole purpose of running programs, unless additional rights to use are explicitly granted in a written document. As appropriate additional licenses for developers are granted in the Supplemental License Terms. The Licensee is entitled to use the MicroStream software for an unlimited number of open-source projects. The prerequisite for this is (i) that the MicroStream software remains closed source, and (ii) that you have registered online.  
-2. License to distribute software. Subject to the terms and conditions of this agreement, MicroStream grants you a non-exclusive, nontransferable, limited license to reproduce and distribute the Software, provided that (i) you distribute the Software complete and unmodified and only bundled as part of, and for the sole purpose of running, your Programs, (ii) the Programs add significant and primary functionality to the Software, (iii) you do not distribute additional software intended to replace any component(s) of the Software, (iv) you do not remove or alter any proprietary legends or notices contained in the Software, (v) you only distribute the Software subject to a license agreement that protects MicroStream's interests consistent with the terms contained in this Agreement, (vi) you agree to defend and indemnify MicroStream and its licensors from and against any damages, costs, liabilities, settlement amounts and/or expenses (including attorneys' fees) incurred in connection with any claim, lawsuit or action by any third party that arises or results from the use or distribution of any and all Programs and/or Software, and (vii) that you have registered online.  
+"Contribution" means:
 
-3. RESTRICTIONS.
-1. Proprietary Notices. The software is owned by the licensor, confidential, copyrighted, and licensed, not sold. Title to Software and all associated intellectual property rights is retained by MicroStream and/or its licensors.
-2. Reverse Engineering. THE LICENSEE MAY NOT REVERSE ENGINEER, DECOMPILE OR DISASSEMBLE THE SOFTWARE. THE LICENSEE MAY NOT MODIFY, ADAPT, TRANSLATE, RENT, LEASE, LOAN OR CREATE DERIVATIVE WORKS BASED UPON THE MICROSTREAM SOFTWARE OR ANY PART THEREOF.
-3. Ethnic Restriction. The Licensee acknowledges that the software is not intended for use in the design, construction, operation or maintenance of any nuclear facilities, aircraft navigation or communication systems, air traffic control systems, life support, machines or machines or other equipment in which failure of the software could lead to death, personal injury, or severe physical or environmental damage. MicroStream disclaims any express or implied warranty of fitness for such uses.
-4. Using Trademarks. No right, title or interest in or to any trademark, service mark, logo or trade name of MicroStream or its licensors is granted under this agreement.
+  a) in the case of the initial Contributor, the initial content
+     Distributed under this Agreement, and
 
-4. TRANSFER.
-The Licensee may not transfer or assign its rights under this license to another party without MicroStream's prior written consent.
+  b) in the case of each subsequent Contributor:
+     i) changes to the Program, and
+     ii) additions to the Program;
+  where such changes and/or additions to the Program originate from
+  and are Distributed by that particular Contributor. A Contribution
+  "originates" from a Contributor if it was added to the Program by
+  such Contributor itself or anyone acting on such Contributor's behalf.
+  Contributions do not include changes or additions to the Program that
+  are not Modified Works.
 
-5. CHANGES TO THIS AGREEMENT.
-1. The Licensor reserves the right at its discretion to change, modify, add or remove terms of use of this Agreement at any time.
-2. Any change, modification, addition or removal of the terms of use of this Agreement must be notified to licensee as soon as possible. Such notification will be done by announcement on the MicroStream website. 
-3. The Licensee will have to agree on such change, modification, addition or removal of the terms of use of this Agreement before the use of the latest version of the MicroStream software will be allowed again. In case of a missing renewed consent by licensee, any further use of the MicroStream software will be automatically denied without any right of compensation or reimbursement of payment being due.
-4. In case of modifications and changes of any national or international legal framework having compulsory effect on this Agreement as well as on the provision of any contractual duties, rights and services formerly negotiated between licensor and licensee, licensor shall be allowed to change this Agreement without the explicit consent of the licensee.
+"Contributor" means any person or entity that Distributes the Program.
 
-6. TERMINATION.
-This Agreement is effective until terminated. The Licensee may terminate this Agreement at any time by destroying all copies of Software. This Agreement will terminate immediately without notice from MicroStream if the Licensee fails to comply with any provision of this Agreement. Either party may terminate this Agreement immediately should any Software become, or in either party's opinion be likely to become, the subject of a claim of infringement of any intellectual property right. Upon termination, the Licensee must destroy all copies of Software. MicroStream may terminate your license if you fail to comply with the terms of this Agreement. If MicroStream does so, you must destroy all copies of the program and its proof of entitlement.
+"Licensed Patents" mean patent claims licensable by a Contributor which
+are necessarily infringed by the use or sale of its Contribution alone
+or when combined with the Program.
 
-7. EXPORT REGULATIONS.
-The Licensee may not use or otherwise export or re-export the Software except as authorized by United States law and the laws of the jurisdiction in which the Software was obtained. In particular, but without limitation, the Software may not be exported or re-exported, (i) into any U.S. embargoed countries or, (ii) to anyone on the U.S. Treasury Department's list of Specially Designated Nationals or the U.S. Department of Commerce's Denied Person's List or Entity List or any other restricted party lists. By using the Software, you represent and warrant that you are not located in any such country or on any such list. You also agree that you will not use the Software for any purposes prohibited by United States law, including, without limitation, the development, design, manufacture or production of missiles, nuclear, chemical or biological weapons.
+"Program" means the Contributions Distributed in accordance with this
+Agreement.
 
-8. LIABILITY.
-Licensor shall only be liable for damages occurring on wilful intent or gross negligence. Licensor shall not be liable for any material defects/damages, including consequential damages, loss of income, business or profit, special, indirect or incidental damages due to the use of the MicroStream software. Licensor's liability for material defects is restricted to those taking place during the transfer of the MicroStream software from the original source to Licensee. Licensee indemnifies Licensor against any claim of third parties due to the use of the MicroStream software. Licensee must assume the entire risk of using the MicroStream software.
+"Recipient" means anyone who receives the Program under this Agreement
+or any Secondary License (as applicable), including Contributors.
 
-9. LIMITED WARRANTIES AND DISCLAIMERS. 
-Unless otherwise set forth in this Agreement, MicroStream warrants for a period of ninety (90) days from your date of download that the Software as provided by MicroStream will perform substantially in accordance with the accompanying documentation. MicroStream's entire liability and your sole and exclusive remedy for any breach of the foregoing limited warranty will be, at MicroStream's option, replacement or repair of the Software.
+"Derivative Works" shall mean any work, whether in Source Code or other
+form, that is based on (or derived from) the Program and for which the
+editorial revisions, annotations, elaborations, or other modifications
+represent, as a whole, an original work of authorship.
 
-THIS LIMITED WARRANTY IS THE ONLY WARRANTY PROVIDED BY MICROSTREAM AND MICROSTREAM AND ITS LICENSORS EXPRESSLY DISCLAIM ALL OTHER WARRANTIES, CONDITIONS OR OTHER TERMS, EITHER EXPRESS OR IMPLIED (WHETHER COLLATERALLY, BY STATUTE OR OTHERWISE), INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES, CONDITIONS OR OTHER TERMS OF MERCHANTABILITY, SATISFACTORY QUALITY AND/OR FITNESS FOR A PARTICULAR PURPOSE WITH REGARD TO THE SOFTWARE AND ACCOMPANYING WRITTEN MATERIALS. FURTHERMORE, THERE IS NO WARRANTY AGAINST INTERFERENCE WITH YOUR ENJOYMENT OF THE SOFTWARE OR AGAINST INFRINGEMENT OF THIRD PARTY PROPRIETARY RIGHTS BY THE SOFTWARE. MICROSTREAM DOES NOT WARRANT THAT THE OPERATION OF THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT DEFECTS IN THE SOFTWARE WILL BE CORRECTED. NO ORAL OR WRITTEN INFORMATION OR ADVICE GIVEN BY MICROSTREAM OR AN MICROSTREAM AUTHORIZED REPRESENTATIVE SHALL CREATE A WARRANTY. BECAUSE SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF IMPLIED WARRANTIES, CONDITIONS OR OTHER TERMS THE ABOVE LIMITATION MAY NOT APPLY TO YOU. THE TERMS OF THIS DISCLAIMER AND THE LIMITED WARRANTY UNDER THIS SECTION 9 DO NOT AFFECT OR PREJUDICE THE STATUTORY RIGHTS OF A CONSUMER ACQUIRING THE SOFTWARE OTHERWISE THAN IN THE COURSE OF A BUSINESS, NEITHER DO THEY LIMIT OR EXCLUDE ANY LIABILITY FOR DEATH OR PERSONAL INJURY CAUSED BY MICROSTREAM'S NEGLIGENCE.
+"Modified Works" shall mean any work in Source Code or other form that
+results from an addition to, deletion from, or modification of the
+contents of the Program, including, for purposes of clarity any new file
+in Source Code form that contains any contents of the Program. Modified
+Works shall not include works that contain only declarations,
+interfaces, types, classes, structures, or files of the Program solely
+in each case in order to link to, bind by name, or subclass the Program
+or Modified Works thereof.
 
-10. EXCLUSION AND LIMITATIONS OF REMEDIES AND DAMAGES.
-1. Exclusion. IN NO EVENT WILL MICROSTREAM, ITS PARENT, SUBSIDIARIES, OR ANY OF ITS LICENSORS, DIRECTORS, OFFICERS, EMPLOYEES OR AFFILIATES OF ANY OF THE FOREGOING BE LIABLE TO YOU FOR ANY CONSEQUENTIAL, INCIDENTAL, INDIRECT OR SPECIAL DAMAGES WHATSOEVER (INCLUDING WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION AND THE LIKE) OR DIRECT LOSS OF BUSINESS, BUSINESS PROFITS OR REVENUE, WHETHER FORESEEABLE OR UNFORESEEABLE, ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE OR ACCOMPANYING WRITTEN MATERIALS, REGARDLESS OF THE BASIS OF THE CLAIM (WHETHER UNDER CONTRACT, NEGLIGENCE OR OTHER TORT OR UNDER STATUTE OR OTHERWISE HOWSOEVER ARISING) AND EVEN IF MICROSTREAM OR A MICROSTREAM REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-2. Limitation. MICROSTREAM'S TOTAL LIABILITY TO THE LICENSEE FOR DAMAGES FOR ANY CAUSE WHATSOEVER NOT EXCLUDED BY SECTION 10.1. ABOVE HOWSOEVER CAUSED (WHETHER IN CONTRACT, NEGLIGENCE OR OTHER TORT, UNDER STATUTE OR OTHERWISE HOWSOEVER ARISING) WILL BE LIMITED TO THE GREATER OF U.S.$5.00 OR THE MONEY PAID FOR THE SOFTWARE THAT CAUSED THE DAMAGES. THE PARTIES AGREE THAT THIS LIMITATION OF REMEDIES AND DAMAGES PROVISION SHALL BE ENFORCED INDEPENDENTLY OF AND SURVIVE THE FAILURE OF ESSENTIAL PURPOSE OF ANY WARRANTY REMEDY. THIS LIMITATION WILL NOT APPLY IN THE CASE OF DEATH OR PERSONAL INJURY CAUSED BY FMI'S NEGLIGENCE ONLY WHERE AND TO THE EXTENT THAT APPLICABLE LAW REQUIRES SUCH LIABILITY. BECAUSE SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF LIABILITY FOR CONSEQUENTIAL OR INCIDENTAL DAMAGES, THE LIMITATION OF LIABILITY IN THIS SECTION 6 MAY NOT APPLY TO YOU. NOTHING IN THIS LICENSE AFFECTS OR PREJUDICES THE STATUTORY RIGHTS OF A CONSUMER ACQUIRING THE SOFTWARE OTHERWISE THAN IN THE COURSE OF A BUSINESS.
+"Distribute" means the acts of a) distributing or b) making available
+in any manner that enables the transfer of a copy.
 
-11. SUBLICENSING.
-Licensee agrees that all distribution of the runtime and extras will be subject to a written agreement, the terms and conditions of which will, at a minimum: (i) grant a nonexclusive right to use only one copy of the Runtime application and/or Extras for each copy of your own Runtime Solutions which you license to your customer, (ii) provide that any subsequent transfer is subject to the restrictions set forth in this Section 11, (iii) state that the Runtime and Extras (or as renamed) are licensed, not sold, to the end-user and that title to all copies of the Runtime and Extras remain with MicroStream and its licensors, (iv) include restrictions substantially similar to those set forth in Section 3 (RESTRICTIONS) and Section 7 (EXPORT REGULATIONS) of this License, and (v) include Warranty Disclaimer and Disclaimer of Liability provisions which are consistent with and substantially similar to the terms set forth in Sections 5 and 6 of this License.
+"Source Code" means the form of a Program preferred for making
+modifications, including but not limited to software source code,
+documentation source, and configuration files.
 
-12. TECHNICAL SUPPORT. 
-You are solely responsible for providing all technical support to your sublicensees of your own runtime solution, and you will not direct any sublicensee to contact MicroStream for technical support regarding your own runtime solution. You further agree to include your name and contact information in your own License Agreement as part of your own runtime solution.
+"Secondary License" means either the GNU General Public License,
+Version 2.0, or any later versions of that license, including any
+exceptions or additional permissions as identified by the initial
+Contributor.
 
-13. INDEMNIFICATION. 
-You will indemnify and hold MicroStream harmless from any and all claims, damages, losses, liabilities, costs and expenses (including reasonable fees of attorneys and other professionals) arising out of or in connection with any runtime solutions distributed by you and which is based on your contributions to such runtime solution.
+2. GRANT OF RIGHTS
 
-14. GENERAL.
-The parties agree that the United Nations Convention on Contracts for the International Sale of Goods (1980), as amended, is specifically excluded from application to this License. This License constitutes the entire agreement between the parties with respect to the Software licensed under these terms, and it supersedes all prior or contemporaneous agreement, arrangement and understanding regarding such subject matter. You acknowledge and agree that you have not relied on any representations made by MicroStream, however, nothing in this license shall limit or exclude liability for any representation made fraudulently. No amendment to or modification of this License will be binding unless in writing and signed by MicroStream.
+  a) Subject to the terms of this Agreement, each Contributor hereby
+  grants Recipient a non-exclusive, worldwide, royalty-free copyright
+  license to reproduce, prepare Derivative Works of, publicly display,
+  publicly perform, Distribute and sublicense the Contribution of such
+  Contributor, if any, and such Derivative Works.
 
-15. APPLICABLE LAW AND COURT OF JURISDICTION. 
-This agreement shall be governed, subjected to, and construed in accordance with the laws of Germany. All disputes arising from and/or in connection with the present agreement, and/or from any further agreements resulting therefrom, and which the parties are unable to resolve between themselves, shall exclusively be brought before the competent court of jurisdiction in Regensburg, Germany. No choice of law rules of any jurisdiction will apply.
+  b) Subject to the terms of this Agreement, each Contributor hereby
+  grants Recipient a non-exclusive, worldwide, royalty-free patent
+  license under Licensed Patents to make, use, sell, offer to sell,
+  import and otherwise transfer the Contribution of such Contributor,
+  if any, in Source Code or other form. This patent license shall
+  apply to the combination of the Contribution and the Program if, at
+  the time the Contribution is added by the Contributor, such addition
+  of the Contribution causes such combination to be covered by the
+  Licensed Patents. The patent license shall not apply to any other
+  combinations which include the Contribution. No hardware per se is
+  licensed hereunder.
 
-16. SEVERABILITY CLAUSE. 
-If any provision of this agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, The concerned provision is superseded in accordance with the legal laws, and the remaining provisions of this agreement will remain in full force and effect.
+  c) Recipient understands that although each Contributor grants the
+  licenses to its Contributions set forth herein, no assurances are
+  provided by any Contributor that the Program does not infringe the
+  patent or other intellectual property rights of any other entity.
+  Each Contributor disclaims any liability to Recipient for claims
+  brought by any other entity based on infringement of intellectual
+  property rights or otherwise. As a condition to exercising the
+  rights and licenses granted hereunder, each Recipient hereby
+  assumes sole responsibility to secure any other intellectual
+  property rights needed, if any. For example, if a third party
+  patent license is required to allow Recipient to Distribute the
+  Program, it is Recipient's responsibility to acquire that license
+  before distributing the Program.
 
-END OF TERMS AND CONDITIONS
+  d) Each Contributor represents that to its knowledge it has
+  sufficient copyright rights in its Contribution, if any, to grant
+  the copyright license set forth in this Agreement.
+
+  e) Notwithstanding the terms of any Secondary License, no
+  Contributor makes additional grants to any Recipient (other than
+  those set forth in this Agreement) as a result of such Recipient's
+  receipt of the Program under the terms of a Secondary License
+  (if permitted under the terms of Section 3).
+
+3. REQUIREMENTS
+
+3.1 If a Contributor Distributes the Program in any form, then:
+
+  a) the Program must also be made available as Source Code, in
+  accordance with section 3.2, and the Contributor must accompany
+  the Program with a statement that the Source Code for the Program
+  is available under this Agreement, and informs Recipients how to
+  obtain it in a reasonable manner on or through a medium customarily
+  used for software exchange; and
+
+  b) the Contributor may Distribute the Program under a license
+  different than this Agreement, provided that such license:
+     i) effectively disclaims on behalf of all other Contributors all
+     warranties and conditions, express and implied, including
+     warranties or conditions of title and non-infringement, and
+     implied warranties or conditions of merchantability and fitness
+     for a particular purpose;
+
+     ii) effectively excludes on behalf of all other Contributors all
+     liability for damages, including direct, indirect, special,
+     incidental and consequential damages, such as lost profits;
+
+     iii) does not attempt to limit or alter the recipients' rights
+     in the Source Code under section 3.2; and
+
+     iv) requires any subsequent distribution of the Program by any
+     party to be under a license that satisfies the requirements
+     of this section 3.
+
+3.2 When the Program is Distributed as Source Code:
+
+  a) it must be made available under this Agreement, or if the
+  Program (i) is combined with other material in a separate file or
+  files made available under a Secondary License, and (ii) the initial
+  Contributor attached to the Source Code the notice described in
+  Exhibit A of this Agreement, then the Program may be made available
+  under the terms of such Secondary Licenses, and
+
+  b) a copy of this Agreement must be included with each copy of
+  the Program.
+
+3.3 Contributors may not remove or alter any copyright, patent,
+trademark, attribution notices, disclaimers of warranty, or limitations
+of liability ("notices") contained within the Program from any copy of
+the Program which they Distribute, provided that Contributors may add
+their own appropriate notices.
+
+4. COMMERCIAL DISTRIBUTION
+
+Commercial distributors of software may accept certain responsibilities
+with respect to end users, business partners and the like. While this
+license is intended to facilitate the commercial use of the Program,
+the Contributor who includes the Program in a commercial product
+offering should do so in a manner which does not create potential
+liability for other Contributors. Therefore, if a Contributor includes
+the Program in a commercial product offering, such Contributor
+("Commercial Contributor") hereby agrees to defend and indemnify every
+other Contributor ("Indemnified Contributor") against any losses,
+damages and costs (collectively "Losses") arising from claims, lawsuits
+and other legal actions brought by a third party against the Indemnified
+Contributor to the extent caused by the acts or omissions of such
+Commercial Contributor in connection with its distribution of the Program
+in a commercial product offering. The obligations in this section do not
+apply to any claims or Losses relating to any actual or alleged
+intellectual property infringement. In order to qualify, an Indemnified
+Contributor must: a) promptly notify the Commercial Contributor in
+writing of such claim, and b) allow the Commercial Contributor to control,
+and cooperate with the Commercial Contributor in, the defense and any
+related settlement negotiations. The Indemnified Contributor may
+participate in any such claim at its own expense.
+
+For example, a Contributor might include the Program in a commercial
+product offering, Product X. That Contributor is then a Commercial
+Contributor. If that Commercial Contributor then makes performance
+claims, or offers warranties related to Product X, those performance
+claims and warranties are such Commercial Contributor's responsibility
+alone. Under this section, the Commercial Contributor would have to
+defend claims against the other Contributors related to those performance
+claims and warranties, and if a court requires any other Contributor to
+pay any damages as a result, the Commercial Contributor must pay
+those damages.
+
+5. NO WARRANTY
+
+EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, AND TO THE EXTENT
+PERMITTED BY APPLICABLE LAW, THE PROGRAM IS PROVIDED ON AN "AS IS"
+BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR
+IMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS OF
+TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR
+PURPOSE. Each Recipient is solely responsible for determining the
+appropriateness of using and distributing the Program and assumes all
+risks associated with its exercise of rights under this Agreement,
+including but not limited to the risks and costs of program errors,
+compliance with applicable laws, damage to or loss of data, programs
+or equipment, and unavailability or interruption of operations.
+
+6. DISCLAIMER OF LIABILITY
+
+EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, AND TO THE EXTENT
+PERMITTED BY APPLICABLE LAW, NEITHER RECIPIENT NOR ANY CONTRIBUTORS
+SHALL HAVE ANY LIABILITY FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING WITHOUT LIMITATION LOST
+PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THE PROGRAM OR THE
+EXERCISE OF ANY RIGHTS GRANTED HEREUNDER, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGES.
+
+7. GENERAL
+
+If any provision of this Agreement is invalid or unenforceable under
+applicable law, it shall not affect the validity or enforceability of
+the remainder of the terms of this Agreement, and without further
+action by the parties hereto, such provision shall be reformed to the
+minimum extent necessary to make such provision valid and enforceable.
+
+If Recipient institutes patent litigation against any entity
+(including a cross-claim or counterclaim in a lawsuit) alleging that the
+Program itself (excluding combinations of the Program with other software
+or hardware) infringes such Recipient's patent(s), then such Recipient's
+rights granted under Section 2(b) shall terminate as of the date such
+litigation is filed.
+
+All Recipient's rights under this Agreement shall terminate if it
+fails to comply with any of the material terms or conditions of this
+Agreement and does not cure such failure in a reasonable period of
+time after becoming aware of such noncompliance. If all Recipient's
+rights under this Agreement terminate, Recipient agrees to cease use
+and distribution of the Program as soon as reasonably practicable.
+However, Recipient's obligations under this Agreement and any licenses
+granted by Recipient relating to the Program shall continue and survive.
+
+Everyone is permitted to copy and distribute copies of this Agreement,
+but in order to avoid inconsistency the Agreement is copyrighted and
+may only be modified in the following manner. The Agreement Steward
+reserves the right to publish new versions (including revisions) of
+this Agreement from time to time. No one other than the Agreement
+Steward has the right to modify this Agreement. The Eclipse Foundation
+is the initial Agreement Steward. The Eclipse Foundation may assign the
+responsibility to serve as the Agreement Steward to a suitable separate
+entity. Each new version of the Agreement will be given a distinguishing
+version number. The Program (including Contributions) may always be
+Distributed subject to the version of the Agreement under which it was
+received. In addition, after a new version of the Agreement is published,
+Contributor may elect to Distribute the Program (including its
+Contributions) under the new version.
+
+Except as expressly stated in Sections 2(a) and 2(b) above, Recipient
+receives no rights or licenses to the intellectual property of any
+Contributor under this Agreement, whether expressly, by implication,
+estoppel or otherwise. All rights in the Program not expressly granted
+under this Agreement are reserved. Nothing in this Agreement is intended
+to be enforceable by any entity that is not a Contributor or Recipient.
+No third-party beneficiary rights are created under this Agreement.
+
+Exhibit A - Form of Secondary Licenses Notice
+
+"This Source Code may also be made available under the following
+Secondary Licenses when the conditions for such availability set forth
+in the Eclipse Public License, v. 2.0 are satisfied: {name license(s),
+version(s), and exceptions or additional permissions here}."
+
+  Simply including a copy of this Agreement, including this Exhibit A
+  is not sufficient to license the Source Code under Secondary Licenses.
+
+  If it is not possible or desirable to put the notice in a particular
+  file, then You may include the notice in a location (such as a LICENSE
+  file in a relevant directory) where a recipient would be likely to
+  look for such a notice.
+
+  You may add additional accurate notices of copyright ownership.

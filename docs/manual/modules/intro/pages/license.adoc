@@ -1,0 +1,127 @@
+= License
+
+MicroStream License Agreement +
+Version 1, September 16, 2019 + 
+MicroStream Software GmbH
+
+[IMPORTANT]
+====
+READ THE TERMS OF THIS AGREEMENT CAREFULLY BEFORE DOWNLOADING AND USING THE SOFTWARE.
+BY DOWNLOADING, INSTALLING, COPYING, ACCESSING, OR USING THE SOFTWARE YOU AGREE TO THE TERMS OF THIS AGREEMENT.
+IF YOU ARE ACCEPTING THESE TERMS ON BEHALF OF ANOTHER PERSON OR A COMPANY OR OTHER LEGAL ENTITY, YOU REPRESENT AND WARRANT THAT YOU HAVE FULL AUTHORITY TO BIND THAT PERSON, COMPANY, OR LEGAL ENTITY TO THESE TERMS.
+IF YOU DO NOT AGREE TO ALL THESE TERMS, YOU MUST NOT DOWNLOAD, INSTALL, COPY, ACCESS, OR USE THE SOFTWARE;
+AND YOU MUST PROMPTLY DESTROY ALL COPIES OF SOFTWARE AND ALL RELATED MATERIALS.
+====
+
+. DEFINITIONS. +
+"MicroStream Software GmbH" is a software developing firm based in Regensburg, Germany, hereafter referred to as "MicroStream" or "Licensor".
+"Licensor" refers either to an individual person or to a single legal entity.
+"Software" is the following, including the original and all whole or partial copies: (i) machine-readable instructions and data, (ii) components, (iii) audio-visual content (such as images, text, recordings, or pictures), (iv) related licensed materials, and (v) license use documents or keys, and documentation.
+"Agreement" refers to this MicroStream License Agreement.
+
+. LICENSE TO USE. +
+As between the parties, Licensor reserves all rights in and to the MicroStream software.
+.. License to internal use and development. +
+Subject to the terms and conditions of this agreement, MicroStream grants you a non-exclusive, non-transferable, limited license to reproduce and use internally Software complete and unmodified for the sole purpose of running programs, unless additional rights to use are explicitly granted in a written document.
+As appropriate additional licenses for developers are granted in the Supplemental License Terms.
+The Licensee is entitled to use the MicroStream software for an unlimited number of open-source projects.
+The prerequisite for this is (i) that the MicroStream software remains closed source, and (ii) that you have registered online.
+.. License to distribute software. +
+Subject to the terms and conditions of this agreement, MicroStream grants you a non-exclusive, nontransferable, limited license to reproduce and distribute the Software, provided that (i) you distribute the Software complete and unmodified and only bundled as part of, and for the sole purpose of running, your Programs, (ii) the Programs add significant and primary functionality to the Software, (iii) you do not distribute additional software intended to replace any component(s) of the Software, (iv) you do not remove or alter any proprietary legends or notices contained in the Software, (v) you only distribute the Software subject to a license agreement that protects MicroStream's interests consistent with the terms contained in this Agreement, (vi) you agree to defend and indemnify MicroStream and its licensors from and against any damages, costs, liabilities, settlement amounts and/or expenses (including attorneys' fees) incurred in connection with any claim, lawsuit or action by any third party that arises or results from the use or distribution of any and all Programs and/or Software, and (vii) that you have registered online.
+
+. RESTRICTIONS. +
+.. Proprietary Notices. +
+The software is owned by the licensor, confidential, copyrighted, and licensed, not sold.
+Title to Software and all associated intellectual property rights is retained by MicroStream and/or its licensors.
+.. Reverse Engineering. +
+THE LICENSEE MAY NOT REVERSE ENGINEER, DECOMPILE OR DISASSEMBLE THE SOFTWARE.
+THE LICENSEE MAY NOT MODIFY, ADAPT, TRANSLATE, RENT, LEASE, LOAN OR CREATE DERIVATIVE WORKS BASED UPON THE MICROSTREAM SOFTWARE OR ANY PART THEREOF.
+.. Ethnic Restriction. +
+The Licensee acknowledges that the software is not intended for use in the design, construction, operation or maintenance of any nuclear facilities, aircraft navigation or communication systems, air traffic control systems, life support, machines or machines or other equipment in which failure of the software could lead to death, personal injury, or severe physical or environmental damage.
+MicroStream disclaims any express or implied warranty of fitness for such uses.
+.. Using Trademarks. +
+No right, title or interest in or to any trademark, service mark, logo or trade name of MicroStream or its licensors is granted under this agreement.
+
+. TRANSFER. +
+The Licensee may not transfer or assign its rights under this license to another party without MicroStream's prior written consent.
+
+. CHANGES TO THIS AGREEMENT. +
+.. The Licensor reserves the right at its discretion to change, modify, add or remove terms of use of this Agreement at any time.
+.. Any change, modification, addition or removal of the terms of use of this Agreement must be notified to licensee as soon as possible.
+Such notification will be done by announcement on the MicroStream website.
+.. The Licensee will have to agree on such change, modification, addition or removal of the terms of use of this Agreement before the use of the latest version of the MicroStream software will be allowed again.
+In case of a missing renewed consent by licensee, any further use of the MicroStream software will be automatically denied without any right of compensation or reimbursement of payment being due.
+.. In case of modifications and changes of any national or international legal framework having compulsory effect on this Agreement as well as on the provision of any contractual duties, rights and services formerly negotiated between licensor and licensee, licensor shall be allowed to change this Agreement without the explicit consent of the licensee.
+
+. TERMINATION. +
+This Agreement is effective until terminated.
+The Licensee may terminate this Agreement at any time by destroying all copies of Software.
+This Agreement will terminate immediately without notice from MicroStream if the Licensee fails to comply with any provision of this Agreement.
+Either party may terminate this Agreement immediately should any Software become, or in either party's opinion be likely to become, the subject of a claim of infringement of any intellectual property right.
+Upon termination, the Licensee must destroy all copies of Software.
+MicroStream may terminate your license if you fail to comply with the terms of this Agreement.
+If MicroStream does so, you must destroy all copies of the program and its proof of entitlement.
+
+. EXPORT REGULATIONS. +
+The Licensee may not use or otherwise export or re-export the Software except as authorized by United States law and the laws of the jurisdiction in which the Software was obtained.
+In particular, but without limitation, the Software may not be exported or re-exported, (i) into any U.S.
+embargoed countries or, (ii) to anyone on the U.S.
+Treasury Department's list of Specially Designated Nationals or the U.S.
+Department of Commerce's Denied Person's List or Entity List or any other restricted party lists.
+By using the Software, you represent and warrant that you are not located in any such country or on any such list.
+You also agree that you will not use the Software for any purposes prohibited by United States law, including, without limitation, the development, design, manufacture or production of missiles, nuclear, chemical or biological weapons.
+
+. LIABILITY. +
+Licensor shall only be liable for damages occurring on wilful intent or gross negligence.
+Licensor shall not be liable for any material defects/damages, including consequential damages, loss of income, business or profit, special, indirect or incidental damages due to the use of the MicroStream software.
+Licensor's liability for material defects is restricted to those taking place during the transfer of the MicroStream software from the original source to Licensee.
+Licensee indemnifies Licensor against any claim of third parties due to the use of the MicroStream software.
+Licensee must assume the entire risk of using the MicroStream software.
+
+. LIMITED WARRANTIES AND DISCLAIMERS. +
+Unless otherwise set forth in this Agreement, MicroStream warrants for a period of ninety (90) days from your date of download that the Software as provided by MicroStream will perform substantially in accordance with the accompanying documentation.
+MicroStream's entire liability and your sole and exclusive remedy for any breach of the foregoing limited warranty will be, at MicroStream's option, replacement or repair of the Software.
+
+THIS LIMITED WARRANTY IS THE ONLY WARRANTY PROVIDED BY MICROSTREAM AND MICROSTREAM AND ITS LICENSORS EXPRESSLY DISCLAIM ALL OTHER WARRANTIES, CONDITIONS OR OTHER TERMS, EITHER EXPRESS OR IMPLIED (WHETHER COLLATERALLY, BY STATUTE OR OTHERWISE), INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES, CONDITIONS OR OTHER TERMS OF MERCHANTABILITY, SATISFACTORY QUALITY AND/OR FITNESS FOR A PARTICULAR PURPOSE WITH REGARD TO THE SOFTWARE AND ACCOMPANYING WRITTEN MATERIALS.
+FURTHERMORE, THERE IS NO WARRANTY AGAINST INTERFERENCE WITH YOUR ENJOYMENT OF THE SOFTWARE OR AGAINST INFRINGEMENT OF THIRD PARTY PROPRIETARY RIGHTS BY THE SOFTWARE.
+MICROSTREAM DOES NOT WARRANT THAT THE OPERATION OF THE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT DEFECTS IN THE SOFTWARE WILL BE CORRECTED.
+NO ORAL OR WRITTEN INFORMATION OR ADVICE GIVEN BY MICROSTREAM OR AN MICROSTREAM AUTHORIZED REPRESENTATIVE SHALL CREATE A WARRANTY.
+BECAUSE SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF IMPLIED WARRANTIES, CONDITIONS OR OTHER TERMS THE ABOVE LIMITATION MAY NOT APPLY TO YOU.
+THE TERMS OF THIS DISCLAIMER AND THE LIMITED WARRANTY UNDER THIS SECTION 9 DO NOT AFFECT OR PREJUDICE THE STATUTORY RIGHTS OF A CONSUMER ACQUIRING THE SOFTWARE OTHERWISE THAN IN THE COURSE OF A BUSINESS, NEITHER DO THEY LIMIT OR EXCLUDE ANY LIABILITY FOR DEATH OR PERSONAL INJURY CAUSED BY MICROSTREAM'S NEGLIGENCE.
+
+. EXCLUSION AND LIMITATIONS OF REMEDIES AND DAMAGES. +
+.. Exclusion. +
+IN NO EVENT WILL MICROSTREAM, ITS PARENT, SUBSIDIARIES, OR ANY OF ITS LICENSORS, DIRECTORS, OFFICERS, EMPLOYEES OR AFFILIATES OF ANY OF THE FOREGOING BE LIABLE TO YOU FOR ANY CONSEQUENTIAL, INCIDENTAL, INDIRECT OR SPECIAL DAMAGES WHATSOEVER (INCLUDING WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION AND THE LIKE) OR DIRECT LOSS OF BUSINESS, BUSINESS PROFITS OR REVENUE, WHETHER FORESEEABLE OR UNFORESEEABLE, ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE OR ACCOMPANYING WRITTEN MATERIALS, REGARDLESS OF THE BASIS OF THE CLAIM (WHETHER UNDER CONTRACT, NEGLIGENCE OR OTHER TORT OR UNDER STATUTE OR OTHERWISE HOWSOEVER ARISING) AND EVEN IF MICROSTREAM OR A MICROSTREAM REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.. Limitation. +
+MICROSTREAM'S TOTAL LIABILITY TO THE LICENSEE FOR DAMAGES FOR ANY CAUSE WHATSOEVER NOT EXCLUDED BY SECTION 10.1.
+ABOVE HOWSOEVER CAUSED (WHETHER IN CONTRACT, NEGLIGENCE OR OTHER TORT, UNDER STATUTE OR OTHERWISE HOWSOEVER ARISING) WILL BE LIMITED TO THE GREATER OF U.S.$5.00 OR THE MONEY PAID FOR THE SOFTWARE THAT CAUSED THE DAMAGES.
+THE PARTIES AGREE THAT THIS LIMITATION OF REMEDIES AND DAMAGES PROVISION SHALL BE ENFORCED INDEPENDENTLY OF AND SURVIVE THE FAILURE OF ESSENTIAL PURPOSE OF ANY WARRANTY REMEDY.
+THIS LIMITATION WILL NOT APPLY IN THE CASE OF DEATH OR PERSONAL INJURY CAUSED BY FMI'S NEGLIGENCE ONLY WHERE AND TO THE EXTENT THAT APPLICABLE LAW REQUIRES SUCH LIABILITY.
+BECAUSE SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF LIABILITY FOR CONSEQUENTIAL OR INCIDENTAL DAMAGES, THE LIMITATION OF LIABILITY IN THIS SECTION 6 MAY NOT APPLY TO YOU.
+NOTHING IN THIS LICENSE AFFECTS OR PREJUDICES THE STATUTORY RIGHTS OF A CONSUMER ACQUIRING THE SOFTWARE OTHERWISE THAN IN THE COURSE OF A BUSINESS.
+
+. SUBLICENSING. +
+Licensee agrees that all distribution of the runtime and extras will be subject to a written agreement, the terms and conditions of which will, at a minimum: (i) grant a nonexclusive right to use only one copy of the Runtime application and/or Extras for each copy of your own Runtime Solutions which you license to your customer, (ii) provide that any subsequent transfer is subject to the restrictions set forth in this Section 11, (iii) state that the Runtime and Extras (or as renamed) are licensed, not sold, to the end-user and that title to all copies of the Runtime and Extras remain with MicroStream and its licensors, (iv) include restrictions substantially similar to those set forth in Section 3 (RESTRICTIONS) and Section 7 (EXPORT REGULATIONS) of this License, and (v) include Warranty Disclaimer and Disclaimer of Liability provisions which are consistent with and substantially similar to the terms set forth in Sections 5 and 6 of this License.
+
+. TECHNICAL SUPPORT. +
+You are solely responsible for providing all technical support to your sublicensees of your own runtime solution, and you will not direct any sublicensee to contact MicroStream for technical support regarding your own runtime solution.
+You further agree to include your name and contact information in your own License Agreement as part of your own runtime solution.
+
+. INDEMNIFICATION. +
+You will indemnify and hold MicroStream harmless from any and all claims, damages, losses, liabilities, costs and expenses (including reasonable fees of attorneys and other professionals) arising out of or in connection with any runtime solutions distributed by you and which is based on your contributions to such runtime solution.
+
+. GENERAL. +
+The parties agree that the United Nations Convention on Contracts for the International Sale of Goods (1980), as amended, is specifically excluded from application to this License.
+This License constitutes the entire agreement between the parties with respect to the Software licensed under these terms, and it supersedes all prior or contemporaneous agreement, arrangement and understanding regarding such subject matter.
+You acknowledge and agree that you have not relied on any representations made by MicroStream, however, nothing in this license shall limit or exclude liability for any representation made fraudulently.
+No amendment to or modification of this License will be binding unless in writing and signed by MicroStream.
+
+. APPLICABLE LAW AND COURT OF JURISDICTION. +
+This agreement shall be governed, subjected to, and construed in accordance with the laws of Germany.
+All disputes arising from and/or in connection with the present agreement, and/or from any further agreements resulting therefrom, and which the parties are unable to resolve between themselves, shall exclusively be brought before the competent court of jurisdiction in Regensburg, Germany.
+No choice of law rules of any jurisdiction will apply.
+
+. SEVERABILITY CLAUSE. +
+If any provision of this agreement shall be held by a court of competent jurisdiction to be contrary to law, that provision will be enforced to the maximum extent permissible, The concerned provision is superseded in accordance with the legal laws, and the remaining provisions of this agreement will remain in full force and effect.
+
+END OF TERMS AND CONDITIONS

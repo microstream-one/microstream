@@ -1,0 +1,67 @@
+= Configuration
+
+The wrapper code generator is an annotation processor, provided by the `base` module.
+
+The maven configuration looks like this:
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-base</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+
+<build>
+	<plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>3.8.1</version>
+			<configuration>
+				<source>1.8</source>
+				<target>1.8</target>
+				<encoding>UTF-8</encoding>
+				<annotationProcessors>
+					<annotationProcessor>one.microstream.wrapping.codegen.WrapperProcessor</annotationProcessor>
+				</annotationProcessors>
+				<compilerArgs>
+					<arg>-Amicrostream.wrapper.types=one.microstream.persistence.types.PersistenceStoring</arg>
+				</compilerArgs>
+			</configuration>
+		</plugin>
+	</plugins>
+</build>
+----
+
+There are following ways to get the base wrapper types generated.
+If you want it for your own types, the best way is to use the `GenerateWrapper` annotation.
+
+[source, java]
+----
+@GenerateWrapper
+public interface MyInterface
+{
+	public void doStuff();
+	
+	public String getStuff();
+}
+----
+
+Or, if you want it for interfaces in libraries, like `PersistenceStoring`, you cannot add an annotation.
+That's what the `microstream.wrapper.types` parameter is for.
+This is just a comma separated list of types.
+Alternatively you can use the `GenerateWrapperFor` annotation:
+
+[source, java]
+----
+@GenerateWrapperFor("one.microstream.persistence.types.PersistenceStoring")
+public class WrapperGenerationDummy
+{
+}
+----
+
+It accepts a list of type names.
+Plain strings have to be used instead of class literals, because it is read inside the compilation cycle which prohibits access to class elements.

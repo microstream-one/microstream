@@ -1,0 +1,11 @@
+name: microstream
+title: Reference Manual
+version: master
+display_version: '5.0'
+start_page: intro:welcome.adoc
+nav:
+- modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    display-version: '5.0'
+    maven-version: '05.00.00-MS-GA'

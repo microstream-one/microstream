@@ -1,0 +1,206 @@
+= Installation
+
+== Build Configuration
+
+You can find the MicroStream libraries in the Maven Central repository.
+
+[source, xml, subs=attributes+, title="Maven [pom.xml]"]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-storage-embedded</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+[source, groovy, subs=attributes+, title="Gradle (Groovy) [build.gradle]"]
+----
+dependencies {
+	implementation 'one.microstream:microstream-storage-embedded:{maven-version}'
+}
+----
+
+[source, kotlin, subs=attributes+, title="Gradle (Kotlin) [build.gradle.kts]"]
+----
+dependencies {
+	implementation("one.microstream:microstream-storage-embedded:{maven-version}")
+}
+----
+
+[source, scala, subs=attributes+, title="Scala SBT [build.sbt]"]
+----
+libraryDependencies += "one.microstream" % "microstream-storage-embedded" % "{maven-version}"
+----
+
+[source, xml, subs=attributes+, title="Apache Ivy [ivy.xml]"]
+----
+<dependencies>
+	<dependency org="one.microstream"
+		name="microstream-storage-embedded"
+		rev="{maven-version}" />
+</dependencies>
+----
+
+[source, ruby, subs=attributes+, title="Apache Buildr [Buildfile]"]
+----
+define 'my-app' do
+	compile.with 'one.microstream:microstream-storage-embedded:{maven-version}'
+end
+----
+
+[source, python, subs=attributes+, title="Bazel [WORKSPACE]"]
+----
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+RULES_JVM_EXTERNAL_TAG = "2.8"
+RULES_JVM_EXTERNAL_SHA = "79c9850690d7614ecdb72d68394f994fef7534b292c4867ce5e7dec0aa7bdfad"
+
+http_archive(
+	name = "rules_jvm_external",
+	strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
+	sha256 = RULES_JVM_EXTERNAL_SHA,
+	url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
+)
+
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+maven_install(
+	artifacts = [
+		"one.microstream:microstream-storage-embedded:{maven-version}"
+	],
+)
+----
+
+[source, python, subs=attributes+, title="Bazel [BUILD]"]
+----
+maven_jar(
+	name = "microstream",
+	artifact = "one.microstream:microstream-storage-embedded:{maven-version}"
+)
+----
+
+or in our P2 Update Site:
+
+https://repo.microstream.one/repository/update-site/{maven-version}
+
+== Modules
+
+These are the different modules that make up MicroStream.
+
+[options="header",cols="1,2"]
+|===
+|ArtifactId |Description
+//-------------
+|microstream-base
+|Collection of common utilities. Math, IO, Exceptions, Threads, String operations, and so on.
+
+|microstream-cache
+|JSR-107 xref:cache:index.adoc[JCache Provider]
+
+|microstream-cache-hibernate
+|Hibernate region factory for jcache implementation
+
+|microstream-communication
+|Top-level framework for sending and receiving object graphs between Java applications. Only data is transferred, no program code ("bytecode"). The other application may be programmed in any language as long as it adheres to the transmitted communication protocol. Usable directly in the program code of a Java application to communicate with other applications or processes. The concrete form of persistence is left open and delivered via a specific implementation as a plugin. Examples of specific persistent forms are binary data, CSV, XML, Json.
+
+|microstream-communication-binary
+|Plugin framework for the top-level framework communication to convert the transferred object graphs to and from binary data.
+
+|microstream-configuration
+|General-purpose configuration layer.
+
+|microstream-configuration-hocon
+|Hocon extension for the configuration layer, which supports hocon, json and ini files.
+
+|microstream-configuration-yaml
+|Yaml extension for the configuration layer.
+
+|microstream-afs
+|Abstract file system (AFS) layer.
+
+|microstream-afs-aws-dynamodb
+|File system implementations for AWS DynamoDB.
+
+|microstream-afs-aws-s3
+|File system implementations for AWS S3.
+
+|microstream-afs-azure-storage
+|File system implementations for Azure Cloud (Azure Storage).
+
+|microstream-afs-blobstore
+|Base for all blob store file system implementations.
+
+|microstream-afs-hazelcast
+|File system implementation for Hazelcast.
+
+|microstream-afs-hibernate
+|Generic file system implementation for JPA / Hibernate.
+
+|microstream-afs-kafka
+|File system implementation for Apache Kafka.
+
+|microstream-afs-mongodb
+|File system implementation for MongoDB.
+
+|microstream-afs-nio
+|File system implementation for the non-blocking IO implementation (java.nio.file) of the JDK.
+
+|microstream-afs-oraclecloud-objectstorage
+|File system implementation for Oracle Cloud Services (Object Storage).
+
+|microstream-afs-oracle-coherence
+|File system implementation for Oracle Coherence.
+
+|microstream-afs-oracle-nosql
+|File system implementation for Oracle NoSQL.
+
+|microstream-afs-redis
+|File system implementation for Redis.
+
+|microstream-afs-sql
+|File system implementation for SQL databases.
+
+|microstream-persistence
+|Base framework to convert a graph of java objects into a persistent form and back. Usable as a common, abstract base for all technologies implementing a specific persistent representation like binary data, CSV, XML or Json.
+From a technical point of view, storage as well as serialization is a process that puts a graph of Java instances into a persistent form. The only difference is that network communication serialization discards this persistent form while a database solution preserves it.
+
+|microstream-persistence-binary
+|Extension of the persistence base framework with a concrete implementation of the persistent form as binary data. This persistent form is superior to all text-based formats in storage and performance needs, making it the preferred method for storage and network serialization.
+
+|microstream-persistence-binary-jdk8
+|xref:storage:addendum/specialized-type-handlers.adoc[Specialized type handlers] for JDK 8 collection types.
+
+|microstream-storage
+|Basic framework to manage a graph of Java data persisted as binary data as a database. Can be used both to implement an embedded database solution (in the same process as the Java application) and a standalone or server-mode database solution (in a separate process). Other forms of persistence than binary data are deliberately not supported because they would not bring any noteworthy advantages but many disadvantages for the task.
+
+|microstream-storage-embedded
+|Top-level framework for use in a Java application that adds an embedded database solution to its object graphs. Can be used directly in the program code of a Java application to comfortably and efficiently persist its data.
+
+|microstream-storage-embedded-configuration
+|Layer with support for external configuration files (XML, INI) and convenience functionality to create foundations for the embedded storage.
+
+|microstream-storage-restadapter
+|Adapter for low-level storage data externalization. Used by the xref:storage:rest-interface/index.adoc[REST service] to adapt to a MicroStream Storage.
+
+|microstream-storage-restclient
+|Abstract REST client interface, which serves as a Java wrapper for the xref:storage:rest-interface/rest-api.adoc[REST API].
+
+|microstream-storage-restclient-app
+|Executable xref:storage:rest-interface/client-gui.adoc[client app] with web user interface, which connects to a REST service.
+
+|microstream-storage-restclient-jersey
+|REST client implementation which utilizes Jersey as a webservice framework. 
+
+|microstream-storage-restservice
+|Abstract REST service interface, which uses the REST adapter to access low level storage data.
+
+|microstream-storage-restservice-sparkjava
+|REST service implementation which utilizes SparkJava and provides REST endpoints.
+|===
+
+
+=== Dependency Graph
+
+link:{imagesdir}/dependency-graph.svg[image:dependency-graph.svg[]]

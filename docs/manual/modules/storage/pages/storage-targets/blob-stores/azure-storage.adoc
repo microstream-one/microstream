@@ -1,0 +1,68 @@
+= Azure Storage
+
+[source, xml, subs=attributes+]
+----
+<dependency>
+	<groupId>one.microstream</groupId>
+	<artifactId>filesystem.azure</artifactId>
+	<version>{maven-version}</version>
+</dependency>
+----
+
+[source, java]
+----
+BlobServiceClient client = ...;
+BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+	AzureStorageConnector.Caching(client)
+);
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("microstream_storage"));
+----
+
+== Configuration
+
+When using xref:configuration/index.adoc#external-configuration[external configuration] Azure Storage can be set as follows.
+
+[source, text, title="microstream-storage.properties"]
+----
+storage-filesystem.azure.storage.credentials.type=basic
+storage-filesystem.azure.storage.credentials.username=user
+storage-filesystem.azure.storage.credentials.password=secret
+----
+
+== Supported properties
+
+[options="header",cols="1,2a"]
+|===
+|Property   
+|Description   
+//-------------
+|endpoint
+|Sets the blob service endpoint, additionally parses it for information (SAS token).
+
+|connection-string
+|Sets the connection string to connect to the service.
+
+|encryption-scope
+|Sets the encryption scope that is used to encrypt blob contents on the server.
+
+|credentials.type
+|The type of the credentials provider. Supported values are:
+
+* "basic" +
+Credentials will be loaded from the credentials.username and credentials.password properties.
+* "shared-key" +
+Credentials will be loaded from the credentials.account-name and credentials.account-key properties.
+
+|credentials.username
+|The username, used when "credentials.type" is "basic".
+
+|credentials.password
+|The password, used when "credentials.type" is "basic".
+
+|credentials.account-name
+|The account name, used when "credentials.type" is "shared-key".
+
+|credentials.account-key
+|The account key, used when "credentials.type" is "shared-key".
+|===
+

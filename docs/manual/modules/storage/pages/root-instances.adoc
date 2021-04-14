@@ -1,0 +1,106 @@
+= Root Instances
+
+Object instances can be stored as simple records.
+One value after another as a trivial byte stream.
+References between objects are mapped with unique numbers, called _ObjectId_, or short _OID_.
++ With both combined, byte streams and OIDs, an object graph can be stored in a simple and quick way, as well as loaded, as a whole or partially.
+
+image::graph.png[]
+
+But there is a small catch.
+Where does it start?
+What is the first instance or reference at startup?
++ Strictly speaking "nothing".
+That's why at least one instance or a reference to an instance must be registered in a special way, so that the application has a starting point from where the object graph can be loaded.
+This is a "Root Instance".
+
+image::graph2.png[]
+
+Same difference, another problem are instances which are references by constant fields in Java classes.
+These aren't created when the records are loaded from the database, but by the JVM while loading the classes.
+Without special treatment, this would be a problem:
+
+. The application, meaning the JVM or the JVM process, starts, the constant instances are created by the JVM, one or more of them are stored, then the application shuts down.
+. The stored data of the constants are now stored with a certain OID in the database.
+. The application starts again.
+. The Constant instances are created again by the JVM.
+The data records are read by MicroStream.
+
+The problem is: How should the application know what values, which are stored with a certain OID, belong to which constant?
+The JVM created everything from scratch at startup and doesn't know anything about OIDs.
+To resolve this, the constant instances must be registered, just like the entity graph's root instance.
+Then MicroStream can associate the constant instances with the stored data via the OIDs.
+Constant instances can be thought of as JVM-created implicit root instances for the object graph.
+
+In both cases, root and constant instances, it is about registering special starting points for the object graph in order to load it correctly.
+For MicroStream, from a plain technical view, both cases don't make a difference.
+
+image::graph3.png[]
+
+== What Must Be Done in the Application?
+
+In the most common cases, *nothing at all*.
+The default behavior is enough to get things going.
+
+By default, a single instance can be registered as the entity graph's root, accessible via `EmbeddedStorage.root()`.
++ Therefore, this is already a fully fledged (although tiny) database application:
+
+[source, java]
+----
+// Start the database manager
+EmbeddedStorageManager storageManager = EmbeddedStorage.start();
+
+// Set the entity (graph) as root
+storageManager.setRoot("Hello World");
+
+// Store root
+storageManager.storeRoot();
+----
+
+== Custom Root Instances
+
+The simple default approach has its limits when the application defines an explicit root instance that must be updated/filled from the database directly during database initialization.
+
+Something like this:
+
+[source, java]
+----
+// Empty application-specific root, to be filled during start()
+MyApplicationRoot root = new MyApplicationRoot();
+
+// Start the database manager
+EmbeddedStorageManager storage = EmbeddedStorage.start();
+
+// root must be filled at this point... but how?
+root.printAllMyEntities();
+----
+
+To solve this, a custom root instance can be directly registered at the database setup.
+In the simplest case, is just has to be passed to `.start();`:
+
+[source, java]
+----
+// Empty application-specific root, to be filled during start()
+MyApplicationRoot root = new MyApplicationRoot();
+
+// Start the database manager with a reference to the application's root.
+EmbeddedStorageManager storageManager = EmbeddedStorage.start(root);
+
+// root is "magically" filled at this point. (Yay!)
+root.printAllMyEntities();
+----
+
+Internally, the two concepts (default root and custom root) and handled by different mechanisms.
+This can be seen from the two different methods
+
+[source, java]
+----
+storageManager.defaultRoot();
+storageManager.customRoot();
+----
+
+The simplified method `storageManager.root();` automatically chooses the variant that is used.
+Since neither of those three methods can know the concrete type of the root instance (and adding a type parameter just for that would have been a complication overkill), they all can only be typed to return Object.
+So, to avoid annoying and dangerous casts, it is best to keep a direct reference to a custom root instance as shown in the code snippet above.
+
+Likewise, `storageManager.storeRoot();` works for both variants, so there is no need to worry about how to store which one.

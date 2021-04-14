@@ -1,0 +1,83 @@
+= Storage
+
+MicroStream's storage can be used as a backing store for the cache.
+It functions as a CacheWriter as well as a CacheReader, depending on the writeThrough and readThrough configuration.
+Per default it is used for both.
+
+[source, java]
+----
+EmbeddedStorageManager storageManager = EmbeddedStorage.start();
+CachingProvider        provider       = Caching.getCachingProvider();
+CacheManager           cacheManager   = provider.getCacheManager();
+CacheConfiguration<Integer, String> configuration = CacheConfiguration
+	.Builder(Integer.class, String.class, "my-cache", storageManager)
+	.build();
+Cache<Integer, String> cache = cacheManager.createCache("jCache", configuration);
+----
+
+If you prefer an external configuration, you can link the xref:storage:configuration/index.adoc#external-configuration[storage configuration]:
+
+[source, text, title="cache-config.properties"]
+----
+keyType = java.lang.Integer
+valueType = java.lang.String
+
+readThrough = true
+writeThrough = true
+
+storageConfigurationResourceName = microstream-storage.properties
+----
+
+[source, text, title="microstream-storage.properties"]
+----
+baseDirectory = ~/cache-data
+channelCount = 4
+----
+
+Or you can embed the storage configuration using the `storage.` prefix:
+
+[source, text, title="cache-config.properties"]
+----
+keyType = java.lang.Integer
+valueType = java.lang.String
+
+readThrough = true
+writeThrough = true
+
+storage.baseDirectory = ~/cache-data
+storage.channelCount = 4
+----
+
+== Spring example
+
+[source, text, title="application.properties"]
+----
+spring.jpa.properties.hibernate.cache.microstream.missing_cache_strategy = create
+spring.jpa.properties.hibernate.cache.microstream.readThrough = true
+spring.jpa.properties.hibernate.cache.microstreamwriteThrough = true
+spring.jpa.properties.hibernate.cache.microstream.storage.baseDirectory = ~/cache-data
+spring.jpa.properties.hibernate.cache.microstream.storage.channelCount = 4
+spring.jpa.properties.hibernate.cache.region.factory_class = one.microstream.cache.hibernate.types.CacheRegionFactory
+spring.jpa.properties.hibernate.cache.use_query_cache = true
+spring.jpa.properties.hibernate.cache.use_second_level_cache = true
+----
+
+[source, yaml, title="application.yml"]
+----
+spring:
+	jpa:
+		properties:
+			hibernate:
+				cache:
+					microstream:
+						missing_cache_strategy: create
+						readThrough: true
+						writeThrough: true
+						storage:
+						baseDirectory: ~/cache-data
+						channelCount: 4
+					region:
+						factory_class: one.microstream.cache.hibernate.types.CacheRegionFactory
+					use_query_cache: true
+					use_second_level_cache: true
+----

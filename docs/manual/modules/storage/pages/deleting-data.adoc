@@ -1,0 +1,15 @@
+= Deleting Data
+
+Deleting data does not require performing explicit deleting actions like `DELETE FROM table WHERE...`. Instead you just need to clear any references to the object in your object-graph and store those changes.
+If a stored object is not reachable anymore its data will be deleted from the storage later.
+This behavior is comparable to Java's garbage collector.
+
+[source, java]
+----
+root.MyArrayList.remove(0);
+storage.store(root.MyArrayList);
+----
+
+CAUTION: Deleted data is not erased immediately from the storage files.
+
+The erasing from the storage files is done by the xref:housekeeping.adoc[housekeeping] process.

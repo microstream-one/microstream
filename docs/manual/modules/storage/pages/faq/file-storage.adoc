@@ -1,0 +1,25 @@
+= File Storage
+
+== Where does MicroStream store persistent data?
+
+MicroStream stores persistent data in a physical form, typically in native file-system files.
+
+== Can my application use more than one MicroStream instance?
+
+Yes, as many as you like.
+Each MicroStream instance represents one coherent entity graph of persistent data.
+
+== Is it possible to split the file-storage into many single files?
+
+Yes.
+This is already done automatically.
+The minimum and maximum size of every partial file can be configured, although this is a very technical detail that should not be relevant in most cases.
+
+== May multiple JVM processes access the same MicroStream database?
+
+At any given time, only one JVM process may directly access the files representing a unique set of data.
+Such a restriction is crucial for the correct execution of any application: changes to an application's persistent data have to be guarded by the rules of the application's business logic, i.e.
+the process that currently runs the application.
+Allowing another process to bypass these rules would eventually result in catastrophic consistency errors. +
+The requirement to distribute an application over multiple processes must be solved by a clustering approach (e.g.
+by distributing logic AND persistent data over multiple processes or by having one process to serve as the data master for multiple worker processes).

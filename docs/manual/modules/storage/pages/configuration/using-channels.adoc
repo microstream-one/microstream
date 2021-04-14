@@ -1,0 +1,82 @@
+= Using Channels
+
+== Channel Usage
+
+xref:configuration/properties.adoc#channel-count[Channels] are the IO threads used by the MicroStream storage engine. A single channel represents the unity of a thread, a storage directory and cached data. Increasing the number of channels means to run more IO threads.
+
+The channel count is an important configuration value that impacts to IO performance.
+
+== Channel Configuration
+
+For the channel configuration the following configuration xref:configuration/properties.adoc[properties] are available:
+
+[options="header",cols="1,2"]
+|===
+|Property
+|Description   
+//-------------
+|channel-count
+|The number of channels that MicroStream will use. Must be 2^n
+
+|channel-directory-prefix
+|The channel directory will be prefix+channelNumber e.g. "ch_0" if prefix is "ch_"
+
+|data-file-prefix
+|Default is `"channel_"`
+
+|data-file-suffix
+|Default is `".dat"`
+|===
+
+Channel file size configuration is done by the the xref:configuration/housekeeping.adoc#storage-data-file-evaluator[Storage Data File Evaluator].
+
+They can be set by  `microstream-storage-embedded-configuration API:`
+
+[source,java,title="Java"] 
+----
+EmbeddedStorageManager storageManager = Configuration.Default()
+	.setChannelCount(4)
+	.setChannelDirectoryPrefix("channel_")
+	.setDataFilePrefix("channel_")
+	.setDataFileSuffix(".bin")
+	.createEmbeddedStorageFoundation()
+	.createEmbeddedStorageManager();
+----
+
+[source,xml,title="XML"]
+----
+<properties>
+	<property name="channelCount" value="4" />
+	<property name="channelDirectoryPrefix" value="channel_" />
+	<property name="dataFilePrefix value="channel_" />
+	<property name="dataFileSuffix" value=".dat" />
+</properties>
+----
+
+[source,text,title="INI"]
+----
+channelCount = 4
+channelDirectoryPrefix = prefix
+dataFilePrefix = channel_
+dataFileSuffix = .dat
+----
+
+Or by setting a `StorageFileProvider` using the `EmbeddedStorageFoundation` factory
+
+[source, java]
+----
+NioFileSystem          fileSystem = NioFileSystem.New();
+EmbeddedStorageManager storage    = EmbeddedStorage.Foundation(
+	Storage.ConfigurationBuilder()
+		.setChannelCountProvider(Storage.ChannelCountProvider(4))
+		.setStorageFileProvider(
+			StorageLiveFileProvider.Builder()
+				.setDirectory(fileSystem.ensureDirectoryPath("storage"))
+				.createFileProvider()
+		)
+		.createConfiguration()
+)
+.start();
+----
+
+See also: xref:configuration/index.adoc[Configuration]

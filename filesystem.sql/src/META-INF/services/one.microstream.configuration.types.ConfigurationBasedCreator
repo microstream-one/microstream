@@ -1,6 +1,0 @@
-one.microstream.afs.sql.SqlFileSystemCreatorHana
-one.microstream.afs.sql.SqlFileSystemCreatorMariaDb
-one.microstream.afs.sql.SqlFileSystemCreatorMySql
-one.microstream.afs.sql.SqlFileSystemCreatorOracle
-one.microstream.afs.sql.SqlFileSystemCreatorPostgres
-one.microstream.afs.sql.SqlFileSystemCreatorSqlite

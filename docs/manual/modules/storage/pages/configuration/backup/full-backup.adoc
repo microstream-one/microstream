@@ -1,0 +1,15 @@
+= Full Backup
+
+To issue a full backup of the whole storage to be executed, the `EmbeddedStorageManager` provides two methods named `issueFullBackup`.
+Keep in mind that this could result in a very long running operation, depending on the storage size.
+Although the full backup may be a valid solution in some circumstances, the xref:configuration/backup/continuous-backup.adoc[continuous backup] should be preferred, since it is by far more efficient.
+
+[source, java]
+----
+EmbeddedStorageManager storage = ...;
+storage.issueFullBackup(
+	NioFileSystem.New().ensureDirectoryPath("full", "backup", "dir")
+);
+----
+
+TIP: The backup can be written to any available xref:storage-targets/index.adoc[storage target], not just the local file system.

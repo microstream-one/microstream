@@ -1,0 +1,64 @@
+= Application Life-Cycle
+
+== Stopping or Crashing a Live Database
+
+Actually, a database is a passive collection of persisted data that can never be _live_ on its own.
+But the managing thread accessing it can.
+
+When an EmbeddedStorageManager is "started" it is actually just setup with all kinds of default and user-defined settings and definitions.
+What is actually "started" are the database managing threads that process storing and loading requests.
+
+[source, java]
+----
+// Setup the database manager and start the managing threads
+EmbeddedStorageManager storageManager = EmbeddedStorage.start();
+----
+
+Of course, for every start() method, there needs to be something like a shutdown() method. +
+So there is in MicroStream:
+
+[source, java]
+----
+// Stop accessing the database
+storageManager.shutdown();
+----
+
+But is it really necessary to call shutdown?
+Should it be?
+What if there's an error and the process stops without calling shutdown()?
+Will that cause the database to become inconsistent, corrupted, maybe even destroyed?
+
+The answer is: It wouldn't be much of a database solution if a crash could cause any problem in the persisted data.
+MicroStream data-store is carefully designed in such a fashion that the process it runs in can simply vanish at any point in time and the persisted data will never be corrupted.
+
+This is surprisingly simple and reliable to solve: +
+Whenever a `.store()` call returns, it is guaranteed that the data stored by it has been physically written to the underlying storage layer, usually a file system.
+Before that, there is no guarantee regarding written data at all.
+In fact, should the process die before the last byte has been written and secured, the next StorageManager initialization will recognize that and truncate the last partially written store.
+Either way, all the data that was guaranteed to be written will be consistently available after the next `.start()`.
+
+As a consequence, this safety mechanism makes an explicit `.shutdown()` call pretty much unnecessary.
+It doesn't hurt, but it is effectively more-less the same as just calling `System.exit(0);`.
+
+The only time when an explicit shutdown is really needed is, if the database managing threads shall be stopped but the application itself keeps running.
+For example, it is perfectly valid to start the StorageManager, work with the database, then stop it, maybe change some configuration or copy files or something like that and then start it up again to continue working.
+
+In any other case, the shutdown method can be ignored and the live database can happily just be "killed" while running.
+It is specifically designed to withstand such a treatment.
+
+== Multiple Databases
+
+Any live MicroStream database basically consists of three major parts:
+
+* A place where the persisted data is located. Usually a file system directory.
+* The managing threads accessing (read and write) the persisted data.
+* The EmbeddedStorageManager instance to use and control the database in the application.
+
+Apart from a lot of internal components (configuration, processing logic, housekeeping state, etc.), that's all there is.
+There is nothing special or "magic" about it, no static state, no global registration in the JVM process or something like that.
+
+The consequence of this is: +
+If two EmbeddedStorageManager instances are started, each one with a different location for its persistend data, then the application has two live databases!
+If three or ten or 100 are started, then that's the number of live databases the application has.
+There is no limit and no conflict between different databases inside the same application process.
+The only important thing is that no two running StorageManagers can access the same data location.

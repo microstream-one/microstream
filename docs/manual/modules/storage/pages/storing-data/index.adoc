@@ -1,0 +1,75 @@
+= Storing Data
+
+MicroStream is designed to work with object graphs.
+Thus, storing data means to store an object graph.
+This includes the object's value fields and references to other objects.
+Storing an object will also store all instances referenced by this objects that have not been stored before.
+While storing your data most of the work MicroStream performs for you.
+You only need to call the store method on the correct object.
+The rule is: "The Object that has been modified has to be stored!".
+
+Storing objects that are not part of an object graph is most likely pointless.
+
+== Storing Root Instances
+
+See xref:getting-started.adoc#creating-a-database[Getting Started] how to create a database with a root instance.
+
+To store the registered root instance just call the `storeRoot()` method of a `EmbeddedStorageManager` instance.
+
+[source, java]
+----
+// Init storage manager
+final EmbeddedStorageManager storageManager = EmbeddedStorage.start(root);
+
+// Store the root object
+storageManager.storeRoot();
+----
+
+== Storing New Objects
+
+To store a newly created object, store the "owner" of the object.
+In the example below a new object is created and added to the `myObjects` list of the root object.
+Then the modified list gets stored.
+This will also store the new object.
+
+[source, java]
+----
+// Add a new data object to the list in root
+MyData dataItem = new MyData("Alice");
+root.myObjects.add(dataItem);
+    	
+// Store the modified list
+storageManager.store(root.myObjects);
+----
+
+== Storing Modified Objects
+
+Before storing a modified object keep in your mind that the modified object needs to be stored.
+
+In case of a value types, like `int`, it is the object that has the int field as a member:
+
+[source, java]
+----
+// Modify a value type memeber and store it
+dataItem.setIntValue(100);
+storageManager.store(dataItem);
+----
+
+[WARNING] 
+====
+Don't forget immutable objects
+
+Immutable objects like `String` cannot be modified.
+
+Assigning a new value to a String does not modify the String object.
+Instead a new String instance is created and the reference is changed!
+====
+
+[source, java]
+----
+// Change a string object and store it
+dataItem.setName("Bob");
+storageManager.store(dataItem);
+----
+
+TIP: The full code for the example is on https://github.com/microstream-one/examples/tree/master/storing[GitHub].

@@ -1,0 +1,529 @@
+= Defining Entities
+
+The entity types are just simple interfaces with value methods, which have following requirements:
+
+* A return type, no void
+* No parameters
+* No type parameters
+* No declared checked exceptions
+
+You are not limited otherwise.
+Use any types you want.
+Inheritance and generics are supported as well.
+
+== Entities
+
+[source, java, title="Beeing.java"]
+----
+public interface Beeing<B>
+{
+	public B partner();
+}
+----
+
+[source, java, title="Named.java"]
+----
+public interface Named
+{
+	public String name();
+}
+----
+
+[source, java, title="Animal.java"]
+----
+public interface Animal extends Beeing<Animal>, Entity
+{
+	public String species();
+}
+----
+
+[source, java, title="Pet.java"]
+----
+public interface Pet extends Animal, Named
+{
+}
+----
+
+[source, java, title="Human.java"]
+----
+public interface Human extends Beeing<Human>, Named, Entity
+{
+}
+----
+
+There is one base type (`Beeing`), one feature interface (`Named`) and three entities (`Animal`, `Pet`, `Human`).
+
+== Generated Code
+
+The code generator takes care of the three entities, and its output looks like this:
+
+[source, java, title="AnimalEntity.java"]
+----
+public class AnimalEntity extends EntityLayerIdentity implements Animal
+{
+	protected AnimalEntity()
+	{
+		super();
+	}
+
+	@Override
+	protected Animal entityData()
+	{
+		return (Animal)super.entityData();
+	}
+
+	@Override
+	public final String species()
+	{
+		return this.entityData().species();
+	}
+
+	@Override
+	public final Animal partner()
+	{
+		return this.entityData().partner();
+	}
+}
+----
+
+[source, java, title="AnimalData.java"]
+----
+public class AnimalData extends EntityData implements Animal
+{
+	private final String species;
+	private final Animal partner;
+
+	protected AnimalData(final Animal entity,
+		final String species,
+		final Animal partner)
+	{
+		super(entity);
+
+		this.species = species;
+		this.partner = partner;
+	}
+
+	@Override
+	public String species()
+	{
+		return this.species;
+	}
+
+	@Override
+	public Animal partner()
+	{
+		return this.partner;
+	}
+}
+----
+
+[source, java, title="AnimalCreator.java"]
+----
+public interface AnimalCreator extends Entity.Creator<Animal, AnimalCreator>
+{
+	public AnimalCreator species(String species);
+
+	public AnimalCreator partner(Animal partner);
+
+	public static AnimalCreator New()
+	{
+		return new Default();
+	}
+
+	public static AnimalCreator New(final Animal other)
+	{
+		return new Default().copy(other);
+	}
+
+	public class Default
+		extends Entity.Creator.Abstract<Animal, AnimalCreator>
+		implements AnimalCreator
+	{
+		private String species;
+		private Animal partner;
+
+		protected Default()
+		{
+			super();
+		}
+
+		@Override
+		public AnimalCreator species(final String species)
+		{
+			this.species = species;
+			return this;
+		}
+
+		@Override
+		public AnimalCreator partner(final Animal partner)
+		{
+			this.partner = partner;
+			return this;
+		}
+
+		@Override
+		protected EntityLayerIdentity createEntityInstance()
+		{
+			return new AnimalEntity();
+		}
+
+		@Override
+		public Animal createData(final Animal entityInstance)
+		{
+			return new AnimalData(entityInstance,
+				this.species,
+				this.partner);
+		}
+
+		@Override
+		public AnimalCreator copy(final Animal other)
+		{
+			final Animal data = Entity.data(other);
+			this.species = data.species();
+			this.partner = data.partner();
+			return this;
+		}
+	}
+}
+----
+
+[source, java, title="AnimalUpdater.java"]
+----
+public interface AnimalUpdater extends Entity.Updater<Animal, AnimalUpdater>
+{
+	public static boolean setSpecies(final Animal animal, final String species)
+	{
+		return New(animal).species(species).update();
+	}
+
+	public static boolean setPartner(final Animal animal, final Animal partner)
+	{
+		return New(animal).partner(partner).update();
+	}
+
+	public AnimalUpdater species(String species);
+
+	public AnimalUpdater partner(Animal partner);
+
+	public static AnimalUpdater New(final Animal animal)
+	{
+		return new Default(animal);
+	}
+
+	public class Default
+		extends Entity.Updater.Abstract<Animal, AnimalUpdater>
+		implements AnimalUpdater
+	{
+		private String species;
+		private Animal partner;
+
+		protected Default(final Animal animal)
+		{
+			super(animal);
+		}
+
+		@Override
+		public AnimalUpdater species(final String species)
+		{
+			this.species = species;
+			return this;
+		}
+
+		@Override
+		public AnimalUpdater partner(final Animal partner)
+		{
+			this.partner = partner;
+			return this;
+		}
+
+		@Override
+		public Animal createData(final Animal entityInstance)
+		{
+			return new AnimalData(entityInstance,
+				this.species,
+				this.partner);
+		}
+
+		@Override
+		public AnimalUpdater copy(final Animal other)
+		{
+			final Animal data = Entity.data(other);
+			this.species = data.species();
+			this.partner = data.partner();
+			return this;
+		}
+	}
+}
+----
+
+[source, java, title="PetEntity.java"]
+----
+public class PetEntity extends EntityLayerIdentity implements Pet
+{
+	protected PetEntity()
+	{
+		super();
+	}
+
+	@Override
+	protected Pet entityData()
+	{
+		return (Pet)super.entityData();
+	}
+
+	@Override
+	public final String species()
+	{
+		return this.entityData().species();
+	}
+
+	@Override
+	public final Animal partner()
+	{
+		return this.entityData().partner();
+	}
+
+	@Override
+	public final String name()
+	{
+		return this.entityData().name();
+	}
+}
+----
+
+[source, java, title="PetData.java"]
+----
+public class PetData extends EntityData implements Pet
+{
+	private final String species;
+	private final Animal partner;
+	private final String name   ;
+
+	protected PetData(final Pet entity,
+		final String species,
+		final Animal partner,
+		final String name   )
+	{
+		super(entity);
+
+		this.species = species;
+		this.partner = partner;
+		this.name    = name   ;
+	}
+
+	@Override
+	public String species()
+	{
+		return this.species;
+	}
+
+	@Override
+	public Animal partner()
+	{
+		return this.partner;
+	}
+
+	@Override
+	public String name()
+	{
+		return this.name;
+	}
+}
+----
+
+[source, java, title="PetCreator.java"]
+----
+public interface PetCreator extends Entity.Creator<Pet, PetCreator>
+{
+	public PetCreator species(String species);
+
+	public PetCreator partner(Animal partner);
+
+	public PetCreator name(String name);
+
+	public static PetCreator New()
+	{
+		return new Default();
+	}
+
+	public static PetCreator New(final Pet other)
+	{
+		return new Default().copy(other);
+	}
+
+	public class Default
+		extends Entity.Creator.Abstract<Pet, PetCreator>
+		implements PetCreator
+	{
+		private String species;
+		private Animal partner;
+		private String name   ;
+
+		protected Default()
+		{
+			super();
+		}
+
+		@Override
+		public PetCreator species(final String species)
+		{
+			this.species = species;
+			return this;
+		}
+
+		@Override
+		public PetCreator partner(final Animal partner)
+		{
+			this.partner = partner;
+			return this;
+		}
+
+		@Override
+		public PetCreator name(final String name)
+		{
+			this.name = name;
+			return this;
+		}
+
+		@Override
+		protected EntityLayerIdentity createEntityInstance()
+		{
+			return new PetEntity();
+		}
+
+		@Override
+		public Pet createData(final Pet entityInstance)
+		{
+			return new PetData(entityInstance,
+				this.species,
+				this.partner,
+				this.name   );
+		}
+
+		@Override
+		public PetCreator copy(final Pet other)
+		{
+			final Pet data = Entity.data(other);
+			this.species = data.species();
+			this.partner = data.partner();
+			this.name    = data.name   ();
+			return this;
+		}
+	}
+}
+----
+
+[source, java, title="PetUpdater.java"]
+----
+public interface PetUpdater extends Entity.Updater<Pet, PetUpdater>
+{
+	public static boolean setSpecies(final Pet pet, final String species)
+	{
+		return New(pet).species(species).update();
+	}
+
+	public static boolean setPartner(final Pet pet, final Animal partner)
+	{
+		return New(pet).partner(partner).update();
+	}
+
+	public static boolean setName(final Pet pet, final String name)
+	{
+		return New(pet).name(name).update();
+	}
+
+	public PetUpdater species(String species);
+
+	public PetUpdater partner(Animal partner);
+
+	public PetUpdater name(String name);
+
+	public static PetUpdater New(final Pet pet)
+	{
+		return new Default(pet);
+	}
+
+	public class Default
+		extends Entity.Updater.Abstract<Pet, PetUpdater>
+		implements PetUpdater
+	{
+		private String species;
+		private Animal partner;
+		private String name   ;
+
+		protected Default(final Pet pet)
+		{
+			super(pet);
+		}
+
+		@Override
+		public PetUpdater species(final String species)
+		{
+			this.species = species;
+			return this;
+		}
+
+		@Override
+		public PetUpdater partner(final Animal partner)
+		{
+			this.partner = partner;
+			return this;
+		}
+
+		@Override
+		public PetUpdater name(final String name)
+		{
+			this.name = name;
+			return this;
+		}
+
+		@Override
+		public Pet createData(final Pet entityInstance)
+		{
+			return new PetData(entityInstance,
+				this.species,
+				this.partner,
+				this.name   );
+		}
+
+		@Override
+		public PetUpdater copy(final Pet other)
+		{
+			final Pet data = Entity.data(other);
+			this.species = data.species();
+			this.partner = data.partner();
+			this.name    = data.name   ();
+			return this;
+		}
+	}
+}
+----
+
+[source, java, title="HumanEntity.java"]
+----
+public class HumanEntity extends EntityLayerIdentity implements Human
+{
+	protected HumanEntity()
+	{
+		super();
+	}
+
+	@Override
+	protected Human entityData()
+	{
+		return (Human)super.entityData();
+	}
+
+	@Override
+	public final Human partner()
+	{
+		return this.entityData().partner();
+	}
+
+	@Override
+	public final String name()
+	{
+		return this.entityData().name();
+	}
+}
+----

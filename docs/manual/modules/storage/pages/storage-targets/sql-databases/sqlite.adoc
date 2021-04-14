@@ -1,0 +1,56 @@
+= SQLite
+
+[source, xml, subs=attributes+]
+----
+<dependency>
+	<groupId>one.microstream</groupId>
+	<artifactId>microstream-afs-sql</artifactId>
+	<version>{maven-version}</version>
+</dependency>
+<dependency>
+	<groupId>org.xerial</groupId>
+	<artifactId>sqlite-jdbc</artifactId>
+	<version>3.32.3</version>
+</dependency>
+----
+
+[source, java]
+----
+SQLiteDataSource dataSource = new SQLiteDataSource();
+dataSource.setUrl("jdbc:sqlite:microstreamdb");
+
+SqlFileSystem fileSystem = SqlFileSystem.New(
+	SqlConnector.Caching(
+		SqlProviderSqlite.New(dataSource)
+	)
+);
+
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("microstream_storage"));
+----
+
+== Configuration
+
+When using xref:configuration/index.adoc#external-configuration[external configuration] SQLite can be set as follows.
+Please note that you have to define a data source provider.
+
+[source, text, title="microstream-storage.properties"]
+----
+storage-filesystem.sql.sqlite.data-source-provider=com.sample.MyDataSourceProvider
+storage-filesystem.sql.sqlite.catalog=mycatalog
+storage-filesystem.sql.sqlite.schema=myschema
+----
+
+[source, java, title="MyDataSourceProvider.java"]
+----
+package com.sample;
+
+import one.microstream.afs.sql.SqlDataSourceProvider
+
+public class MyDataSourceProvider implements SqlDataSourceProvider
+{
+	public DataSource provideDataSource()
+	{
+		// TODO: return data source of your choice, e.g. from a connection pool
+	}
+}
+----

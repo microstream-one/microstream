@@ -1,0 +1,37 @@
+= Redis
+
+[source, xml, subs=attributes+]
+----
+<dependency>
+	<groupId>one.microstream</groupId>
+	<artifactId>microstream-afs-redis</artifactId>
+	<version>{maven-version}</version>
+</dependency>
+----
+
+[source, java]
+----
+String redisUri = "redis://localhost:6379/0";
+BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+	RedisConnector.Caching(redisUri)
+);
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("microstream_storage"));
+----
+
+== Configuration
+
+When using xref:configuration/index.adoc#external-configuration[external configuration] Redis can be set as follows.
+
+[source, text, title="microstream-storage.properties"]
+----
+storage-filesystem.redis.uri=redis://localhost:6379/0
+----
+
+[options="header",cols="1,2a"]
+|===
+|Property   
+|Description   
+//-------------
+|redis.uri
+|The RedisURI contains the host/port and can carry authentication/database details. On a successful connect you get authenticated, and the database is selected afterward. This applies also after re-establishing a connection after a connection loss.
+|===

@@ -1,0 +1,16 @@
+= Java Features
+
+== Does MicroStream work with the Java Module System (Jigsaw)?
+
+Yes, all jars bring the necessary module-info class, in the multi-version sub-directory in the META-INF folder. +
+Meaning, despite MicroStream is compiled with Java 8, it is fully compatible with the JMS.
+
+[#records]
+== Can MicroStream handle Records?
+
+Yes, but due to reflection restrictions of records introduced in Java 15 an export has to be added to the VM parameters:
+
+[source, text]
+----
+--add-exports java.base/jdk.internal.misc=microstream.base
+----

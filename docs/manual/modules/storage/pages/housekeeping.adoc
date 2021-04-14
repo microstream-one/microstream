@@ -1,0 +1,84 @@
+= Housekeeping
+
+Housekeeping is an internal background logic to optimize the database's usage of memory and persistent storage space (typically disc space).
+It is comprised of mechanisms for cleaning up storage files, clearing unneeded cached data and recognizing deleted entities via garbage collection. +
+Housekeeping is performed with a configurable time budget in configurable intervals to make sure it never  interferes with the application's work load too much (see xref:configuration/housekeeping.adoc[housekeeping configuration]).
+
+== File cleanup:
+
+If new versions of an entity are stored or if entities become no longer reachable (meaning the become effectively deleted or "garbage" data), their older data is no longer needed.
+However, the byte sequences representing that old data still exist in the storage files.
+But since they will never be needed again, they become logical "gaps" in the storage files.
+Space that is occupied, but will never be read again.
+It might as well be all zeroes or not exist at all.
+Sadly, unwanted areas cannot simple by "cut" from files.
+Above all because that would ruin all file offsets coming after them.
+So with every newly stored version of an entity and every entity that is recognized as unreachable "garbage", a storage file consists more and more of useless "gaps" and less and less of actually used data.
+This makes the storage space less and less efficient.
+To prevent eventually ending up with a drive that is filled with useless bytes despite an actually not that big database, the files need to be "cleaned up" from time to time. +
+To do this, the Housekeeping occasionally scans the storage files.
+If their "payload" ratio goes below the configured limit, the affected files will be retired: all data that belongs to still live entities is copied to a new file.
+Then the old file consists of 100% unneeded gap data and can safely be deleted.
+
+Which ratio value to set in the configuration is a matter of taste or, more precisely, depends on each individual application's demands.
+A value of 1.0 (100%) means: only files with 100% payload, so no gaps at all, are acceptable.
+This means that for every store that contains at least one new version of an already existing entity, the corresponding storage file will contain the slightest gap, thus dropping below the demanded ratio of 100% and as a consequence, will be retired on the next occasion.
+This very aggressive cleanup strategy will keep the disc space usage at a perfect minimum, but at the cost of enormous amounts of copied data, since virtually every store will cause one or more storage files to be retired and their content be shifted into a new file. +
+Respectively, a value of 0.0 (0%) means something like: "Never care about gaps, just fill up the disc until it bursts." This keeps the disc write loads for the file cleanup at 0, but at the cost of rapidly eating up disc space.
+
+The best strategy most probably lies somewhere in between.
+Somewhere between 0.1 and 0.9 (10% and 90%).
+The default value is 0.75 (75%).
+So a storage file containing up to 25% of unused gap data is okay.
+Containing more gaps that 25% will cause a storage file to be retired.
+
+In addition to the payload ratio check, the file cleanup also retired files tha are too small or too big. +
+For example: The application logic might commit a single store that is 100 MB in size.
+But the storage files are configured to be no larger than 10 MB (for example to keep a single file cleanup nice and fast).
+A single store is always written as a whole in the currently last storage file.
+The reason for this is to process the store as fast as possible and quickly return control to the application logic.
+When the housekeeping file cleanup scan encounters such an oversized file, it will retire it immediately by splitting it up across 10 smaller files and then deleting the oversized file. +
+A similar logic applies to files that are too small. +
+Upper and lower size bounds can be freely configured to arbitrary values.
+The defaults are 1 MB and 8 MB.
+
+== Cache cleanup
+
+To avoid repeated reads to storage files (which are incredibly expensive compared to just reading memory), data of once loaded entities is cached in memory.
+If an entity's cached data is not requested again for a certain amount of time in relation to how much data is already cached, it is cleared from the cache to avoid unnecessarily consuming memory. +
+The mechanism to constantly evaluate and clear cached data where applicable, is part of the housekeeping. +
+The aggressiveness of this mechanism can be configured via the xref:configuration/housekeeping.adoc[housekeeping configuration].
+
+== Garbage collection
+
+In a reference-based (or graph-like) data paradigm, instances never have to be deleted explicitly.
+For example, there is no "delete" in the java language.
+There are only references.
+If those references are utilized correctly, deleting can be done fully automatically without any need for the developer to care about it.
+This is called "garbage collection".
+The concept is basically very simple: when the last reference to an instance is cut, that instance can never be accessed again.
+It becomes "garbage" that occupies memory with it data that is not needed any longer.
+To identify those garbage instances, all an algorithm (the "garbage collector") has to do is to follow every reference, starting at some defined root instance (or several) of a graph and mark every instance it encounters as "reachable".
+When it has no more unvisited instances in its queue, the marking is completed.
+Every instance that is not marked as reachable by then must be unreachable garbage and will be deleted from memory.
+
+Similar to the JVM's garbage collection to optimize its memory consumption, MicroStream has a garbage collection of its own, but for the level of persistent storage space instead of memory space.
+
+However, MicroStreams multi-threaded garbage collector is currently still in development and not activated, yet.
+
+== Explicit Housekeeping
+
+Housekeeping can also be triggered manually from the `StorageConnection` . Related methods are:
+
+* `issueCacheCheck(nanoTimeBudgetBound)`
+* `issueCacheCheck(nanoTimeBudgetBound, entityEvaluator)`
+* `issueFileCheck(nanoTimeBudgetBound)`
+* `issueFileCheck(nanoTimeBudgetBound, fileDissolvingEvaluator)`
+* `issueFullCacheCheck()`
+* `issueFullCacheCheck(entityEvaluator)`
+* `issueFullFileCheck()`
+* `issueFullFileCheck(fileDissolvingEvaluator)`
+* `issueFullGarbageCollection()`
+* `issueGarbageCollection(nanoTimeBudget)`
+
+All Housekeeping methods can be given a defined time budget or can be run until full completion.

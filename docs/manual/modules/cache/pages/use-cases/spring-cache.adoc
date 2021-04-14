@@ -1,0 +1,63 @@
+= Spring Cache
+
+First of all add the MicroStream Cache dependency:
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-cache</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+The core caching abstraction provided by Spring comes in the https://search.maven.org/search?q=g:org.springframework%20a:spring-context[spring-context] module.
+
+[source, xml]
+----
+<dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-context</artifactId>
+	<version>...</version>
+</dependency>
+----
+
+If you use Spring Boot, then add the https://search.maven.org/search?q=g:org.springframework.boot%20a:spring-boot-starter-cache[spring-boot-starter-cache] package to add the caching dependencies:
+
+[source, xml]
+----
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-cache</artifactId>
+</dependency>
+----
+
+To enable caching, Spring makes good use of annotations, much like enabling any other configuration level feature in the framework. +
+The caching feature can be enabled by simply providing a cache setup component.
+
+[source, java]
+----
+@SpringBootApplication
+@EnableCaching
+public class MyApplication
+----
+
+[source, java]
+----
+@Component
+public class CachingSetup implements JCacheManagerCustomizer
+{
+	@Override
+	public void customize(CacheManager cacheManager)
+	{
+		cacheManager.createCache("my_cache", new MutableConfiguration<>()
+			.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(SECONDS, 10000)))
+			.setStoreByValue(true)
+			.setStatisticsEnabled(true));
+	}
+}
+----
+
+TIP: More information about the Spring Cache Abstraction: https://docs.spring.io/spring/docs/current/spring-framework-reference/integration.html#cache

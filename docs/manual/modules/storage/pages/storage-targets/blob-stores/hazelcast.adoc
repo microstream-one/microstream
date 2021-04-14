@@ -1,0 +1,48 @@
+= Hazelcast
+
+[source, xml, subs=attributes+]
+----
+<dependency>
+	<groupId>one.microstream</groupId>
+	<artifactId>microstream-afs-hazelcast</artifactId>
+	<version>{maven-version}</version>
+</dependency>
+----
+
+[source, java]
+----
+HazelcastInstance hazelcast = ...;
+BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+	HazelcastConnector.Caching(cache)
+);
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("microstream_storage"));
+----
+
+== Configuration
+
+When using xref:configuration/index.adoc#external-configuration[external configuration] Hazelcast can be set as follows.
+
+[source, text, title="microstream-storage.properties"]
+----
+storage-filesystem.hazelcast.configuration=path-to-hazelcast-configuration-file
+----
+
+== Supported properties
+
+[options="header",cols="1,2a"]
+|===
+|Property   
+|Description   
+//-------------
+|hazelcast.configuration
+|Supported values:
+
+* "default" +
+It tries to load Hazelcast configuration from a list of well-known locations, and then applies overrides found in environment variables/system properties. When no location contains Hazelcast configuration then it returns default.
+* "classpath:path-to-hazelcast-configuration-file" +
+When the "classpath:" prefix is used, the file is loaded from a classpath resource.
+* a valid URL +
+Creates new Config which is loaded from the given URL and uses the System.properties to replace variables.
+* a file path +
+Creates a Config based on a Hazelcast file and uses the System.properties to resolve variables.
+|===

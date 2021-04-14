@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>one.microstream</groupId>
-	<artifactId>microstream</artifactId>
+	<artifactId>microstream-parent</artifactId>
 	<version>04.02.00-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
@@ -27,42 +27,18 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<modules>
+		<module>afs</module>
 		<module>base</module>
 		<module>cache</module>
-		<module>cache.hibernate</module>
 		<module>communication</module>
-		<module>communication.binary</module>
 		<module>configuration</module>
-		<module>configuration.hocon</module>
-		<module>configuration.yaml</module>
-		<module>filesystem.aws</module>
-		<module>filesystem.azure</module>
-		<module>filesystem.blobstore</module>
-		<module>filesystem.coherence</module>
- 		<module>filesystem.googlecloud</module>
-		<module>filesystem.hazelcast</module>
-		<module>filesystem.jpa.hibernate</module>
-		<module>filesystem.kafka</module>
-		<module>filesystem.mongodb</module>
-		<module>filesystem.oraclecloud</module>
-		<module>filesystem.oraclenosql</module>
-		<module>filesystem.redis</module>
-		<module>filesystem.sql</module>
 		<module>persistence</module>
-		<module>persistence.binary</module>
-		<module>persistence.binary.jdk8</module>
 		<module>storage</module>
-		<module>storage.embedded</module>
-		<module>storage.embedded.configuration</module>
-		<module>storage.restadapter</module>
-		<module>storage.restclient</module>
-		<module>storage.restclient.app</module>
-		<module>storage.restclient.jersey</module>
-		<module>storage.restservice</module>
-		<module>storage.restservice.sparkjava</module>
 	</modules>
 
 	<repositories>
@@ -114,19 +90,15 @@
 	</scm>
 
 	<build>
-		<sourceDirectory>src</sourceDirectory>
 		<resources>
-			<resource>
-				<directory>src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
 			<resource>
 				<directory>${maven.multiModuleProjectDirectory}</directory>
 				<includes>
 					<include>LICENSE</include>
 				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
 			</resource>
 		</resources>
 		<plugins>
@@ -158,20 +130,16 @@
 				</dependencies>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>one.microstream</groupId>
-				<artifactId>sourcestub-maven-plugin</artifactId>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>flatten-maven-plugin</artifactId>
+				<groupId>one.microstream</groupId>
+				<artifactId>microstream-source-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.owasp</groupId>
@@ -184,10 +152,6 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.0</version>
-					<configuration>
-						<source>1.8</source>
-						<target>1.8</target>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.felix</groupId>
@@ -217,7 +181,7 @@
 					<version>3.2.0</version>
 					<configuration>
 						<archive>
-							<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+							<!-- <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> -->
 							<manifestEntries>
 								<built-by>${project.organization.name}</built-by>
 							</manifestEntries>
@@ -226,8 +190,8 @@
 				</plugin>
 				<plugin>
 					<groupId>one.microstream</groupId>
-					<artifactId>sourcestub-maven-plugin</artifactId>
-					<version>2.1.4</version>
+					<artifactId>microstream-source-maven-plugin</artifactId>
+					<version>02.00.00-MS-GA</version>
 					<executions>
 						<execution>
 							<id>attach-sources</id>
@@ -259,7 +223,7 @@
 						<doctitle>MicroStream API</doctitle>
 						<windowtitle>MicroStream API</windowtitle>
 						<sourcepath>${project.build.directory}/sources</sourcepath>
-						<stylesheetfile>${maven.multiModuleProjectDirectory}/javadoc-stylesheet.css</stylesheetfile>
+						<stylesheetfile>${maven.multiModuleProjectDirectory}/docs/javadoc-stylesheet.css</stylesheetfile>
 						<archive>
 							<manifestEntries>
 								<built-by>${project.organization.name}</built-by>
@@ -326,63 +290,15 @@
 						</execution>
 					</executions>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-compiler-plugin</artifactId>
-										<versionRange>[1.0.0,)</versionRange>
-										<goals>
-											<goal>compile</goal>
-											<goal>testCompile</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.codehaus.mojo</groupId>
-										<artifactId>flatten-maven-plugin</artifactId>
-										<versionRange>[1.0.0,)</versionRange>
-										<goals>
-											<goal>flatten</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.felix</groupId>
-										<artifactId>maven-bundle-plugin</artifactId>
-										<versionRange>[5.1.1,)</versionRange>
-										<goals>
-											<goal>manifest</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
 				<plugin>
 					<groupId>org.owasp</groupId>
 					<artifactId>dependency-check-maven</artifactId>
 					<version>6.0.5</version>
+				</plugin>
+				<plugin>
+					<groupId>org.moditect</groupId>
+					<artifactId>moditect-maven-plugin</artifactId>
+					<version>1.0.0.RC1</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -390,28 +306,35 @@
 
 	<profiles>
 		<profile>
-			<id>CI</id>
+			<id>JMS</id>
+			<activation>
+				<file>
+					<exists>src/module-info.java</exists>
+				</file>
+			</activation>
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>one.microstream</groupId>
-						<artifactId>sourcestub-maven-plugin</artifactId>
+						<groupId>org.moditect</groupId>
+						<artifactId>moditect-maven-plugin</artifactId>
 						<executions>
 							<execution>
-								<id>attach-sources</id>
-								<phase>none</phase>
+								<id>add-module-infos</id>
+								<phase>package</phase>
+								<goals>
+									<goal>add-module-info</goal>
+								</goals>
+								<configuration>
+									<jvmVersion>9</jvmVersion>
+									<module>
+										<moduleInfoFile>src/module-info.java</moduleInfoFile>
+									</module>
+								</configuration>
 							</execution>
 						</executions>
 					</plugin>
 				</plugins>
 			</build>
-		</profile>
-		<profile>
-			<id>allModules</id>
-			<modules>
-				<module>work-in-progress</module>
-				<module>jigsaw</module>
-			</modules>
 		</profile>
 		<profile>
 			<id>deploy</id>

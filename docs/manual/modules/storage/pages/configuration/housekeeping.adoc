@@ -1,0 +1,90 @@
+= Housekeeping
+
+== Intervall and Time Budget
+
+Housekeeping interval and time budget is configured by setting up a `StorageHousekeepingController`.
+
+Available properties are:
+
+[options="header",cols="1,2"]
+|===
+|Property   
+|Description   
+//-------------
+|xref:configuration/properties.adoc#housekeeping-interval[housekeeping-interval]
+|Interval the housekeeping is triggered in milliseconds, default once per every second
+
+|xref:configuration/properties.adoc#housekeeping-time-budget[housekeeping-time-budget]
+|Time budget for housekeeping in nanoseconds, default is 0.01 seconds
+|===
+
+[source, java]
+----
+EmbeddedStorageManager storage = EmbeddedStorage.Foundation(
+	Storage.ConfigurationBuilder()
+		.setHousekeepingController(Storage.HousekeepingController(1000, 10_000_000))
+		.createConfiguration())
+	.start();
+----
+
+[#storage-data-file-evaluator]
+== File Sizes and Payload
+
+The desired file min and max sizes and payload ratio is configured by the `StorageDataFileEvaluator`:
+
+available properties are:
+
+[options="header",cols="1,2"]
+|===
+|Property   
+|Description   
+//-------------
+|xref:configuration/properties.adoc#data-file-minimum-size[data-file-minimum-size]
+|Files smaller then minimum file size will be merged with other files if possible, default is 1 MB.
+
+|xref:configuration/properties.adoc#data-file-maximum-size[data-file-maximum-size]
+|Files larger then maximum file size will be split in smaller ones, default is 8 MB.
+
+|xref:configuration/properties.adoc#data-file-minimum-use-ratio[data-file-minimum-use-ratio]
+|Ratio of non-gap data contained in a storage file to prevent the file from being dissolved, default is 0.75 (75%).
+|===
+
+[source, java]
+----
+EmbeddedStorageManager storage = EmbeddedStorage.Foundation(
+	Storage.ConfigurationBuilder()
+		.setDataFileEvaluator(Storage.DataFileEvaluator(1024*1024, 1024*1024*8, 0.75))
+		.createConfiguration())
+	.start();
+----
+
+== Cache
+
+The lifetime of objects in the internal entity cache can be configured by the `StorageEntityCacheEvaluator`:
+
+Available properties are:
+
+[options="header",cols="1,2"]
+|===
+|Property   
+|Description   
+//-------------
+|entity-cache-threshold
+|Abstract threshold value, roughly comparable to size in bytes with a time component, at which a cache must be cleared of some entities. Default is `1000000000`.
+
+|entity-cache-timeout
+|Time in milliseconds after that an entity is considered to be old if not read meanwhile. Must be greater zero, default is `86400000ms` (1 day).
+|===
+
+[source, java]
+----
+EmbeddedStorageManager storage = EmbeddedStorage.Foundation(
+	Storage.ConfigurationBuilder()
+		.setEntityCacheEvaluator(Storage.EntityCacheEvaluator(
+			86_400_000,
+			1_000_000_000))
+		.createConfiguration())
+	.start();
+----
+
+TIP: For external configuration see: xref:configuration/properties.adoc[Properties]

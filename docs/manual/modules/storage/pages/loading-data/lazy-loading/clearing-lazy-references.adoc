@@ -1,0 +1,40 @@
+= Clearing Lazy References
+
+== Manually
+
+The `Lazy` class has a `.clear()` method.
+When called, the reference held in the Lazy Reference is removed and only the ID is kept so that the instance can be reloaded when needed.
+
+IMPORTANT: Important background knowledge: +
+However, such a clear does not mean that the referenced instance immediately disappears from memory.
+That's the job of the garbage collector of the JVM.
+The reference is even registered in another place, namely in a global directory (_Swizzle Registry_), in which each known instance is registered with its ObjectId in a https://en.wikipedia.org/wiki/Bijection[bijective] manner.
+This means: if you clear such a reference, but shortly thereafter the Lazy Reference is queried again, probably nothing has to be loaded from the database, but simply the reference from the Swizzle Registry is restored.
+Nevertheless, the Swizzle Registry is not a memory leak, because it references the instances only via https://docs.oracle.com/javase/8/docs/api/java/lang/ref/WeakReference.html[`WeakReference`].
+In short, if an instance is only referenced as "weak," the JVM GC will still clean it up.
+
+[#automatically]
+== Automatically
+
+So that the Lazy References do not have to be managed manually, but the whole goes automatically, there is the following mechanism: Each `Lazy` instance has a `lastTouched` timestamp.
+Each `.get()` call sets it to the current time.
+This will tell you how long a Lazy Reference has not been used, i.e.
+if it is needed at all.
+
+The `LazyReferenceManager` audits this.
+It is enabled by default, with a timeout of 1,000,000 milliseconds, which is about 15 minutes.
+
+A custom manager can be set easily, which should happen before a storage is started.
+
+[source, java]
+----
+LazyReferenceManager.set(LazyReferenceManager.New(
+	Lazy.Checker(
+		Duration.ofMinutes(30).toMillis(), // timeout of lazy access
+		0.75                               // memory quota
+	)
+);
+----
+
+The timeout of lazy references is set to 30 minutes, meaning references which haven't been touched for this time are cleared.
+In combination with a memory quota of 0.75.

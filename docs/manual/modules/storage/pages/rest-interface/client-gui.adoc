@@ -1,0 +1,42 @@
+= Client GUI
+
+Based on the REST API we provide a client, which serves a convenient web user interface to browse through the storage data.
+
+It is a runnable jar which starts a simple web server which then can be accessed by a browser of your choice.
+
+To download it use maven
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-storage-restclient-app</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+or this direct link:
+
+https://repo.microstream.one/repository/maven-public/one/microstream/storage.restclient.app/{maven-version}/storage.restclient.app-{maven-version}.jar
+
+Start the client.
+The port parameter is optional, default port is 8080.
+
+[source, text, subs=attributes+]
+----
+java -jar storage.restclient.app-{maven-version}.jar --port=80
+----
+
+Then just open http://localhost in your browser, select the base URL of the REST service and click connect.
+
+image::rest-client-gui.png[]
+
+Now you can browse through the data of the storage:
+
+image::rest-client-gui2.png[]
+
+Or view the statistics:
+
+image::rest-client-gui3.png[]

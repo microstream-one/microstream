@@ -1,0 +1,38 @@
+= Best Practice
+
+== Storing Hidden Encapsulated Objects
+
+In some cases, it can be necessary to store modified encapsulated objects that cannot be a accessed from your code.
+
+[source, java]
+----
+public class ForeignObject
+{
+	...
+	private HiddenObject hidden;
+	...
+}
+----
+
+In the upper code snippet the "hidden" object cannot be accessed by `store(myForeignObject.hidden)` if no getter is available.
+To allow such hidden objects to be stored after they have been modified you have to options:
+
+. Set the global storing strategy of the MicroStream instance to xref:storing-data/lazy-eager-full.adoc[eager storing] or
+. Implement and set a custom xref:../customizing/custom-storing-behavior.adoc[`PersistenceEagerStoringFieldEvaluator`] for this field.
+
+[source, java]
+----
+EmbeddedStorageManager storage = EmbeddedStorage.Foundation()
+	.onConnectionFoundation(
+		f -> f.setReferenceFieldEagerEvaluator(
+			new CustomEagerStoringFieldEvaluator()
+		)
+	)
+	.start();
+----
+
+== Use Immutable data models
+
+To increase performance use immutable sub-graphs as often as possible.
+
+Storing those with the provided xref:storing-data/transactions.adoc[convenience storing methods] or using a thread local xref:storing-data/lazy-eager-full.adoc#eager-storing[storer] to insert those sub-graphs concurrently can give a great performance boost.

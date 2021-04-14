@@ -1,0 +1,33 @@
+= Loading Data
+
+Loading data can be done in two ways, eager and Lazy.
+The basic, default way of loading is eager loading.
+This means that all objects of a stored object graph are loaded immediately.
+This is done during startup of the MicroStream database instance automatically if an already existing database is found.
+
+Contrary to xref:loading-data/lazy-loading/index.adoc[lazy loading], eager loading has no requirements to your entity model.
+
+To load your data you just need to create an `EmbeddedStorageManager` instance:
+
+[source, java]
+----
+EmbeddedStorageManager storage = EmbeddedStorage.start();
+----
+
+After that just get the root instance of your object graph from the `StorageManager` by calling `EmbeddedStorageManager.root()` and check for `null` as this indicates a non-existing database
+
+[source, java]
+----
+final EmbeddedStorageManager storage = EmbeddedStorage.start();
+
+if(storage.root() == null)
+{
+	//No existing Database found
+}
+else
+{
+	MyRoot root = (MyRoot) storage.root();
+}
+----
+
+TIP: The full code for the eager loading example is on https://github.com/microstream-one/examples/tree/master/loading[GitHub].

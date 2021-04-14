@@ -1,0 +1,49 @@
+= Lazy and Eager Storing
+
+The MicroStream engine supports two general storing strategies: lazy and eager storing.
+By default, MicroStream uses the lazy storing strategy.
+
+These storing strategies differ in the way how objects, referenced by the object to be stored are handled if those referenced objects had already been stored.
+
+== Lazy Storing
+
+Lazy storing is the default storing mode of the MicroStream engine.
+
+Referenced instances are stored only if they have not been stored yet.
+If a referenced instance has been stored previously it is not stored again even if it has been modified.
+
+TIP: That's why modified objects must be stored explicitly.
+
+[#eager-storing]
+== Eager Storing
+
+In eager storing mode referenced instances are stored even if they had been stored before.
+Contrary to Lazy storing this will also store modified child objects at the cost of performance.
+
+== Usage
+
+To use lazy or eager storing explicitly, get an instance of the required `Storer` and use it's store methods:
+
+[source, java]
+----
+Storer storer = storage.createEagerStorer();
+storer.store(myData);
+storer.commit();
+----
+
+Available ``Storer``s are:
+
+`storage.createLazyStorer()`
+
+`storage.createEagerStorer()`
+
+Standard storing:
+
+`storage.createStorer()`
+
+will provide corresponding `Storer` instances.
+
+== Custom Handling
+
+Beside the 'global' lazy or eager storing strategies MicroStream allows to implement an individual handling for the storing behavior.
+See xref:customizing/custom-storing-behavior.adoc[PersistenceEagerStoringFieldEvaluator] for details.

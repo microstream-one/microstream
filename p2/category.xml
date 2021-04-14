@@ -15,7 +15,7 @@
    <feature id="one.microstream.filesystem.hazelcast">
       <category name="one.microstream"/>
    </feature>
-   <feature id="one.microstream.filesystem.jpa.hibernate">
+   <feature id="one.microstream.filesystem.hibernate">
       <category name="one.microstream"/>
    </feature>
    <feature id="one.microstream.filesystem.kafka">

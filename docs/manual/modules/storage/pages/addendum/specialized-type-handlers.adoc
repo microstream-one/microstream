@@ -1,0 +1,113 @@
+= Specialized Type Handlers
+
+Although most types in the JDK or any other Java library will work with MicroStream, there is a bunch of specialized type handlers for the most commonly used types.
+They are optimized to reduce memory overhead and increase performance.
+
+The following list describes all types for which special type handlers are implemented.
+All other types are analyzed generically.
+
+== Value Types
+
+[cols="1,3a"]
+|===
+|Primitive Types
+|All https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html[primitive Types] and https://docs.oracle.com/javase/tutorial/java/nutsandbolts/arrays.html[arrays] thereof
+
+|java.lang
+|https://docs.oracle.com/javase/8/docs/api/java/lang/Byte.html[Byte] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html[Boolean] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/Short.html[Short] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/Character.html[Character] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html[Integer] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html[Float] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html[Long] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html[Double] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html[Void] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html[Object] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/String.html[String] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/StringBuffer.html[StringBuffer] +
+https://docs.oracle.com/javase/8/docs/api/java/lang/StringBuilder.html[StringBuilder]
+
+|java.math
+|https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html[BigDecimal] +
+https://docs.oracle.com/javase/8/docs/api/java/math/BigInteger.html[BigInteger]
+
+|java.util
+|https://docs.oracle.com/javase/8/docs/api/java/util/Date.html[Date] +
+https://docs.oracle.com/javase/8/docs/api/java/util/Currency.html[Currency] +
+https://docs.oracle.com/javase/8/docs/api/java/util/Locale.html[Locale] +
+https://docs.oracle.com/javase/8/docs/api/java/util/OptionalInt.html[OptionalInt] +
+https://docs.oracle.com/javase/8/docs/api/java/util/OptionalLong.html[OptionalLong] +
+https://docs.oracle.com/javase/8/docs/api/java/util/OptionalDouble.html[OptionalDouble] +
+
+|java.util.regex
+|https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Pattern]
+
+|java.io
+|https://docs.oracle.com/javase/8/docs/api/java/io/File.html[File]
+
+|java.nio.file
+|https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html[Path]
+
+|java.net
+|https://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html[InetAddress] +
+https://docs.oracle.com/javase/8/docs/api/java/net/Inet4Address.html[Inet4Address] +
+https://docs.oracle.com/javase/8/docs/api/java/net/Inet6Address.html[Inet6Address] +
+https://docs.oracle.com/javase/8/docs/api/java/net/InetSocketAddress.html[InetSocketAddress] +
+https://docs.oracle.com/javase/8/docs/api/java/net/URI.html[URI] +
+https://docs.oracle.com/javase/8/docs/api/java/net/URL.html[URL]
+|===
+
+== Collections
+
+[cols="1,3a"]
+|===
+|java.util
+|https://docs.oracle.com/javase/8/docs/api/java/util/Vector.html[Vector] +
+https://docs.oracle.com/javase/8/docs/api/java/util/Stack.html[Stack] +
+https://docs.oracle.com/javase/8/docs/api/java/util/Hashtable.html[Hashtable] +
+https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html[Properties] +
+https://docs.oracle.com/javase/8/docs/api/java/util/ArrayList.html[ArrayList] +
+https://docs.oracle.com/javase/8/docs/api/java/util/HashSet.html[HashSet] +
+https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html[HashMap] +
+https://docs.oracle.com/javase/8/docs/api/java/util/LinkedHashSet.html[LinkedHashSet] +
+https://docs.oracle.com/javase/8/docs/api/java/util/LinkedHashMap.html[LinkedHashMap] +
+https://docs.oracle.com/javase/8/docs/api/java/util/WeakHashMap.html[WeakHashMap] +
+https://docs.oracle.com/javase/8/docs/api/java/util/LinkedList.html[LinkedList] +
+https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html[TreeMap] +
+https://docs.oracle.com/javase/8/docs/api/java/util/TreeSet.html[TreeSet] +
+https://docs.oracle.com/javase/8/docs/api/java/util/IdentityHashMap.html[IdentityHashMap] +
+https://docs.oracle.com/javase/8/docs/api/java/util/PriorityQueue.html[PriorityQueue] +
+https://docs.oracle.com/javase/8/docs/api/java/util/ArrayDeque.html[ArrayDeque]
+
+|java.util.concurrent
+|https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ConcurrentHashMap.html[ConcurrentHashMap] +
+https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ConcurrentSkipListMap.html[ConcurrentSkipListMap] +
+https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ConcurrentSkipListSet.html[ConcurrentSkipListSet] +
+https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ConcurrentLinkedQueue.html[ConcurrentLinkedQueue] +
+https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ConcurrentLinkedDeque.html[ConcurrentLinkedDeque] +
+https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CopyOnWriteArrayList.html[CopyOnWriteArrayList]
+|===
+
+[NOTE]
+====
+Most collections above are handled in a generic way.
+If you want a more optimized version of JDK collection handlers, you can utilize the provided module `microstream-persistence-binary-jdk8`.
+====
+
+[source, xml, subs=attributes+]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-persistence-binary-jdk8</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+[source, java]
+----
+final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation();
+foundation.onConnectionFoundation(BinaryHandlersJDK8::registerJDK8TypeHandlers);
+----

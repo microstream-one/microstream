@@ -1,0 +1,24 @@
+= Welcome
+
+Welcome to the MicroStream Reference Manual.
+This manual includes concepts, instructions and examples to guide you on how to use MicroStream xref:storage:index.adoc[Storage] and xref:cache:index.adoc[Cache], version {display-version}.
+
+You should be familiar with the Java programming language and you should have installed your preferred Integrated Development Environment (IDE).
+But since you are here we guest you got that covered ;)
+
+== What's new in {display-version}
+
+See xref:changelog.adoc[Changelog].
+
+
+== API Docs
+
+The API documentation is available at https://api.docs.microstream.one/.
+
+== Support
+
+For information on the commercial support for MicroStream see https://microstream.one/support[microstream.one].
+
+== License
+
+See xref:license.adoc[License].

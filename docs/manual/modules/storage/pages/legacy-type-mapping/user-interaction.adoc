@@ -1,0 +1,198 @@
+= User Interaction
+
+Here is an overview of how to enable and configure different levels of user interaction for the Legacy Type Mapping.
+
+Somewhere you have a `foundation` instance, a foundation in where everything is configured, from which the `StorageManager` is created.
+
+[source, java]
+----
+EmbeddedStorageFoundation<?> foundation =
+    EmbeddedStorage.Foundation(); // or from somewhere else
+----
+
+It itself contains a foundation for connections.
+To access the inner thing needs a little detour.
+
+Incidentally, that's not a JDBC connection, but this is just one thing that creates helper instances like `Storer` and `Loader`.
+Because Legacy Type Mapping affects loading, it has to go in there.
+
+Either you access it directly, like this:
+
+[source, java]
+----
+EmbeddedStorageConnectionFoundation f = foundation.getConnectionFoundation();
+----
+
+Or like this, that's better for method chaining.
+
+[source, java]
+----
+foundation.onConnectionFoundation(f ->
+{
+    ...
+});
+----
+
+If you have that, the configuration for the Legacy Type Mapping callback logic is just a one liner:
+
+[source, java]
+----
+f.setLegacyTypeMappingResultor(...);
+----
+
+*Default*
+
+[source, java]
+----
+PersistenceLegacyTypeMappingResultor.New()
+----
+
+That's just the necessary logic, without anything further.
+If you do not change anything, this is done by default.
+
+*With Console Output*
+
+[source, java]
+----
+PrintingLegacyTypeMappingResultor.New(PersistenceLegacyTypeMappingResultor.New())
+----
+
+That wraps a printer around the necessary logic.
+All these storage and persistence classes are nothing sacred or super-duper intertwined or anything.
+These are just interfaces and if you plug in another implementation then it will be used.
+
+*Inquiry*
+
+[source, java]
+----
+InquiringLegacyTypeMappingResultor.New(PersistenceLegacyTypeMappingResultor.New())
+----
+
+Resultor which asks the user to apply.
+More customization is possible, see below.
+
+*And so on*
+
+With the implementation of just one single interface method, you can build anything else you can imagine.
+For example, logging to a file instead of the console.
+Or in the personally preferred logging framework.
+Or write confirmed mappings into the refactorings file.
+Everything is possible.
+
+For the inquiring implementation (`InquiringLegacyTypeMappingResultor`) there are a few settings: When should he ask?
+Always or only if something is unclear.
+_Never_ does not make any sense of course, then you shouldn't use it, or alternatively the printing resultor.
+
+When is a mapping unclear? +
+If at least one field mapping is not completely clear. +
+A field mapping is clear if:
+
+. If two fields are exactly the same (similarity 1.0 or 100%)
+. Or if two fields are specified by the explicit mapping.
+
+So if all fields are clear according to the above rule, then there is no need to ask.
+
+And there is another special case: If a field is discarded that is not explicitly marked as discardable, then as a precaution an inquiry is always done.
+Although no data is lost, but the data would not be available in the application, so better ask.
+
+There are options to control this a bit finer.
+You can optionally specify a double as a threshold (from 0.0 to 1.0, otherwise Exception): +
+The value determines how similar two matching fields automatically have to be so that they are not inquired. +
+Example: The value is 0.9 (90%), but a match found is only 0.8 (80%) similar.
+This is according to the specification too little, there must be an inquiry as a precaution.
+If you specify 1.0, that means: always ask, everything is really perfectly clear.
+If you enter 0.0, this means: never ask or only for implicitly dropping fields.
+
+Looks like this:
+
+[source, java]
+----
+InquiringLegacyTypeMappingResultor.New(
+    PersistenceLegacyTypeMappingResultor.New()) // implicitely 1.0
+InquiringLegacyTypeMappingResultor.New(
+    PersistenceLegacyTypeMappingResultor.New(), 0.7) // 0.7 threshold
+----
+
+Here a small example with a `Person` class.
+
+[source, java]
+----
+int    customerid  ; // -> pin
+String firstname   ; // -> firstName
+String surname     ; // -> lastName
+String comment     ; // discarded, NOT new commerceId
+----
+
+It should be changed to:
+
+[source, java]
+----
+Integer pin       ; // <- customerid
+String  firstName ; // <- firstname
+String  lastName  ; // <- surname
+String  commerceId; // new, NOT old comment
+Address address   ; // new
+----
+
+Without explicitly predefined mappings, the inquiry would look like this:
+
+[source,text]
+----
+             [***new***] pin
+firstname    -0,944----> firstName
+surname      -0,688----> lastName
+comment      -0,750----> commerceId
+             [***new***] address
+customerid   [discarded]
+----
+
+`customerid` and `pin` are too different to be automatically assigned to each other.
+Therefore, it is wrongly assumed that `customerid` is omitted and `pin` is new.
+`comment` and `commerceId` are surprisingly similar (75%) and are therefore assigned. +
+But that's not what we want.
+
+Incidentally, it would not matter here what is defined as a threshold: `customerid` would be eliminated by the implicit decision.
+This is too delicate not to inquire, so it is always necessary to ask.
+
+To get the mapping right, you have to specify two entries:
+
+* `customerid` is now called `pin`
+* and `comment` should be omitted
+
+Then the inquiry looks like this:
+
+[source,text]
+----
+customerid   -[mapped]-> pin
+firstname    -0,944----> firstName
+surname      -0,688----> lastName
+             [***new***] commerceId
+             [***new***] address
+comment      [discarded]
+----
+
+Due to the explicit mapping from `customerid` to `pin`, the similarity does not matter, it is the mapping that matters.
+To indicate this, it says "[mapped]" instead of the similarity.
+The rest is as usual.
+Only comment is now "[discarded]", according to the mapping.
+The difference to the above is namely: This is an explicitly predetermined absence.
+That does not force inquiry.
+
+This clears the way for the threshold:
+
+* If you enter 0.7 or more then you will be asked.
+As far as everything would be clear, but the mapping of `surname` to `lastName` is below the required "minimum similarity", so rather ask.
+* If you enter 0.6 or less, you will no longer be asked.
+Because all assignments are either explicitly specified or they are according to "minimum similarity" similar enough to rely on it.
+
+A recommendation for a good value for the "minimum similarity" is difficult.
+As soon as one softens rules, there is always the danger of a mistake.
+See `comment` example above: is 75% similar to `commerceId`.
+Still wrong.
+Then prefer 80%?
+Or 90%?
+Of course it is better, but the danger is still there.
+
+If you want to be sure, just make 1.0 or omit the parameter, then by default 1.0 is taken.
+
+The most important is the explicit mapping anyway : if "enough" is given by the user, there is no need to ask.

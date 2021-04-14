@@ -1,0 +1,59 @@
+= Oracle Cloud Object Storage
+
+[source, xml, subs=attributes+]
+----
+<dependency>
+	<groupId>one.microstream</groupId>
+	<artifactId>microstream-afs-oraclecloud-objectstorage</artifactId>
+	<version>{maven-version}</version>
+</dependency>
+----
+
+[source, java]
+----
+ObjectStorageClient client = ...;
+BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+	OracleCloudObjectStorageConnector.Caching(client)
+);
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("microstream_storage"));
+----
+
+== Configuration
+
+When using xref:configuration/index.adoc#external-configuration[external configuration] Oracle Cloud Object Storage can be set as follows.
+
+[source, text, title="microstream-storage.properties"]
+----
+storage-filesystem.oraclecloud.object-storage.config-file.profile=production
+storage-filesystem.oraclecloud.object-storage.region=us-phoenix-1
+----
+
+[options="header",cols="1,2a"]
+|===
+|Property   
+|Description   
+//-------------
+|config-file.path
+|The path of the config file, if not set the default is used: "~/.oci/config"
+
+|config-file.profile
+|The configuration profile to use, if not set "DEFAULT" is used.
+
+|config-file.charset
+|The encoding of the config file.
+
+|client.connection-timeout-millis
+|The max time to wait for a connection, in millis. Default is 10000.
+
+|client.read-timeout-millis
+|The max time to wait for data, in millis. Default is 60000.
+
+|client.max-async-threads
+|The max number of async threads to use. Default is 50.
+
+|region
+|Sets the region to call (ex, 'us-phoenix-1').
+
+|endpoint
+|Sets the endpoint to call (ex, https://www.example.com).
+|===
