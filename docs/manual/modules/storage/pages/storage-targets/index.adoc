@@ -1,0 +1,60 @@
+= Storage Targets
+
+MicroStream supports a variety of storage targets.
+Through an abstracted file system (AFS), it is possible to connect to a lot of different back ends.
+The AFS allows to use folders and files, like in all common file systems, but with different connectors it is possible to use different solutions as the actual storage.
+
+image::storage-targets.png[]
+
+To connect to the local file system use the Java Non-Blocking IO (NIO) connector, which is part of the `base` module, so no additional dependency is needed.
+
+[source, java]
+----
+EmbeddedStorage.start(Paths.get("path", "to", "storage"));
+----
+
+Internally this creates and uses a `NioFileSystem` and is a shortcut for:
+
+[source, java]
+----
+NioFileSystem fileSystem = NioFileSystem.New();
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("path", "to", "storage"));
+----
+
+The file system API is the same for all connectors, like for MySQL. +
+This is part of another module.
+
+[source,xml]
+----
+<!-- sql file system -->
+<dependency>
+	<groupId>one.microstream</groupId>
+	<artifactId>microstream-filesystem-sql</artifactId>
+	<version>{maven-version}</version>
+</dependency>
+<!-- driver of your choice -->
+<dependency>
+	<groupId>mysql</groupId>
+	<artifactId>mysql-connector-java</artifactId>
+	<version>8.0.21</version>
+</dependency>
+----
+
+[source, java]
+----
+// create JDBC data source
+MysqlDataSource dataSource = new MysqlDataSource();
+dataSource.setUrl("jdbc:mysql://host:3306/mydb");
+dataSource.setUser("user");
+dataSource.setPassword("secret");
+
+// create sql file system
+SqlFileSystem fileSystem = SqlFileSystem.New(
+	// use caching connector
+	SqlConnector.Caching(
+		SqlProviderMySql.New(dataSource)
+	)
+);
+
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("path", "to", "storage"));
+----

@@ -1,0 +1,42 @@
+= Storage
+
+MicroStream Data-Store is a native Java object graph storage engine.
+From a technical point of view it serves one purpose only:
+
+====
+*To fully or partially persist and restore a Java object graph in the simplest way possible for the user.*
+====
+
+MicroStream Data-Store is a storage engine, but no database management system (DBMS).
+Many features that typical DBMS provide have been left out on purpose.
+The reason is that those features exist to make a DBMS something of a server application platform of an "old kind" on top of its data store functionality: A standalone process with user management, connection management, session handling, often even with a programming language of its own, a querying interface (SQL), etc.
+Today, all of those server application features are already and much better handled by dedicated server applications (the "new kind"), implemented in a modern language like Java.
+They have their built-in user, connection and session management, the querying interface to the outside world are typically web services instead of SQL, etc.
+But those modern server applications still lack one important thing: an easy to use and technically efficient way to store and restore their application's data.
+So a "new kind" server often uses an "old kind" server just to do the data storing.
+This comes at the price of catching all the overhead and problems of redundant user, connection and session management AND the outdated concepts and limitations of the old querying interface (SQL).
+Isn't that very weird and frustratingly complicated?
+Why not simply include a modern data storing library in the modern server and be done with it?
+A storing library that perfectly fits the modern technology and brings in no redundant overhead or complication of a secondary outdated wannabe server process.
+This is exactly what MicroStream Data-Store is and the reason why it is intentionally not a DBMS but "only" a storage engine.
+
+One might think the easiest way to store and load data in Java would be Java's built-in serialization.
+However, it turned out long ago to be very limited, making it hard, if not impossible, to be used as a replacement for a DBMS:
+
+* Only complete object graphs can be stored and restored, which is unacceptable for all but very small databases.
+* It is very inefficient in terms of storage size and performance.
+* It does not handle changing class structures very well, basically forbidding classes of persisted entities to ever change or introducing massive manual effort to compensate.
+* It cannot handle third-party classes that do not implement Serializable but cannot be changed.
+
+*In short*: The Java Serialization is not an acceptable data store solution and hence no valid replacement for those outdated DBMS.
+
+MicroStream Data-store is such a solution:
+
+* It can persist, load or update object graphs partially and on-demand.
+* It is very efficient both size- and performance-wise.
+* It handles changing class structures by mapping data in the old structure to the current structure during loading;
+implicitly via internal heuristics or explicitly via a user-defined mapping strategy.
+* It can automatically handle any Java constructs, only excluding those that are technically or reasonably not persistable (e.g.
+lambdas, proxies or instances with ties to JVM-internals like threads, etc.).
+
+MicroStream is what the Java Serialization should have been and it is the first and only really fitting data storing solution for modern applications, completely removing the need to attach a wannabe secondary server DBMS just to store data.

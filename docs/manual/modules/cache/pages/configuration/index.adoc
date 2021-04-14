@@ -1,0 +1,30 @@
+= Configuration
+
+The default way to configure a JCache provider is to use the class `javax.cache.configuration.MutableConfiguration`.
+This is mostly used to avoid provider specific code.
+
+If you want to use all of MicroStream's Cache features, you can use our configuration implementation: `one.microstream.cache.types.CacheConfiguration`
+
+[source, java]
+----
+CachingProvider provider     = Caching.getCachingProvider();
+CacheManager    cacheManager = provider.getCacheManager();
+CacheConfiguration<Integer, String> configuration = CacheConfiguration
+	.Builder(Integer.class, String.class)
+	.storeByValue()
+	.expiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))
+	.build();
+Cache<Integer, String> cache = cacheManager.createCache("jCache", configuration);
+cache.put(1, "Hello World");
+String value = cache.get(1);
+----
+
+To read an external configuration use `CacheConfigurationLoader` and `CacheConfigurationParser` or the `Load*()` methods of `CacheConfiguration`.
+
+[source, java]
+----
+CacheConfiguration<Integer, String> configuration = CacheConfiguration
+	.Load("cache-config.properties", Integer.class, String.class);
+----
+
+If you just use `CacheConfiguration.Load()` the default configuration file is used, which is either a file in the classpath root named `microstream-cache.properties`, or the path configured via the system property `microstream.cache.configuration.path`.

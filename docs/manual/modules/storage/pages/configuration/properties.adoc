@@ -1,0 +1,233 @@
+= Properties
+
+These are the available properties of the `EmbeddedStorageConfigurationBuilder` type.
+The names are used accordingly in the external configuration files.
+They can be found as constants in `EmbeddedStorageConfigurationPropertyNames`.
+
+[options="header",cols="1,2"]
+|===
+|Property 
+|Short Description   
+//-------------
+|storage-directory
+|The base directory of the storage in the file system. Default is `"storage"` in the working directory.
+
+|storage-filesystem
+|The live file system configuration. See xref:storage-targets/index.adoc[storage targets] configuration.
+
+|deletion-directory
+|If configured, the storage will not delete files. Instead of deleting a file it will be moved to this directory. 
+
+|truncation-directory
+|If configured, files that will get truncated are copied into this directory.
+ 
+|backup-directory
+|The backup directory.
+|backup-filesystem
+|The backup file system configuration. See storage targets configuration.
+
+|xref:#channel-count[channel-count]
+|The number of threads and number of directories used by the storage engine. Every thread has exclusive access to its directory. Default is `1`.
+
+|channel-directory-prefix
+|Name prefix of the subdirectories used by the channel threads. Default is `"channel_"`.
+
+|data-file-prefix
+|Name prefix of the storage files. Default is `"channel_"`.
+
+|data-file-suffix
+|Name suffix of the storage files. Default is `".dat"`.
+
+|transaction-file-prefix
+|Name prefix of the storage transaction file. Default is `"transactions_"`.
+
+|transaction-file-suffix
+|Name suffix of the storage transaction file. Default is `".sft"`.
+
+|type-dictionary-file-name
+|The name of the dictionary file. Default is `"PersistenceTypeDictionary.ptd"`.
+
+|rescued-file-suffix
+|Name suffix of the storage rescue files. Default is `".bak"`.
+
+|lock-file-name
+|Name of the lock file. Default is `"used.lock"`.
+
+|xref:#housekeeping-interval[housekeeping-interval]
+|Interval for the housekeeping. This is work like garbage collection or cache checking. In combination with houseKeepingNanoTimeBudget the maximum processor time for housekeeping work can be set. Default is 1 second.
+
+|xref:#housekeeping-time-budget[housekeeping-time-budget]
+|Number of nanoseconds used for each housekeeping cycle. Default is 10 milliseconds = 0.01 seconds.
+
+|entity-cache-threshold
+|Abstract threshold value for the lifetime of entities in the cache. Default is `1000000000`.
+
+|entity-cache-timeout
+|Timeout in milliseconds for the entity cache evaluator. If an entity wasn't accessed in this timespan it will be removed from the cache. Default is 1 day.
+
+|xref:#data-file-minimum-size[data-file-minimum-size]
+|Minimum file size for a data file to avoid cleaning it up. Default is 1024^2 = 1 MiB.
+
+|xref:#data-file-maximum-size[data-file-maximum-size]
+|Maximum file size for a data file to avoid cleaning it up. Default is 1024^2*8 = 8 MiB.
+
+|xref:#data-file-minimum-use-ratio[data-file-minimum-use-ratio]
+|The ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent the file from being dissolved. Default is `0.75` (75%).
+
+|data-file-cleanup-head-file
+|A flag defining whether the current head file (the only file actively written to) shall be subjected to file cleanups as well.
+|===
+
+
+== Detailed Description
+
+[#channel-count]
+=== channel-count
+
+Number of threads used by the storage engine.
+It depicts the numbers of subdirectories as well.
+Each thread manages one directory in which it writes to and reads from exclusively.
+The unity of thread, directory and the cached data therefore is called a "Channel".
+
+[source,text]
+----
+__________________________________________________
+                               [RAM ]{ Code }    |    (      Filesystem      )
+               ,- "Channel 0": [Data]{Thread} <-I|O-> (Storage Subdirectory 0)
+              /-- "Channel 1": [Data]{Thread} <-I|O-> (Storage Subdirectory 1)
+StorageManager                                   |
+              \-- "Channel 2": [Data]{Thread} <-I|O-> (Storage Subdirectory 2)
+               '- "Channel 3": [Data]{Thread} <-I|O-> (Storage Subdirectory 3)
+_________________________________________________|
+----
+
+For further information see xref:configuration/using-channels.adoc[Using Channels].
+
+[#housekeeping-interval]
+=== housekeeping-interval
+
+Time for the house keeping interval.
+House keeping tasks are, among others:
+
+* Garbage Collection
+* Cache Check
+* File Cleanup Check
+
+In combination with housekeeping-time-budget, it can be specified how many CPU time should be used for house keeping.
+E.g.
+interval=1000ms and budget=10000000ns means every second there's 0.01 seconds time for house keeping, so max 1% CPU time used for house keeping.
+This CPU time window is only used if house keeping work is pending.
+If nothing has to be done, no time is wasted.
+
+[#housekeeping-time-budget]
+=== housekeeping-time-budget
+
+Time used for each housekeeping cycle.
+However, no matter how low the number is, one item of work will always be completed.
+But if there is nothing to clean up, no processor time will be wasted.
+Default is `10000000` (10 million nanoseconds = 10 milliseconds = 0.01 seconds).
++ However, no matter how small the time is, one item is done at least.
+This is to avoid no-ops, if a too small time window is configured.
++ This time budget is a "best effort" threshold, meaning when at 1ns left, a huge file has to be cleaned or the references of a huge collection have to be marked for GC, then this budget can be exceeded considerably.
+
+For further information see xref:configuration/housekeeping.adoc[Housekeeping].
+
+[#data-file-minimum-size]
+=== data-file-minimum-size
+
+Minimum file size in bytes of a storage file to avoid merging with other files during housekeeping.
++ Must be greater than 1, maximum is 2GB.
+
+[#data-file-maximum-size]
+=== data-file-maximum-size
+
+Maximum file size in bytes of a storage file to avoid splitting in more files during housekeeping.
++ Must be greater than 1, maximum is 2GB.
+
+TIP: Due to internal implementation details files larger than 2GB are not supported!
+
+[#data-file-minimum-use-ratio]
+=== data-file-minimum-use-ratio
+
+The ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent the file from being dissolved.
+"Gap" data is anything that is not the latest version of an entity's data, including older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length as a negative value length header).
+The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more file dissolving (data transfers to new files) is required and vice versa.
+
+== Involved Types
+
+This list shows which property configures which type, used by the foundation types, to create the storage manager.
+
+[options="header",cols="1,2"]
+|===
+| Property
+| Used by
+
+| storage-directory
+| `StorageLiveFileProvider`
+
+| storage-filesystem
+| `StorageLiveFileProvider`
+
+| deletion-directory
+| `StorageLiveFileProvider`
+
+| truncation-directory
+| `StorageLiveFileProvider`
+
+| backup-directory
+| `StorageBackupSetup`
+
+| backup-filesystem
+| `StorageBackupSetup`
+
+| channel-count
+| `StorageChannelCountProvider`
+
+| channel-directory-prefix
+| `StorageFileNameProvider`
+
+| data-file-prefix
+| `StorageFileNameProvider`
+
+| data-file-suffix
+| `StorageFileNameProvider`
+
+| transaction-file-prefix
+| `StorageFileNameProvider`
+
+| transaction-file-suffix
+| `StorageFileNameProvider`
+
+| type-dictionary-filename
+| `StorageFileNameProvider`
+
+| rescued-file-suffix
+| `StorageFileNameProvider`
+
+| lock-filename
+| `StorageFileNameProvider`
+
+| housekeeping-interval
+| `StorageHousekeepingController`
+
+| housekeeping-time-budget
+| `StorageHousekeepingController`
+
+| entity-cache-threshold
+| `StorageEntityCacheEvaluator`
+
+| entity-cache-timeout
+| `StorageEntityCacheEvaluator`
+
+| data-file-minimum-size
+| `StorageDataFileEvaluator`
+
+| data-file-maximum-size
+| `StorageDataFileEvaluator`
+
+| data-file-minimum-use-ratio
+| `StorageDataFileEvaluator`
+
+| data-file-cleanup-head-file
+| `StorageDataFileEvaluator`
+|===

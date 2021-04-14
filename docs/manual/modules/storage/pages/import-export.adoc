@@ -1,0 +1,115 @@
+= Import / Export
+
+MicroStream provides an API to import and export persisted data of the storage.
+It is pretty much the same as writing and reading a backup.
+
+The records in the storage are distributed in lots of files and folders, depending on channel count and other xref:configuration/properties.adoc[settings].
+To get order in the chaos the export produces one file per type.
+This files are used again by the import to read the data into the storage.
+
+image:export.svg[]
+
+NOTE: The created binary type data files contain only records of the according type, nevertheless they have the same format as the channel storage files.
+
+[source, java, title="Export"]
+----
+NioFileSystem          fileSystem = NioFileSystem.New();
+	
+EmbeddedStorageManager storage    = EmbeddedStorage.start(
+	fileSystem.ensureDirectoryPath("storage")
+);
+
+String                            fileSuffix      = "bin";
+StorageConnection                 connection      = storage.createConnection();
+StorageEntityTypeExportStatistics exportResult    = connection.exportTypes(
+	new StorageEntityTypeExportFileProvider.Default(
+		fileSystem.ensureDirectoryPath("export-dir"),
+		fileSuffix
+	),
+	typeHandler -> true // export all, customize if necessary
+);
+XSequence<Path> exportFiles = CQL
+	.from(exportResult.typeStatistics().values())
+	.project(s -> Paths.get(s.file().identifier()))
+	.execute()
+;
+----
+
+[source, java, title="Import"]
+----
+NioFileSystem          fileSystem = NioFileSystem.New();
+	
+EmbeddedStorageManager storage    = EmbeddedStorage.start(
+	fileSystem.ensureDirectoryPath("storage")
+);
+
+StorageConnection      connection = storage.createConnection();
+connection.importFiles(X.Enum(
+	fileSystem.ensureFilePath("type1.bin"),
+	fileSystem.ensureFilePath("type2.bin")
+));
+----
+
+== Data Conversion
+
+It is also possible to convert the exported binary files to a human readable format, namely CSV.
+
+[NOTE]
+====
+ Why CSV?
+
+Contrary to XML or JSON, CSV is perfectly suited to represent records with the least possible overhead.
+There are a lot of tools, like spreadsheet editors, which can read and modify CSV files.
+The file's size is at the possible minimum and the performance of the converter is significantly better than with the other formats.
+====
+
+[source, java, title="Binary to CSV"]
+----
+NioFileSystem          fileSystem = NioFileSystem.New();
+	
+EmbeddedStorageManager storage    = EmbeddedStorage.start(
+	fileSystem.ensureDirectoryPath("storage")
+);
+
+StorageDataConverterTypeBinaryToCsv converter =
+	new StorageDataConverterTypeBinaryToCsv.UTF8(
+		StorageDataConverterCsvConfiguration.defaultConfiguration(),
+		new StorageEntityTypeConversionFileProvider.Default(
+			fileSystem.ensureDirectoryPath("csv-dir"),
+			"csv"
+		),
+		storage.typeDictionary(),
+		null, // no type name mapping
+		4096, // read buffer size
+		4096  // write buffer size
+);
+AReadableFile dataFile = fileSystem.ensureFilePath("type1.bin").useReading();
+try
+{
+	converter.convertDataFile(dataFile);
+}
+finally
+{
+	dataFile.close();
+}
+----
+
+[source, java, title="CSV to Binary"]
+----
+NioFileSystem          fileSystem = NioFileSystem.New();
+	
+EmbeddedStorageManager storage    = EmbeddedStorage.start(
+	fileSystem.ensureDirectoryPath("storage")
+);
+
+StorageDataConverterTypeCsvToBinary<AFile> converter =
+	StorageDataConverterTypeCsvToBinary.New(
+		StorageDataConverterCsvConfiguration.defaultConfiguration(),
+		storage.typeDictionary(),
+		new StorageEntityTypeConversionFileProvider.Default(
+			fileSystem.ensureDirectoryPath("bin-dir"),
+			"dat"
+		)
+);
+converter.convertCsv(fileSystem.ensureFilePath("type1.csv"));
+----

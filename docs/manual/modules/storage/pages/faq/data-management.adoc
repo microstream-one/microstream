@@ -1,0 +1,12 @@
+= Data Management
+
+== Where is the data of my database located
+
+MicroStream connects your application's entity graph residing in memory to a physical form of data (i.e.
+persistent data) to/from which entity data is stored/loaded as required.
+
+== What if my database is really big?
+
+MicroStream uses the common concept of xref:loading-data/lazy-loading/index.adoc[Lazy Loading], allowing you to define which parts of your data (entity sub-graphs) are loaded only when required instead of eagerly at startup.
+A few well-placed lazy references in your entity model make your application load only a tiny bit of "head" entities at startup time and load everything else later on demand.
+This allows the handling of arbitrarily big databases with relatively small memory requirements.

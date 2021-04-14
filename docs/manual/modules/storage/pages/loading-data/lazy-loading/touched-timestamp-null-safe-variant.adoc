@@ -1,0 +1,30 @@
+= Touched Timestamp, Null-Safe Variant
+
+== Null-safe Lazy Reference Access
+
+For convenience MicroStream provides Null-safe static access methods for lazy references.
+
+[options="header",cols="1a,2a"]
+|===
+|Method   
+|Description   
+//-------------
+|`Lazy.get(Lazy)`
+|Gets the lazy referenced object, loads it if required. +
+return value: `null` if the lazy reference itself is `null` otherwise the referenced object
+
+|`Lazy.peek(Lazy)`
+| Get the lazy referenced object if it is loaded, no lazy loading is done. +
+If the object has been unloaded before peek will return `null`. +
+return value: `null` if the lazy reference itself is `null` otherwise the current reference without on-demand loading
+
+|`Lazy.clear(Lazy)`
+|Clears the lazy reference if it is not `null`.
+|===
+
+== Touched Timestamp
+
+All lazy references track the time of their last access (creation or querying) as a timestamp in milliseconds.
+If an instance is deemed timed out by  a xref:loading-data/lazy-loading/clearing-lazy-references.adoc#automatically[LazyReferenzManager] its subject gets cleared.
+
+The timestamp is currently not public accessible.

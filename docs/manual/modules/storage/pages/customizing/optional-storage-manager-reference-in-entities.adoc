@@ -1,0 +1,28 @@
+= Optional Storage Manager Reference in Entities
+
+When a reference to the loading storage is needed in entities, e.g. usage of different tenants or to store its internal state in a tailored fashion, this can be done by this little trick.
+
+If an entity type contains one or more transient fields with field type compatible to `Persister`, the updating processing during loading will set the `Persister` instance (e.g. an `EmbeddedStorageManager` instance) used to load the entity instance to those fields.
+
+The fields must be transient to exclude them from the persistent form of the entity. +
+Checking for transient fields is only the default implementation.
+The checking logic can be customized via `PersistenceFoundation#setFieldEvaluatorPersistable`.
+
+A more precise check for `Persister` fields can be customized via `PersistenceFoundation#setFieldEvaluatorPersister`. +
+Note, however, that the check for compatibility with the `Persister` type is done in any case to avoid inconsistencies/crashes.
+
+If no applicable field is found, nothing happens and no additional meta data is kept in memory.
+This feature is completely optional.
+
+[source, java]
+----
+class MyEntity
+{
+	String name ;
+	int    value;
+	
+	transient EmbeddedStorageManager storage;
+}
+----
+
+Upon loading an instance of class `MyEntity`, a reference to the `EmbeddedStorageManager` used to load it is set to its field `storage`.

@@ -1,0 +1,38 @@
+= Examples and Demo Projects
+
+== Examples Collection
+
+A collection of examples with different topics:
+
+https://github.com/microstream-one/examples
+
+== BookStore Demo
+
+The _BookStore Demo_ is a fully fledged sample application.
+It shows how to design an application with MicroStream from the ground up.
+
+https://github.com/microstream-one/bookstore-demo
+
+If you want to compare MicroStream with a database of your choice, it can be done with following project, which is based on the _BookStore Demo._
+
+https://github.com/microstream-one/bookstore-demo-performance
+
+== Spring Crud
+
+Combination of two great frameworks.
+
+https://github.com/microstream-one/example-spring-crud
+
+Further reading:
+
+https://medium.com/@microstream/microstream-with-spring-8265525fb3fc
+
+== Android RecyclerView
+
+This example shows how to effectively use MicroStream storage with Android RecyclerView.
+
+https://github.com/microstream-one/example-android-recyclerview
+
+Further reading:
+
+https://medium.com/@microstream/android-recyclerview-with-microstream-da91641c0015

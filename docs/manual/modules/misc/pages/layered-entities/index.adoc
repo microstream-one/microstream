@@ -1,0 +1,340 @@
+= Layered Entities
+
+Concept to separate the basic aspects of what defines an entity into separate instances of different layers:
+
+* _Identity_, a never to be replaced instance representing an entity in terms of references to it
+* _Logic_, nestable in an arbitrary number of dynamically created logic layers, e.g.
+logging, locking, versioning, etc.
+* _Data_, always immutable
+
+Entity graphs are constructed by strictly only referencing identity instances (the "outer shell" of an entity), while every inner layer instance is unshared.
+This also allows the actual data instance to be immutable, while at the same time leaving referential integrity of an entity graph intact.
+
+MicroStream provides ready-to-use logic layers for:
+
+* Logging
+* Versioning
+
+While the layers admittedly introduce considerable technical complexity and runtime overhead, this concept is a production ready solution for nearly all requirements regarding cross cutting concerns and aspects.
+
+To use this concept in your code, there need to be at least implementations for the entity's identity and data.
+
+Let's say the entity looks like this:
+
+[source, java]
+----
+public interface Person extends Entity
+{
+	public String firstName();
+	
+	public String lastName();
+}
+----
+
+There needs to be a identity class:
+
+[source, java]
+----
+public class PersonEntity extends EntityLayerIdentity implements Person
+{
+	protected PersonEntity()
+	{
+		super();
+	}
+
+	@Override
+	protected Person entityData()
+	{
+		return (Person)super.entityData();
+	}
+
+	@Override
+	public final String firstName()
+	{
+		return this.entityData().firstName();
+	}
+
+	@Override
+	public final String lastName()
+	{
+		return this.entityData().lastName();
+	}
+}
+----
+
+And a data class:
+
+[source, java]
+----
+public class PersonData extends EntityData implements Person
+{
+	private final String firstName;
+	private final String lastName ;
+
+	protected PersonData(final Person entity,
+		final String firstName,
+		final String lastName )
+	{
+		super(entity);
+
+		this.firstName = firstName;
+		this.lastName  = lastName ;
+	}
+
+	@Override
+	public String firstName()
+	{
+		return this.firstName;
+	}
+
+	@Override
+	public String lastName()
+	{
+		return this.lastName;
+	}
+}
+----
+
+[NOTE] 
+====
+A lot of code to write to get an entity with two properties!
+
+But don't worry, there is a code generator for that.
+An annotation processor to be precise.
+The only code you have to provide are the entity interfaces, all the other stuff will be generated.
+
+Just add the annotation processor type `one.microstream.entity.codegen.EntityProcessor` to your xref:layered-entities/configuration.adoc[compiler configuration].
+That's it.
+====
+
+The generator also builds a creator:
+
+[source, java]
+----
+public interface PersonCreator extends Entity.Creator<Person, PersonCreator>
+{
+	public PersonCreator firstName(String firstName);
+
+	public PersonCreator lastName(String lastName);
+
+	public static PersonCreator New()
+	{
+		return new Default();
+	}
+
+	public static PersonCreator New(final Person other)
+	{
+		return new Default().copy(other);
+	}
+
+	public class Default
+		extends Entity.Creator.Abstract<Person, PersonCreator>
+		implements PersonCreator
+	{
+		private String firstName;
+		private String lastName ;
+
+		protected Default()
+		{
+			super();
+		}
+
+		@Override
+		public PersonCreator firstName(final String firstName)
+		{
+			this.firstName = firstName;
+			return this;
+		}
+
+		@Override
+		public PersonCreator lastName(final String lastName)
+		{
+			this.lastName = lastName;
+			return this;
+		}
+
+		@Override
+		protected EntityLayerIdentity createEntityInstance()
+		{
+			return new PersonEntity();
+		}
+
+		@Override
+		public Person createData(final Person entityInstance)
+		{
+			return new PersonData(entityInstance,
+				this.firstName,
+				this.lastName );
+		}
+
+		@Override
+		public PersonCreator copy(final Person other)
+		{
+			final Person data = Entity.data(other);
+			this.firstName = data.firstName();
+			this.lastName  = data.lastName ();
+			return this;
+		}
+	}
+}
+----
+
+An Updater:
+
+[source, java]
+----
+public interface PersonUpdater extends Entity.Updater<Person, PersonUpdater>
+{
+	public static boolean setFirstName(final Person person, final String firstName)
+	{
+		return New(person).firstName(firstName).update();
+	}
+
+	public static boolean setLastName(final Person person, final String lastName)
+	{
+		return New(person).lastName(lastName).update();
+	}
+
+	public PersonUpdater firstName(String firstName);
+
+	public PersonUpdater lastName(String lastName);
+
+	public static PersonUpdater New(final Person person)
+	{
+		return new Default(person);
+	}
+
+	public class Default
+		extends Entity.Updater.Abstract<Person, PersonUpdater>
+		implements PersonUpdater
+	{
+		private String firstName;
+		private String lastName ;
+
+		protected Default(final Person person)
+		{
+			super(person);
+		}
+
+		@Override
+		public PersonUpdater firstName(final String firstName)
+		{
+			this.firstName = firstName;
+			return this;
+		}
+
+		@Override
+		public PersonUpdater lastName(final String lastName)
+		{
+			this.lastName = lastName;
+			return this;
+		}
+
+		@Override
+		public Person createData(final Person entityInstance)
+		{
+			return new PersonData(entityInstance,
+				this.firstName,
+				this.lastName );
+		}
+
+		@Override
+		public PersonUpdater copy(final Person other)
+		{
+			final Person data = Entity.data(other);
+			this.firstName = data.firstName();
+			this.lastName  = data.lastName ();
+			return this;
+		}
+	}
+}
+----
+
+An optional equalator, with `equals` and `hashCode` methods:
+
+[source, java]
+----
+public interface PersonHashEqualator extends HashEqualator<Person>
+{
+	public static PersonHashEqualator New()
+	{
+		return new Default();
+	}
+
+	public final class Default implements PersonHashEqualator, Stateless
+	{
+		public static boolean equals(final Person person1, final Person person2)
+		{
+			return X.equal(person1.firstName(), person2.firstName())
+				&& X.equal(person1.lastName (), person2.lastName ())
+			;
+		}
+
+		public static int hashCode(final Person person)
+		{
+			return Objects.hash(
+				person.firstName(),
+				person.lastName ()
+			);
+		}
+
+		Default()
+		{
+			super();
+		}
+
+		@Override
+		public boolean equal(final Person person1, final Person person2)
+		{
+			return equals(person1, person2);
+		}
+
+		@Override
+		public int hash(final Person person)
+		{
+			return hashCode(person);
+		}
+	}
+}
+----
+
+And an optional Appendable:
+
+[source, java]
+----
+public interface PersonAppendable extends VarString.Appendable
+{
+	public static String toString(final Person person)
+	{
+		return New(person).appendTo(VarString.New()).toString();
+	}
+
+	public static PersonAppendable New(final Person person)
+	{
+		return new Default(person);
+	}
+
+	public static class Default implements PersonAppendable
+	{
+		private final Person person;
+
+		Default(final Person person)
+		{
+			super();
+
+			this.person = person;
+		}
+
+		@Override
+		public VarString appendTo(final VarString vs)
+		{
+			return vs.append(this.person.getClass().getSimpleName())
+				.append(" [lastName = ")
+				.append(this.person.lastName())
+				.append(", firstName = ")
+				.append(this.person.firstName())
+				.append(']');
+		}
+	}
+}
+----

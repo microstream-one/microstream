@@ -1,0 +1,150 @@
+= REST API
+:table-caption!:
+
+== GET Root
+
+[source,javascript]
+----
+[instance-name]/root
+----
+
+Returns the name and object id of the current storage root element.
+
+[source, json, title="Response"]
+----
+{
+	name: "ROOT",
+	objectId: "1000000000000000028"
+}
+----
+
+== GET Object
+
+[source,javascript]
+----
+[instance-name]/object/:objectid
+----
+
+Returns description and values of a distinct object.
+
+.Path parameters
+[options="header",cols="1,1,3a"]
+|===
+|Parameter
+|Type
+|Description
+//-------------
+|objectId
+|integer
+|The requested object's id
+|===
+
+.Query parameters
+[options="header",cols="1,1,2a,1"]
+|===
+|Parameter
+|Type
+|Description
+|Default
+//-------------
+|valueLength
+|integer
+|Limit size of returned value elements, e.g. String values.
+|unlimited
+
+|fixedOffset
+|integer
+|Fixed size members start offset.
+|0
+
+|fixedLength
+|integer
+|Amount of returned fixed size members.
+|unlimited
+
+|variableOffset
+|integer
+|Variable size members start offset.
+|0
+
+|variableLength
+|integer
+|Amount of returned variable size members.
+|unlimited
+
+|references
+|boolean
+|Determines if top-level references of the object should be returned as well.
+|false
+|===
+
+[source, json, title="Response"]
+----
+{
+	"objectId": "1000000000000000028",
+	"typeId": "110",
+	"length": "0",
+	"variableLength": [
+	"3"
+	],
+	"simplified": false,
+	"data": [
+		[
+			"1000000000000000029",
+			"1000000000000000030",
+			"1000000000000000031"
+		]
+	],
+	"references": null
+}
+----
+
+== GET Type Dictionary
+
+[source,javascript]
+----
+[instance-name]/dictionary
+----
+
+Returns the type dictionary as plain text.
+
+[source, json, title="Response"]
+----
+[Type dictionary contents]
+----
+
+== GET Statistics
+
+[source,javascript]
+----
+[instance-name]/maintenance/filesStatistics
+----
+
+Returns statistics of the used storage files and channels.
+
+[source, json, title="Response"]
+----
+{
+	"creationTime": "2020-04-15T13:32:26.003Z",
+	"channelStatistics": {
+		"0": {
+			"channelIndex": 0,
+			"files": [
+				{
+					"fileNumber": "1",
+					"file": "storage\\channel_0\\channel_0_1.dat",
+					"fileCount": "1",
+					"liveDataLength": "2898",
+					"totalDataLength": "2930"
+				}
+			],
+			"fileCount": "1",
+			"liveDataLength": "2898",
+			"totalDataLength": "2930"
+		}
+	},
+	"fileCount": "1",
+	"liveDataLength": "2898",
+	"totalDataLength": "2930"
+}
+----

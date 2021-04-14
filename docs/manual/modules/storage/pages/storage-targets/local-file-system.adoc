@@ -1,0 +1,16 @@
+= Local File System
+
+The NIO connector can access the local or mounted file systems, as well as different in-memory file systems. +
+This is probably the easiest way to start, especially for prototyping and testing purposes. +
+For productive use, the other file systems are preferred.
+
+[source, java]
+----
+NioFileSystem fileSystem = NioFileSystem.New();
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("path", "to", "storage"));
+----
+
+== Configuration
+
+The local file system is the default setting.
+If you want to use xref:configuration/index.adoc#external-configuration[external configuration], no further action is required.

@@ -1,0 +1,131 @@
+= Supported Java Features
+
+[options="header",cols="1,^1a,2a"]
+|===
+|Feature 
+|Supported 
+|Note
+
+|Classes
+|image::symbol-check.svg[]
+|
+
+|Classes without default constructor
+|image::symbol-check.svg[]
+|
+
+|Abstract classes / Interfaces
+|image::symbol-check.svg[]
+|Perfectly handleable as types, but there can never be instances to be persisted in the first place.
+
+|Inner classes
+|image::symbol-check.svg[]
+|
+
+|Anonymous inner classes
+|image::symbol-check.svg[]
+|
+
+|Primitives
+|image::symbol-check.svg[]
+|
+
+|References
+|image::symbol-check.svg[]
+|
+
+|Final fields
+|image::symbol-check.svg[]
+|
+
+|Static fields
+|image::symbol-remove.svg[]
+|Not supported since they are outside of an entity graph / a database, i.e. potentially shared by multiple graphs.
+
+|Constant primitives
+|image::symbol-remove.svg[]
+|No sense in persisting those. These are just plain trivial values outside of an entity graph / a database.
+
+|Constant instances
+|image::symbol-check.svg[]
+|Must be registered for loading to update them instead of creating independent new instances.
+
+|Primitive arrays
+|image::symbol-check.svg[]
+|
+
+|Object arrays
+|image::symbol-check.svg[]
+|
+
+|Multi dimensional arrays
+|image::symbol-check.svg[]
+|Technically the same as object arrays as every array is an object itself.
+
+|JDK value types (String, Number types, Date, File, Locale, Optional, ...)
+|image::symbol-check.svg[]
+|Optimized handling via custom TypeHandlers.
+
+|Collections
+|image::symbol-check.svg[]
+|Via generic handling logic (List, Set, Map, etc.). Optimal handling required tailored TypeHandler (e.g. correctly handling loadFactor in java.util.HashMap)
+
+|Nested Collections
+|image::symbol-check.svg[]
+|
+
+|JVM system-tied classes (Thread, ClassLoader, WeakReference, ...)
+|image::symbol-check.svg[]
+|Technically handleable, but handling system-instances could cause fatal problems (e.g. start a Thread just from loading data), so it is intentionally disabled.
+
+|JVM external-tied classes (IO-Streams, FileChannel, ...)
+|image::symbol-check.svg[]
+|Technically handleable, but external dependencies could cause fatal problems (e.g. existence of a referenced file), so it is intentionally disabled.
+|===
+
+== Java 5
+
+[options="header",cols="1,^1a,2a"]
+|===
+|Feature 
+|Supported 
+|Note
+
+|Enums
+|image::symbol-check.svg[]
+|Automatically handled as constant instances to maintain referential integrity / identity.
+
+|Enums with mutable state
+|image::symbol-check.svg[]
+|
+
+|Enums anonymous subclasses
+|image::symbol-check.svg[]
+|
+|===
+
+== Java 8
+
+[options="header",cols="1,^1a,2a"]
+|===
+|Feature 
+|Supported 
+|Note
+
+|Lambdas
+|image::symbol-remove.svg[]
+|Type-handleable in theory. But JVM is not able to resolve its own type definitions for lambdas.
+|===
+
+== Java 14
+
+[options="header",cols="1,^1a,2a"]
+|===
+|Feature 
+|Supported 
+|Note
+
+|Records
+|image::symbol-check.svg[]
+|Records are mere syntax sugar for classes, see xref:faq/java-features.adoc#records[FAQ].
+|===

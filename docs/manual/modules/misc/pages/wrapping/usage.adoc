@@ -1,0 +1,124 @@
+= Usage
+
+MicroStream's wrapper code generator generates following wrapper type for `PersistenceStoring`:
+
+[source, java]
+----
+public interface WrapperPersistenceStoring
+	extends Wrapper<PersistenceStoring>, PersistenceStoring
+{
+	@Override
+	public default long store(final Object instance)
+	{
+		return this.wrapped().store(instance);
+	}
+
+	@Override
+	public default long[] storeAll(final Object... instances)
+	{
+		return this.wrapped().storeAll(instances);
+	}
+
+	@Override
+	public default void storeAll(final Iterable<?> instances)
+	{
+		this.wrapped().storeAll(instances);
+	}
+
+	@Override
+	public default void storeSelfStoring(final SelfStoring storing)
+	{
+		this.wrapped().storeSelfStoring(storing);
+	}
+}
+----
+
+It is not an abstract class, but an interface, which extends the `Wrapper` interface of the _microstream-base_ module, and the wrapped type itself.
+This offers you the most flexible way to use it in your application.
+
+The `Wrapper` type is just a typed interface and an abstract implementation of itself.
+
+[source, java, title="Wrapper.java"]
+----
+public interface Wrapper<W>
+{
+	public W wrapped();
+	
+	public abstract class Abstract<W> implements Wrapper<W>
+	{
+		private final W wrapped;
+
+		protected Abstract(final W wrapped)
+		{
+			super();
+			
+			this.wrapped = wrapped;
+		}
+		
+		@Override
+		public final W wrapped()
+		{
+			return this.wrapped;
+		}
+	}
+}
+----
+
+You can either implement the `Wrapper` interface and provide the wrapped instance via the `wrapped()` method, or you can extend the abstract class and hand over the wrapped instance to the super constructor.
+
+Version with the abstract type:
+
+[source, java]
+----
+public class PersistenceStoringWithLogging
+	extends Wrapper.Abstract<PersistenceStoring>
+	implements WrapperPersistenceStoring
+{
+	public PersistenceStoringWithLogging(final PersistenceStoring wrapped)
+	{
+		super(wrapped);
+	}
+	
+	@Override
+	public long store(Object instance)
+	{
+		Logger.getLogger(PersistenceStoring.class.getName())
+			.info("Object stored: " + instance);
+		
+		return WrapperPersistenceStoring.super.store(instance);
+	}
+}
+----
+
+Or only the interface, then you have to provide the wrapped instance via `wrapped()`:
+
+[source, java]
+----
+public class PersistenceStoringWithLogging
+	implements WrapperPersistenceStoring
+{
+	private final PersistenceStoring wrapped;
+
+	public PersistenceStoringWithLogging(final PersistenceStoring wrapped)
+	{
+		super();
+		
+		this.wrapped = wrapped;
+	}
+	
+	@Override
+	public PersistenceStoring wrapped()
+	{
+		return this.wrapped;
+	}
+	
+	@Override
+	public long store(Object instance)
+	{
+		Logger.getLogger(PersistenceStoring.class.getName())
+			.info("Object stored: " + instance);
+		
+		return WrapperPersistenceStoring.super.store(instance);
+	}
+}
+----

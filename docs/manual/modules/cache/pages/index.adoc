@@ -1,0 +1,51 @@
+= Cache
+
+Since version 3 MicroStream provides a JCache (https://www.jcp.org/en/jsr/detail?id=107[JSR-107]) implementation, which is optionally backed by the MicroStream Storage.
+
+JCache standardizes caching for the Java platform.
+It provides a common mechanism to cache values in a map-like structure.
+It expedites the mainstream adoption of in-memory computing by giving all Java developers an easy way to access memory from within Java.
+Businesses can change providers without rewriting their applications or maintaining a proprietary cache abstraction layer.
+
+This caching standard is used in a wide variety of environments.
+The most common use cases are:
+
+* Second-level cache in JPA (e.g. xref:use-cases/hibernate-second-level-cache.adoc[Hibernate])
+* xref:use-cases/spring-cache.adoc[Spring Cache Abstraction]
+* and many more
+
+== Motivation
+
+Why another JCache implementation, you may wonder.
+There is already a myriad of providers out there. +
+MicroStream's very own serialization and storage can be utilized to get the best out of caches.
+For example you are not limited to `java.io.Serializable` types, when storing by value.
+That means every key-value pair gets copied every time you put and get entries in and out of a cache.
+And if a cache is used with a backing store, MicroStream's storage can be used to get the best possible performance.
+
+And now, MicroStream being a JCache provider, you can use it as a drop-in replacement in your existing application.
+
+== Basic Concepts of JCache
+
+=== CachingProvider
+
+The caching provider represents the implementation of JCache that you are using.
+You can use more than one JCache implementation in your project if you wish, and CachingProvider is how you access the different providers that are in use.
+
+=== CacheManager
+
+It is responsible for managing and providing access to many named caches.
+
+=== Cache
+
+The cache holds the different values being cached.
+You can have several caches, each of which may be holding data for a different purpose.
+Each one can have a different configuration;
+for example, different caches may evict old data using different techniques.
+
+=== Entry
+
+Each item of data in a cache is an entry, which is a key-value pair. +
+The key is a unique value used to store and look up the data. +
+The value is the actual data you wish to cache. +
+Caches have some different properties than Maps, but the calls that you would use to store and lookup data is very similar.

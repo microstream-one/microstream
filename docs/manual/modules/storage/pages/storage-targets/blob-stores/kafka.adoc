@@ -1,0 +1,36 @@
+= Kafka
+
+[source, xml, subs=attributes+]
+----
+<dependency>
+	<groupId>one.microstream</groupId>
+	<artifactId>microstream-afs-kafka</artifactId>
+	<version>{maven-version}</version>
+</dependency>
+----
+
+[source, java]
+----
+Properties properties = new Properties();
+properties.setProperty(
+	CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG,
+	"localhost:9093"
+);
+BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+	KafkaConnector.Caching(properties)
+);
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("microstream_storage"));
+----
+
+== Configuration
+
+When using xref:configuration/index.adoc#external-configuration[external configuration] Kafka can be set as follows.
+
+[source, text, title="microstream-storage.properties"]
+----
+storage-filesystem.kafka-properties.bootstrap.servers=localhost:9093
+----
+
+== Supported properties
+
+All supported properties of Kafka, see https://kafka.apache.org/documentation/

@@ -1,0 +1,352 @@
+= Legacy Type Mapping
+:description: Refactoring V2
+
+If one or more fields in a class have changed, the data structure of this class doesn't match anymore with the records in the database.
+This renders the application and the database incompatible.
+
+It's like in an IDE.
+You change the structure of a class and the tooling takes care of the rest.
+Problem is, in a database, the "rest" can be, in some circumstances, several gigabytes or even more, that have to be refactored and written again.
+It's one way to do it, but there are better alternatives.
+
+At best, the data is transformed when it's accessed only.
+The old (legacy) type data is being mapped to the new type when it's being loaded, hence: Legacy Type Mapping.
+
+Nothing needs to be rewritten.
+All records are, as they were saved, compatible with all other versions of their type.
+Simply by mapping while loading.
+
+== Automatic Mapping
+
+What has to be done to achieve this?
+In the most common cases, nothing!
+
+The heuristic attempts to automatically detect which fields are new, have been removed, reordered or altered.
+
+[source, java, title="Contact.java (old)"]
+----
+public class Contact
+{
+	String name     ;
+	String firstname;
+	int    age      ;
+	String email    ;
+	String note     ;
+	Object link     ;
+}
+----
+
+[source, java, title="Contact.java (new)"]
+----
+public class Contact
+{
+	String        firstname    ; // moved
+	String        lastname     ; // renamed
+	String        emailAddress ; // renamed
+	String        supportNode  ; // renamed
+	PostalAddress postalAddress; // new
+	int           age          ; // moved
+}
+----
+
+[source, text, title="Console Output"]
+----
+----------
+Legacy type mapping required for legacy type
+1000055:Contact
+to current type
+1000056:Contact
+Fields:
+java.lang.String Contact#firstname -1.000 ----> java.lang.String Contact#firstname
+java.lang.String Contact#name      -0.750 ----> java.lang.String Contact#lastname
+java.lang.String Contact#email     -0.708 ----> java.lang.String Contact#emailAddress
+java.lang.String Contact#note      -0.636 ----> java.lang.String Contact#supportNode
+[***new***] PostalAddress Contact#postalAddress
+int Contact#age	                   -1.000 ----> int Contact#age
+java.lang.Object Contact#link [discarded]
+---
+Write 'y' to accept the mapping.
+----
+
+
+The fields in the `Contact` entity class have been renamed, reordered, one was removed, one is new.
+
+What the heuristic is doing now is something like this: +
+`String firstname` is equal in both classes, so it has to be the same, pretty much as `int age`. + 
+`name` and `lastname` is pretty similar, type is the same too.
+If there is nothing better for the two, they probably belong together.
+Same with the other two fields. +
+In the end, the ominous `link` and `postalAddress` remain. +
+The heuristic can not make sense of that, so it assumes that one thing falls away and the other one is added.
+In this particular example, that worked perfectly. +
+Well done, heuristic.
+
+But: +
+Just as people can make mistakes in estimating similarities ("I would have thought ..."), even programs can make mistakes as soon as they logically go on thin ice.
+There is nothing more with absolute correctness that you actually know from (bug-free) software.
+Such a similarity matching will be correct in the most cases, but sometimes it will also fall by the wayside. +
+Example: perhaps only `PostalAddress` instances were referenced in the application under `link` and the two fields would actually be the same, only now properly typed and named.
+How should heuristics know that?
+Nobody could know that either, if he is not privy to the details of the concrete application.
+
+That's why Legacy Type Mapping has two mechanisms that prevent things from going wrong:
+
+. A callback interface is used to create the desired mapping result: `PersistenceLegacyTypeMappingResultor`
+. Optionally, an link:./#explicit-mapping[explicit mapping] can be specified, which is then preferred to the heuristic approach.
+
+If you do not want that, you can simply set another resultor.
+Like in this example each suspected mapping is submitted once to the user for control in the console.
+This is done with the `InquiringLegacyTypeMappingResultor`. +
+Maybe even one, where the user can "rewire" the mapping itself, write out the mapping, and then return an appropriate result.
+
+[source, java]
+----
+EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation(myDataDir);
+foundation.getConnectionFoundation().setLegacyTypeMappingResultor(
+	InquiringLegacyTypeMappingResultor.New(
+		PersistenceLegacyTypeMappingResultor.New()
+	)
+);
+EmbeddedStorageManager storageManager =
+	foundation.createEmbeddedStorageManager(myRoot).start();
+----
+
+== Explicit Mapping
+
+All you need is two columns of strings: from old to new. +
+By default MicroStream uses a CSV file, but you can also write something else.
+In the end, a lot of string pairs for "old -> new" mappings have to come into the program somewhere.
+
+The concept is simple:
+
+* If there are two strings, this is interpreted as a mapping from an old thing to a new thing.
+* If the second value is missing, it is interpreted as an old thing to be deleted.
+* Missing the first value, then it's as a new thing.
+
+Why call it "thing"?
+Because this applies to several structural elements:
+
+* Constant identifier
+* Class names
+* Field names
+
+Example: +
+`count; articleCount` means: the field named earlier `count` is called `articleCount` in the current version of the class. +
+`count;` means: the early field `count` should be ignored during the mapping.
+More specifically, the values ​​of this field per record. +
+`;articleCount` means, this is a newly added field, DO NOT try to match it with anything else heuristically.
+
+You can also mix explicit mapping and heuristics.
+Only explicitly specify so many changes until the analysis gets the rest right by itself.
+That means you never have to specify the annoying trivial cases explicitly.
+Only the tricky ones.
+Usually, nothing should be necessary at all, or maybe a view indications at most to avoid mishaps.
+
+However, those who strictly prefer to make any change explicitly, instead of trusting a "guessing" software, can also do that.
+No problem.
+
+== Explicit Mapping of Classes
+
+For class names, the three variants map, add and remove are somewhat tricky in meaning: +
+Map is just old -> new, same as with fields. +
+To make an entry for a new class doesn't make sense.
+It's covered by the new class itself.
+You can do it, but it has no effect. +
+Marking a removed class as deleted makes no sense either, except xref:#special-case-deleted-class[one special case].
+
+NOTE: It is not required to specify the fields mapping of mapped classes if the mapping heuristic can do a correct field mapping. Especially if classes have been renamed only.
+
+== Explicit Mapping Syntax
+
+Classes are simply referred to by their full qualified class name: +
+`com.my.app.entities.Order`
+
+In some cases you need to specify the exact Version of the class, then the TypeId has to be prepended: +
+`1012345:com.my.app.entities.Order`
+
+Mapping from old to new: +
+`com.my.app.entities.Order;com.my.app.entities.OrderImplementation`
+
+For fields it's a bit more complex.
+
+To unambiguously refer a field, the full qualified name of its defining class has to be used. +
+`com.my.app.entities.Order#count;com.my.app.entities.Order#articleCount`
+
+The `#` is based on official Java syntax, like e.g. in JavaDoc.
+
+If inheritance is involved, which must be uniquely resolved (each class in the hierarchy can have a field named "count"), you must also specify the declaring class.
+Like this: +
+`com.my.app.entities.Order#com.my.app.entities.ArticleHolder#count; +
+⤦ com.my.App.entities.Order#com.my.app.entities.ArticleHolder#articleCount`
+
+A simple example:
+
+[source, java, title="OldContact.java"]
+----
+package com.my.app.entities;
+
+public class OldContact
+{
+	String name     ;
+	String firstname;
+	int    age      ;
+	String email    ;
+	String note     ;
+	Object link     ; // to be discarded
+}
+----
+
+[source, java, title="NewContact.java"]
+----
+package com.my.app.entities;
+
+public class NewContact
+{
+	String        firstname    ; // moved
+	String        lastname     ; // renamed
+	String        emailAddress ; // renamed
+	String        supportNote  ; // renamed
+	PostalAddress postalAddress; // new
+	int           age          ; // moved
+}
+----
+
+[source, text, title="refactorings.csv"]
+----
+old                                      current
+com.my.app.entities.OldContact           com.my.app.entities.NewContact
+com.my.app.entities.OldContact#firstname com.my.app.entities.NewContact#firstname
+com.my.app.entities.OldContact#name      com.my.app.entities.NewContact#lastname
+com.my.app.entities.OldContact#email     com.my.app.entities.NewContact#emailAddress
+com.my.app.entities.OldContact#note      com.my.app.entities.NewContact#supportNote
+                                         com.my.app.entities.NewContact#postalAddress
+com.my.app.entities.OldContact#age       com.my.app.entities.NewContact#age
+com.my.app.entities.OldContact#link
+----
+
+[source, java]
+----
+EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation(dataDir);
+foundation.setRefactoringMappingProvider(
+	Persistence.RefactoringMapping(Paths.get("refactorings.csv"))
+);
+EmbeddedStorageManager storageManager =
+	foundation.createEmbeddedStorageManager(root).start();
+----
+
+== Value Conversion
+
+So far so good, all classes and fields are getting mapped, automatically or manually. +
+But what about the data?
+How are the values getting transformed from old to new? +
+Technically speaking it's done fully automatic. +
+But there are some interesting questions:
+
+* xref:#value-conversion-of-primitives[What if the primitive types changes?]
+* xref:#value-conversion-of-references[What if primitives change to references and vice versa?]
+* xref:#performance[How fast is it?]
+
+[#value-conversion-of-primitives]
+=== Value Conversion of Primitives
+
+Let's say `int` to `float`.
+Just to copy the four bytes would yield wrong results.
+It has to be converted, like `float floatValue = (float)intValue;` +
+Can it be done?
+Yes, fully automatic. +
+The class `BinaryValueTranslators` does the job for you, it has a converter function from each primitive to another.
+
+[#value-conversion-of-references]
+=== Value Conversion of References / Objects
+
+Currently MicroStream supports conversion between primitives and their wrapper types, and vice versa. +
+When converting a wrapper to a primitive, `null` is converted to `0`.
+
+If you need special conversions between object types, you can add custom `BinaryValueSetter` for that, see xref:#customizing[customizing].
+
+[#performance]
+=== Performance
+
+How fast is that?
+
+The type analysis happens only once during initialization.
+If no exception occurs, the Legacy Type Mapping is ready-configured for each necessary type and will then only be called if required.
+For normal entity classes that are parsed by reflection, legacy type mapping loading is just as fast as a normal load.
+An array of such value translator functions is put together once and they are run through each time they are loaded.
+With legacy mapping, only the order and the target offsets are different, but the principle is the same as with normal loading.
+
+For custom handlers an intermediate step is necessary: ​​First put all the old values ​​together in an order that the custom handler expects and then read the binary data normally, as if loading a record in the current format.
+That's necessary because MicroStream can't know what such a custom handler does internally.
+If someone ever uses such a custom handler, the small detour is not likely to be noticeable in terms of performance.
+And if it should be the case and it has a negative effect on the productive operation: No problem, because: +
+Of course you can also write a custom legacy type handler.
+It would run at full speed even with tricky special cases.
+
+[#customizing]
+== Customizing
+
+Of course there is the possibility, as always, of intervening in the machinery massively with customizing.
+
+If you need the highest possible performance for some cases, or for logging / debugging, or anyway: Register any value translator implementations.
+In the simplest case this is 1 line of code, so do not worry.
+Being able to specify refactoring mapping in a different way than a CSV file is another example.
+You can even customize (extend or replace) the strategy that is looked up in refactoring mapping.
+
+Furthermore, you can also replace the heuristic logic with your own.
+This is easier than it sounds.
+This is just a primitive little interface (`PersistenceMemberSimilator`) and the default implementation thereof calls e.g.
+just a https://en.wikipedia.org/wiki/Levenshtein_distance[Levenshtein] algorithm for names.
+You can certainly do that 10 times more clever.
+Or "more appropriate" for a particular application or programming style.
+E.g. utilize annotations.
+
+The basic statement is: If there is a problem somewhere, whether with the heuristic or a special case request or performance problem loading a gazillion entities all at once, or if there is a need for debugging in depth or something like that: do not panic.
+Most likely, this is easily possible with a few lines of code.
+
+xref:legacy-type-mapping/user-interaction.adoc[Customizing examples]
+
+[#special-case-deleted-class]
+== Special Case: Deleted Class
+
+You can not just mark classes as deleted.
+As long as there are records of a certain type in the database, the corresponding class must also exist so that the instances from the database can be loaded into the application.
+If there are no more records, then that means that there are only a few bytes of orphaned description in the type dictionary, but nobody cares.
+Is it possible to delete it by hand (or rather not, there are good reasons against it) or you can just ignore it and leave it there forever.
+In both cases, you must not mark a class as deleted.
+
+Now the special case: +
+In the entity graph (root instances and all recursively reachable instances from there) all references to instances of a certain type are filled in.
+It's done by the application logic or possibly by a specially written script.
+That is, all instances of this type are unreachable.
+No instance is available, no instance can ever be reloaded.
+This means that the type is "deleted" from the database at the logical level.
+One does not have to register anywhere, that is implicitly just like that.
+You can actually delete the corresponding Java class from the application project because it will never be needed again during the loading process at runtime. +
+So far so good. +
+There is only one problem: even if the instances are never logically accessible again: the data records are still around in the database files.
+The initialization scans over all database files, registers all entities, collects all occurring TypeIds and ensures for every TypeId that there is a `TypeHandler` for it.
+If necessary, a `LegacyTypeHandler` with mapping, but still: there must be a `TypeHandler` for each TypeId.
+And a `TypeHandler` needs a runtime type.
+That is, ass-backwards, over records that are logically already deleted, but only physically still lying around, now it is again enforced that the erasable entity class must be present.
+Bummer.
+One can prevent this: there is a "cleanup" function in the database management logic, which cleans up all logical gaps in the database files (actually copies all non-gaps into a new file and thus deletes the old file altogether).
+You would have to call it, then all physical occurrences of the unreachable records disappear and you could easily delete the associated class.
+But that is annoying.
+
+That is why it makes sense for these cases - and only for them - to do the following: +
+If you as a developer are absolutely sure that no single instance of a given class is ever reachable again, i.e.
+must be loaded, then you can mark a type as "deleted" (rather "unreachable") in the refactoring mapping.
+Then the Type Handling will create a dummy `TypeHandler` that does not need a runtime class.
+See `PersistenceUnreachableTypeHandler`.
+But be careful: if you are mistaken and an instance of such a type is still referenced somewhere and eventually loaded later at runtime, then the Unreachable handler will throw an exception.
+At some point during the runtime of the application, not even during initialization.
+The cleanup provides real security: remove all logical gaps and if then with a deleted class no more error in the initialization occurs, it is really superfluous.
+
+Any ideas, such as simply returning `null` in the dummy type handler instead of an instance, are a fire hazard: it may dissolve some annoying situations pleasantly, but it would also mean that existing datasets, potentially entire subgraphs, become hidden from the application.
+Nevertheless, the database would continue to drag them along, perhaps becoming inexplicably large, and any search for the reason would yield nothing, because the dummy type handler keeps the data records secret.
+Shortsighted great, but catastrophic in the long run.
+That's not good.
+The only clean solution is: you have to know what to do with your data model.
+As long as there are still available instances, they must also be loadable.
+The annoying special case above can be defused without side effects.
+But it can not be more than that, otherwise it will get rid of the chaos, problems and lost confidence in the correctness of the database solution.

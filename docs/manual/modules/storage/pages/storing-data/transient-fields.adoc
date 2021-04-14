@@ -1,0 +1,30 @@
+= Transient Fields
+
+The default MicroStream implementation fully supports the Java transient field modifier.
+Class members marked transient will not be persisted.
+
+[source, java]
+----
+public class User
+{
+	private String username;
+	
+	//do not persist the users password
+	private transient String password;
+}
+----
+
+It is possible to override the default behavior by implementing  a custom `PersistenceFieldEvaluator`.
+
+[source, java]
+----
+PersistenceFieldEvaluator fieldEvaluator =
+	(clazz, field) -> !field.getName().startsWith("_");
+			
+EmbeddedStorageManager storage = EmbeddedStorage.Foundation()
+	.onConnectionFoundation(
+		c -> c.setFieldEvaluatorPersistable(fieldEvaluator)
+	)
+	.createEmbeddedStorageManager()
+	.start();
+----

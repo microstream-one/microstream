@@ -1,0 +1,47 @@
+= Convenience Methods and Explicit Storing (Transactions)
+
+== Convenience Methods
+
+Beside `long store(Object instance)`  MicroStream provides some convenience methods to store several objects at once:
+
+[source, java]
+----
+void storeAll(Iterable<?> instances)`
+----
+
+Stores the passed instance in any case and all referenced instances of persistable references recursively, but stores referenced instances only if they are newly encountered (e.g.
+don't have an id associated with them in the object registry, yet and are therefore required to be handled).
+This is useful for the common case of just storing an updated instance and potentially newly created instances along with it while skipping all existing (and normally unchanged) referenced instances.
+
+[source, java]
+----
+List subset = myCollection.getSubset();
+subset.foreach(item -> item.modify());
+storage.storeAll(subset);
+----
+
+[source, java]
+----
+long[] storeAll(Object... instances)
+----
+
+Convenience method to store multiple instances.
+The passed array (maybe implicitly created by the compiler) itself is NOT stored.
+
+[source, java]
+----
+storage.storeAll(itemA, iteamB, iteamC);
+----
+
+== Transactions
+
+[IMPORTANT]
+====
+MicroStream does not provide explicit transactions, every call to a store method is automatically a transaction.
+
+*A store operation is an atomic all or nothing operation*
+
+If the store call is successful all data is written to the storage.
+Otherwise no data is persisted.
+Partially persisted data will be reverted.
+====

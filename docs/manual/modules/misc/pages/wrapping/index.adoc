@@ -1,0 +1,144 @@
+= Wrapping
+
+MicroStream uses a strictly interface-based architecture.
+All types in the public API are, whenever possible, interfaces.
+This offers the best possibilities to extend or exchange parts of the engine.
+A good ways to enrich a type with features, is the wrapper (decorator) pattern.
+
+For example, let's say we want to add logging to the ``PersistenceStoring``'s `store(object)` method.
+
+[source, java, title="PersistenceStoring.java"]
+----
+public interface PersistenceStoring
+{
+    public long store(Object instance);
+
+    public long[] storeAll(Object... instances);
+
+    public void storeAll(Iterable<?> instances);
+
+    public void storeSelfStoring(SelfStoring storing);
+}
+----
+
+Conventionally it would be done that way: A new type, implementing the original interface, would be handed over the wrapped instance, all interface methods have to be implemented and delegated.
+And in the single method, we wanted to add functionality;
+the actual implementation of the logging is done.
+
+[source, java]
+----
+public class PersistenceStoringWithLogging implements PersistenceStoring
+{
+	private final PersistenceStoring wrapped;
+	
+	public PersistenceStoringWithLogging(final PersistenceStoring wrapped)
+	{
+		super();
+		
+		this.wrapped = wrapped;
+	}
+	
+	@Override
+	public long store(final Object instance)
+	{
+		Logger.getLogger(PersistenceStoring.class.getName())
+			.info("Object stored: " + instance);
+		
+		return this.wrapped.store(instance);
+	}
+	
+	@Override
+	public long[] storeAll(final Object... instances)
+	{
+		return this.wrapped.storeAll(instances);
+	}
+	
+	@Override
+	public void storeAll(final Iterable<?> instances)
+	{
+		this.wrapped.storeAll(instances);
+	}
+	
+	@Override
+	public void storeSelfStoring(final SelfStoring storing)
+	{
+		this.wrapped.storeSelfStoring(storing);
+	}
+}
+----
+
+This produces a lot of overhead.
+In this case, three methods are just boilerplate code to delegate the calls to the wrapped instance.
+A common solution for that is to create an abstract base wrapper type for the designated interface, and to reuse it whenever needed.
+
+[source, java]
+----
+public abstract class BaseWrapperPersistenceStoring implements PersistenceStoring
+{
+	private final PersistenceStoring wrapped;
+	
+	public BaseWrapperPersistenceStoring(final PersistenceStoring wrapped)
+	{
+		super();
+		
+		this.wrapped = wrapped;
+	}
+	
+	@Override
+	public long store(final Object instance)
+	{
+		return this.wrapped.store(instance);
+	}
+	
+	@Override
+	public long[] storeAll(final Object... instances)
+	{
+		return this.wrapped.storeAll(instances);
+	}
+	
+	@Override
+	public void storeAll(final Iterable<?> instances)
+	{
+		this.wrapped.storeAll(instances);
+	}
+	
+	@Override
+	public void storeSelfStoring(final SelfStoring storing)
+	{
+		this.wrapped.storeSelfStoring(storing);
+	}
+}
+----
+
+And then, based on that, the implementation of the logger type would look like this:
+
+[source, java]
+----
+public class PersistenceStoringWithLogging extends BaseWrapperPersistenceStoring
+{
+	public PersistenceStoringWithLogging(PersistenceStoring wrapped)
+	{
+		super(wrapped);
+	}
+	
+	@Override
+	public long store(Object instance)
+	{
+		Logger.getLogger(PersistenceStoring.class.getName())
+			.info("Object stored: " + instance);
+			
+		return super.store(instance);
+	}
+}
+----
+
+That's better.
+No more boilerplate code.
+Just overwrite the methods you want to extend.
+
+The only work left is, to generate the base wrapper types.
+One way is to let your IDE generate the wrapper or delegation code.
+Disadvantage of that is, it has to be redone every time your interfaces change.
+A code generator, which does it automatically would be nice.
+And that's what the base module brings along.
+Like the xref:layered-entities/configuration.adoc[layered entity code generator], it is an annotation processor.

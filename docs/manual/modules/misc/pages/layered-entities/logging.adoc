@@ -1,0 +1,56 @@
+= Logging
+
+Another predefined logic layer is for logging purposes.
+Since there is a myriad of loggers out there, MicroStream doesn't provide any special adapter, but a generic type which can be used to adapt to the logging framework of your choice.
+
+Just create a class and implement `EntityLogger`, and you are good to go.
+
+[source, java]
+----
+public class JulLogger implements EntityLogger
+{
+	@Override
+	public void afterUpdate(
+		final Entity identity,
+		final Entity data,
+		final boolean successful)
+	{
+		Logger.getLogger(identity.getClass().getName())
+			.info("Entity updated");
+	}
+}
+----
+
+Additional to `afterUpdate` there are further hooks:
+
+* `entityCreated`
+* `afterRead`
+* `beforeUpdate`
+
+Now just add the logger when creating entities:
+
+[source, java]
+----
+JulLogger logger = new JulLogger();
+
+Person john = PersonCreator.New()
+	.addLayer(logger)
+	.firstName("John")
+	.lastName("Doe")
+	.create();
+----
+
+When you call
+
+[source, java]
+----
+PersonUpdater.setLastName(john, "Smith");
+----
+
+the logger's output is
+
+[source, text]
+----
+Oct 15, 2019 11:17:53 AM JulLogger afterUpdate
+INFO: Entity updated
+----

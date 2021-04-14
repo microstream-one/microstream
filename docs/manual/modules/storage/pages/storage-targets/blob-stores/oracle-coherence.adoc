@@ -1,0 +1,40 @@
+= Oracle Coherence
+
+[source, xml, subs=attributes+]
+----
+<dependency>
+	<groupId>one.microstream</groupId>
+	<artifactId>microstream-afs-oracle-coherence</artifactId>
+	<version>{maven-version}</version>
+</dependency>
+----
+
+[source, java]
+----
+NamedCache cache = CacheFactory.getCache("cache-name");
+BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+	CoherenceConnector.Caching(cache)
+);
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("microstream_storage"));
+----
+
+== Configuration
+
+When using xref:configuration/index.adoc#external-configuration[external configuration] Coherence can be set as follows.
+
+[source, text, title="microstream-storage.properties"]
+----
+storage-filesystem.oracle.coherence.cache-name=my-cache
+----
+
+[options="header",cols="1,2a"]
+|===
+|Property   
+|Description   
+//-------------
+|cache-name
+|The name of the cache which is used to retrieve the named cache from the cache factory.
+
+|cache-config
+|It is used to specify a custom cache configuration deployment descriptor to be used instead of the configured default cache configuration deployment descriptor.
+|===

@@ -1,0 +1,54 @@
+= Creating Entities
+
+Given is the following entity:
+
+[source, java]
+----
+public interface Person extends Entity
+{
+	public String firstName();
+	
+	public String lastName();
+}
+----
+
+So how is it done?
+Since the code generator provides a creator, we can use it to create a new `Person`.
+
+[source, java]
+----
+Person john = PersonCreator.New()
+	.firstName("John")
+	.lastName("Doe")
+	.create();
+----
+
+Let's see what the debugger displays if we run this code:
+
+image::entity-debugger.png[]
+
+There's always an entity chain, with
+
+* The identity (`PersonEntity`) as outer layer
+* Then the logic layers, none here in our example
+* And the inner most layer is always the data (`PersonData`), which holds the properties.
+
+The properties can be accessed like defined in the entity's interface:
+
+[source, java]
+----
+String firstName = john.firstName(); // -> John
+String lastName  = john.lastName();  // -> Doe
+----
+
+The creator can also be used to create copies.
+Just hand over the existing one as template:
+
+[source, java]
+----
+Person mike = PersonCreator.New(john) // use John as template
+	.firstName("Mike")
+	.create();
+----
+
+This will create a "Mike Doe".

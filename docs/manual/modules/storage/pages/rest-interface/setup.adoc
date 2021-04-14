@@ -1,0 +1,73 @@
+= Setup
+
+== REST Service
+
+First of all we have to connect a storage to a REST service.
+
+Just add the REST service implementation to your dependencies, the logger is optional.
+
+[source, xml, title="pom.xml"]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-storage-restservice-sparkjava</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-simple</artifactId>
+		<version>1.7.30</version>
+	</dependency>
+</dependencies>
+----
+
+Now use the resolver to connect the service to a storage, start it, and you're good to go.
+
+[source, java]
+----
+EmbeddedStorageManager storage = EmbeddedStorage.start();
+if(storage.root() == null)
+{
+	storage.setRoot(new Object[] {
+		LocalDate.now(),
+		X.List("a", "b", "c"),
+		1337
+	});
+	storage.storeRoot();
+}
+
+// create the REST service
+StorageRestService service = StorageRestServiceResolver.resolve(storage);
+
+// and start it
+service.start();
+----
+
+That's all you have to do to open the REST endpoints to access the storage data.
+
+The base URL of the opened endpoints is per default: http://localhost:4567/microstream/
+
+[NOTE]
+====
+Internally, there is a REST adapter which opens access to the low-level storage data.
+This is used by the REST service layer, which is an abstract service interface.
+The default implementation of it, which uses http://sparkjava.com/[Sparkjava], is used to open the REST endpoints.
+We just have to use this one to get started.
+====
+
+== Configuration
+
+If you want to change the default port (4567) or instance name (microstream) it can be done by using the rest service implementation directly.
+The spark service can then be customized by your liking.
+
+[source, java]
+----
+StorageRestServiceSparkJava service = StorageRestServiceSparkJava.New(storage);
+service.setSparkService(
+	Service.ignite().port(80)
+);
+service.setInstanceName("my-name");
+----
+
+This will change the base URL to http://localhost/my-name/

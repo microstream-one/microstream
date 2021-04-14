@@ -1,0 +1,154 @@
+= Changelog
+
+== 5.0
+
+=== *Features*
+
+* -
+
+=== *Bugfixes*
+
+* -
+
+=== *Migration guide*
+
+== 4.1
+
+=== *Features*
+
+* API to create xref:storage:configuration/backup/full-backup.adoc[full backup] additional to xref:storage:configuration/backup/continuous-backup.adoc[continuous backup]
+* Simplified usage of other NIO based file systems, e.g.
+in-memory file systems for unit testing
+* OSGi Headers are added in released jar files and a p2 update site is available next to the maven repository
+* Additional xref:storage:storage-targets/index.adoc[storage targets]
+ ** AWS S3 and DynamoDB
+ ** Azure Storage
+ ** Hazelcast
+ ** Kafka
+ ** MongoDB
+ ** Redis
+ ** Plain JDBC: SAP HANA, PostgreSQL, MariaDB
+
+=== *Bugfixes*
+
+* Fixed type handler incompatibilities with JDK 11
+* Removed wrongfully initial values in configuration for deletion and truncation directories
+
+=== *Migration guide*
+
+From 4.1 no actions are necessary, for older versions see below.
+
+== 4.0
+
+=== *Features*
+
+* File System Abstraction to support a variety of xref:storage:storage-targets/index.adoc[storage targets].
+* Exporter API for storage configuration.
+
+=== *Bugfixes*
+
+* Better error handling in housekeeping, to avoid storage channel thread interruptions.
+* Fixed XML loading bug under Android.
+
+=== *Migration guide*
+
+All configuration code, which includes file paths, may be rewritten to use the new Abstract File System. +
+For example see xref:storage:configuration/storage-files-and-directories.adoc[Storage Files] or xref:storage:configuration/backup/continuous-backup.adoc[Backup].
+
+== 3.0.1
+
+Bugfix release for projects using an old non public version.
+
+=== *Bugfixes*
+
+* Fixed bug in type dictionary parser for old legacy type handlers
+
+== 3.0
+
+=== *Features*
+
+* Added a convenience layer for defining xref:storage:customizing/custom-type-handler.adoc[custom type handlers]
+* Fully automatic xref:storage:loading-data/lazy-loading/clearing-lazy-references.adoc#automatically[lazy reference managing] for clearing older `Lazy` references as free memory gets lower.
+* Completed optimized persistence handling for xref:storage:addendum/specialized-type-handlers.adoc[remaining types in JDK] that are reasonable to appear in entity graphs.
+E.g.
+`Currency`, `Locale`, `URI`, `URL`, `Path`
+* Compatibility with projects using java modules ("jigsaw")
+* Added JavaDoc for common types like `StorageConnection`, `StorageManager`, `StorageController`, etc.
+* Auto-recognition for CSV separator character in configuration files (e.g.
+legacy type mapping)
+* JSR-107 compatible xref:cache:index.adoc[JCache provider] with additional xref:cache:use-cases/hibernate-second-level-cache.adoc[Hibernate cache region factory]
+* xref:storage:rest-interface/index.adoc[Storage REST Service and Client] are available to access the storage data via REST, a Java-Wrapper thereof and a Web-UI
+
+=== *Bugfixes*
+
+* Fixed a potential race condition during loading
+* Fixed a potential race condition and robustness issue during storing
+* `StorageConnectionFoundation` instance is now properly created on demand.
+* Removed unnecessary memory consumption exponential to channel count.
+* Improved exception messages on invalid configuration values (file sizes etc.)
+* Workarounded a JDK bug regarding file locking when importing files (JDK exception says another process is locking the file which is outright wrong)
+* Fixed type resolving problems when different ClassLoaders are involved.
+* Fixed a bug that caused loading of zero-length arrays to throw an exception despite everything being fine.
+* Various smaller bugfixes for unnecessary exceptions in special cases and state robustness after exceptions.
+
+=== *Migration guide*
+
+From 2.2 no actions are necessary, for older versions see below.
+
+== 2.2
+
+=== Features
+
+* Removed `SelfStoring` without replacement since it could not be used recursively and has no advantages over just creating a static storing utility method for a certain entity.
+* Added state validation of value type objects (e.g.
+String, Integer, BigDecimal, etc.) upon loading.
+This is hardly relevant in practice, but not having it can lead to confusing hello-world-like test applications.
+* `EmbeddedStorageManager` now implements `java.lang.AutoClosable`.
+* Replaced all provisional ``RuntimeException``s with either `PersistenceException` or `StorageException`, depending on the architectural level the corresponding source code it located.
+* The two technically different root handling concepts ("default" and "custom") have been consolidated in a way that they are the same thing on the API level and interchangeable, meaning no more confusion with those root exception messages.
+* All entity fields of type `transient EmbeddedStorageManager` now get a reference to the used `EmbeddedStorageManager` instance set upon loading/updating.
+* The interfaces around storage managing have been enhanced so that it is now equally valid to just write `StorageManager` instead of `EmbeddedStorageManager`.
+(An `EmbeddedStorageManager` "is a" `StorageManager`)
+* Slight technical consolidation of Lazy reference handling caused the type Lazy to be moved from the package `one.microstream.persistence.lazy` to `one.microstream.reference`.
+The reason is that the lazy handling has actually no inherent connection to persistence or storage.
+It's actually just a generic concept that can be used by those layers.
+See xref:#2_2_migration-guide[Migration Guide] below on how to adjust existing projects.
+
+=== Bugfixes
+
+* Fixed an off-heap memory leak when restarting the storage multiple times in the same process.
+* Fixed a bug where changing the fields of an entity type caused an exception.
+This was a regression bug from fixing a similar problem for another case in version 2.1.
+Now, both cases work correctly.
+
+[#2_2_migration-guide]
+=== Migration Guide
+
+All occurrences in user code of `one.microstream.persistence.lazy.Lazy` have to be refactored to `one.microstream.reference.Lazy`.
+Modern IDEs provide a functionality to "auto-import" missing types or automatically "organize imports", so this should be resolved with a proverbial push of a button.
+
+== 2.1
+
+=== Features
+
+* Android support MicroStream is now Java-wise fully compatible with Android.
+* Replaced all usages of `java.util.File` with `java.nio.file.Path` to allow using custom file implementations.
+* Improved skipping functionality of Storers (see `EmbeddedStorageManager#createStorer` and `Storer#skip`).
+* The class Lazy is now an interface to allow custom implementations.
+See Migration guide below.
+
+=== Bugfixes
+
+* Fixed a few minor bugs in the skipping functionality of Storers.
+* Fixed a bug where files remained locked after the storage was shut down.
+* Fixed a bug where files remained locked after an exception in storage initialization.
+* Enums defining an abstract method are now handled correctly.
+* By default, all threads created by MicroStream now start with the prefix "MicroStream-".
+This can be customized by the new interface `StorageThreadNameProvider`.
+* Fixed a NullPointerException in import.
+* Fixed a bug that caused enums with a certain field layout to be loaded inconsistently.
+* `java.util.Locale` is now persisted and created using Locale's `#toLanguageTag` and `#forLanguageTag`.
+
+=== Migration Guide
+
+In the directory of an existing storage, in the TypeDictionary file (default name "PersistenceTypeDictionary.ptd"), all occurrences of "one.microstream.persistence.lazy.Lazy" must be replaced with "one.microstream.persistence.lazy.Lazy$Default".

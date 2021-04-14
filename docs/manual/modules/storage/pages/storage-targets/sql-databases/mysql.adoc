@@ -1,0 +1,58 @@
+= MySQL
+
+[source, xml, subs=attributes+]
+----
+<dependency>
+	<groupId>one.microstream</groupId>
+	<artifactId>microstream-afs-sql</artifactId>
+	<version>{maven-version}</version>
+</dependency>
+<dependency>
+	<groupId>mysql</groupId>
+	<artifactId>mysql-connector-java</artifactId>
+	<version>8.0.21</version>
+</dependency>
+----
+
+[source, java]
+----
+MysqlDataSource dataSource = new MysqlDataSource();
+dataSource.setUrl("jdbc:mysql://host:3306/mydb");
+dataSource.setUser("user");
+dataSource.setPassword("secret");
+
+SqlFileSystem fileSystem = SqlFileSystem.New(
+	SqlConnector.Caching(
+		SqlProviderMySql.New(dataSource)
+	)
+);
+
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("microstream_storage"));
+----
+
+== Configuration
+
+When using xref:configuration/index.adoc#external-configuration[external configuration] MySQL can be set as follows.
+Please note that you have to define a data source provider.
+
+[source, text, title="microstream-storage.properties"]
+----
+storage-filesystem.sql.mysql.data-source-provider=com.sample.MyDataSourceProvider
+storage-filesystem.sql.mysql.catalog=mycatalog
+storage-filesystem.sql.mysql.schema=myschema
+----
+
+[source, java, title="MyDataSourceProvider.java"]
+----
+package com.sample;
+
+import one.microstream.afs.sql.SqlDataSourceProvider
+
+public class MyDataSourceProvider implements SqlDataSourceProvider
+{
+	public DataSource provideDataSource()
+	{
+		// TODO: return data source of your choice, e.g. from a connection pool
+	}
+}
+----

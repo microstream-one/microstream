@@ -1,0 +1,182 @@
+= Lazy Loading
+
+In this chapter it is explained how https://en.wikipedia.org/wiki/Lazy_loading[Lazy Loading] is done with MicroStream.
+
+Of course, it's not really about the technical implementation of procrastination, but about efficiency: why bloat the limited RAM with stuff before you even need it?
+
+Classic example: +
+The application has self-contained data areas that contain a large amount of data.
+The data for an area is not loaded if the area is not worked at all.
+Instead, you only load a tiny amount of "head data" for each area (name or other for displaying purposes) and the actual data only when the application really needs it.
+E.g. fiscal years with hundreds of thousands or millions of sales.
+One million revenue records for 2010, one million for 2011, for 2012, etc.
+In 2019, most of the time only 2019 and 2018 will be needed.
+The previous few, and the year 2000 sales are not of great interest anymore.
+Therefore: load data only when needed.
+Super efficient.
+
+For example let's say the app "MyBusinessApp" has a root instance class, looking like this:
+
+[source, java]
+----
+public class MyBusinessApp
+{
+	// ...
+	
+	private HashMap<Integer, BusinessYear> businessYears = new HashMap<>();
+	
+	// ...
+}
+----
+
+The business year hold the turnovers:
+
+[source, java]
+----
+public class BusinessYear
+{
+	// ...
+	
+	private ArrayList<Turnover> turnovers = new ArrayList<>();
+	
+	// ...
+}
+----
+
+This approach would be a problem: During initialization, the root instance would be loaded, from there its `HashMap` with all `BusinessYear` instances, each with its `ArrayList` and thus all conversions.
+For all years.
+20 years of approximately 1 million sales makes 20 million entities, which are pumped directly into the RAM at the start.
+It does not matter if someone needs it or not.
+We don't want it that way.
+
+It would be nice if you could simply add a "lazy" to the turnover list.
+And that's exactly how it works:
+
+[source, java]
+----
+public class BusinessYear
+{
+	// ...
+	
+	private Lazy<ArrayList<Turnover>> turnovers  = ...; // we will get to that
+	
+	// ...
+}
+----
+
+And bingo, the turnovers are now loaded lazily.
+
+NOTE: Of course, this is no longer an `ArrayList<Turnover>` field, which is now magically loaded lazy, but this is now a `Lazy` field and the instances of this type are typed generically to `ArrayList<Turnover>` . `Lazy` is just a simple class whose instances internally hold an ID and a reference to the actual thing (here the `ArrayList` instance).
+If the internal reference is zero, the reserved ID is used to reload it.
+If it is not `null`, it is simply returned.
+So just a reference intermediate instance.
+Similar to the JDK's `WeakReference`, just not JVM-weak, but storage-lazy.
+
+What do you have to do now to get the actual `ArrayList<Turnover>` instance?
+
+[source, java]
+----
+ArrayList<Turnover> turnovers = this.turnovers.get();
+----
+
+Just as with `WeakReference`, or simply as one would expect from a reference intermediate type in general: a simple `get` method.
+
+The `.get()` call reloads the data as needed.
+But you do not want to mess around with that yourself.
+No `"SELECT bla FROM turnovers WHERE ID =" + this.turnovers.getId()`.
+Since you want to program your application you don' t have to mess around with low-level database ID-loading stuff.
+That's what the MicroStream Code does internally.
+You do not even need to access the ID, you just have to say "get!".
+
+That's it.
+
+== What about the "..." ?
+
+There are different strategies, what you write here.
+Analogous to the code example before it would be simply:
+
+[source, java]
+----
+private Lazy<ArrayList<Turnover>> turnovers = Lazy.Reference(new ArrayList<>());
+----
+
+So always a new `ArrayList` instance, wrapped in a `Lazy` instance.
+If the actual `ArrayList` reference should be `null` at first, it works the same way:
+
+[source, java]
+----
+private Lazy<ArrayList<Turnover>> turnovers = Lazy.Reference(null);
+----
+
+The `this.turnovers.get()` also just always returns `null`.
+Completely transparent.
+
+But you could also do this:
+
+[source, java]
+----
+private Lazy<ArrayList<Turnover>> turnovers = null;
+----
+
+If there is no list, then you do not make any intermediate reference instance for any list.
+A separate instance for `null` is indeed a bit ... meh.
+
+But that has a nasty problem elsewhere: `this.turnovers.get()` does not work then.
+Because `NullPointerException`.
+
+Anytime you need to write this here, the readability of code is not exactly conducive:
+
+[source, java]
+----
+return this.turnovers == null ? null : this.turnovers.get();
+----
+
+But there is a simple solution: Just move this check into a static utility method.
+Just like that:
+
+[source, java]
+----
+return Lazy.get(this.turnovers);
+----
+
+This is the same `.get()`, just with a static null-check around it.
+This always puts you on the safe side.
+
+== In Short
+
+For Lazy Loading, simply wrap `Lazy<>` around the actual field and then call `.get()` or maybe better `+Lazy.get(...)+`.
+
+It's as simple as that.
+
+TIP: The full example can be found on https://github.com/microstream-one/examples/tree/master/lazyLoading[GitHub].
+
+== Side Note
+
+Why do you have to replace your actual instance with a lazy loading intermediate instance and fiddle around with generics?
+Why is not something like this:
+
+[source, java]
+----
+@Lazy
+private ArrayList<Turnover> turnovers = new ArrayList<>();
+----
+
+Put simply: +
+If it were just that it would be bare Java bytecode for accessing an `ArrayList`.
+There would be no way for a middleware library to get access and look it up and perhaps reload it.
+What's written there *is* an `ArrayList` reference.
+There is no lazy anymore.
+Either, the instance is `null`, or it is not `null`.
+If you wanted to reach in there, you would have to start with bytecode manipulation.
+Technically possible, but something you really don't want in your application.
+
+So there must always be some form of intermediary.
+
+Hibernate solves this through its own collection implementations that do lazy loading internally.
+Although the lazy loading is nicely hidden in some way (or not, if you need an annotation for that), it also comes with all sorts of limitations.
+You can only use interfaces instead of concrete classes for collections.
+At first, the instance is not the one you dictate, the code becomes non-transparent and difficult to debug, you have to use a collection, even if it's just a single instance, and so on.
+You want to be able to write anything you want and you want full insight and control (debugability, etc.) over the code.
+
+All this can be done with the tiny Lazy Interim Reference class.
+No restrictions, no incomprehensible "magic" under the hood (proxy instances and stuff) and also usable for individual instances.

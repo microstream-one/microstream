@@ -1,0 +1,44 @@
+module microstream.base
+{
+	exports one.microstream.bytes;
+	exports one.microstream.memory.android;
+	exports one.microstream.hashing;
+	exports one.microstream.util.xcsv;
+	exports one.microstream.wrapping.codegen;
+	exports one.microstream.reference;
+	exports one.microstream.reflect;
+	exports one.microstream.wrapping;
+	exports one.microstream;
+	exports one.microstream.typing;
+	exports one.microstream.concurrency;
+	exports one.microstream.functional;
+	exports one.microstream.util.config;
+	exports one.microstream.chars;
+	exports one.microstream.collections;
+	exports one.microstream.com;
+	exports one.microstream.entity.codegen;
+	exports one.microstream.branching;
+	exports one.microstream.equality;
+	exports one.microstream.entity;
+	exports one.microstream.util.similarity;
+	exports one.microstream.util.iterables;
+	exports one.microstream.collections.types;
+	exports one.microstream.util.traversing;
+	exports one.microstream.memory;
+	exports one.microstream.io;
+	exports one.microstream.util;
+	exports one.microstream.collections.interfaces;
+	exports one.microstream.collections.sorting;
+	exports one.microstream.memory.sun;
+	exports one.microstream.collections.old;
+	exports one.microstream.meta;
+	exports one.microstream.exceptions;
+	exports one.microstream.math;
+	exports one.microstream.util.cql;
+	exports one.microstream.time;
+	
+	requires java.compiler;
+	requires java.desktop;
+	requires java.management;
+	requires jdk.unsupported;
+}

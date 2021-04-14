@@ -1,0 +1,44 @@
+= Lock File
+
+By default, MicroStream uses the operation system's standard file locking mechanism to prevent simultaneous access to the storage files.
+In the rare case that this is not sufficient to control the file access MicroStream provides a proprietary file lock implementation to ensure exclusive access to the storage files from different applications using MicroStream.
+
+Using this file lock may only be necessary if, while a MicroStream application is running, a second MicroStream application may try to access the same storage and the default file locks are not reliable.
+
+You don't need to activate this feature if:
+
+* Only one MicroStream application will access the storage,
+* MicroStream applications that may access the same storage run on the same system,
+* other applications that may access the storage files don't use MicroStream to access them.
+
+To activate the internal file lock you need to setup `StorageLockFileSetup`:
+
+[source, java]
+----
+EmbeddedStorageManager storageManager = EmbeddedStorage
+	.Foundation()
+	.setLockFileSetupProvider(Storage.LockFileSetupProvider())
+	.start();
+----
+
+The default interval the locks are updated is 10 seconds, you can set a custom value in milliseconds with:
+
+[source, java]
+----
+Storage.LockFileSetupProvider( final long updateInterval )
+----
+
+To specify the charset used by the lock files use:
+
+[source, java]
+----
+Storage.LockFileSetupProvider( final Charset charset )
+----
+
+or, to customize both:
+
+[source, java]
+----
+LockFileSetupProvider( final Charset charset , final long updateInterval )
+----
+

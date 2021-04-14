@@ -1,0 +1,21 @@
+= Updating Entities
+
+The data layer is always immutable.
+In order to update the values we have to replace the data layer completely.
+This is done with the updater.
+The property setter methods can be chained, so it is easy to update multiple properties, for example:
+
+[source, java]
+----
+PersonUpdater.New(mike)
+	.firstName("Jim")
+	.lastName("Hope")
+	.update();
+----
+
+If only one property needs to be updated, the updater class offers static convenience methods for that:
+
+[source, java]
+----
+PersonUpdater.setFirstName(mike, "Jim");
+----

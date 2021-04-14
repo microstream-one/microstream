@@ -1,0 +1,156 @@
+= Configuration
+
+The `EmbeddedStorageManager` is mostly created with factory methods of `EmbeddedStorage`, where the most common settings, like database directory or the root instance, can be configured.
+
+[source, java]
+----
+EmbeddedStorageManager storageManager = EmbeddedStorage.start(
+    myRoot,                 // root object of entity graph
+    Paths.get("data-dir")    // storage data directory
+);
+----
+
+== Foundations
+
+To achieve a more detailed customization, you can utilize the `EmbeddedStorageFoundation` factory type.
+It holds and creates on demand all the parts that form an `EmbeddedStorageManager`.
+
+[source, java]
+----
+NioFileSystem          fileSystem     = NioFileSystem.New();
+EmbeddedStorageManager storageManager = EmbeddedStorageFoundation.New()
+	.setConfiguration(
+		StorageConfiguration.Builder()
+			.setStorageFileProvider(
+				Storage.FileProviderBuilder(fileSystem)
+					.setDirectory(fileSystem.ensureDirectoryPath("storageDir"))
+					.createFileProvider()
+			)
+			.setChannelCountProvider(StorageChannelCountProvider.New(4))
+			.setBackupSetup(StorageBackupSetup.New(
+				fileSystem.ensureDirectoryPath("backupDir")
+			))
+			.createConfiguration()
+	)
+	.createEmbeddedStorageManager();
+----
+
+[#external-configuration]
+== External Configuration
+
+The artifact `microstream-storage-embedded-configuration` provides a convenience layer for configuration purposes, as well as facilities to read external configuration.
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>storage.embedded.configuration</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+The `EmbeddedStorageConfigurationBuilder` type consolidates the most widely used parameters from the storage foundations in one place.
+It's output is an `EmbeddedStorageFoundation` from which a `EmbeddedStorageManager` can be created.
+
+[source, java]
+----
+EmbeddedStorageManager storageManager = EmbeddedStorageConfiguration.Builder()
+	.setStorageDirectoryInUserHome("data-dir")
+	.setBackupDirectory("backup-dir")
+	.setChannelCount(4)
+	.createEmbeddedStorageFoundation()
+	.createEmbeddedStorageManager();
+----
+
+To read an external configuration use `ConfigurationLoader` and `ConfigurationParser` or the `load*()` methods of `EmbeddedStorageConfiguration`.
+Out of the box, XML and INI files are supported.
+
+[source, java, title="Java (XML)"]
+----
+EmbeddedStorageManager storageManager = EmbeddedStorageConfiguration.load(
+	"/META-INF/microstream/storage.xml"
+)
+.createEmbeddedStorageFoundation()
+.createEmbeddedStorageManager();
+----
+
+[source, xml, title="XML"]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<properties>
+	<property name="storage-directory" value ="data" />
+	<property name="channel-count" value ="4" />
+</properties>
+----
+
+[source, java, title="Java (INI)"]
+----
+EmbeddedStorageManager storageManager = EmbeddedStorageConfiguration.load(
+	"/META-INF/microstream/storage.ini"
+)
+.createEmbeddedStorageFoundation()
+.createEmbeddedStorageManager();
+----
+
+[source,text,title="INI"]
+----
+storage-directory = data
+channel-count = 4
+----
+
+If you just use `EmbeddedStorageConfiguration.load()` the default configuration file is used, which is either a file in the classpath root named `microstream-storage.properties`, or the path configured via the system property `microstream.storage.configuration.path`.
+
+TIP: The full example can be found on https://github.com/microstream-one/examples/tree/master/helloworld-ini[GitHub].
+
+=== Additional Formats
+
+The `EmbeddedStorageConfigurationBuilder` is based on the common configuration layer, newly introduced in MicroStream 5.0.
+The artifact `configuration`, which is a dependency of `storage.embedded.configuration`, contains support for XML and INI files.
+
+Other formats are available in different artifacts.
+
+|===
+| Artifact | Formats
+
+| configuration.hocon
+| hocon, json
+
+| configuration.yaml
+| yaml
+|===
+
+[source,java,title="Java (Yaml)"]
+----
+EmbeddedStorageManager storageManager = EmbeddedStorageConfiguration.load(
+	ConfigurationLoader.New("/META-INF/microstream/storage.yaml"),
+	ConfigurationParserYaml.New()
+)
+.createEmbeddedStorageFoundation()
+.createEmbeddedStorageManager();
+----
+
+[source,yaml,title="Yaml"]
+----
+storage-directory: "data"
+channel-count: 4
+----
+
+[source,java,title="Java (Json)"]
+----
+EmbeddedStorageManager storageManager = EmbeddedStorageConfiguration.load(
+	ConfigurationLoader.New("/META-INF/microstream/storage.json"),
+	ConfigurationParserHocon.New()
+)
+.createEmbeddedStorageFoundation()
+.createEmbeddedStorageManager();
+----
+
+[source,json,title="Json"]
+----
+{
+	"storage-directory": "data",
+	"channel-count": 4
+}
+----

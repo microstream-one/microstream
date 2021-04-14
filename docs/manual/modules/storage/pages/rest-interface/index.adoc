@@ -1,0 +1,40 @@
+= REST Interface
+
+The MicroStream Storage isn't a typical database server with administrative tooling and stuff like that.
+It is just a Java library which runs embedded in your application.
+The storage data layer, per default the file system, contains the serialized and persisted data.
+But it is not really accessible, or more precise, human-readable.
+Nor do we provide a query language to access the storage data.
+
+The Java objects, which reside in memory, are easy to inspect and traverse, e.g. with a debugger.
+
+But for various purposes, like monitoring, the requirement to read the actual stored data has come up.
+
+Since version 3.0 a REST interface for the storage data is included.
+It enables you to access the data via REST calls or a convenient user interface.
+
+It is made up of the following modules:
+
+[options="header",cols="1,2"]
+|===
+|ArtifactId 
+|Description
+//-------------
+|microstream-storage-restadapter
+|Adapter for low-level storage data externalization. Used by the REST service to adapt to a MicroStream Storage.
+
+|microstream-storage-restservice
+|Abstract REST service interface, which uses the REST adapter to access low level storage data.
+
+|microstream-storage-restservice-sparkjava
+|REST service implementation which utilizes SparkJava and provides REST endpoints.
+
+|microstream-storage-restclient
+|Abstract REST client interface, which serves as a Java wrapper for the REST API.
+
+|microstream-storage-restclient-jersey
+|REST client implementation which utilizes Jersey as a webservice framework.
+
+|microstream-storage-restclient-app
+|microstream-Executable client app with web user interface, which connects to a REST service.
+|===

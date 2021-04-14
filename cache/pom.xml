@@ -8,29 +8,17 @@
 
 	<parent>
 		<groupId>one.microstream</groupId>
-		<artifactId>microstream</artifactId>
+		<artifactId>microstream-parent</artifactId>
 		<version>04.02.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>cache</artifactId>
+	<artifactId>microstream-cache-parent</artifactId>
+	<packaging>pom</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>one.microstream</groupId>
-			<artifactId>storage.embedded</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>one.microstream</groupId>
-			<artifactId>storage.embedded.configuration</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.cache</groupId>
-			<artifactId>cache-api</artifactId>
-			<version>1.1.1</version>
-		</dependency>
-	</dependencies>
+	<modules>
+		<module>cache</module>
+		<module>hibernate</module>
+	</modules>
 
 </project>

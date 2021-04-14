@@ -1,0 +1,71 @@
+= Hibernate Second Level Cache
+
+MicroStream offers a Hibernate cache region factory, which can be found in the `cache.hibernate` module.
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-cache-hibernate</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+The region factory's class name is `one.microstream.cache.hibernate.types.CacheRegionFactory`. +
+It is configured via the property `hibernate.cache.region.factory_class`.
+
+Depending on your environment it can be configured in different ways.
+
+If you use a good old persistence.xml, set the property there:
+
+[source, xml, title="persistence.xml"]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1"
+	xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+	<persistence-unit name="...">
+		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+		...
+		<properties>
+			...
+			<property name="hibernate.cache.region.factory_class"
+				value="one.microstream.cache.hibernate.types.CacheRegionFactory" />
+			...
+		</properties>
+	</persistence-unit>
+</persistence>
+----
+
+== Spring Example
+
+[source, text, title="application.properties"]
+----
+spring.jpa.properties.hibernate.cache.microstream.missing_cache_strategy=create
+spring.jpa.properties.hibernate.cache.region.factory_class=one.microstream.cache.hibernate.types.CacheRegionFactory
+spring.jpa.properties.hibernate.cache.use_query_cache=true
+spring.jpa.properties.hibernate.cache.use_second_level_cache=true
+spring.jpa.properties.javax.persistence.sharedCache.mode=ALL
+----
+
+[source, yaml, title="application.yml"]
+----
+spring:
+	jpa:
+		properties:
+			hibernate:
+				cache:
+					microstream:
+						missing_cache_strategy: create
+					region:
+						factory_class: one.microstream.cache.hibernate.types.CacheRegionFactory
+					use_query_cache: true
+					use_second_level_cache: true
+			javax:
+				persistence:
+					sharedCache:
+						mode: ALL
+----

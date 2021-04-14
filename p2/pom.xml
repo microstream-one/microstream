@@ -8,12 +8,12 @@
 
 	<parent>
 		<groupId>one.microstream</groupId>
-		<artifactId>microstream</artifactId>
+		<artifactId>microstream-parent</artifactId>
 		<version>04.02.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>p2</artifactId>
+	<artifactId>microstream-p2</artifactId>
 	<name>MicroStream P2 Repository</name>
 	<packaging>pom</packaging>
 
@@ -59,8 +59,8 @@
 									<providerName>${project.organization.name}</providerName>
 									<generateSourceFeature>false</generateSourceFeature>
 									<artifacts>
-										<artifact><id>one.microstream:persistence.binary.jdk8:${project.version}</id></artifact>
-										<artifact><id>one.microstream:storage.embedded.configuration:${project.version}</id></artifact>
+										<artifact><id>one.microstream:microstream-persistence-binary-jdk8:${project.version}</id></artifact>
+										<artifact><id>one.microstream:microstream-storage-embedded-configuration:${project.version}</id></artifact>
 									</artifacts>
 								</feature>
 								<feature>
@@ -70,9 +70,9 @@
 									<providerName>${project.organization.name}</providerName>
 									<generateSourceFeature>false</generateSourceFeature>
 									<artifacts>
-										<artifact><id>one.microstream:storage.restadapter:${project.version}</id></artifact>
-										<artifact><id>one.microstream:storage.restservice:${project.version}</id></artifact>
-										<artifact><id>one.microstream:storage.restservice.sparkjava:${project.version}</id></artifact>
+										<artifact><id>one.microstream:microstream-storage-restadapter:${project.version}</id></artifact>
+										<artifact><id>one.microstream:microstream-storage-restservice:${project.version}</id></artifact>
+										<artifact><id>one.microstream:microstream-storage-restservice-sparkjava:${project.version}</id></artifact>
 									</artifacts>
 								</feature>
 								<feature>
@@ -82,8 +82,8 @@
 									<providerName>${project.organization.name}</providerName>
 									<generateSourceFeature>false</generateSourceFeature>
 									<artifacts>
-										<artifact><id>one.microstream:storage.restclient:${project.version}</id></artifact>
-										<artifact><id>one.microstream:storage.restclient.jersey:${project.version}</id></artifact>
+										<artifact><id>one.microstream:microstream-storage-restclient:${project.version}</id></artifact>
+										<artifact><id>one.microstream:microstream-storage-restclient-jersey:${project.version}</id></artifact>
 									</artifacts>
 								</feature>
 								<feature>
@@ -93,7 +93,7 @@
 									<providerName>${project.organization.name}</providerName>
 									<generateSourceFeature>false</generateSourceFeature>
 									<artifacts>
-										<artifact><id>one.microstream:communication.binary:${project.version}</id></artifact>
+										<artifact><id>one.microstream:microstream-communication-binary:${project.version}</id></artifact>
 									</artifacts>
 								</feature>
 <!-- 								<feature> -->
@@ -103,7 +103,7 @@
 <!-- 									<providerName>${project.organization.name}</providerName> -->
 <!-- 									<generateSourceFeature>false</generateSourceFeature> -->
 <!-- 									<artifacts> -->
-<!-- 										<artifact><id>one.microstream:filesystem.aws:${project.version}</id></artifact> -->
+<!-- 										<artifact><id>one.microstream:microstream-afs-aws:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
 <!-- 								<feature> -->
@@ -113,7 +113,7 @@
 <!-- 									<providerName>${project.organization.name}</providerName> -->
 <!-- 									<generateSourceFeature>false</generateSourceFeature> -->
 <!-- 									<artifacts> -->
-<!-- 										<artifact><id>one.microstream:filesystem.azure:${project.version}</id></artifact> -->
+<!-- 										<artifact><id>one.microstream:microstream-afs-azure:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
 <!-- 								<feature> -->
@@ -123,7 +123,7 @@
 <!-- 									<providerName>${project.organization.name}</providerName> -->
 <!-- 									<generateSourceFeature>false</generateSourceFeature> -->
 <!-- 									<artifacts> -->
-<!-- 										<artifact><id>one.microstream:filesystem.googlecloud:${project.version}</id></artifact> -->
+<!-- 										<artifact><id>one.microstream:microstream-afs-googlecloud:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
 <!-- 								<feature> -->
@@ -133,17 +133,17 @@
 <!-- 									<providerName>${project.organization.name}</providerName> -->
 <!-- 									<generateSourceFeature>false</generateSourceFeature> -->
 <!-- 									<artifacts> -->
-<!-- 										<artifact><id>one.microstream:filesystem.hazelcast:${project.version}</id></artifact> -->
+<!-- 										<artifact><id>one.microstream:microstream-afs-hazelcast:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
 <!-- 								<feature> -->
-<!-- 									<id>one.microstream.filesystem.hpa.hibernate</id> -->
+<!-- 									<id>one.microstream.filesystem.hibernate</id> -->
 <!-- 									<version>${osgi.version}</version> -->
 <!-- 									<label>MicroStream Filesystem JPA Hibernate</label> -->
 <!-- 									<providerName>${project.organization.name}</providerName> -->
 <!-- 									<generateSourceFeature>false</generateSourceFeature> -->
 <!-- 									<artifacts> -->
-<!-- 										<artifact><id>one.microstream:filesystem.jpa.hibernate:${project.version}</id></artifact> -->
+<!-- 										<artifact><id>one.microstream:microstream-afs-hibernate:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
 <!-- 								<feature> -->
@@ -153,7 +153,7 @@
 <!-- 									<providerName>${project.organization.name}</providerName> -->
 <!-- 									<generateSourceFeature>false</generateSourceFeature> -->
 <!-- 									<artifacts> -->
-<!-- 										<artifact><id>one.microstream:filesystem.kafka:${project.version}</id></artifact> -->
+<!-- 										<artifact><id>one.microstream:microstream-afs-kafka:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
 <!-- 								<feature> -->
@@ -163,7 +163,7 @@
 <!-- 									<providerName>${project.organization.name}</providerName> -->
 <!-- 									<generateSourceFeature>false</generateSourceFeature> -->
 <!-- 									<artifacts> -->
-<!-- 										<artifact><id>one.microstream:filesystem.mongodb:${project.version}</id></artifact> -->
+<!-- 										<artifact><id>one.microstream:microstream-afs-mongodb:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
 <!-- 								<feature> -->
@@ -173,7 +173,7 @@
 <!-- 									<providerName>${project.organization.name}</providerName> -->
 <!-- 									<generateSourceFeature>false</generateSourceFeature> -->
 <!-- 									<artifacts> -->
-<!-- 										<artifact><id>one.microstream:filesystem.oraclecloud:${project.version}</id></artifact> -->
+<!-- 										<artifact><id>one.microstream:microstream-afs-oraclecloud:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
 <!-- 								<feature> -->
@@ -183,7 +183,7 @@
 <!-- 									<providerName>${project.organization.name}</providerName> -->
 <!-- 									<generateSourceFeature>false</generateSourceFeature> -->
 <!-- 									<artifacts> -->
-<!-- 										<artifact><id>one.microstream:filesystem.oraclenosql:${project.version}</id></artifact> -->
+<!-- 										<artifact><id>one.microstream:microstream-afs-oraclenosql:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
 <!-- 								<feature> -->
@@ -193,7 +193,7 @@
 <!-- 									<providerName>${project.organization.name}</providerName> -->
 <!-- 									<generateSourceFeature>false</generateSourceFeature> -->
 <!-- 									<artifacts> -->
-<!-- 										<artifact><id>one.microstream:filesystem.redis:${project.version}</id></artifact> -->
+<!-- 										<artifact><id>one.microstream:microstream-afs-redis:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
 <!-- 								<feature> -->
@@ -203,7 +203,7 @@
 <!-- 									<providerName>${project.organization.name}</providerName> -->
 <!-- 									<generateSourceFeature>false</generateSourceFeature> -->
 <!-- 									<artifacts> -->
-<!-- 										<artifact><id>one.microstream:filesystem.sql:${project.version}</id></artifact> -->
+<!-- 										<artifact><id>one.microstream:microstream-afs-sql:${project.version}</id></artifact> -->
 <!-- 									</artifacts> -->
 <!-- 								</feature> -->
 							</featureDefinitions>	

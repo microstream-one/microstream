@@ -1,0 +1,115 @@
+= Versioning
+
+An arbitrary amount of logic layers can be added to entities. +
+Let's use the predefined versioning layer.
+It will keep track of all changes.
+Technically every new data layer which is added by the updater, will create a new version entry.
+
+[source, java]
+----
+EntityVersionContext<Long> versionContext =
+	EntityVersionContext.AutoIncrementingLong();
+		
+Person john = PersonCreator.New()
+	.addLayer(versionContext)
+	.firstName("John")
+	.lastName("Doe")
+	.create();
+----
+
+Let's have a look at the debugger:
+
+image::entity-versioning-debugger.png[]
+
+Now the versioning layer is chained between the identity layer and the data layer.
+
+If we update the entity a few times, we will see how the versioning layer works.
+In this case we use an auto-incrementing Long as key.
+
+[source, java]
+----
+PersonUpdater.setLastName(john, "Smith");
+PersonUpdater.setLastName(john, "Archer");
+PersonUpdater.setLastName(john, "Bennett");
+----
+
+image::entity-versioning-debugger2.png[]
+
+[source, java]
+----
+john.lastName() // now returns "Bennett"
+----
+
+If you want to access older versions use the context:
+
+[source, java]
+----
+versionContext.versions(john).get(1L); // -> "John Smith"
+----
+
+To limit the amount of preserved versions, a cleaner can be utilized:
+
+[source, java]
+----
+EntityVersionCleaner<Long> versionCleaner =
+	EntityVersionCleaner.AmountPreserving(10);
+EntityVersionContext<Long> versionContext =
+	EntityVersionContext.AutoIncrementingLong(cleaner);
+----
+
+This will keep only the last ten versions of the person.
+
+Additionally to number keys, timestamps can be used as well.
+
+[source, java]
+----
+EntityVersionContext<Long> systemTimeContext =
+	EntityVersionContext.AutoIncrementingSystemTimeMillis();
+EntityVersionContext<Long> nanoTimeContext =
+	EntityVersionContext.AutoIncrementingSystemNanoTime();
+EntityVersionContext<Instant> instantContext =
+	EntityVersionContext.AutoIncrementingInstant();
+----
+
+They can be preserved for a specific time range:
+
+[source, java]
+----
+EntityVersionCleaner<Instant> cleaner =
+	EntityVersionCleaner.AgePreservingInstant(Duration.of(1, ChronoUnit.YEARS));
+EntityVersionContext<Instant> context =
+	EntityVersionContext.AutoIncrementingInstant(cleaner);
+----
+
+[NOTE]
+====
+The version context can be used as a shared state object.
+So you can control versioning for multiple entities at once, or even for the hole entity graph.
+====
+
+The auto-incrementing contexts take care of the key creation.
+If you need to control it by yourself, use the mutable context.
+But be aware that you have to set the version before updating any data, otherwise the current one will be overwritten.
+
+[source, java]
+----
+EntityVersionContext.Mutable<String> versionContext =
+	EntityVersionContext.Mutable();
+
+versionContext.currentVersion("rev-1");
+
+Person john = PersonCreator.New()
+	.addLayer(versionContext)
+	.firstName("John")
+	.lastName("Doe")
+	.create();
+
+versionContext.currentVersion("rev-2");
+PersonUpdater.setLastName(john, "Smith");
+
+versionContext.currentVersion("rev-3");
+PersonUpdater.setLastName(john, "Archer");
+
+versionContext.currentVersion("rev-4");
+PersonUpdater.setLastName(john, "Bennett");
+----

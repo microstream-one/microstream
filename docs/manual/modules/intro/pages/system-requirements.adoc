@@ -1,0 +1,57 @@
+= System Requirements
+
+== Supported JDKs
+
+Tested and officially supported JDKs:
+
+|===
+| JDK | Supported Versions
+
+| https://www.oracle.com/technetwork/java/javase/downloads/index.html[Oracle JDK]
+| 8, 11, 15
+
+| http://jdk.java.net/[OpenJDK Build by Oracle]
+| 8, 11, 15
+
+| https://adoptopenjdk.net[AdoptOpenJDK (HotSpot / OpenJ9)]
+| 8, 11, 15
+
+| https://developers.redhat.com/products/openjdk/download/[Red Hat OpenJDK]
+| 8, 11, 14
+
+| https://aws.amazon.com/corretto/[Amazon Corretto]
+| 8, 11
+
+| https://www.azul.com/downloads/zulu/[Azul Zulu]
+| 8, 11, 15
+
+| https://bell-sw.com/pages/products[Bellsoft Liberica]
+| 8, 11, 15
+
+| https://sap.github.io/SapMachine/[SapMachine]
+| 11, 15
+
+| https://github.com/ojdkbuild/ojdkbuild[ojdkbuild]
+| 8, 11, 14
+
+| https://www.graalvm.org/[GraalVM]
+| 20.0 +
+
+| https://developer.android.com/studio/releases/platforms[Android SDK]
+| API level 26+
+|===
+
+In theory MicroStream is compatible with all JDK distributions from Version 8 on.
+
+== Supported Operating Systems
+
+* Every desktop or server operating system which the supported JVMs are available for
+* Android 8+
+
+== Third Party Libraries
+
+MicroStream's core itself doesn't have any dependencies to other libraries whatsoever.
+So you don't have to worry about potential conflicts in your environment.
+This was a matter of choice of ours to keep the life of the developers using MicroStream as simple as possible.
+On the other hand feel free to include any dependencies you need, MicroStream will play along well, e.g.
+a logging framework of your choice.

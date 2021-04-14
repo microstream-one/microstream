@@ -1,0 +1,15 @@
+= Data Model
+
+== Do I have to adapt my object-model to MicroStream?
+
+No.
+MicroStream allows you to store any Java object.
+Instances of any and all types can be handled, there are no special restrictions like having to implement an interface, using annotations or having a default constructor (see POJO).
+Only types bound to JVM-internals like Thread, IO-streams and the like are deliberately excluded from being persistable since they could not be properly recreated upon loading, but such instances should not be part of entity data models, anyway.
+
+== What if I have to change my entity classes?
+
+During initialization, MicroStream automatically checks if your runtime entity classes are still matching the persistent data.
+Mismatches are automatically mapped when loading data based on predefined rules that you can extend and overwrite on a per-case basis if needed.
+
+For more information, see xref:legacy-type-mapping/index.adoc[Legacy Type Mapping]

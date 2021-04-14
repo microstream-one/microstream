@@ -1,0 +1,44 @@
+= Storage Files and Directories
+
+Using a Storage Live File Provider (`one.microstream.storage.types.StorageLiveFileProvider`) allows to specify the location and naming rules for all storage related files.
+
+Available properties are:
+
+[options="header",cols="1,2"]
+|===
+|Property
+|Description   
+//-------------
+|base-directory |The Microstream storages location base directory. Contains channel directories and type dictionary file.
+|deletion-directory |If configured, the storage will not delete files. Instead of deleting a file it will be moved to this directory.
+|truncation-directory |If configured, files that will get truncated are copied into this directory.
+|channel-directory-prefix |Channel directory prefix string
+|storage-file-prefix |Storage file prefix string
+|storage-file-suffix |storage file extension
+|transactions-file-prefix |transactions file prefix
+|transactions-file-suffix |transaction file extension
+|type-dictionary-file-name |filename of the type dictionary
+|===
+
+[source, java]
+----
+StorageFileNameProvider fileNameProvider = StorageFileNameProvider.Builder()
+	.setChannelDirectoryPrefix("canal_")
+	.setDataFilePrefix        ("canal_")
+	.setDataFileSuffix        (".bin")
+	.setTransactionsFilePrefix("events_")
+	.setTransactionsFileSuffix(".bin")
+	.setTypeDictionaryFileName("typeDictionary.txt")
+	.createFileNameProvider   ()
+;
+
+NioFileSystem           fileSystem   = NioFileSystem.New();
+StorageLiveFileProvider fileProvider = Storage
+	.FileProviderBuilder   (fileSystem)
+	.setDirectory          (fileSystem.ensureDirectoryPath(WORKINGDIR))
+	.setDeletionDirectory  (fileSystem.ensureDirectoryPath(DELETIONDIR))
+	.setTruncationDirectory(fileSystem.ensureDirectoryPath(TRUNCATIONDIR))
+	.setFileNameProvider   (fileNameProvider)
+	.createFileProvider    ()
+;
+----
