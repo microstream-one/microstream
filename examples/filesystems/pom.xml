@@ -24,7 +24,6 @@
 		<dependency>
 			<groupId>com.google.jimfs</groupId>
 			<artifactId>jimfs</artifactId>
-			<version>1.2</version>
 		</dependency>
 	</dependencies>
 

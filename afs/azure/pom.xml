@@ -20,4 +20,16 @@
 		<module>storage</module>
 	</modules>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.azure</groupId>
+				<artifactId>azure-sdk-bom</artifactId>
+				<version>1.0.2</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 </project>

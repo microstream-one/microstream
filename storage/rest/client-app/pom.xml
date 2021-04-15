@@ -16,7 +16,7 @@
 	<artifactId>microstream-storage-restclient-app</artifactId>
 
 	<properties>
-		<vaadin.version>14.4.10</vaadin.version>
+		<vaadin.version>14.5.2</vaadin.version>
 		<spring.boot.version>2.3.9.RELEASE</spring.boot.version>
 	</properties>
 
