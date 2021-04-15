@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>one.microstream</groupId>
+		<artifactId>examples</artifactId>
+		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>storing</artifactId>
+
+	<dependencies>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>microstream-storage-embedded</artifactId>
+			<version>04.02.00-MS-GA-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>microstream-persistence-binary-jdk8</artifactId>
+			<version>04.02.00-MS-GA-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+</project>
