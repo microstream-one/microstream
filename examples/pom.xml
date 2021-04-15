@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-parent</artifactId>
+		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>examples</artifactId>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>blobs</module>
+		<module>custom-type-handler</module>
+		<module>custom-legacy-type-handler</module>
+		<module>deleting</module>
+		<module>eager-storing</module>
+		<module>filesystems</module>
+		<module>helloworld</module>
+		<module>helloworld-ini</module>
+		<module>items</module>
+		<module>layered-entities</module>
+		<module>lazy-loading</module>
+		<module>loading</module>
+		<module>storing</module>
+	</modules>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
