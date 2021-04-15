@@ -27,7 +27,6 @@
 		<dependency>
 			<groupId>com.azure</groupId>
 			<artifactId>azure-storage-blob</artifactId>
-			<version>12.9.0</version>
 		</dependency>
 	</dependencies>
 	

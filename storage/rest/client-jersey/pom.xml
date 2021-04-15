@@ -14,6 +14,10 @@
 	</parent>
 
 	<artifactId>microstream-storage-restclient-jersey</artifactId>
+	
+	<properties>
+		<jersey.version>2.33</jersey.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -24,12 +28,12 @@
 		<dependency>
 			<groupId>org.glassfish.jersey.core</groupId>
 			<artifactId>jersey-client</artifactId>
-			<version>2.30</version>
+			<version>${jersey.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jersey.inject</groupId>
 			<artifactId>jersey-hk2</artifactId>
-			<version>2.30</version>
+			<version>${jersey.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

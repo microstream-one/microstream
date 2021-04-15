@@ -29,12 +29,10 @@
 		<dependency>
 			<groupId>info.picocli</groupId>
 			<artifactId>picocli</artifactId>
-			<version>4.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>info.picocli</groupId>
 			<artifactId>picocli-shell-jline3</artifactId>
-			<version>4.2.0</version>
 		</dependency>
 	</dependencies>
 
