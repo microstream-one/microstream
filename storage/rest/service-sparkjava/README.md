@@ -21,14 +21,14 @@ sparkjava# Storage Viewer HowTo:
 ```
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>storage.restservice.sparkjava</artifactId>
+	<artifactId>microstream-storage-restservice-sparkjava</artifactId>
 	<version>${microstream.version}</version>
 </dependency>
 ```
 
 ### Required Java imports
 ``` 
-one.microstream.storage.restservice.StorageRestService
+one.microstream.storage.restservice.types.StorageRestService
 ```
 
 ## 2. Usage
