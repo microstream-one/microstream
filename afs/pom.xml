@@ -23,7 +23,6 @@
 		<module>blobstore</module>
 		<module>googlecloud</module>
 		<module>hazelcast</module>
-		<module>hibernate</module>
 		<module>kafka</module>
 		<module>mongodb</module>
 		<module>nio</module>
