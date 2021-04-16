@@ -25,7 +25,7 @@
 	</dependencies>
 
 	<properties>
-		<generated-sources-dir>target/generated-sources/annotations</generated-sources-dir>
+		<generated-sources-dir>src/generated/java</generated-sources-dir>
 	</properties>
 
 	<build>
