@@ -2,7 +2,6 @@ package one.microstream.io;
 
 import static java.nio.file.StandardOpenOption.READ;
 import static java.nio.file.StandardOpenOption.WRITE;
-import static one.microstream.X.notNull;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -18,6 +17,7 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -306,7 +306,10 @@ public final class XIO
 		}
 		
 		// because why make it simple...
-		return fileSystem.getPath("", notNull(items));
+		return items.length == 1
+			? fileSystem.getPath(items[0])
+			: fileSystem.getPath(items[0], Arrays.copyOfRange(items, 1, items.length))
+		;
 	}
 
 	/**
