@@ -233,13 +233,13 @@ public final class XIO
 		
 	
 	/* (19.11.2019 TM)NOTE:
-	 * "Path" must be the dumbest idea on earth for a name to represent a file or a directory.
+	 * "Path" is not the greatest idea on earth for a name to represent a file or a directory.
 	 * "Path" is way too generic. A physical way is also a path. A reference track is a path. The rules of
 	 * a cult can be a "path". Etc etc.
 	 * It's explicitely not a generic "can-be-anything-Path", it is designed to represent a FileSystem file.
 	 * 
 	 * It is traceable that they needed another short and unique type name after "File" was already
-	 * taken by their clumsy first attempt, but still: Who talks (primarily!) about "paths" when referring to
+	 * taken by their first attempt, but still: Who talks (primarily!) about "paths" when referring to
 	 * files and directories? No one. Of course, every file has a uniquely identifying path in the file system,
 	 * but the concept a file is more than just being a path. It has content, attributes, a "primary" name,
 	 * a suffix, etc.
@@ -262,11 +262,10 @@ public final class XIO
 	 * But noooo. A singular, diffusely general "Path" is the best they could have come up with.
 	 * And clumsiest-possible API like Files.newDirectoryStream(mustHappenToBeADirectoryOrElseYouAreInTrouble).
 	 * 
-	 * Also, hilariously, their intellectual capacity only sufficed for exactely ONE interface.
+	 * Also, it only sufficed for exactely ONE interface.
 	 * FileSystem HAD to be a class again. One with purely abstract methods (AKA an idiot's interface).
 	 * 
 	 * So now we are stuck with "Path" to indiscriminately talk about files and directories alike.
-	 * But I refuse to name the variables "path" instead of "file".
 	 * If there is a name of type String, the variable is "String name" and not "String string // this is a name".
 	 * So "Path file" and "Path directory" it is.
 	 * The same applies to method names. It's about ensuring a writeable FILE, an actual file, not a directory
@@ -292,13 +291,13 @@ public final class XIO
 	public static final Path Path(final FileSystem fileSystem, final String... items)
 	{
 		/*
-		 * To workaround the JDK idiocy of conveniently ignoring empty strings in the path items.
+		 * To workaround the JDK behavior of conveniently ignoring empty strings in the path items.
 		 * This is a critical bug if a leading separator is used to define an absolut path.
 		 * Consider:
 		 * - "/mydir" gets parsed to the separator-independant path items {"", "mydir"}.
 		 * - that array is passed here and on to Paths#get
 		 * - Paths#get hilariously ignores the "", reassembling {"", "mydir"} to just "mydir" instead of "/mydir".
-		 * To workaround that idiocy, that specific case is explicitely checked and a blank separator is prepended.
+		 * To workaround that, that specific case is explicitely checked and a blank separator is prepended.
 		 */
 		if(items != null && items.length > 0 && "".equals(items[0]))
 		{
@@ -338,13 +337,9 @@ public final class XIO
 		return parent.getFileSystem().getPath(parent.toString(), items);
 	}
 	
-	/**
+	/*
 	 * Providing only the abused moreless debug-information method #toString is a horrible misconception since
-	 * it conveys no clear message which string is desired. Why are the JDK guys so horribly bad at designing
-	 * clean Java code structure? Why?
-	 * 
-	 * @param file
-	 * @return
+	 * it conveys no clear message which string is desired.
 	 */
 	public static String getFilePath(final Path file)
 	{
