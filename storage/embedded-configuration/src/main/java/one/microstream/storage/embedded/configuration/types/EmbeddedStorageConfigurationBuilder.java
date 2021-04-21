@@ -1,4 +1,4 @@
-package one.microstream.storage.embedded.configuration;
+package one.microstream.storage.embedded.configuration.types;
 
 import static one.microstream.X.notNull;
 
@@ -35,7 +35,7 @@ import one.microstream.typing.KeyValue;
  *
  * @see EmbeddedStorageConfiguration
  * @see EmbeddedStorageConfigurationPropertyNames
- * @since 04.02.00
+ * @since 05.00.00
  *
  */
 public interface EmbeddedStorageConfigurationBuilder extends Configuration.Builder

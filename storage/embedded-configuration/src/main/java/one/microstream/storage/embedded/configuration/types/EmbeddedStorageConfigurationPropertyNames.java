@@ -1,10 +1,10 @@
 
-package one.microstream.storage.embedded.configuration;
+package one.microstream.storage.embedded.configuration.types;
 
 /**
  * All supported properties for external configuration files.
  *
- * @since 04.02.00
+ * @since 05.00.00
  */
 public interface EmbeddedStorageConfigurationPropertyNames
 {

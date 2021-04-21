@@ -1,5 +1,5 @@
 
-package one.microstream.storage.embedded.configuration;
+package one.microstream.storage.embedded.configuration.types;
 
 import static one.microstream.X.coalesce;
 
@@ -17,7 +17,7 @@ import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
  * Static utility class containing various utility methods to create and load storage configurations.
  * 
  * @see EmbeddedStorageConfigurationBuilder
- * @since 04.02.00
+ * @since 05.00.00
  *
  */
 public final class EmbeddedStorageConfiguration

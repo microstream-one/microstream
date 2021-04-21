@@ -4,8 +4,8 @@ package one.microstream.examples.helloworld;
 import java.io.IOException;
 import java.util.Date;
 
-import one.microstream.storage.embedded.configuration.EmbeddedStorageConfiguration;
-import one.microstream.storage.embedded.configuration.EmbeddedStorageConfigurationBuilder;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 
 

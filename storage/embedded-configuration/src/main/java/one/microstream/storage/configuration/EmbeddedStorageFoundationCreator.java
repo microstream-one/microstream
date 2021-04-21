@@ -8,7 +8,7 @@ import java.util.Optional;
 import one.microstream.afs.nio.types.NioFileSystem;
 import one.microstream.chars.XChars;
 import one.microstream.io.XIO;
-import one.microstream.storage.embedded.configuration.EmbeddedStorageFoundationCreatorConfigurationBased;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageFoundationCreatorConfigurationBased;
 import one.microstream.storage.embedded.types.EmbeddedStorage;
 import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.Storage;

@@ -1,4 +1,4 @@
-package one.microstream.storage.embedded.configuration;
+package one.microstream.storage.embedded.configuration.types;
 
 import static one.microstream.X.notNull;
 
@@ -28,7 +28,7 @@ import one.microstream.storage.types.StorageLiveFileProvider;
 /**
  * Creator for a storage foundation, based on a configuration.
  * 
- * @since 04.02.00
+ * @since 05.00.00
  *
  */
 public interface EmbeddedStorageFoundationCreatorConfigurationBased extends EmbeddedStorageFoundation.Creator
