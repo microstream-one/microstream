@@ -223,7 +223,7 @@
 						<doctitle>MicroStream API</doctitle>
 						<windowtitle>MicroStream API</windowtitle>
 						<sourcepath>${project.build.directory}/sources</sourcepath>
-						<stylesheetfile>${maven.multiModuleProjectDirectory}/docs/api/javadoc-stylesheet.css</stylesheetfile>
+						<stylesheetfile>${maven.multiModuleProjectDirectory}/etc/styles/javadoc-stylesheet.css</stylesheetfile>
 						<archive>
 							<manifestEntries>
 								<built-by>${project.organization.name}</built-by>
