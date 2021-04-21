@@ -1,7 +1,7 @@
 
 package one.microstream.storage.configuration;
 
-import one.microstream.storage.embedded.configuration.EmbeddedStorageConfigurationPropertyNames;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationPropertyNames;
 
 /**
  * 

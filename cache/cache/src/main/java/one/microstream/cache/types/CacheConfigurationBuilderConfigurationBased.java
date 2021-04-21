@@ -10,7 +10,7 @@ import one.microstream.configuration.types.Configuration;
 import one.microstream.configuration.types.ConfigurationLoader;
 import one.microstream.configuration.types.ConfigurationParserIni;
 import one.microstream.configuration.types.ConfigurationParserXml;
-import one.microstream.storage.embedded.configuration.EmbeddedStorageFoundationCreatorConfigurationBased;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageFoundationCreatorConfigurationBased;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 
 public interface CacheConfigurationBuilderConfigurationBased

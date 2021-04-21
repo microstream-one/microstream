@@ -13,8 +13,8 @@ import java.nio.file.Path;
 import java.time.Duration;
 
 import one.microstream.chars.XChars;
-import one.microstream.storage.embedded.configuration.EmbeddedStorageConfiguration;
-import one.microstream.storage.embedded.configuration.EmbeddedStorageConfigurationBuilder;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
 import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.StorageChannelCountProvider;
 import one.microstream.storage.types.StorageDataFileEvaluator;
