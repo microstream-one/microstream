@@ -30,6 +30,8 @@ public interface LazyReferenceManager
 	}
 
 	public void clear();
+	
+	public Checker getChecker();
 
 	public LazyReferenceManager start();
 
@@ -469,6 +471,12 @@ public interface LazyReferenceManager
 		public void cleanUp(final long nanoTimeBudget, final Lazy.Checker checker)
 		{
 			this.internalCleanUp(nanoTimeBudget, checker);
+		}
+		
+		@Override
+		public Checker getChecker()
+		{
+			return this.checker;
 		}
 		
 		@Override

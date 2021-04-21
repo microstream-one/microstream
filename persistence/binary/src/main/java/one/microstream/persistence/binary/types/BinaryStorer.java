@@ -377,7 +377,7 @@ public interface BinaryStorer extends PersistenceStorer
 		 * have its instances stored recursively if deemed necessary by the logic until all instance
 		 * that can be reached by that logic have been handled.
 		 */
-		protected final long storeGraph(final Object root)
+		protected long storeGraph(final Object root)
 		{
 			/* (03.12.2019 TM)NOTE:
 			 * Special case logic to handle explicitely passed instances:
@@ -461,7 +461,7 @@ public interface BinaryStorer extends PersistenceStorer
 		}
 
 		@Override
-		public final Object commit()
+		public Object commit()
 		{
 			// isEmpty locks internally
 			if(!this.isEmpty())
@@ -724,7 +724,7 @@ public interface BinaryStorer extends PersistenceStorer
 	 * 
 	 * 
 	 */
-	public final class Eager extends Default
+	public class Eager extends Default
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //

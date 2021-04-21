@@ -34,6 +34,7 @@ import one.microstream.storage.types.StorageTaskBroker;
 import one.microstream.storage.types.StorageTimestampProvider;
 import one.microstream.storage.types.StorageTypeDictionary;
 import one.microstream.storage.types.StorageWriteController;
+import one.microstream.util.InstanceDispatcher;
 
 
 /**
@@ -54,7 +55,7 @@ import one.microstream.storage.types.StorageWriteController;
  *
  * @param <F> the "self-type" of the  {@link EmbeddedStorageManager} implementation.
  */
-public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>> extends StorageFoundation<F>
+public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>> extends StorageFoundation<F>, InstanceDispatcher
 {
 	public static interface Creator
 	{
