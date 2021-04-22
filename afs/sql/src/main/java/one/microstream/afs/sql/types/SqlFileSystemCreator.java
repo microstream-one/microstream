@@ -48,7 +48,7 @@ public abstract class SqlFileSystemCreator extends ConfigurationBasedCreator.Abs
 			;
 			final SqlProvider sqlProvider = this.createSqlProvider(
 				sqlConfiguration,
-				dataSourceProvider.provideDataSource()
+				dataSourceProvider.provideDataSource(sqlConfiguration.detach())
 			);
 			final boolean cache = configuration.optBoolean("cache").orElse(true);
 			return SqlFileSystem.New(cache
