@@ -887,6 +887,12 @@ public interface AIoHandler extends WriteController
 			final AWritableFile target
 		)
 		{
+			if(length == 0L)
+			{
+				// no-op
+				return 0L;
+			}
+			
 			if(sourceSubject.fileSystem() != target.fileSystem()
 			|| !this.isHandledReadableFile(sourceSubject)
 			|| !this.isHandledWritableFile(target)
@@ -1023,6 +1029,12 @@ public interface AIoHandler extends WriteController
 			final AWritableFile targetSubject
 		)
 		{
+			if(length == 0L)
+			{
+				// no-op
+				return 0L;
+			}
+			
 			if(source.fileSystem() != targetSubject.fileSystem()
 			|| !this.isHandledReadableFile(source)
 			|| !this.isHandledWritableFile(targetSubject)

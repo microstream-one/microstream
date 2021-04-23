@@ -1177,7 +1177,7 @@ public final class XIO
 		if(effectiveLength == 0L)
 		{
 			/*
-			 * (28.09.2020 FH)XXX priv#383, nothing to read, abort.
+			 * no-op
 			 */
 			return 0L;
 		}
