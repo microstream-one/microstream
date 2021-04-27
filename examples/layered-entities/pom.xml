@@ -9,12 +9,12 @@
 
 	<parent>
 		<groupId>one.microstream</groupId>
-		<artifactId>examples</artifactId>
+		<artifactId>microstream-examples</artifactId>
 		<version>04.02.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>layered-entities</artifactId>
+	<artifactId>microstream-example-layered-entities</artifactId>
 
 	<dependencies>
 		<dependency>
