@@ -20,6 +20,8 @@ package one.microstream.collections.types;
  * Currently, the only known to be useful subtype of a bag is the level 2 collection type list, combining bag
  * and sequence (order of elements).
  *
+ * @param <E> type of contained elements
+ *
  * @see XSet
  * @see XSequence
  * @see XList

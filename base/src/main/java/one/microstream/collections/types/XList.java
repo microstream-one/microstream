@@ -7,13 +7,14 @@ import java.util.function.Consumer;
 import one.microstream.functional.Aggregator;
 
 /**
- * Extended List interface with a ton of badly needed list procedures like distinction between identity and equality
+ * Extended List interface with additional list procedures like distinction between identity and equality
  * element comparison, procedure range specification, higher order (functional) procedures, proper toArray() methods,
  * etc.<br>
  * <br>
  * All {@link XList} implementations have to have {@link RandomAccess} behavior.<br>
  * Intelligent implementations make non-random-access implementations like simple linked lists obsolete.
  *
+ * @param <E> type of contained elements
  * 
  *
  */

@@ -13,10 +13,11 @@ import one.microstream.functional.Aggregator;
  * add all elements that do not logically conflict with already contained elements
  * according to the collection's logic. ("add to"/"increase" collection).
  * <p>
- * Examples:
- * Set: Only add element, if no equal element is already contained
+ * Examples:<br/>
+ * Set: Only add element, if no equal element is already contained<br/>
  * Bag: Always add all elements
  *
+ * @param <E> type of contained elements
  * 
  *
  */
@@ -55,6 +56,11 @@ extends ExtendedCollection<E>, CapacityExtendable, OptimizableCollection, Consum
 		this.add(element);
 	}
 
+	/**
+	 * Adds the passed element.
+	 * @param element to add
+	 * @return {@code true} if element was added; {@code false} if not
+	 */
 	public boolean add(E element);
 
 	public boolean nullAdd();

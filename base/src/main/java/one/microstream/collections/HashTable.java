@@ -42,7 +42,25 @@ import one.microstream.typing.Composition;
 import one.microstream.typing.KeyValue;
 import one.microstream.typing.XTypes;
 
-
+/**
+ * Collection of key-value-pairs that is ordered and does not allow duplicate keys.
+ * Aims to be more efficient, logically structured
+ * and with more built in features than {@link java.util.Map}.
+ * <p>
+ * In contrast to {@link EqHashTable} this implementation uses the default isSame-Equalator({@link Equalator#identity()}
+ * and the Java hashCode implementation {@link System#identityHashCode(Object)}.
+ * <p>
+ * This implementation is <b>not</b> synchronized and thus should only be used by a
+ * single thread or in a thread-safe manner (i.e. read-only as soon as multiple threads access it).<br>
+ * See {@link SynchSet} wrapper class to use a list in a synchronized manner.
+ * <p>
+ * Also note that by being an extended collection, this implementation offers various functional and batch procedures
+ * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * {@link Iterator} paradigm.
+ * 
+ * @param <K> type of contained keys
+ * @param <V> type of contained values
+ */
 public final class HashTable<K, V>
 extends AbstractChainKeyValueCollection<K, V, ChainMapEntryLinkedStrongStrong<K, V>>
 implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
@@ -685,6 +703,12 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		this.capacity = (int)(DEFAULT_HASH_LENGTH * this.hashDensity);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * In a {@link HashTable} this removes all empty entries from the passed chain
+	 * and returns the number of removed entries.
+	 */
 	@Override
 	public final long consolidate()
 	{

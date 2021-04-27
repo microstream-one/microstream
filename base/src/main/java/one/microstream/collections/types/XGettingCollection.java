@@ -1,7 +1,5 @@
 package one.microstream.collections.types;
 
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -19,6 +17,7 @@ import one.microstream.typing.Copyable;
 
 
 /**
+ * @param <E> type of contained elements
  * 
  *
  */
@@ -42,11 +41,35 @@ Copyable
 	@Override
 	public Iterator<E> iterator();
 
+    /**
+     * Returns an array containing all of the elements in this collection.
+     *
+     * <p>The returned array will be "safe" in that no references to it are
+     * maintained by this list.  (In other words, this method must allocate
+     * a new array).  The caller is thus free to modify the returned array.
+     *
+     * <p>This method acts as bridge between MicroStream-based collections
+     * and Java-native-based APIs.
+     *
+     * @return an array containing all of the elements in this collection
+     */
 	public default Object[] toArray()
 	{
 		return this.iterate(new ToArrayAggregator<>(new Object[X.checkArrayRange(this.size())])).yield();
 	}
 
+    /**
+     * Returns a <b>typed</b> array containing all of the elements in this collection.
+     *
+     * <p>The returned array will be "safe" in that no references to it are
+     * maintained by this list.  (In other words, this method must allocate
+     * a new array).  The caller is thus free to modify the returned array.
+     *
+     * <p>This method acts as bridge between MicroStream-based collections
+     * and Java-native-based APIs.
+     *
+     * @return a typed array containing all of the elements in this collection
+     */
 	public default E[] toArray(final Class<E> type)
 	{
 		return this.iterate(new ToArrayAggregator<>(X.Array(type, X.checkArrayRange(this.size())))).yield();
@@ -61,17 +84,6 @@ Copyable
 
 	public OldCollection<E> old();
 
-	/**
-	 * Tells if this collection contains volatile elements.<br>
-	 * An element is volatile, if it can become no longer reachable by the collection without being removed from the
-	 * collection. Examples are {@link WeakReference} of {@link SoftReference} or implementations of collection entries
-	 * that remove the element contained in an entry by some means outside the collection.<br>
-	 * Note that {@link WeakReference} instances that are added to a a simple (non-volatile) implementation of a
-	 * collection do NOT make the collection volatile, as the elements themselves (the reference instances) are still
-	 * strongly referenced.
-	 *
-	 * @return {@code true} if the collection contains volatile elements.
-	 */
 	@Override
 	public boolean hasVolatileElements();
 
@@ -86,10 +98,10 @@ Copyable
 	public Equalator<? super E> equality();
 
 	/**
-	 * Returns {@code true} if the passed collection is of the same type as this collection and
-	 * {@code this.equalsContent(list, equalator)} yields {@code true}.
-	 *
-	 * @param equalator
+	 * @return {@code true} if the passed collection is of the same type as this collection and
+	 * {@code this.equalsContent(list, equalator)} yields {@code true}
+	 * @param equalator is used to check the equality of the collections
+	 * @param samples is the collection which is checked for equality
 	 */
 	public boolean equals(XGettingCollection<? extends E> samples, Equalator<? super E> equalator);
 
@@ -102,7 +114,8 @@ Copyable
 	 * collections that have no defined order is that they aren't really reliably comparable to any other collection.
 	 *
 	 * @param equalator the equalator to use to determine the equality of each element
-	 * @return {@code true} if this list is equal to the passed list, <tt>false</tt> otherwise
+	 * @param samples is the collection which is checked for equality
+	 * @return {@code true} if this list is equal to the passed list, {@code false} otherwise
 	 */
 	public boolean equalsContent(XGettingCollection<? extends E> samples, Equalator<? super E> equalator);
 
@@ -115,6 +128,16 @@ Copyable
 	 */
 	public XImmutableCollection<E> immure();
 
+	/**
+	 * Creates a view of this collection and returns it. It is a read-only collection,
+	 * which wraps around this collection and only allows read methods.
+	 * <p>
+	 * A view is different from immutable collection ({@link XGettingCollection#immure()})
+	 * in the way, that changes in this collection are still affecting the view.
+	 * The immutable collection on the other hand has no reference to this collection
+	 * and changes therefore do not affect the immutable collection.
+	 * @return new read-only collection to view this collection
+	 */
 	public XGettingCollection<E> view();
 
 	/**
@@ -135,29 +158,63 @@ Copyable
 	 * This method has the same behavior as {@link #containsSearched(Predicate)} with a {@link Predicate} implementation
 	 * that checks for object identity. The only difference is a performance and usability advantage
 	 * @param element the element to be searched in the collection by identity.
-	 * @return whether this collection contains exactely the given element.
+	 * @return whether this collection contains exactly the given element.
 	 */
 	public boolean containsId(E element);
 
+	/**
+	 * Checks if the given element is contained in the collection. <br>
+	 * In contrast to the {@link XGettingCollection#containsId(Object)} method, this method
+	 * uses the internal {@link Equalator} defined by the collection itself.
+	 * @param element to be searched in the collection
+	 * @return Whether this collection contains the given element as specified by the {@link Equalator}.
+	 */
 	public boolean contains(E element);
 
 	public boolean containsSearched(Predicate<? super E> predicate);
 
+	/**
+	 * @param elements to be searched in the collection.
+	 * @return Whether this collection contains all given elements as specified by the {@link Equalator}.
+	 */
 	public default boolean containsAll(final XGettingCollection<? extends E> elements)
 	{
 		return elements.applies(this::contains);
 	}
 
+	/**
+	 * Tests each element of the collection on the given predicate.<br>
+	 * 
+	 * @param predicate that's tested on each element.
+	 * @return If all elements test successfully, true is returned.
+	 * Otherwise (if at least one test has failed), false is returned.
+	 */
 	public boolean applies(Predicate<? super E> predicate);
 
+	/**
+	 * Count how many times this element matches another element in the collection
+	 * using the {@link Equalator}.
+	 * @param element to count
+	 * @return Amount of matches
+	 */
 	public long count(E element);
 
+	/**
+	 * Count how many matches are found using the given predicate on each element of the collection.
+	 * @param predicate defines which elements are counted and which are not
+	 * @return Amount of matches
+	 */
 	public long countBy(Predicate<? super E> predicate);
 
 //	public boolean hasDistinctValues();
 
 //	public boolean hasDistinctValues(Equalator<? super E> equalator);
 
+	/**
+	 * Returns the first contained element matching the passed predicate.
+	 * @param predicate defines which element is searched
+	 * @return Matching element
+	 */
 	public E search(Predicate<? super E> predicate);
 
 	/**
@@ -168,7 +225,8 @@ Copyable
 	 * the returned element might be the same as the passed one or a data-wise equal one, depending on the content
 	 * of the collection)
 	 * 
-	 * @param sample
+	 * @param sample to seek in the collection
+	 * @return the first contained element matching the passed sample
 	 */
 	public E seek(E sample);
 
@@ -176,18 +234,150 @@ Copyable
 
 	public E min(Comparator<? super E> comparator);
 
+	/**
+	 * Calls {@link Consumer#accept(Object)} on the target {@link Consumer} for all the unique/distinct
+	 * elements of this collection. This means the elements are not equal to each other.<br>
+	 * Uniqueness is defined by the collections internal {@link Equalator}.
+	 * <p>
+	 * Since all MicroStream Collections implement the {@link Consumer} interface,
+	 * new collections can be used as target.
+	 * <p>
+	 * <b>Example:</b><br>
+	 * <code>
+	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,2,3);<br>
+	 * BulkList&#60;Integer&#62; distinctCollection = collection1.distinct(BulkList.New());
+	 * </code><br>
+	 * Results in <code>distinctCollection</code> containing 1, 2 and 3.
+	 * 
+	 * @param target on which the {@link Consumer#accept(Object)} is called for every distinct element of this collection.
+	 * @return Given target
+	 */
 	public <T extends Consumer<? super E>> T distinct(T target);
 
+	/**
+	 * Calls {@link Consumer#accept(Object)} on the target {@link Consumer} for all the unique/distinct
+	 * elements of this collection. This means the elements are not equal to each other.<br>
+	 * Uniqueness is defined by the given {@link Equalator}.
+	 * <p>
+	 * Since all MicroStream Collections implement the {@link Consumer} interface,
+	 * new collections can be used as target.
+	 * <p>
+	 * <b>Example:</b><br>
+	 * <code>
+	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,2,3);<br>
+	 * BulkList&#60;Integer&#62; distinctCollection = collection1.distinct(BulkList.New(), Equalator.identity());
+	 * </code><br>
+	 * Results in <code>distinctCollection</code> containing 1, 2 and 3.
+	 * 
+	 * @param target on which the {@link Consumer#accept(Object)} is called for every distinct element of this collection.
+	 * @param equalator defines what distinct means (which elements are equal to one another)
+	 * @return Given target
+	 */
 	public <T extends Consumer<? super E>> T distinct(T target, Equalator<? super E> equalator);
 
+	/**
+	 * Calls {@link Consumer#accept(Object)} on the target {@link Consumer} for all the elements of this collection.
+	 * <p>
+	 * Since all MicroStream Collections implement the {@link Consumer} interface,
+	 * new collections can be used as target.
+	 * <p>
+	 * <b>Example:</b><br>
+	 * <code>
+	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,3);<br>
+	 * BulkList&#60;Integer&#62; copiedCollection = collection1.copyTo(BulkList.New());
+	 * </code><br>
+	 * Results in <code>copiedCollection</code> containing 1, 2 and 3.
+	 * 
+	 * @param target on which the {@link Consumer#accept(Object)} is called for all elements of this collection.
+	 * @return Given target
+	 */
 	public <T extends Consumer<? super E>> T copyTo(T target);
 
+	/**
+	 * Calls {@link Consumer#accept(Object)} on the target {@link Consumer} for all the elements of this collection
+	 * which test {@code true} on the given predicate.
+	 * <p>
+	 * Since all MicroStream Collections implement the {@link Consumer} interface,
+	 * new collections can be used as target.
+	 * <p>
+	 * <b>Example:</b><br>
+	 * <code>
+	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,3);<br>
+	 * BulkList&#60;Integer&#62; filteredCollection = collection1.filterTo(BulkList.New(), e-> e % 2 == 0);
+	 * </code><br>
+	 * Results in <code>filteredCollection</code> containing 2.
+	 * 
+	 * @param target on which the {@link Consumer#accept(Object)} is called for elements that test {@code true}.
+	 * @param predicate on which to test all elements.
+	 * @return Given target
+	 */
 	public <T extends Consumer<? super E>> T filterTo(T target, Predicate<? super E> predicate);
 
+	/**
+	 * Calls {@link Consumer#accept(Object)} on the target {@link Consumer} for all the elements of this collection.
+	 * <b>And</b> calls it for all elements of the other collection, that are not already in this collection
+	 * (defined by the given {@link Equalator})<br>
+	 * Therefore it effectively creates a mathematical union between the two collections.
+	 * <p>
+	 * Since all MicroStream Collections implement the {@link Consumer} interface,
+	 * new collections can be used as target.
+	 * <p>
+	 * <b>Example:</b><br>
+	 * <code>
+	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,3);<br>
+	 * BulkList&#60;Integer&#62; collection2 = BulkList.New(2,3,4);<br>
+	 * BulkList&#60;Integer&#62; union = collection1.union(collection2, Equalator.identity(), <b>BulkList.New()</b>);
+	 * </code><br>
+	 * Results in <code>union</code> containing 1, 2, 3 and 4.
+	 * @param other collection to build a union with.
+	 * @param equalator which is used for the equal-tests.
+	 * @param target on which the {@link Consumer#accept(Object)} is called for all unified elements.
+	 * @return Given target
+	 */
 	public <T extends Consumer<? super E>> T union    (XGettingCollection<? extends E> other, Equalator<? super E> equalator, T target);
 
+	/**
+	 * Tests equality between each element of the two lists and calls {@link Consumer#accept(Object)} on the target {@link Consumer} for the
+	 * equal elements.<br>
+	 * Therefore it effectively creates a mathematical intersection between the two collections.
+	 * <p>
+	 * Since all MicroStream Collections implement the {@link Consumer} interface,
+	 * new collections can be used as target.
+	 * <p>
+	 * <b>Example:</b><br>
+	 * <code>
+	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,3);<br>
+	 * BulkList&#60;Integer&#62; collection2 = BulkList.New(2,3,4);<br>
+	 * BulkList&#60;Integer&#62; intersection = collection1.intersect(collection2, Equalator.identity(), <b>BulkList.New()</b>);
+	 * </code><br>
+	 * Results in <code>intersection</code> containing 2 and 3.
+	 * @param other collection to intersect with.
+	 * @param equalator which is used for the equal-tests.
+	 * @param target on which the {@link Consumer#accept(Object)} is called for equal elements.
+	 * @return Given target
+	 */
 	public <T extends Consumer<? super E>> T intersect(XGettingCollection<? extends E> other, Equalator<? super E> equalator, T target);
 
+	/**
+	 * Calls {@link Consumer#accept(Object)} on the target {@link Consumer} for each
+	 * element of this collection that is not contained in the other collection (through the given equalator).
+	 * <p>
+	 * Since all MicroStream Collections implement the {@link Consumer} interface,
+	 * new collections can be used as target.
+	 * <p>
+	 * <b>Example:</b><br>
+	 * <code>
+	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,3);<br>
+	 * BulkList&#60;Integer&#62; collection2 = BulkList.New(2,3,4);<br>
+	 * BulkList&#60;Integer&#62; exceptCollection = collection1.except(collection2, Equalator.identity(), <b>BulkList.New()</b>);
+	 * </code><br>
+	 * Results in <code>exceptCollection</code> containing 1.
+	 * @param <T> type of the target
+	 * @param other collection whose elements are excluded from the target.
+	 * @param equalator which is used for the equal-tests.
+	 * @param target on which the {@link Consumer#accept(Object)} is called for elements not contained in the other collection.
+	 * @return Given target
+	 */
 	public <T extends Consumer<? super E>> T except   (XGettingCollection<? extends E> other, Equalator<? super E> equalator, T target);
 
 

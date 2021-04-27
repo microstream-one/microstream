@@ -12,6 +12,14 @@ public interface XReplacingBag<E> extends XGettingCollection<E>, XReplacingColle
 		public XReplacingBag<E> newInstance();
 	}
 
+	/**
+	 * Replaces the first element that is equal to the given element
+	 * with the replacement and then returns true.
+	 * 
+	 * @param element to replace
+	 * @param replacement for the found element
+	 * @return {@code true} if element is found, {@code false} if not
+	 */
 	public boolean replaceOne(E element, E replacement);
 
 	public long replace(E element, E replacement);

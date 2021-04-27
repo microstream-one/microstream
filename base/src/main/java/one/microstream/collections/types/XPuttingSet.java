@@ -11,15 +11,28 @@ public interface XPuttingSet<E> extends XPuttingCollection<E>, XAddingSet<E>, Re
 		public XPuttingSet<E> newInstance();
 	}
 
-
-
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * In this implementation it overwrites equal, already contained elements.
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public XPuttingSet<E> putAll(E... elements);
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * In this implementation it overwrites equal, already contained elements.
+	 */
 	@Override
 	public XPuttingSet<E> putAll(E[] elements, int srcStartIndex, int srcLength);
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * In this implementation it overwrites equal, already contained elements.
+	 */
 	@Override
 	public XPuttingSet<E> putAll(XGettingCollection<? extends E> elements);
 
