@@ -293,7 +293,7 @@ public interface LoadItemsChain
 			;
 		}
 
-		static final class ChainItemObjectIdSet implements PersistenceIdSet
+		public static final class ChainItemObjectIdSet implements PersistenceIdSet
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
