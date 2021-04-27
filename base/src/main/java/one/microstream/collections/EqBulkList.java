@@ -31,6 +31,9 @@ import one.microstream.util.iterables.GenericListIterator;
 /**
  * Full scale general purpose implementation of extended collection type {@link XList}.
  * <p>
+ * Additionally to the {@link BulkList}, this implementation needs an {@link Equalator}
+ * to define equality between elements.
+ * <p>
  * This array-backed implementation is optimal for all needs of a list that do not require frequent structural
  * modification (insert or remove) of single elements before the end of the list.<br>
  * It is recommended to use this implementation as default list type until concrete performance deficiencies are
@@ -38,28 +41,24 @@ import one.microstream.util.iterables.GenericListIterator;
  * {@link #inputAll(long, Object...)}, {@link #removeRange(long, long)}, etc.), this implementation has equal or
  * massively superior performance to linked-list implementation is most cases.
  * <p>
- * This implementation is NOT synchronized and thus should only be used by a
+ * This implementation is <b>not</b> synchronized and thus should only be used by a
  * single thread or in a thread-safe manner (i.e. read-only as soon as multiple threads access it).<br>
  * See {@link SynchList} wrapper class to use a list in a synchronized manner.
  * <p>
- * Note that this List implementation does NOT keep track of modification count as JDK's collection implementations do
+ * Note that this List implementation does <b>not</b> keep track of modification count as JDK's collection implementations do
  * (and thus never throws a {@link ConcurrentModificationException}), for two reasons:<br>
  * 1.) It is already explicitly declared thread-unsafe and for single-thread (or thread-safe)
  * use only.<br>
- * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
+ * 2.) The common modCount-concurrency exception behavior ("failfast") has inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
- * and removing more than one element of it without using the iterator's method.<br>
- * <br>
- * Current conclusion is that the JDK's failfast implementations buy unneeded (and even unreliable as stated by
- * official guides) concurrency modification recognition at the cost of performance loss and even a bug when already
- * used in a thread-safe manner.
+ * and removing more than one element of it without using the iterator's method.
  * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
  * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
  * {@link Iterator} paradigm.
  *
+ * @param <E> type of contained elements
  * 
- * @version 0.9, 2011-02-06
  */
 public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implements XList<E>, Composition
 {
@@ -606,6 +605,10 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		return procedure;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see {@link AbstractArrayStorage#join}
+	 */
 	@Override
 	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
@@ -1128,6 +1131,11 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 	// replacing - single //
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * If the element is equal is defined by the specified {@link Equalator}.
+	 */
 	@Override
 	public boolean replaceOne(final E element, final E replacement)
 	{
@@ -1310,6 +1318,10 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		this.internalAdd(element); // gets inlined, tests showed no performance difference.
 	}
 
+	/**
+	 * Adds the passed element.
+	 * Return value indicates new entry and is always true.
+	 */
 	@Override
 	public boolean add(final E element)
 	{
@@ -1392,6 +1404,11 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		return this.nullAdd();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * In this implementation it is identical to {@link EqBulkList#add(Object)}.
+	 */
 	@Override
 	public boolean put(final E element)
 	{

@@ -5,6 +5,8 @@ import one.microstream.typing.KeyValue;
 
 
 /**
+ * @param <K> type of contained keys
+ * @param <V> type of contained values
  * 
  */
 public interface XBasicTable<K, V>

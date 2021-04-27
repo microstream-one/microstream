@@ -661,6 +661,17 @@ public abstract class AbstractArrayStorage
 		}
 	}
 
+	/**
+	 * Iterates over all elements of data which index is lower than the given size.
+	 * Calls the joiner with each element and the aggregate.
+	 * 
+	 * @param data which is iterated and given to the joiner
+	 * @param size of the given data array. The actual size of the data array may be greater, but not smaller.
+	 * @param joiner is the actual function to do the joining
+	 * @param aggregate where to join into
+	 * @param <E> type of data
+	 * @param <A> type of aggregate
+	 */
 	public static final <E, A> void join(
 		final E[]                              data     ,
 		final int                              size     ,

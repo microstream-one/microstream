@@ -10,8 +10,15 @@ public interface XSettingList<E> extends XReplacingBag<E>, XSettingSequence<E>, 
 		public XSettingList<E> newInstance();
 	}
 
-
-
+	/**
+	 * Fills all slots from the offset to the offset+length with the given element,
+	 * regardless of whether or not a slot is {@code null}.
+	 * 
+	 * @param offset from the start of the collection (start index)
+	 * @param length of how many slots should be filled
+	 * @param element to use for filling of slots
+	 * @return this
+	 */
 	public XSettingList<E> fill(long offset, long length, E element);
 
 

@@ -26,8 +26,7 @@ import one.microstream.exceptions.IndexBoundsException;
  *
  *
  * 
- *
- * @param <E>
+ * @param <E> type of contained elements
  */
 public abstract class AbstractExtendedCollection<E> implements ExtendedCollection<E>
 {

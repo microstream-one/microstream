@@ -34,9 +34,10 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
  * This concept can be very useful if a class wants to provide public read access to an internal list without
  * either the danger of the list being modified from the outside or the need to copy the whole list on every access.
  * <p>
- * This is one of many useful concepts that are missing in the JDK Collections Framework and thus so far lead to
- * either inefficient or unneccessary verbose program code (or both).
+ * This is a useful concept that is, so far, missing in the JDK Collections Framework and thus can lead to
+ * either inefficient or unnecessary verbose program code (or both).
  *
+ * @param <E> type of contained elements
  * 
  *
  */

@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 
 /**
+ * @param <E> type of contained elements
  * 
  *
  */

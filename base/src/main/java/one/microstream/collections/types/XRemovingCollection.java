@@ -1,7 +1,5 @@
 package one.microstream.collections.types;
 
-import java.lang.ref.WeakReference;
-
 import one.microstream.collections.interfaces.ConsolidatableCollection;
 import one.microstream.collections.interfaces.ExtendedCollection;
 import one.microstream.collections.interfaces.OptimizableCollection;
@@ -38,14 +36,6 @@ ReleasingCollection<E>
 	@Override
 	public void truncate();
 
-	/**
-	 * Consolidates the internal storage of this collection by discarding all elements of the internal storage that
-	 * have become obsolete or otherwise unneeded anymore. (e.g. {@link WeakReference} entries whose reference has
-	 * been cleared).<p>
-	 * If this is not possible or not needed in the concrete implementation, this method does nothing and returns 0.
-	 *
-	 * @return the number of discarded entries.
-	 */
 	@Override
 	public long consolidate();
 
@@ -73,6 +63,14 @@ ReleasingCollection<E>
 
 	public long removeAll(XGettingCollection<? extends E> elements);
 
+	/**
+	 * Removing all elements except the ones contained in the given elements-collection.
+	 * <p>
+	 * Basically intersect this collection with the given collection and only keeping the resulting elements.
+	 * 
+	 * @param elements to retain
+	 * @return Amount of deleted elements
+	 */
 	public long retainAll(XGettingCollection<? extends E> elements);
 
 	public long removeDuplicates();

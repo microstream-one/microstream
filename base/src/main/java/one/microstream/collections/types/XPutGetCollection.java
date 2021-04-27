@@ -2,6 +2,7 @@ package one.microstream.collections.types;
 
 
 /**
+ * @param <E> type of contained elements
  * 
  *
  */

@@ -15,5 +15,11 @@ import java.util.Comparator;
  */
 public interface Sortable<E>
 {
+	/**
+	 * Sorts this collection according to the given comparator
+	 * and returns itself.
+	 * @param comparator to sort this collection
+	 * @return this
+	 */
 	public Sortable<E> sort(Comparator<? super E> comparator);
 }

@@ -6,6 +6,7 @@ import one.microstream.math.XMath;
 
 
 /**
+ * @param <E> type of contained elements
  * 
  *
  */
