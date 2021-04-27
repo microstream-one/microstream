@@ -13,7 +13,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>examples</artifactId>
+	<artifactId>microstream-examples</artifactId>
 	<packaging>pom</packaging>
 
 	<modules>
