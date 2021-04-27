@@ -6,12 +6,12 @@
 
 	<parent>
 		<groupId>one.microstream</groupId>
-		<artifactId>microstream-examples</artifactId>
+		<artifactId>microstream-examples-parent</artifactId>
 		<version>04.02.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>microstream-example-blobs</artifactId>
+	<artifactId>microstream-examples-blobs</artifactId>
 
 	<dependencies>
 		<dependency>
