@@ -181,7 +181,7 @@
 					<version>3.2.0</version>
 					<configuration>
 						<archive>
-							<!-- <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> -->
+							<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
 							<manifestEntries>
 								<built-by>${project.organization.name}</built-by>
 							</manifestEntries>
