@@ -83,9 +83,9 @@
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:git@bitbucket.org:microstreamone/microstream.git</connection>
-		<developerConnection>scm:git:git@bitbucket.org:microstreamone/microstream.git</developerConnection>
-		<url>https://bitbucket.org/microstreamone/microstream.git</url>
+		<connection>scm:git:git@github.com:microstream-one/microstream-public.git</connection>
+		<developerConnection>scm:git:git@github.com:microstream-one/microstream-public.git</developerConnection>
+		<url>https://github.com/microstream-one/microstream-public</url>
 		<tag>HEAD</tag>
 	</scm>
 
