@@ -495,6 +495,9 @@ public interface StorageSystem extends StorageController
 				return;
 			}
 			
+			//the backup handler must shutdown first as it depends on the operationController
+			this.shutdownBackup();
+			
 //			DEBUGStorage.println("shutting down ...");
 			final StorageChannelTaskShutdown task = this.taskbroker.issueChannelShutdown(this.operationController);
 			
@@ -662,6 +665,17 @@ public interface StorageSystem extends StorageController
 				this.backupHandler.setRunning(false);
 			}
 		}
+		
+		
+		private void shutdownBackup() throws InterruptedException
+		{
+			if(this.backupHandler != null)
+			{
+				this.backupHandler.stop();
+				this.backupThread.join();
+			}
+		}
+
 
 	}
 

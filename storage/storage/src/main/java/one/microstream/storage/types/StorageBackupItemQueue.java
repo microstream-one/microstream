@@ -3,9 +3,9 @@ package one.microstream.storage.types;
 public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, StorageFileUser
 {
 	public boolean processNextItem(StorageBackupHandler handler, long timeoutMs) throws InterruptedException;
-
 	
-	
+	public boolean isEmpty();
+		
 	public static StorageBackupItemQueue New()
 	{
 		return new StorageBackupItemQueue.Default();
@@ -37,6 +37,12 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 		// methods //
 		////////////
 
+		@Override
+		public final boolean isEmpty()
+		{
+			return this.head.next == null;
+		}
+		
 		@Override
 		public final void enqueueCopyingItem(
 			final StorageLiveChannelFile<?> sourceFile    ,
