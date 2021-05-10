@@ -99,6 +99,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		
 		private boolean running; // being "ordered" to run.
 		private boolean active ; // being actually active, e.g. executing the last loop before running check.
+		private boolean shutdown;// being "ordered" to stop the backup handler after completing current queued items
 		
 		
 		
@@ -139,13 +140,24 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		@Override
 		public final synchronized boolean isRunning()
 		{
-			return this.running;
+			return this.running && !(this.shutdown && this.itemQueue.isEmpty());
 		}
 		
 		@Override
 		public final synchronized boolean isActive()
 		{
 			return this.active;
+		}
+		
+		/**
+		 * Initiate a controlled shutdown of the StorageBackupHandler
+		 * after processing all currently enqueued items.
+		 */
+		@Override
+		public synchronized StorageBackupHandler stop()
+		{
+			this.shutdown = true;
+			return this;
 		}
 		
 		@Override
