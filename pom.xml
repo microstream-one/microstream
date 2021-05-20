@@ -29,6 +29,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<org.owasp.depencency.check.version>6.1.6</org.owasp.depencency.check.version>
 	</properties>
 
 	<modules>
@@ -293,7 +294,7 @@
 				<plugin>
 					<groupId>org.owasp</groupId>
 					<artifactId>dependency-check-maven</artifactId>
-					<version>6.0.5</version>
+					<version>${org.owasp.depencency.check.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.moditect</groupId>
