@@ -2,6 +2,7 @@ module microstream.storage.embedded.configuration
 {
 	exports one.microstream.storage.configuration;
 	exports one.microstream.storage.embedded.configuration;
+	exports one.microstream.storage.embedded.configuration.types;
 	
 	requires java.xml;
 	requires microstream.afs;
