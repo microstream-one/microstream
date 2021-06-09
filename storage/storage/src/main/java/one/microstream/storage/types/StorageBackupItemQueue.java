@@ -102,6 +102,11 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			{
 				while(this.head.next == null)
 				{
+					if(!handler.isRunning())
+					{
+						return true;
+					}
+					
 					if(System.currentTimeMillis() >= timeBudgetBound)
 					{
 						return false;
