@@ -192,7 +192,7 @@
 				<plugin>
 					<groupId>one.microstream</groupId>
 					<artifactId>microstream-source-maven-plugin</artifactId>
-					<version>02.00.00-MS-GA</version>
+					<version>02.01.00-MS-GA</version>
 					<executions>
 						<execution>
 							<id>attach-sources</id>
