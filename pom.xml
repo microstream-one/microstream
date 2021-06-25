@@ -30,6 +30,8 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<org.owasp.depencency.check.version>6.1.6</org.owasp.depencency.check.version>
+		<license.inceptionYear>2019</license.inceptionYear>
+		<license.licenseName>epl_v2</license.licenseName>
 	</properties>
 
 	<modules>
@@ -139,12 +141,16 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>one.microstream</groupId>
-				<artifactId>microstream-source-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -188,27 +194,6 @@
 							</manifestEntries>
 						</archive>
 					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>one.microstream</groupId>
-					<artifactId>microstream-source-maven-plugin</artifactId>
-					<version>02.01.00-MS-GA</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<goals>
-								<goal>jar-no-fork</goal>
-							</goals>
-							<configuration>
-								<archive>
-									<manifestEntries>
-										<built-by>${project.organization.name}</built-by>
-									</manifestEntries>
-								</archive>
-								<sourceHeaderFile>${maven.multiModuleProjectDirectory}/HEADER</sourceHeaderFile>
-							</configuration>
-						</execution>
-					</executions>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -300,6 +285,34 @@
 					<groupId>org.moditect</groupId>
 					<artifactId>moditect-maven-plugin</artifactId>
 					<version>1.0.0.RC1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.2.0</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>license-maven-plugin</artifactId>
+					<version>2.0.0</version>
+					<executions>
+						<execution>
+							<id>add-licence</id>
+							<phase>process-sources</phase>
+							<goals>
+								<goal>update-file-header</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
