@@ -199,7 +199,10 @@ public interface StorageConnection extends Persister
 	public boolean issueCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator);
 	
 	/**
-	 * {@linkDoc #issueFullBackup(StorageLiveFileProvider, PersistenceTypeDictionaryExporter)}
+	 * Issues a full backup of the whole storage to be executed. Keep in mind that this could result in a
+	 * very long running operation, depending on the storage size.<br>
+	 * Although the full backup may be a valid solution in some circumstances, the incremental backup should
+	 * be preferred, since it is by far more efficient.
 	 * 
 	 * @param targetDirectory the directory to write the backup data into
 	 * 

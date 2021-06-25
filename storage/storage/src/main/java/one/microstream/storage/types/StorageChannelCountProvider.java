@@ -114,7 +114,7 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageChannelCountProvider#New(int)}.
 	 *
-	 * @return {@linkDoc StorageChannelCountProvider#New(int)@return}
+	 * @return a new {@link StorageChannelCountProvider} instance.
 	 *
 	 * @see StorageChannelCountProvider#New(int)
 	 * @see StorageChannelCountProvider.Defaults

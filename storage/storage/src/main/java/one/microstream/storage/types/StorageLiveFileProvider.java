@@ -42,7 +42,7 @@ public interface StorageLiveFileProvider extends StorageFileProvider
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLiveFileProvider.Builder}.
 	 * 
-	 * @return {@linkDoc StorageLiveFileProvider#New(ADirectory)@return}
+	 * @return a new {@link StorageLiveFileProvider} instance.
 	 * 
 	 * @see StorageLiveFileProvider#New(ADirectory)
 	 * @see StorageLiveFileProvider.Builder
