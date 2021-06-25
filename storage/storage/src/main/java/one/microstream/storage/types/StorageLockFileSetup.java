@@ -133,7 +133,7 @@ public interface StorageLockFileSetup
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLockFileSetup#Provider(Charset, long)}.
 	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
+	 * @return a new {@link Provider} instance.
 	 *
 	 * @see StorageLockFileSetup
 	 */
@@ -151,9 +151,9 @@ public interface StorageLockFileSetup
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLockFileSetup#Provider(Charset, long)}.
 	 *
-	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
+	 * @param charset the {@link Charset} to be used for the lock file content.
 	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
+	 * @return a new {@link Provider} instance.
 	 *
 	 * @see StorageLockFileSetup
 	 */
@@ -173,9 +173,9 @@ public interface StorageLockFileSetup
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLockFileSetup#Provider(Charset, long)}.
 	 *
-	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
+	 * @param updateInterval the update interval in ms.
 	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
+	 * @return a new {@link Provider} instance.
 	 *
 	 * @see StorageLockFileSetup
 	 */

@@ -74,7 +74,7 @@ public interface StorageHousekeepingController
 	 * Pseudo-constructor method to create a new {@link StorageHousekeepingController} instance
 	 * using default values defined by {@link StorageHousekeepingController.Defaults}.
 	 * 
-	 * @return {@linkDoc StorageHousekeepingController#New(long, long)@return}
+	 * @return a new {@link StorageHousekeepingController} instance.
 	 * 
 	 * @see StorageHousekeepingController#New(long, long)
 	 * @see Storage#HousekeepingController()

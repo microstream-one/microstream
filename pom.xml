@@ -196,6 +196,27 @@
 					</configuration>
 				</plugin>
 				<plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.2.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                            <configuration>
+								<archive>
+									<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+									<manifestEntries>
+										<built-by>${project.organization.name}</built-by>
+									</manifestEntries>
+								</archive>
+							</configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<version>3.2.0</version>
@@ -285,20 +306,6 @@
 					<groupId>org.moditect</groupId>
 					<artifactId>moditect-maven-plugin</artifactId>
 					<version>1.0.0.RC1</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>3.2.0</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<phase>verify</phase>
-							<goals>
-								<goal>jar-no-fork</goal>
-							</goals>
-						</execution>
-					</executions>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>

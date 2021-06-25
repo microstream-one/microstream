@@ -78,9 +78,9 @@ public final class Storage
 	}
 	
 	/**
-	 * {@linkDoc StorageLiveFileProvider#New()}
-	 *
-	 * @return {@linkDoc StorageLiveFileProvider#New()@return}
+	 * Creates a new {@link StorageLiveFileProvider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLiveFileProvider#New()}.
 	 *
 	 * @see Storage#FileProvider(Path)
 	 * @see StorageLiveFileProvider#New()
@@ -95,10 +95,6 @@ public final class Storage
 	/**
 	 * Alias for {@code FileProvider(storageDirectory.toPath())}
 	 *
-	 * @param storageDirectory {@linkDoc StorageLiveFileProvider#New(ADirectory):}
-	 *
-	 * @return {@linkDoc StorageLiveFileProvider#New(ADirectory)@return}
-	 *
 	 * @deprecated replaced by {@link #FileProvider(Path)}
 	 */
 	@Deprecated
@@ -108,11 +104,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLiveFileProvider#New(ADirectory)}
-	 *
-	 * @param storageDirectory {@linkDoc StorageLiveFileProvider#New(ADirectory):}
-	 *
-	 * @return {@linkDoc StorageLiveFileProvider#New(ADirectory)@return}
+	 * Creates a new {@link StorageLiveFileProvider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLiveFileProvider#New(ADirectory)}.
 	 *
 	 * @see Storage#FileProvider()
 	 * @see StorageLiveFileProvider#New(Path)
@@ -134,9 +128,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLiveFileProvider#Builder()}
-	 *
-	 * @return {@linkDoc StorageLiveFileProvider#Builder()@return}
+	 * Creates a new {@link StorageLiveFileProvider.Builder}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLiveFileProvider#Builder()}.
 	 *
 	 * @see Storage#FileProvider()
 	 * @see Storage#FileProvider(Path)
@@ -147,6 +141,15 @@ public final class Storage
 		return StorageLiveFileProvider.Builder();
 	}
 	
+	/**
+	 * Creates a new {@link StorageLiveFileProvider.Builder}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLiveFileProvider#Builder(AFileSystem)}.
+	 *
+	 * @see Storage#FileProvider()
+	 * @see Storage#FileProvider(Path)
+	 * @see StorageLiveFileProvider.Builder
+	 */
 	public static final StorageLiveFileProvider.Builder<?> FileProviderBuilder(final AFileSystem fileSystem)
 	{
 		return StorageLiveFileProvider.Builder(fileSystem);
@@ -195,9 +198,9 @@ public final class Storage
 	
 
 	/**
-	 * {@linkDoc StorageConfiguration#New()}
-	 *
-	 * @return {@linkDoc StorageConfiguration#New()@return}
+	 * Creates a new {@link StorageConfiguration}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageConfiguration#New()}.
 	 *
 	 * @see Storage#Configuration(StorageLiveFileProvider)
 	 * @see StorageConfiguration#New()
@@ -209,11 +212,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageConfiguration#New(StorageLiveFileProvider)}
-	 *
-	 * @param fileProvider {@linkDoc StorageConfiguration#New(StorageLiveFileProvider):}
-	 *
-	 * @return {@linkDoc StorageConfiguration#New(StorageLiveFileProvider)@return}
+	 * Creates a new {@link StorageConfiguration}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageConfiguration#New(StorageLiveFileProvider)}.
 	 *
 	 * @see Storage#Configuration()
 	 * @see StorageConfiguration#New(StorageLiveFileProvider)
@@ -227,10 +228,10 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageConfiguration#Builder()}
-	 *
-	 * @return {@linkDoc StorageConfiguration#Builder()@return}
-	 *
+	 * Creates a new {@link StorageConfiguration.Builder}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageConfiguration#Builder()}.
+	 * 
 	 * @see Storage#Configuration()
 	 * @see Storage#Configuration(StorageLiveFileProvider)
 	 * @see StorageConfiguration#Builder()
@@ -242,10 +243,10 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageHousekeepingController#New()}
-	 *
-	 * @return {@linkDoc StorageHousekeepingController#New()@return}
-	 *
+	 * Creates a new {@link StorageHousekeepingController}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageHousekeepingController#New()}.
+	 * 
 	 * @see Storage#HousekeepingController(long, long)
 	 * @see StorageHousekeepingController#New()
 	 * @see StorageHousekeepingController.Defaults
@@ -256,12 +257,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageHousekeepingController#New(long, long)}
-	 *
-	 * @param housekeepingIntervalMs {@linkDoc StorageHousekeepingController#New(long, long):}	 *
-	 * @param housekeepingTimeBudgetNs {@linkDoc StorageHousekeepingController#New(long, long):}
-	 *
-	 * @return {@linkDoc StorageHousekeepingController#New(long, long)@return}
+	 * Creates a new {@link StorageHousekeepingController}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageHousekeepingController#New(long, long)}.
 	 *
 	 * @see Storage#HousekeepingController()
 	 * @see StorageHousekeepingController#New(long, long)
@@ -275,9 +273,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageEntityCacheEvaluator#New()}
-	 *
-	 * @return {@linkDoc StorageEntityCacheEvaluator#New()@return}
+	 * Creates a new {@link StorageEntityCacheEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageEntityCacheEvaluator#New()}.
 	 *
 	 * @see Storage#EntityCacheEvaluator(long)
 	 * @see Storage#EntityCacheEvaluator(long, long)
@@ -289,13 +287,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageEntityCacheEvaluator#New(long)}
-	 *
-	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long):}
-	 *
-	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long)@return}
-	 *
-	 * @throws {@linkDoc StorageEntityCacheEvaluator#New(long)@throws}
+	 * Creates a new {@link StorageEntityCacheEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageEntityCacheEvaluator#New(long)}.
 	 *
 	 * @see Storage#EntityCacheEvaluator()
 	 * @see Storage#EntityCacheEvaluator(long, long)
@@ -309,14 +303,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageEntityCacheEvaluator#New(long, long)}
-	 *
-	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
-	 * @param threshold {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
-	 *
-	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}
-	 *
-	 * @throws {@linkDoc StorageEntityCacheEvaluator#New(long, long)@throws}
+	 * Creates a new {@link StorageEntityCacheEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageEntityCacheEvaluator#New(long, long)}.
 	 *
 	 * @see Storage#EntityCacheEvaluator()
 	 * @see Storage#EntityCacheEvaluator(long)
@@ -331,9 +320,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageChannelCountProvider#New()}
-	 *
-	 * @return {@linkDoc StorageChannelCountProvider#New()@return}
+	 * Creates a new {@link StorageChannelCountProvider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageChannelCountProvider#New()}.
 	 *
 	 * @see Storage#ChannelCountProvider(int)
 	 * @see StorageChannelCountProvider#New()
@@ -344,11 +333,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageChannelCountProvider#New(int)}
-	 *
-	 * @param channelCount {@linkDoc StorageChannelCountProvider#New(int):}
-	 *
-	 * @return {@linkDoc StorageChannelCountProvider#New(int)@return}
+	 * Creates a new {@link StorageChannelCountProvider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageChannelCountProvider#New(int)}.
 	 */
 	public static final StorageChannelCountProvider ChannelCountProvider(final int channelCount)
 	{
@@ -356,9 +343,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageDataFileEvaluator#New()}
-	 *
-	 * @return {@linkDoc StorageDataFileEvaluator#New()@return}
+	 * Creates a new {@link StorageDataFileEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageDataFileEvaluator#New()}.
 	 *
 	 * @see Storage#DataFileEvaluator(int, int)
 	 * @see Storage#DataFileEvaluator(int, int, double)
@@ -370,12 +357,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageDataFileEvaluator#New(int, int)}
-	 *
-	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int):}
-	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int):}
-	 *
-	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int)@return}
+	 * Creates a new {@link StorageDataFileEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageDataFileEvaluator#New(int, int)}.
 	 *
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int, double)
@@ -390,12 +374,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageDataFileEvaluator#New(int, int, double)}
-	 *
-	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
-	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
-	 *
-	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
+	 * Creates a new {@link StorageDataFileEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageDataFileEvaluator#New(int, int, double)}.
 	 *
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int)
@@ -411,14 +392,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean)}
-	 *
-	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 * @param cleanUpHeadFile {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 *
-	 * @return dissolveHeadfile {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean)@return}
+	 * Creates a new {@link StorageDataFileEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageDataFileEvaluator#New(int, int, double, boolean)}.
 	 *
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int)
@@ -445,11 +421,9 @@ public final class Storage
 	}
 	
 	/**
-	 * {@linkDoc StorageBackupSetup#New(ADirectory)}
-	 *
-	 * @param backupDirectory {@linkDoc StorageBackupSetup#New(ADirectory):}
-	 *
-	 * @return {@linkDoc StorageBackupSetup#New(ADirectory)@return}
+	 * Creates a new {@link StorageBackupSetup}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageBackupSetup#New(ADirectory)}.
 	 *
 	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
 	 * @see StorageBackupHandler
@@ -464,11 +438,9 @@ public final class Storage
 	}
 	
 	/**
-	 * {@linkDoc StorageBackupSetup#New(ADirectory)}
-	 *
-	 * @param backupDirectory {@linkDoc StorageBackupSetup#New(ADirectory):}
-	 *
-	 * @return {@linkDoc StorageBackupSetup#New(ADirectory)@return}
+	 * Creates a new {@link StorageBackupSetup}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageBackupSetup#New(ADirectory)}.
 	 *
 	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
 	 * @see StorageBackupHandler
@@ -479,11 +451,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageBackupSetup#New(ADirectory)}
-	 *
-	 * @param backupDirectoryPath the path to the backup directory
-	 *
-	 * @return {@linkDoc StorageBackupSetup#New(ADirectory)@return}
+	 * Creates a new {@link StorageBackupSetup}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageBackupSetup#New(ADirectory)}.
 	 *
 	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
@@ -495,11 +465,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider)}
-	 *
-	 * @param backupFileProvider {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider):}
-	 *
-	 * @return {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider)@return}
+	 * Creates a new {@link StorageBackupSetup}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageBackupSetup#New(StorageBackupFileProvider)}.
 	 *
 	 * @see StorageBackupSetup#New(Path)
 	 * @see StorageBackupHandler
@@ -510,9 +478,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLockFileSetup#Provider()}
-	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider()@return}
+	 * Creates a new {@link StorageLockFileSetup.Provider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLockFileSetup#Provider()}.
 	 *
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider(Charset)
@@ -525,11 +493,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLockFileSetup#Provider(Charset)}
-	 *
-	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset):}
-	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset)@return}
+	 * Creates a new {@link StorageLockFileSetup.Provider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLockFileSetup#Provider(Charset)}.
 	 *
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider()
@@ -544,11 +510,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLockFileSetup#Provider(long)}
-	 *
-	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(long):}
-	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(long)@return}
+	 * Creates a new {@link StorageLockFileSetup.Provider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLockFileSetup#Provider(long)}.
 	 *
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider()
@@ -563,12 +527,9 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLockFileSetup#Provider(Charset, long)}
-	 *
-	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
-	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
-	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
+	 * Creates a new {@link StorageLockFileSetup.Provider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLockFileSetup#Provider(Charset, long)}.
 	 *
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider()
@@ -620,9 +581,9 @@ public final class Storage
 	 * Calls {@link Storage#consolidate(StorageConnection, StorageEntityCacheEvaluator)}
 	 * with {@literal null} as additional parameters (causing live configuration to be used instead).
 	 *
-	 * @param storageConnection {@linkDoc Storage#consolidate(StorageConnection, StorageEntityCacheEvaluator):}
+	 * @param storageConnection The connection to the storage that shall be consolidated.
 	 *
-	 * @return {@linkDoc Storage#consolidate(StorageConnection, StorageEntityCacheEvaluator)@return}
+	 * @return the passed storageConnection instance.
 	 */
 	public static final <C extends StorageConnection> C consolidate(final C storageConnection)
 	{

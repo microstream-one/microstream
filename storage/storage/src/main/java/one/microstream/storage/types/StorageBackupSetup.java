@@ -28,7 +28,7 @@ public interface StorageBackupSetup
 	 * 
 	 * @param backupDirectory the directory where the backup shall be located.
 	 * 
-	 * @return {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider)@return}
+	 * @return a new {@link StorageBackupSetup} instance.
 	 * 
 	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
 	 * @see StorageBackupHandler
