@@ -139,9 +139,9 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>one.microstream</groupId>
-				<artifactId>microstream-source-maven-plugin</artifactId>
-			</plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
 			<plugin>
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>
@@ -190,26 +190,26 @@
 					</configuration>
 				</plugin>
 				<plugin>
-					<groupId>one.microstream</groupId>
-					<artifactId>microstream-source-maven-plugin</artifactId>
-					<version>02.01.00-MS-GA</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<goals>
-								<goal>jar-no-fork</goal>
-							</goals>
-							<configuration>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.2.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                            <configuration>
 								<archive>
+									<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
 									<manifestEntries>
 										<built-by>${project.organization.name}</built-by>
 									</manifestEntries>
 								</archive>
-								<sourceHeaderFile>${maven.multiModuleProjectDirectory}/HEADER</sourceHeaderFile>
 							</configuration>
-						</execution>
-					</executions>
-				</plugin>
+                        </execution>
+                    </executions>
+                </plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>

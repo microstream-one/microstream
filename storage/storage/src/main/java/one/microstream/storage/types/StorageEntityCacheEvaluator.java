@@ -89,7 +89,7 @@ public interface StorageEntityCacheEvaluator
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
 	 *
-	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}.
+	 * @return a new {@link StorageEntityCacheEvaluator} instance.
 	 *
 	 * @see StorageEntityCacheEvaluator#New(long)
 	 * @see StorageEntityCacheEvaluator#New(long, long)
@@ -113,9 +113,10 @@ public interface StorageEntityCacheEvaluator
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
 	 *
-	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
+	 * @param timeoutMs the time (in milliseconds, greater than 0) of not being read (the "age"), after which a particular
+	 *        entity's data will be cleared from the Storage's internal cache.
 	 *
-	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}
+	 * @return a new {@link StorageEntityCacheEvaluator} instance.
 	 *
 	 * @throws NumberRangeException if the passed value is equal to or lower than 0.
 	 *
