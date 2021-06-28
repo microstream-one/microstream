@@ -30,6 +30,8 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<org.owasp.depencency.check.version>6.1.6</org.owasp.depencency.check.version>
+		<license.inceptionYear>2019</license.inceptionYear>
+		<license.licenseName>epl_v2</license.licenseName>
 	</properties>
 
 	<modules>
@@ -139,12 +141,16 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 			</plugin>
 			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-			<plugin>
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -300,6 +306,20 @@
 					<groupId>org.moditect</groupId>
 					<artifactId>moditect-maven-plugin</artifactId>
 					<version>1.0.0.RC1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>license-maven-plugin</artifactId>
+					<version>2.0.0</version>
+					<executions>
+						<execution>
+							<id>add-licence</id>
+							<phase>process-sources</phase>
+							<goals>
+								<goal>update-file-header</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>

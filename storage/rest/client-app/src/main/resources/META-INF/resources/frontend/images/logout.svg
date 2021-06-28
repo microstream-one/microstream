@@ -1,1 +1,20 @@
+<!--
+  #%L
+  microstream-storage-restclient-app
+  %%
+  Copyright (C) 2019 - 2021 MicroStream Software
+  %%
+  This program and the accompanying materials are made available under the
+  terms of the Eclipse Public License 2.0 which is available at
+  http://www.eclipse.org/legal/epl-2.0.
+  
+  This Source Code may also be made available under the following Secondary
+  Licenses when the conditions for such availability set forth in the Eclipse
+  Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+  with the GNU Classpath Exception which is
+  available at https://www.gnu.org/software/classpath/license.html.
+  
+  SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+  #L%
+  -->
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" fill="none" rx="0" ry="0"></rect><path fill-rule="evenodd" clip-rule="evenodd" d="M15.4687 7.45708C15.8592 7.06655 16.4924 7.06655 16.8829 7.45708L20.0042 10.5784L20.7113 11.2855C21.1019 11.676 21.1019 12.3092 20.7113 12.6997L20.0042 13.4068L16.8829 16.5281C16.4924 16.9187 15.8592 16.9187 15.4687 16.5281C15.0782 16.1376 15.0782 15.5045 15.4687 15.1139L17.5827 13H7.59003C7.03774 13 6.59003 12.5523 6.59003 12C6.59003 11.4477 7.03774 11 7.59003 11H17.59C17.5925 11 17.595 11 17.5974 11L15.4687 8.87129C15.0782 8.48077 15.0782 7.8476 15.4687 7.45708ZM18.59 11.9926C18.59 11.9926 18.59 11.9926 18.59 11.9926L18.59 11.9926L18.59 11.9926Z" fill="#ffffff"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M14 4C14 3.44771 13.5523 3 13 3H4C3.44771 3 3 3.44772 3 4V20C3 20.5523 3.44772 21 4 21H13C13.5523 21 14 20.5523 14 20V14.75C14 14.3358 13.6642 14 13.25 14C12.8358 14 12.5 14.3358 12.5 14.75V19C12.5 19.2761 12.2761 19.5 12 19.5H5C4.72386 19.5 4.5 19.2761 4.5 19V5C4.5 4.72386 4.72386 4.5 5 4.5H12C12.2761 4.5 12.5 4.72386 12.5 5V9.24989C12.5 9.6641 12.8358 9.99989 13.25 9.99989C13.6642 9.99989 14 9.6641 14 9.24989V4Z" fill="#00a0e3"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M16.8829 7.45708C16.4924 7.06655 15.8592 7.06655 15.4687 7.45708C15.0782 7.8476 15.0782 8.48077 15.4687 8.87129L18.59 11.9926L15.4687 15.1139C15.0782 15.5045 15.0782 16.1376 15.4687 16.5281C15.8592 16.9187 16.4924 16.9187 16.8829 16.5281L20.0042 13.4068L20.7113 12.6997C21.1018 12.3092 21.1018 11.676 20.7113 11.2855L20.0042 10.5784L16.8829 7.45708Z" fill="black" fill-opacity="0.3"></path></svg>
