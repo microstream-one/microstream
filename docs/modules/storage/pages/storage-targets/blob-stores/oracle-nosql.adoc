@@ -46,9 +46,9 @@ storage-filesystem.oracle.nosql.password=secret
 |password
 |Password used for authentication.
 |check-interval
-Configures the default interval for checking on data definition operation progress.
+|Configures the default interval for checking on data definition operation progress.
 |consistency
-Configures the default read Consistency to be used when a Consistency is not specified for a particular read operation. Supported values:
+|Configures the default read Consistency to be used when a Consistency is not specified for a particular read operation. Supported values:
 
 * NONE_REQUIRED +
 A consistency policy that lets a transaction on a replica using this policy proceed regardless of the state of the Replica relative to the Master.
