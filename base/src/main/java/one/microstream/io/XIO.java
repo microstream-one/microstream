@@ -1081,6 +1081,11 @@ public final class XIO
 			writeCount += fileChannel.write(buffer);
 		}
 		
+		if(writeCount > 0)
+		{
+			flush(fileChannel);
+		}
+		
 		return writeCount;
 	}
 	
@@ -1090,14 +1095,29 @@ public final class XIO
 	)
 		throws IOException
 	{
-		long writeCount = 0;
+		final long writeCount = fileChannel.write(
+			X.toArray(buffers, ByteBuffer.class)
+		);
 		
-		for(final ByteBuffer buffer : buffers)
+		if(writeCount > 0)
 		{
-			writeCount += write(fileChannel, buffer);
+			flush(fileChannel);
 		}
 		
 		return writeCount;
+	}
+	
+	private static void flush(final FileChannel fileChannel)
+		throws IOException
+	{
+		/*
+		 * (01.07.2021 FH)NOTE:
+		 * Ensures data is written to target medium.
+		 * Journaling (transaction log) only works reliable if the bytes are actually written to the underlying medium.
+		 * force() is needed to flush, because close() may not be called in case the process gets killed
+		 * by the system without a proper shutdown.
+		 */
+		fileChannel.force(true);
 	}
 	
 	public static final <T> T performClosingOperation(

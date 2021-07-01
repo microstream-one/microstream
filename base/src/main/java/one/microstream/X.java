@@ -23,6 +23,7 @@ package one.microstream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +31,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 import one.microstream.branching.AbstractBranchingThrow;
 import one.microstream.branching.ThrowBreak;
@@ -1217,6 +1219,26 @@ public final class X
 		}
 		// wrap not thread safe set types in a SynchronizedXCollection
 		return new SynchCollection<>(collection);
+	}
+
+	/**
+	 * Converts an {@link Iterable} into an array.
+	 */
+	@SuppressWarnings("unchecked") // type-safety ensured by logic
+	public static <E> E[] toArray(final Iterable<? extends E> iterable, final Class<E> type)
+	{
+		if(iterable instanceof XGettingCollection)
+		{
+			return ((XGettingCollection<E>)iterable).toArray(type);
+		}
+		if(iterable instanceof Collection)
+		{
+			final Collection<E> collection = (Collection<E>)iterable;
+			return collection.toArray((E[])Array.newInstance(type, collection.size()));
+		}
+		return StreamSupport.stream(iterable.spliterator(), false).toArray(
+			size -> (E[])Array.newInstance(type, size)
+		);
 	}
 	
 	
