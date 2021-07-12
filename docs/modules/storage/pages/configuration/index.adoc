@@ -45,7 +45,7 @@ The artifact `microstream-storage-embedded-configuration` provides a convenience
 <dependencies>
 	<dependency>
 		<groupId>one.microstream</groupId>
-		<artifactId>storage.embedded.configuration</artifactId>
+		<artifactId>microstream-storage-embedded-configuration</artifactId>
 		<version>{maven-version}</version>
 	</dependency>
 </dependencies>

@@ -13,7 +13,7 @@ See xref:changelog.adoc[Changelog].
 
 == API Docs
 
-The API documentation is available at https://api.docs.microstream.one/.
+The API documentation is available at https://docs.microstream.one/api.
 
 == Support
 
