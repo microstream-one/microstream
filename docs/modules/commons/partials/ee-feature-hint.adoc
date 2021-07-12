@@ -1,0 +1,4 @@
+:page-partial:
+
+NOTE: This is an enterprise feature.
+

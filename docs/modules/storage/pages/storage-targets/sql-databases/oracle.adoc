@@ -1,10 +1,12 @@
 = Oracle
 
+include::commons:partial$ee-feature-hint.adoc[]
+
 [source, xml, subs=attributes+]
 ----
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>microstream-afs-sql</artifactId>
+	<artifactId>microstream-enterprise-afs-sql</artifactId>
 	<version>{maven-version}</version>
 </dependency>
 <dependency>
