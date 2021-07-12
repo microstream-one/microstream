@@ -2,15 +2,169 @@
 
 == 5.0
 
+This release introduces some breaking changes. To fully support the Java Module System (Jigsaw) and to meet Maven's naming standards, we had to rename some packages and our artifact's IDs.
+But don't worry. Just change the dependency configuration and organize some imports, and you are good to go. Existing storages are not affected and are fully compatible with this version.
+For detailed information, see the migration guide below.
+
 === *Features*
 
-* -
+* General purpose configuration layer on which the storage and cache configuration are now based on, with following key features:
+** Tree like structure to support sub-configurations
+** Input from various sources (ini, xml, yaml, ...)
+** Typed getters for properties
+** Extendable: custom property parsers and configuration loaders
+** Adaptable: easy adaption to other framework's configurations, like e.g. Spring Boot
+* Storage configuration now supports different file systems for live storage and backup
+* GraalVM support: MicroStream's optimized memory adapter is now used automatically when running on GraalVM
+* Restructured MicroStream's module and package structure to fully support the Java Module System and adopt Maven naming standards, see Migration Guide
 
 === *Bugfixes*
 
-* -
+* Fixed sporadic index out of bounds exception when storage and backup had different storage targets with a channel count greater than one
 
 === *Migration guide*
+
+==== Artifacts
+
+First you must adjust the artifacts:
+
+[options="header",cols="1,1"]
+|===
+|Old (< 5)   | New (>= 5)   
+//-------------
+|base   |microstream-base, microstream-afs and microstream-afs-nio (AFS and AFS/NIO) was extracted from base module)
+|cache   |microstream-cache
+|cache.hibernate   |microstream-cache-hibernate
+|communication   |microstream-communication
+|communication.binary   |microstream-communication-binary
+|filesystem.aws   |microstream-enterprise-afs-aws-dynamodb and microstream-enterprise-afs-aws-s3
+|filesystem.azure   |microstream-enterprise-afs-azure-storage
+|filesystem.blobstore   |microstream-enterprise-afs-blobstore
+|filesystem.coherence   |microstream-enterprise-afs-oracle-coherence
+|filesystem.hazelcast   |microstream-enterprise-afs-hazelcast
+|filesystem.jpa.hibernate   |microstream-enterprise-afs-hibernate
+|filesystem.kafka   |microstream-enterprise-afs-kafka
+|filesystem.mongodb   |microstream-enterprise-afs-mongodb
+|filesystem.oraclecloud   |microstream-enterprise-afs-oraclecloud-objectstorage
+|filesystem.oraclenosql   |microstream-enterprise-afs-oracle-nosql
+|filesystem.redis   |microstream-enterprise-afs-redis
+|filesystem.sql   |microstream-afs-sql and microstream-enterprise-afs-sql
+|persistence   |microstream-persistence
+|persistence.binary   |microstream-persistence-binary
+|persistence.binary.jdk8   |microstream-persistence-binary-jdk8
+|storage   |microstream-storage
+|storage.embedded   |microstream-storage-embedded
+|storage.embedded.configuration   |microstream-storage-embedded-configuration
+|storage.restadapter   |microstream-storage-restadapter
+|storage.restclient   |microstream-storage-restclient
+|storage.restclient.app   |microstream-storage-restclient-app
+|storage.restclient.jersey   |microstream-storage-restclient-jersey
+|storage.restservice   |microstream-storage-restservice
+|storage.restservice.sparkjava   |microstream-storage-restservice-sparkjava
+|===
+
+==== Packages
+
+These package names have changed:
+
+[options="header",cols="1,1"]
+|===
+|Old (< 5) [artifact:package]  | New (>= 5) [artifact:package]   
+//-------------
+|base:one.microstream.afs   |microstream-afs:one.microstream.afs.types,exceptions
+|base:one.microstream.afs.nio   |microstream-afs-nio:one.microstream.afs.nio.types
+|cache:one.microstream.cache   |microstream-cache:one.microstream.cache.types,exceptions
+|cache.hibernate:one.microstream.cache.hibernate   |microstream-cache-hibernate:one.microstream.cache.hibernate.types
+|communication:one.microstream.com   |microstream-communication:one.microstream.communication.types
+|communication.binary:one.microstream.com.binary   |microstream-communication-binary:one.microstream.communication.binary.types
+|filesystem.aws:one.microstream.afs.aws.dynamodb   |microstream-enterprise-afs-aws-dynamodb:one.microstream.enterprise.afs.aws.dynamodb.types
+|filesystem.aws:one.microstream.afs.aws.s3   |microstream-enterprise-afs-aws-s3:one.microstream.enterprise.afs.aws.s3.types
+|filesystem.azure:one.microstream.afs.azure.storage   |microstream-enterprise-afs-azure-storage:one.microstream.enterprise.afs.azure.storage.types
+|filesystem.blobstore:one.microstream.afs.blobstore   |microstream-enterprise-afs-blobstore:one.microstream.enterprise.afs.blobstore.types
+|filesystem.coherence:one.microstream.afs.coherence   |microstream-enterprise-afs-oracle-coherence:one.microstream.enterprise.afs.oracle.coherence.types
+|filesystem.hazelcast:one.microstream.afs.hazelcast   |microstream-enterprise-afs-hazelcast:one.microstream.enterprise.afs.hazelcast.types
+|filesystem.jpa.hibernate:one.microstream.afs.jpa.hibernate   |microstream-enterprise-afs-hibernate:one.microstream.afs.hibernate.types
+|filesystem.kafka:one.microstream.afs.kafka   |microstream-enterprise-afs-kafka:one.microstream.enterprise.afs.kafka.types
+|filesystem.mongodb:one.microstream.afs.mongodb   |microstream-enterprise-afs-mongodb:one.microstream.enterprise.afs.mongodb.types
+|filesystem.oraclecloud:one.microstream.afs.oracle.cloud.objectstorage   |microstream-enterprise-afs-oraclecloud-objectstorage:one.microstream.enterprise.afs.oraclecloud.objectstorage.types
+|filesystem.redis:one.microstream.afs.redis   |microstream-enterprise-afs-redis:one.microstream.enterprise.afs.redis.types
+|filesystem.sql   |microstream-afs-sql:one.microstream.afs.sql.types and microstream-enterprise-afs-sql:one.microstream.enterprise.afs.sql.types
+|persistence.binary:one.microstream.collections   |persistence-binary:one.microstream.persistence.binary.one.microstream.collections
+|persistence.binary:one.microstream.entity   |persistence-binary:one.microstream.persistence.binary.one.microstream.entity
+|persistence.binary:one.microstream.persistence.types   |persistence-binary:one.microstream.persistence.binary.one.microstream.persistence.types
+|persistence.binary:one.microstream.reference   |persistence-binary:one.microstream.persistence.binary.one.microstream.reference
+|persistence.binary:one.microstream.util   |persistence-binary:one.microstream.persistence.binary.one.microstream.util
+|persistence.binary:one.microstream.java.*   |persistence-binary:one.microstream.persistence.binary.java.*
+|persistence.binary.jdk8:one.microstream.jdk8.java.util   |microstream-persistence-binary-jdk8:one.microstream.persistence.binary.jdk8.java.util
+|persistence.binary.jdk8:one.microstream.memory.sun   |microstream-persistence-binary-jdk8:one.microstream.persistence.binary.jdk8.types
+|storage.embedded:one.microstream.storage.types   |microstream-storage-embedded:one.microstream.storage.embedded.types
+|storage.embedded.configuration:one.microstream.storage.configuration   |microstream-storage-embedded-configuration:one.microstream.storage.embedded.configuration.types
+|storage.restadapter:one.microstream.storage.restadapter   |microstream-storage-restadapter:one.microstream.storage.restadapter.types,exceptions
+|storage.restclient:one.microstream.storage.restclient   |microstream-storage-restclient:one.microstream.storage.restclient.types,exceptions
+|storage.restclient.app:one.microstream.storage.restclient.app   |microstream-storage-restclient-app:one.microstream.storage.restclient.app.types
+|storage.restclient.jersey:one.microstream.storage.restclient.jersey   |microstream-storage-restclient-jersey:one.microstream.storage.restclient.jersey.types
+|storage.restservice:one.microstream.storage.restservice   |microstream-storage-restservice:one.microstream.storage.restservice.types,exceptions
+|storage.restservice.sparkjava:one.microstream.storage.restservice.sparkjava   |microstream-storage-restservice-sparkjavaone.microstream.storage.restservice.sparkjava.types,exceptions
+|===
+
+==== Configuration
+
+The storage and cache configuration layers are now utilizing the newly introduced general purpose configuration layer.
+
+===== Cache
+
+The configuration property names have changed from camelCase to the dash-notation.
+
+[options="header",cols="1,1"]
+|===
+|Old (< 5)   | New (>= 5)   
+//-------------
+|keyType   |key-type
+|valueType   |value-type
+|storageConfigurationResourceName   |storage-configuration-resource-name
+|cacheLoaderFactory   |cache-loader-factory
+|cacheWriterFactory   |cache-writer-factory
+|expiryPolicyFactory   |expiry-policy-factory
+|evictionManagerFactory   |eviction-manager-factory
+|readThrough   |read-through
+|writeThrough   |write-through
+|storeByValue   |store-by-value
+|statisticsEnabled   |statistics-enabled
+|managementEnabled   |management-enabled
+|===
+
+===== Storage
+
+The old storage configuration API is deprecated and should be migrated to the xref:storage:configuration/index.adoc[new one].
+
+The configuration property names have changed from camelCase to the dash-notation.
+
+[options="header",cols="1,1"]
+|===
+|Old (< 5)   | New (>= 5)   
+//-------------
+|baseDirectory   |storage-directory
+|deletionDirectory   |deletion-directory
+|truncationDirectory   |truncation-directory
+|backupDirectory   |backup-directory
+|channelCount   |channel-count
+|channelDirectoryPrefix   |channel-directory-prefix
+|dataFilePrefix   |data-file-prefix
+|dataFileSuffix   |data-file-suffix
+|transactionFilePrefix   |transaction-file-prefix
+|transactionFileSuffix   |transaction-file-suffix
+|typeDictionaryFilename   |type-dictionary-file-name
+|rescuedFileSuffix   |rescued-file-suffix
+|lockFileName   |lock-file-name
+|houseKeepingIntervalMs   |housekeeping-interval
+|housekeepingTimeBudgetNs   |housekeeping-time-budget
+|entityCacheThreshold   |entity-cache-threshold
+|entityCacheTimeoutMs   |entity-cache-timeout
+|dataFileMinimumSize   |data-file-minimum-size
+|dataFileMaximumSize   |data-file-maximum-size
+|dataFileMinimumUseRatio   |data-file-minimum-use-ratio
+|dataFileCleanupHeadFile   |data-file-cleanup-head-file
+|===
 
 == 4.1
 
