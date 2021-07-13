@@ -4,7 +4,7 @@
 
 A collection of examples with different topics:
 
-https://github.com/microstream-one/examples
+https://github.com/microstream-one/microstream/tree/master/examples
 
 == BookStore Demo
 

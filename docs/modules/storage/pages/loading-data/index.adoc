@@ -30,4 +30,4 @@ else
 }
 ----
 
-TIP: The full code for the eager loading example is on https://github.com/microstream-one/examples/tree/master/loading[GitHub].
+TIP: The full code for the eager loading example is on https://github.com/microstream-one/microstream/tree/master/examples/loading[GitHub].
