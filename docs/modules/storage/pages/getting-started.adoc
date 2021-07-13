@@ -2,7 +2,7 @@
 
 == Prerequisites
 
-[source,xml,title="pom.xml"]
+[source, xml, title="pom.xml", subs=attributes+]
 ----
 <dependencies>
 	<dependency>
