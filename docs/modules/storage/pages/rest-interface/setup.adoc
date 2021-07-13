@@ -6,7 +6,7 @@ First of all we have to connect a storage to a REST service.
 
 Just add the REST service implementation to your dependencies, the logger is optional.
 
-[source, xml, title="pom.xml"]
+[source, xml, title="pom.xml", subs=attributes+]
 ----
 <dependencies>
 	<dependency>

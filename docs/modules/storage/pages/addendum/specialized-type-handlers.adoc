@@ -95,7 +95,7 @@ Most collections above are handled in a generic way.
 If you want a more optimized version of JDK collection handlers, you can utilize the provided module `microstream-persistence-binary-jdk8`.
 ====
 
-[source, xml, subs=attributes+]
+[source, xml, title="pom.xml", subs=attributes+]
 ----
 <dependencies>
 	<dependency>
