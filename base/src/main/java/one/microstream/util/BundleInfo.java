@@ -104,7 +104,19 @@ public interface BundleInfo
 		{
 			return this.builtAt;
 		}
-		
+
+		@Override
+		public String toString()
+		{
+			return "BundleInfo"
+				+ " [name=" + this.name
+				+ ", version=" + this.version
+				+ ", vendor=" + this.vendor
+				+ ", builtBy=" + this.builtBy
+				+ ", builtAt=" + this.builtAt
+				+ "]";
+		}
+				
 	}
 	
 	
@@ -399,8 +411,7 @@ public interface BundleInfo
 			{
 				try
 				{
-					final Enumeration<URL> resources = this.getClass()
-						.getClassLoader()
+					final Enumeration<URL> resources = Thread.currentThread().getContextClassLoader()
 						.getResources("META-INF/MANIFEST.MF")
 					;
 					while(resources.hasMoreElements())
@@ -448,7 +459,7 @@ public interface BundleInfo
 
 			private Properties loadPomProperties() throws IOException
 			{
-				final URL pomPropertiesUrl = this.getClass().getClassLoader().getResource(
+				final URL pomPropertiesUrl = Thread.currentThread().getContextClassLoader().getResource(
 					"META-INF/maven/one.microstream/" + this.bundleName + "/pom.properties"
 				);
 				final Properties pomProperties = new Properties();
