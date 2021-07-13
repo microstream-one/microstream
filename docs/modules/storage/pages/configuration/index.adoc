@@ -102,7 +102,7 @@ channel-count = 4
 
 If you just use `EmbeddedStorageConfiguration.load()` the default configuration file is used, which is either a file in the classpath root named `microstream-storage.properties`, or the path configured via the system property `microstream.storage.configuration.path`.
 
-TIP: The full example can be found on https://github.com/microstream-one/examples/tree/master/helloworld-ini[GitHub].
+TIP: The full example can be found on https://github.com/microstream-one/microstream/tree/master/examples/helloworld-ini[GitHub].
 
 === Additional Formats
 

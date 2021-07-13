@@ -72,4 +72,4 @@ dataItem.setName("Bob");
 storageManager.store(dataItem);
 ----
 
-TIP: The full code for the example is on https://github.com/microstream-one/examples/tree/master/storing[GitHub].
+TIP: The full code for the example is on https://github.com/microstream-one/microstream/tree/master/examples/storing[GitHub].

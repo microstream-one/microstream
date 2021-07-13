@@ -7,6 +7,6 @@ The basic interface that has to be implemented is `one.microstream.persistence.t
 
 Fortunately the standard persistence implementation provides the abstract class `one.microstream.persistence.binary.types.BinaryLegacyTypeHandler.AbstractCustom` that should be sufficient to start with a custom implementation in most cases.
 
-NOTE: See the example *customLegacyTypeHandler* on https://github.com/microstream-one/examples/tree/master/customLegacyTypeHandler[GitHub]
+NOTE: See the example *customLegacyTypeHandler* on https://github.com/microstream-one/microstream/tree/master/examples/custom-legacy-type-handler[GitHub]
 
 NOTE: Please note the this example requires manual code modifications as described in it's main class.

@@ -17,4 +17,4 @@ Person john = PersonCreator.New()
 	.create();
 ----
 
-TIP: The example on https://github.com/microstream-one/examples/tree/master/layeredEntities[GitHub] makes use of all the described features.
+TIP: The example on https://github.com/microstream-one/microstream/tree/master/examples/layered-entities[GitHub] makes use of all the described features.

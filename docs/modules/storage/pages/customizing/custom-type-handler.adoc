@@ -15,7 +15,7 @@ is then done implicitly via reflection.
 
 [NOTE]
 ====
-https://github.com/microstream-one/examples/blob/master/customTypeHandler/src/main/java/one/microstream/sampler/customtypehandler/CustomBufferedImageHandler.java[Example on GitHub]
+https://github.com/microstream-one/microstream/blob/master/examples/custom-type-handler/src/main/java/one/microstream/examples/customtypehandler/CustomBufferedImageHandler.java[Example on GitHub]
 
 This example implements a custom type handler for the `java.awt.image.BufferedImage` class.
 Instead of storing the rather complex object structure of that class the image is serialized as PNG image format using `javax.imageio.ImageIO` into a byte array.
@@ -92,4 +92,4 @@ public class Employee
 }
 ----
 
-NOTE: Full example is available on https://github.com/microstream-one/examples/blob/master/customTypeHandler/src/main/java/one/microstream/sampler/customtypehandler/Employee.java[GitHub].
+NOTE: Full example is available on https://github.com/microstream-one/microstream/blob/master/examples/custom-type-handler/src/main/java/one/microstream/examples/customtypehandler/Employee.java[GitHub].

@@ -34,7 +34,7 @@ They can be set by  `microstream-storage-embedded-configuration API:`
 
 [source,java,title="Java"] 
 ----
-EmbeddedStorageManager storageManager = Configuration.Default()
+EmbeddedStorageManager storageManager = EmbeddedStorageConfigurationBuilder.New()
 	.setChannelCount(4)
 	.setChannelDirectoryPrefix("channel_")
 	.setDataFilePrefix("channel_")
@@ -46,19 +46,19 @@ EmbeddedStorageManager storageManager = Configuration.Default()
 [source,xml,title="XML"]
 ----
 <properties>
-	<property name="channelCount" value="4" />
-	<property name="channelDirectoryPrefix" value="channel_" />
-	<property name="dataFilePrefix value="channel_" />
-	<property name="dataFileSuffix" value=".dat" />
+	<property name="channel-count" value="4" />
+	<property name="channel-directory-prefix" value="channel_" />
+	<property name="data-file-prefix value="channel_" />
+	<property name="data-file-suffix" value=".dat" />
 </properties>
 ----
 
 [source,text,title="INI"]
 ----
-channelCount = 4
-channelDirectoryPrefix = prefix
-dataFilePrefix = channel_
-dataFileSuffix = .dat
+channel-count = 4
+channel-directory-prefix = prefix
+data-file-prefix = channel_
+data-file-suffix = .dat
 ----
 
 Or by setting a `StorageFileProvider` using the `EmbeddedStorageFoundation` factory
