@@ -10,12 +10,10 @@ MicroStream is available under [Eclipse Public License - v 2.0](LICENSE).
 
 ## Documentation
 
-- [Reference manual](/docs): <https://docs.microstream.one/manual>
-- Javadocs: <https://docs.microstream.one/api>
-
-## Get Started
-
-See getting started at https://docs.microstream.one/manual/storage/getting-started.html.
+- [Reference manual](https://docs.microstream.one/manual) / [get started](https://docs.microstream.one/manual/storage/getting-started.html)
+- [Javadocs](https://docs.microstream.one/api)
+- [Examples](/examples)
+- [Demo project](https://github.com/microstream-one/bookstore-demo)
 
 ## Build
 
