@@ -74,12 +74,11 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		// constants //
 		//////////////
 		
-		// (11.02.2021 FH)XXX:  re-deactivate before release
 		// (24.11.2017 TM)TODO: there seems to still be a GC race condition bug, albeit only very rarely.
-		private static boolean debugGcEnabled = false;
+		private static boolean experimentalGcEnabled = false;
 		
 		/**
-		 * <b><u>/!\</u></b> Storage-level garbage collection is an unfinished feature with a still tiny race condition problem
+		 * <b><u>/!\ EXPERIMENTAL /!\</u></b> Storage-level garbage collection is an unfinished feature with a still tiny race condition problem
 		 * that can cause the database to be ruined occasionally.
 		 * <p>
 		 * <b>Enable at your own risk!</b>
@@ -88,12 +87,12 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		 * and can disappear at any release.<br>
 		 * <b>Do not use this is production mode.</b>
 		 * 
-		 * @param enabled
+		 * @deprecated experimental, will be removed in a future release
 		 */
 		@Deprecated
-		public static void DEBUG_setGarbageCollectionEnabled(final boolean enabled)
+		public static void setGarbageCollectionEnabled(final boolean enabled)
 		{
-			debugGcEnabled = enabled;
+			experimentalGcEnabled = enabled;
 		}
 		
 		
@@ -1351,7 +1350,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			final StorageChannel channel
 		)
 		{
-			if(!debugGcEnabled)
+			if(!experimentalGcEnabled)
 			{
 				return true;
 			}
@@ -1436,7 +1435,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			final StorageChannel channel
 		)
 		{
-			if(!debugGcEnabled)
+			if(!experimentalGcEnabled)
 			{
 				return true;
 			}
