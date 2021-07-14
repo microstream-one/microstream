@@ -27,6 +27,9 @@ Just run
 mvn install
 ```
 
+## Contribute
+
+If you want to contribute to MicroStream, please read our [guidelines](CONTRIBUTING.md).
 
 ## Links
 
