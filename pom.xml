@@ -32,6 +32,7 @@
 		<org.owasp.depencency.check.version>6.1.6</org.owasp.depencency.check.version>
 		<license.inceptionYear>2019</license.inceptionYear>
 		<license.licenseName>epl_v2</license.licenseName>
+		<license.licenceFile>${basedir}/LICENSE</license.licenceFile>
 	</properties>
 
 	<modules>
@@ -43,13 +44,6 @@
 		<module>persistence</module>
 		<module>storage</module>
 	</modules>
-
-	<repositories>
-		<repository>
-			<id>microstream-maven-releases</id>
-			<url>https://repo.microstream.one/repository/maven-public/</url>
-		</repository>
-	</repositories>
 
 	<distributionManagement>
 		<repository>
@@ -64,51 +58,17 @@
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:git@github.com:microstream-one/microstream-public.git</connection>
-		<developerConnection>scm:git:git@github.com:microstream-one/microstream-public.git</developerConnection>
-		<url>https://github.com/microstream-one/microstream-public</url>
+		<connection>scm:git:git@github.com:microstream-one/microstream.git</connection>
+		<developerConnection>scm:git:git@github.com:microstream-one/microstream.git</developerConnection>
+		<url>https://github.com/microstream-one/microstream</url>
 		<tag>HEAD</tag>
 	</scm>
 
 	<build>
-		<resources>
-			<resource>
-				<directory>${maven.multiModuleProjectDirectory}</directory>
-				<includes>
-					<include>LICENSE</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<compilerId>eclipse</compilerId>
-				</configuration>
-				<executions>
-					<execution>
-						<id>default-compile</id>
-						<configuration>
-							<compilerArgument>-proc:none</compilerArgument>
-						</configuration>
-					</execution>
-				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.codehaus.plexus</groupId>
-						<artifactId>plexus-compiler-eclipse</artifactId>
-						<version>2.8.5</version>
-					</dependency>
-					<dependency>
-						<groupId>org.eclipse.jdt</groupId>
-						<artifactId>ecj</artifactId>
-						<version>3.24.0</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -133,6 +93,29 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.0</version>
+					<configuration>
+						<compilerId>eclipse</compilerId>
+					</configuration>
+					<executions>
+						<execution>
+							<id>default-compile</id>
+							<configuration>
+								<compilerArgument>-proc:none</compilerArgument>
+							</configuration>
+						</execution>
+					</executions>
+					<dependencies>
+						<dependency>
+							<groupId>org.codehaus.plexus</groupId>
+							<artifactId>plexus-compiler-eclipse</artifactId>
+							<version>2.8.5</version>
+						</dependency>
+						<dependency>
+							<groupId>org.eclipse.jdt</groupId>
+							<artifactId>ecj</artifactId>
+							<version>3.24.0</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.felix</groupId>
@@ -280,12 +263,16 @@
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>license-maven-plugin</artifactId>
 					<version>2.0.0</version>
+					<configuration>
+						<overrideFile>false</overrideFile>
+					</configuration>
 					<executions>
 						<execution>
 							<id>add-licence</id>
 							<phase>process-sources</phase>
 							<goals>
 								<goal>update-file-header</goal>
+								<goal>update-project-license</goal>
 							</goals>
 						</execution>
 					</executions>
