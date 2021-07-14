@@ -76,8 +76,9 @@
 
 	<distributionManagement>
 		<repository>
-			<id>microstream-repo</id>
-			<url>https://repo.microstream.one/repository/maven-releases/</url>
+			<id>ossrh</id>
+			<name>Sonytype Nexus Releases</name>
+			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 		<snapshotRepository>
 			<id>microstream-repo</id>
