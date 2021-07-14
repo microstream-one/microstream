@@ -51,29 +51,6 @@
 		</repository>
 	</repositories>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>microstream-maven-releases</id>
-			<url>https://repo.microstream.one/repository/maven-releases/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-		<pluginRepository>
-			<id>microstream-maven-snapshots</id>
-			<url>https://repo.microstream.one/repository/maven-snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<distributionManagement>
 		<repository>
 			<id>ossrh</id>
@@ -140,10 +117,6 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.owasp</groupId>
-				<artifactId>dependency-check-maven</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -297,11 +270,6 @@
 							</goals>
 						</execution>
 					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.owasp</groupId>
-					<artifactId>dependency-check-maven</artifactId>
-					<version>${org.owasp.depencency.check.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.moditect</groupId>
