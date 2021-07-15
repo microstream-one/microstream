@@ -14,6 +14,9 @@
 	</parent>
 
 	<artifactId>microstream-storage-restservice-sparkjava</artifactId>
+	
+	<name>MicroStream Storage REST Service Sparkjava</name>
+	<description>Sparkjava REST Service Implementation</description>
 
 	<dependencies>
 		<dependency>

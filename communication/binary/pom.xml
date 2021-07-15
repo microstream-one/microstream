@@ -13,6 +13,9 @@
 
 	<artifactId>microstream-communication-binary</artifactId>
 	
+	<name>MicroStream Communication Binary</name>
+	<description>MicroStream Object Graph Communication Binary Implementation</description>
+	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>

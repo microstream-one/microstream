@@ -154,10 +154,10 @@ public final class EmbeddedStorage
 
 	/**
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
-	 * using {@link #defaultStorageDirectory()} as its storage directory and default values for
+	 * using {@link Storage#defaultStorageDirectory()} as its storage directory and default values for
 	 * its {@link StorageConfiguration}.
 	 * <p>
-	 * Calls {@link #ConnectionFoundation(ADirectory)} with {@link #defaultStorageDirectory()}.
+	 * Calls {@link #ConnectionFoundation(ADirectory)} with {@link Storage#defaultStorageDirectory()}.
 	 *
 	 * @return a new all-default {@link EmbeddedStorageFoundation} instance.
 	 *
@@ -251,7 +251,7 @@ public final class EmbeddedStorage
 	 * using the passed {@link StorageConfiguration.Builder} to build its {@link StorageConfiguration}.
 	 * <p>
 	 * This is merely a convenience alias for {@code Foundation(configuration.createConfiguration());}
-	 *
+	 * 
 	 * @param configuration the {@link StorageConfiguration.Builder} to be used.
 	 *
 	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed directory and configuration.

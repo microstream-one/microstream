@@ -802,8 +802,6 @@ public final class XReflect
 	 *
 	 * @param typeName
 	 *
-	 * @return
-	 *
 	 * @throws LinkageError
 	 * @throws ExceptionInInitializerError
 	 * @throws ClassNotFoundException
@@ -935,7 +933,6 @@ public final class XReflect
 	 * Make sure this is a suitable {@link ClassLoader} when using this method.
 	 *
 	 * @param typeName
-	 * @return
 	 */
 	public static final Class<?> resolveType(final String typeName)
 		throws LinkageError, ExceptionInInitializerError, ClassNotFoundException
@@ -948,7 +945,6 @@ public final class XReflect
 	 * Make sure this is a suitable {@link ClassLoader} when using this method.
 	 *
 	 * @param className
-	 * @return
 	 */
 	public static final Class<?> tryResolveType(final String className)
 	{
@@ -960,7 +956,6 @@ public final class XReflect
 	 * Make sure this is a suitable {@link ClassLoader} when using this method.
 	 *
 	 * @param typeNames
-	 * @return
 	 */
 	public static final Class<?> iterativeResolveType(final String... typeNames)
 		throws ClassNotFoundException

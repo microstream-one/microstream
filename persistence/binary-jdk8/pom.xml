@@ -13,6 +13,9 @@
 
 	<artifactId>microstream-persistence-binary-jdk8</artifactId>
 	
+	<name>MicroStream Persistence JDK8</name>
+	<description>MicroStream Persistence Specialized Type Handlers</description>
+	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>

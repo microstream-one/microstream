@@ -40,7 +40,6 @@ import one.microstream.storage.types.StorageChannelCountProvider;
 import one.microstream.storage.types.StorageDataFileEvaluator;
 import one.microstream.storage.types.StorageEntityCacheEvaluator;
 import one.microstream.storage.types.StorageFileNameProvider;
-import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.storage.types.StorageHousekeepingController;
 import one.microstream.storage.types.StorageLiveFileProvider;
 
@@ -1319,7 +1318,6 @@ public interface Configuration
 	 *
 	 * @return a new {@link Configuration}
 	 *
-	 * @see StorageFileProvider.Defaults
 	 * @see StorageChannelCountProvider.Defaults
 	 * @see StorageHousekeepingController.Defaults
 	 * @see StorageEntityCacheEvaluator.Defaults

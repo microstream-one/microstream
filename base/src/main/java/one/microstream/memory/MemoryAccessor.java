@@ -277,7 +277,6 @@ public interface MemoryAccessor
 	 * 
 	 * @param objectClass
 	 * @param field
-	 * @return
 	 */
 	public long objectFieldOffset(Class<?> objectClass, Field field);
 	

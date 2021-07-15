@@ -98,7 +98,6 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 	 * Based on <a href="https://en.wikipedia.org/wiki/IPv6">https://en.wikipedia.org/wiki/IPv6</a>.
 	 * 
 	 * @param ipV6Address
-	 * @return
 	 */
 	// Because I have nothing better to do than writing an IP address parser. Yay.
 	public static byte[] parseIpV6Address(final String ipV6Address)

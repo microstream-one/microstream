@@ -81,7 +81,7 @@ public class DocumentationManager extends RouteManager
 	/**
 	 * get a Json Array containing all registered roots and there httpMethods
 	 *
-	 * @param host: the host url and context path
+	 * @param host the host url and context path
 	 *
 	 * @return JsonArray
 	 */

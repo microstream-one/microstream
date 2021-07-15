@@ -14,6 +14,9 @@
 	</parent>
 
 	<artifactId>microstream-cache</artifactId>
+	
+	<name>MicroStream Cache</name>
+	<description>JSR-107 (JCache) Implementation</description>
 
 	<dependencies>
 		<dependency>

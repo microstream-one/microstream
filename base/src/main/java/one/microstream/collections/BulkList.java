@@ -180,7 +180,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	 * Pseudo-constructor method to create a new {@link BulkList} instance containing all elements of the passed
 	 * array. The element size of the new instance will be equal to the passed arrays length.
 	 *
-	 * @param elements the initial elements for the new instance.
+	 * @param initialElements the initial elements for the new instance.
 	 * @return a new {@link BulkList} instance.
 	 * @throws NullPointerException if an explicit {@code null} array reference was passed.
 	 */
@@ -193,7 +193,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	/**
 	 * Pseudo-constructor method to create a new {@link BulkList} instance and adds all the given elements to it.
 	 *
-	 * @param elements to add to the created instance
+	 * @param initialElements to add to the created instance
 	 * @return a new {@link BulkList} instance.
 	 */
 	public static final <E> BulkList<E> New(final XIterable<? extends E> initialElements)
@@ -206,7 +206,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	/**
 	 * Pseudo-constructor method to create a new {@link BulkList} instance and adds all the given elements to it.
 	 *
-	 * @param elements to add to the created instance
+	 * @param initialElements to add to the created instance
 	 * @return a new {@link BulkList} instance.
 	 */
 	public static final <E> BulkList<E> New(final Iterable<? extends E> initialElements)
@@ -220,7 +220,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	 * Pseudo-constructor method to create a new {@link BulkList} instance with the needed amount of capacity and adds all
 	 * elements to it.
 	 *
-	 * @param elements to add to the created instance
+	 * @param initialElements to add to the created instance
 	 * @return a new {@link BulkList} instance.
 	 */
 	public static final <E> BulkList<E> New(final XGettingCollection<? extends E> initialElements)
@@ -784,7 +784,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 	/**
 	 * {@inheritDoc}
-	 * @see {@link AbstractArrayStorage#join}
+	 * @see AbstractArrayStorage#join(Object[], int, BiConsumer, Object)
 	 */
 	@Override
 	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)

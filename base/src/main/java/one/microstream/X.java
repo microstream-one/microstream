@@ -999,7 +999,6 @@ public final class X
 	 * 
 	 * @param <T>
 	 * @param array
-	 * @return
 	 */
 	public static <T> WeakReference<T>[] consolidateWeakReferences(final WeakReference<T>[] array)
 	{

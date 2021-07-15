@@ -46,7 +46,7 @@ public interface ConfigurationMapper<S>
 	/**
 	 * Adds all entries contained in a source to the given {@link Configuration#Builder()}.
 	 * 
-	 * @param the builder to map the entries to
+	 * @param builder the builder to map the entries to
 	 * @param source the source to take the entries from
 	 * @return the given {@link Configuration#Builder()}
 	 */

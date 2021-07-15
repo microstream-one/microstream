@@ -113,22 +113,22 @@ public interface EmbeddedStorageConfigurationPropertyNames
 	public final static String ENTITY_CACHE_THRESHOLD        = "entity-cache-threshold";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setEntityCacheTimeout(long)
+	 * @see EmbeddedStorageConfigurationBuilder#setEntityCacheTimeout(java.time.Duration)
 	 */
 	public final static String ENTITY_CACHE_TIMEOUT          = "entity-cache-timeout";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMinimumSize(int)
+	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMinimumSize(one.microstream.configuration.types.ByteSize)
 	 */
 	public final static String DATA_FILE_MINIMUM_SIZE        = "data-file-minimum-size";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMaximumSize(int)
+	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMaximumSize(one.microstream.configuration.types.ByteSize)
 	 */
 	public final static String DATA_FILE_MAXIMUM_SIZE        = "data-file-maximum-size";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setDataFileDissolveRatio(double)
+	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMinimumUseRatio(double)
 	 */
 	public final static String DATA_FILE_MINIMUM_USE_RATIO   = "data-file-minimum-use-ratio";
 

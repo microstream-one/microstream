@@ -224,7 +224,7 @@ public final class XChars
 	 * Arbitrary threshold of 1000 to discrimate "short" strings from "long" strings.<br>
 	 * The rationale behind that is that "short" strings usually allow for simpler and faster algorithms,
 	 * which become inefficient on larger strings. For example a two-pass processing of a splitting algorithm.
-	 * @return
+	 * @return 1000
 	 */
 	public static final int shortStringLength()
 	{
@@ -253,8 +253,8 @@ public final class XChars
 
 	/**
 	 * Alias for {@link Charset#defaultCharset()}, which returns sometimes the one thing and sometimes another.
-	 * It is strongly advised to use a reliable {@link Charset} querying method, like {@link utf8}, which also
-	 * is the only reasonable choice for the {@link standardCharset}.
+	 * It is strongly advised to use a reliable {@link Charset} querying method, like UTF-8, which also
+	 * is the only reasonable choice for the standard charset.
 	 * 
 	 * @return {@link Charset#defaultCharset()}
 	 */

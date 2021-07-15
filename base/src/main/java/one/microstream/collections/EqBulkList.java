@@ -627,7 +627,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 	/**
 	 * {@inheritDoc}
-	 * @see {@link AbstractArrayStorage#join}
+	 * 
+	 * @see AbstractArrayStorage#join(Object[], int, BiConsumer, Object)
 	 */
 	@Override
 	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)

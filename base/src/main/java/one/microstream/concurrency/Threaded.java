@@ -332,7 +332,6 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	 *
 	 * @return {@code null}.
 	 * @see #get()
-	 * @see #addForCurrentThread(Object)
 	 */
 	protected E lookupMissFallbackElement()
 	{

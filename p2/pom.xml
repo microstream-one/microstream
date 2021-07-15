@@ -14,8 +14,10 @@
 	</parent>
 
 	<artifactId>microstream-p2</artifactId>
-	<name>MicroStream P2 Repository</name>
 	<packaging>pom</packaging>
+	
+	<name>MicroStream P2 Repository</name>
+	<description>MicroStream P2 Repository</description>
 
 	<properties>
 		<osgi.version>${pv.majorVersion}.${pv.minorVersion}.${pv.incrementalVersion}.qualifier</osgi.version>

@@ -12,7 +12,7 @@
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
-	<description>Microstream High-Performance Java-Native-Persistence</description>
+	<description>Microstream Project</description>
 	<url>https://microstream.one</url>
 
 	<organization>

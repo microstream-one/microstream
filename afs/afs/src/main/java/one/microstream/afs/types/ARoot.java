@@ -61,7 +61,6 @@ public interface ARoot extends ADirectory
 	 * @param protocol
 	 * @param identifier
 	 * 
-	 * @return
 	 */
 	public static ARoot New(
 		final AFileSystem fileSystem,

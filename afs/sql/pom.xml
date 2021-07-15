@@ -13,6 +13,9 @@
 
 	<artifactId>microstream-afs-sql</artifactId>
 	
+	<name>MicroStream Abstract File System - SQL</name>
+	<description>SQL Adapter for the MicroStream Abstract File System</description>
+	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>

@@ -15,6 +15,9 @@
 
 	<artifactId>microstream-storage-restclient-jersey</artifactId>
 	
+	<name>MicroStream Storage REST Client Jersey</name>
+	<description>Jersey REST Client Implementation</description>
+	
 	<properties>
 		<jersey.version>2.33</jersey.version>
 	</properties>
