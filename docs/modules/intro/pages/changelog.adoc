@@ -24,87 +24,88 @@ For detailed information, see the migration guide below.
 
 === *Migration guide*
 
-==== Artifacts
+In order to fully support the Java Module System and adopt Maven naming standards we had to introduce some changes: 
 
-First you must adjust the artifacts:
+==== Artifacts and Packages
+
+These are the changed *artifacts* and their _packages_.
 
 [options="header",cols="1,1"]
 |===
 |Old (< 5)   | New (>= 5)   
 //-------------
-|base   |microstream-base, microstream-afs and microstream-afs-nio (AFS and AFS/NIO) was extracted from base module)
-|cache   |microstream-cache
-|cache.hibernate   |microstream-cache-hibernate
-|communication   |microstream-communication
-|communication.binary   |microstream-communication-binary
-|filesystem.aws   |microstream-enterprise-afs-aws-dynamodb and microstream-enterprise-afs-aws-s3
-|filesystem.azure   |microstream-enterprise-afs-azure-storage
-|filesystem.blobstore   |microstream-enterprise-afs-blobstore
-|filesystem.coherence   |microstream-enterprise-afs-oracle-coherence
-|filesystem.hazelcast   |microstream-enterprise-afs-hazelcast
-|filesystem.jpa.hibernate   |microstream-enterprise-afs-hibernate
-|filesystem.kafka   |microstream-enterprise-afs-kafka
-|filesystem.mongodb   |microstream-enterprise-afs-mongodb
-|filesystem.oraclecloud   |microstream-enterprise-afs-oraclecloud-objectstorage
-|filesystem.oraclenosql   |microstream-enterprise-afs-oracle-nosql
-|filesystem.redis   |microstream-enterprise-afs-redis
-|filesystem.sql   |microstream-afs-sql and microstream-enterprise-afs-sql
-|persistence   |microstream-persistence
-|persistence.binary   |microstream-persistence-binary
-|persistence.binary.jdk8   |microstream-persistence-binary-jdk8
-|storage   |microstream-storage
-|storage.embedded   |microstream-storage-embedded
-|storage.embedded.configuration   |microstream-storage-embedded-configuration
-|storage.restadapter   |microstream-storage-restadapter
-|storage.restclient   |microstream-storage-restclient
-|storage.restclient.app   |microstream-storage-restclient-app
-|storage.restclient.jersey   |microstream-storage-restclient-jersey
-|storage.restservice   |microstream-storage-restservice
-|storage.restservice.sparkjava   |microstream-storage-restservice-sparkjava
-|===
-
-==== Packages
-
-These package names have changed:
-
-[options="header",cols="1,1"]
-|===
-|Old (< 5) [artifact:package]  | New (>= 5) [artifact:package]   
-//-------------
-|base:one.microstream.afs   |microstream-afs:one.microstream.afs.types,exceptions
-|base:one.microstream.afs.nio   |microstream-afs-nio:one.microstream.afs.nio.types
-|cache:one.microstream.cache   |microstream-cache:one.microstream.cache.types,exceptions
-|cache.hibernate:one.microstream.cache.hibernate   |microstream-cache-hibernate:one.microstream.cache.hibernate.types
-|communication:one.microstream.com   |microstream-communication:one.microstream.communication.types
-|communication.binary:one.microstream.com.binary   |microstream-communication-binary:one.microstream.communication.binary.types
-|filesystem.aws:one.microstream.afs.aws.dynamodb   |microstream-enterprise-afs-aws-dynamodb:one.microstream.enterprise.afs.aws.dynamodb.types
-|filesystem.aws:one.microstream.afs.aws.s3   |microstream-enterprise-afs-aws-s3:one.microstream.enterprise.afs.aws.s3.types
-|filesystem.azure:one.microstream.afs.azure.storage   |microstream-enterprise-afs-azure-storage:one.microstream.enterprise.afs.azure.storage.types
-|filesystem.blobstore:one.microstream.afs.blobstore   |microstream-enterprise-afs-blobstore:one.microstream.enterprise.afs.blobstore.types
-|filesystem.coherence:one.microstream.afs.coherence   |microstream-enterprise-afs-oracle-coherence:one.microstream.enterprise.afs.oracle.coherence.types
-|filesystem.hazelcast:one.microstream.afs.hazelcast   |microstream-enterprise-afs-hazelcast:one.microstream.enterprise.afs.hazelcast.types
-|filesystem.jpa.hibernate:one.microstream.afs.jpa.hibernate   |microstream-enterprise-afs-hibernate:one.microstream.afs.hibernate.types
-|filesystem.kafka:one.microstream.afs.kafka   |microstream-enterprise-afs-kafka:one.microstream.enterprise.afs.kafka.types
-|filesystem.mongodb:one.microstream.afs.mongodb   |microstream-enterprise-afs-mongodb:one.microstream.enterprise.afs.mongodb.types
-|filesystem.oraclecloud:one.microstream.afs.oracle.cloud.objectstorage   |microstream-enterprise-afs-oraclecloud-objectstorage:one.microstream.enterprise.afs.oraclecloud.objectstorage.types
-|filesystem.redis:one.microstream.afs.redis   |microstream-enterprise-afs-redis:one.microstream.enterprise.afs.redis.types
-|filesystem.sql   |microstream-afs-sql:one.microstream.afs.sql.types and microstream-enterprise-afs-sql:one.microstream.enterprise.afs.sql.types
-|persistence.binary:one.microstream.collections   |persistence-binary:one.microstream.persistence.binary.one.microstream.collections
-|persistence.binary:one.microstream.entity   |persistence-binary:one.microstream.persistence.binary.one.microstream.entity
-|persistence.binary:one.microstream.persistence.types   |persistence-binary:one.microstream.persistence.binary.one.microstream.persistence.types
-|persistence.binary:one.microstream.reference   |persistence-binary:one.microstream.persistence.binary.one.microstream.reference
-|persistence.binary:one.microstream.util   |persistence-binary:one.microstream.persistence.binary.one.microstream.util
-|persistence.binary:one.microstream.java.*   |persistence-binary:one.microstream.persistence.binary.java.*
-|persistence.binary.jdk8:one.microstream.jdk8.java.util   |microstream-persistence-binary-jdk8:one.microstream.persistence.binary.jdk8.java.util
-|persistence.binary.jdk8:one.microstream.memory.sun   |microstream-persistence-binary-jdk8:one.microstream.persistence.binary.jdk8.types
-|storage.embedded:one.microstream.storage.types   |microstream-storage-embedded:one.microstream.storage.embedded.types
-|storage.embedded.configuration:one.microstream.storage.configuration   |microstream-storage-embedded-configuration:one.microstream.storage.embedded.configuration.types
-|storage.restadapter:one.microstream.storage.restadapter   |microstream-storage-restadapter:one.microstream.storage.restadapter.types,exceptions
-|storage.restclient:one.microstream.storage.restclient   |microstream-storage-restclient:one.microstream.storage.restclient.types,exceptions
-|storage.restclient.app:one.microstream.storage.restclient.app   |microstream-storage-restclient-app:one.microstream.storage.restclient.app.types
-|storage.restclient.jersey:one.microstream.storage.restclient.jersey   |microstream-storage-restclient-jersey:one.microstream.storage.restclient.jersey.types
-|storage.restservice:one.microstream.storage.restservice   |microstream-storage-restservice:one.microstream.storage.restservice.types,exceptions
-|storage.restservice.sparkjava:one.microstream.storage.restservice.sparkjava   |microstream-storage-restservice-sparkjavaone.microstream.storage.restservice.sparkjava.types,exceptions
+|*base*   |*microstream-base*
+2+|AFS and AFS/NIO were extracted from base module:
+|*base*   |*microstream-afs*
+|_one.microstream.afs_   |_one.microstream.afs.types_, _one.microstream.afs.exceptions_
+|*base*   |*microstream-afs-nio*
+|_one.microstream.afs.nio_   |_one.microstream.afs.nio.types_
+|*cache*   |*microstream-cache*
+|_one.microstream.cache_   |_one.microstream.cache.types_, _one.microstream.cache.exceptions_
+|*cache.hibernate*   |*microstream-cache-hibernate*
+|_one.microstream.cache.hibernate_   |_one.microstream.cache.hibernate.types_
+|*communication*   |*microstream-communication*
+|_one.microstream.com_   |_one.microstream.communication.types_
+|*communication.binary*   |*microstream-communication-binary*
+|_one.microstream.com.binary_   |_one.microstream.communication.binary.types_
+2+|AWS was split into AWS-DynamoDB and AWS-S3:
+|*filesystem.aws*   |*microstream-enterprise-afs-aws-dynamodb*
+|_one.microstream.afs.aws.dynamodb_   |_one.microstream.enterprise.afs.aws.dynamodb.types_
+|*filesystem.aws*   |*microstream-enterprise-afs-aws-s3*
+|_one.microstream.afs.aws.s3_   |_one.microstream.enterprise.afs.aws.s3.types_
+|*filesystem.azure*   |*microstream-enterprise-afs-azure-storage*
+|_one.microstream.afs.azure.storage_   |_one.microstream.enterprise.afs.azure.storage.types_
+|*filesystem.blobstore*   |*microstream-enterprise-afs-blobstore*
+|_one.microstream.afs.blobstore_   |_one.microstream.enterprise.afs.blobstore.types_
+|*filesystem.coherence*   |*microstream-enterprise-afs-oracle-coherence*
+|_one.microstream.afs.coherence_   |_one.microstream.enterprise.afs.oracle.coherence.types_
+|*filesystem.hazelcast*   |*microstream-enterprise-afs-hazelcast*
+|_one.microstream.afs.hazelcast_   |_one.microstream.enterprise.afs.hazelcast.types_
+|*filesystem.jpa.hibernate*   |*microstream-enterprise-afs-hibernate*
+|_one.microstream.afs.jpa.hibernate_   |_one.microstream.afs.hibernate.types_
+|*filesystem.kafka*   |*microstream-enterprise-afs-kafka*
+|_one.microstream.afs.kafka_   |_one.microstream.enterprise.afs.kafka.types_
+|*filesystem.mongodb*   |*microstream-enterprise-afs-mongodb*
+|_one.microstream.afs.mongodb_   |_one.microstream.enterprise.afs.mongodb.types_
+|*filesystem.oraclecloud*   |*microstream-enterprise-afs-oraclecloud-objectstorage*
+|_one.microstream.afs.oracle.cloud.objectstorage_   |_one.microstream.enterprise.afs.oraclecloud.objectstorage.types_
+|*filesystem.oraclenosql*   |*microstream-enterprise-afs-oracle-nosql*
+|_one.microstream.afs.oracle.nosql_   |_one.microstream.enterprise.afs.oracle.nosql.types_
+|*filesystem.redis*   |*microstream-enterprise-afs-redis*
+|_one.microstream.afs.redis_   |_one.microstream.enterprise.afs.redis.types_
+2+|SQL was split into SQL and Enterprise-SQL:
+|*filesystem.sql*   |*microstream-afs-sql*
+|_on.microstream.afs.sql_   |_one.microstream.afs.sql.types_
+|*filesystem.sql*   |*microstream-enterprise-afs-sql*
+|_on.microstream.afs.sql_   |_one.microstream.enterprise.afs.sql.types_
+|*persistence*   |*microstream-persistence*
+|*persistence.binary*   |*microstream-persistence-binary*
+|_one.microstream.collections_   |_one.microstream.persistence.binary.one.microstream.collections_
+|_one.microstream.entity_   |_one.microstream.persistence.binary.one.microstream.entity_
+|_one.microstream.persistence.types_   |_one.microstream.persistence.binary.one.microstream.persistence.types_
+|_one.microstream.reference_   |_one.microstream.persistence.binary.one.microstream.reference_
+|_one.microstream.util_   |_one.microstream.persistence.binary.one.microstream.util_
+|_one.microstream.java.*_   |_one.microstream.persistence.binary.java.*_
+|*persistence.binary.jdk8*   |*microstream-persistence-binary-jdk8*
+|_one.microstream.jdk8.java.util_   |_one.microstream.persistence.binary.jdk8.java.util_
+|_one.microstream.memory.sun_   |_one.microstream.persistence.binary.jdk8.types_
+|*storage*   |*microstream-storage*
+|*storage.embedded*   |*microstream-storage-embedded*
+|_one.microstream.storage.types_   |_one.microstream.storage.embedded.types_
+|*storage.embedded.configuration*   |*microstream-storage-embedded-configuration*
+|_one.microstream.storage.configuration_   |_one.microstream.storage.embedded.configuration.types_
+|*storage.restadapter*   |*microstream-storage-restadapter*
+|_one.microstream.storage.restadapter_   |_one.microstream.storage.restadapter.types_, _one.microstream.storage.restadapter.exceptions_
+|*storage.restclient*   |*microstream-storage-restclient*
+|_one.microstream.storage.restclient_   |_one.microstream.storage.restclient.types_, _one.microstream.storage.restclient.exceptions_
+|*storage.restclient.app*   |*microstream-storage-restclient-app*
+|_one.microstream.storage.restclient.app_   |_one.microstream.storage.restclient.app.types_
+|*storage.restclient.jersey*   |*microstream-storage-restclient-jersey*
+|_one.microstream.storage.restclient.jersey_   |_one.microstream.storage.restclient.jersey.types_
+|*storage.restservice*   |*microstream-storage-restservice*
+|_one.microstream.storage.restservice_   |_one.microstream.storage.restservice.types_, _one.microstream.storage.restservice.exceptions_
+|*storage.restservice.sparkjava*   |*microstream-storage-restservice-sparkjava*
+|_one.microstream.storage.restservice.sparkjava_   |_one.microstream.storage.restservice.sparkjava.types_, _one.microstream.storage.restservice.sparkjava.exceptions_
 |===
 
 ==== Configuration
