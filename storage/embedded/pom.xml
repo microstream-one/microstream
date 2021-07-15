@@ -14,6 +14,9 @@
 	</parent>
 
 	<artifactId>microstream-storage-embedded</artifactId>
+	
+	<name>MicroStream Embedded Storage</name>
+	<description>MicroStream Embedded Storage Implementation</description>
 
 	<dependencies>
 		<dependency>

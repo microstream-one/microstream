@@ -14,6 +14,9 @@
 	</parent>
 
 	<artifactId>microstream-storage-restclient</artifactId>
+	
+	<name>MicroStream Storage REST Client</name>
+	<description>Java Wrapper for the Storage REST API</description>
 
 	<dependencies>
 		<dependency>

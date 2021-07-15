@@ -12,7 +12,10 @@
 	</parent>
 
 	<artifactId>microstream-afs-nio</artifactId>
-	
+
+	<name>MicroStream Abstract File System - Java NIO</name>
+	<description>Java NIO Adapter for the MicroStream Abstract File System</description>
+		
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>

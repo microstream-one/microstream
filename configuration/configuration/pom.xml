@@ -12,6 +12,9 @@
 	</parent>
 
 	<artifactId>microstream-configuration</artifactId>
+	
+	<name>MicroStream Configuration</name>
+	<description>MicroStream General Purpose Configuration</description>
 
 	<dependencies>
 		<dependency>

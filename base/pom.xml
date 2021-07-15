@@ -14,5 +14,8 @@
 	</parent>
 
 	<artifactId>microstream-base</artifactId>
+	
+	<name>MicroStream Base</name>
+	<description>Commons Module of the MicroStream Framework</description>
 
 </project>

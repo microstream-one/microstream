@@ -13,6 +13,9 @@
 
 	<artifactId>microstream-persistence</artifactId>
 	
+	<name>MicroStream Persistence</name>
+	<description>MicroStream Persistence for Java Object Graphs</description>
+	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>

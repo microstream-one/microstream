@@ -14,6 +14,9 @@
 	</parent>
 
 	<artifactId>microstream-storage-restservice</artifactId>
+	
+	<name>MicroStream Storage REST Service</name>
+	<description>Abstract REST Service Interface</description>
 
 	<dependencies>
 		<dependency>

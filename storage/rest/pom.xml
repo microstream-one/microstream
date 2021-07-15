@@ -15,6 +15,9 @@
 
 	<artifactId>microstream-storage-rest-parent</artifactId>
 	<packaging>pom</packaging>
+	
+	<name>MicroStream Storage REST</name>
+	<description>MicroStream Storage REST Project</description>
 
 	<modules>
 		<module>adapter</module>

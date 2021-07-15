@@ -13,6 +13,9 @@
 
 	<artifactId>microstream-afs</artifactId>
 	
+	<name>MicroStream Abstract File System</name>
+	<description>Abstract File System Implementation</description>
+	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
