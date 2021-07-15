@@ -27,6 +27,13 @@
 		</developer>
 	</developers>
 
+	<licenses>
+		<license>
+			<name>Eclipse Public License - v 2.0</name>
+			<url>https://www.eclipse.org/legal/epl-2.0/</url>
+		</license>
+	</licenses>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
