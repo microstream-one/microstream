@@ -57,14 +57,9 @@ public interface AItem
 
 	/**
 	 * The value that uniquely identifies the item locally in its {@link #parent()} directory.
-	 * <p>
-	 * Note that this value might be a combination of {@link #name()} and {@link #type()},
-	 * but such a relation is not mandatory.
 	 * 
 	 * @see #parent()
 	 * @see #toPathString()
-	 * @see #name()
-	 * @see #type()
 	 * 
 	 * @return the item's locally unique identifier.
 	 */

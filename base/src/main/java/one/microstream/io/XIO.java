@@ -485,7 +485,6 @@ public final class XIO
 	 * @param <C>
 	 * @param directory
 	 * @param logic
-	 * @return
 	 * @throws IOException
 	 */
 	public static <C extends Consumer<? super Path>> C iterateEntries(
@@ -506,7 +505,6 @@ public final class XIO
 	 * @param directory
 	 * @param logic
 	 * @param selector
-	 * @return
 	 * @throws IOException
 	 */
 	public static <C extends Consumer<? super Path>> C iterateEntries(
@@ -674,7 +672,6 @@ public final class XIO
 	 * strings right away?
 	 * 
 	 * @param filePath
-	 * @return
 	 * @throws IOException
 	 */
 	public static String readString(final String filePath)
@@ -693,7 +690,6 @@ public final class XIO
 	 * 
 	 * @param filePath
 	 * @param charSet
-	 * @return
 	 * @throws IOException
 	 */
 	public static String readString(final String filePath, final Charset charSet)
@@ -1308,7 +1304,7 @@ public final class XIO
 	 * @throws IOException as specified by {@link FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)}
 	 * 
 	 * @see FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)
-	 * @see #copyFile(Path, Path)
+	 * @see #copyFile(Path, Path, OpenOption...)
 	 */
 	public static long copyFile(
 		final FileChannel sourceChannel,
@@ -1324,7 +1320,6 @@ public final class XIO
 	 * @param sourceChannel
 	 * @param targetChannel
 	 * @param targetPosition
-	 * @return
 	 * @throws IOException
 	 */
 	public static long copyFile(
@@ -1578,7 +1573,6 @@ public final class XIO
 		 * @param <C>
 		 * @param directory
 		 * @param logic
-		 * @return
 		 * @throws IORuntimeException
 		 */
 		public static <C extends Consumer<? super Path>> C iterateEntries(
@@ -1606,7 +1600,6 @@ public final class XIO
 		 * @param directory
 		 * @param logic
 		 * @param selector
-		 * @return
 		 * @throws IORuntimeException
 		 */
 		public static <C extends Consumer<? super Path>> C iterateEntries(

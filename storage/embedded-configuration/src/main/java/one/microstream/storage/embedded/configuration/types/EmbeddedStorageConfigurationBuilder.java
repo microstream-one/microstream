@@ -180,8 +180,7 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * {@link #setHousekeepingTimeBudget(Duration)} the maximum processor
 	 * time for housekeeping work can be set. Default is one second.
 	 *
-	 * @param houseKeepingInterval
-	 *            the new interval
+	 * @param housekeepingInterval the new interval
 	 *
 	 * @see #setHousekeepingTimeBudget(Duration)
 	 */

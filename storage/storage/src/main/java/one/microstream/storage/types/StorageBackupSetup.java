@@ -44,13 +44,13 @@ public interface StorageBackupSetup
 	 * Pseudo-constructor method to create a new {@link StorageBackupSetup} instance
 	 * using the passed directory as the backup location.
 	 * <p>
-	 * For explanations and customizing values, see {@link StorageBackupSetup#New(StorageLiveFileProvider)}.
+	 * For explanations and customizing values, see {@link StorageBackupSetup#New(StorageBackupFileProvider)}.
 	 * 
 	 * @param backupDirectory the directory where the backup shall be located.
 	 * 
 	 * @return a new {@link StorageBackupSetup} instance.
 	 * 
-	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
+	 * @see StorageBackupSetup#New(StorageBackupFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	

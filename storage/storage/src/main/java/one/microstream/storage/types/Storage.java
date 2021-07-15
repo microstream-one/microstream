@@ -129,7 +129,7 @@ public final class Storage
 	 * For a detailed explanation see {@link StorageLiveFileProvider#New(ADirectory)}.
 	 *
 	 * @see Storage#FileProvider()
-	 * @see StorageLiveFileProvider#New(Path)
+	 * @see StorageLiveFileProvider#New(ADirectory)
 	 * @see StorageLiveFileProvider.Builder
 	 * @see StorageLiveFileProvider.Defaults
 	 */
@@ -445,7 +445,7 @@ public final class Storage
 	 * <p>
 	 * For a detailed explanation see {@link StorageBackupSetup#New(ADirectory)}.
 	 *
-	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
+	 * @see StorageBackupSetup#New(StorageBackupFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final Path backupDirectory)
@@ -462,7 +462,7 @@ public final class Storage
 	 * <p>
 	 * For a detailed explanation see {@link StorageBackupSetup#New(ADirectory)}.
 	 *
-	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
+	 * @see StorageBackupSetup#New(ADirectory)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final ADirectory backupDirectory)
@@ -475,8 +475,8 @@ public final class Storage
 	 * <p>
 	 * For a detailed explanation see {@link StorageBackupSetup#New(ADirectory)}.
 	 *
-	 * @see StorageBackupSetup#New(Path)
-	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
+	 * @see StorageBackupSetup#New(ADirectory)
+	 * @see StorageBackupSetup#New(StorageBackupFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final String backupDirectoryPath)
@@ -489,7 +489,7 @@ public final class Storage
 	 * <p>
 	 * For a detailed explanation see {@link StorageBackupSetup#New(StorageBackupFileProvider)}.
 	 *
-	 * @see StorageBackupSetup#New(Path)
+	 * @see StorageBackupSetup#New(StorageBackupFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final StorageBackupFileProvider backupFileProvider)

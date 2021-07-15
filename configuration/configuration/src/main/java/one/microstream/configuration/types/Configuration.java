@@ -468,7 +468,7 @@ public interface Configuration
 	 * Gets the assigned value of the specified key as {@link Integer},
 	 * or <code>null</code> if the configuration doesn't contain the key.
 	 * <p>
-	 * The String value is parsed according to {@link Integer#parseInteger(String)}.
+	 * The String value is parsed according to {@link Integer#parseInt(String)}.
 	 * 
 	 * @param key the key to look up
 	 * @return the assigned value, or <code>null</code>

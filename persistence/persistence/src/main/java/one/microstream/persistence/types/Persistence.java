@@ -1246,7 +1246,6 @@ public class Persistence
 	 * @param <T>
 	 * @param dataType
 	 * @param entityType
-	 * @return
 	 * @throws ReflectiveOperationException
 	 */
 	public static <D, T> PersistenceTypeHandler<D, T> searchProvidedTypeHandler(

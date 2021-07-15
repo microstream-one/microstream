@@ -23,7 +23,7 @@ package one.microstream.configuration.types;
 /**
  * A utility interface to parse values from external formats to a {@link Configuration#Builder()}.
  *
- * @see Configuration.Builder#load(ConfigurationMapper, Object)
+ * @see Configuration.Builder#load(ConfigurationLoader, ConfigurationParser)
  * @see ConfigurationMapper
  */
 @FunctionalInterface
@@ -46,7 +46,7 @@ public interface ConfigurationParser
 	/**
 	 * Parses all entries contained in the input to the given {@link Configuration#Builder()}.
 	 * 
-	 * @param the builder to map the entries to
+	 * @param builder the builder to map the entries to
 	 * @param input the source to parse the entries from
 	 * @return the given {@link Configuration#Builder()}
 	 */
