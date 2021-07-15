@@ -12,6 +12,8 @@
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
+	<description>Microstream High-Performance Java-Native-Persistence</description>
+	<url>https://microstream.one</url>
 
 	<organization>
 		<name>MicroStream Software</name>
@@ -85,10 +87,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -180,17 +178,14 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.3.0</version>
 					<configuration>
 						<doclint>none</doclint>
 						<failOnError>false</failOnError>
 						<notree>true</notree>
-						<additionalOptions>-html5</additionalOptions>
-						<javadocExecutable>${javadoc.executable}</javadocExecutable>
 						<source>8</source>
 						<doctitle>MicroStream API</doctitle>
 						<windowtitle>MicroStream API</windowtitle>
-						<sourcepath>${project.build.directory}/sources</sourcepath>
 						<stylesheetfile>${maven.multiModuleProjectDirectory}/etc/styles/javadoc-stylesheet.css</stylesheetfile>
 						<archive>
 							<manifestEntries>
@@ -200,24 +195,9 @@
 					</configuration>
 					<executions>
 						<execution>
-							<id>aggregate</id>
+							<id>attach-javadocs</id>
 							<goals>
-								<goal>aggregate</goal>
-							</goals>
-							<phase>site</phase>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-gpg-plugin</artifactId>
-					<version>1.6</version>
-					<executions>
-						<execution>
-							<id>sign-artifacts</id>
-							<phase>verify</phase>
-							<goals>
-								<goal>sign</goal>
+								<goal>jar</goal>
 							</goals>
 						</execution>
 					</executions>
@@ -345,6 +325,10 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>flatten-maven-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
 					</plugin>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
