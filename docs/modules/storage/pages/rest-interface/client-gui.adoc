@@ -19,7 +19,7 @@ To download it use maven
 
 or this direct link:
 
-https://repo.microstream.one/repository/maven-public/one/microstream/storage.restclient.app/{maven-version}/storage.restclient.app-{maven-version}.jar
+https://repo1.maven.org/maven2/one/microstream/microstream-storage-restclient-app/{maven-version}/microstream-storage-restclient-app-{maven-version}.jar
 
 Start the client.
 The port parameter is optional, default port is 8080.
