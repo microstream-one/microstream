@@ -1,6 +1,5 @@
 * xref:intro:welcome.adoc[Welcome]
 * xref:intro:system-requirements.adoc[System Requirements]
-* xref:intro:license.adoc[License]
 * xref:intro:changelog.adoc[Changelog]
 * xref:intro:installation.adoc[Installation]
 * xref:storage:index.adoc[Storage]
