@@ -21,4 +21,4 @@ For information on the commercial support for MicroStream see https://microstrea
 
 == License
 
-See xref:license.adoc[License].
+MicroStream is available under https://github.com/microstream-one/microstream/blob/master/LICENSE[Eclipse Public License - v 2.0].
