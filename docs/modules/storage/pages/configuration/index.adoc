@@ -114,10 +114,10 @@ Other formats are available in different artifacts.
 |===
 | Artifact | Formats
 
-| configuration.hocon
+| microstream-configuration-hocon
 | hocon, json
 
-| configuration.yaml
+| microstream-configuration-yaml
 | yaml
 |===
 
