@@ -1071,11 +1071,7 @@ public final class XIO
 	)
 		throws IOException
 	{
-		long writeCount = 0;
-		while(buffer.hasRemaining())
-		{
-			writeCount += fileChannel.write(buffer);
-		}
+		final long writeCount = writeToChannel(fileChannel, buffer);
 		
 		if(writeCount > 0)
 		{
@@ -1091,13 +1087,31 @@ public final class XIO
 	)
 		throws IOException
 	{
-		final long writeCount = fileChannel.write(
-			X.toArray(buffers, ByteBuffer.class)
-		);
+		long writeCount = 0;
+		
+		for(final ByteBuffer buffer : buffers)
+		{
+			writeCount += writeToChannel(fileChannel, buffer);
+		}
 		
 		if(writeCount > 0)
 		{
 			flush(fileChannel);
+		}
+		
+		return writeCount;
+	}
+	
+	private static long writeToChannel(
+		final FileChannel fileChannel,
+		final ByteBuffer  buffer
+	)
+		throws IOException
+	{
+		long writeCount = 0;
+		while(buffer.hasRemaining())
+		{
+			writeCount += fileChannel.write(buffer);
 		}
 		
 		return writeCount;
