@@ -1,5 +1,21 @@
 = Changelog
 
+== 5.0.2
+
+Bugfix release.
+
+=== *Bugfixes*
+
+* Fixed buffer flush regression https://github.com/microstream-one/microstream/issues/225[[225]]
+
+== 5.0.1
+
+Bugfix release.
+
+=== *Bugfixes*
+
+* Fixed broken build for microstream-storage-restclient-app
+
 == 5.0
 
 This release introduces some breaking changes. To fully support the Java Module System (Jigsaw) and to meet Maven's naming standards, we had to rename some packages and our artifact's IDs.
