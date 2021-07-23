@@ -8,7 +8,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream-parent</artifactId>
-	<version>05.00.02-MS-GA-SNAPSHOT</version>
+	<version>05.00.03-MS-GA</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -52,6 +52,8 @@
 		<module>configuration</module>
 		<module>persistence</module>
 		<module>storage</module>
+		<module>examples</module>
+		<module>p2</module>
 	</modules>
 
 	<distributionManagement>
