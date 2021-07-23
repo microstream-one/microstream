@@ -52,8 +52,6 @@
 		<module>configuration</module>
 		<module>persistence</module>
 		<module>storage</module>
-		<module>examples</module>
-		<module>p2</module>
 	</modules>
 
 	<distributionManagement>
