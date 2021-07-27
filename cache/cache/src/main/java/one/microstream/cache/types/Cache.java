@@ -65,6 +65,7 @@ import one.microstream.cache.types.MBeanServerUtils.MBeanType;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XList;
 import one.microstream.exceptions.IORuntimeException;
+import one.microstream.reference.Reference;
 import one.microstream.typing.KeyValue;
 
 /**
@@ -98,9 +99,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	 * @see #putAll(Map, boolean)
 	 */
 	@Override
-	public default void putAll(
-		final Map<? extends K, ? extends V> map
-	)
+	public default void putAll(final Map<? extends K, ? extends V> map)
 	{
 		this.putAll(map, true);
 	}
@@ -113,8 +112,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	 * @see #putAll(Map, boolean, boolean)
 	 */
 	public default void putAll(
-		final Map<? extends K, ? extends V> map,
-		final boolean replaceExistingValues
+		final Map<? extends K, ? extends V> map                  ,
+		final boolean                       replaceExistingValues
 	)
 	{
 		this.putAll(map, replaceExistingValues, true);
@@ -128,9 +127,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	 * @param useWriteThrough enable write through mode for this operation
 	 */
 	public void putAll(
-		Map<? extends K, ? extends V> map,
-		boolean replaceExistingValues,
-		boolean useWriteThrough);
+		Map<? extends K, ? extends V> map                  ,
+		boolean                       replaceExistingValues,
+		boolean                       useWriteThrough
+	);
 
 	/**
 	 * Enables or disables the management bean of this cache.
@@ -154,8 +154,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	}
 
 	public static <K, V> Cache<K, V> New(
-		final String                   name,
-		final CacheManager             manager,
+		final String                   name         ,
+		final CacheManager             manager      ,
 		final CacheConfiguration<K, V> configuration
 	)
 	{
@@ -168,23 +168,23 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 	public static class Default<K, V> implements Cache<K, V>
 	{
-		private final String                                      name;
-		private final CacheManager                                manager;
-		private final CacheConfiguration<K, V>                    configuration;
-		private final CacheValueValidator                         keyValidator;
-		private final CacheValueValidator                         valueValidator;
-		private final ObjectConverter                             objectConverter;
-		private final CacheLoader<K, V>                           cacheLoader;
-		private final CacheWriter<K, V>                           cacheWriter;
-		private final ExpiryPolicy                                expiryPolicy;
-		private final EvictionManager<K, V>                       evictionManager;
-		private final CacheTable                                  cacheTable;
-		private final XList<CacheEntryListenerRegistration<K, V>> listenerRegistrations;
-		private final ExecutorService                             executorService;
+		private final String                                      name                    ;
+		private final CacheManager                                manager                 ;
+		private final CacheConfiguration<K, V>                    configuration           ;
+		private final CacheValueValidator                         keyValidator            ;
+		private final CacheValueValidator                         valueValidator          ;
+		private final ObjectConverter                             objectConverter         ;
+		private final CacheLoader<K, V>                           cacheLoader             ;
+		private final CacheWriter<K, V>                           cacheWriter             ;
+		private final ExpiryPolicy                                expiryPolicy            ;
+		private final EvictionManager<K, V>                       evictionManager         ;
+		private final CacheTable                                  cacheTable              ;
+		private final XList<CacheEntryListenerRegistration<K, V>> listenerRegistrations   ;
+		private final ExecutorService                             executorService         ;
 		private final CacheConfigurationMXBean                    cacheConfigurationMXBean;
-		private final CacheStatisticsMXBean                       cacheStatisticsMXBean;
-		private volatile boolean                                  isStatisticsEnabled;
-		private volatile boolean                                  isClosed;
+		private final CacheStatisticsMXBean                       cacheStatisticsMXBean   ;
+		private volatile boolean                                  isStatisticsEnabled     ;
+		private volatile boolean                                  isClosed                ;
 
 		/*
 		 * According to spec cache and configuration, which may be mutable,
@@ -193,16 +193,16 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		 */
 		@SuppressWarnings("unchecked") // cache reader typing differs from cache writer typing (?)
 		Default(
-			final String                   name,
-			final CacheManager             manager,
+			final String                   name         ,
+			final CacheManager             manager      ,
 			final CacheConfiguration<K, V> configuration
 		)
 		{
 			super();
 
-			this.name                  = name;
-			this.manager               = manager;
-			this.configuration         = configuration;
+			this.name            = name         ;
+			this.manager         = manager      ;
+			this.configuration   = configuration;
 
 			this.objectConverter = configuration.isStoreByValue()
 				? ObjectConverter.ByValue(
@@ -291,9 +291,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public <C extends Configuration<K, V>> C getConfiguration(
-			final Class<C> clazz
-		)
+		public <C extends Configuration<K, V>> C getConfiguration(final Class<C> clazz)
 		{
 			if(clazz.isInstance(this.configuration))
 			{
@@ -304,9 +302,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@SuppressWarnings("unchecked")
-		private void updateConfiguration(
-			final Consumer<MutableConfiguration<K, V>> c
-		)
+		private void updateConfiguration(final Consumer<MutableConfiguration<K, V>> c)
 		{
 			if(this.configuration instanceof MutableConfiguration)
 			{
@@ -315,9 +311,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public void registerCacheEntryListener(
-			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration
-		)
+		public void registerCacheEntryListener(final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
 		{
 			notNull(cacheEntryListenerConfiguration);
 
@@ -328,9 +322,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.createAndRegisterCacheEntryListener(cacheEntryListenerConfiguration);
 		}
 
-		private void createAndRegisterCacheEntryListener(
-			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration
-		)
+		private void createAndRegisterCacheEntryListener(final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
 		{
 			synchronized(this.listenerRegistrations)
 			{
@@ -341,9 +333,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public void deregisterCacheEntryListener(
-			final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration
-		)
+		public void deregisterCacheEntryListener(final CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration)
 		{
 			notNull(cacheEntryListenerConfiguration);
 
@@ -416,9 +406,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public V get(
-			final K key
-		)
+		public V get(final K key)
 		{
 			this.ensureOpen();
 
@@ -427,7 +415,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final CacheEventDispatcher<K, V> eventDispatcher = this.listenerRegistrations.size() > 0L
 					? CacheEventDispatcher.New()
 					: null;
-			final V                          value           = this.getValue(key, eventDispatcher);
+			final V                          value           = this.getValue(key, eventDispatcher, null);
 
 			if(eventDispatcher != null)
 			{
@@ -438,9 +426,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public Map<K, V> getAll(
-			final Set<? extends K> keys
-		)
+		public Map<K, V> getAll(final Set<? extends K> keys)
 		{
 			this.ensureOpen();
 
@@ -454,7 +440,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			for(final K key : keys)
 			{
 				V value;
-				if((value = this.getValue(key, eventDispatcher)) != null)
+				if((value = this.getValue(key, eventDispatcher, null)) != null)
 				{
 					result.put(key, value);
 				}
@@ -469,9 +455,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public boolean containsKey(
-			final K key
-		)
+		public boolean containsKey(final K key)
 		{
 			this.ensureOpen();
 
@@ -489,8 +473,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 		@Override
 		public void loadAll(
-			final Set<? extends K> keys,
-			final boolean replaceExistingValues,
+			final Set<? extends K>   keys                 ,
+			final boolean            replaceExistingValues,
 			final CompletionListener completionListener
 		)
 		{
@@ -509,8 +493,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		private void loadAllInternal(
-			final Set<? extends K> keys,
-			final boolean replaceExistingValues,
+			final Set<? extends K>   keys                 ,
+			final boolean            replaceExistingValues,
 			final CompletionListener completionListener
 		)
 		{
@@ -564,10 +548,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public void put(
-			final K key,
-			final V value
-		)
+		public void put(final K key, final V value)
 		{
 			this.ensureOpen();
 
@@ -669,10 +650,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public V getAndPut(
-			final K key,
-			final V value
-		)
+		public V getAndPut(final K key, final V value)
 		{
 			this.ensureOpen();
 
@@ -792,9 +770,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 		@Override
 		public void putAll(
-			final Map<? extends K, ? extends V> map,
-			final boolean replaceExistingValues,
-			final boolean useWriteThrough
+			final Map<? extends K, ? extends V> map                  ,
+			final boolean                       replaceExistingValues,
+			final boolean                       useWriteThrough
 		)
 		{
 			this.ensureOpen();
@@ -953,10 +931,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public boolean putIfAbsent(
-			final K key,
-			final V value
-		)
+		public boolean putIfAbsent(final K key, final V value)
 		{
 			this.ensureOpen();
 
@@ -1055,9 +1030,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public boolean remove(
-			final K key
-		)
+		public boolean remove(final K key)
 		{
 			this.ensureOpen();
 
@@ -1121,10 +1094,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public boolean remove(
-			final K key,
-			final V oldValue
-		)
+		public boolean remove(final K key, final V oldValue)
 		{
 			this.ensureOpen();
 
@@ -1211,9 +1181,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public V getAndRemove(
-			final K key
-		)
+		public V getAndRemove(final K key)
 		{
 			this.ensureOpen();
 
@@ -1280,11 +1248,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public boolean replace(
-			final K key,
-			final V oldValue,
-			final V newValue
-		)
+		public boolean replace(final K key, final V oldValue, final V newValue)
 		{
 			this.ensureOpen();
 
@@ -1377,10 +1341,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public boolean replace(
-			final K key,
-			final V value
-		)
+		public boolean replace(final K key, final V value)
 		{
 			this.ensureOpen();
 
@@ -1455,10 +1416,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public V getAndReplace(
-			final K key,
-			final V value
-		)
+		public V getAndReplace(final K key, final V value)
 		{
 			this.ensureOpen();
 
@@ -1535,9 +1493,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public void removeAll(
-			final Set<? extends K> keys
-		)
+		public void removeAll(final Set<? extends K> keys)
 		{
 			this.ensureOpen();
 
@@ -1763,13 +1719,20 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		{
 			this.ensureOpen();
 
+			if(this.cacheLoader instanceof CacheStore)
+			{
+				final Iterator<K>                keys            = ((CacheStore<K, V>)this.cacheLoader).keys();
+				final CacheEventDispatcher<K, V> eventDispatcher = this.listenerRegistrations.size() > 0L
+					? CacheEventDispatcher.New()
+					: null;
+				return new EntryIterator(new KeyToValueIterator(keys, eventDispatcher));
+			}
+			
 			return new EntryIterator(this.cacheTable.iterator());
 		}
 
 		@Override
-		public void setStatisticsEnabled(
-			final boolean enabled
-		)
+		public void setStatisticsEnabled(final boolean enabled)
 		{
 			this.isStatisticsEnabled = enabled;
 
@@ -1783,9 +1746,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		@Override
-		public void setManagementEnabled(
-			final boolean enabled
-		)
+		public void setManagementEnabled(final boolean enabled)
 		{
 			this.updateConfiguration(c -> c.setManagementEnabled(enabled));
 
@@ -1797,8 +1758,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		private void updateCacheObjectRegistration(
-			final boolean enabled,
-			final Object bean,
+			final boolean   enabled ,
+			final Object    bean    ,
 			final MBeanType beanType
 		)
 		{
@@ -1814,9 +1775,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 		@Override
 		public <T> Map<K, javax.cache.processor.EntryProcessorResult<T>> invokeAll(
-			final Set<? extends K> keys,
+			final Set<? extends K>        keys          ,
 			final EntryProcessor<K, V, T> entryProcessor,
-			final Object... arguments
+			final Object...               arguments
 		)
 		{
 			this.ensureOpen();
@@ -1851,9 +1812,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 		@Override
 		public <T> T invoke(
-			final K key,
+			final K                       key           ,
 			final EntryProcessor<K, V, T> entryProcessor,
-			final Object... arguments
+			final Object...               arguments
 		)
 			throws EntryProcessorException
 		{
@@ -1949,14 +1910,14 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 		@SuppressWarnings("incomplete-switch")
 		private void finishInvocation(
-			final K key,
-			final Object internalKey,
-			final CachedValue cachedValue,
-			final MutableCacheEntry<K, V> entry,
-			final long start,
-			final long now,
-			final CacheEventDispatcher<K, V> eventDispatcher,
-			final boolean isStatisticsEnabled
+			final K                          key                ,
+			final Object                     internalKey        ,
+			final CachedValue                cachedValue        ,
+			final MutableCacheEntry<K, V>    entry              ,
+			final long                       start              ,
+			final long                       now                ,
+			final CacheEventDispatcher<K, V> eventDispatcher    ,
+			final boolean                    isStatisticsEnabled
 		)
 		{
 			switch(entry.getOperation())
@@ -2012,13 +1973,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		private void finishInvocationCreateLoad(
-			final K key,
-			final Object internalKey,
-			final MutableCacheEntry<K, V> entry,
-			final long start,
-			final long now,
-			final CacheEventDispatcher<K, V> eventDispatcher,
-			final boolean isStatisticsEnabled
+			final K                          key                ,
+			final Object                     internalKey        ,
+			final MutableCacheEntry<K, V>    entry              ,
+			final long                       start              ,
+			final long                       now                ,
+			final CacheEventDispatcher<K, V> eventDispatcher    ,
+			final boolean                    isStatisticsEnabled
 		)
 		{
 			CachedValue            cachedValue;
@@ -2066,13 +2027,13 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		private void finishInvocationUpdate(
-			final K key,
-			final MutableCacheEntry<K, V> entry,
-			final CachedValue cachedValue,
-			final long start,
-			final long now,
-			final CacheEventDispatcher<K, V> eventDispatcher,
-			final boolean isStatisticsEnabled
+			final K                          key                ,
+			final MutableCacheEntry<K, V>    entry              ,
+			final CachedValue                cachedValue        ,
+			final long                       start              ,
+			final long                       now                ,
+			final CacheEventDispatcher<K, V> eventDispatcher    ,
+			final boolean                    isStatisticsEnabled
 		)
 		{
 			final V                oldValue = this.objectConverter.externalize(cachedValue.value());
@@ -2103,12 +2064,12 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		private void finishInvocationRemove(
-			final K key,
-			final Object internalKey,
-			final CachedValue cachedValue,
-			final long start,
-			final CacheEventDispatcher<K, V> eventDispatcher,
-			final boolean isStatisticsEnabled
+			final K                          key                ,
+			final Object                     internalKey        ,
+			final CachedValue                cachedValue        ,
+			final long                       start              ,
+			final CacheEventDispatcher<K, V> eventDispatcher    ,
+			final boolean                    isStatisticsEnabled
 		)
 		{
 			this.deleteCacheEntry(key);
@@ -2142,8 +2103,9 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		private V getValue(
-			final K key,
-			final CacheEventDispatcher<K, V> eventDispatcher
+			final K                          key                 ,
+			final CacheEventDispatcher<K, V> eventDispatcher     ,
+			final Reference<CachedValue>     cachedValueReference
 		)
 		{
 			final boolean isStatisticsEnabled = this.isStatisticsEnabled;
@@ -2213,6 +2175,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 						this.cacheStatisticsMXBean.increaseCacheHits(1);
 					}
 				}
+				
+				if(cachedValueReference != null)
+				{
+					cachedValueReference.set(cachedValue);
+				}
 			}
 
 			if(isStatisticsEnabled)
@@ -2224,10 +2191,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		private void putValue(
-			final K                          key,
-			final V                          value,
-			final Object                     internalKey,
-			final CachedValue                cachedValue,
+			final K                          key            ,
+			final V                          value          ,
+			final Object                     internalKey    ,
+			final CachedValue                cachedValue    ,
 			final CacheEventDispatcher<K, V> eventDispatcher
 		)
 		{
@@ -2244,9 +2211,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 
 		@Override
-		public void evict(
-			final Iterable<KeyValue<Object, CachedValue>> entriesToEvict
-		)
+		public void evict(final Iterable<KeyValue<Object, CachedValue>> entriesToEvict)
 		{
 			long evictionCount = 0;
 			final CacheEventDispatcher<K, V> eventDispatcher = this.listenerRegistrations.size() > 0L
@@ -2286,10 +2251,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 		}
 
-		private void updateExpiryForAccess(
-			final CachedValue cachedValue,
-			final long now
-		)
+		private void updateExpiryForAccess(final CachedValue cachedValue, final long now )
 		{
 			try
 			{
@@ -2305,10 +2267,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 		}
 
-		private void updateExpiryForUpdate(
-			final CachedValue cachedValue,
-			final long now
-		)
+		private void updateExpiryForUpdate(final CachedValue cachedValue, final long now)
 		{
 			try
 			{
@@ -2325,10 +2284,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		}
 
 		private void processExpiries(
-			final K key,
-			final Object internalKey,
+			final K                          key            ,
+			final Object                     internalKey    ,
 			final CacheEventDispatcher<K, V> eventDispatcher,
-			final V expiredValue
+			final V                          expiredValue
 		)
 		{
 			this.cacheTable.remove(internalKey);
@@ -2355,17 +2314,12 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 		}
 
-		private void submit(
-			final Runnable task
-		)
+		private void submit(final Runnable task)
 		{
 			this.executorService.submit(task);
 		}
 
-		private V loadCacheEntry(
-			final K key,
-			final V value
-		)
+		private V loadCacheEntry(final K key, final V value)
 		{
 			if(this.cacheLoader != null && this.configuration.isReadThrough())
 			{
@@ -2386,9 +2340,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			return value;
 		}
 
-		private void writeCacheEntry(
-			final CacheEntry<K, V> entry
-		)
+		private void writeCacheEntry(final CacheEntry<K, V> entry)
 		{
 			if(this.cacheWriter != null && this.configuration.isWriteThrough())
 			{
@@ -2407,9 +2359,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 		}
 
-		private void deleteCacheEntry(
-			final K key
-		)
+		private void deleteCacheEntry(final K key)
 		{
 			if(this.cacheWriter != null && this.configuration.isWriteThrough())
 			{
@@ -2428,9 +2378,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 		}
 
-		private void closeIfCloseable(
-			final Object obj
-		)
+		private void closeIfCloseable(final Object obj)
 		{
 			if(obj instanceof Closeable)
 			{
@@ -2444,18 +2392,49 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 			}
 		}
+		
 
+		@SuppressWarnings("synthetic-access")
+		private final class KeyToValueIterator implements Iterator<KeyValue<Object, CachedValue>>
+		{
+			private final Iterator<K>                keyIterator         ;
+			private final CacheEventDispatcher<K, V> eventDispatcher     ;
+			private final Reference<CachedValue>     cachedValueReference;
+
+			KeyToValueIterator(final Iterator<K> keyIterator, final CacheEventDispatcher<K, V> eventDispatcher)
+			{
+				super();
+				this.keyIterator          = keyIterator      ;
+				this.eventDispatcher      = eventDispatcher  ;
+				this.cachedValueReference = X.Reference(null);
+			}
+
+			@Override
+			public boolean hasNext()
+			{
+				return this.keyIterator.hasNext();
+			}
+
+			@Override
+			public KeyValue<Object, CachedValue> next()
+			{
+				final K key = this.keyIterator.next();
+				Default.this.getValue(key, this.eventDispatcher, this.cachedValueReference);
+				return KeyValue.New(key, this.cachedValueReference.get());
+			}
+		}
+		
+
+		@SuppressWarnings("synthetic-access")
 		private final class EntryIterator implements Iterator<Cache.Entry<K, V>>
 		{
-			private final Iterator<KeyValue<Object, CachedValue>> iterator;
+			private final Iterator<KeyValue<Object, CachedValue>> iterator ;
 			private CacheEntry<K, V>                              nextEntry;
 			private CacheEntry<K, V>                              lastEntry;
-			private final long                                    now;
+			private final long                                    now      ;
 			private final boolean                                 isStatisticsEnabled;
 
-			EntryIterator(
-				final Iterator<KeyValue<Object, CachedValue>> iterator
-			)
+			EntryIterator(final Iterator<KeyValue<Object, CachedValue>> iterator)
 			{
 				super();
 				this.iterator            = iterator;
