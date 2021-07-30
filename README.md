@@ -1,5 +1,10 @@
 <img src="./etc/images/logo.svg" width="500px">
 
+![GitHub](https://img.shields.io/github/license/microstream-one/microstream?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/microstream-one/microstream?style=for-the-badge)
+![Maven Central](https://img.shields.io/maven-central/v/one.microstream/microstream-base?style=for-the-badge&versionSuffix=-MS-GA)
+![Twitter Follow](https://img.shields.io/twitter/follow/microstreamOne?style=for-the-badge)
+
 # High-Performance Java-Native-Persistence
 
 Store and load any Java Object Graph or Subgraphs partially, Relieved of Heavy-weight JPA. Microsecond Response Time. Ultra-High Throughput. Minimum of Latencies. Create Ultra-Fast In-Memory Database Applications & Microservices.
