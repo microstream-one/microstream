@@ -37,8 +37,11 @@ Tested and officially supported JDKs:
 | https://www.microsoft.com/openjdk/[MicroSoft OpenJDK]
 | 11, 16
 
+| http://dragonwell-jdk.io/[Alibaba Dragonwell]
+| 8, 11
+
 | https://www.graalvm.org/[GraalVM]
-| 20.0 +
+| 20.0+
 
 | https://developer.android.com/studio/releases/platforms[Android SDK]
 | API level 26+
