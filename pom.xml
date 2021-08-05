@@ -234,6 +234,9 @@
 					<version>2.0.0</version>
 					<configuration>
 						<overrideFile>false</overrideFile>
+						<includes>
+							<include>**/*.java</include>
+						</includes>
 					</configuration>
 					<executions>
 						<execution>
