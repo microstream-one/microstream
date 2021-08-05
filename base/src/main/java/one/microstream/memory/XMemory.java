@@ -85,19 +85,7 @@ public final class XMemory
 				XMemory::throwUnhandledPlatformException,
 				entry("java.vendor"   , "Android"),
 				entry("java.vm.vendor", " Android")
-			),
-			
-			/*
-			 * See
-			 * https://www.graalvm.org/sdk/javadoc/index.html?constant-values.html
-			 * 
-			 * Check if microstream is run in a GraalVM native image, if so we need to switch to the android Memory accessing/handling
-			 * 
-			 */
-			VmCheckNotBlank("GraalVM native image",
-				MicroStreamAndroidAdapter::setupFull,
-				entry("org.graalvm.nativeimage.imagecode")
-			)
+			)		
 
 			// add additional checks here
 		);
