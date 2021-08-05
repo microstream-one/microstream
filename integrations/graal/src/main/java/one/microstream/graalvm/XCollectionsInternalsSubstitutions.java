@@ -26,7 +26,7 @@ import com.oracle.svm.core.annotate.RecomputeFieldValue.Kind;
 import com.oracle.svm.core.annotate.TargetClass;
 
 @TargetClass(className = "one.microstream.persistence.binary.one.microstream.collections.XCollectionsInternals")
-public final class XCollectionsInternalsSubstitutions
+public final class XCollectionsInternalsSubstitutions 
 {
 	@Alias @RecomputeFieldValue(kind = Kind.FieldOffset, declClassName = "one.microstream.collections.BulkList", name = "data")
     private static long OFFSET_BulkList_data;
