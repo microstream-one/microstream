@@ -1,4 +1,4 @@
-package one.microstream.graalvm;
+package one.microstream.graalvm.types;
 
 /*-
  * #%L

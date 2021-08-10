@@ -20,6 +20,6 @@
 	<description>Microstream Integrations Project</description>
 	
 	<modules>
-		<module>graal</module>
+		<module>graalvm</module>
 	</modules>
 </project>
