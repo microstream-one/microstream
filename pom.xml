@@ -53,6 +53,7 @@
 		<module>configuration</module>
 		<module>persistence</module>
 		<module>storage</module>
+		<module>integrations</module>
 	</modules>
 
 	<distributionManagement>
