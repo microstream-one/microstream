@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import javax.cache.CacheException;
@@ -183,8 +184,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private final ExecutorService                             executorService         ;
 		private final CacheConfigurationMXBean                    cacheConfigurationMXBean;
 		private final CacheStatisticsMXBean                       cacheStatisticsMXBean   ;
-		private volatile boolean                                  isStatisticsEnabled     ;
-		private volatile boolean                                  isClosed                ;
+		private AtomicBoolean                                     isStatisticsEnabled     = new AtomicBoolean();
+		private AtomicBoolean                                     isClosed                = new AtomicBoolean();
 
 		/*
 		 * According to spec cache and configuration, which may be mutable,
@@ -352,18 +353,18 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public boolean isClosed()
 		{
-			return this.isClosed;
+			return this.isClosed.get();
 		}
 
 		@Override
 		public synchronized void close()
 		{
-			if(this.isClosed)
+			if(this.isClosed.get())
 			{
 				return;
 			}
 
-			this.isClosed = true;
+			this.isClosed.set(true);
 
 			this.manager.removeCache(this.name);
 
@@ -555,8 +556,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.keyValidator.validate(key);
 			this.valueValidator.validate(value);
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
-			final long                       start               = isStatisticsEnabled
+			final AtomicBoolean              isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled.get()
 				? System.nanoTime()
 				: 0;
 
@@ -641,7 +642,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			{
 				eventDispatcher.dispatch(this.listenerRegistrations);
 			}
-			if(isStatisticsEnabled && putCount > 0)
+			if(isStatisticsEnabled.get() && putCount > 0)
 			{
 				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
 				cacheStatisticsMXBean.increaseCachePuts(putCount);
@@ -657,8 +658,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.keyValidator.validate(key);
 			this.valueValidator.validate(value);
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
-			final long                       start               = isStatisticsEnabled
+			final AtomicBoolean              isStatisticsEnabled = this.isStatisticsEnabled;
+			final long                       start               = isStatisticsEnabled.get()
 				? System.nanoTime()
 				: 0;
 
@@ -744,7 +745,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			{
 				eventDispatcher.dispatch(this.listenerRegistrations);
 			}
-			if(isStatisticsEnabled)
+			if(isStatisticsEnabled.get())
 			{
 				final CacheStatisticsMXBean cacheStatisticsMXBean = this.cacheStatisticsMXBean;
 				if(result == null)
@@ -780,7 +781,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			map.keySet().forEach(this.keyValidator::validate);
 			map.values().forEach(this.valueValidator::validate);
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled.get();
 			final long                       start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
@@ -938,7 +939,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.keyValidator.validate(key);
 			this.valueValidator.validate(value);
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled.get();
 			final long                       start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
@@ -1036,7 +1037,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 			this.keyValidator.validate(key);
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled.get();
 			final long                       start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
@@ -1101,7 +1102,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.keyValidator.validate(key);
 			this.valueValidator.validate(oldValue);
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled.get();
 			final long                       start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
@@ -1187,7 +1188,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 			this.keyValidator.validate(key);
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled.get();
 			final long                       start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
@@ -1256,7 +1257,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.valueValidator.validate(newValue);
 			this.valueValidator.validate(oldValue);
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled.get();
 			final long                       start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
@@ -1348,7 +1349,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.keyValidator.validate(key);
 			this.valueValidator.validate(value);
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled.get();
 			final long                       start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
@@ -1423,7 +1424,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			this.keyValidator.validate(key);
 			this.valueValidator.validate(value);
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled.get();
 			final long                       start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
@@ -1499,7 +1500,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 			keys.forEach(this.keyValidator::validate);
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled.get();
 			final long                       now                 = System.currentTimeMillis();
 			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
 				? CacheEventDispatcher.New()
@@ -1615,7 +1616,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		{
 			this.ensureOpen();
 
-			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean                    isStatisticsEnabled = this.isStatisticsEnabled.get();
 			int                              removed             = 0;
 			final long                       now                 = System.currentTimeMillis();
 			final CacheEventDispatcher<K, V> eventDispatcher     = this.listenerRegistrations.size() > 0L
@@ -1734,7 +1735,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		@Override
 		public void setStatisticsEnabled(final boolean enabled)
 		{
-			this.isStatisticsEnabled = enabled;
+			this.isStatisticsEnabled.set(enabled);
 
 			this.updateConfiguration(c -> c.setStatisticsEnabled(enabled));
 
@@ -1822,7 +1823,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 			this.keyValidator.validate(key);
 
-			final boolean isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean isStatisticsEnabled = this.isStatisticsEnabled.get();
 			long          start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
@@ -2096,7 +2097,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 		private void ensureOpen()
 		{
-			if(this.isClosed)
+			if(this.isClosed.get())
 			{
 				throw new IllegalStateException("Cache is closed");
 			}
@@ -2108,7 +2109,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			final Reference<CachedValue>     cachedValueReference
 		)
 		{
-			final boolean isStatisticsEnabled = this.isStatisticsEnabled;
+			final boolean isStatisticsEnabled = this.isStatisticsEnabled.get();
 			final long    start               = isStatisticsEnabled
 				? System.nanoTime()
 				: 0;
@@ -2241,7 +2242,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				}
 			}
 
-			if(this.isStatisticsEnabled && evictionCount > 0)
+			if(this.isStatisticsEnabled.get() && evictionCount > 0)
 			{
 				if(eventDispatcher != null)
 				{
@@ -2441,7 +2442,7 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 				this.nextEntry           = null;
 				this.lastEntry           = null;
 				this.now                 = System.currentTimeMillis();
-				this.isStatisticsEnabled = Cache.Default.this.isStatisticsEnabled;
+				this.isStatisticsEnabled = Cache.Default.this.isStatisticsEnabled.get();
 			}
 
 			private void fetch()

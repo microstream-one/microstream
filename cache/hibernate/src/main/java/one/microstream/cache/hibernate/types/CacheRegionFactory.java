@@ -24,6 +24,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
@@ -55,10 +57,10 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 {
 	private final    CacheKeysFactory                   cacheKeysFactory;
 	private volatile CacheManager                       cacheManager;
-	private volatile boolean                            isExplicitCacheManager;
+	private AtomicBoolean                               isExplicitCacheManager = new AtomicBoolean();
 	private volatile CacheConfiguration<Object, Object> cacheConfiguration;
 	private volatile MissingCacheStrategy               missingCacheStrategy;
-	private volatile long                               cacheLockTimeout;
+	private AtomicLong                                  cacheLockTimeout = new AtomicLong();
 
 	public CacheRegionFactory()
 	{
@@ -108,7 +110,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 				? Integer.decode((String)cacheLockTimeoutConfigValue)
 				: ((Number)cacheLockTimeoutConfigValue).intValue()
 			;
-			this.cacheLockTimeout = SimpleTimestamper.ONE_MS * lockTimeoutInMillis;
+			this.cacheLockTimeout.set(SimpleTimestamper.ONE_MS * lockTimeoutInMillis);
 		}
 	}
 
@@ -119,8 +121,8 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	)
 	{
 		final Object explicitCacheManager = properties.get(ConfigurationPropertyNames.CACHE_MANAGER);
-		this.isExplicitCacheManager = explicitCacheManager != null;
-		return this.isExplicitCacheManager
+		this.isExplicitCacheManager.set(explicitCacheManager != null);
+		return this.isExplicitCacheManager.get()
 			? this.useExplicitCacheManager(settings, explicitCacheManager)
 			: this.createCacheManager     (settings, properties)
 		;
@@ -290,7 +292,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	@Override
 	public long getTimeout()
 	{
-		return this.cacheLockTimeout;
+		return this.cacheLockTimeout.get();
 	}
 
 	@Override
@@ -443,7 +445,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		{
 			try
 			{
-				if(!this.isExplicitCacheManager)
+				if(!this.isExplicitCacheManager.get())
 				{
 					this.cacheManager.close();
 				}

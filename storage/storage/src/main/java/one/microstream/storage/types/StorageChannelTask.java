@@ -22,6 +22,8 @@ package one.microstream.storage.types;
 
 import one.microstream.storage.exceptions.StorageException;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public interface StorageChannelTask extends StorageTask
 {
 	public void incrementCompletionProgress();
@@ -43,7 +45,7 @@ public interface StorageChannelTask extends StorageTask
 		private          int         remainingForCompletion;
 		private          int         remainingForProcessing;
 
-		private volatile boolean     hasProblems;
+		private AtomicBoolean        hasProblems = new AtomicBoolean();
 		private final    Throwable[] problems   ; // unshared instance conveniently abused as a second lock
 
 
@@ -70,7 +72,7 @@ public interface StorageChannelTask extends StorageTask
 
 		private void checkForProblems()
 		{
-			if(!this.hasProblems)
+			if(!this.hasProblems.get())
 			{
 				return;
 			}
@@ -149,7 +151,7 @@ public interface StorageChannelTask extends StorageTask
 		@Override
 		public final boolean hasProblems()
 		{
-			return this.hasProblems;
+			return this.hasProblems.get();
 		}
 
 		@Override
@@ -170,7 +172,7 @@ public interface StorageChannelTask extends StorageTask
 			if(this.problems[hashIndex] == null)
 			{
 				this.problems[hashIndex] = problem;
-				this.hasProblems = true;
+				this.hasProblems.set(true);
 			}
 			else
 			{

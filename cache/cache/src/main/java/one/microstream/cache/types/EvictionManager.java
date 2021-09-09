@@ -24,6 +24,7 @@ package one.microstream.cache.types;
 import static one.microstream.X.notNull;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.cache.configuration.CacheEntryListenerConfiguration;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
@@ -135,7 +136,7 @@ public interface EvictionManager<K, V>
 		private final    _longReference milliTimeIntervalProvider;
 		private Cache<K, V>             cache;
 		private CacheTable              cacheTable;
-		private volatile boolean        running;
+		private AtomicBoolean           running = new AtomicBoolean();
 
 		Interval(
 			final EvictionPolicy evictionPolicy,
@@ -153,9 +154,9 @@ public interface EvictionManager<K, V>
 			this.cache      = cache;
 			this.cacheTable = cacheTable;
 			
-			if(!this.running)
+			if(!this.running.get())
 			{
-				this.running = true;
+				this.running.set(true);
 				new IntervalThread(new WeakReference<>(this), this.milliTimeIntervalProvider).start();
 			}
 		}
@@ -163,7 +164,7 @@ public interface EvictionManager<K, V>
 		@Override
 		public void uninstall(final Cache<K, V> cache, final CacheTable cacheTable)
 		{
-			this.running    = false;
+			this.running.set(false);
 			this.cache      = null;
 			this.cacheTable = null;
 		}
@@ -201,7 +202,7 @@ public interface EvictionManager<K, V>
 					try
 					{
 						// check for running state. Must be the first action in case of swallowed exception
-						if(!parent.running)
+						if(!parent.running.get())
 						{
 							break;
 						}
