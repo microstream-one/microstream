@@ -31,6 +31,9 @@ import one.microstream.storage.exceptions.StorageExceptionInitialization;
 import one.microstream.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import one.microstream.storage.exceptions.StorageExceptionNotRunning;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
 // (21.03.2016 TM)TODO: what is the difference between ~Manager and ~Controller here? Merge into Controller or comment.
 public interface StorageSystem extends StorageController
 {
@@ -106,11 +109,11 @@ public interface StorageSystem extends StorageController
 		private final boolean                              switchByteOrder               ;
 
 		// state flags //
-		private volatile boolean isStartingUp      ;
-		private volatile boolean isShuttingDown    ;
+		private AtomicBoolean    isStartingUp       = new AtomicBoolean();
+		private AtomicBoolean    isShuttingDown     = new AtomicBoolean();
 		private final    Object  stateLock          = new Object();
-		private volatile long    initializationTime;
-		private volatile long    operationModeTime ;
+		private AtomicLong       initializationTime = new AtomicLong();
+		private AtomicLong       operationModeTime  = new AtomicLong();
 
 		// running state members //
 		private volatile StorageTaskBroker    taskbroker    ;
@@ -272,25 +275,25 @@ public interface StorageSystem extends StorageController
 		@Override
 		public final boolean isStartingUp()
 		{
-			return this.isStartingUp;
+			return this.isStartingUp.get();
 		}
 
 		@Override
 		public final boolean isShuttingDown()
 		{
-			return this.isShuttingDown;
+			return this.isShuttingDown.get();
 		}
 		
 		@Override
 		public final long initializationTime()
 		{
-			return this.initializationTime;
+			return this.initializationTime.get();
 		}
 		
 		@Override
 		public final long operationModeTime()
 		{
-			return this.operationModeTime;
+			return this.operationModeTime.get();
 		}
 
 		private void ensureRunning()
@@ -565,13 +568,13 @@ public interface StorageSystem extends StorageController
 					throw new StorageExceptionInitialization("already starting");
 				}
 				
-				this.isStartingUp = true;
+				this.isStartingUp.set(true);
 				try
 				{
-					this.initializationTime = System.currentTimeMillis();
+					this.initializationTime.set(System.currentTimeMillis());
 					// causes the internal state to switch to running
 					this.internalStartUp();
-					this.operationModeTime = System.currentTimeMillis();
+					this.operationModeTime.set(System.currentTimeMillis());
 				}
 				catch(final InterruptedException e)
 				{
@@ -585,7 +588,7 @@ public interface StorageSystem extends StorageController
 				}
 				finally
 				{
-					this.isStartingUp = false;
+					this.isStartingUp.set(false);
 				}
 			}
 			
