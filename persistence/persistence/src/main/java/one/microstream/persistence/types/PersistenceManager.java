@@ -151,8 +151,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 		 * bytes) is handled by different locks since the iteration is the concurrent-
 		 * critical part but committing takes the vast majority of time (costly I/O).
 		 */
-		private final Object storeMutexIteration  = new Object();
-		private final Object storeMutexCommitting = new Object();
+		private final Object storeMutex = new Object();
 
 
 
@@ -289,15 +288,12 @@ ByteOrderTargeting<PersistenceManager<D>>
 			final long objectId;
 			final PersistenceStorer persister = this.createStorer();
 			
-			synchronized(this.storeMutexIteration)
+			synchronized(this.storeMutex)
 			{
 				objectId = persister.store(object);
-			}
-			synchronized(this.storeMutexCommitting)
-			{
 				persister.commit();
 			}
-			
+
 			return objectId;
 		}
 		
@@ -307,15 +303,12 @@ ByteOrderTargeting<PersistenceManager<D>>
 			final long[] objectIds;
 			final PersistenceStorer persister = this.createStorer();
 			
-			synchronized(this.storeMutexIteration)
+			synchronized(this.storeMutex)
 			{
 				objectIds = persister.storeAll(instances);
-			}
-			synchronized(this.storeMutexCommitting)
-			{
 				persister.commit();
 			}
-			
+
 			return objectIds;
 		}
 		
@@ -324,12 +317,9 @@ ByteOrderTargeting<PersistenceManager<D>>
 		{
 			final PersistenceStorer persister = this.createStorer();
 			
-			synchronized(this.storeMutexIteration)
+			synchronized(this.storeMutex)
 			{
 				persister.storeAll(instances);
-			}
-			synchronized(this.storeMutexCommitting)
-			{
 				persister.commit();
 			}
 		}
