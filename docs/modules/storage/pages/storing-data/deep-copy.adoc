@@ -25,8 +25,11 @@ What we actually need is a deep copy. We need to have a copy of whole data subgr
 == Deep Copy Utility (ObjectCopier)
 Microstream provides the full support for deep copy. However, the following conditions must be met:
 
+[WARNING]
+====
 . Data must be already saved and manage by Microstream.
 . We have no circular reference. Our Object Graph is a Tree. (From graph theory, object graph contains no circles.)
+====
 
 If we meet the above conditions, you can relatively easily call ObjectCopier and create a deep copy of our data.
 
