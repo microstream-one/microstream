@@ -75,6 +75,7 @@ import one.microstream.persistence.binary.java.time.BinaryHandlerZoneOffset;
 import one.microstream.persistence.binary.java.util.BinaryHandlerArrayDeque;
 import one.microstream.persistence.binary.java.util.BinaryHandlerArrayList;
 import one.microstream.persistence.binary.java.util.BinaryHandlerCopyOnWriteArrayList;
+import one.microstream.persistence.binary.java.util.BinaryHandlerCopyOnWriteArraySet;
 import one.microstream.persistence.binary.java.util.BinaryHandlerCurrency;
 import one.microstream.persistence.binary.java.util.BinaryHandlerDate;
 import one.microstream.persistence.binary.java.util.BinaryHandlerHashMap;
@@ -326,6 +327,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerConcurrentHashMap.New()    ,
 			BinaryHandlerConcurrentLinkedQueue.New(),
 			BinaryHandlerCopyOnWriteArrayList.New() ,
+			BinaryHandlerCopyOnWriteArraySet.New()  ,
 
 			// remaining JDK collections (wrappers and the like) are handled dynamically
 
