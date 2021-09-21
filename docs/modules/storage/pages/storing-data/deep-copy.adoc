@@ -1,12 +1,11 @@
 = Use Data Copy
 
-If we work in MVC frameworks, our work is done by getting some data from data source, modifying it
-and then store it in a datastore. In this style of work we always work with a copy of the data.
-Which allows us to use mutable data only within a single thread, we don't have to worry about data
+If the application works in MVC frameworks, the work is oft done by getting some data from a data source, modifying it,
+and then store it in a data store. This style of work application always works with a copy of the data.
+Which allows it to use mutable data only within a single thread. The developer doesn't have to worry about data
 synchronization and then store this data in a database transaction.
 This way of working is very practical, it does not require developers to have knowledge of multithreaded
 programming and thanks to this it is very widespread.
-
 
 Can similar technical work be used when working with Microstream?
 
@@ -14,24 +13,24 @@ Of course, elegantly, very simply and safely we can use the ObjectCopier utility
 change it and save it back.
 
 == Deep Copy vs Shallow Copy
-Very simple idea, we create a purchase of actual data to work with in the application and at the end
-save that data back. Unfortunately, it's not that simple. If we call copy over an object in Java,
-it creates a copy of that object, but the other object references remain the same. This doesn't help us much.
-Because usually we have a more complex data structure than a single object. This approach is called shallow copy.
+Very simple idea, just create a purchase of actual data to work within the application and at the end
+save that data back. Unfortunately, it's not that simple. If the standard copy function is called over an object in Java,
+it creates a copy of that object, but the other object's references remain the same. This doesn't help so much.
+Because usually, an application contains a more complex data structure than a single object. This approach is called shallow copy.
 More here: https://en.wikipedia.org/wiki/Object_copying
 
-What we actually need is a deep copy. We need to have a copy of whole data subgraph from one object.
+What is actually needed at this point is a deep copy. You need to create a complete copy of the complete subgraph from this object.
 
 == Deep Copy Utility (ObjectCopier)
-Microstream provides the full support for deep copy. However, the following conditions must be met:
+Microstream provides the full support for a deep copy. However, the following conditions must be met:
 
 [WARNING]
 ====
 . Data must be already saved and manage by Microstream.
-. We have no circular reference. Our Object Graph is a Tree. (From graph theory, object graph contains no circles.)
+. There are no circular references. The Object Graph is a Tree. (From graph theory, object graph contains no circles.)
 ====
 
-If we meet the above conditions, you can relatively easily call ObjectCopier and create a deep copy of our data.
+If these two above conditions are met, ObjectCopier can be relatively easily called and a deep copy of the data will be created.
 
 [source, java]
 ----
@@ -48,14 +47,13 @@ If we meet the above conditions, you can relatively easily call ObjectCopier and
         }
 ----
 
-What we are doing now?
+What are the parts of this code?
 
-. We create instance of ObjectCopier class due to factory method New();
-. We get customer
-. Make deep copy of customer object
+. Just create an instance of ObjectCopier class due to factory method New();
+. Get customer
+. Make a deep copy of the customer object
 . Modify this object graph
-. In synchronized mode save this customer instead of original customer and save it into datastore
+. In synchronized mode save this customer instead of the original customer and save it into a datastore
 
 This simple example written in pseudocode aims to demonstrate one of the many ways to solve
 working over a shared object graph in a multi-threaded environment.
-
