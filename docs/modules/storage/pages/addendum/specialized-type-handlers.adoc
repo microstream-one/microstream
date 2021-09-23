@@ -111,3 +111,21 @@ If you want a more optimized version of JDK collection handlers, you can utilize
 final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation();
 foundation.onConnectionFoundation(BinaryHandlersJDK8::registerJDK8TypeHandlers);
 ----
+
+[#JDK17]
+== Java 17 Immutable Set and List
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-persistence-binary-jdk17</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+[source, java]
+----
+final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation();
+foundation.onConnectionFoundation(BinaryHandlersJDK15::registerJDK17TypeHandlers);
+----

@@ -129,3 +129,20 @@
 |image::symbol-check.svg[]
 |Records are mere syntax sugar for classes, see xref:faq/java-features.adoc#records[FAQ].
 |===
+
+== Java 17
+
+[options="header",cols="1,^1a,2a"]
+|===
+|Feature 
+|Supported 
+|Note
+
+|Immutable Set
+|image::symbol-check.svg[]
+|Automatically handled until Java 14, for Java 15 and later use the microstream-persistence-binary-jdk17 module, see xref:addendum/specialized-type-handlers.adoc#JDK17[microstream-persistence-binary-jdk17]
+
+|Immutable List
+|image::symbol-check.svg[]
+|Automatically handled until Java 14, for Java 15 and later use the microstream-persistence-binary-jdk17 module, see xref:addendum/specialized-type-handlers.adoc#JDK17[microstream-persistence-binary-jdk17]
+|===
