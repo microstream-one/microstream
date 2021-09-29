@@ -769,12 +769,33 @@ public final class XIO
 		);
 	}
 		
+	/**
+	 * Writes the contents of the string to the file.
+	 * <p>
+	 * <b>Attention:</b> Internally this method opens a new FileChannel to operate on!
+	 * 
+	 * @param file the file to write to
+	 * @param string the string to write
+	 * @return number of actual written bytes
+	 * @throws IOException
+	 */
 	public static final long write(final Path file, final String string)
 		throws IOException
 	{
 		return write(file, string, XChars.standardCharset());
 	}
 	
+	/**
+	 * Writes the contents of the string to the file.
+	 * <p>
+	 * <b>Attention:</b> Internally this method opens a new FileChannel to operate on!
+	 * 
+	 * @param file the file to write to
+	 * @param string the string to write
+	 * @param charset the charset which is used to decode the string
+	 * @return number of actual written bytes
+	 * @throws IOException
+	 */
 	public static final long write(final Path file, final String string, final Charset charset)
 		throws IOException
 	{
@@ -783,6 +804,16 @@ public final class XIO
 		return write(file, bytes);
 	}
 	
+	/**
+	 * Writes the contents of the array to the file.
+	 * <p>
+	 * <b>Attention:</b> Internally this method opens a new FileChannel to operate on!
+	 * 
+	 * @param file the file to write to
+	 * @param bytes the bytes to write
+	 * @return number of actual written bytes
+	 * @throws IOException
+	 */
 	public static final long write(final Path file, final byte[] bytes)
 		throws IOException
 	{
@@ -793,6 +824,16 @@ public final class XIO
 		return writeCount;
 	}
 	
+	/**
+	 * Writes the contents of the buffer to the file.
+	 * <p>
+	 * <b>Attention:</b> Internally this method opens a new FileChannel to operate on!
+	 * 
+	 * @param file the file to write to
+	 * @param buffer the buffer to write
+	 * @return number of actual written bytes
+	 * @throws IOException
+	 */
 	public static long write(final Path file, final ByteBuffer buffer)
 		throws IOException
 	{
@@ -801,6 +842,15 @@ public final class XIO
 		);
 	}
 	
+	/**
+	 * Truncates the file to the given size
+	 * <p>
+	 * <b>Attention:</b> Internally this method opens a new FileChannel to operate on!
+	 *
+	 * @param file file to be truncated
+	 * @param newSize new Size, must be zero or greater
+	 * @throws IOException
+	 */
 	public static void truncate(final Path file, final long newSize)
 		throws IOException
 	{
@@ -1100,6 +1150,16 @@ public final class XIO
 		}
 		
 		return writeCount;
+	}
+
+	public static void truncate(
+		final FileChannel fileChannel,
+		final long        newSize
+	)
+		throws IOException
+	{
+		fileChannel.truncate(newSize);
+		flush(fileChannel);
 	}
 	
 	private static long writeToChannel(
