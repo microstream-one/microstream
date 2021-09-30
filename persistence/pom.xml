@@ -27,9 +27,9 @@
 
     <profiles>
         <profile>
-            <id>from_java_16</id>
+            <id>from_java_17</id>
             <activation>
-                <jdk>[16,)</jdk>
+                <jdk>[17,)</jdk>
             </activation>
             <modules>
                 <module>binary-jdk17</module>
