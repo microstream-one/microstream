@@ -2,7 +2,7 @@ package one.microstream.persistence.binary.jdk17.java.util;
 
 /*-
  * #%L
- * MicroStream Persistence JDK11
+ * MicroStream Persistence JDK17
  * %%
  * Copyright (C) 2019 - 2021 MicroStream Software
  * %%
