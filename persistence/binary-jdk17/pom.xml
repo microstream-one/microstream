@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-persistence-parent</artifactId>
+		<version>05.01.00-MS-GA-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>microstream-persistence-binary-jdk17</artifactId>
+	
+	<name>MicroStream Persistence JDK17</name>
+	<description>MicroStream Persistence Specialized Type Handlers for JDK17</description>
+	
+	<properties>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>microstream-persistence-binary</artifactId>
+			<version>05.01.00-MS-GA-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+</project>
