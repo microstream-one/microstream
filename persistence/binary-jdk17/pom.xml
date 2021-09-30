@@ -13,12 +13,12 @@
 
 	<artifactId>microstream-persistence-binary-jdk17</artifactId>
 	
-	<name>MicroStream Persistence JDK11</name>
+	<name>MicroStream Persistence JDK17</name>
 	<description>MicroStream Persistence Specialized Type Handlers for JDK17</description>
 	
 	<properties>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 	
 	<dependencies>

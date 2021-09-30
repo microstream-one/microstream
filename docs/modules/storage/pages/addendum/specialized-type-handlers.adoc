@@ -127,5 +127,5 @@ foundation.onConnectionFoundation(BinaryHandlersJDK8::registerJDK8TypeHandlers);
 [source, java]
 ----
 final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation();
-foundation.onConnectionFoundation(BinaryHandlersJDK15::registerJDK17TypeHandlers);
+foundation.onConnectionFoundation(BinaryHandlersJDK17::registerJDK17TypeHandlers);
 ----
