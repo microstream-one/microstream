@@ -29,13 +29,14 @@ import java.util.stream.StreamSupport;
 
 public interface ConfigurationBasedCreator<T>
 {
-	public Class<?> resultType();
+	public Class<T> resultType();
 	
 	public T create(Configuration configuration);
 	
 	
-	public static <T> List<ConfigurationBasedCreator<T>> registeredCreators(
-		final Class<T> resultType
+	@SuppressWarnings("rawtypes")
+	public static List<ConfigurationBasedCreator> registeredCreators(
+		final Class<?> resultType
 	)
 	{
 		return StreamSupport.stream(
@@ -43,8 +44,7 @@ public interface ConfigurationBasedCreator<T>
 			false
 		)
 		.filter(creator -> resultType.isAssignableFrom(creator.resultType()))
-		.collect(Collectors.toList())
-		;
+		.collect(Collectors.toList());
 	}
 	
 	
@@ -61,7 +61,7 @@ public interface ConfigurationBasedCreator<T>
 		}
 		
 		@Override
-		public Class<?> resultType()
+		public Class<T> resultType()
 		{
 			return this.resultType;
 		}

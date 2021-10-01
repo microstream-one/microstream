@@ -27,6 +27,7 @@ import one.microstream.collections.EqHashTable;
 import one.microstream.collections.old.KeyValueFlatCollector;
 import one.microstream.entity.EntityLayerVersioning;
 import one.microstream.entity.EntityVersionContext;
+import one.microstream.hashing.HashEqualator;
 import one.microstream.persistence.binary.internal.AbstractBinaryHandlerCustom;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryTypeHandler;
@@ -117,7 +118,9 @@ public class BinaryHandlerEntityLayerVersioning
 	)
 	{
 		final Object[] elements = (Object[])data.getHelper(instance);
-		final EqHashTable versions = EqHashTable.New(EntityInternals.getContext(instance).equalator());
+		EqHashTable<Object, Object> versions = EqHashTable.<Object, Object>New(
+				(HashEqualator<? super Object>)EntityInternals.getContext(instance).equalator()
+		);
 		for(int i = 0; i < elements.length; )
 		{
 			versions.put(elements[i++], elements[i++]);

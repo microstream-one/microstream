@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 import one.microstream.X;
+import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingList;
 import one.microstream.functional.XFunc;
 import one.microstream.typing.XTypes;
@@ -206,6 +207,13 @@ public abstract class AbstractOldGettingList<E> implements OldList<E>
 	public Object[] toArray()
 	{
 		return this.subject.toArray();
+	}
+
+	@Override
+	public <T> T[] toArray(final T[] target)
+	{
+		XArrays.copyTo(this.parent(), target);
+		return target;
 	}
 
 	@Override
