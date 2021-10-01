@@ -398,12 +398,7 @@ public interface StorageFile
 		}
 		
 		protected synchronized AReadableFile ensureReadable()
-		{
-			if(this.file.fileSystem().isWritable())
-			{
-				return this.ensureWritable();
-			}
-			
+		{			
 			this.internalOpenReading();
 			
 			return this.readAccess;
