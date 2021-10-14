@@ -398,7 +398,7 @@ public interface StorageFile
 		}
 		
 		protected synchronized AReadableFile ensureReadable()
-		{			
+		{
 			this.internalOpenReading();
 			
 			return this.readAccess;
@@ -417,15 +417,20 @@ public interface StorageFile
 		}
 
 		public synchronized boolean close()
-		{
-			if(this.writeAccess == null)
+		{		
+			boolean result = false;
+			
+			if(this.writeAccess != null)
 			{
-				return false;
+				 result = this.writeAccess.release();
+				 this.writeAccess = null;
 			}
 			
-			// release closes implicitely.
-			final boolean result = this.writeAccess.release();
-			this.writeAccess = null;
+			if(this.readAccess != null ) 
+			{
+				result = this.readAccess.release();
+				this.readAccess = null;
+			}
 			
 			return result;
 		}
