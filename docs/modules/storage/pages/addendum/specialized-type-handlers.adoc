@@ -112,8 +112,10 @@ final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation();
 foundation.onConnectionFoundation(BinaryHandlersJDK8::registerJDK8TypeHandlers);
 ----
 
-[#JDK17]
+[#jdk17]
 == Java 17 Immutable Set and List
+
+[source, xml, title="pom.xml", subs=attributes+]
 ----
 <dependencies>
 	<dependency>
