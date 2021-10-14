@@ -54,6 +54,7 @@
 		<module>persistence</module>
 		<module>storage</module>
 		<module>integrations</module>
+		<module>examples</module>
 	</modules>
 
 	<distributionManagement>
@@ -212,18 +213,6 @@
 					</executions>
 				</plugin>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-release-plugin</artifactId>
-					<version>2.5.3</version>
-					<configuration>
-						<mavenExecutorId>forked-path</mavenExecutorId>
-						<useReleaseProfile>false</useReleaseProfile>
-						<arguments>-Psonatype-oss-release</arguments>
-						<releaseProfiles>release</releaseProfiles>
-						<goals>deploy</goals>
-					</configuration>
-				</plugin>
-				<plugin>
 					<groupId>org.moditect</groupId>
 					<artifactId>moditect-maven-plugin</artifactId>
 					<version>1.0.0.RC1</version>
@@ -317,10 +306,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-release-plugin</artifactId>
 					</plugin>
 				</plugins>
 			</build>
