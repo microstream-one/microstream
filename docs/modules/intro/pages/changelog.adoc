@@ -1,5 +1,27 @@
 = Changelog
 
+== 6.0
+
+=== *Features*
+
+* xref:misc:integrations/spring-boot.adoc[Spring Boot Integration]
+* xref:storage:addendum/specialized-type-handlers.adoc#jdk17[Specialized type handlers for Java 17 collection]
+* xref:storage:storing-data/deep-copy.adoc[Deep-copy utility]
+* Examples included in reactor build
+
+=== *Bugfixes*
+
+* Fixed swallowed exceptions in storage channels https://github.com/microstream-one/microstream/issues/265[[265]]
+* Fixed failing import with multiple channels https://github.com/microstream-one/microstream/issues/254[[254]]
+* Fixed zero byte blocks in storage https://github.com/microstream-one/microstream/pull/255[[255]]
+* Fixed faulty loading behaviour in persisted cache https://github.com/microstream-one/microstream/issues/226[[226]]
+* Fixed possible deadlock in persistence manager https://github.com/microstream-one/microstream/pull/240[[240]]
+* Fixed bug in type handler for PriorityQueue https://github.com/microstream-one/microstream/pull/234[[234]]
+
+=== *Migration guide*
+
+From version 5 no actions are necessary, for older versions see xref:#5_0_migration-guide[below].
+
 == 5.0.2
 
 Bugfix release.
@@ -38,6 +60,7 @@ For detailed information, see the migration guide below.
 
 * Fixed sporadic index out of bounds exception when storage and backup had different storage targets with a channel count greater than one
 
+[#5_0_migration-guide]
 === *Migration guide*
 
 In order to fully support the Java Module System and adopt Maven naming standards we had to introduce some changes: 
@@ -205,9 +228,10 @@ in-memory file systems for unit testing
 * Fixed type handler incompatibilities with JDK 11
 * Removed wrongfully initial values in configuration for deletion and truncation directories
 
+[#4_1_migration-guide]
 === *Migration guide*
 
-From 4.1 no actions are necessary, for older versions see below.
+From 4.1 no actions are necessary, for older versions see xref:#4_0_migration-guide[below].
 
 == 4.0
 
@@ -221,6 +245,7 @@ From 4.1 no actions are necessary, for older versions see below.
 * Better error handling in housekeeping, to avoid storage channel thread interruptions.
 * Fixed XML loading bug under Android.
 
+[#4_0_migration-guide]
 === *Migration guide*
 
 All configuration code, which includes file paths, may be rewritten to use the new Abstract File System. +
@@ -262,9 +287,10 @@ legacy type mapping)
 * Fixed a bug that caused loading of zero-length arrays to throw an exception despite everything being fine.
 * Various smaller bugfixes for unnecessary exceptions in special cases and state robustness after exceptions.
 
+[#3_0_migration-guide]
 === *Migration guide*
 
-From 2.2 no actions are necessary, for older versions see below.
+From 2.2 no actions are necessary, for older versions see xref:#2_2_migration-guide[below].
 
 == 2.2
 
