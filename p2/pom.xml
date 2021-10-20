@@ -62,6 +62,7 @@
 									<generateSourceFeature>false</generateSourceFeature>
 									<artifacts>
 										<artifact><id>one.microstream:microstream-persistence-binary-jdk8:${project.version}</id></artifact>
+										<artifact><id>one.microstream:microstream-persistence-binary-jdk17:${project.version}</id></artifact>
 										<artifact><id>one.microstream:microstream-storage-embedded-configuration:${project.version}</id></artifact>
 									</artifacts>
 								</feature>
