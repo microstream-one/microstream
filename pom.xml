@@ -352,6 +352,45 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>module-info-check</id>
+			<activation>
+				<file>
+					<exists>target/classes</exists>
+				</file>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-enforcer-plugin</artifactId>
+						<version>3.0.0</version>
+						<executions>
+							<execution>
+								<id>enforce-files-exist</id>
+								<goals>
+									<goal>enforce</goal>
+								</goals>
+								<configuration>
+									<rules>
+										<reactorModuleConvergence>
+											<message>The reactor is not valid</message>
+											<ignoreModuleDependencies>true</ignoreModuleDependencies>
+										</reactorModuleConvergence>
+										<requireFilesExist>
+											<files>
+												<file>${project.basedir}/src/module-info.java</file>
+											</files>
+										</requireFilesExist>
+									</rules>
+									<fail>true</fail>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 
 </project>
