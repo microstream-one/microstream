@@ -356,7 +356,7 @@
 			<id>module-info-check</id>
 			<activation>
 				<file>
-					<exists>target/classes</exists>
+					<exists>src/main/java</exists>
 				</file>
 			</activation>
 			<build>
@@ -373,11 +373,8 @@
 								</goals>
 								<configuration>
 									<rules>
-										<reactorModuleConvergence>
-											<message>The reactor is not valid</message>
-											<ignoreModuleDependencies>true</ignoreModuleDependencies>
-										</reactorModuleConvergence>
 										<requireFilesExist>
+											<message>The module-info is not present</message>
 											<files>
 												<file>${project.basedir}/src/module-info.java</file>
 											</files>
