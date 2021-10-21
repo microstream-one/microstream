@@ -47,7 +47,7 @@
 ** xref:storage:deleting-data.adoc[Deleting Data]
 ** xref:storage:queries.adoc[Queries]
 ** xref:storage:application-life-cycle.adoc[Application Life-Cycle]
-** xref:storage:legacy-type-mapping/index.adoc[Legagy Type Mapping]
+** xref:storage:legacy-type-mapping/index.adoc[Legacy Type Mapping]
 *** xref:storage:legacy-type-mapping/user-interaction.adoc[User Interaction]
 ** xref:storage:import-export.adoc[Import / Export]
 ** xref:storage:housekeeping.adoc[Housekeeping]
