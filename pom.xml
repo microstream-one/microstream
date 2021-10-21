@@ -43,6 +43,7 @@
 		<license.licenseName>epl_v2</license.licenseName>
 		<license.licenceFile>${basedir}/LICENSE</license.licenceFile>
 		<api.version>7.0</api.version>
+        <javadoc.failed.on.error>false</javadoc.failed.on.error>
 	</properties>
 
 	<modules>
@@ -324,8 +325,8 @@
 						<artifactId>maven-javadoc-plugin</artifactId>
 						<version>3.3.0</version>
 						<configuration>
-							<doclint>none</doclint>
-							<failOnError>false</failOnError>
+							<doclint>html,syntax,accessibility,reference,missing</doclint>
+							<failOnError>${javadoc.failed.on.error}</failOnError>
 							<notree>true</notree>
 							<additionalOptions>-html5</additionalOptions>
 							<source>8</source>
