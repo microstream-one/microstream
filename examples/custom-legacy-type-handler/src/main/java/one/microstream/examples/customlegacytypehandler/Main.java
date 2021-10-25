@@ -87,7 +87,7 @@ public class Main
 	/**
 	 * Object class and field to String
 	 * 
-	 * @param Object o
+	 * @param o Object
 	 * @return String
 	 */
 	public static String ObjectToString(final Object o)
