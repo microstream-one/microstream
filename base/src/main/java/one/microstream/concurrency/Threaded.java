@@ -325,7 +325,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	 * By default, this method simply returns {@code null}, indicating that no associated instance could have been
 	 * found.<br>
 	 * Subclasses can override this method to provide an actual fallback instance in case of a lookup miss.<br>
-	 * In combination with {@link #addForCurrentThread(E)}, this method can be used to automatically associate the
+	 * In combination with {@link #addForCurrentThread(Object)}, this method can be used to automatically associate the
 	 * fallback instance with the current {@link Thread} in case it has no instance associated, yet.
 	 * <p>
 	 * See {@link ThreadedInstantiating} for an example using an {@link Instantiator} to automatically create

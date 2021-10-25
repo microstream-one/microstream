@@ -226,6 +226,7 @@
 						<includes>
 							<include>**/*.java</include>
 						</includes>
+						<ignoreNoFileToScan>true</ignoreNoFileToScan>
 					</configuration>
 					<executions>
 						<execution>
@@ -263,6 +264,30 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
 					<version>2.8.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>3.0.0</version>
+					<executions>
+						<execution>
+							<id>enforce-files-exist</id>
+							<goals>
+								<goal>enforce</goal>
+							</goals>
+							<configuration>
+								<rules>
+									<requireFilesExist>
+										<message>The module-info is not present</message>
+										<files>
+											<file>${project.basedir}/src/module-info.java</file>
+										</files>
+									</requireFilesExist>
+								</rules>
+								<fail>true</fail>
+							</configuration>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -364,26 +389,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-enforcer-plugin</artifactId>
-						<version>3.0.0</version>
-						<executions>
-							<execution>
-								<id>enforce-files-exist</id>
-								<goals>
-									<goal>enforce</goal>
-								</goals>
-								<configuration>
-									<rules>
-										<requireFilesExist>
-											<message>The module-info is not present</message>
-											<files>
-												<file>${project.basedir}/src/module-info.java</file>
-											</files>
-										</requireFilesExist>
-									</rules>
-									<fail>true</fail>
-								</configuration>
-							</execution>
-						</executions>
 					</plugin>
 				</plugins>
 			</build>
