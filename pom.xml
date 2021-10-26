@@ -359,6 +359,7 @@
 							<windowtitle>MicroStream API ${api.version}</windowtitle>
 							<stylesheetfile>${maven.multiModuleProjectDirectory}/etc/styles/javadoc-stylesheet.css</stylesheetfile>
 							<javadocExecutable>${javadoc.executable}</javadocExecutable>
+							<excludePackageNames>one.microstream.examples.*</excludePackageNames>
 							<archive>
 								<manifestEntries>
 									<built-by>${project.organization.name}</built-by>
