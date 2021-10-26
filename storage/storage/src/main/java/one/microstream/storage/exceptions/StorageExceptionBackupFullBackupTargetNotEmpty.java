@@ -35,6 +35,6 @@ public class StorageExceptionBackupFullBackupTargetNotEmpty extends StorageExcep
 	
 	public StorageExceptionBackupFullBackupTargetNotEmpty(final ADirectory targetDirectory) 
 	{
-		super("FullBackup target " + targetDirectory.toPathString() + "not empty! Backup aborted!");
+		super("FullBackup target " + targetDirectory.toPathString() + " not empty! Backup aborted!");
 	}
 }
