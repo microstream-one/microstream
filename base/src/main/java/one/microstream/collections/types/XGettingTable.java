@@ -29,8 +29,8 @@ import one.microstream.typing.KeyValue;
  *
  * 
  *
- * @param <K>
- * @param <V>
+ * @param <K> the key type
+ * @param <V> the value type
  */
 public interface XGettingTable<K, V> extends XGettingMap<K, V>, XGettingEnum<KeyValue<K, V>>
 {

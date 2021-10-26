@@ -50,9 +50,9 @@ public interface XIterable<E>
 	 * expecting an {@link XIterable} instance. Through this abstraction, logic can be written that can be
 	 * equally executed on single objects (via this wrapper) or multiple objects (via X-collections).
 	 * <p>
-	 * <u>Example</u>:<code><pre> someRegistryLogic.register(persons);
-	 * someRegistryLogic.register(new Exector<Person>(singlePerson));
-	 * </pre></code>
+	 * <u>Example</u>:<pre> someRegistryLogic.register(persons);
+	 * someRegistryLogic.register(new Exector&lt;Person&gt;(singlePerson));
+	 * </pre>
 	 *
 	 * 
 	 */

@@ -30,7 +30,7 @@ import java.util.Comparator;
  * <p>
  * This type is mutually exclusive to {@link Sorted}.
  *
- * 
+ * @param <E> the type of the input to the operation
  *
  */
 public interface Sortable<E>

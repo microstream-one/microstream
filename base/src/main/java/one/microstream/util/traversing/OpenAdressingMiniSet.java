@@ -48,7 +48,7 @@ import one.microstream.math.XMath;
  *
  * 
  *
- * @param <E>
+ * @param <E> type of contained elements
  */
 public final class OpenAdressingMiniSet<E> implements XSet<E>
 {

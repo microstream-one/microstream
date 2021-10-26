@@ -34,7 +34,7 @@ import one.microstream.collections.interfaces.ExtendedSequence;
  *
  * 
  *
- * @param <E>
+ * @param <E> the type of the input to the operation
  */
 public interface Sorted<E> extends ExtendedSequence<E>
 {

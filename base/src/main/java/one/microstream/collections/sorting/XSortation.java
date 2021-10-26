@@ -32,7 +32,7 @@ import one.microstream.collections.types.XGettingCollection;
  *
  * 
  *
- * @param <E>
+ * @param <E> the type of the input to the operation
  */
 public interface XSortation<E> extends XBasicSequence<E>, XPutGetSortation<E>, XProcessingSortation<E>
 {

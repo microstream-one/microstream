@@ -26,7 +26,7 @@ package one.microstream.util.similarity;
  * 
  * 
  *
- * @param <E>
+ * @param <E> the validated element's type
  */
 @FunctionalInterface
 public interface MatchValidator<E>

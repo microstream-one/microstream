@@ -117,6 +117,7 @@ public final class VarByte implements Externalizable
 	 * <p>
 	 * Note that the given {@code initialCapacity} will still be adjusted to the next higher 2^n bounding value.
 	 * @param initialCapacity
+	 * @return a new VarByte instance
 	 */
 	public static VarByte New(final int initialCapacity)
 	{
@@ -215,10 +216,7 @@ public final class VarByte implements Externalizable
 		this.data = data;
 		this.size = size;
 	}
-	/**
-	 * @param out
-	 * @throws IOException
-	 */
+
 	@Override
 	public void writeExternal(final ObjectOutput out) throws IOException
 	{
@@ -792,7 +790,7 @@ public final class VarByte implements Externalizable
 
 	/**
 	 *
-	 * @param varByte
+	 * @param varByte the VarByte to check
 	 * @return {@code true} if {@code varByte} is either {@code null} or empty.
 	 * @see VarByte#isEmpty()
 	 */
@@ -877,7 +875,8 @@ public final class VarByte implements Externalizable
 
 	/**
 	 * Only preferable to {@link #reset()} for security reasons.
-	 *
+	 * 
+	 * @return this
 	 */
 	public VarByte clear()
 	{

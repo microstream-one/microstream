@@ -24,7 +24,7 @@ package one.microstream.util.similarity;
  *
  * 
  *
- * @param <T>
+ * @param <T> the checked element's type
  */
 public class SimilatorSequence<T> implements Similator<T>
 {
