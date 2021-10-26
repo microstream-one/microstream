@@ -34,6 +34,7 @@ import one.microstream.persistence.types.PersistenceTypeDictionaryExporter;
 import one.microstream.persistence.types.Persister;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
+import one.microstream.storage.exceptions.StorageExceptionBackupFullBackupTargetNotEmpty;
 
 
 /**
@@ -224,18 +225,28 @@ public interface StorageConnection extends Persister
 	 * Although the full backup may be a valid solution in some circumstances, the incremental backup should
 	 * be preferred, since it is by far more efficient.
 	 * 
+	 * if the target is existing and not empty an {@link StorageExceptionBackupFullBackupTargetNotEmpty} exception
+	 * will be thrown
+	 * 
 	 * @param targetDirectory the directory to write the backup data into
 	 * 
 	 * @since 04.01.00
 	 */
 	public default void issueFullBackup(final ADirectory targetDirectory)
 	{
-		this.issueFullBackup(
-			StorageLiveFileProvider.New(targetDirectory),
-			PersistenceTypeDictionaryExporter.New(
-				PersistenceTypeDictionaryFileHandler.New(targetDirectory)
-			)
-		);
+		if(!targetDirectory.exists() || targetDirectory.isEmpty())
+			{
+			this.issueFullBackup(
+				StorageLiveFileProvider.New(targetDirectory),
+				PersistenceTypeDictionaryExporter.New(
+					PersistenceTypeDictionaryFileHandler.New(targetDirectory)
+				)
+			);
+		}
+		else		
+		{
+			throw new StorageExceptionBackupFullBackupTargetNotEmpty(targetDirectory);
+		}
 	}
 	
 	/**

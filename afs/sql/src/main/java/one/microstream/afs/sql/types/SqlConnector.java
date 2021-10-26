@@ -73,6 +73,8 @@ public interface SqlConnector
 
 	public void truncateFile(SqlPath file, long newLength);
 
+	public boolean isEmpty(SqlPath directory);
+	
 
 	/**
 	 * Creates a new {@link SqlConnector} which doesn't use caching.
