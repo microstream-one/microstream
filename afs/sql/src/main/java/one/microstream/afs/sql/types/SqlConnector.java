@@ -231,6 +231,27 @@ public interface SqlConnector
 
 			fileNames.forEach(visitor::visitItem);
 		}
+		
+		private boolean internalIsEmpty(
+			final SqlPath    directory ,
+			final Connection connection
+		)
+		throws SQLException
+		{
+			final String sql = this.provider.countFilesQuery(directory.fullQualifiedName());
+			try(final Statement statement = connection.createStatement())
+			{
+				try(final ResultSet result = statement.executeQuery(sql))
+				{
+					if(result.next())
+					{
+						return result.getInt(1) <= 0;
+					}
+				}
+			}
+			
+			return false;
+		}
 
 		private void queryCreateDirectory(
 			final SqlPath    directory ,
@@ -708,6 +729,14 @@ public interface SqlConnector
 
 				return null;
 			});
+		}
+		
+		@Override
+		public boolean isEmpty(final SqlPath directory)
+		{
+			return this.provider.execute(connection ->
+				this.internalIsEmpty(directory, connection)
+			);
 		}
 
 		@Override
