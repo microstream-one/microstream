@@ -382,6 +382,19 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 					continue;
 				}
 				
+				//a 0-Byte sized backup file can be updated
+				if(backupTargetFile.number() > lastBackupFileNumber && backupTargetFileLength == 0)
+				{					
+					// missing length is copied to update the backup file
+					this.copyFilePart(
+						dataFile,
+						backupTargetFileLength,
+						storageFileLength - backupTargetFileLength,
+						backupTargetFile
+					);
+					continue;
+				}
+				
 				// any existing non-last backup file with divergent length is a consistency error
 				throw new StorageExceptionBackupInconsistentFileLength(
 					storageInventory           ,
@@ -421,6 +434,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 					backupTransactionFile.moveTo(wf);
 				});
 			}
+			//remove deleted file from inventory
+			backupInventory.transactionFile = null;
 		}
 		
 		
@@ -455,7 +470,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			{
 				// on any mismatch, the backup transaction file is deleted (potentially moved&renamed) and rebuilt.
 				this.deleteBackupTransactionFile(backupInventory);
-				this.copyFile(liveTransactionsFile, backupTransactionFile);
+				final StorageBackupTransactionsFile backupTransactionFileNew = liveTransactionsFile.ensureBackupFile(this);
+				this.copyFile(liveTransactionsFile, backupTransactionFileNew);
 			}
 		}
 				
