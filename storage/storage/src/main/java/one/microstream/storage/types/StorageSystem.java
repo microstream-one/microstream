@@ -325,14 +325,14 @@ public interface StorageSystem extends StorageController
 		{
 			if(this.backupHandler == null && this.backupSetup != null)
 			{
-				final StorageDataFileValidator validator = this.backupDataFileValidatorCreator
-					.createDataFileValidator(this.typeDictionary)
-				;
+//				final StorageDataFileValidator validator = this.backupDataFileValidatorCreator
+//					.createDataFileValidator(this.typeDictionary)
+//				;
 				
 				this.backupHandler = this.backupSetup.setupHandler(
 					this.operationController,
 					this.writeController,
-					validator
+					this.backupDataFileValidatorCreator
 				);
 			}
 			
