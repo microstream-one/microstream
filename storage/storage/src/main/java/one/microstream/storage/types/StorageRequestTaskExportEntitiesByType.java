@@ -22,6 +22,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -238,7 +239,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		final StorageEntityTypeHandler         type            ;
 		final Predicate<? super StorageEntity> predicateEntity ;
 
-		private volatile int currentChannel;
+		private final AtomicInteger currentChannel = new AtomicInteger();
 
 
 
@@ -268,13 +269,13 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 		final synchronized void incrementProgress()
 		{
-			this.currentChannel++;
+			this.currentChannel.incrementAndGet();
 			this.notifyAll();
 		}
 
 		final boolean isCurrentChannel(final StorageChannel channel)
 		{
-			return this.currentChannel == channel.channelIndex();
+			return this.currentChannel.get() == channel.channelIndex();
 		}
 
 		final boolean isLastChannel(final StorageChannel channel)

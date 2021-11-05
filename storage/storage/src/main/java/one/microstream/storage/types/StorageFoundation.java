@@ -1055,7 +1055,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		
 		protected StorageEventLogger ensureEventLogger()
 		{
-			return StorageEventLogger.NoOp();
+			return StorageEventLogger.Default();
 		}
 		
 		// provide instead of ensure because the instance may be null (meaning no lock file)

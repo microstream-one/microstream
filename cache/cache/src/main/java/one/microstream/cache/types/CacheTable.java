@@ -34,42 +34,29 @@ import one.microstream.typing.KeyValue;
 
 public interface CacheTable
 {
-	public CachedValue get(
-		Object key
-	);
+	public CachedValue get(Object key);
 	
-	public boolean put(
-		Object key, 
-		CachedValue value
-	);
+	public boolean put(Object key, CachedValue value);
 	
-	public CachedValue remove(
-		Object key
-	);
+	public CachedValue remove(Object key);
 	
 	public Iterable<Object> keys();
 	
 	public Iterator<KeyValue<Object, CachedValue>> iterator();
 	
-	public void iterate(
-		Consumer<KeyValue<Object, CachedValue>> procedure
-	);
+	public void iterate(Consumer<KeyValue<Object, CachedValue>> procedure);
 	
-	public KeyValue<Object, CachedValue> search(
-		Predicate<? super KeyValue<Object, CachedValue>> predicate
-	);
+	public KeyValue<Object, CachedValue> search(Predicate<? super KeyValue<Object, CachedValue>> predicate);
 	
 	public long size();
 	
 	public void clear();
 	
-	public KeyValue<Object, CachedValue> min(
-		Comparator<? super KeyValue<Object, CachedValue>> comparator
-	);
+	public KeyValue<Object, CachedValue> min(Comparator<? super KeyValue<Object, CachedValue>> comparator);
 	
 	public KeyValue<Object, CachedValue> rangeMin(
-		long offset, 
-		long length, 
+		long                                              offset    ,
+		long                                              length    ,
 		Comparator<? super KeyValue<Object, CachedValue>> comparator
 	);
 			
@@ -79,15 +66,16 @@ public interface CacheTable
 		return new Default();
 	}
 	
+	
 	public static class Default implements CacheTable
 	{
-		private final EqHashTable<Object, CachedValue> table;
+		final EqHashTable<Object, CachedValue> table;
 		
 		Default()
 		{
 			super();
 			
-			this.table          = EqHashTable.New();
+			this.table = EqHashTable.New();
 		}
 		
 		@Override
@@ -117,7 +105,7 @@ public interface CacheTable
 		@Override
 		public Iterator<KeyValue<Object, CachedValue>> iterator()
 		{
-			Iterator<KeyValue<Object, CachedValue>> it = this.table.iterator();
+			final Iterator<KeyValue<Object, CachedValue>> it = this.table.iterator();
 			/*
 			 * Iterator#remove is used by Cache, so we have to implement it
 			 * since EqHashTable's iterators don't.

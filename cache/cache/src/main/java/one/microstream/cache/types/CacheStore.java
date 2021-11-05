@@ -25,6 +25,7 @@ import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.notEmpty;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -43,6 +44,9 @@ import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 
 public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
 {
+	public Iterator<K> keys();
+	
+	
 	public static <K, V> CacheStore<K, V> New(final String cacheKey, final EmbeddedStorageManager storage)
 	{
 		return new Default<>(cacheKey, storage);
@@ -90,6 +94,16 @@ public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
 				}
 				return cacheTable;
 			}
+		}
+		
+		@Override
+		public synchronized Iterator<K> keys()
+		{
+			final XTable<K, Lazy<V>> cacheTable = this.cacheTable(false);
+			return cacheTable != null
+				? cacheTable.keys().iterator()
+				: Collections.emptyIterator()
+			;
 		}
 		
 		@Override

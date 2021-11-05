@@ -975,10 +975,10 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		int i = skipLines(data, startIndex, boundIndex, cfg.lineSeparator(), cfg.skipLineCount());
 
 		// skip all skippable (whitespaces and comments by passed/default config) at the beginning.
-		i = XCsvRecordParserCharArray.Static.skipSkippable(data, i, boundIndex, cfg.commentSignal(), config);
+		i = XCsvRecordParserCharArray.Static.skipSkippable(data, i, boundIndex, cfg.commentSignal(), cfg);
 
 		// check meta characters and replace config if necessary
-		final XReference<XCsvConfiguration> refConfig = X.Reference(config);
+		final XReference<XCsvConfiguration> refConfig = X.Reference(cfg);
 		i = checkMetaCharacters(data, i, boundIndex, refConfig);
 				
 		cfg = ensureEffectiveConfiguration(dtp, data, i, boundIndex, refConfig.get());

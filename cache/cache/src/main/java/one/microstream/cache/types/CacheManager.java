@@ -27,6 +27,7 @@ import static one.microstream.chars.XChars.notEmpty;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.cache.CacheException;
 import javax.cache.configuration.CompleteConfiguration;
@@ -84,7 +85,7 @@ public interface CacheManager extends javax.cache.CacheManager
 		private final WeakReference<ClassLoader>       classLoaderReference;
 		private final Properties                       properties;
 		private final EqHashTable<String, Cache<?, ?>> caches   = EqHashTable.New();
-		private volatile boolean                       isClosed = false;
+		private final AtomicBoolean                    isClosed = new AtomicBoolean(false);
 
 		Default(
 			final CachingProvider cachingProvider,
@@ -113,7 +114,7 @@ public interface CacheManager extends javax.cache.CacheManager
 		@Override
 		public boolean isClosed()
 		{
-			return this.isClosed;
+			return this.isClosed.get();
 		}
 
 		@Override
@@ -276,13 +277,13 @@ public interface CacheManager extends javax.cache.CacheManager
 		@Override
 		public synchronized void close()
 		{
-			if(this.isClosed)
+			if(this.isClosed.get())
 			{
 				// no-op, according to spec
 				return;
 			}
 
-			this.isClosed = true;
+			this.isClosed.set(true);
 
 			this.cachingProvider.remove(
 				this.getURI(),
@@ -311,7 +312,7 @@ public interface CacheManager extends javax.cache.CacheManager
 
 		private void ensureOpen()
 		{
-			if(this.isClosed)
+			if(this.isClosed.get())
 			{
 				throw new IllegalStateException("CacheManager is closed");
 			}

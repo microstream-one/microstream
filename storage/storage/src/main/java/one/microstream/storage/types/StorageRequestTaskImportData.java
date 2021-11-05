@@ -20,6 +20,7 @@ package one.microstream.storage.types;
  * #L%
  */
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -65,8 +66,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		// starting point for the channels to process
 		private final SourceFileSlice[] sourceFileTails;
 
-		private volatile boolean complete   ;
-		private volatile long    maxObjectId;
+		private AtomicBoolean    complete  = new AtomicBoolean();
+		private volatile long    maxObjectId; //TODO Check, why it is not assigned?
 		private          Thread  readThread ;
 
 
@@ -153,7 +154,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				}
 			}
 //			DEBUGStorage.println("* completed reading source files");
-			this.complete = true;
+			this.complete.set(true);
 		}
 
 		
@@ -363,7 +364,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 						// wait for the next batch to import (successor of the current batch)
 						while(currentSourceFile.next == null)
 						{
-							if(this.complete)
+							if(this.complete.get())
 							{
 //								DEBUGStorage.println(channel.channelIndex() + " done importing.");
 								// there will be no more next source file, so abort (task is complete)

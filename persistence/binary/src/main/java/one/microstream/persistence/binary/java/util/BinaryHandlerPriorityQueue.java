@@ -128,7 +128,10 @@ extends AbstractBinaryHandlerCustomIterable<PriorityQueue<?>>
 	)
 	{
 		return new PriorityQueue<>(
-			X.checkArrayRange(getElementCount(data)),
+			Math.max(
+				1, // initialCapacity cannot be smaller than 1
+				X.checkArrayRange(getElementCount(data))
+			),
 			getComparator(data, handler)
 		);
 	}

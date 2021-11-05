@@ -6,7 +6,7 @@ Beside `long store(Object instance)`  MicroStream provides some convenience meth
 
 [source, java]
 ----
-void storeAll(Iterable<?> instances)`
+void storeAll(Iterable<?> instances)
 ----
 
 Stores the passed instance in any case and all referenced instances of persistable references recursively, but stores referenced instances only if they are newly encountered (e.g.

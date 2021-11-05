@@ -326,11 +326,17 @@ public interface NioIoHandler extends AIoHandler
 		}
 		
 		@Override
-		protected void specificTruncateFile(final NioWritableFile file, final long newSize)
+		protected void specificTruncateFile(
+			final NioWritableFile targetFile,
+			final long            newSize
+		)
 		{
+			// ensure file is opened for writing
+			this.openWriting(targetFile);
+
 			try
 			{
-				XIO.truncate(file.path(), newSize);
+				XIO.truncate(targetFile.fileChannel(), newSize);
 			}
 			catch (final IOException e)
 			{

@@ -20,7 +20,7 @@
 **** xref:storage:storage-targets/sql-databases/mariadb.adoc[MariaDB]
 **** xref:storage:storage-targets/sql-databases/mysql.adoc[MySQL]
 **** xref:storage:storage-targets/sql-databases/oracle.adoc[Oracle]
-**** xref:storage:storage-targets/sql-databases/postresql.adoc[Postgres]
+**** xref:storage:storage-targets/sql-databases/postgresql.adoc[Postgres]
 **** xref:storage:storage-targets/sql-databases/sqlite.adoc[Sqlite]
 *** Blob Stores
 **** AWS
@@ -39,6 +39,7 @@
 *** xref:storage:storing-data/lazy-eager-full.adoc[Lazy and Eager Storing]
 *** xref:storage:storing-data/transient-fields.adoc[Transient Fields]
 *** xref:storage:storing-data/best-practice.adoc[Best Practice]
+*** xref:storage:storing-data/deep-copy.adoc[Deep Copy Utility]
 ** xref:storage:loading-data/index.adoc[Loading Data]
 *** xref:storage:loading-data/lazy-loading/index.adoc[Lazy Loading]
 *** xref:storage:loading-data/lazy-loading/touched-timestamp-null-safe-variant.adoc[Touched Timestamp, Null-Safe Variant]
@@ -46,7 +47,7 @@
 ** xref:storage:deleting-data.adoc[Deleting Data]
 ** xref:storage:queries.adoc[Queries]
 ** xref:storage:application-life-cycle.adoc[Application Life-Cycle]
-** xref:storage:legacy-type-mapping/index.adoc[Legagy Type Mapping]
+** xref:storage:legacy-type-mapping/index.adoc[Legacy Type Mapping]
 *** xref:storage:legacy-type-mapping/user-interaction.adoc[User Interaction]
 ** xref:storage:import-export.adoc[Import / Export]
 ** xref:storage:housekeeping.adoc[Housekeeping]
@@ -79,6 +80,9 @@
 *** xref:cache:use-cases/hibernate-second-level-cache.adoc[Hibernate Second Level Cache]
 *** xref:cache:use-cases/spring-cache.adoc[Spring Cache]
 * Miscellaneous
+** xref:misc:integrations/index.adoc[Integrations]
+*** xref:misc:integrations/helidon.adoc[Helidon]
+*** xref:misc:integrations/spring-boot.adoc[Spring-Boot]
 ** xref:misc:layered-entities/index.adoc[Layered Entities]
 *** xref:misc:layered-entities/configuration.adoc[Configuration]
 *** xref:misc:layered-entities/defining-entities.adoc[Defining Entities]
