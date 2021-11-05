@@ -1030,7 +1030,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			return StorageDataFileValidator.Creator(
 				this.getEntityDataIteratorProvider(),
-				this.getEntityDataValidatorCreator()
+				this.getEntityDataValidatorCreator(),
+				this.getTypeDictionary()
 			);
 		}
 		

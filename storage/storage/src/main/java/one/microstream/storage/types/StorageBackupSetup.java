@@ -23,6 +23,7 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 
 import one.microstream.afs.types.ADirectory;
+import one.microstream.storage.types.StorageDataFileValidator.Creator;
 
 public interface StorageBackupSetup
 {
@@ -33,9 +34,9 @@ public interface StorageBackupSetup
 	);
 	
 	public StorageBackupHandler setupHandler(
-		StorageOperationController operationController,
-		StorageWriteController     writeController    ,
-		StorageDataFileValidator   validator
+		StorageOperationController       operationController,
+		StorageWriteController           writeController    ,
+		StorageDataFileValidator.Creator backupDataFileValidatorCreator
 	);
 	
 
@@ -133,9 +134,9 @@ public interface StorageBackupSetup
 		
 		@Override
 		public StorageBackupHandler setupHandler(
-			final StorageOperationController operationController,
-			final StorageWriteController     writeController    ,
-			final StorageDataFileValidator   validator
+			final StorageOperationController       operationController,
+			final StorageWriteController           writeController    ,
+			final StorageDataFileValidator.Creator validatorCreator
 		)
 		{
 			final int channelCount = operationController.channelCountProvider().getChannelCount();
@@ -145,7 +146,7 @@ public interface StorageBackupSetup
 				this.itemQueue     ,
 				operationController,
 				writeController    ,
-				validator
+				validatorCreator
 			);
 		}
 		

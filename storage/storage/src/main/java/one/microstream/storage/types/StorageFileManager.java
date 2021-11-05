@@ -1593,7 +1593,10 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			{
 				if(file.head.fileNext != startingFile.tail)
 				{
-					return file.head.fileNext;
+					if(file.hasContent()) 
+					{
+						return file.head.fileNext;
+					}
 				}
 			}
 			while((file = file.next) != startingFile);

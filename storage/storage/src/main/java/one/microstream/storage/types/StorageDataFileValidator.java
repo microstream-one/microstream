@@ -41,13 +41,7 @@ public interface StorageDataFileValidator
 	{
 		this.validateFile(file, 0, file.size());
 	}
-		
-	public default void freeMemory()
-	{
-		// no-op by default
-	}
-	
-	
+			
 	public static StorageDataFileValidator New(
 		final BinaryEntityRawDataIterator   entityDataIterator ,
 		final StorageEntityDataValidator    entityDataValidator,
@@ -60,28 +54,7 @@ public interface StorageDataFileValidator
 			notNull(fileIterator)
 		);
 	}
-	
-	@Deprecated
-	public static StorageDataFileValidator DebugLogging(
-		final BinaryEntityRawDataIterator   entityDataIterator ,
-		final StorageEntityDataValidator    entityDataValidator,
-		final StorageFileEntityDataIterator fileIterator
-	)
-	{
-		return new StorageDataFileValidator.Default(
-			notNull(entityDataIterator),
-			notNull(entityDataValidator),
-			notNull(fileIterator)
-		){
-			@Override
-			public void validateFile(final StorageDataFile file, final long fileOffset, final long iterationLength)
-			{
-				XDebug.println("Validating file " + file.identifier() + "[" + fileOffset + ";" + (fileOffset + iterationLength) + "[");
-				super.validateFile(file, fileOffset, iterationLength);
-			}
-		};
-	}
-	
+		
 	public class Default implements StorageDataFileValidator
 	{
 		///////////////////////////////
@@ -92,8 +65,7 @@ public interface StorageDataFileValidator
 		private final StorageEntityDataValidator    entityDataValidator;
 		private final StorageFileEntityDataIterator fileIterator       ;
 
-		
-		
+			
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
@@ -110,25 +82,18 @@ public interface StorageDataFileValidator
 			this.fileIterator        = notNull(fileIterator)       ;
 		}
 		
-		
-		
+			
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
 		
-		@Override
-		public void freeMemory()
-		{
-			this.fileIterator.removeBuffer();
-		}
-
 		@Override
 		public void validateFile(
 			final StorageDataFile file           ,
 			final long            fileOffset     ,
 			final long            iterationLength
 		)
-		{
+		{				
 			final long remainingLength = this.fileIterator.iterateEntityData(
 				file,
 				fileOffset,
@@ -143,117 +108,70 @@ public interface StorageDataFileValidator
 					+ " in file " + file.identifier() + " at offset " + fileOffset
 				);
 			}
-		}
-		
+		}		
 	}
-	
-	public class Debugging implements StorageDataFileValidator
-	{
-		private final StorageDataFileValidator delegate;
-
-		Debugging(final StorageDataFileValidator delegate)
-		{
-			super();
-			this.delegate = delegate;
-		}
-
-		@Override
-		public void validateFile(
-			final StorageDataFile file           ,
-			final long            fileOffset     ,
-			final long            iterationLength
-		)
-		{
-			
-			XDebug.println("Validating file " + file.identifier() + "[" + fileOffset + ";" + (fileOffset + iterationLength) + "[");
-			this.delegate.validateFile(file, fileOffset, iterationLength);
-		}
 		
-	}
-	
-	
 	public static StorageDataFileValidator.Creator Creator(
 		final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider,
-		final StorageEntityDataValidator.Creator   entityDataValidatorCreator
+		final StorageEntityDataValidator.Creator   entityDataValidatorCreator,
+		final StorageTypeDictionary                storageTypeDictionary
 	)
 	{
 		return new StorageDataFileValidator.Creator.Default(
 			entityDataIteratorProvider,
-			entityDataValidatorCreator
+			entityDataValidatorCreator,
+			storageTypeDictionary
 		);
 	}
-	
-	@Deprecated
-	public static StorageDataFileValidator.Creator CreatorDebugLogging(
-		final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider,
-		final StorageEntityDataValidator.Creator   entityDataValidatorCreator
-	)
-	{
-		return new StorageDataFileValidator.Creator.DebugLogging(
-			entityDataIteratorProvider,
-			entityDataValidatorCreator
-		);
-	}
-	
+		
 	public interface Creator
-	{
-		public StorageDataFileValidator createDataFileValidator(
-			final StorageTypeDictionary typeDictionary
-		);
-		
-		
+	{	
+		public StorageDataFileValidator createDataFileValidator();
+					
 		public class Default implements StorageDataFileValidator.Creator
 		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
 			private final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider;
 			private final StorageEntityDataValidator.Creator   entityDataValidatorCreator;
+			private final StorageTypeDictionary                storageTypeDictionary;
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
 			
 			Default(
 				final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider,
-				final StorageEntityDataValidator.Creator   entityDataValidatorCreator
+				final StorageEntityDataValidator.Creator   entityDataValidatorCreator, 
+				final StorageTypeDictionary                storageTypeDictionary
 			)
 			{
 				super();
 				this.entityDataIteratorProvider = entityDataIteratorProvider;
 				this.entityDataValidatorCreator = entityDataValidatorCreator;
+				this.storageTypeDictionary      = storageTypeDictionary;
 			}
 			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+			
 			@Override
-			public StorageDataFileValidator createDataFileValidator(
-				final StorageTypeDictionary typeDictionary
-			)
+			public StorageDataFileValidator createDataFileValidator() 
 			{
 				return StorageDataFileValidator.New(
 					this.entityDataIteratorProvider.provideEntityDataIterator()            ,
-					this.entityDataValidatorCreator.createDataFileValidator(typeDictionary),
+					this.entityDataValidatorCreator.createDataFileValidator(storageTypeDictionary),
 					StorageFileEntityDataIterator.New()
 				);
-			}
+			}	
 			
-		}
+		}	
 		
-		@Deprecated
-		public final class DebugLogging extends StorageDataFileValidator.Creator.Default
-		{
-			DebugLogging(
-				final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider,
-				final StorageEntityDataValidator.Creator   entityDataValidatorCreator
-			)
-			{
-				super(entityDataIteratorProvider, entityDataValidatorCreator);
-			}
-			
-			@Override
-			public StorageDataFileValidator createDataFileValidator(
-				final StorageTypeDictionary typeDictionary
-			)
-			{
-				return new StorageDataFileValidator.Debugging(
-					super.createDataFileValidator(typeDictionary)
-				);
-			}
-			
-		}
-		
-	}
+	}	
 	
 }
