@@ -500,8 +500,7 @@
   "allPublicMethods" : true,
   "allDeclaredClasses" : true,
   "allPublicClasses" : true,    
-  "allDeclaredFields":true,    
-  "allDeclaredMethods":true
+  "allDeclaredFields":true
 },
 {
   "name":"one.microstream.util.Substituter$Default",
