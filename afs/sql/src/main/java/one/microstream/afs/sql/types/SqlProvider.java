@@ -90,6 +90,14 @@ public interface SqlProvider
 
 	/**
 	 * <pre>
+	 * select count(*)
+	 * from [tableName]
+	 * </pre>
+	 */
+	public String countFilesQuery(String tableName);
+
+	/**
+	 * <pre>
 	 * select 'start', 'end'
 	 * from [tableName]
 	 * where 'identifier' = ?
@@ -454,6 +462,19 @@ public interface SqlProvider
 			vs.add("select distinct ");
 			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
 			vs.add(" from ");
+			this.addSqlTableName(vs, tableName);
+
+			return vs.toString();
+		}
+		
+		@Override
+		public String countFilesQuery(
+			final String tableName
+		)
+		{
+			final VarString vs = VarString.New();
+
+			vs.add("select count(*) from ");
 			this.addSqlTableName(vs, tableName);
 
 			return vs.toString();

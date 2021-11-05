@@ -279,6 +279,12 @@ public interface NioIoHandler extends AIoHandler
 				throw new IORuntimeException(e);
 			}
 		}
+		
+		@Override
+		protected boolean specificIsEmpty(final ADirectory directory) 
+		{		
+			return XIO.unchecked.hasNoFiles(this.toSubjectDirectory(directory));			
+		}
 
 		@Override
 		protected boolean specificOpenReading(final NioReadableFile file)

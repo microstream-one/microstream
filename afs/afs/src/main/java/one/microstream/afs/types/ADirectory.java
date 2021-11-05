@@ -174,6 +174,12 @@ public interface ADirectory extends AItem, AResolving
 	 * Downgraded to T0D0 since MicroStream does not require directory mutations (for now...).
 	 */
 	
+	/**
+	 * Returns true if the directory does not contain any other file or directories
+	 * 
+	 * @return true if this directory is empty
+	 */
+	public boolean isEmpty();
 	
 	public abstract class Abstract
 	extends AItem.Abstract
@@ -229,6 +235,15 @@ public interface ADirectory extends AItem, AResolving
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+			
+		@Override
+		public final boolean isEmpty() 
+		{
+			synchronized(this.mutex())
+			{
+				return this.fileSystem().ioHandler().isEmpty(this);
+			}
+		}
 		
 		@Override
 		public final AItem getItem(final String identifier)

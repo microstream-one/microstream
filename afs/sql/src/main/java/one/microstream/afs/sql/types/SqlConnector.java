@@ -73,6 +73,8 @@ public interface SqlConnector
 
 	public void truncateFile(SqlPath file, long newLength);
 
+	public boolean isEmpty(SqlPath directory);
+	
 
 	/**
 	 * Creates a new {@link SqlConnector} which doesn't use caching.
@@ -228,6 +230,27 @@ public interface SqlConnector
 			}
 
 			fileNames.forEach(visitor::visitItem);
+		}
+		
+		private boolean internalIsEmpty(
+			final SqlPath    directory ,
+			final Connection connection
+		)
+		throws SQLException
+		{
+			final String sql = this.provider.countFilesQuery(directory.fullQualifiedName());
+			try(final Statement statement = connection.createStatement())
+			{
+				try(final ResultSet result = statement.executeQuery(sql))
+				{
+					if(result.next())
+					{
+						return result.getInt(1) <= 0;
+					}
+				}
+			}
+			
+			return false;
 		}
 
 		private void queryCreateDirectory(
@@ -706,6 +729,14 @@ public interface SqlConnector
 
 				return null;
 			});
+		}
+		
+		@Override
+		public boolean isEmpty(final SqlPath directory)
+		{
+			return this.provider.execute(connection ->
+				this.internalIsEmpty(directory, connection)
+			);
 		}
 
 		@Override
