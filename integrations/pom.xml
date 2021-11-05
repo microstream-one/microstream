@@ -21,6 +21,6 @@
 
     <modules>
         <module>spring-boot</module>
-		<module>graalvm</module>b
+		<module>graalvm</module>
     </modules>
 </project>
