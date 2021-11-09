@@ -370,13 +370,18 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				// the last/latest/highest existing backup file can validly diverge in length.
 				if(backupTargetFile.number() == lastBackupFileNumber)
 				{
-					// missing length is copied to update the backup file
-					this.copyFilePart(
-						dataFile,
-						backupTargetFileLength,
-						storageFileLength - backupTargetFileLength,
-						backupTargetFile
-					);
+					if(storageFileLength > backupTargetFileLength)
+					{
+						// missing length is copied to update the backup file only if the amount of bytes is greater then zero
+						this.copyFilePart(
+							dataFile,
+							backupTargetFileLength,
+							storageFileLength - backupTargetFileLength,
+							backupTargetFile
+						);
+					}
+					
+					//if the backup target is larger we don't need to correct it here. It will be truncated later on.
 					continue;
 				}
 				
