@@ -28,7 +28,7 @@ import static one.microstream.X.notNull;
  * Potentially in another, maybe even dedicated thread.
  * 
  * 
- *
+ * @param <C> the communication layer type
  */
 public interface ComConnectionAcceptor<C>
 {

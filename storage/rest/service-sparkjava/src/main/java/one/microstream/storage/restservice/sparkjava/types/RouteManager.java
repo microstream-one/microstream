@@ -60,9 +60,6 @@ public class RouteManager
 		return this.registeredRoutes;
 	}
 
-	/**
-	 * Register a route
-	 */
 	public void registerRoute(final HttpMethod httpMethod, final String uri, final RouteBase<?> route)
 	{
 		Hashtable<String, String> methods = this.registeredRoutes.get(uri);

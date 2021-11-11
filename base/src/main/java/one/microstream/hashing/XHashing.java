@@ -195,7 +195,9 @@ public final class XHashing
 	/**
 	 * Wrappers the passed {@link HashEqualator} instance as a {@link KeyValue} {@link HashEqualator} instance, using
 	 * the {@link KeyValue} instance's key as the hash element.
-	 *
+	 * 
+	 * @param <K> the key type
+	 * @param <V> the value type
 	 * @param hashEqualator single element {@link HashEqualator} instance to be wrapped.
 	 * @return the passed instance as a {@link KeyValue} {@link HashEqualator} instance.
 	 */

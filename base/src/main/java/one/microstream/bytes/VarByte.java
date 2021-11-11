@@ -116,7 +116,7 @@ public final class VarByte implements Externalizable
 	 * Otherwise, use the factory methods as they are faster due to skipping capacity checks and bounds adjustment.<br>
 	 * <p>
 	 * Note that the given {@code initialCapacity} will still be adjusted to the next higher 2^n bounding value.
-	 * @param initialCapacity
+	 * @param initialCapacity the initial size of the buffer
 	 * @return a new VarByte instance
 	 */
 	public static VarByte New(final int initialCapacity)

@@ -27,6 +27,10 @@ import java.nio.channels.SocketChannel;
 
 import one.microstream.com.XSockets;
 
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 public interface ComConnectionListener<C>
 {
 	public C listenForConnection();

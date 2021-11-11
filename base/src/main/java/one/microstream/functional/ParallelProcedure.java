@@ -332,11 +332,6 @@ public interface ParallelProcedure<E> extends Consumer<E>
 		// enqueing //
 		/////////////
 
-		/**
-		 * {@inheritDoc}
-		 *
-		 * @param element
-		 */
 		@Override
 		public final void accept(final E element)
 		{

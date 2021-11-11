@@ -190,7 +190,7 @@ public final class JdkInternals
 	/**
 	 * Guarantees the full usability of this class by validating if all functionality is usable.
 	 *
-	 * @throws Error
+	 * @throws Error if not all functionality is usable
 	 */
 	public static void guaranteeUsability()
 	{
@@ -959,7 +959,7 @@ public final class JdkInternals
 	/**
 	 * Return the field value's arithmetic memory offset relative to the object base offset.
 	 *
-	 * @param field
+	 * @param field the field to get the offset for
 	 * @return the field value's memory offset.
 	 */
 	public static final long objectFieldOffset(final Field field)
@@ -986,6 +986,9 @@ public final class JdkInternals
 
 	/**
 	 * Array alias vor #objectFieldOffset(Field).
+	 * 
+	 * @param fields the fields to get the offset for
+	 * @return the fields values' memory offsets.
 	 */
 	public static final long[] objectFieldOffsets(final Field... fields)
 	{

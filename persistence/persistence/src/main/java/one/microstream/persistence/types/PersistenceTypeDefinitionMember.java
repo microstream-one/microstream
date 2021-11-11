@@ -23,7 +23,7 @@ package one.microstream.persistence.types;
 public interface PersistenceTypeDefinitionMember extends PersistenceTypeDescriptionMember
 {
 	/**
-	 * The runtime type used by this description member, if possible. Otherwise {@code null}.
+	 * @return the runtime type used by this description member, if possible. Otherwise {@code null}.
 	 */
 	public Class<?> type();
 	

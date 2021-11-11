@@ -71,6 +71,7 @@ public final class BinaryValueTranslators
 	 * results than would be expected based on the stored instances).<p>
 	 * However, arbitrary mappings can be added to suit the needs of specific programs.
 	 * 
+	 * @param switchByteOrder byte order switch flag
 	 * @return a default mapping of primitive-to-primitive binary value translators.
 	 */
 	public static final TypeMapping<BinaryValueSetter> createDefaultValueTranslators(final boolean switchByteOrder)

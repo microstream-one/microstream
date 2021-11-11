@@ -29,7 +29,7 @@ public interface StorageRestServiceProvider
 	 * Return a StorageRestService instance initialized with the provided StorageRestAdapter.
 	 * This method is required for the RestServiceResolver.
 	 *
-	 * @param adapter
+	 * @param adapter the adapter to initialize the service with
 	 * @return StorageRestService instance
 	 */
 	public StorageRestService provideService(final StorageRestAdapter adapter);

@@ -138,10 +138,9 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 
 	/**
-	 * Note on hashDensity: Reasonable values are within [0.75; 2.00].
-	 * 
-	 * @param hashDensity
-	 * @param minimumCapacity
+	 * @param hashDensity reasonable values are within [0.75; 2.00].
+	 * @param minimumCapacity the initial minimum capacity
+	 * @return the newly created {@link DefaultObjectRegistry}
 	 */
 	public static DefaultObjectRegistry New(
 		final float hashDensity    ,

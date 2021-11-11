@@ -780,6 +780,7 @@ public final class XReflect
 	 * "Class" on the API-level,* even interfaces, is just an error that should be repeated as less as possible.<br>
 	 *
 	 * @param typeName the type name to be resolved, primitive name or full qualified type name.
+	 * @param classLoader class loader from which the class must be loaded
 	 *
 	 * @return the resolved type instance (of type {@link Class})
 	 *
@@ -800,11 +801,13 @@ public final class XReflect
 	/**
 	 * Uses {@link Class#forName(String)} which uses the calling class's {@link ClassLoader}.
 	 *
-	 * @param typeName
+	 * @param typeName the type name to be resolved, primitive name or full qualified type name.
 	 *
-	 * @throws LinkageError
-	 * @throws ExceptionInInitializerError
-	 * @throws ClassNotFoundException
+	 * @return the resolved type instance (of type {@link Class})
+	 *
+	 * @throws LinkageError see {@link Class#forName(String)}
+	 * @throws ExceptionInInitializerError see {@link Class#forName(String)}
+	 * @throws ClassNotFoundException see {@link Class#forName(String)}
 	 */
 	public static final Class<?> resolveTypeForName(final String typeName)
 		throws LinkageError, ExceptionInInitializerError, ClassNotFoundException
@@ -822,14 +825,15 @@ public final class XReflect
 	 * at runtime and is still valid if not. Example: resolving a old type dictionary as far as possible
 	 * and marking the not resolvable types as unresolvable.
 	 *
-	 * @param className
+	 * @param typeName the type name to be resolved, primitive name or full qualified type name.
+	 * @param classLoader class loader from which the class must be loaded
 	 * @return the {@link Class} instance representing the passed class name or {@code null} if unresolevable.
 	 */
-	public static final Class<?> tryResolveType(final String className, final ClassLoader classLoader)
+	public static final Class<?> tryResolveType(final String typeName, final ClassLoader classLoader)
 	{
 		try
 		{
-			return XReflect.resolveType(className, classLoader);
+			return XReflect.resolveType(typeName, classLoader);
 		}
 		catch(final ClassNotFoundException e)
 		{
@@ -843,6 +847,7 @@ public final class XReflect
 	 * If none of the passed {@literal typeNames} can be resolved, a {@link ClassNotFoundException} listing
 	 * all passed {@literal typeNames} is thrown.
 	 *
+	 * @param classLoader class loader from which the class must be loaded
 	 * @param typeNames the full qualified type names to be attempted to be resolved one by one.
 	 *
 	 * @return the first successfully resolved {@link Class} instance.
@@ -886,6 +891,7 @@ public final class XReflect
 	 * Therefore, when in doubt, it is preferable to stick to the general notion of this method being a "bad idea"
 	 * and finding a more reliable solution.
 	 *
+	 * @param classLoader class loader from which the class must be loaded
 	 * @param typeNames the full qualified type names to be attempted to be resolved one by one.
 	 *
 	 * @return the first successfully resolved {@link Class} instance or {@literal null}
@@ -932,7 +938,12 @@ public final class XReflect
 	 * Calls {@link #resolveType(String, ClassLoader)} with {@link #defaultTypeResolvingClassLoader()}.
 	 * Make sure this is a suitable {@link ClassLoader} when using this method.
 	 *
-	 * @param typeName
+	 * @param typeName the type name to be resolved, primitive name or full qualified type name.
+	 * @return the resolved type instance (of type {@link Class})
+	 *
+	 * @throws LinkageError see {@link Class#forName(String)}
+	 * @throws ExceptionInInitializerError see {@link Class#forName(String)}
+	 * @throws ClassNotFoundException see {@link Class#forName(String)}
 	 */
 	public static final Class<?> resolveType(final String typeName)
 		throws LinkageError, ExceptionInInitializerError, ClassNotFoundException
@@ -944,18 +955,23 @@ public final class XReflect
 	 * Calls {@link #tryResolveType(String, ClassLoader)} with {@link #defaultTypeResolvingClassLoader()}.
 	 * Make sure this is a suitable {@link ClassLoader} when using this method.
 	 *
-	 * @param className
+	 * @param typeName the type name to be resolved, primitive name or full qualified type name.
+	 * @return the {@link Class} instance representing the passed class name or {@code null} if unresolevable.
 	 */
-	public static final Class<?> tryResolveType(final String className)
+	public static final Class<?> tryResolveType(final String typeName)
 	{
-		return tryResolveType(className, defaultTypeResolvingClassLoader());
+		return tryResolveType(typeName, defaultTypeResolvingClassLoader());
 	}
 
 	/**
 	 * Calls {@link #iterativeResolveType(ClassLoader, String...)} with {@link #defaultTypeResolvingClassLoader()}.
 	 * Make sure this is a suitable {@link ClassLoader} when using this method.
 	 *
-	 * @param typeNames
+	 * @param typeNames the full qualified type names to be attempted to be resolved one by one.
+	 *
+	 * @return the first successfully resolved {@link Class} instance.
+	 *
+	 * @throws ClassNotFoundException if none of the passed {@literal typeNames} could have been resolved.
 	 */
 	public static final Class<?> iterativeResolveType(final String... typeNames)
 		throws ClassNotFoundException
@@ -1044,11 +1060,6 @@ public final class XReflect
 		return false;
 	}
 
-	/**
-	 * *sigh*
-	 *
-	 * @param object
-	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Class<T> getClass(final T object)
 	{
@@ -1511,10 +1522,11 @@ public final class XReflect
 	/**
 	 * Checks if {@code superClassInstance.getClass().isAssignableFrom(sameOrSubClassInstance.getClass())}
 	 *
-	 * @param <T>
-	 * @param <S>
-	 * @param superClassInstance
-	 * @param sameOrSubClassInstance
+	 * @param <T> the super type
+	 * @param <S> the same or sub type
+	 * @param superClassInstance the super instance
+	 * @param sameOrSubClassInstance ths sub or sub instance
+	 * @throws IllegalArgumentException if the check fails
 	 */
 	public static <T, S extends T> void validateFamiliarClass(
 		final T superClassInstance    ,

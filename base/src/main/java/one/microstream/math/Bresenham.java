@@ -31,12 +31,13 @@ public class Bresenham
 	 * Examples:<br>
 	 * (0,0) to (2,0) = 2 steps<br>
 	 * (0,0) to (2,2) = 2 steps<br>
-	 * (5,18) to (10,9) = 9 steps<br>
+	 * (5,18) to (10,9) = 9 steps
 	 *
-	 * @param x1
-	 * @param y1
-	 * @param x2
-	 * @param y2
+	 * @param x1 the x coordinate of the first point
+	 * @param y1 the y coordinate of the first point
+	 * @param x2 the x coordinate of the second point
+	 * @param y2 the y coordinate of the second point
+	 * @return the amount of discrete steps between the two points
 	 */
 	public static final int stepCountDistance(final int x1, final int y1, final int x2, final int y2)
 	{

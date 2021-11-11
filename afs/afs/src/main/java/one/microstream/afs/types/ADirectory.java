@@ -156,6 +156,7 @@ public interface ADirectory extends AItem, AResolving
 	
 	/**
 	 * Removes all child items ({@link ADirectory} or {@link AFile}) that have no physical equivalent.
+	 * @return the amount of removed items
 	 */
 	public int consolidate();
 	

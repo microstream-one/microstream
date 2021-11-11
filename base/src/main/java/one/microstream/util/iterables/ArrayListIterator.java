@@ -67,9 +67,9 @@ public final class ArrayListIterator<E> implements ListIterator<E>
 	}
 
 	/**
-	 *
-	 * @param e
-	 * @throws UnsupportedOperationException
+	 * 
+	 * @param e the element to add
+	 * @throws UnsupportedOperationException because this operation is not supported
 	 * @see java.util.ListIterator#add(java.lang.Object)
 	 */
 	@Override
@@ -153,7 +153,7 @@ public final class ArrayListIterator<E> implements ListIterator<E>
 
 	/**
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException because this operation is not supported
 	 * @see java.util.ListIterator#remove()
 	 */
 	@Override
@@ -163,7 +163,6 @@ public final class ArrayListIterator<E> implements ListIterator<E>
 	}
 
 	/**
-	 * @param e
 	 * @see java.util.ListIterator#set(java.lang.Object)
 	 */
 	@Override

@@ -169,7 +169,7 @@ public final class X
 	 * What else could the meaning of a transient method named "notNull" be?
 	 * If "requireNotNull" is needed to express this behavior, than what would "notNull" alone mean?<br>
 	 * In the end, "requireNotNull" is just additional clutter, hence not usable and is replaced by
-	 * this, still properly named "notNull" method.)<i>
+	 * this, still properly named "notNull" method.)</i>
 	 *
 	 * @param <T> the type of the object to be ensured to be not {@code null}.
 	 * @param object the object to be ensured to be not {@code null}.
@@ -192,6 +192,7 @@ public final class X
 	 *   instead of missing method calls and comments (like "may be null" or "optional").
 	 * - the IDE can search for all occurances of this method, listing all places where something may be null.
 	 * 
+	 * @param <T> the object's type
 	 * @param object the passed reference.
 	 * @return the passed reference without doing ANYTHING else.
 	 */
@@ -206,7 +207,7 @@ public final class X
 	 * Useful for checking "really true" (not false and not unknown).
 	 *
 	 * @param b a {@code Boolean} object.<br>
-	 * @return <tt>false</tt> if {@code b} is {@code null} or <tt>false</tt>
+	 * @return <code>false</code> if {@code b} is {@code null} or <code>false</code>
 	 */
 	public static final boolean isTrue(final Boolean b)
 	{
@@ -218,7 +219,7 @@ public final class X
 	 * Useful for checking "really false" (not true and not unknown).
 	 *
 	 * @param b a {@code Boolean} object.
-	 * @return <tt>false</tt> if {@code b} is {@code null} or {@code true}, otherwise {@code true}
+	 * @return <code>false</code> if {@code b} is {@code null} or <code>true</code>, otherwise <code>true</code>
 	 */
 	public static final boolean isFalse(final Boolean b)
 	{
@@ -230,7 +231,7 @@ public final class X
 	 * Useful for checking "really not true" (either false or unknown).
 	 *
 	 * @param b a {@code Boolean} object.
-	 * @return {@code true} if {@code b} is {@code null} or <tt>false</tt>, otherwise <tt>false</tt>
+	 * @return <code>true</code> if {@code b} is {@code null} or <code>false</code>, otherwise <code>false</code>
 	 */
 	public static final boolean isNotTrue(final Boolean b)
 	{
@@ -242,7 +243,7 @@ public final class X
 	 * Useful for checking "really not false" (either true or unknown).
 	 *
 	 * @param b a {@code Boolean} object.
-	 * @return {@code true} if {@code b} is {@code null} or {@code true}, otherwise <tt>false</tt>
+	 * @return <code>true</code> if {@code b} is {@code null} or <code>true</code>, otherwise <code>false</code>
 	 */
 	public static final boolean isNotFalse(final Boolean b)
 	{
@@ -723,7 +724,8 @@ public final class X
 	 * Utility method to create a list of integers from 1 to the passed {@code n} value.
 	 * Useful for executing a logic via {@link XList#iterate(Consumer)} exactely {@code n} times.
 	 * 
-	 * @param n
+	 * @param n the amount of integers
+	 * @return a list of integers from 1 to {@code n}
 	 */
 	public static XList<Integer> times(final int n)
 	{
@@ -739,8 +741,9 @@ public final class X
 	/**
 	 * Utility method to create a list of integers from {@code firstValue} to {@code lastValue}.
 	 * 
-	 * @param firstValue
-	 * @param lastValue
+	 * @param firstValue the lower limit
+	 * @param lastValue the upper limit
+	 * @return a list of integers from {@code firstValue} to {@code lastValue}
 	 */
 	public static XList<Integer> range(final int firstValue, final int lastValue)
 	{
@@ -935,7 +938,8 @@ public final class X
 	 * {@literal componentType},
 	 * a length as defined by the passed {@literal length} value and that is filled in order with elements supplied
 	 * by the passed {@link Supplier} instance.
-	 *
+	 * 
+	 * @param <E> the component type
 	 * @param length        the length of the array to be created.
 	 * @param componentType the component type of the array to be created.
 	 * @param supplier      the function supplying the instances that make up the array's elements.
@@ -997,8 +1001,9 @@ public final class X
 	/**
 	 * Removes all <code>null</code> entries and entries with <code>null</code>-referents.
 	 * 
-	 * @param <T>
-	 * @param array
+	 * @param <T> the component type
+	 * @param array the array to consolidate
+	 * @return the consolidated array with non-null values
 	 */
 	public static <T> WeakReference<T>[] consolidateWeakReferences(final WeakReference<T>[] array)
 	{
@@ -1222,6 +1227,11 @@ public final class X
 
 	/**
 	 * Converts an {@link Iterable} into an array.
+	 * 
+	 * @param <E> the element type.
+	 * @param iterable the iterable to convert
+	 * @param type the component type of the array to be created
+	 * @return an array containing the values of the iterable
 	 */
 	@SuppressWarnings("unchecked") // type-safety ensured by logic
 	public static <E> E[] toArray(final Iterable<? extends E> iterable, final Class<E> type)
@@ -1240,12 +1250,7 @@ public final class X
 		);
 	}
 	
-	
-	/**
-	 * As usual, the JDK developers fail to create smoothly usable methods, so one has to clean up after them.<br>
-	 * Usage:<br>
-	 * {@code throw addSuppressed(new SomethingIsWrongException(), e);}
-	 */
+
 	public static final <T extends Throwable> T addSuppressed(final T throwable, final Throwable suppressed)
 	{
 		throwable.addSuppressed(suppressed);
@@ -1274,8 +1279,10 @@ public final class X
 	 * Nifty little helper logic that allows to execute custom logic on a subject instance but still return that
 	 * instance. Useful for method chaining.
 	 * 
-	 * @param subject
-	 * @param logic
+	 * @param <S> the subject's type
+	 * @param subject the subject to execute the logic on
+	 * @param logic the logic to execute
+	 * @return the subject
 	 */
 	public static final <S> S on(final S subject, final Consumer<? super S> logic)
 	{
@@ -1286,7 +1293,7 @@ public final class X
 	/**
 	 * Forces the passed {@literal condition} to evaluate to true by throwing an {@link Error} otherwise.
 	 * 
-	 * @param condition
+	 * @param condition the condition to check
 	 * 
 	 * @throws Error if the passed {@literal condition} fails.
 	 */
@@ -1299,8 +1306,8 @@ public final class X
 	/**
 	 * Forces the passed {@literal condition} to evaluate to true by throwing an {@link Error} otherwise.
 	 * 
-	 * @param condition
-	 * @param message
+	 * @param condition the condition to check
+	 * @param message the custom error message
 	 * 
 	 * @throws Error if the passed {@literal condition} fails.
 	 */
@@ -1313,9 +1320,9 @@ public final class X
 	/**
 	 * Forces the passed {@literal condition} to evaluate to true by throwing an {@link Error} otherwise.
 	 * 
-	 * @param condition
-	 * @param message
-	 * @param stackLevels
+	 * @param condition the condition to check
+	 * @param message the custom error message
+	 * @param stackLevels the amount of stack levels for the resulting error
 	 * 
 	 * @throws Error if the passed {@literal condition} fails.
 	 */

@@ -25,7 +25,10 @@ import java.nio.ByteOrder;
 import one.microstream.persistence.types.PersistenceIdStrategy;
 import one.microstream.persistence.types.PersistenceTypeDictionaryViewProvider;
 
-
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 @FunctionalInterface
 public interface ComProtocolProviderCreator<C>
 {

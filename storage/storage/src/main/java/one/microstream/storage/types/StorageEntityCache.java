@@ -87,6 +87,8 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		 * and can disappear at any release.<br>
 		 * <b>Do not use this is production mode.</b>
 		 * 
+		 * @param enabled <code>true</code> if the gc should be enabled, <code>false</code> otherwise
+		 * 
 		 * @deprecated experimental, will be removed in a future release
 		 */
 		@Deprecated

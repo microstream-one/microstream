@@ -172,6 +172,9 @@ public final class EmbeddedStorage
 	}
 
 	/**
+	 * @param directory the storage directory
+	 * @return a new storage foundation
+	 * 
 	 * @deprecated replaced by {@link #Foundation(Path)}
 	 */
 	@Deprecated
@@ -318,6 +321,10 @@ public final class EmbeddedStorage
 	}
 
 	/**
+	 * @param directory the directory where the storage will be located.
+	 *
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
+	 * 
 	 * @deprecated replaced by {@link #start(Path)}
 	 */
 	@Deprecated
@@ -471,6 +478,12 @@ public final class EmbeddedStorage
 	}
 
 	/**
+	 * @param root      root the explicitely defined root instance of the persistent entity graph.
+	 *
+	 * @param directory the directory where the storage will be located.
+	 *
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
+	 * 
 	 * @deprecated replaced by {@link #start(Object, Path)} and {@link #start(Object, ADirectory)}
 	 */
 	@Deprecated

@@ -38,25 +38,25 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 public interface StorageEntity
 {
 	/**
-	 * the entity's data length, meaning the pure content length without any header or meta data.
+	 * @return The entity's data length, meaning the pure content length without any header or meta data.
 	 *
 	 */
 	public long dataLength();
 
 	/**
-	 * The entity's type id.
+	 * @return The entity's type id.
 	 *
 	 */
 	public long typeId();
 
 	/**
-	 * The entity's biunique identifying id number.
+	 * @return The entity's biunique identifying id number.
 	 *
 	 */
 	public long objectId();
 
 	/**
-	 * The information if this entity's type has reference fields (regardless of a particular entity's actual data).
+	 * @return The information if this entity's type has reference fields (regardless of a particular entity's actual data).
 	 *
 	 */
 	public boolean hasReferences();
@@ -66,13 +66,15 @@ public interface StorageEntity
 	 * returned by {@link #dataLength()} as only parts of an entity (e.g. only references) might be loaded into cache
 	 * and because the cache might hold the header/meta data of an entity as well.
 	 *
+	 *  @return The length this entity occupies in the cache.
 	 */
 	public long cachedDataLength();
 
 	/**
 	 * The approximate system time that this particular entity has been last touched.
 	 * The returned value is compatible to the value returned by {@link System#currentTimeMillis()}.
-	 *
+	 * 
+	 *  @return approximate system time that this particular entity has been last touched
 	 */
 	public long lastTouched();
 

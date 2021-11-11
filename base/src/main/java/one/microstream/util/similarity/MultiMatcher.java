@@ -95,6 +95,8 @@ public interface MultiMatcher<E>
 	 * better matching pairs just to not leave them unmatched.
 	 * To deactivate this special casing, set the threshold to 1.0, meaning only items that fit perfectly anyway
 	 * take precedence over others.
+	 * 
+	 * @return the singleton precedence threshold
 	 */
 	public double singletonPrecedenceThreshold();
 	

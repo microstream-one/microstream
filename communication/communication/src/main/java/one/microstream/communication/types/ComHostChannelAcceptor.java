@@ -29,7 +29,7 @@ import java.util.function.Consumer;
  * Potentially in another, maybe even dedicated thread.
  * 
  * 
- *
+ * @param <C> the communication layer type
  */
 @FunctionalInterface
 public interface ComHostChannelAcceptor<C>

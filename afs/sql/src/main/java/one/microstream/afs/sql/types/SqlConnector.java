@@ -77,6 +77,8 @@ public interface SqlConnector
 	/**
 	 * Creates a new {@link SqlConnector} which doesn't use caching.
 	 * 
+	 * @param provider the sql provider for the connector, not null
+	 * @return the newly created connector
 	 * @see #Caching(SqlProvider)
 	 */
 	public static SqlConnector New(
@@ -92,6 +94,8 @@ public interface SqlConnector
 	/**
 	 * Creates a new {@link SqlConnector} which uses caching.
 	 * 
+	 * @param provider the sql provider for the connector, not null
+	 * @return the newly created connector
 	 * @see #New(SqlProvider)
 	 */
 	public static SqlConnector Caching(

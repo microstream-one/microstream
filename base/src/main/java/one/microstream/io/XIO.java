@@ -482,10 +482,11 @@ public final class XIO
 	 * <p>
 	 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
 	 * 
-	 * @param <C>
-	 * @param directory
-	 * @param logic
-	 * @throws IOException
+	 * @param <C> the consumer type
+	 * @param directory the directory to iterate
+	 * @param logic the itaration logic
+	 * @return the given logic
+	 * @throws IOException if an IO error occurs
 	 */
 	public static <C extends Consumer<? super Path>> C iterateEntries(
 		final Path directory,
@@ -501,11 +502,12 @@ public final class XIO
 	 * <p>
 	 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
 	 * 
-	 * @param <C>
-	 * @param directory
-	 * @param logic
-	 * @param selector
-	 * @throws IOException
+	 * @param <C> the consumer type
+	 * @param directory the directory to iterate
+	 * @param logic the itaration logic
+	 * @param selector filter predicate
+	 * @return the given logic
+	 * @throws IOException if an IO error occurs
 	 */
 	public static <C extends Consumer<? super Path>> C iterateEntries(
 		final Path                    directory,
@@ -671,8 +673,9 @@ public final class XIO
 	 * So when already using a convenience method, anyway, why not make it really convienent and accept file path
 	 * strings right away?
 	 * 
-	 * @param filePath
-	 * @throws IOException
+	 * @param filePath the source file path
+	 * @return the contents of the file
+	 * @throws IOException if an IO error occurs
 	 */
 	public static String readString(final String filePath)
 		throws IOException
@@ -688,9 +691,10 @@ public final class XIO
 	 * So when already using a convenience method, anyway, why not make it really convienent and accept file path
 	 * strings right away?
 	 * 
-	 * @param filePath
-	 * @param charSet
-	 * @throws IOException
+	 * @param filePath the source file path
+	 * @param charSet the charset to use
+	 * @return the contents of the file
+	 * @throws IOException if an IO error occurs
 	 */
 	public static String readString(final String filePath, final Charset charSet)
 		throws IOException
@@ -777,7 +781,7 @@ public final class XIO
 	 * @param file the file to write to
 	 * @param string the string to write
 	 * @return number of actual written bytes
-	 * @throws IOException
+	 * @throws IOException if an IO error occurs
 	 */
 	public static final long write(final Path file, final String string)
 		throws IOException
@@ -794,7 +798,7 @@ public final class XIO
 	 * @param string the string to write
 	 * @param charset the charset which is used to decode the string
 	 * @return number of actual written bytes
-	 * @throws IOException
+	 * @throws IOException if an IO error occurs
 	 */
 	public static final long write(final Path file, final String string, final Charset charset)
 		throws IOException
@@ -812,7 +816,7 @@ public final class XIO
 	 * @param file the file to write to
 	 * @param bytes the bytes to write
 	 * @return number of actual written bytes
-	 * @throws IOException
+	 * @throws IOException if an IO error occurs
 	 */
 	public static final long write(final Path file, final byte[] bytes)
 		throws IOException
@@ -832,7 +836,7 @@ public final class XIO
 	 * @param file the file to write to
 	 * @param buffer the buffer to write
 	 * @return number of actual written bytes
-	 * @throws IOException
+	 * @throws IOException if an IO error occurs
 	 */
 	public static long write(final Path file, final ByteBuffer buffer)
 		throws IOException
@@ -849,7 +853,7 @@ public final class XIO
 	 *
 	 * @param file file to be truncated
 	 * @param newSize new Size, must be zero or greater
-	 * @throws IOException
+	 * @throws IOException if an IO error occurs
 	 */
 	public static void truncate(final Path file, final long newSize)
 		throws IOException
@@ -1035,9 +1039,10 @@ public final class XIO
 	 * The reason for this behavior is unknown, but looking at countless other issues in the JDK code,
 	 * one might guess... .
 	 * 
-	 * @param fileChannel
-	 * @param byteBuffers
-	 * @throws IOException
+	 * @param fileChannel the target file channel
+	 * @param byteBuffers the source data buffers
+	 * @return the number of written bytes
+	 * @throws IOException if an IO error occurs
 	 */
 	public static long appendAll(final FileChannel fileChannel, final ByteBuffer[] byteBuffers)
 		throws IOException
@@ -1069,9 +1074,10 @@ public final class XIO
 	 * In short: this method "guarantees" that every byte contained in the passed {@link ByteBuffer}s was appended
 	 * to the passed {@link FileChannel} and actually reached the physical file.
 	 * 
-	 * @param fileChannel
-	 * @param byteBuffers
-	 * @throws IOException
+	 * @param fileChannel the target file channel
+	 * @param byteBuffers the source data buffers
+	 * @return the number of written bytes
+	 * @throws IOException if an IO error occurs
 	 */
 	public static long appendAllGuaranteed(final FileChannel fileChannel, final ByteBuffer[] byteBuffers)
 		throws IOException
@@ -1338,7 +1344,7 @@ public final class XIO
 	 * 
 	 * @return the number of bytes written by {@link FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)}.
 	 * 
-	 * @throws IOException
+	 * @throws IOException if an IO error occurs
 	 * 
 	 * @see #ensureFile(Path)
 	 * @see #ensureDirectoryAndFile(Path)
@@ -1391,10 +1397,11 @@ public final class XIO
 	
 	/**
 	 * Uses the sourceChannel's current position!
-	 * @param sourceChannel
-	 * @param targetChannel
-	 * @param targetPosition
-	 * @throws IOException
+	 * @param sourceChannel an open and readable channel to the source file whose content shall be copied.
+	 * @param targetChannel an open and writeable channel to the target file that shall receive the copied content.
+	 * @param targetPosition the position to write to in the target channel
+	 * @return the number of written bytes
+	 * @throws IOException as specified by {@link FileChannel#transferFrom(java.nio.channels.ReadableByteChannel, long, long)}
 	 */
 	public static long copyFile(
 		final FileChannel sourceChannel ,
@@ -1644,10 +1651,11 @@ public final class XIO
 		 * <p>
 		 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
 		 * 
-		 * @param <C>
-		 * @param directory
-		 * @param logic
-		 * @throws IORuntimeException
+		 * @param <C> the consumer type
+		 * @param directory the source directory
+		 * @param logic the itaration logic
+		 * @return the given logic
+		 * @throws IORuntimeException when an IO error occurs
 		 */
 		public static <C extends Consumer<? super Path>> C iterateEntries(
 			final Path directory,
@@ -1670,11 +1678,12 @@ public final class XIO
 		 * <p>
 		 * Also see: https://stackoverflow.com/questions/48311252/a-bit-strange-behaviour-of-files-delete-and-files-deleteifexists
 		 * 
-		 * @param <C>
-		 * @param directory
-		 * @param logic
-		 * @param selector
-		 * @throws IORuntimeException
+		 * @param <C> the consumer type
+		 * @param directory the source directory
+		 * @param logic the itaration logic
+		 * @param selector filter predicate
+		 * @return the given logic
+		 * @throws IORuntimeException when an IO error occurs
 		 */
 		public static <C extends Consumer<? super Path>> C iterateEntries(
 			final Path                    directory,

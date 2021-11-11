@@ -77,6 +77,7 @@ public interface ConfigurationParser
 
 	/**
 	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Ini()
 	{
@@ -88,6 +89,7 @@ public interface ConfigurationParser
 	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
 	 *
 	 * @param propertyParser a custom property parser
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Ini(
 		final ConfigurationPropertyParser propertyParser
@@ -98,6 +100,7 @@ public interface ConfigurationParser
 
 	/**
 	 * Creates a new {@link ConfigurationParser} which reads xml files.
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Xml()
 	{
@@ -108,6 +111,7 @@ public interface ConfigurationParser
 	 * Creates a new {@link ConfigurationParser} which reads xml files.
 	 *
 	 * @param propertyParser a custom property parser
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Xml(
 		final ConfigurationPropertyParser propertyParser

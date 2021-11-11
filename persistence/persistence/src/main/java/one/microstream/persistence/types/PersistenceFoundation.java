@@ -51,7 +51,8 @@ import one.microstream.util.InstanceDispatcher;
  * Hence it can be seen as a kind of "master instance" of the built persistence layer or as its "foundation".
  *
  * 
- * @param <D>
+ * @param <D> the data type
+ * @param <F> the foundation type
  */
 public interface PersistenceFoundation<D, F extends PersistenceFoundation<D, ?>>
 extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, PersistenceDataTypeHolder<D>

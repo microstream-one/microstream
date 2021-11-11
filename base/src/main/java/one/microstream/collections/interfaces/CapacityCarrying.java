@@ -33,7 +33,7 @@ public interface CapacityCarrying extends Sized
 	public long maximumCapacity();
 
 	/**
-	 * Returns the amount of elements this carrier instance can collect before reaching its maximimum capacity.
+	 * @return the amount of elements this carrier instance can collect before reaching its maximimum capacity.
 	 *
 	 */
 	public default long remainingCapacity()
@@ -42,7 +42,7 @@ public interface CapacityCarrying extends Sized
 	}
 
 	/**
-	 * Returns true if the current capacity cannot be increased any more.
+	 * @return true if the current capacity cannot be increased any more.
 	 */
 	public default boolean isFull()
 	{

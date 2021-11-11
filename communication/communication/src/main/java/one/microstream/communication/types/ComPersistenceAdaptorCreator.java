@@ -27,6 +27,10 @@ import java.nio.ByteOrder;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.persistence.types.PersistenceIdStrategy;
 
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 @FunctionalInterface
 public interface ComPersistenceAdaptorCreator<C>
 {

@@ -286,8 +286,9 @@ public final class OldCollections
 	/**
 	 * Reduces {@code collection} by all elements that meet {@code reductionPredicate}.<br>
 	 * Note that NO new collection instance is created but the collection itself is reduced.
-	 *
-	 * @param <T>
+	 * 
+	 * @param <C> the collection type
+	 * @param <T> the type of the collection's elements
 	 * @param collection the collection to be reduced
 	 * @param reductionPredicate the predicate determining which elements shall be removed
 	 * @return {@code collection} itself
@@ -451,7 +452,7 @@ public final class OldCollections
 	 * @param <T> the element type parameter of the list
 	 * @param collection the collection whose elements shall be copied to an array
 	 * @param elementType the type of the elements contained in {@code collection}.
-	 * @return a new array object of type <T> containing all elements of {@code collection}.
+	 * @return a new array object of type &lt;T&gt; containing all elements of {@code collection}.
 	 */
 	public static final <T> T[] toArray(final Collection<? extends T> collection, final Class<T> elementType)
 	{

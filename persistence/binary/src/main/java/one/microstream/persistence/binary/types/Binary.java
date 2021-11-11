@@ -2078,6 +2078,11 @@ public abstract class Binary implements Chunk
 		
 	/**
 	 * Updates the passed array up to the size defined by the binary data, returns the size.
+	 * 
+	 * @param binaryOffset the offset of the array size in the binary data
+	 * @param handler the persistence load handler
+	 * @param array the array to update
+	 * @return the array size
 	 */
 	public final int updateSizedArrayObjectReferences(
 		final long                   binaryOffset,
@@ -2547,6 +2552,9 @@ public abstract class Binary implements Chunk
 	 * Similar problems with other or complex custom handlers are conceivable.
 	 *<p>
 	 * Only one helper object can be registered per subject instance (the instance to be built).
+	 * 
+	 * @param key the object to register the helper for
+	 * @param helper the helper to register
 	 */
 	public final synchronized void registerHelper(final Object key, final Object helper)
 	{
@@ -2571,6 +2579,9 @@ public abstract class Binary implements Chunk
 	 * their elements in an additional helper structure and defer the actual elements collecting to the completion.
 	 * <p>
 	 * Similar problems with other or complex custom handlers are conceivable.
+	 * 
+	 * @param key the object to get the helper for
+	 * @return the registered helper, or <code>null</code> if none is registered for the key object
 	 */
 	public final synchronized Object getHelper(final Object key)
 	{

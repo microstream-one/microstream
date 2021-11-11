@@ -20,8 +20,18 @@ package one.microstream.collections.types;
  * #L%
  */
 
+/**
+ * 
+ * @param <K> the key type
+ * @param <V> the value type
+ */
 public interface XPuttingMap<K, V> extends XAddingMap<K, V>
 {
+	/**
+	 * 
+	 * @param <K> the key type
+	 * @param <V> the value type
+	 */
 	public interface Creator<K, V> extends XAddingMap.Creator<K, V>
 	{
 		@Override
@@ -30,15 +40,18 @@ public interface XPuttingMap<K, V> extends XAddingMap<K, V>
 	
 	/**
 	 * Ensures the passed key and value to be contained as an entry in the map. Return value indicates new entry.
-	 * @param key
-	 * @param value
+	 * @param key the key
+	 * @param value the value
+	 * @return <code>true</code> if an entry was created
 	 */
 	public boolean put(K key, V value);
 
 	/**
 	 * Ensures the passed value to be either set to an existing entry appropriate to sampleKey or inserted as a new one.
-	 * @param sampleKey
-	 * @param value
+	 * Return value indicates new entry.
+	 * @param sampleKey the key
+	 * @param value the value
+	 * @return <code>true</code> if an entry was created
 	 */
 	public boolean valuePut(K sampleKey, V value);
 

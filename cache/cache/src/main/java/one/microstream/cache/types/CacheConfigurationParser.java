@@ -48,10 +48,12 @@ public interface CacheConfigurationParser
 
 	/**
 	 * Parses the configuration from the given input.
-	 *
+	 * 
+	 * @param <K> the key type
+	 * @param <V> the value type
 	 * @param data the input to parse
-	 * @param keyType the key type
-	 * @param valueType the value type
+	 * @param keyType the class for the key type
+	 * @param valueType the class for value type
 	 * @return the parsed configuration
 	 * @throws CacheConfigurationException if an error occurs while parsing
 	 */
@@ -61,19 +63,11 @@ public interface CacheConfigurationParser
 		Class<V> valueType
 	);
 
-	/**
-	 * Creates a new {@link CacheConfigurationParser}.
-	 */
 	public static CacheConfigurationParser New()
 	{
 		return New(CacheConfigurationPropertyParser.New());
 	}
 
-	/**
-	 * Creates a new {@link CacheConfigurationParser}.
-	 *
-	 * @param propertyParser a custom property parser
-	 */
 	public static CacheConfigurationParser New(
 		final CacheConfigurationPropertyParser propertyParser
 	)

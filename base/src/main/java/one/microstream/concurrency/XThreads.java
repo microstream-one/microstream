@@ -50,8 +50,9 @@ public final class XThreads
 	 * for complex applications, it can be a conveniently simple, working way to make concurrency-wise
 	 * simple applications sufficiently concurrency-safe.
 	 * 
-	 * @param <T>
-	 * @param logic
+	 * @param <T> the return value type
+	 * @param logic the logic to execute
+	 * @return the supplier's value
 	 */
 	public static <T> T executeSynchronized(final Supplier<T> logic)
 	{
@@ -62,7 +63,9 @@ public final class XThreads
 	}
 	
 	/**
-	 * @see #executeSynchronized(Runnable)
+	 * @param logic the logic to execute
+	 * 
+	 * @see #executeSynchronized(Supplier)
 	 */
 	public static void executeSynchronized(final Runnable logic)
 	{

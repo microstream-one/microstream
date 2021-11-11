@@ -77,6 +77,9 @@ public interface SqlProvider
 	 * from [tableName]
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String fileSizeQuery(String tableName);
 
@@ -85,6 +88,9 @@ public interface SqlProvider
 	 * select distinct 'identifier'
 	 * from [tableName]
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String listFilesQuery(String tableName);
 
@@ -94,6 +100,9 @@ public interface SqlProvider
 	 * from [tableName]
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readMetadataQuery(String tableName);
 
@@ -102,8 +111,11 @@ public interface SqlProvider
 	 * select 'start', 'end'
 	 * from [tableName]
 	 * where 'identifier' = ?
-	 * and start <= ? and end >= ?
+	 * and start &lt;= ? and end &gt;= ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readMetadataQuerySingleSegment(String tableName);
 
@@ -114,6 +126,9 @@ public interface SqlProvider
 	 * where 'identifier' = ?
 	 * order by 'end' desc
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readDataQuery(String tableName);
 
@@ -122,9 +137,12 @@ public interface SqlProvider
 	 * select *
 	 * from [tableName]
 	 * where 'identifier' = ?
-	 * and 'start' < ?
+	 * and 'start' &lt; ?
 	 * order by 'end' desc
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readDataQueryWithLength(String tableName);
 
@@ -133,9 +151,12 @@ public interface SqlProvider
 	 * select *
 	 * from [tableName]
 	 * where 'identifier' = ?
-	 * and 'end' >= ?
+	 * and 'end' &gt;= ?
 	 * order by 'end' desc
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readDataQueryWithOffset(String tableName);
 
@@ -144,10 +165,13 @@ public interface SqlProvider
 	 * select *
 	 * from [tableName]
 	 * where 'identifier' = ?
-	 * and 'end' >= ?
-	 * and 'start' <= ?
+	 * and 'end' &gt;= ?
+	 * and 'start' &lt;= ?
 	 * order by 'end' desc
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readDataQueryWithRange(String tableName);
 
@@ -157,6 +181,9 @@ public interface SqlProvider
 	 * from [tableName]
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String fileExistsQuery(String tableName);
 
@@ -170,6 +197,9 @@ public interface SqlProvider
 	 * primary key ('identifier', 'start')
 	 * )
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public Iterable<String> createDirectoryQueries(String tableName);
 
@@ -178,6 +208,9 @@ public interface SqlProvider
 	 * delete from [tableName]
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String deleteFileQuery(String tableName);
 
@@ -185,8 +218,11 @@ public interface SqlProvider
 	 * <pre>
 	 * delete from [tableName]
 	 * where 'identifier' = ?
-	 * and 'start' >= ?
+	 * and 'start' &gt;= ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String deleteFileQueryFromStart(String tableName);
 
@@ -194,8 +230,11 @@ public interface SqlProvider
 	 * <pre>
 	 * delete from [tableName]
 	 * where 'identifier' = ?
-	 * and 'end' >= ?
+	 * and 'end' &gt;= ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String deleteFileQueryFromEnd(String tableName);
 
@@ -205,6 +244,9 @@ public interface SqlProvider
 	 * ('identifier', 'start', 'end', 'data')
 	 * values (?, ?, ?, ?)
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String writeDataQuery(String tableName);
 
@@ -214,6 +256,9 @@ public interface SqlProvider
 	 * set 'identifier' = ?
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String moveFileQuerySameParent(String tableName);
 
@@ -225,6 +270,10 @@ public interface SqlProvider
 	 * from [sourceTableName]
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param sourceTableName the source table name to query
+	 * @param targetTableName the target table name to query
+	 * @return the native query string
 	 */
 	public String copyFileQuery(String sourceTableName, String targetTableName);
 

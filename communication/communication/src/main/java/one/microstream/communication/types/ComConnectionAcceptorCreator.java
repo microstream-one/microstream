@@ -20,7 +20,11 @@ package one.microstream.communication.types;
  * #L%
  */
 
-
+/**
+ * 
+ *
+ * @param <C> the connection's communication layer type
+ */
 @FunctionalInterface
 public interface ComConnectionAcceptorCreator<C>
 {

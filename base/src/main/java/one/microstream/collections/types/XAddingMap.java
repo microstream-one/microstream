@@ -23,8 +23,18 @@ package one.microstream.collections.types;
 import one.microstream.collections.interfaces.CapacityExtendable;
 import one.microstream.collections.interfaces.ExtendedMap;
 
+/**
+ * 
+ * @param <K> the key type
+ * @param <V> the value type
+ */
 public interface XAddingMap<K, V> extends CapacityExtendable, ExtendedMap<K, V>
 {
+	/**
+	 * 
+	 * @param <K> the key type
+	 * @param <V> the value type
+	 */
 	public interface Creator<K, V>
 	{
 		public XAddingMap<K, V> newInstance();
@@ -36,15 +46,17 @@ public interface XAddingMap<K, V> extends CapacityExtendable, ExtendedMap<K, V>
 
 	/**
 	 * Adds the passed key and value as an entry if key is not yet contained. Return value indicates new entry.
-	 * @param key
-	 * @param value
+	 * @param key the key
+	 * @param value the value
+	 * @return <code>true</code> if a new entry was created
 	 */
 	public boolean add(K key, V value);
 
 	/**
 	 * Sets the passed key and value to an appropriate entry if one can be found. Return value indicates entry change.
-	 * @param key
-	 * @param value
+	 * @param key the key
+	 * @param value the value
+	 * @return <code>true</code> if an entry was changed
 	 */
 	public boolean set(K key, V value);
 
@@ -52,8 +64,9 @@ public interface XAddingMap<K, V> extends CapacityExtendable, ExtendedMap<K, V>
 	/**
 	 * Sets only the passed value to an existing entry appropriate to the passed sampleKey.
 	 * Returns value indicates change.
-	 * @param sampleKey
-	 * @param value
+	 * @param sampleKey the key
+	 * @param value the value
+	 * @return <code>true</code> if a value was changed
 	 */
 	public boolean valueSet(K sampleKey, V value);
 

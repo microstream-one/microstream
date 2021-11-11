@@ -30,6 +30,7 @@ public interface PersistenceSizedArrayLengthController
 	
 	/**
 	 * Recommended for storing data (does not change program behavior).
+	 * @return an unrestricted array length controller
 	 * 
 	 */
 	public static PersistenceSizedArrayLengthController.Unrestricted Unrestricted()
@@ -39,7 +40,7 @@ public interface PersistenceSizedArrayLengthController
 	
 	/**
 	 * Recommended for communication (prevents array bombs).
-	 * 
+	 * @return a fitting array length controller
 	 */
 	public static PersistenceSizedArrayLengthController.Fitting Fitting()
 	{

@@ -22,6 +22,10 @@ package one.microstream.communication.types;
 
 import java.net.InetSocketAddress;
 
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 @FunctionalInterface
 public interface ComHostCreator<C>
 {

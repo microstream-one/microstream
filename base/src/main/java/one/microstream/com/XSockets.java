@@ -108,7 +108,7 @@ public final class XSockets
 	 * Creates a new {@link InetSocketAddress} instance with {@link #localHostAddress()} and port 0 (ephemeral port).
 	 * 
 	 * @return a localhost {@link InetSocketAddress}.
-	 * @throws ComException
+	 * @throws ComException if a communication error occurs
 	 * 
 	 * @see InetSocketAddress#InetSocketAddress(InetAddress, int)
 	 */
@@ -122,7 +122,7 @@ public final class XSockets
 	 * 
 	 * @param port the port to be used.
 	 * @return a localhost {@link InetSocketAddress} with the passed port value.
-	 * @throws ComException
+	 * @throws ComException if a communication error occurs
 	 * 
 	 * @see InetSocketAddress#InetSocketAddress(InetAddress, int)
 	 */
@@ -161,10 +161,10 @@ public final class XSockets
 	 * This method either writes all of the passed {@link ByteBuffer}'s bytes from position to limit
 	 * or it throws an exception to indicate failure.
 	 * 
-	 * @param socketChannel
-	 * @param byteBuffer
-	 * 
+	 * @param socketChannel the target channel
+	 * @param byteBuffer the source buffer
 	 * @return the passed {@link ByteBuffer} instance.
+	 * @throws ComException if a communication error occurs
 	 */
 	public static ByteBuffer writeCompletely(final SocketChannel socketChannel, final ByteBuffer byteBuffer)
 		throws ComException
@@ -193,10 +193,10 @@ public final class XSockets
 	 * This method either read to completely fill the passed {@link ByteBuffer} from position to limit
 	 * or it throws an exception to indicate failure.
 	 * 
-	 * @param socketChannel
-	 * @param byteBuffer
-	 * 
+	 * @param socketChannel the source channel
+	 * @param byteBuffer the target buffer
 	 * @return the passed {@link ByteBuffer} instance.
+	 * @throws ComException if a communication error occurs
 	 */
 	public static ByteBuffer readCompletely(final SocketChannel socketChannel, final ByteBuffer byteBuffer)
 		throws ComException

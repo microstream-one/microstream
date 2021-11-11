@@ -65,8 +65,12 @@ public class DocumentationManager extends RouteManager
 	////////////
 
 	/**
-	 * Register a route / httpMethod and automatically create and register an options route
+	 * Registers a route / httpMethod and automatically creates and registers an options route
 	 * to get help on this route
+	 * 
+	 * @param httpMethod the http method
+	 * @param uri the uri
+	 * @param route the route
 	 */
 	@Override
 	public void registerRoute(final HttpMethod httpMethod, final String uri, final RouteBase<?> route)
@@ -110,8 +114,8 @@ public class DocumentationManager extends RouteManager
 	/**
 	 * Get the documentation snippet for a http method for a registered uri
 	 *
-	 * @param uri
-	 * @param httpMethod
+	 * @param uri the uri
+	 * @param httpMethod the http method
 	 * @return JsonObject
 	 */
 	public Object getDocumentation(final String uri, final String httpMethod)
@@ -129,7 +133,7 @@ public class DocumentationManager extends RouteManager
 	/**
 	 * Get the documentation snippet of all http methods for a registered uri
 	 *
-	 * @param uri
+	 * @param uri the uri
 	 * @return JsonObject
 	 */
 	public Object getDocumentation(final String uri)
@@ -151,7 +155,8 @@ public class DocumentationManager extends RouteManager
 
 	/**
 	 * Build the documentation from an provided embedded json resource file
-	 *
+	 * 
+	 * @param filePath the file path
 	 */
 	private void buildLiveDocumentation(final String filePath)
 	{

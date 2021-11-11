@@ -30,7 +30,7 @@ public interface StorageLockFileManagerThreadProvider extends StorageThreadProvi
 	 * until the storage is shut down.
 	 * Interfering with the thread from outside the storage compound has undefined and potentially
 	 * unpredictable and erronous behavior.
-	 *
+	 * @param lockFileManager the lock file manager to wrap
 	 * @return a {@link Thread} instance to be used as a storage lock file managing worker thread.
 	 */
 	public default Thread provideLockFileManagerThread(final StorageLockFileManager lockFileManager)

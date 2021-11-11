@@ -137,7 +137,8 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 	 * The index value used in the accessing attempt causing this exception.
 	 * <p>
 	 * Note that this value might have overflown depending on the reporting logic.
-	 *
+	 * 
+	 * @return index value used in the accessing attempt causing this exception
 	 */
 	public final long index()
 	{

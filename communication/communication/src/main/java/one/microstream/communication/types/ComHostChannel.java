@@ -24,6 +24,10 @@ import static one.microstream.X.notNull;
 
 import one.microstream.persistence.types.PersistenceManager;
 
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 public interface ComHostChannel<C> extends ComChannel
 {
 	public C connection();

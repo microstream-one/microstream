@@ -49,7 +49,7 @@ import one.microstream.meta.XDebug;
  * in the end poor design.
  *
  * 
- * @param <T>
+ * @param <T> the type of the lazily referenced element
  */
 public interface Lazy<T> extends Referencing<T>
 {

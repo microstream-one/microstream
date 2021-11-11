@@ -46,7 +46,11 @@ import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
 import one.microstream.reflect.XReflect;
 
-
+/**
+ * 
+ *
+ * @param <T> the handled type
+ */
 public abstract class AbstractBinaryHandlerCustom<T>
 extends BinaryTypeHandler.Abstract<T>
 {

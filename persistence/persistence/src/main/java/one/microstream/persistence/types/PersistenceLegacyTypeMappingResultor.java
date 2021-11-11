@@ -46,10 +46,13 @@ public interface PersistenceLegacyTypeMappingResultor<D>
 	 * </ul>
 	 * ... the created mapping.
 	 * 
-	 * @param legacyTypeDefinition
-	 * @param currentTypeHandler
-	 * @param explicitMappings
-	 * @param matchedMembers
+	 * @param <T> the handled type
+	 * @param legacyTypeDefinition the type definition
+	 * @param currentTypeHandler the type handler
+	 * @param explicitMappings given explicit mappings
+	 * @param explicitNewMembers given explicit new members
+	 * @param matchedMembers given matched members
+	 * @return the calculated result
 	 * 
 	 */
 	public default <T> PersistenceLegacyTypeMappingResult<D, T> createMappingResult(
