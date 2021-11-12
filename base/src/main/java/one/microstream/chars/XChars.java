@@ -2576,11 +2576,6 @@ public final class XChars
 	 * numbers, this algorithm terminates very quickly in the common case. The worst case (equal value literals) is
 	 * a usual full equality check to the last digit.
 	 *
-	 * @param chars1
-	 * @param offset1
-	 * @param chars2
-	 * @param offset2
-	 * @param length
 	 */
 	static final boolean isNumericalLessThan(
 		final char[] chars1 ,
@@ -2981,7 +2976,7 @@ public final class XChars
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XChars()
 	{

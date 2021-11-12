@@ -255,12 +255,6 @@ public interface StorageEntity
 		/**
 		 * Central constructor that maps all initially externally settable values. All others are only internally
 		 * initialized (JVM default value or value determined in the constructor)
-		 *
-		 * @param objectId
-		 * @param type
-		 * @param lastTouched
-		 * @param hashNext
-		 * @param referenceCount
 		 */
 		private Default(
 			final long                         objectId      ,

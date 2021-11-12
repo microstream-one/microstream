@@ -312,11 +312,6 @@ public abstract class Binary implements Chunk
 	/**
 	 * "Raw" means without byte order transformation. This must be done in the calling context.
 	 * 
-	 * @param entityAddress
-	 * @param entityTotalLength
-	 * @param entityTypeId
-	 * @param entityObjectId
-	 * 
 	 */
 	static final void setEntityHeaderRawValuesToAddress(
 		final long entityAddress    ,

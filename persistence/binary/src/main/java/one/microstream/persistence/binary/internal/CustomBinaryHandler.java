@@ -731,8 +731,6 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 	
 	/**
 	 * Only the last field may have variable length, otherweise simple offsets can't be used.
-	 * 
-	 * @param binaryFields
 	 */
 	private static <F extends BinaryField<?>> F checkVariableLengthLayout(
 		final XTable<String, F> binaryFields
