@@ -43,7 +43,7 @@
 		<license.licenseName>epl_v2</license.licenseName>
 		<license.licenceFile>${basedir}/LICENSE</license.licenceFile>
 		<api.version>7.0</api.version>
-        <javadoc.failed.on.error>false</javadoc.failed.on.error>
+		<javadoc.failed.on.error>false</javadoc.failed.on.error>
 	</properties>
 
 	<modules>
