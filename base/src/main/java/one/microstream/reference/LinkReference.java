@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.reference;
 
 /*-
@@ -28,10 +25,6 @@ import java.util.Iterator;
 import one.microstream.collections.Singleton;
 
 
-/**
- * 
- *
- */
 public interface LinkReference<T> extends LinkingReference<T>
 {
 	@Override

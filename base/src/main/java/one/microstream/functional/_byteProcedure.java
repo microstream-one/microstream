@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.functional;
 
 /*-
@@ -23,10 +20,6 @@ package one.microstream.functional;
  * #L%
  */
 
-/**
- * 
- *
- */
 public interface _byteProcedure
 {
 	public void accept(byte b);

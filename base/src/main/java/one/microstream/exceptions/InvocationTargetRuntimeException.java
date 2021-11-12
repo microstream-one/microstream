@@ -23,10 +23,6 @@ package one.microstream.exceptions;
 import java.lang.reflect.InvocationTargetException;
 
 
-/**
- *
- * 
- */
 public class InvocationTargetRuntimeException extends WrapperRuntimeException
 {
 	///////////////////////////////////////////////////////////////////////////

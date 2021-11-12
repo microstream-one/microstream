@@ -20,11 +20,6 @@ package one.microstream.exceptions;
  * #L%
  */
 
-
-/**
- *
- * 
- */
 public class NoSuchMethodRuntimeException extends WrapperRuntimeException
 {
 	///////////////////////////////////////////////////////////////////////////

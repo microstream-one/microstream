@@ -29,10 +29,6 @@ import one.microstream.branching.ThrowBreak;
 import one.microstream.collections.interfaces.ExtendedSequence;
 import one.microstream.exceptions.IndexBoundsException;
 
-/**
- *
- * 
- */
 public interface XGettingSequence<E> extends XGettingCollection<E>, ExtendedSequence<E>, XIndexIterable<E>
 {
 	///////////////////////////////////////////////////////////////////////////

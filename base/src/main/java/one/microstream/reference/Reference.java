@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.reference;
 
 /*-
@@ -26,10 +23,6 @@ package one.microstream.reference;
 import one.microstream.collections.Singleton;
 
 
-/**
- * 
- *
- */
 /**
  * Simple Reference class to handle mutable references. Handle with care!
  * <p>

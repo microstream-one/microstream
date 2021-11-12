@@ -38,10 +38,6 @@ import one.microstream.memory.XMemory;
 
 
 
-/**
- *
- * 
- */
 public final class VarByte implements Externalizable
 {
 	// (24.07.2013 TM)FIXME: Overhaul VarByte via VarString implementation

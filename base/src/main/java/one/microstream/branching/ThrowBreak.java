@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.branching;
 
 /*-
@@ -26,9 +23,6 @@ package one.microstream.branching;
 /**
  * Thrown to signals the outer context to break the current loop,
  * normally proceeding with the actions following the loop.
- *
- * 
- *
  */
 public class ThrowBreak extends AbstractBranchingThrow
 {

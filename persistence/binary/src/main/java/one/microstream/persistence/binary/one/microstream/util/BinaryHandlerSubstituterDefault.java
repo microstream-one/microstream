@@ -29,10 +29,6 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.util.Substituter;
 
 
-/**
- *
- * 
- */
 public final class BinaryHandlerSubstituterDefault
 extends AbstractBinaryHandlerCustom<Substituter.Default<?>>
 {

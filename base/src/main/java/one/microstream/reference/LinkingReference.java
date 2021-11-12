@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.reference;
 
 /*-
@@ -25,10 +22,6 @@ package one.microstream.reference;
 
 
 
-/**
- * 
- *
- */
 public interface LinkingReference<T> extends Reference<T>, LinkingReferencing<T>
 {
 	@Override

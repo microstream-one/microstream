@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.math;
 
 /*-
@@ -28,10 +25,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 
-/**
- * 
- *
- */
 public class Matrix<T>
 {
 	///////////////////////////////////////////////////////////////////////////

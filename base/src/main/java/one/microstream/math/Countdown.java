@@ -1,6 +1,3 @@
-/**
- * 
- */
 package one.microstream.math;
 
 /*-
@@ -26,9 +23,6 @@ package one.microstream.math;
 /**
  * Class that wraps a combination of start value and remaining value to implement a countdown.<br>
  * The countdown can be decremented, resetted and be checked for having expired or still being active.
- * 
- * 
- *
  */
 public class Countdown
 {

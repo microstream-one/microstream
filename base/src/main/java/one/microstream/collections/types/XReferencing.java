@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.collections.types;
 
 /*-
@@ -34,10 +31,6 @@ import one.microstream.collections.old.OldList;
 import one.microstream.equality.Equalator;
 import one.microstream.reference.Referencing;
 
-/**
- * 
- *
- */
 // (15.01.2013 TM)FIXME: Rename to XSingle or so
 public interface XReferencing<E> extends XGettingList<E>, XGettingEnum<E>, Referencing<E>
 {

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package one.microstream.math;
 
 /*-

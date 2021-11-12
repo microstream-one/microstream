@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.reference;
 
 /*-
@@ -28,10 +25,6 @@ import java.util.Iterator;
 import one.microstream.collections.Constant;
 
 
-/**
- * 
- *
- */
 public interface LinkingReferencing<T> extends Referencing<T>, Iterable<T>
 {
 	public boolean hasNext();

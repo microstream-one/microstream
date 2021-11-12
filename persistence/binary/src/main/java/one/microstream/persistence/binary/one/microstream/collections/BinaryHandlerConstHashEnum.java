@@ -31,10 +31,6 @@ import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-/**
- *
- * 
- */
 public final class BinaryHandlerConstHashEnum
 extends AbstractBinaryHandlerCustomCollection<ConstHashEnum<?>>
 {

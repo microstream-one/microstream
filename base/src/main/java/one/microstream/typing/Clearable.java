@@ -1,6 +1,3 @@
-/**
- * 
- */
 package one.microstream.typing;
 
 /*-
@@ -23,10 +20,6 @@ package one.microstream.typing;
  * #L%
  */
 
-/**
- * 
- *
- */
 public interface Clearable
 {
 	public void clear();
