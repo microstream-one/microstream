@@ -137,7 +137,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 		/**
 		 * The remaining housekeeping budget in nanoseconds for the current interval.
-		 * @see StorageHousekeepingController#housekeepingTimeBudgetNs(long)
+		 * @see StorageHousekeepingController#housekeepingTimeBudgetNs()
 		 */
 		private long housekeepingIntervalBudgetNs;
 		
