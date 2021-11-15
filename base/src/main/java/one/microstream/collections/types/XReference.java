@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.collections.types;
 
 /*-
@@ -34,10 +31,6 @@ import one.microstream.collections.old.OldList;
 import one.microstream.equality.Equalator;
 import one.microstream.reference.Reference;
 
-/**
- * 
- *
- */
 /**
  * Simple Reference class to handle mutable references. Handle with care!
  * <p>

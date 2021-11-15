@@ -50,6 +50,7 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 * The name of the corresponding runtime type.
 	 * If not implemented otherwise (e.g. to cache the name), this method simply calls {@link Class#getName()} of
 	 * a non-null {@link #type()} reference.
+	 * @return the name of the corresponding runtime type
 	 */
 	public default String runtimeTypeName()
 	{
@@ -107,7 +108,8 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 * <li>{@code java.util.Date}</li>
 	 * <li>typical entity types (without unshared inlined variable length component instances)</li>
 	 * </ul>
-	 *
+	 * 
+	 * @return if two instances of the handled type can have different length in persisted form
 	 */
 	public default boolean hasPersistedVariableLength()
 	{
@@ -130,7 +132,8 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 * <li>all immutable type instances (like {@code java.lang.String} )</li>
 	 * <li>all fixed length types (see {@link #hasVaryingPersistedLengthInstances()}</li>
 	 * </ul>
-	 *
+	 * 
+	 * @return if one particular instance can have variing binary length from one store to another
 	 */
 	public boolean hasVaryingPersistedLengthInstances();
 	

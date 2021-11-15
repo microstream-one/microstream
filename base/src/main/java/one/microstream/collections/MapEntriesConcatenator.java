@@ -32,6 +32,8 @@ import one.microstream.typing.KeyValue;
  * Configurable {@link KeyValue} to-String concatenator.
  *
  * 
+ * @param <K> the key type
+ * @param <V> the value type
  *
  */
 public class MapEntriesConcatenator<K, V>
@@ -126,11 +128,11 @@ public class MapEntriesConcatenator<K, V>
 	/**
 	 * Convenience method that combines all setters in one call.
 	 *
-	 * @param mapStartSymbol
-	 * @param mapEndSymbol
-	 * @param preKeySymbol
-	 * @param mappingSymbol
-	 * @param postValueSymbol
+	 * @param mapStartSymbol map start symbol
+	 * @param mapEndSymbol map end symbol
+	 * @param preKeySymbol pre key symbol
+	 * @param mappingSymbol mapping symbol
+	 * @param postValueSymbol post value symbol
 	 * @return this instance.
 	 */
 	public MapEntriesConcatenator<K, V> configure(

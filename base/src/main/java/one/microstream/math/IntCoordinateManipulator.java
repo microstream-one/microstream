@@ -1,6 +1,3 @@
-/**
- * 
- */
 package one.microstream.math;
 
 /*-
@@ -23,10 +20,6 @@ package one.microstream.math;
  * #L%
  */
 
-/**
- * 
- *
- */
 public interface IntCoordinateManipulator
 {
 	public void manipulateCoordinate(int x, int y) throws InvalidCoordinateException;

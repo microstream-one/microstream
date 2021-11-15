@@ -751,9 +751,6 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				
 				/**
 				 * Add the passed oid and returns the resulting size.
-				 * 
-				 * @param oid
-				 * @return
 				 */
 				final int add(final long oid)
 				{

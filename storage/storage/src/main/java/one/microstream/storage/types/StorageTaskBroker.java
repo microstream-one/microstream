@@ -368,8 +368,6 @@ public interface StorageTaskBroker
 		 * The task broker cannot rely on any outside logic to pass an array with valid length or validate its length.
 		 * Every channel-count-depending array must be validated right before it is enqueued as a task to prevent
 		 * the system from crashing.
-		 * 
-		 * @param channelArray
 		 */
 		private void validateChannelCount(final int channelCount)
 		{

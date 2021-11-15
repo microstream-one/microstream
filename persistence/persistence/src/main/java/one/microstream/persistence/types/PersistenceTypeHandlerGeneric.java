@@ -29,8 +29,8 @@ import java.lang.reflect.Field;
  * It may not use any custom persistent state or logic like e.g. {@link PersistenceTypeHandlerCustom}.
  *
  * 
- * @param <D>
- * @param <T>
+ * @param <D> the data type
+ * @param <T> the handled type
  * 
  * @see PersistenceTypeHandlerCustom
  */

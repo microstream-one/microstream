@@ -81,10 +81,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	public CacheManager getCacheManager();
 
 	/**
-	 * Returns the {@link CacheConfiguration} which was used to create this cache.
+	 * @return the {@link CacheConfiguration} which was used to create this cache.
 	 */
 	public CacheConfiguration<K, V> getConfiguration();
-
+	
 	/**
 	 * Returns the amount of entries in this cache.
 	 *
@@ -110,6 +110,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	 * <p>
 	 * Short for <code>putAll(map, replaceExistingValues, true)</code>
 	 *
+	 * @param map entries to add
+	 * @param replaceExistingValues if values with same keys should be replaces
 	 * @see #putAll(Map, boolean, boolean)
 	 */
 	public default void putAll(
@@ -135,16 +137,19 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 	/**
 	 * Enables or disables the management bean of this cache.
+	 * @param enabled <code>true</code> if the management bean should be enabled
 	 */
 	public void setManagementEnabled(boolean enabled);
 
 	/**
 	 * Enables or disables statistics gathering.
+	 * @param enabled <code>true</code> if the statistics gathering should be enabled
 	 */
 	public void setStatisticsEnabled(boolean enabled);
 
 	/**
 	 * Evicts given entries from this cache.
+	 * @param entriesToEvict the entries to evict
 	 */
 	public void evict(Iterable<KeyValue<Object, CachedValue>> entriesToEvict);
 
@@ -184,8 +189,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private final ExecutorService                             executorService         ;
 		private final CacheConfigurationMXBean                    cacheConfigurationMXBean;
 		private final CacheStatisticsMXBean                       cacheStatisticsMXBean   ;
-		private AtomicBoolean                                     isStatisticsEnabled     = new AtomicBoolean();
-		private AtomicBoolean                                     isClosed                = new AtomicBoolean();
+		private final AtomicBoolean                                     isStatisticsEnabled     = new AtomicBoolean();
+		private final AtomicBoolean                                     isClosed                = new AtomicBoolean();
 
 		/*
 		 * According to spec cache and configuration, which may be mutable,

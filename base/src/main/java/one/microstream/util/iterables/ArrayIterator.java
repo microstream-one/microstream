@@ -87,7 +87,7 @@ public final class ArrayIterator<E> implements Iterator<E>
 
 	/**
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException because this operation is not supported
 	 * @see java.util.Iterator#remove()
 	 */
 	@Override

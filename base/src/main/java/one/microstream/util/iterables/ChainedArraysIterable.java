@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.util.iterables;
 
 /*-
@@ -26,10 +23,6 @@ package one.microstream.util.iterables;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-/**
- * 
- *
- */
 public class ChainedArraysIterable<T> implements Iterable<T>
 {
 	final T[][] iterables;

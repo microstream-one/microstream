@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.reference;
 
 /*-
@@ -28,10 +25,6 @@ import java.util.Iterator;
 import one.microstream.collections.Singleton;
 
 
-/**
- * 
- *
- */
 public interface LinkReference<T> extends LinkingReference<T>
 {
 	@Override
@@ -42,7 +35,8 @@ public interface LinkReference<T> extends LinkingReference<T>
 	 * linked {@code LinkedReference} object.
 	 * <p>
 	 * Note that the so far linked {@code LinkedReference} object is returned, not this object itself!
-	 * @param linkedReference
+	 * @param linkedReference the new linked reference
+	 * @return the so far linked {@code LinkedReference} object (NOT this!)
 	 */
 	public LinkReference<T> setNext(LinkReference<T> linkedReference);
 
@@ -52,14 +46,15 @@ public interface LinkReference<T> extends LinkingReference<T>
 	 * linked {@code LinkedReference} object.
 	 * <p>
 	 * Note that the reference is returned, not this object itself!
-	 * @param linkedReference
+	 * @param linkedReference the new linked reference
 	 * @return the linked {@code LinkedReference} object (NOT this!)
 	 */
 	public LinkReference<T> link(LinkReference<T> linkedReference);
 
 	/**
 	 * Alias for {@code link(new LinkedReference(nextRef))}.
-	 * @param nextRef
+	 * @param nextRef the object for the new linked reference
+	 * @return the linked {@code LinkedReference} object (NOT this!)
 	 */
 	public LinkReference<T> link(T nextRef);
 
@@ -154,7 +149,7 @@ public interface LinkReference<T> extends LinkingReference<T>
 
 
 		/**
-		 * @param linkedReference
+		 * @param linkedReference the reference to insert
 		 * 
 		 * @throws NullPointerException if {@code linkedReference} is {@code null}.
 		 */

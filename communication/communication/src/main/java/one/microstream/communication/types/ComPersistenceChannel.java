@@ -25,7 +25,11 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 import one.microstream.persistence.types.PersistenceChannel;
 import one.microstream.persistence.types.PersistenceIdSet;
 
-
+/**
+ * 
+ * @param <C> the communication layer type
+ * @param <D> the data type
+ */
 public interface ComPersistenceChannel<C, D> extends PersistenceChannel<D>
 {
 	

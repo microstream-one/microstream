@@ -97,8 +97,9 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	/**
 	 * Equal content description, without TypeId comparison
 	 * 
-	 * @param td1
-	 * @param td2
+	 * @param td1 the first description
+	 * @param td2 the second description
+	 * @return if both descriptions are equal
 	 */
 	public static boolean equalDescription(
 		final PersistenceTypeDescription td1,
@@ -114,8 +115,9 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	/**
 	 * Equal structure, regardless of the member's definition type (reflective or custom-defined)
 	 * 
-	 * @param td1
-	 * @param td2
+	 * @param td1 the first description
+	 * @param td2 the second description
+	 * @return if both descriptions' structures are equal
 	 */
 	public static boolean equalStructure(
 		final PersistenceTypeDescription td1,

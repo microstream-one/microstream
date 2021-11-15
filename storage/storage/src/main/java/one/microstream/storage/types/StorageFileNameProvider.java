@@ -398,6 +398,9 @@ public interface StorageFileNameProvider
 		 * @param transactionsFileSuffix may <b>not</b> be null.
 		 * @param typeDictionaryFileName may <b>not</b> be null.
 		 * @param lockFileName may <b>not</b> be null.
+		 * @param rescuedFileSuffix may <b>not</b> be null.
+		 * 
+		 * @return a new {@link StorageFileNameProvider} instance
 		 */
 		public static StorageFileNameProvider.Default New(
 			final String channelDirectoryPrefix,

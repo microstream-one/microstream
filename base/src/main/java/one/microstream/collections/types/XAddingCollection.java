@@ -33,8 +33,8 @@ import one.microstream.functional.Aggregator;
  * add all elements that do not logically conflict with already contained elements
  * according to the collection's logic. ("add to"/"increase" collection).
  * <p>
- * Examples:<br/>
- * Set: Only add element, if no equal element is already contained<br/>
+ * Examples:<br>
+ * Set: Only add element, if no equal element is already contained<br>
  * Bag: Always add all elements
  *
  * @param <E> type of contained elements

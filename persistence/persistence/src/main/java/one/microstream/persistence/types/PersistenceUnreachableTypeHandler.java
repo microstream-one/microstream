@@ -37,8 +37,8 @@ import java.util.function.Consumer;
  * 
  * 
  *
- * @param <D>
- * @param <T>
+ * @param <D> the data type
+ * @param <T> the handled type
  */
 public interface PersistenceUnreachableTypeHandler<D, T> extends PersistenceLegacyTypeHandler<D, T>
 {

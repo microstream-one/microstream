@@ -87,6 +87,8 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		 * and can disappear at any release.<br>
 		 * <b>Do not use this is production mode.</b>
 		 * 
+		 * @param enabled <code>true</code> if the gc should be enabled, <code>false</code> otherwise
+		 * 
 		 * @deprecated experimental, will be removed in a future release
 		 */
 		@Deprecated
@@ -719,8 +721,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		 * If the entity has no reference, it can be marked black right away. This either anticipates/replaces the black marking
 		 * by the GC and should actually not be necessary, however as the effort to do it at this point is rather minimal, it's done
 		 * nonetheless.
-		 *
-		 * @param entry
 		 */
 		private void markEntityForChangedData(final StorageEntity.Default entry)
 		{
@@ -898,8 +898,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		/**
 		 * Returns {@code true} if there are no more oids to mark and {@code false} if time ran out.
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
-		 *
-		 * @param nanoTimeBudgetBound
 		 */
 		private boolean incrementalMark(final long nanoTimeBudgetBound)
 		{

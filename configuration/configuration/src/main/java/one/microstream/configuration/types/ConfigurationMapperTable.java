@@ -29,13 +29,15 @@ import one.microstream.configuration.types.Configuration.Builder;
 
 /**
  * Mapper which maps entries from a {@link XGettingTable} to a {@link Configuration#Builder()}.
- *
+ * 
+ * @param <V> the value type
  */
 public interface ConfigurationMapperTable<V> extends ConfigurationMapper<XGettingTable<String, V>>
 {
 	/**
 	 * Pseudo-constructor to create a new mapper.
 	 * 
+	 * @param <V> the value type
 	 * @return a new mapper
 	 */
 	public static <V> ConfigurationMapperTable<V> New()
@@ -46,6 +48,7 @@ public interface ConfigurationMapperTable<V> extends ConfigurationMapper<XGettin
 	/**
 	 * Pseudo-constructor to create a new mapper.
 	 * 
+	 * @param <V> the value type
 	 * @param toStringMapper function which converts values from the table to String values
 	 * @return a new mapper
 	 */

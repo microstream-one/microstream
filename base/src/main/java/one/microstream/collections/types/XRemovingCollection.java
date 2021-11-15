@@ -62,8 +62,9 @@ ReleasingCollection<E>
 	/**
 	 * Optimizes internal memory usage by rebuilding the storage to only occupy as much memory as needed to store
 	 * the currently contained elements in terms of the collection's current memory usage configuration
-	 * (e.g. hash density).<p>
-	 * If this is not possible or not needed in the concreate implementation, this method does nothing.<p>
+	 * (e.g. hash density).
+	 * <p>
+	 * If this is not possible or not needed in the concreate implementation, this method does nothing.
 	 * <p>
 	 * Note that this method can consume a considerable amount of time depending on the implementation and should
 	 * only be called intentionally and accurately when reducing occupied memory is needed.

@@ -38,10 +38,6 @@ import one.microstream.memory.XMemory;
 
 
 
-/**
- *
- * 
- */
 public final class VarByte implements Externalizable
 {
 	// (24.07.2013 TM)FIXME: Overhaul VarByte via VarString implementation
@@ -116,7 +112,8 @@ public final class VarByte implements Externalizable
 	 * Otherwise, use the factory methods as they are faster due to skipping capacity checks and bounds adjustment.<br>
 	 * <p>
 	 * Note that the given {@code initialCapacity} will still be adjusted to the next higher 2^n bounding value.
-	 * @param initialCapacity
+	 * @param initialCapacity the initial size of the buffer
+	 * @return a new VarByte instance
 	 */
 	public static VarByte New(final int initialCapacity)
 	{
@@ -215,10 +212,7 @@ public final class VarByte implements Externalizable
 		this.data = data;
 		this.size = size;
 	}
-	/**
-	 * @param out
-	 * @throws IOException
-	 */
+
 	@Override
 	public void writeExternal(final ObjectOutput out) throws IOException
 	{
@@ -792,7 +786,7 @@ public final class VarByte implements Externalizable
 
 	/**
 	 *
-	 * @param varByte
+	 * @param varByte the VarByte to check
 	 * @return {@code true} if {@code varByte} is either {@code null} or empty.
 	 * @see VarByte#isEmpty()
 	 */
@@ -877,7 +871,8 @@ public final class VarByte implements Externalizable
 
 	/**
 	 * Only preferable to {@link #reset()} for security reasons.
-	 *
+	 * 
+	 * @return this
 	 */
 	public VarByte clear()
 	{

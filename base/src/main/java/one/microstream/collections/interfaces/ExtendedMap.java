@@ -24,7 +24,8 @@ import one.microstream.typing.KeyValue;
 
 /**
  * 
- *
+ * @param <K> the key type
+ * @param <V> the value type
  */
 public interface ExtendedMap<K, V> extends ExtendedCollection<KeyValue<K, V>>
 {

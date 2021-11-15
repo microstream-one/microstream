@@ -1,6 +1,3 @@
-/**
- * 
- */
 package one.microstream.util.iterables;
 
 /*-
@@ -25,10 +22,7 @@ package one.microstream.util.iterables;
 
 import java.util.Iterator;
 
-/**
- * 
- *
- */
+
 public class ArrayIterable<T> implements Iterable<T>
 {
 	private final T[] array;

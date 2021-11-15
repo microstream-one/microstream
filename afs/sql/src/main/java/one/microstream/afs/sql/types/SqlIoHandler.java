@@ -229,6 +229,12 @@ public interface SqlIoHandler extends AIoHandler
 		}
 
 		@Override
+		protected boolean specificIsEmpty(final ADirectory directory) 
+		{		
+			return this.connector.isEmpty(this.toSubjectDirectory(directory));
+		}
+		
+		@Override
 		protected boolean specificOpenReading(
 			final SqlReadableFile file
 		)

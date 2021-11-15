@@ -1,8 +1,8 @@
-package one.microstream.math;
+package one.microstream.storage.exceptions;
 
 /*-
  * #%L
- * microstream-base
+ * MicroStream Storage
  * %%
  * Copyright (C) 2019 - 2021 MicroStream Software
  * %%
@@ -20,28 +20,21 @@ package one.microstream.math;
  * #L%
  */
 
+import one.microstream.afs.types.ADirectory;
 
-public class MatrixException extends RuntimeException
+/**
+ * This exception states that the fullBackup of a storage won't be performed because the backups target (directory)
+ * is not empty. 
+ */
+@SuppressWarnings("serial")
+public class StorageExceptionBackupFullBackupTargetNotEmpty extends StorageExceptionBackup 
 {
-
-	public MatrixException()
+	///////////////////////////////////////////////////////////////////////////
+	// constructor //
+	/////////////////
+	
+	public StorageExceptionBackupFullBackupTargetNotEmpty(final ADirectory targetDirectory) 
 	{
-		super();
+		super("FullBackup target " + targetDirectory.toPathString() + " not empty! Backup aborted!");
 	}
-
-	public MatrixException(final String message)
-	{
-		super(message);
-	}
-
-	public MatrixException(final Throwable cause)
-	{
-		super(cause);
-	}
-
-	public MatrixException(final String message, final Throwable cause)
-	{
-		super(message, cause);
-	}
-
 }

@@ -23,10 +23,6 @@ package one.microstream.exceptions;
 import java.io.InvalidClassException;
 
 
-/**
- *
- * 
- */
 public class InvalidClassRuntimeException extends WrapperRuntimeException
 {
 	///////////////////////////////////////////////////////////////////////////

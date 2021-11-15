@@ -74,7 +74,7 @@ public interface XCsvConfiguration
 	public boolean isControlCharacter(char c);
 
 	/**
-	 * Returns a potentially cached char array of {@link #commentFullTerminator()} for read-only use.
+	 * @return a potentially cached char array of {@link #commentFullTerminator()} for read-only use.
 	 */
 	public default char[] commentFullTerminatorArray()
 	{

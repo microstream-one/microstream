@@ -29,10 +29,6 @@ import one.microstream.branching.ThrowBreak;
 import one.microstream.collections.interfaces.ExtendedSequence;
 import one.microstream.exceptions.IndexBoundsException;
 
-/**
- *
- * 
- */
 public interface XGettingSequence<E> extends XGettingCollection<E>, ExtendedSequence<E>, XIndexIterable<E>
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -89,8 +85,8 @@ public interface XGettingSequence<E> extends XGettingCollection<E>, ExtendedSequ
 	/**
 	 * Equivalent to "contains index". Compare: {@link XGettingTable} table with table.keys().contains(index)
 	 *
-	 * @param index
-	 * @return <tt>true</tt> if the passed index is greater or equal to 0,
+	 * @param index the index to check
+	 * @return <code>true</code> if the passed index is greater or equal to 0,
 	 * {@link #size()} is greater than the passed index
 	 * and {@link #at(long)} returns a non-null value.
 	 */

@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.exceptions;
 
 /*-
@@ -23,10 +20,6 @@ package one.microstream.exceptions;
  * #L%
  */
 
-/**
- * 
- *
- */
 public class NumberRangeException extends RuntimeException
 {
 	///////////////////////////////////////////////////////////////////////////

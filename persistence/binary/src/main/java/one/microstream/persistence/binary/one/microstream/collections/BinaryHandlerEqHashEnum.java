@@ -37,10 +37,6 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGeneric;
 
 
-/**
- *
- * 
- */
 public final class BinaryHandlerEqHashEnum
 extends AbstractBinaryHandlerCustomCollection<EqHashEnum<?>>
 {

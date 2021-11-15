@@ -44,7 +44,7 @@ public interface BinaryReferenceTraverser
 	 * For example, an objectId is 8 bytes long. 5 objectIds are 40 bytes long.
 	 * Skipping 6 bytes (primitives) is 6 bytes long.
 	 * An implementation handling a variable length structure reports 0 bytes here.
-	 * 
+	 * @return the amount of bytes that a particular instance of an implementing type covers or advances
 	 */
 	public default int coveredConstantByteCount()
 	{

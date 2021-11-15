@@ -46,8 +46,8 @@ public interface StorageEventLogger
 	 * {@link InterruptedException}. The actually fitting common term is "Disruption".
 	 * Throwable is a very low-level technical, compiler-oriented expression.
 	 * 
-	 * @param channel
-	 * @param t
+	 * @param channel the affected channel
+	 * @param t the reason for the disruption
 	 */
 	public default void logDisruption(final StorageChannel channel, final Throwable t)
 	{
@@ -123,7 +123,7 @@ public interface StorageEventLogger
 	/**
 	 * Creates a Default StorageEventLogger that forwards its output to the supplied Consumer
 	 * 
-	 * @param messageConsumer a Consumer that processes the forwarded log messages  
+	 * @param messageConsumer a Consumer that processes the forwarded log messages
 	 * @return a StorageEventLogger.Default instance
 	 */
 	public static StorageEventLogger Default(final Consumer<? super String> messageConsumer)
@@ -171,7 +171,7 @@ public interface StorageEventLogger
 			final PrintWriter printWriter = new PrintWriter(stringWriter);
 			t.printStackTrace(printWriter);
 			
-			return printWriter.toString();		
+			return printWriter.toString();
 		}
 		
 		
@@ -224,7 +224,7 @@ public interface StorageEventLogger
 	/**
 	 * Creates a Debug StorageEventLogger forwards its output to the supplied Consumer
 	 * 
-	 * @param messageConsumer a Consumer that processes the forwarded log messages  
+	 * @param messageConsumer a Consumer that processes the forwarded log messages
 	 * @return a StorageEventLogger.Debug instance
 	 */
 	public static StorageEventLogger Debug(final Consumer<? super String> messageConsumer)
@@ -241,14 +241,14 @@ public interface StorageEventLogger
 	 *
 	 */
 	public class Debug extends Default
-	{						
+	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
 		Debug(final Consumer<? super String> messageConsumer)
 		{
-			super(messageConsumer);			
+			super(messageConsumer);
 		}
 		
 				

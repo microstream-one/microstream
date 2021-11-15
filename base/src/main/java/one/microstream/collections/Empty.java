@@ -50,7 +50,7 @@ import one.microstream.util.iterables.EmptyListIterator;
  *
  * .
  *
- * @param <E>
+ * @param <E> the type of elements in this collection
  */
 public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Stateless
 {

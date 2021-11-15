@@ -20,10 +20,6 @@ package one.microstream.exceptions;
  * #L%
  */
 
-/**
- *
- * 
- */
 public class NotAnArrayException extends ClassCastException
 {
 	///////////////////////////////////////////////////////////////////////////

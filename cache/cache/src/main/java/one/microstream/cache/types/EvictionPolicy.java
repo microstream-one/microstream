@@ -42,6 +42,8 @@ public interface EvictionPolicy
 {
 	/**
 	 * Select the entries which should be evicted.
+	 * @param cacheTable the source cache table to check
+	 * @return all entries which should be evicted
 	 */
 	public Iterable<KeyValue<Object, CachedValue>> pickEntriesToEvict(CacheTable cacheTable);
 	

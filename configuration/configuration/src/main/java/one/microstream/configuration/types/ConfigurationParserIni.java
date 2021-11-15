@@ -48,6 +48,7 @@ public interface ConfigurationParserIni extends ConfigurationParser
 	/**
 	 * Pseudo-constructor to create a new INI parser.
 	 * 
+	 * @param mapper a custom mapper
 	 * @return a new INI parser
 	 */
 	public static ConfigurationParserIni New(

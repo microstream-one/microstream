@@ -27,7 +27,7 @@ package one.microstream.collections.interfaces;
  *
  * 
  *
- * @param <E>
+ * @param <E> the type of elements in this collection
  */
 public interface ReleasingCollection<E>
 {

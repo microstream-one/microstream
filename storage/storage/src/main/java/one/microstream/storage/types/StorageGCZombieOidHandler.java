@@ -33,8 +33,8 @@ import one.microstream.persistence.types.Persistence;
  * For that reason, handling an encountered zombie OID is modularized with the default of ignoring it.
  *
  * Note that ConstantIds for JLS constants and TypeIds are intentionally unresolvable in the persistent state.
- * @see {@link Persistence.IdType#TID}
- * @see {@link Persistence.IdType#CID}
+ * @see Persistence.IdType#TID
+ * @see Persistence.IdType#CID
  *
  */
 @FunctionalInterface

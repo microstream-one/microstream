@@ -152,7 +152,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	////////////////////
 
 	private volatile Entry<E>[] slots;
-	private AtomicInteger size = new AtomicInteger();
+	private final AtomicInteger size = new AtomicInteger();
 	private volatile Consumer<E> cleanUpOperation;
 
 
@@ -325,7 +325,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	 * By default, this method simply returns {@code null}, indicating that no associated instance could have been
 	 * found.<br>
 	 * Subclasses can override this method to provide an actual fallback instance in case of a lookup miss.<br>
-	 * In combination with {@link #addForCurrentThread(E)}, this method can be used to automatically associate the
+	 * In combination with {@link #addForCurrentThread(Object)}, this method can be used to automatically associate the
 	 * fallback instance with the current {@link Thread} in case it has no instance associated, yet.
 	 * <p>
 	 * See {@link ThreadedInstantiating} for an example using an {@link Instantiator} to automatically create
@@ -541,7 +541,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 
 	/**
 	 * Returns {@code true} if this {@link Threaded} instance contains no entries for associating instances
-	 * of type E, otherwise <tt>false</tt>.
+	 * of type E, otherwise <code>false</code>.
 	 * <p>
 	 * Note that empty entries (entries that no longer reference an existing thread) do still count as contained
 	 * entries. As a consequence, in order to determine if {@link Threaded} instance is actually empty regarding

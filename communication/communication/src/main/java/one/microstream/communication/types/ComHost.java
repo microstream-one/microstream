@@ -30,7 +30,7 @@ import java.net.InetSocketAddress;
  * potentially in another, maybe even dedicated thread.
  * 
  * 
- *
+ * @param <C> the communication layer type
  */
 public interface ComHost<C> extends Runnable
 {

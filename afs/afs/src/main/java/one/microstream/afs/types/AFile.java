@@ -434,7 +434,9 @@ public interface AFile extends AItem
 			@Override
 			public AFile actual()
 			{
-				return this.actual;
+				return this.actual instanceof AFile.Wrapper
+					? ((AFile.Wrapper)this.actual).actual()
+					: this.actual;
 			}
 			
 			@Override

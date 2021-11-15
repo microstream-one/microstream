@@ -149,7 +149,6 @@ public class ViewerObjectDescriptionCreator
 	 * Collect "variable sized" elements
 	 *
 	 * @param values ObjectDescription values
-	 * @return
 	 */
 	private Object[] variableLengthValues(final Object[] values)
 	{
@@ -162,9 +161,6 @@ public class ViewerObjectDescriptionCreator
 	 * only elements within [startIndex and endIndex[ are taken into account
 	 *
 	 * @param values input ObjectDescription values
-	 * @param startIndex
-	 * @param endIndex
-	 * @return
 	 */
 	private Object[] traverseValues(final Object[] values, final int startIndex, final int endIndex)
 	{
@@ -251,10 +247,6 @@ public class ViewerObjectDescriptionCreator
 
 	/**
 	 * Set the primitive value of the new ViewerObjectDescription object
-	 *
-	 * @param description
-	 * @param objDesc
-	 * @param valueLength
 	 */
 	private static void setPrimitiveValue(
 		final ObjectDescription description,
@@ -276,7 +268,6 @@ public class ViewerObjectDescriptionCreator
 	 * @param arrayLength length of the array
 	 * @param startIndex index to start
 	 * @param count number of desired elements
-	 * @return
 	 */
 	private static int getClampedArrayIndex(final long arrayLength, final long startIndex, final long count)
 	{
@@ -288,10 +279,6 @@ public class ViewerObjectDescriptionCreator
 	 * return a substring starting at index 0 with a max length of "valueLength"
 	 * if valueLength exceeds the strings length it will be limited to the strings length,
 	 * no exceptions are thrown.
-	 *
-	 * @param data
-	 * @param valueLength
-	 * @return
 	 */
 	private static String limitsPrimitiveType(final String data, final long valueLength)
 	{

@@ -23,10 +23,6 @@ package one.microstream.functional;
 import java.util.Comparator;
 
 
-/**
- *
- * 
- */
 public class ComparatorReversed<T> implements Comparator<T>
 {
 	///////////////////////////////////////////////////////////////////////////

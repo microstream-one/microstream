@@ -45,6 +45,7 @@ public interface ReflectiveCopier<S>
 	
 	/**
 	 * Does not necessarily have to be S. S could be an interface.
+	 * @return the source class
 	 */
 	public Class<?> sourceClass();
 	

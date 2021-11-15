@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  * parametrized type.
  *
  * 
- * @param <E>
+ * @param <E> the type of the input to the operation
  */
 public interface SortableProcedure<E> extends Sortable<E>, Consumer<E>
 {

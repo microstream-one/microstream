@@ -78,6 +78,8 @@ public interface AFileSystem extends AResolving, WriteController
 	
 	/**
 	 * Ensures the default root directory. May not be supported by different file system implementations.
+	 * @return the root directory
+	 * @throws UnsupportedOperationException if the file system doesn't have a default root
 	 */
 	public ADirectory ensureDefaultRoot();
 	

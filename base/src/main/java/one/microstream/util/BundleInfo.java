@@ -64,6 +64,7 @@ public interface BundleInfo
 	/**
 	 * 
 	 * @param bundleName the name of the bundle, in Maven environments the artifact id
+	 * @return the loaded bundle info
 	 */
 	public static BundleInfo Load(final String bundleName)
 	{

@@ -188,7 +188,8 @@ public interface Storer extends PersistenceStoring
 
 	/**
 	 * Enforces the instance to be initialized, discarding any previous state (clearing it) if necessary.
-	 *
+	 * 
+	 * @param initialCapacity the amount of unique instances that this instance shall prepare to handle.
 	 * @return this.
 	 */
 	public Storer reinitialize(long initialCapacity);

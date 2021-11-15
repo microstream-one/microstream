@@ -20,10 +20,6 @@ package one.microstream.chars;
  * #L%
  */
 
-/**
- *
- * 
- */
 public class SimpleStringConcatenator
 {
 	///////////////////////////////////////////////////////////////////////////

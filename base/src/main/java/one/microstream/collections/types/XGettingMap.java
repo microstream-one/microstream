@@ -32,7 +32,8 @@ import one.microstream.typing.KeyValue;
 
 /**
  * 
- *
+ * @param <K> the key type
+ * @param <V> the value type
  */
 public interface XGettingMap<K, V> extends ExtendedMap<K, V>, XGettingSet<KeyValue<K, V>>
 {

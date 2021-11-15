@@ -21,10 +21,6 @@ package one.microstream.exceptions;
  */
 
 
-/**
- *
- * 
- */
 public class IllegalAccessRuntimeException extends WrapperRuntimeException
 {
 	///////////////////////////////////////////////////////////////////////////

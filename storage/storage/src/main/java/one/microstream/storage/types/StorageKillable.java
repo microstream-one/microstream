@@ -27,7 +27,7 @@ public interface StorageKillable
 	 * or waiting for any action to be completed.<p>
 	 * Useful only in simple error cases, for example
 	 * 
-	 * @param cause
+	 * @param cause the reason for the kill
 	 */
 	public void killStorage(Throwable cause);
 }

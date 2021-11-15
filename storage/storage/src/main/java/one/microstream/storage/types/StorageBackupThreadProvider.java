@@ -31,6 +31,7 @@ public interface StorageBackupThreadProvider extends StorageThreadProviding
 	 * Interfering with the thread from outside the storage compound has undefined and potentially
 	 * unpredictable and erronous behavior.
 	 *
+	 * @param backupHandler the handler to wrap
 	 * @return a {@link Thread} instance to be used as a storage backup worker thread.
 	 */
 	public default Thread provideBackupThread(final StorageBackupHandler backupHandler)

@@ -32,8 +32,8 @@ public interface StorageViewDataConverterRegistry extends StorageViewDataConvert
 	/**
 	 * Registers a new data converter.
 	 *
-	 * @param converter
-	 * @param format
+	 * @param converter the converter
+	 * @param format the handled format
 	 * @return true if successful registered, otherwise false
 	 */
 	public boolean addConverter(StorageViewDataConverter converter, String format);
@@ -43,7 +43,7 @@ public interface StorageViewDataConverterRegistry extends StorageViewDataConvert
 	{
 		final StorageViewDataConverterRegistry registry = new StorageViewDataConverterRegistry.Default();
 		
-		final ServiceLoader<StorageViewDataConverter> serviceLoader = 
+		final ServiceLoader<StorageViewDataConverter> serviceLoader =
 			ServiceLoader.load(StorageViewDataConverter.class);
 
 		for (final StorageViewDataConverter converter : serviceLoader)
@@ -91,13 +91,6 @@ public interface StorageViewDataConverterRegistry extends StorageViewDataConvert
 			return this.converters.get(format);
 		}
 
-		/**
-		 * register new data converter
-		 *
-		 * @param converter
-		 * @param format
-		 * @return true if successful registered, otherwise false
-		 */
 		@Override
 		public boolean addConverter(
 			final StorageViewDataConverter converter,

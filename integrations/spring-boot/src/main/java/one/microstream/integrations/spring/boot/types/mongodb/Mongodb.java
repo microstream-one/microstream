@@ -1,5 +1,7 @@
 package one.microstream.integrations.spring.boot.types.mongodb;
 
+import java.util.Map;
+
 /*-
  * #%L
  * microstream-spring
@@ -21,8 +23,6 @@ package one.microstream.integrations.spring.boot.types.mongodb;
  */
 
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
-
-import java.util.Map;
 
 public class Mongodb
 {
@@ -108,110 +108,110 @@ public class Mongodb
 
     public Credentials getCredentials()
     {
-        return credentials;
+        return this.credentials;
     }
 
-    public void setCredentials(Credentials credentials)
+    public void setCredentials(final Credentials credentials)
     {
         this.credentials = credentials;
     }
 
     public String getDatabase()
     {
-        return database;
+        return this.database;
     }
 
-    public void setDatabase(String database)
+    public void setDatabase(final String database)
     {
         this.database = database;
     }
 
     public String getApplicationName()
     {
-        return applicationName;
+        return this.applicationName;
     }
 
-    public void setApplicationName(String applicationName)
+    public void setApplicationName(final String applicationName)
     {
         this.applicationName = applicationName;
     }
 
     public String getConnectionString()
     {
-        return connectionString;
+        return this.connectionString;
     }
 
-    public void setConnectionString(String connectionString)
+    public void setConnectionString(final String connectionString)
     {
         this.connectionString = connectionString;
     }
 
     public String getReadConcern()
     {
-        return readConcern;
+        return this.readConcern;
     }
 
-    public void setReadConcern(String readConcern)
+    public void setReadConcern(final String readConcern)
     {
         this.readConcern = readConcern;
     }
 
     public String getReadPreference()
     {
-        return readPreference;
+        return this.readPreference;
     }
 
-    public void setReadPreference(String readPreference)
+    public void setReadPreference(final String readPreference)
     {
         this.readPreference = readPreference;
     }
 
     public String getWriteConcern()
     {
-        return writeConcern;
+        return this.writeConcern;
     }
 
-    public void setWriteConcern(String writeConcern)
+    public void setWriteConcern(final String writeConcern)
     {
         this.writeConcern = writeConcern;
     }
 
     public String getRetryReads()
     {
-        return retryReads;
+        return this.retryReads;
     }
 
-    public void setRetryReads(String retryReads)
+    public void setRetryReads(final String retryReads)
     {
         this.retryReads = retryReads;
     }
 
     public String getRetryWrites()
     {
-        return retryWrites;
+        return this.retryWrites;
     }
 
-    public void setRetryWrites(String retryWrites)
+    public void setRetryWrites(final String retryWrites)
     {
         this.retryWrites = retryWrites;
     }
 
     public String getUuidRepresentation()
     {
-        return uuidRepresentation;
+        return this.uuidRepresentation;
     }
 
-    public void setUuidRepresentation(String uuidRepresentation)
+    public void setUuidRepresentation(final String uuidRepresentation)
     {
         this.uuidRepresentation = uuidRepresentation;
     }
 
     public Map<String, String> getAuthMechanismProperties()
     {
-        return authMechanismProperties;
+        return this.authMechanismProperties;
     }
 
-    public void setAuthMechanismProperties(Map<String, String> authMechanismProperties)
+    public void setAuthMechanismProperties(final Map<String, String> authMechanismProperties)
     {
         this.authMechanismProperties = authMechanismProperties;
     }

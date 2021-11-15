@@ -22,7 +22,8 @@ package one.microstream.typing;
 
 /**
  * 
- *
+ * @param <K> the key type
+ * @param <V> the value type
  */
 public interface KeyValue<K, V>
 {

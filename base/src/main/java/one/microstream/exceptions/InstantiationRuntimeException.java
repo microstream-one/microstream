@@ -22,10 +22,6 @@ package one.microstream.exceptions;
 
 
 
-/**
- *
- * 
- */
 public class InstantiationRuntimeException extends WrapperRuntimeException
 {
 	///////////////////////////////////////////////////////////////////////////
