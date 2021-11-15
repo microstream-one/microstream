@@ -53,7 +53,7 @@ import one.microstream.util.iterables.TrivialIterator;
  *
  * .
  *
- * @param <E>
+ * @param <E> the type of elements in this collection
  * @see Constant
  */
 public class Singleton<E> implements XReference<E>

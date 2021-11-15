@@ -31,7 +31,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
  * 
  * 
  *
- * @param <T>
+ * @param <T> the handled type
  */
 public abstract class AbstractBinaryHandlerCustomNonReferential<T>
 extends AbstractBinaryHandlerCustom<T>

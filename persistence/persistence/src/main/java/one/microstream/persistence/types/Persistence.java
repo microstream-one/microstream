@@ -549,6 +549,7 @@ public class Persistence
 	 * 1.) It is independent from endianess.
 	 * 2.) It is massively smaller due to most content containing almost only single-byte ASCII characters
 	 * 3.) It is overall more commonly and widespread used and compatible than any specific format.
+	 * @return the UTF8 charset
 	 */
 	public static final Charset standardCharset()
 	{
@@ -630,7 +631,8 @@ public class Persistence
 	 *
 	 * Note that the {@link Class} instances representing these types are very well persistable and will get
 	 * empty type descriptions to assign type ids to them. Only their instances cannot be persisted.
-	 *
+	 * 
+	 * @return the types whose instances cannot be persisted
 	 */
 	public static XGettingEnum<Class<?>> unpersistableTypes()
 	{
@@ -1017,6 +1019,9 @@ public class Persistence
 	}
 
 	/**
+	 * @param refactoringsFile the file to read from
+	 * @return a new mapping provider
+	 * 
 	 * @deprecated replaced by {@link #RefactoringMapping(Path)}
 	 */
 	@Deprecated
@@ -1083,6 +1088,8 @@ public class Persistence
 	}
 
 	/**
+	 * @param file the file to read from
+	 * @return refactoring mappings from the file
 	 * @deprecated replaced by {@link #readRefactoringMappings(Path)}
 	 */
 	@Deprecated
@@ -1167,6 +1174,7 @@ public class Persistence
 	/**
 	 * Persistence-specific separator between a class name and a proper identifier
 	 * that replaces unreliable class names (like "$1", "$2" etc.) by a reliably identifying substitute name.
+	 * @return separator between a class name and a proper identifier
 	 */
 	public static final String substituteClassIdentifierSeparator()
 	{
@@ -1242,11 +1250,13 @@ public class Persistence
 	 * This mechanism is a convenience shortcut alternative to
 	 * {@link PersistenceFoundation#registerCustomTypeHandler(PersistenceTypeHandler)}.
 	 *
-	 * @param <D>
-	 * @param <T>
-	 * @param dataType
-	 * @param entityType
-	 * @throws ReflectiveOperationException
+	 * @param <D> the data type
+	 * @param <T> the entity type
+	 * @param dataType the class for the data type
+	 * @param entityType the class for the entity type
+	 * @param selector custom selector logic
+	 * @return the provided type handler if found
+	 * @throws ReflectiveOperationException if a reflection error occurs
 	 */
 	public static <D, T> PersistenceTypeHandler<D, T> searchProvidedTypeHandler(
 		final Class<D>                  dataType  ,
@@ -1313,7 +1323,7 @@ public class Persistence
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	protected Persistence()
 	{

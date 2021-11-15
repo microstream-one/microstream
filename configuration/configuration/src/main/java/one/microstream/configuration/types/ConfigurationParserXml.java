@@ -57,6 +57,7 @@ public interface ConfigurationParserXml extends ConfigurationParser
 	/**
 	 * Pseudo-constructor to create a new XML parser.
 	 * 
+	 * @param mapper a custom mapper
 	 * @return a new XML parser
 	 */
 	public static ConfigurationParserXml New(

@@ -35,10 +35,6 @@ import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-/**
- *
- * 
- */
 public final class BinaryHandlerEqConstHashTable
 extends AbstractBinaryHandlerCustomCollection<EqConstHashTable<?, ?>>
 {

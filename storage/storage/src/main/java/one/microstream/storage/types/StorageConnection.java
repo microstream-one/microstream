@@ -211,7 +211,10 @@ public interface StorageConnection extends Persister
 	 * Same as {@link #issueCacheCheck(long)}, but with using the passed {@link StorageEntityCacheEvaluator}
 	 * logic instead of the configured one.
 	 * 
+	 * @param nanoTimeBudget the time budget in nanoseconds to be used to perform cache checking.
 	 * @param entityEvaluator the entity cache evaluation logic to be used for the call.
+	 * 
+	 * @return whether the used cache size is 0 or became 0 via the performed check.
 	 * 
 	 * @see #issueFullCacheCheck()
 	 * @see #issueFullCacheCheck(StorageEntityCacheEvaluator)
@@ -256,7 +259,7 @@ public interface StorageConnection extends Persister
 	 * be preferred, since it is by far more efficient.
 	 * 
 	 * @param targetFileProvider file provider for backup files
-	 * @param typeDictionaryExporter
+	 * @param typeDictionaryExporter custom type dictionary exporter
 	 * 
 	 * @since 04.01.00
 	 */

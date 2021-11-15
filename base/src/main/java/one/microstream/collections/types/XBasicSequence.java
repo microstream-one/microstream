@@ -30,7 +30,7 @@ import one.microstream.collections.sorting.XSortation;
  *
  * 
  *
- * @param <E>
+ * @param <E> the type of elements in this collection
  */
 public interface XBasicSequence<E> extends XCollection<E>, XPutGetSequence<E>, XProcessingSequence<E>
 {

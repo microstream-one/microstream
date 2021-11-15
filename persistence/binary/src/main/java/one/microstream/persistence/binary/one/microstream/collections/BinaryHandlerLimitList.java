@@ -32,11 +32,6 @@ import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-
-/**
- *
- * 
- */
 public final class BinaryHandlerLimitList
 extends AbstractBinaryHandlerCustomIterableSizedArray<LimitList<?>>
 {

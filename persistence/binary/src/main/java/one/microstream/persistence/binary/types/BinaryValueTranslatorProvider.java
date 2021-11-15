@@ -39,8 +39,11 @@ public interface BinaryValueTranslatorProvider
 	/**
 	 * Normal translator to translate a value from binary form to a target instance.
 	 * 
-	 * @param sourceMember
-	 * @param targetMember
+	 * @param sourceLegacyType the source legacy type
+	 * @param sourceMember the source member
+	 * @param targetCurrentType the target current type
+	 * @param targetMember the target member
+	 * @return the provided value setter
 	 */
 	public BinaryValueSetter provideTargetValueTranslator(
 		PersistenceTypeDefinition         sourceLegacyType ,
@@ -52,8 +55,11 @@ public interface BinaryValueTranslatorProvider
 	/**
 	 * Special translator to translate a value from binary form to an intermediate binary form.
 	 * 
-	 * @param sourceMember
-	 * @param targetMember
+	 * @param sourceLegacyType the source legacy type
+	 * @param sourceMember the source member
+	 * @param targetCurrentType the target current type
+	 * @param targetMember the target member
+	 * @return the provided value setter
 	 */
 	public BinaryValueSetter provideBinaryValueTranslator(
 		PersistenceTypeDefinition         sourceLegacyType ,

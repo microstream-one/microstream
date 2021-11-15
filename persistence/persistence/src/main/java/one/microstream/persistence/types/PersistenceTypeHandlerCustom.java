@@ -26,8 +26,8 @@ package one.microstream.persistence.types;
  * their persistent form and back.
  *
  * 
- * @param <D>
- * @param <T>
+ * @param <D> the data type
+ * @param <T> the handled type
  * 
  * @see PersistenceTypeHandlerGeneric
  */

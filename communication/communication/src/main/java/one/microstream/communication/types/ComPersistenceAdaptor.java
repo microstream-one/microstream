@@ -36,7 +36,10 @@ import one.microstream.persistence.types.PersistenceTypeDictionaryViewProvider;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceWriteController;
 
-
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewProvider
 {
 	@Override
@@ -90,7 +93,8 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	 * every call. Depends on the use-case.<br>
 	 * The persistence medium type used by the persistence manager is irrelevant on the com-level, hence the "?".
 	 * 
-	 * @param connection
+	 * @param connection connection to lookup the host persistence manager for
+	 * @return the persistence manager for the given connection
 	 */
 	public default PersistenceManager<?> provideHostPersistenceManager(
 		final C connection
@@ -118,7 +122,8 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	 * See {@link #provideHostPersistenceManager} with a passed non-null connection instance.<br>
 	 * See {@link #provideTypeDictionaryCompiler} with a passed null connection instance.
 	 * 
-	 * @param connection
+	 * @param connection connection to lookup the host persistence foundation for
+	 * @return the persistence foundation for the given connection
 	 * 
 	 * @see #provideHostPersistenceManager
 	 * @see #provideTypeDictionaryCompiler()

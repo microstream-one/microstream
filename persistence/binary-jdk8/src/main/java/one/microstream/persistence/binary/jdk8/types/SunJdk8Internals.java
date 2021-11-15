@@ -103,7 +103,8 @@ public final class SunJdk8Internals
 	 * So another hack method has to provide basic functionality that is missing in the JDK.
 	 * And should they ever get the idea to implement the set properly, this method will break.
 	 *
-	 * @param hashSet
+	 * @param hashSet the hash set to get the load factor for
+	 * @return the load factor of the given hash set
 	 */
 	public static float getLoadFactor(final HashSet<?> hashSet)
 	{
@@ -199,7 +200,7 @@ public final class SunJdk8Internals
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private SunJdk8Internals()
 	{

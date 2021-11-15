@@ -25,8 +25,8 @@ public interface StorageViewDataConverterProvider
 	/**
 	 * Get the converter for the requested format.
 	 *
-	 * @param format
-	 * @return StorageViewDataConverter
+	 * @param format the format to get the converter for
+	 * @return the registered converter, or <code>null</code> if none was found
 	 */
 	public StorageViewDataConverter getConverter(String format);
 }

@@ -29,11 +29,7 @@ package one.microstream.examples.customlegacytypehandler;
  * 
  * It is necessary to do the code switching since java does not like
  * identical named classes in one project.
- * 
- */
-
-
-/**
+ *
  * 
  * This is the first generation of the "NicePlace" class,
  * use this one first to setup a storage with a legacy type
@@ -66,12 +62,12 @@ public class NicePlace
 	}
 }
 
-/**
- * 
- * This is the second generation of the "NicePlace" class,
- * use this one to apply the LegacyTypeHandler
- *
- */
+///**
+// *
+// * This is the second generation of the "NicePlace" class,
+// * use this one to apply the LegacyTypeHandler
+// *
+// */
 //public class NicePlace
 //{
 //	String name;

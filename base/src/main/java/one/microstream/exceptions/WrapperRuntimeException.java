@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.exceptions;
 
 /*-
@@ -27,9 +24,6 @@ package one.microstream.exceptions;
 /**
  * Checked exceptions are a badly designed concept that ruin functional programming and seduce to swallow exceptions
  * with a foolish print instead of handling them properly and ignore unchecked exceptions altogether.
- * 
- * 
- *
  */
 public class WrapperRuntimeException extends RuntimeException
 {

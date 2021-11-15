@@ -27,7 +27,7 @@ package one.microstream.communication.types;
  * 
  * 
  *
- * @param <C>
+ * @param <C> the communication layer type
  */
 public interface ComConnectionLogicDispatcher<C>
 {

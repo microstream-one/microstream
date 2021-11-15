@@ -30,7 +30,8 @@ public interface StorageChannelThreadProvider extends StorageThreadProviding
 	 * is shut down.
 	 * Interfering with the thread from outside the storage compound has undefined and potentially
 	 * unpredictable and erronous behavior.
-	 *
+	 * 
+	 * @param storageChannel the channel to wrap
 	 * @return a {@link Thread} instance to be used as a storage channel worker thread.
 	 */
 	public default Thread provideChannelThread(final StorageChannel storageChannel)

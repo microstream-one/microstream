@@ -396,6 +396,9 @@ public interface BinaryStorer extends PersistenceStorer
 		 * Stores the passed instance (always) and interprets it as the root of a graph to be traversed and
 		 * have its instances stored recursively if deemed necessary by the logic until all instance
 		 * that can be reached by that logic have been handled.
+		 * 
+		 * @param root the root object of the graph
+		 * @return the root's object id
 		 */
 		protected final long storeGraph(final Object root)
 		{

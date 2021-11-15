@@ -1,7 +1,3 @@
-/**
- *
- */
-
 package one.microstream.examples.lazyLoading;
 
 /*-

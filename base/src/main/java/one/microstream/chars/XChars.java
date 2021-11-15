@@ -1066,8 +1066,8 @@ public final class XChars
 	/**
 	 * Returns {@code true} if the two given character arrays have at least one character in common.
 	 *
-	 * @param chars1
-	 * @param chars2
+	 * @param chars1 first char array
+	 * @param chars2 second char array
 	 * @return {@code true} if the two given character arrays intersect each other.
 	 */
 	public static final boolean intersects(final char[] chars1, final char[] chars2)
@@ -1502,7 +1502,8 @@ public final class XChars
 	 * Parses the char escape sequence Strings "\n" etc. (wihtout the "") to the singel char value represented by
 	 * those strings.
 	 *
-	 * @param s
+	 * @param s the char escape sequence
+	 * @return the resulting char
 	 */
 	public static final char parseChar(final String s)
 	{
@@ -2024,8 +2025,7 @@ public final class XChars
 
 
 	/**
-	 * This method rebuilds the {@link String} hashing algorithm as the JDK guys forgot as usual to make their
-	 * stuff professionally modular.
+	 * This method rebuilds the {@link String} hashing algorithm.
 	 * <p>
 	 * Returns a hash code for the passed character range. The hash code is computed as
 	 * <blockquote><pre>
@@ -2038,6 +2038,9 @@ public final class XChars
 	 *
 	 * @see String#hashCode()
 	 *
+	 * @param chars the character array
+	 * @param offset the start offset
+	 * @param length the length
 	 * @return a hash code value for this object.
 	 */
 	public static final int hashCode(final char[] chars, final int offset, final int length)
@@ -2070,10 +2073,13 @@ public final class XChars
 	 * High-performance implementation of the very common case to split a string by a single character
 	 * and trim all elements.
 	 *
-	 * @param input
-	 * @param separator
-	 *
 	 * @see #trimToString(char[], int, int)
+	 *
+	 * @param input the String to split
+	 * @param separator the separator char to split on
+	 * @param collector the result collector
+	 * @param <C> the collector type
+	 * @return the collector
 	 */
 	public static final <C extends Consumer<String>> C splitAndTrimToStrings(
 		final String input    ,
@@ -2088,10 +2094,13 @@ public final class XChars
 	 * High-performance implementation of the very common case to split a character sequence by a single character
 	 * and trim all elements.
 	 *
-	 * @param input
-	 * @param separator
-	 *
 	 * @see #trimToString(char[], int, int)
+	 *
+	 * @param input the char array to split
+	 * @param separator the separator char to split on
+	 * @param collector the result collector
+	 * @param <C> the collector type
+	 * @return the collector
 	 */
 	public static final <C extends Consumer<String>> C splitAndTrimToStrings(
 		final char[] input    ,
@@ -2189,9 +2198,10 @@ public final class XChars
 	 * Creates a {@link String} instance with trimmed content directly from a character sequence without
 	 * unnecessary intermediate instances.
 	 *
-	 * @param input
-	 * @param lowerOffset
-	 * @param length
+	 * @param input the source char array to trim
+	 * @param lowerOffset the start offset
+	 * @param length the length
+	 * @return the trimmed String
 	 */
 	public static final String trimToString(final char[] input, final int lowerOffset, final int length)
 	{
@@ -2517,9 +2527,10 @@ public final class XChars
 	 * that this algorithms is more than twice as fast as the one used in JDK
 	 * (average of ~33µs vs ~75µs for long literals on same machine with measuring overhead of ~1.5µs)
 	 *
-	 * @param input
-	 * @param offset
-	 * @param length
+	 * @param input the source char array
+	 * @param offset the start offset
+	 * @param length the length
+	 * @return the parsed long value
 	 */
 	public static final long internalParse_longLiteral(final char[] input, final int offset, final int length)
 	{
@@ -2565,11 +2576,6 @@ public final class XChars
 	 * numbers, this algorithm terminates very quickly in the common case. The worst case (equal value literals) is
 	 * a usual full equality check to the last digit.
 	 *
-	 * @param chars1
-	 * @param offset1
-	 * @param chars2
-	 * @param offset2
-	 * @param length
 	 */
 	static final boolean isNumericalLessThan(
 		final char[] chars1 ,
@@ -2970,7 +2976,7 @@ public final class XChars
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XChars()
 	{

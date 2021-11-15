@@ -36,7 +36,7 @@ public interface PersistenceSource<D>
 	 * </ul>
 	 *
 	 * @return data segments containing general data if applicable, otherwise {@code null}.
-	 * @throws PersistenceExceptionTransfer
+	 * @throws PersistenceExceptionTransfer if a transfer error occurs
 	 */
 	public XGettingCollection<? extends D> read() throws PersistenceExceptionTransfer;
 

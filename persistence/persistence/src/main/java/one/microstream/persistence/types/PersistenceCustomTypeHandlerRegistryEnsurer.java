@@ -26,7 +26,7 @@ import one.microstream.reference.Reference;
  * 
  * 
  *
- * @param <D>
+ * @param <D> the data type
  */
 /* (16.10.2019 TM)NOTE:
  * Required to replace/modularize the calling of BinaryPersistence#createDefaultCustomTypeHandlerRegistry

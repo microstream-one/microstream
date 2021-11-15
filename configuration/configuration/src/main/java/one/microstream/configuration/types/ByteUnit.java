@@ -99,6 +99,10 @@ public enum ByteUnit
 	 * </code>
 	 * </p>
 	 * 
+	 * @param sourceValue the source value to convert
+	 * @param sourceUnit the source unit to convert
+	 * @return the conversion for method chaining
+	 * 
 	 * @see Conversion
 	 */
 	public static Conversion convert(
@@ -124,9 +128,10 @@ public enum ByteUnit
 	}
 	
 	/**
-	 * Returns the number of bytes, which this unit multiplied by <code>value</code> yield
+	 * Returns the number of bytes, which this unit multiplied by <code>value</code> yields.
 	 * 
-	 * @param value
+	 * @param value the value to convert
+	 * @return the value converted to bytes
 	 */
 	public long toBytes(
 		final double value

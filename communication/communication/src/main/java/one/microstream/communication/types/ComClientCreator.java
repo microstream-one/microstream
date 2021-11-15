@@ -24,7 +24,10 @@ import static one.microstream.X.notNull;
 
 import java.net.InetSocketAddress;
 
-
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 @FunctionalInterface
 public interface ComClientCreator<C>
 {

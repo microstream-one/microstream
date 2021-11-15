@@ -33,10 +33,6 @@ import one.microstream.persistence.types.PersistenceSizedArrayLengthController;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-/**
- *
- * 
- */
 public final class BinaryHandlerBulkList
 extends AbstractBinaryHandlerCustomIterableSizedArray<BulkList<?>>
 {

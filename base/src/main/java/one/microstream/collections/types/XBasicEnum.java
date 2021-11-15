@@ -31,7 +31,7 @@ import one.microstream.collections.sorting.XLadder;
  *
  * 
  *
- * @param <E>
+ * @param <E> type of contained elements
  */
 public interface XBasicEnum<E> extends XSet<E>, XBasicSequence<E>, XPutGetEnum<E>, XProcessingEnum<E>
 {

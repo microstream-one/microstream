@@ -356,7 +356,7 @@ public final class MemoryCharConversionIntegersUTF8
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private MemoryCharConversionIntegersUTF8()
 	{

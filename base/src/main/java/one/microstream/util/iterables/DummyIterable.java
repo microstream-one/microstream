@@ -1,6 +1,3 @@
-/**
- *
- */
 package one.microstream.util.iterables;
 
 /*-
@@ -25,10 +22,6 @@ package one.microstream.util.iterables;
 
 import java.util.Iterator;
 
-/**
- * 
- *
- */
 public class DummyIterable<T> implements Iterable<T>
 {
 	T element;

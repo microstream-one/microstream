@@ -25,11 +25,16 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-import one.microstream.memory.XMemory;
 import one.microstream.chars.XChars;
 import one.microstream.chars._charArrayRange;
 import one.microstream.com.XSockets;
+import one.microstream.memory.XMemory;
 
+/**
+ * 
+ *
+ * @param <C> the communication layer type
+ */
 public interface ComConnectionHandler<C>
 {
 	public ComConnectionListener<C> createConnectionListener(InetSocketAddress address);

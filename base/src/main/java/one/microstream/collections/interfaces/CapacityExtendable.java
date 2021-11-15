@@ -38,7 +38,8 @@ public interface CapacityExtendable extends CapacityCarrying
 	 * Ensures that the next {@literal minimalFreeCapacity} elements can be actually added in a fast way,
 	 * meaning for example no internal storage rebuild will be necessary.
 	 * 
-	 * @param minimalFreeCapacity
+	 * @param minimalFreeCapacity the capacity to ensure
+	 * @return this
 	 */
 	public CapacityExtendable ensureFreeCapacity(long minimalFreeCapacity);
 

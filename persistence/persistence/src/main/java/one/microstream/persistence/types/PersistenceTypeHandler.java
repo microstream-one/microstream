@@ -98,9 +98,9 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 	 * E.g. can be used to cause a hash collection to hash all its initially collected entries after their
 	 * instances have been built.
 	 *
-	 * @param data
-	 * @param instance
-	 * @param handler
+	 * @param data the data target
+	 * @param instance the source instance
+	 * @param handler the appropriate handler
 	 */
 	public void complete(D data, T instance, PersistenceLoadHandler handler);
 
@@ -119,7 +119,9 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 	 * The same type may occur more than once.
 	 * The order in which the types are provided is undefined, i.e. depending on the implementation.
 	 * 
-	 * @param logic
+	 * @param <C> the logic type
+	 * @param logic the iteration logic
+	 * @return the given logic
 	 */
 	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(C logic);
 	
@@ -160,7 +162,7 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 	 * <p>
 	 * See occurances of {@link PersistenceExceptionTypeNotPersistable}.
 	 * 
-	 * @throws PersistenceExceptionTypeNotPersistable
+	 * @throws PersistenceExceptionTypeNotPersistable if the handler's type is not persistable
 	 * 
 	 * @see PersistenceExceptionTypeNotPersistable
 	 */

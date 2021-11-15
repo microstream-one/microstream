@@ -39,7 +39,7 @@ import one.microstream.persistence.types.PersistenceTypeLink;
  *
  * 
  *
- * @param <D>
+ * @param <D> the data type
  */
 public class PersistenceTypeHandlerProviderFailing<D>
 extends PersistenceDataTypeHolder.Default<D>

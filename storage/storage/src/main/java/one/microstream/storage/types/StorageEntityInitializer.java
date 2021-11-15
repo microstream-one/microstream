@@ -171,9 +171,6 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 				
 		/**
 		 * 
-		 * @param file
-		 * @param buffer
-		 * @param entityOffsets
 		 * @return the entity count.
 		 */
 		private static int indexEntities(

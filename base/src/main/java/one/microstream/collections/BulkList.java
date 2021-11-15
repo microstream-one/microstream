@@ -100,6 +100,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	///////////////////
 
 	/**
+	 * @param <E> type of contained elements
 	 * @return Function that creates an immutable, typed list out of a {@link BulkList}
 	 */
 	public static <E> Function<BulkList<E>, ConstList<E>> Immurer()
@@ -109,6 +110,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 	/**
 	 * Creates an {@link Aggregator} that accepts elements and adds them to a new {@link BulkList}.
+	 * 
+	 * @param <E> type of contained elements
 	 * @return The created aggregator.
 	 */
 	public static <E> Aggregator<E, BulkList<E>> Builder()
@@ -119,6 +122,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	/**
 	 * Creates a {@link Aggregator} that accepts elements and adds them to a new {@link BulkList}
 	 * with a specific initial capacity.
+	 * 
+	 * @param <E> type of contained elements
 	 * @param initialCapacity of the list
 	 * @return The created aggregator
 	 */
@@ -144,7 +149,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 	/**
 	 * Pseudo-constructor method to create a new {@link BulkList} instance with default (minimum) capacity.
-	 *
+	 * 
+	 * @param <E> type of contained elements
 	 * @return a new {@link BulkList} instance.
 	 */
 	public static final <E> BulkList<E> New()
@@ -154,7 +160,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 	/**
 	 * Pseudo-constructor method to create a new {@link BulkList} instance with a given initial capacity.
-	 *
+	 * 
+	 * @param <E> type of contained elements
 	 * @param initialCapacity the desired custom initial capacity.
 	 * @return a new {@link BulkList} instance.
 	 */
@@ -166,7 +173,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	/**
 	 * Pseudo-constructor method to create a new {@link BulkList} instance with default (minimum) capacity
 	 * and the given element already included.
-	 *
+	 * 
+	 * @param <E> type of contained elements
 	 * @param initialElement that will be included in the list
 	 * @return a new {@link BulkList} instance.
 	 */
@@ -179,7 +187,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	/**
 	 * Pseudo-constructor method to create a new {@link BulkList} instance containing all elements of the passed
 	 * array. The element size of the new instance will be equal to the passed arrays length.
-	 *
+	 * 
+	 * @param <E> type of contained elements
 	 * @param initialElements the initial elements for the new instance.
 	 * @return a new {@link BulkList} instance.
 	 * @throws NullPointerException if an explicit {@code null} array reference was passed.
@@ -192,7 +201,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 	/**
 	 * Pseudo-constructor method to create a new {@link BulkList} instance and adds all the given elements to it.
-	 *
+	 * 
+	 * @param <E> type of contained elements
 	 * @param initialElements to add to the created instance
 	 * @return a new {@link BulkList} instance.
 	 */
@@ -205,7 +215,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link BulkList} instance and adds all the given elements to it.
-	 *
+	 * 
+	 * @param <E> type of contained elements
 	 * @param initialElements to add to the created instance
 	 * @return a new {@link BulkList} instance.
 	 */
@@ -220,6 +231,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	 * Pseudo-constructor method to create a new {@link BulkList} instance with the needed amount of capacity and adds all
 	 * elements to it.
 	 *
+	 * @param <E> type of contained elements
 	 * @param initialElements to add to the created instance
 	 * @return a new {@link BulkList} instance.
 	 */
@@ -274,7 +286,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	 * <li>The lowest power of two value that is equal to or greater than the given initial capacity.</li>
 	 * <li>The default (minimum) capacity.</li>
 	 * </ul>
-	 * </p>
 	 * @param initialCapacity the desired custom initial capacity.
 	 */
 	public BulkList(final int initialCapacity)

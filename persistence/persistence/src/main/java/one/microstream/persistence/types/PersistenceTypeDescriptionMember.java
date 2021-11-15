@@ -68,7 +68,8 @@ public interface PersistenceTypeDescriptionMember
 	 * {@link #equalsStructure(PersistenceTypeDescriptionMember)} plus {@link #qualifier()} equality,
 	 * to check if a member is really content-wise equal.
 	 * 
-	 * @param other
+	 * @param other the description to compare to
+	 * @return if this and the other description are equal
 	 * 
 	 * @see #equalsStructure(PersistenceTypeDescriptionMember)
 	 */
@@ -84,7 +85,8 @@ public interface PersistenceTypeDescriptionMember
 	 * Structure means equal order of members by type name and simple name.<br>
 	 * Not qualifier, since that is only required for intra-type field identification
 	 * 
-	 * @param other
+	 * @param other the description to compare to
+	 * @return if this and the other description's structure are equal
 	 * 
 	 * @see #equalDescription(PersistenceTypeDescriptionMember, PersistenceTypeDescriptionMember)
 	 */
@@ -125,8 +127,9 @@ public interface PersistenceTypeDescriptionMember
 	 * This is necessary for legacy type mapping to being able to write a custom legacy type handler that is
 	 * compatible with a generic type handler derived from reflective information.
 	 * 
-	 * @param m1
-	 * @param m2
+	 * @param m1 the first member
+	 * @param m2 the second member
+	 * @return if the two members have the same structure
 	 */
 	public static boolean equalStructure(
 		final PersistenceTypeDescriptionMember m1,
@@ -180,30 +183,30 @@ public interface PersistenceTypeDescriptionMember
 	public void assembleTypeDescription(PersistenceTypeDescriptionMemberAppender assembler);
 
 	/**
-	 * Determines if this member directly is a reference.
+	 * @return if this member directly is a reference.
 	 *
 	 */
 	public boolean isReference();
 
 	/**
-	 * Determines if this member is primitive value.
+	 * @return if this member is primitive value.
 	 *
 	 */
 	public boolean isPrimitive();
 
 	/**
-	 * Determines if this member is a primitive type definition instead of a field definition.
+	 * @return if this member is a primitive type definition instead of a field definition.
 	 *
 	 */
 	public boolean isPrimitiveDefinition();
 
 	/**
-	 * Determines if this member is a enum constant name definition instead of an isntance field definition.
+	 * @return if this member is a enum constant name definition instead of an isntance field definition.
 	 */
 	public boolean isEnumConstant();
 
 	/**
-	 * Determines if this field contains references. Either because it is a reference itself,
+	 * @return if this field contains references. Either because it is a reference itself,
 	 * see {@link #isReference()}, or because it is a complex type that contains one or more
 	 * nested members that have references.
 	 *

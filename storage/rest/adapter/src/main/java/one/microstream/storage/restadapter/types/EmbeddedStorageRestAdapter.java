@@ -91,8 +91,8 @@ public interface EmbeddedStorageRestAdapter
 		 *
 		 * Get an object's description by a microstream ObjectId
 		 *
-		 * @param objectId
-		 * @return ViewerObjectDescription
+		 * @param objectId the object id to look up
+		 * @return description of the object
 		 */
 		@Override
 		public ObjectDescription getStorageObject(final long objectId)
@@ -124,7 +124,7 @@ public interface EmbeddedStorageRestAdapter
 		 *
 		 * Get java constants values
 		 *
-		 * @param objectId
+		 * @param objectId the object id to look up
 		 * @return the constants value as object
 		 */
 		@Override

@@ -51,7 +51,7 @@ import one.microstream.util.iterables.TrivialIterator;
  *
  * .
  *
- * @param <E>
+ * @param <E> the type of elements in this collection
  * @see Singleton
  */
 public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XReferencing<E>

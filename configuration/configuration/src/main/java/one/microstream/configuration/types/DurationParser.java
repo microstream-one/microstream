@@ -49,6 +49,7 @@ public interface DurationParser
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link DurationParser}, with {@link DurationUnit#MS} as default unit.
+	 * @return a new duraction parser
 	 */
 	public static DurationParser New()
 	{
@@ -57,6 +58,8 @@ public interface DurationParser
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link DurationParser}.
+	 * @param defaultUnit a custom default unit
+	 * @return a new duraction parser
 	 */
 	public static DurationParser New(
 		final DurationUnit defaultUnit

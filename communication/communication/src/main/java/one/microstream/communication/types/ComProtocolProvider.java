@@ -29,7 +29,10 @@ import one.microstream.persistence.types.PersistenceTypeDictionaryView;
 import one.microstream.persistence.types.PersistenceTypeDictionaryViewProvider;
 import one.microstream.typing.Immutable;
 
-
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 public interface ComProtocolProvider<C> extends ComProtocolData
 {
 	public ComProtocol provideProtocol(C connection);

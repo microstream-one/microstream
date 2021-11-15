@@ -31,10 +31,6 @@ import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-/**
- *
- * 
- */
 public final class BinaryHandlerHashTable
 extends AbstractBinaryHandlerCustomCollection<HashTable<?, ?>>
 {
