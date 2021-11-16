@@ -319,6 +319,7 @@
 									<module>
 										<moduleInfoFile>src/module-info.java</moduleInfoFile>
 									</module>
+									<overwriteExistingFiles>true</overwriteExistingFiles>
 								</configuration>
 							</execution>
 						</executions>
