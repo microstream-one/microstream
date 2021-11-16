@@ -1,5 +1,16 @@
 = Changelog
 
+== 6.1
+
+Bugfix release.
+
+=== *Bugfixes*
+
+* Fixed various bugs in backup https://github.com/microstream-one/microstream/issues/194[[194]]https://github.com/microstream-one/microstream/pull/272[[272]]https://github.com/microstream-one/microstream/pull/273[[273]]https://github.com/microstream-one/microstream/pull/278[[278]]https://github.com/microstream-one/microstream/pull/280[[280]]
+* Fixed storage restart error with same configuration instance https://github.com/microstream-one/microstream/issues/279[[279]]
+* Fixed Javadoc warnings https://github.com/microstream-one/microstream/pull/281[[281]]
+
+
 == 6.0
 
 === *Features*

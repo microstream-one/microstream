@@ -7,6 +7,6 @@ nav:
 - modules/ROOT/nav.adoc
 asciidoc:
   attributes:
-    display-version: '6.0'
+    display-version: '6.1'
     api-version: '6.0'
-    maven-version: '06.00.00-MS-GA'
+    maven-version: '06.01.00-MS-GA'
