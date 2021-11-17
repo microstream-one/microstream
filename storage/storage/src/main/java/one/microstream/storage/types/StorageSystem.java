@@ -23,6 +23,9 @@ package one.microstream.storage.types;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
 import one.microstream.afs.types.AFileSystem;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.Persistence;
@@ -30,9 +33,6 @@ import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageExceptionInitialization;
 import one.microstream.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import one.microstream.storage.exceptions.StorageExceptionNotRunning;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 // (21.03.2016 TM)TODO: what is the difference between ~Manager and ~Controller here? Merge into Controller or comment.
 public interface StorageSystem extends StorageController
@@ -109,11 +109,11 @@ public interface StorageSystem extends StorageController
 		private final boolean                              switchByteOrder               ;
 
 		// state flags //
-		private AtomicBoolean    isStartingUp       = new AtomicBoolean();
-		private AtomicBoolean    isShuttingDown     = new AtomicBoolean();
+		private final AtomicBoolean    isStartingUp       = new AtomicBoolean();
+		private final AtomicBoolean    isShuttingDown     = new AtomicBoolean();
 		private final    Object  stateLock          = new Object();
-		private AtomicLong       initializationTime = new AtomicLong();
-		private AtomicLong       operationModeTime  = new AtomicLong();
+		private final AtomicLong       initializationTime = new AtomicLong();
+		private final AtomicLong       operationModeTime  = new AtomicLong();
 
 		// running state members //
 		private volatile StorageTaskBroker    taskbroker    ;
@@ -518,10 +518,9 @@ public interface StorageSystem extends StorageController
 				return;
 			}
 			
-			//the backup handler must shutdown first as it depends on the operationController
-			this.shutdownBackup();
 			
-//			DEBUGStorage.println("shutting down ...");
+			
+			
 			final StorageChannelTaskShutdown task = this.taskbroker.issueChannelShutdown(this.operationController);
 			
 			synchronized(task)
@@ -530,6 +529,10 @@ public interface StorageSystem extends StorageController
 				task.waitOnCompletion();
 			}
 			this.taskbroker = null;
+			
+			this.shutdownBackup();
+			
+			this.operationController.deactivate();
 
 			/* (07.03.2019 TM)FIXME: Shutdown must wait for ongoing activities.
 			 * Such as a StorageBackupHandler thread with a non-empty item queue.

@@ -75,7 +75,7 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 			 */
 
 			// may not be done before to give every channel a safe way to notice the processing progress
-			this.operationController.deactivate();
+			// this.operationController.deactivate();
 
 			// can / may never throw an exception
 			channel.reset();
