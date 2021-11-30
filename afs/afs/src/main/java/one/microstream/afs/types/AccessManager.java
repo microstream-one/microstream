@@ -905,7 +905,7 @@ public interface AccessManager
 			if(entry.removeShared(file) && entry.exclusive == null)
 			{
 				// if there is no more need for the entry itself, remove it.
-				this.fileUsers.removeFor(file);
+				this.fileUsers.removeFor(file.actual());
 			}
 		}
 		
@@ -936,6 +936,7 @@ public interface AccessManager
 		protected void removeExclusive(final AWritableFile file, final FileEntry entry)
 		{
 			entry.exclusive = null;
+			this.fileUsers.removeFor(file.actual());
 			file.retire();
 		}
 				
