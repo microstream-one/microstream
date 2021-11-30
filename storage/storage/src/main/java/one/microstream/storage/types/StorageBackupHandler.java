@@ -33,7 +33,6 @@ import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageBack
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageForNonEmptyBackup;
 import one.microstream.storage.exceptions.StorageExceptionBackupInconsistentFileLength;
 import one.microstream.storage.types.StorageBackupHandler.Default.ChannelInventory;
-import one.microstream.storage.types.StorageDataFileValidator.Creator;
 
 public interface StorageBackupHandler extends Runnable, StorageActivePart
 {
@@ -571,7 +570,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		final void closeAllDataFiles()
 		{
 			final DisruptionCollectorExecuting<StorageClosableFile> closer = DisruptionCollectorExecuting.New(file ->
-				StorageClosableFile.close(file, null)
+				file.close()
 			);
 			
 			for(final ChannelInventory channel : this.channelInventories)
