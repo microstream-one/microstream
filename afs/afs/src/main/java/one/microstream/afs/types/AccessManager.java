@@ -580,7 +580,7 @@ public interface AccessManager
 				e.add(wrapper);
 				
 				// may not retire file before conversion since that might need some of file's state.
-				this.unregisterExclusive(file, e);
+				e.exclusive = null;
 				
 				return wrapper;
 			}
