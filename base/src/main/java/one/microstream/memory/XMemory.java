@@ -1120,6 +1120,29 @@ public final class XMemory
 
 		return bytes;
 	}
+	
+	public static final byte[] toArray(final ByteBuffer[] sources)
+	{
+		int overallLength = 0;
+		for(final ByteBuffer source : sources)
+		{
+			overallLength += source.remaining();
+		}
+		final byte[] bytes = new byte[overallLength];
+		int pos = 0;
+		for(final ByteBuffer source : sources)
+		{
+			final int length                = source.remaining();
+			final int currentSourcePosition = source.position();
+			
+			source.get(bytes, pos, length);
+			pos += length;
+			
+			// why would a querying methode intrinsically increase the position? WHY?
+			source.position(currentSourcePosition);
+		}
+		return bytes;
+	}
 
 	public static final long getPositionLimit(final ByteBuffer buffer)
 	{

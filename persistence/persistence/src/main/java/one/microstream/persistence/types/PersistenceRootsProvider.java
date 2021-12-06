@@ -39,5 +39,49 @@ public interface PersistenceRootsProvider<D>
 		PersistenceCustomTypeHandlerRegistry<D> typeHandlerRegistry,
 		PersistenceObjectRegistry               objectRegistry
 	);
+	
+	
+	public static <D> PersistenceRootsProvider<D> Empty()
+	{
+		return new Empty<>();
+	}
+	
+	
+	public final class Empty<D> implements PersistenceRootsProvider<D>
+	{
+		Empty()
+		{
+			super();
+		}
+
+		@Override
+		public PersistenceRoots provideRoots()
+		{
+			//no-op
+			return null;
+		}
+
+		@Override
+		public PersistenceRoots peekRoots()
+		{
+			//no-op
+			return null;
+		}
+
+		@Override
+		public void updateRuntimeRoots(final PersistenceRoots runtimeRoots)
+		{
+			//no-op
+		}
+
+		@Override
+		public void registerRootsTypeHandlerCreator(
+			final PersistenceCustomTypeHandlerRegistry<D> typeHandlerRegistry,
+			final PersistenceObjectRegistry               objectRegistry
+		)
+		{
+			//no-op
+		}
+	}
 
 }

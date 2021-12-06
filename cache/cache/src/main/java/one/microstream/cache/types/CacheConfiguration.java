@@ -27,7 +27,6 @@ import static one.microstream.chars.XChars.notEmpty;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -35,7 +34,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.function.Predicate;
 
 import javax.cache.CacheManager;
 import javax.cache.configuration.CacheEntryListenerConfiguration;
@@ -53,7 +51,7 @@ import one.microstream.configuration.exceptions.ConfigurationException;
 import one.microstream.configuration.types.Configuration;
 import one.microstream.configuration.types.ConfigurationLoader;
 import one.microstream.configuration.types.ConfigurationParserIni;
-import one.microstream.reflect.XReflect;
+import one.microstream.persistence.binary.util.SerializerFoundation;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 
 /**
@@ -1194,11 +1192,11 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	public Factory<EvictionManager<K, V>> getEvictionManagerFactory();
 
 	/**
-	 * Gets the Serializer {@link Field} {@link Predicate}, if any.
+	 * Gets the serializer foundation.
 	 *
-	 * @return the {@link Field} {@link Predicate} for the Serializer, or null if none has been set
+	 * @return the foundation which the serializer will be based on
 	 */
-	public Predicate<? super Field> getSerializerFieldPredicate();
+	public SerializerFoundation<?> getSerializerFoundation();
 
 	/**
 	 * Creates a new {@link Builder} for a {@link CacheConfiguration}.
@@ -1534,18 +1532,12 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		public Builder<K, V> enableManagement(final boolean managementEnabled);
 
 		/**
-	     * Set the Serializer {@link Field} {@link Predicate}. If <code>null</code>
-		 * is specified the default {@link Predicate} is used.
-		 * <p>
-		 * Only one predicate can be set for a cache. The last one applied
-		 * before cache construction will be the one used.
+	     * Set the serializer foundation.
 	     *
-	     * @param serializerFieldPredicate the Serializer {@link Field} {@link Predicate}
+	     * @param serializerFoundation the foundation which the serializer will be based on
 		 * @return this
-	     *
-	     * @see CacheConfiguration#DefaultSerializerFieldPredicate()
 	     */
-		public Builder<K, V> serializerFieldPredicate(Predicate<? super Field> serializerFieldPredicate);
+		public Builder<K, V> serializerFoundation(SerializerFoundation<?> serializerFoundation);
 
 		/**
 		 * Builds a {@link CacheConfiguration} based on the values of this {@link Builder}.
@@ -1568,7 +1560,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			private boolean                                        storeByValue;
 			private boolean                                        statisticsEnabled;
 			private boolean                                        managementEnabled;
-			private Predicate<? super Field>                       serializerFieldPredicate;
+			private SerializerFoundation<?>                        serializerFoundation;
 
 			Default(final Class<K> keyType, final Class<V> valueType)
 			{
@@ -1650,9 +1642,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			}
 
 			@Override
-			public Builder<K, V> serializerFieldPredicate(final Predicate<? super Field> serializerFieldPredicate)
+			public Builder<K, V> serializerFoundation(final SerializerFoundation<?> serializerFoundation)
 			{
-				this.serializerFieldPredicate = serializerFieldPredicate;
+				this.serializerFoundation = serializerFoundation;
 				return this;
 			}
 
@@ -1669,9 +1661,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 					DefaultEvictionManagerFactory()
 				);
 
-				final Predicate<? super Field> serializerFieldPredicate = coalesce(
-					this.serializerFieldPredicate,
-					DefaultSerializerFieldPredicate()
+				final SerializerFoundation<?> serializerFoundation = coalesce(
+					this.serializerFoundation,
+					SerializerFoundation.New()
 				);
 
 				return new CacheConfiguration.Default<>(this.keyType,
@@ -1686,7 +1678,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 					this.storeByValue,
 					this.statisticsEnabled,
 					this.managementEnabled,
-					serializerFieldPredicate
+					serializerFoundation
 				);
 			}
 
@@ -1710,14 +1702,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	public static <K, V> Factory<EvictionManager<K, V>> DefaultEvictionManagerFactory()
 	{
 		return () -> null;
-	}
-
-	/**
-	 * @return the default Serializer {@link Field} {@link Predicate}, which excludes transient fields.
-	 */
-	public static Predicate<? super Field> DefaultSerializerFieldPredicate()
-	{
-		return XReflect::isNotTransient;
 	}
 
 	/**
@@ -1748,17 +1732,17 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			);
 
 			final Factory<EvictionManager<K, V>> evictionManagerFactory;
-			final Predicate<? super Field>       serializerFieldPredicate;
+			final SerializerFoundation<?>        serializerFoundation;
 			if(other instanceof CacheConfiguration)
 			{
 				final CacheConfiguration<K, V> msCacheConfig = (CacheConfiguration<K, V>)other;
-				evictionManagerFactory   = msCacheConfig.getEvictionManagerFactory();
-				serializerFieldPredicate = msCacheConfig.getSerializerFieldPredicate();
+				evictionManagerFactory = msCacheConfig.getEvictionManagerFactory();
+				serializerFoundation   = msCacheConfig.getSerializerFoundation();
 			}
 			else
 			{
-				evictionManagerFactory   = DefaultEvictionManagerFactory();
-				serializerFieldPredicate = DefaultSerializerFieldPredicate();
+				evictionManagerFactory = DefaultEvictionManagerFactory();
+				serializerFoundation   = SerializerFoundation.New();
 			}
 
 			return new Default<>(
@@ -1774,7 +1758,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 				complete.isStoreByValue(),
 				complete.isStatisticsEnabled(),
 				complete.isManagementEnabled(),
-				serializerFieldPredicate
+				serializerFoundation
 			);
 		}
 
@@ -1791,13 +1775,13 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			other.isStoreByValue(),
 			false,
 			false,
-			DefaultSerializerFieldPredicate());
+			SerializerFoundation.New());
 	}
 
 	public static class Default<K, V> extends MutableConfiguration<K, V> implements CacheConfiguration<K, V>
 	{
-		private final Factory<EvictionManager<K, V>>                 evictionManagerFactory;
-		private final Predicate<? super Field>                       serializerFieldPredicate;
+		private final Factory<EvictionManager<K, V>> evictionManagerFactory;
+		private final SerializerFoundation<?>        serializerFoundation;
 
 		Default(
 			final Class<K>                                       keyType,
@@ -1812,7 +1796,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			final boolean                                        isStoreByValue,
 			final boolean                                        isStatisticsEnabled,
 			final boolean                                        isManagementEnabled,
-			final Predicate<? super Field>                       serializerFieldPredicate
+			final SerializerFoundation<?>                        serializerFoundation
 		)
 		{
 			super();
@@ -1832,7 +1816,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			this.isStatisticsEnabled      = isStatisticsEnabled;
 			this.isStoreByValue           = isStoreByValue;
 			this.isManagementEnabled      = isManagementEnabled;
-			this.serializerFieldPredicate = serializerFieldPredicate;
+			this.serializerFoundation = serializerFoundation;
 		}
 
 		@Override
@@ -1862,9 +1846,9 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 		}
 
 		@Override
-		public Predicate<? super Field> getSerializerFieldPredicate()
+		public SerializerFoundation<?> getSerializerFoundation()
 		{
-			return this.serializerFieldPredicate;
+			return this.serializerFoundation;
 		}
 
 		@Override
@@ -1884,7 +1868,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			result = prime * result + (this.listenerConfigurations == null ? 0 : this.listenerConfigurations.hashCode());
 			result = prime * result + (this.valueType == null ? 0 : this.valueType.hashCode());
 			result = prime * result + (this.evictionManagerFactory == null ? 0 : this.evictionManagerFactory.hashCode());
-			result = prime * result + (this.serializerFieldPredicate == null ? 0 : this.serializerFieldPredicate.hashCode());
+			result = prime * result + (this.serializerFoundation == null ? 0 : this.serializerFoundation.hashCode());
 			return result;
 		}
 
@@ -1997,14 +1981,14 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			{
 				return false;
 			}
-			if(this.serializerFieldPredicate == null)
+			if(this.serializerFoundation == null)
 			{
-				if(other.getSerializerFieldPredicate() != null)
+				if(other.getSerializerFoundation() != null)
 				{
 					return false;
 				}
 			}
-			else if(!this.serializerFieldPredicate.equals(other.getSerializerFieldPredicate()))
+			else if(!this.serializerFoundation.equals(other.getSerializerFoundation()))
 			{
 				return false;
 			}

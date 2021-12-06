@@ -33,6 +33,7 @@ import one.microstream.util.InstanceDispatcher;
 
 
 public interface ComFoundation<C, F extends ComFoundation<C, ?>>
+extends InstanceDispatcher
 {
 	public String getProtocolName();
 	

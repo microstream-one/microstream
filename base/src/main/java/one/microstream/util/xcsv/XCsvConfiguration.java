@@ -478,7 +478,7 @@ public interface XCsvConfiguration
 		return new XCsvConfiguration.Builder.Default();
 	}
 
-	public interface Builder
+	public interface Builder extends InstanceDispatcher
 	{
 		public char getLineSeparator();
 
