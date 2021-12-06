@@ -34,10 +34,30 @@ import one.microstream.reference.ObjectSwizzling;
 import one.microstream.reference.Swizzling;
 import one.microstream.util.BufferSizeProviderIncremental;
 
+/**
+ * Convenient API layer to use the binary persistence functionality for a simple serializer.
+ * <p>
+ * It is based on a {@link SerializerFoundation}, which can be configured to various needs.
+ * <p>
+ * Per default {@link Binary} and <code>byte[]</code> are supported as medium types.
+ *
+ * @param <M> the medium type
+ */
 public interface Serializer<M> extends AutoCloseable
 {
+	/**
+	 * Serializes the given object graph into the medium type.
+	 * @param object the graph's root
+	 * @return the binary format
+	 */
 	public M serialize(Object object);
 	
+	/**
+	 * Recreates an object graph based on the given data.
+	 * @param <T> the object's type
+	 * @param medium the medium to read from
+	 * @return the deserialized object graph
+	 */
 	public <T> T deserialize(M medium);
 	
 	

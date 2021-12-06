@@ -90,6 +90,17 @@ import one.microstream.typing.XTypes;
 import one.microstream.util.BufferSizeProviderIncremental;
 import one.microstream.util.InstanceDispatcher;
 
+/**
+ * This type serves as a factory instance for buidling {@link Serializer} instances.
+ * However, it is more than a mere factory as it keeps track of all component instances used in building
+ * a {@link Serializer} instance. For example managing parts of an application can use it
+ * to access former set ID providers or dictionary providers even after they have been assembled into (and
+ * are intentionally hindden in) a {@link PersistenceManager} instance.*
+ * Hence it can be seen as a kind of "master instance" of the built persistence layer or as its "foundation".
+ *
+ * 
+ * @param <F> the foundation type
+ */
 public interface SerializerFoundation<F extends SerializerFoundation<?>>
 extends ByteOrderTargeting.Mutable<F>, PersistenceDataTypeHolder<Binary>, InstanceDispatcher
 {
