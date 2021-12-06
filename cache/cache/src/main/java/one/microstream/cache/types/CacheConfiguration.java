@@ -59,7 +59,7 @@ import one.microstream.storage.embedded.types.EmbeddedStorageManager;
  * <p>
  * Added features:<br>
  * - {@link #getEvictionManagerFactory()}<br>
- * - {@link #getSerializerFieldPredicate()}
+ * - {@link #getSerializerFoundation()}
  * </p>
  * <p>
  * Can be adapted to MicroStream's generic {@link Configuration} layer.
