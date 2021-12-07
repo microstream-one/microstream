@@ -449,8 +449,6 @@ public interface Serializer<M> extends AutoCloseable
 					return Swizzling.nullId();
 				}
 				
-				this.checkSerializationSupport(instance);
-				
 				/*
 				 * "Eager" must still mean that if this storer has already stored the passed instance,
 				 * it may not store it again. That would not only be data-wise redundant and unnecessary,
@@ -475,8 +473,6 @@ public interface Serializer<M> extends AutoCloseable
 				{
 					return Swizzling.nullId();
 				}
-				
-				this.checkSerializationSupport(instance);
 				
 				/*
 				 * "Eager" must still mean that if this storer has already stored the passed instance,
@@ -644,6 +640,8 @@ public interface Serializer<M> extends AutoCloseable
 				final PersistenceTypeHandler<Binary, T> optionalHandler
 			)
 			{
+				this.checkSerializationSupport(instance);
+				
 				// ensure handler (or fail if type is not persistable) before ensuring an OID.
 				final PersistenceTypeHandler<Binary, ? super T> typeHandler = optionalHandler != null
 					? optionalHandler
