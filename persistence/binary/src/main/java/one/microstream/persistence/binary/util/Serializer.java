@@ -30,6 +30,7 @@ import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.Storer;
+import one.microstream.reference.Lazy;
 import one.microstream.reference.ObjectSwizzling;
 import one.microstream.reference.Swizzling;
 import one.microstream.util.BufferSizeProviderIncremental;
@@ -437,21 +438,7 @@ public interface Serializer<M> extends AutoCloseable
 			@Override
 			public <T> long apply(final T instance, final PersistenceTypeHandler<Binary, T> localTypeHandler)
 			{
-				// concurrency: lookupOid() and ensureObjectId() lock internally, the rest is thread-local
-				
-				if(instance == null)
-				{
-					return Swizzling.nullId();
-				}
-				
-				final long objectIdLocal;
-				if(Swizzling.isFoundId(objectIdLocal = this.lookupOid(instance)))
-				{
-					// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
-					return objectIdLocal;
-				}
-				
-				return this.objectManager.ensureObjectId(instance, this, localTypeHandler);
+				return this.applyEager(instance, localTypeHandler);
 			}
 			
 			@Override
@@ -461,6 +448,8 @@ public interface Serializer<M> extends AutoCloseable
 				{
 					return Swizzling.nullId();
 				}
+				
+				this.checkSerializationSupport(instance);
 				
 				/*
 				 * "Eager" must still mean that if this storer has already stored the passed instance,
@@ -487,6 +476,8 @@ public interface Serializer<M> extends AutoCloseable
 					return Swizzling.nullId();
 				}
 				
+				this.checkSerializationSupport(instance);
+				
 				/*
 				 * "Eager" must still mean that if this storer has already stored the passed instance,
 				 * it may not store it again. That would not only be data-wise redundant and unnecessary,
@@ -502,6 +493,14 @@ public interface Serializer<M> extends AutoCloseable
 				}
 				
 				return this.objectManager.ensureObjectIdGuaranteedRegister(instance, this, localTypeHandler);
+			}
+			
+			protected void checkSerializationSupport(final Object instance)
+			{
+				if(instance instanceof Lazy)
+				{
+					throw new UnsupportedOperationException("Lazy references cannot be serialized");
+				}
 			}
 			
 			/**
