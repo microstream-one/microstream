@@ -55,6 +55,12 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			final PersistenceSourceSupplier<Binary>    source
 		);
 	}
+	
+	
+	public static BinaryLoader.Creator CreatorSimple(final boolean switchByteOrder)
+	{
+		return new BinaryLoader.CreatorSimple(switchByteOrder);
+	}
 
 	public static BinaryLoader.Default New(
 		final PersistenceTypeHandlerLookup<Binary> typeLookup     ,

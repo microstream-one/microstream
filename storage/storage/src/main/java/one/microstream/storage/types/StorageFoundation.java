@@ -50,7 +50,7 @@ import one.microstream.util.ProcessIdentityProvider;
  *
  * @param <F> the "self-type" of the  {@link StorageFoundation} implementation.
  */
-public interface StorageFoundation<F extends StorageFoundation<?>>
+public interface StorageFoundation<F extends StorageFoundation<?>> extends InstanceDispatcher
 {
 	/* (11.06.2019 TM)NOTE:
 	 * JavaDoc-Note: all setters and getters use the same text with only the type name inserted.

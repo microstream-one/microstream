@@ -66,7 +66,9 @@ import one.microstream.cache.types.MBeanServerUtils.MBeanType;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XList;
 import one.microstream.exceptions.IORuntimeException;
+import one.microstream.persistence.binary.util.Serializer;
 import one.microstream.reference.Reference;
+import one.microstream.reflect.ClassLoaderProvider;
 import one.microstream.typing.KeyValue;
 
 /**
@@ -212,9 +214,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 			this.objectConverter = configuration.isStoreByValue()
 				? ObjectConverter.ByValue(
-					Serializer.get(
-						Thread.currentThread().getContextClassLoader(),
-						configuration.getSerializerFieldPredicate()
+					Serializer.Binary(
+						configuration.getSerializerFoundation()
+							.setClassLoaderProvider(
+								ClassLoaderProvider.New(Thread.currentThread().getContextClassLoader())
+							)
 					)
 				)
 				: ObjectConverter.ByReference()
