@@ -44,9 +44,9 @@ public interface StorageRequestTaskLoad extends StorageRequestTask
 		// constructors //
 		/////////////////
 
-		protected Abstract(final long timestamp, final int channelCount)
+		protected Abstract(final long timestamp, final int channelCount, final StorageOperationController controller)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.result = new ChunksBuffer[channelCount];
 		}
 

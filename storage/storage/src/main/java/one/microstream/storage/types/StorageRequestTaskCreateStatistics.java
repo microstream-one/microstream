@@ -51,11 +51,12 @@ public interface StorageRequestTaskCreateStatistics extends StorageRequestTask
 		/////////////////
 
 		Default(
-			final long timestamp   ,
-			final int  channelCount
+			final long                       timestamp   ,
+			final int                        channelCount, 
+			final StorageOperationController controller
 		)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.channelResults = new StorageRawFileStatistics.ChannelStatistics[channelCount];
 			this.creationTime = XTime.now();
 		}
