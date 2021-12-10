@@ -39,6 +39,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<org.owasp.depencency.check.version>6.1.6</org.owasp.depencency.check.version>
+		<org.eclipse.jdt.ecj.version>3.26.0</org.eclipse.jdt.ecj.version>
 		<license.inceptionYear>2019</license.inceptionYear>
 		<license.licenseName>epl_v2</license.licenseName>
 		<license.licenceFile>${basedir}/LICENSE</license.licenceFile>
@@ -126,7 +127,7 @@
 						<dependency>
 							<groupId>org.eclipse.jdt</groupId>
 							<artifactId>ecj</artifactId>
-							<version>3.26.0</version>
+							<version>${org.eclipse.jdt.ecj.version}</version>
 						</dependency>
 					</dependencies>
 				</plugin>
