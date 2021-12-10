@@ -2277,7 +2277,7 @@ public final class XChars
 		final Integer[] ints = new Integer[intStrings.length];
 		for(int i = 0; i < intStrings.length; i++)
 		{
-			ints[i] = new Integer(intStrings[i]);
+			ints[i] = Integer.valueOf(intStrings[i]);
 		}
 
 		return ints;
