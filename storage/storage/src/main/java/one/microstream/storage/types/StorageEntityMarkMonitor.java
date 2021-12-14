@@ -22,6 +22,9 @@ package one.microstream.storage.types;
 
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import one.microstream.chars.VarString;
 import one.microstream.math.XMath;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
@@ -173,6 +176,8 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 	final class Default implements StorageEntityMarkMonitor, StorageReferenceMarker
 	{
+		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -421,6 +426,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		{
 			if(this.gcColdPhaseComplete)
 			{
+				logger.debug("GC not needed");
 				this.eventLogger.logGarbageCollectorNotNeeded();
 				return;
 			}
@@ -439,6 +445,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				this.gcColdPhaseComplete = true;
 				this.lastGcColdCompletion = System.currentTimeMillis();
 				this.gcColdGeneration++;
+				logger.debug("Storage GC completed #{} @ {}", this.gcColdGeneration, this.lastGcColdCompletion);
 				this.eventLogger.logGarbageCollectorCompleted(this.gcColdGeneration, this.lastGcColdCompletion);
 			}
 			else
@@ -446,6 +453,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				this.gcHotPhaseComplete = true;
 				this.lastGcHotCompletion = System.currentTimeMillis();
 				this.gcHotGeneration++;
+				logger.debug("Storage GC completed hot phase #{} @ {}", this.gcHotGeneration, this.lastGcHotCompletion);
 				this.eventLogger.logGarbageCollectorCompletedHotPhase(this.gcHotGeneration, this.lastGcHotCompletion);
 				
 			}
@@ -526,6 +534,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			// mark this channel as having completed the sweep
 			this.needsSweep[channel.channelIndex()] = false;
 			
+			logger.debug("StorageChannel#{} completed sweeping", channel.channelIndex());
 			this.eventLogger.logGarbageCollectorSweepingComplete(channel);
 
 			// decrement sweep channel count and execute completion logic if required.

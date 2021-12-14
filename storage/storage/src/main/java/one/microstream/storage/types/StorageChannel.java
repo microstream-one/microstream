@@ -27,6 +27,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import one.microstream.X;
 import one.microstream.afs.types.AWritableFile;
 import one.microstream.collections.BulkList;
@@ -109,6 +112,8 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 	public final class Default implements StorageChannel, Unpersistable, StorageHousekeepingExecutor
 	{
+		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -393,6 +398,8 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 		private void work() throws InterruptedException
 		{
+			logger.debug("StorageChannel#{} started", this.channelIndex);
+			
 			final StorageOperationController    operationController    = this.operationController   ;
 			final StorageHousekeepingController housekeepingController = this.housekeepingController;
 
@@ -417,6 +424,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				 */
 				if(!operationController.checkProcessingEnabled())
 				{
+					logger.debug("StorageChannel#{} processing disabled", this.channelIndex);
 					this.eventLogger.logChannelProcessingDisabled(this);
 					break;
 				}
@@ -435,8 +443,10 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				}
 				catch(final Throwable t)
 				{
+					logger.error("StorageChannel#{} encountered disrupting exception: {}", this.channelIndex, t);
 					this.eventLogger.logDisruption(this, t);
 					this.operationController.setChannelProcessingEnabled(false);
+					logger.debug("StorageChannel#{} processing disabled", this.channelIndex);
 					this.eventLogger.logChannelProcessingDisabled(this);
 					break;
 				}
@@ -458,6 +468,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 //				DEBUGStorage.println(this.channelIndex + " current Task: " + currentTask);
 			}
 			
+			logger.debug("StorageChannel#{} stopped", this.channelIndex);
 			this.eventLogger.logChannelStoppedWorking(this);
 		}
 
@@ -507,6 +518,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				 * interruping ultimately means just stop running in a ordered fashion
 				 */
 				workingDisruption = t;
+				logger.error("StorageChannel#{} encountered disrupting exception: {}", this.channelIndex, t);
 				this.eventLogger.logDisruption(this, t);
 				this.exceptionHandler.handleException(t, this);
 			}
@@ -582,6 +594,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final ChunksBuffer collectLoadByOids(final ChunksBuffer[] resultArray, final PersistenceIdSet loadOids)
 		{
+			logger.debug("StorageChannel#{} loading {} references", this.channelIndex, loadOids.size());
 //			DEBUGStorage.println(this.channelIndex + " loading " + loadOids.size() + " references");
 
 			/* it is probably best to start (any maybe continue) with lots of small, memory-agile

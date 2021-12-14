@@ -1457,6 +1457,17 @@ public final class X
 		);
 	}
 
+	public static final Object LazyToString(final Supplier<?> supplier)
+	{
+		return new Object()
+		{
+			@Override
+			public String toString()
+			{
+				return String.valueOf(supplier.get());
+			}
+		};
+	}
 	
 
 	///////////////////////////////////////////////////////////////////////////

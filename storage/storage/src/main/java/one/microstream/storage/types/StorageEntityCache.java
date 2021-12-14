@@ -27,6 +27,9 @@ import static one.microstream.math.XMath.positive;
 
 import java.nio.ByteBuffer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import one.microstream.X;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.functional.ThrowingProcedure;
@@ -70,9 +73,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 	public final class Default
 	implements StorageEntityCache<StorageEntity.Default>, Unpersistable
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// constants //
-		//////////////
+		private final static Logger logger = LoggerFactory.getLogger(Default.class);
 		
 		// (24.11.2017 TM)TODO: there seems to still be a GC race condition bug, albeit only very rarely.
 		private static boolean experimentalGcEnabled = false;
@@ -939,6 +940,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 					if(!this.zombieOidHandler.handleZombieOid(oidsBuffer[oidsMarkIndex - 1]))
 					{
 						// if the handler didn't throw an exception but didn't say it's handled, either, then log it.
+						logger.warn("Storage GC marking encountered zombie ObjectId {}", oidsBuffer[oidsMarkIndex - 1]);
 						this.eventLogger.logGarbageCollectorEncounteredZombieObjectId(oidsBuffer[oidsMarkIndex - 1]);
 					}
 					continue;
@@ -1278,6 +1280,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			{
 				this.resetLiveCursor();
 				
+				logger.debug("StorageChannel#{} completed live check", this.channelIndex);
 				this.eventLogger.logLiveCheckComplete(this);
 
 				// report live check completed

@@ -26,6 +26,9 @@ import static one.microstream.X.notNull;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import one.microstream.afs.types.AFileSystem;
 import one.microstream.meta.XDebug;
 import one.microstream.persistence.types.Persistence;
@@ -71,6 +74,9 @@ public interface StorageSystem extends StorageController
 
 	public final class Default implements StorageSystem, Unpersistable, StorageKillable
 	{
+		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -571,6 +577,8 @@ public interface StorageSystem extends StorageController
 					throw new StorageExceptionInitialization("already starting");
 				}
 				
+				logger.info("Starting storage system");
+				
 				this.isStartingUp.set(true);
 				try
 				{
@@ -607,11 +615,16 @@ public interface StorageSystem extends StorageController
 		@Override
 		public final boolean shutdown()
 		{
+			logger.info("Stopping storage system");
+			
 			synchronized(this.stateLock)
 			{
 				try
 				{
 					this.internalShutdown();
+					
+					logger.info("Storage system stopped");
+					
 					return true;
 				}
 				catch(final InterruptedException e)

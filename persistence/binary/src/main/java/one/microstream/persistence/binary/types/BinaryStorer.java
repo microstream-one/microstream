@@ -21,7 +21,12 @@ package one.microstream.persistence.binary.types;
  */
 
 import static java.lang.System.identityHashCode;
+import static one.microstream.X.LazyToString;
 import static one.microstream.X.notNull;
+import static one.microstream.chars.XChars.systemString;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import one.microstream.hashing.XHashing;
 import one.microstream.math.XMath;
@@ -81,6 +86,9 @@ public interface BinaryStorer extends PersistenceStorer
 		// constants //
 		//////////////
 
+		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		
+		
 		protected static int defaultSlotSize()
 		{
 			// why permanently occupy additional memory with fields and instances for constant values?
@@ -402,6 +410,12 @@ public interface BinaryStorer extends PersistenceStorer
 		 */
 		protected final long storeGraph(final Object root)
 		{
+			logger.debug(
+				"Store request: {}({})",
+				LazyToString(() -> systemString(root)),
+				root
+			);
+			
 			/* (03.12.2019 TM)NOTE:
 			 * Special case logic to handle explicitely passed instances:
 			 * - if already handled by this storer, don't handle again.
@@ -431,7 +445,13 @@ public interface BinaryStorer extends PersistenceStorer
 		
 		protected final void storeItem(final Item item)
 		{
-//			XDebug.println("Storing     " + item.oid + ": " + XChars.systemString(item.instance) + " ("  + item.instance + ")");
+			logger.debug(
+				"Storing     {}: {}({})",
+				item.oid,
+				LazyToString(() -> systemString(item.instance)),
+				item.instance
+			);
+			
 			synchronized(this.head)
 			{
 				item.typeHandler.store(this.synchLookupChunk(item.oid), item.instance, item.oid, this);
@@ -486,6 +506,11 @@ public interface BinaryStorer extends PersistenceStorer
 		@Override
 		public final Object commit()
 		{
+			logger.debug(
+				"Committing {} object(s)",
+				LazyToString(this::size)   // use lazy here, #size() locks
+			);
+			
 			// isEmpty locks internally
 			if(!this.isEmpty())
 			{
@@ -510,6 +535,8 @@ public interface BinaryStorer extends PersistenceStorer
 				}
 			}
 			this.clear();
+			
+			logger.debug("Commit finished successfully");
 			
 			// not used (yet?)
 			return null;
@@ -574,7 +601,13 @@ public interface BinaryStorer extends PersistenceStorer
 			final PersistenceTypeHandler<Binary, T> optionalHandler
 		)
 		{
-//			XDebug.println("Registering " + objectId + ": " + XChars.systemString(instance) + " ("  + instance + ")");
+			logger.debug(
+				"Registering {}: {}({})",
+				objectId,
+				LazyToString(() -> systemString(instance)),
+				instance
+			);
+			
 			synchronized(this.head)
 			{
 				// ensure handler (or fail if type is not persistable) before ensuring an OID.

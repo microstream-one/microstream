@@ -1,5 +1,7 @@
 package one.microstream.reference;
 
+import static one.microstream.X.LazyToString;
+
 /*-
  * #%L
  * microstream-base
@@ -21,12 +23,15 @@ package one.microstream.reference;
  */
 
 import static one.microstream.X.mayNull;
+import static one.microstream.chars.XChars.systemString;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.memory.MemoryStatistics;
 import one.microstream.memory.MemoryStatisticsProvider;
-import one.microstream.meta.XDebug;
 
 
 /**
@@ -165,6 +170,9 @@ public interface Lazy<T> extends Referencing<T>
 	
 	public final class Default<T> implements Lazy<T>
 	{
+		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		
+		
 		@SuppressWarnings("all")
 		public static final Class<Lazy.Default<?>> genericType()
 		{
@@ -411,12 +419,29 @@ public interface Lazy<T> extends Referencing<T>
 		@SuppressWarnings("unchecked") // safety of cast guaranteed by logic
 		private synchronized void load()
 		{
+			logger.debug("Lazy loading {}", this.objectId);
+			
 			// this context doesn't have to do anything on an exception inside the get(), just pass it along
 			this.subject = (T)this.loader.getObject(this.objectId);
+			
+			logger.debug(
+				"Lazy loaded {}: {}({})",
+				this.objectId,
+				LazyToString(() -> systemString(this.subject)),
+				this.subject
+			);
 		}
 
 		final synchronized boolean clearIfTimedout(final long millisecondThreshold)
 		{
+			logger.trace(
+				"Checking lazy {} ({} vs {}): {}({})",
+				this.objectId,
+				this.lastTouched,
+				millisecondThreshold,
+				LazyToString(() -> systemString(this.subject)),
+				this.subject
+			);
 //			XDebug.debugln("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold);
 
 			// time check implicitely covers already cleared reference. May of course not clear unstored references.
@@ -425,6 +450,12 @@ public interface Lazy<T> extends Referencing<T>
 				return false;
 			}
 
+			logger.debug(
+				"Timeout-clearing lazy {}: {}({})",
+				this.objectId,
+				LazyToString(() -> systemString(this.subject)),
+				this.subject
+			);
 //			XDebug.debugln("timeout-clearing " + this.objectId + ": " + XChars.systemString(this.subject));
 			this.internalClear();
 			return true;
@@ -610,6 +641,9 @@ public interface Lazy<T> extends Referencing<T>
 		 */
 		public final class Default implements Lazy.Checker, Lazy.ClearingEvaluator
 		{
+			private final static Logger logger = LoggerFactory.getLogger(Default.class);
+			
+			
 			///////////////////////////////////////////////////////////////////////////
 			// constants //
 			//////////////
@@ -743,6 +777,7 @@ public interface Lazy<T> extends Referencing<T>
 				this.updateMemoryUsage();
 				this.cycleClearCount = 0;
 
+				logger.trace("Begin check cycle: {}", LazyToString(this::DEBUG_cycleState));
 //				this.DEBUG_printCycleState();
 			}
 			
@@ -766,7 +801,7 @@ public interface Lazy<T> extends Referencing<T>
 				this.sh10MemoryUsed  = shift10(this.cycleMemoryUsed);
 			}
 			
-			final void DEBUG_printCycleState()
+			final String DEBUG_cycleState()
 			{
 				final java.text.DecimalFormat format = new java.text.DecimalFormat("00,000,000,000");
 				final VarString vs = VarString.New()
@@ -777,7 +812,7 @@ public interface Lazy<T> extends Referencing<T>
 					.lf().add("cycleMemoryLimit = " + format.format(this.cycleMemoryLimit) + " bytes")
 					.lf().add("cycleMemoryUsed  = " + format.format(this.cycleMemoryUsed ) + " bytes")
 				;
-				XDebug.println(vs.toString());
+				return vs.toString();
 			}
 			
 			private void registerClearing()
@@ -857,6 +892,8 @@ public interface Lazy<T> extends Referencing<T>
 				}
 				if(lastTouched < this.cycleTimeoutThresholdMs)
 				{
+					logger.debug("Timeout-clearing lazy {}", XChars.systemString(lazyReference.peek()));
+					
 //					XDebug.println("Timeout-clearing lazy " + XChars.systemString(lazyReference.peek()));
 					this.registerClearing();
 					return true;
@@ -882,13 +919,15 @@ public interface Lazy<T> extends Referencing<T>
 					this.sh10MemoryUsed + this.cycleMemoryUsed * sh10Weight >= this.sh10MemoryLimit
 				;
 					
-//				this.DEBUG_printAgePenaltyInfo(lazyReference, age, sh10Weight, clearingDecision ? "CLEARED:" : "Is kept:");
+				logger.trace(
+					"Lazy clear check: {}",
+					LazyToString(() -> this.DEBUG_agePenaltyInfo(age, sh10Weight, clearingDecision ? "CLEARED" : "Is kept"))
+				);
 				
 				return this.clear(clearingDecision);
 			}
 			
-			final void DEBUG_printAgePenaltyInfo(
-				final Lazy<?> lazyReference,
+			String DEBUG_agePenaltyInfo(
 				final long    age          ,
 				final long    sh10Weight   ,
 				final String  label
@@ -897,13 +936,12 @@ public interface Lazy<T> extends Referencing<T>
 				final java.text.DecimalFormat format = new java.text.DecimalFormat("000,000,000,000");
 				final VarString vs = VarString.New()
 					.add(label)
-					.add(" age = ").add(age)
+					.add(": age = ").add(age)
 					.add(" (").padLeft(Integer.toString((int)(100.0d * age / this.timeoutMs)), 2, ' ').add("%)")
 					.add(": ").add(format.format(this.sh10MemoryUsed + this.cycleMemoryUsed * sh10Weight))
 					.add(" <> ").add(format.format(this.sh10MemoryLimit))
-					.add("  ").add(XChars.systemString(lazyReference.peek()))
 				;
-				XDebug.println(vs.toString());
+				return vs.toString();
 			}
 
 		}
