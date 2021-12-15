@@ -24,6 +24,9 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.HashTable;
@@ -185,6 +188,8 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 
 	public final class Default<D> implements PersistenceTypeHandlerManager<D>
 	{
+		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -930,6 +935,8 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		@Override
 		public final synchronized PersistenceTypeHandlerManager<D> initialize()
 		{
+			logger.info("Initializing type handler manager");
+			
 			if(this.initialized)
 			{
 //				XDebug.debugln("already initialized");

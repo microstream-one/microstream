@@ -22,6 +22,9 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import one.microstream.X;
 import one.microstream.afs.types.AFS;
 import one.microstream.afs.types.AFile;
@@ -106,6 +109,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 	
 	public final class Default implements StorageBackupHandler, StorageBackupInventory
 	{
+		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -203,6 +208,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		@Override
 		public void initialize(final int channelIndex)
 		{
+			logger.debug("Initializing backup for channel #{}", channelIndex);
+			
 			try
 			{
 				this.tryInitialize(channelIndex);
@@ -217,9 +224,13 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		@Override
 		public void synchronize(final StorageInventory storageInventory)
 		{
+			logger.debug("Synchronizing backup with storage");
+			
 			try
 			{
 				this.trySynchronize(storageInventory);
+				
+				logger.debug("Backup synchronized successfully");
 			}
 			catch(final RuntimeException e)
 			{
@@ -231,6 +242,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		@Override
 		public void run()
 		{
+			logger.info("Starting backup handler");
+			
 			// must be the method instead of the field to check the lock but don't conver the whole loop
 			try
 			{
@@ -261,6 +274,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				// must close all open files on any aborting case (after stopping and before throwing an exception)
 				this.closeAllDataFiles();
 				this.active = false;
+				
+				logger.info("Backup handler stopped");
 			}
 			
 		}
@@ -386,7 +401,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				
 				//a 0-Byte sized backup file can be updated
 				if(backupTargetFile.number() > lastBackupFileNumber && backupTargetFileLength == 0)
-				{					
+				{
 					// missing length is copied to update the backup file
 					this.copyFilePart(
 						dataFile,
@@ -503,7 +518,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 					// (16.06.2020 TM)TODO: nasty instanceof
 					if(backupTargetFile instanceof StorageBackupDataFile)
 					{
-						this.validatorCreator.createDataFileValidator()					
+						this.validatorCreator.createDataFileValidator()
 							.validateFile((StorageBackupDataFile)backupTargetFile, oldBackupFileLength, length);
 					}
 				}
@@ -532,6 +547,13 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			// note: the original target file of the copying is irrelevant. Only the backup target file counts.
 			final StorageBackupFile backupTargetFile = sourceFile.ensureBackupFile(this);
 			
+			logger.debug(
+				"Copying backup file part from {}, length {}: {}",
+				sourcePosition,
+				copyLength,
+				backupTargetFile.file().toPathString()
+			);
+			
 			this.copyFilePart(sourceFile, sourcePosition, copyLength, backupTargetFile);
 		}
 
@@ -542,6 +564,12 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		)
 		{
 			final StorageBackupChannelFile backupTargetFile = file.ensureBackupFile(this);
+			
+			logger.debug(
+				"Truncating backup file to {} bytes: {}",
+				newLength,
+				backupTargetFile.file().toPathString()
+			);
 			
 			StorageFileWriter.truncateFile(backupTargetFile, newLength, this.backupSetup.backupFileProvider());
 			
@@ -557,6 +585,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			}
 			
 			final StorageBackupChannelFile backupTargetFile = file.ensureBackupFile(this);
+			
+			logger.debug("Deleting backup file: {}", backupTargetFile.file().toPathString());
 			
 			StorageFileWriter.deleteFile(
 				backupTargetFile,

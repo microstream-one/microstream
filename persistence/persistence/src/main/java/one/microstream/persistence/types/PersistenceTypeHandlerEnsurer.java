@@ -24,6 +24,10 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import one.microstream.chars.XChars;
 import one.microstream.entity.Entity;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
@@ -65,6 +69,8 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 
 	public class Default<D> extends PersistenceDataTypeHolder.Default<D> implements PersistenceTypeHandlerEnsurer<D>
 	{
+		private final static Logger logger = LoggerFactory.getLogger(PersistenceTypeHandlerEnsurer.Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -111,6 +117,8 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 			final PersistenceTypeHandler<D, ? super T> providedHandler = this.searchProvidedTypeHandler(type);
 			if(providedHandler != null)
 			{
+				this.logHandlerUsage("provided", providedHandler);
+				
 				return providedHandler;
 			}
 			
@@ -118,6 +126,8 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 			final PersistenceTypeHandler<D, ? super T> customHandler = this.customTypeHandlerRegistry.lookupTypeHandler(type);
 			if(customHandler != null)
 			{
+				this.logHandlerUsage("custom", customHandler);
+				
 				return customHandler;
 			}
 			
@@ -142,13 +152,21 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 			// Do NOT replace this with Proxy#isProxyClass. See rationale inside the XReflect method.
 			if(XReflect.isProxyClass(type))
 			{
-				return this.typeHandlerCreator.createTypeHandlerProxy(type);
+				final PersistenceTypeHandler<D, T> proxyHandler = this.typeHandlerCreator.createTypeHandlerProxy(type);
+				
+				this.logHandlerCreation("proxy", proxyHandler);
+				
+				return proxyHandler;
 			}
 			
 			// array special casing
 			if(type.isArray())
 			{
-				return this.typeHandlerCreator.createTypeHandlerArray(type);
+				final PersistenceTypeHandler<D, T> arrayHandler = this.typeHandlerCreator.createTypeHandlerArray(type);
+				
+				this.logHandlerCreation("array", arrayHandler);
+				
+				return arrayHandler;
 			}
 			
 			/* (25.03.2019 TM)NOTE:
@@ -180,41 +198,87 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 			
 			if(this.lambdaTypeRecognizer.isLambdaType(type))
 			{
-				return this.typeHandlerCreator.createTypeHandlerLambda(type);
+				final PersistenceTypeHandler<D, T> lambdaHandler = this.typeHandlerCreator.createTypeHandlerLambda(type);
+				
+				this.logHandlerCreation("lambda", lambdaHandler);
+				
+				return lambdaHandler;
 			}
 			
 			// checked first to allow custom logic to intervene prior to any generic decision
 			if(this.typeAnalyzer.isUnpersistable(type))
 			{
-				return this.typeHandlerCreator.createTypeHandlerUnpersistable(type);
+				final PersistenceTypeHandler<D, T> handlerUnpersistable = this.typeHandlerCreator.createTypeHandlerUnpersistable(type);
+				
+				this.logHandlerCreation("non-persisting", handlerUnpersistable);
+				
+				return handlerUnpersistable;
 			}
 			
 			// there can be enums marked as abstract (yes, they can), so this must come before the abstract check.
 			if(XReflect.isEnum(type)) // Class#isEnum is bugged!
 			{
-				return this.typeHandlerCreator.createTypeHandlerEnum(type);
+				final PersistenceTypeHandler<D, T> enumHandler = this.typeHandlerCreator.createTypeHandlerEnum(type);
+				
+				this.logHandlerCreation("enum", enumHandler);
+				
+				return enumHandler;
 			}
 
 			// by default same as unpersistable
 			if(XReflect.isAbstract(type))
 			{
-				return this.typeHandlerCreator.createTypeHandlerAbstract(type);
+				final PersistenceTypeHandler<D, T> abstractHandler = this.typeHandlerCreator.createTypeHandlerAbstract(type);
+				
+				this.logHandlerCreation("abstract", abstractHandler);
+				
+				return abstractHandler;
 			}
 			
 			if(Entity.class.isAssignableFrom(type))
 			{
-				return this.typeHandlerCreator.createTypeHandlerEntity(type);
+				final PersistenceTypeHandler<D, T> entityHandler = this.typeHandlerCreator.createTypeHandlerEntity(type);
+				
+				this.logHandlerCreation("entity", entityHandler);
+				
+				return entityHandler;
 			}
 			
 			// check for types to be handled in an abstract way, e.g. java.nio.file.Path
 			final PersistenceTypeHandler<D, ? super T> abstractHandler = this.lookupAbstractTypeHandler(type);
 			if(abstractHandler != null)
 			{
+				this.logHandlerCreation("abstract", abstractHandler);
+				
 				return abstractHandler;
 			}
 
 			// create generic handler for all other cases ("normal" classes without predefined handler)
-			return this.typeHandlerCreator.createTypeHandlerGeneric(type);
+			final PersistenceTypeHandler<D, T> genericHandler = this.typeHandlerCreator.createTypeHandlerGeneric(type);
+					
+			this.logHandlerCreation("generic", genericHandler);
+			
+			return genericHandler;
+		}
+		
+		private void logHandlerUsage(final String handlerType, final PersistenceTypeHandler<?, ?> handler)
+		{
+			logger.debug(
+				"Using {} type handler for {}: {}",
+				handlerType,
+				handler.type().getName(),
+				XChars.systemString(handler)
+			);
+		}
+		
+		private void logHandlerCreation(final String handlerType, final PersistenceTypeHandler<?, ?> handler)
+		{
+			logger.debug(
+				"Created {} type handler for {}: {}",
+				handlerType,
+				handler.type().getName(),
+				XChars.systemString(handler)
+			);
 		}
 		
 		protected <T> PersistenceTypeHandler<D, ? super T> lookupAbstractTypeHandler(final Class<T> type)

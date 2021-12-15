@@ -34,6 +34,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import one.microstream.chars.XChars;
 import one.microstream.configuration.exceptions.ConfigurationException;
 import one.microstream.configuration.exceptions.ConfigurationExceptionNoConfigurationFound;
@@ -291,6 +294,8 @@ public interface ConfigurationLoader
 	
 	public static class InputStreamLoader implements ConfigurationLoader
 	{
+		private final static Logger logger = LoggerFactory.getLogger(InputStreamLoader.class);
+		
 		private final InputStream inputStream;
 		private final Charset     charset    ;
 		
@@ -307,6 +312,12 @@ public interface ConfigurationLoader
 		@Override
 		public String loadConfiguration()
 		{
+			logger.info(
+				"Loading configuration: {} ({})",
+				this.inputStream,
+				this.charset.displayName()
+			);
+			
 			try
 			{
 				return XChars.readStringFromInputStream(this.inputStream, this.charset);
@@ -321,6 +332,8 @@ public interface ConfigurationLoader
 	
 	public static class UrlLoader implements ConfigurationLoader
 	{
+		private final static Logger logger = LoggerFactory.getLogger(UrlLoader.class);
+		
 		private final URL     url    ;
 		private final Charset charset;
 		
@@ -337,6 +350,12 @@ public interface ConfigurationLoader
 		@Override
 		public String loadConfiguration()
 		{
+			logger.info(
+				"Loading configuration: {} ({})",
+				this.url.toExternalForm(),
+				this.charset.displayName()
+			);
+			
 			try(InputStream in = this.url.openStream())
 			{
 				return XChars.readStringFromInputStream(in, this.charset);
@@ -346,10 +365,13 @@ public interface ConfigurationLoader
 				throw new IORuntimeException(e);
 			}
 		}
+		
 	}
 	
 	public static class PathLoader implements ConfigurationLoader
 	{
+		private final static Logger logger = LoggerFactory.getLogger(PathLoader.class);
+		
 		private final Path    path   ;
 		private final Charset charset;
 		
@@ -366,6 +388,12 @@ public interface ConfigurationLoader
 		@Override
 		public String loadConfiguration()
 		{
+			logger.info(
+				"Loading configuration: {} ({})",
+				this.path.toAbsolutePath().toString(),
+				this.charset.displayName()
+			);
+			
 			try(InputStream in = Files.newInputStream(this.path))
 			{
 				return XChars.readStringFromInputStream(in, this.charset);
@@ -375,10 +403,13 @@ public interface ConfigurationLoader
 				throw new IORuntimeException(e);
 			}
 		}
+		
 	}
 	
 	public static class FileLoader implements ConfigurationLoader
 	{
+		private final static Logger logger = LoggerFactory.getLogger(FileLoader.class);
+		
 		private final File    file   ;
 		private final Charset charset;
 		
@@ -395,6 +426,12 @@ public interface ConfigurationLoader
 		@Override
 		public String loadConfiguration()
 		{
+			logger.info(
+				"Loading configuration: {} ({})",
+				this.file.getAbsolutePath(),
+				this.charset.displayName()
+			);
+			
 			try(InputStream in = new FileInputStream(this.file))
 			{
 				return XChars.readStringFromInputStream(in, this.charset);
@@ -404,6 +441,7 @@ public interface ConfigurationLoader
 				throw new IORuntimeException(e);
 			}
 		}
+		
 	}
 	
 }

@@ -23,6 +23,9 @@ package one.microstream.storage.embedded.types;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
@@ -393,6 +396,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	extends StorageFoundation.Default<F>
 	implements EmbeddedStorageFoundation<F>
 	{
+		private final static Logger logger = LoggerFactory.getLogger(EmbeddedStorageFoundation.Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -773,6 +778,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object root)
 		{
+			logger.info("Creating embedded storage manager");
+			
 			final Database database = this.ensureDatabase();
 
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();

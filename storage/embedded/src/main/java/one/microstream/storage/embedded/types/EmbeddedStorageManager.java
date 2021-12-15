@@ -243,7 +243,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		@Override
 		public final EmbeddedStorageManager.Default start()
 		{
-			logger.info("Starting storage manager");
+			logger.info("Starting embedded storage manager");
 			
 			final LazyReferenceManager lazyReferenceManager = LazyReferenceManager.get();
 			final boolean lazyReferenceManagerIsRunning = lazyReferenceManager.isRunning();
@@ -255,7 +255,7 @@ public interface EmbeddedStorageManager extends StorageManager
 				this.ensureRequiredTypeHandlers();
 				this.initialize();
 				
-				logger.info("Storage manager initialized");
+				logger.info("Embedded storage manager initialized");
 				
 				// this depends on completed initialization
 				this.ensureActiveLazyReferenceManager(lazyReferenceManager, lazyReferenceManagerIsRunning);
