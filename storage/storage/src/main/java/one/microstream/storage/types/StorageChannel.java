@@ -443,7 +443,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				}
 				catch(final Throwable t)
 				{
-					logger.error("StorageChannel#{} encountered disrupting exception: {}", this.channelIndex, t);
+					logger.error("StorageChannel#{} encountered disrupting exception", this.channelIndex, t);
 					this.eventLogger.logDisruption(this, t);
 					this.operationController.setChannelProcessingEnabled(false);
 					logger.debug("StorageChannel#{} processing disabled", this.channelIndex);
@@ -518,7 +518,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				 * interruping ultimately means just stop running in a ordered fashion
 				 */
 				workingDisruption = t;
-				logger.error("StorageChannel#{} encountered disrupting exception: {}", this.channelIndex, t);
+				logger.error("StorageChannel#{} encountered disrupting exception", this.channelIndex, t);
 				this.eventLogger.logDisruption(this, t);
 				this.exceptionHandler.handleException(t, this);
 			}

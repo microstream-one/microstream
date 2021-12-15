@@ -1,7 +1,5 @@
 package one.microstream.reference;
 
-import static one.microstream.X.LazyToString;
-
 /*-
  * #%L
  * microstream-base
@@ -24,6 +22,7 @@ import static one.microstream.X.LazyToString;
 
 import static one.microstream.X.mayNull;
 import static one.microstream.chars.XChars.systemString;
+import static one.microstream.util.Logging.LazyToString;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

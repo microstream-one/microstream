@@ -21,9 +21,11 @@ package one.microstream.persistence.binary.types;
  */
 
 import static java.lang.System.identityHashCode;
-import static one.microstream.X.LazyToString;
 import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.systemString;
+import static one.microstream.persistence.types.PersistenceLogging.STORER_CONTEXT;
+import static one.microstream.util.Logging.LazyToString;
+import static one.microstream.util.Logging.LazyToStringInContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -413,7 +415,7 @@ public interface BinaryStorer extends PersistenceStorer
 			logger.debug(
 				"Store request: {}({})",
 				LazyToString(() -> systemString(root)),
-				root
+				LazyToStringInContext(STORER_CONTEXT, root)
 			);
 			
 			/* (03.12.2019 TM)NOTE:
@@ -449,7 +451,7 @@ public interface BinaryStorer extends PersistenceStorer
 				"Storing     {}: {}({})",
 				item.oid,
 				LazyToString(() -> systemString(item.instance)),
-				item.instance
+				LazyToStringInContext(STORER_CONTEXT, item.instance)
 			);
 			
 			synchronized(this.head)
@@ -605,7 +607,7 @@ public interface BinaryStorer extends PersistenceStorer
 				"Registering {}: {}({})",
 				objectId,
 				LazyToString(() -> systemString(instance)),
-				instance
+				LazyToStringInContext(STORER_CONTEXT, instance)
 			);
 			
 			synchronized(this.head)
