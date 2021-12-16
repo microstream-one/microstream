@@ -44,6 +44,7 @@ import one.microstream.persistence.binary.types.BinaryValueSetter;
 import one.microstream.persistence.binary.types.BinaryValueTranslatorKeyBuilder;
 import one.microstream.persistence.binary.types.BinaryValueTranslatorMappingProvider;
 import one.microstream.persistence.binary.types.BinaryValueTranslatorProvider;
+import one.microstream.persistence.internal.LoggingLegacyTypeMappingResultor;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import one.microstream.persistence.types.ByteOrderTargeting;
 import one.microstream.persistence.types.Persistence;
@@ -2033,8 +2034,9 @@ extends ByteOrderTargeting.Mutable<F>, PersistenceDataTypeHolder<Binary>, Instan
 				
 		protected PersistenceLegacyTypeMappingResultor<Binary> ensureLegacyTypeMappingResultor()
 		{
-			// default is silent, which is dangerous when heuristics are in play. Should be wrapped by the user.
-			return PersistenceLegacyTypeMappingResultor.New();
+			return LoggingLegacyTypeMappingResultor.New(
+				PersistenceLegacyTypeMappingResultor.New()
+			);
 		}
 		
 		protected PersistenceLegacyTypeHandlerCreator<Binary> ensureLegacyTypeHandlerCreator()

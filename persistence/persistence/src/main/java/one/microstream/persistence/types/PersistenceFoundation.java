@@ -30,6 +30,7 @@ import one.microstream.collections.types.XEnum;
 import one.microstream.collections.types.XMap;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
+import one.microstream.persistence.internal.LoggingLegacyTypeMappingResultor;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import one.microstream.reference.ObjectSwizzling;
 import one.microstream.reference.Reference;
@@ -2336,8 +2337,9 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 				
 		protected PersistenceLegacyTypeMappingResultor<D> ensureLegacyTypeMappingResultor()
 		{
-			// default is silent, which is dangerous when heuristics are in play. Should be wrapped by the user.
-			return PersistenceLegacyTypeMappingResultor.New();
+			return LoggingLegacyTypeMappingResultor.New(
+				PersistenceLegacyTypeMappingResultor.New()
+			);
 		}
 		
 		protected PersistenceLegacyTypeHandlerCreator<D> ensureLegacyTypeHandlerCreator()
