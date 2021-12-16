@@ -271,7 +271,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public boolean performIssuedGarbageCollection(final long nanoTimeBudget)
 		{
-			logger.debug("StorageChannel#{} performing issued garbage collection", this.channelIndex);
+			logger.trace("StorageChannel#{} performing issued garbage collection", this.channelIndex);
 			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
@@ -287,7 +287,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				return true;
 			}
 			
-			logger.debug("StorageChannel#{} performing issued file cleanup check", this.channelIndex);
+			logger.trace("StorageChannel#{} performing issued file cleanup check", this.channelIndex);
 			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
@@ -301,7 +301,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			final StorageEntityCacheEvaluator evaluator
 		)
 		{
-			logger.debug("StorageChannel#{} performing issued entity cache check", this.channelIndex);
+			logger.trace("StorageChannel#{} performing issued entity cache check", this.channelIndex);
 			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
@@ -317,7 +317,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				return true;
 			}
 			
-			logger.debug("StorageChannel#{} performing incremental file cleanup check", this.channelIndex);
+			logger.trace("StorageChannel#{} performing incremental file cleanup check", this.channelIndex);
 			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
@@ -328,7 +328,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public boolean performGarbageCollection(final long nanoTimeBudget)
 		{
-			logger.debug("StorageChannel#{} performing incremental garbage collection", this.channelIndex);
+			logger.trace("StorageChannel#{} performing incremental garbage collection", this.channelIndex);
 			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
@@ -341,7 +341,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			final long nanoTimeBudget
 		)
 		{
-			logger.debug("StorageChannel#{} performing incremental entity cache check", this.channelIndex);
+			logger.trace("StorageChannel#{} performing incremental entity cache check", this.channelIndex);
 			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
