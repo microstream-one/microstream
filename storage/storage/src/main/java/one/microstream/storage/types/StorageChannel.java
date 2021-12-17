@@ -28,7 +28,6 @@ import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.X;
 import one.microstream.afs.types.AWritableFile;
@@ -44,6 +43,7 @@ import one.microstream.storage.exceptions.StorageExceptionConsistency;
 import one.microstream.time.XTime;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.BufferSizeProviderIncremental;
+import one.microstream.util.logging.Logging;
 
 
 public interface StorageChannel extends Runnable, StorageChannelResetablePart, StorageActivePart
@@ -112,7 +112,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 	public final class Default implements StorageChannel, Unpersistable, StorageHousekeepingExecutor
 	{
-		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

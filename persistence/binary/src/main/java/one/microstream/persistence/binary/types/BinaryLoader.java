@@ -26,7 +26,6 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingCollection;
@@ -45,6 +44,7 @@ import one.microstream.persistence.types.PersistenceSourceSupplier;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerLookup;
 import one.microstream.persistence.types.Persister;
+import one.microstream.util.logging.Logging;
 
 public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 {
@@ -86,7 +86,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 	public final class Default implements BinaryLoader, BinaryEntityDataReader, PersistenceReferenceLoader
 	{
-		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		///////////////////////////////////////////////////////////////////////////
 		// constants //

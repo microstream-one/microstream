@@ -465,6 +465,20 @@ public interface BundleInfo
 							);
 						}
 					}
+					
+					final Properties pomProperties = this.loadPomProperties();
+					final String versionString = pomProperties.getProperty("version");
+					if(versionString != null)
+					{
+						final Version version = new Version.Parser.MavenVersionParser().parse(versionString);
+						return new BundleInfo.Default(
+							this.bundleName,
+							version        ,
+							"MicroStream"  ,
+							"MicroStream"  ,
+							Instant.now()
+						);
+					}
 				}
 				catch(final Exception e)
 				{

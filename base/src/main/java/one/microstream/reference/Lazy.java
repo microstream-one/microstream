@@ -22,15 +22,15 @@ package one.microstream.reference;
 
 import static one.microstream.X.mayNull;
 import static one.microstream.chars.XChars.systemString;
-import static one.microstream.util.Logging.LazyToString;
+import static one.microstream.util.logging.Logging.LazyArg;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.memory.MemoryStatistics;
 import one.microstream.memory.MemoryStatisticsProvider;
+import one.microstream.util.logging.Logging;
 
 
 /**
@@ -169,7 +169,7 @@ public interface Lazy<T> extends Referencing<T>
 	
 	public final class Default<T> implements Lazy<T>
 	{
-		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		
 		@SuppressWarnings("all")
@@ -426,7 +426,7 @@ public interface Lazy<T> extends Referencing<T>
 			logger.debug(
 				"Lazy loaded {}: {}({})",
 				this.objectId,
-				LazyToString(() -> systemString(this.subject)),
+				LazyArg(() -> systemString(this.subject)),
 				this.subject
 			);
 		}
@@ -438,7 +438,7 @@ public interface Lazy<T> extends Referencing<T>
 				this.objectId,
 				this.lastTouched,
 				millisecondThreshold,
-				LazyToString(() -> systemString(this.subject)),
+				LazyArg(() -> systemString(this.subject)),
 				this.subject
 			);
 //			XDebug.debugln("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold);
@@ -452,7 +452,7 @@ public interface Lazy<T> extends Referencing<T>
 			logger.debug(
 				"Timeout-clearing lazy {}: {}({})",
 				this.objectId,
-				LazyToString(() -> systemString(this.subject)),
+				LazyArg(() -> systemString(this.subject)),
 				this.subject
 			);
 //			XDebug.debugln("timeout-clearing " + this.objectId + ": " + XChars.systemString(this.subject));
@@ -640,7 +640,7 @@ public interface Lazy<T> extends Referencing<T>
 		 */
 		public final class Default implements Lazy.Checker, Lazy.ClearingEvaluator
 		{
-			private final static Logger logger = LoggerFactory.getLogger(Default.class);
+			private final static Logger logger = Logging.getLogger(Default.class);
 			
 			
 			///////////////////////////////////////////////////////////////////////////
@@ -776,7 +776,7 @@ public interface Lazy<T> extends Referencing<T>
 				this.updateMemoryUsage();
 				this.cycleClearCount = 0;
 
-				logger.trace("Begin check cycle: {}", LazyToString(this::DEBUG_cycleState));
+				logger.trace("Begin check cycle: {}", LazyArg(this::DEBUG_cycleState));
 //				this.DEBUG_printCycleState();
 			}
 			
@@ -920,7 +920,7 @@ public interface Lazy<T> extends Referencing<T>
 					
 				logger.trace(
 					"Lazy clear check: {}",
-					LazyToString(() -> this.DEBUG_agePenaltyInfo(age, sh10Weight, clearingDecision ? "CLEARED" : "Is kept"))
+					LazyArg(() -> this.DEBUG_agePenaltyInfo(age, sh10Weight, clearingDecision ? "CLEARED" : "Is kept"))
 				);
 				
 				return this.clear(clearingDecision);

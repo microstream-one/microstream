@@ -23,7 +23,6 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.X;
 import one.microstream.afs.types.AFS;
@@ -36,6 +35,7 @@ import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageBack
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageForNonEmptyBackup;
 import one.microstream.storage.exceptions.StorageExceptionBackupInconsistentFileLength;
 import one.microstream.storage.types.StorageBackupHandler.Default.ChannelInventory;
+import one.microstream.util.logging.Logging;
 
 public interface StorageBackupHandler extends Runnable, StorageActivePart
 {
@@ -109,7 +109,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 	
 	public final class Default implements StorageBackupHandler, StorageBackupInventory
 	{
-		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

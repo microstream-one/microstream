@@ -28,7 +28,6 @@ import static one.microstream.math.XMath.positive;
 import java.nio.ByteBuffer;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.X;
 import one.microstream.collections.EqHashEnum;
@@ -43,6 +42,7 @@ import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionConsistency;
 import one.microstream.storage.exceptions.StorageExceptionGarbageCollector;
 import one.microstream.storage.exceptions.StorageExceptionInitialization;
+import one.microstream.util.logging.Logging;
 
 
 public interface StorageEntityCache<E extends StorageEntity> extends StorageChannelResetablePart
@@ -73,7 +73,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 	public final class Default
 	implements StorageEntityCache<StorageEntity.Default>, Unpersistable
 	{
-		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		// (24.11.2017 TM)TODO: there seems to still be a GC race condition bug, albeit only very rarely.
 		private static boolean experimentalGcEnabled = false;

@@ -23,13 +23,13 @@ package one.microstream.storage.types;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.chars.VarString;
 import one.microstream.math.XMath;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.reference.Swizzling;
 import one.microstream.storage.exceptions.StorageException;
+import one.microstream.util.logging.Logging;
 
 
 /**
@@ -176,7 +176,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 	final class Default implements StorageEntityMarkMonitor, StorageReferenceMarker
 	{
-		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

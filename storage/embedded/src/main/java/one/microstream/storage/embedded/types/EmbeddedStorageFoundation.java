@@ -24,7 +24,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
@@ -57,6 +56,7 @@ import one.microstream.storage.types.StorageTaskBroker;
 import one.microstream.storage.types.StorageTimestampProvider;
 import one.microstream.storage.types.StorageTypeDictionary;
 import one.microstream.storage.types.StorageWriteController;
+import one.microstream.util.logging.Logging;
 
 
 /**
@@ -396,7 +396,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	extends StorageFoundation.Default<F>
 	implements EmbeddedStorageFoundation<F>
 	{
-		private final static Logger logger = LoggerFactory.getLogger(EmbeddedStorageFoundation.Default.class);
+		private final static Logger logger = Logging.getLogger(EmbeddedStorageFoundation.Default.class);
 		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

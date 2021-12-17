@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.afs.types.AFileSystem;
 import one.microstream.meta.XDebug;
@@ -36,6 +35,7 @@ import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageExceptionInitialization;
 import one.microstream.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import one.microstream.storage.exceptions.StorageExceptionNotRunning;
+import one.microstream.util.logging.Logging;
 
 // (21.03.2016 TM)TODO: what is the difference between ~Manager and ~Controller here? Merge into Controller or comment.
 public interface StorageSystem extends StorageController
@@ -74,7 +74,7 @@ public interface StorageSystem extends StorageController
 
 	public final class Default implements StorageSystem, Unpersistable, StorageKillable
 	{
-		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		
 		///////////////////////////////////////////////////////////////////////////

@@ -24,12 +24,12 @@ import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.memory.MemoryStatistics;
 import one.microstream.reference.Lazy.Check;
 import one.microstream.reference.Lazy.Checker;
 import one.microstream.time.XTime;
+import one.microstream.util.logging.Logging;
 
 public interface LazyReferenceManager
 {
@@ -177,7 +177,7 @@ public interface LazyReferenceManager
 		// constants //
 		//////////////
 
-		final static Logger logger = LoggerFactory.getLogger(Default.class);
+		final static Logger logger = Logging.getLogger(Default.class);
 		
 		private static final Clearer CLEARER = new Clearer();
 

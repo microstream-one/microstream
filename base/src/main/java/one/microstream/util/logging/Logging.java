@@ -1,4 +1,4 @@
-package one.microstream.util;
+package one.microstream.util.logging;
 
 import static one.microstream.X.notNull;
 
@@ -28,16 +28,43 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.collections.EqHashTable;
 import one.microstream.math.XMath;
+import one.microstream.util.BundleInfo;
 
 public final class Logging
 {
 	private final static EqHashTable<Object, Function<Object, String>> toStringConverters = EqHashTable.New();
 	
-	private final static Function<Object, String> DefaultToStringConverter()
+	static
+	{
+		try
+		{
+			getLogger(Logging.class).info(
+				"MicroStream Version {}",
+				BundleInfo.LoadBase().version()
+			);
+		}
+		catch(final Exception e)
+		{
+			/*
+			 * Swallow and continue.
+			 * BundleInfo may not be discovered when the Maven build was not run properly.
+			 */
+		}
+	}
+	
+	public static Logger getLogger(final Class<?> clazz)
+	{
+		return LoggerFactory.getLogger(clazz);
+	}
+	
+	private static Function<Object, String> DefaultToStringConverter()
 	{
 		return obj -> "";
 	}
@@ -60,15 +87,15 @@ public final class Logging
 		return converter;
 	}
 	
-	public static final Object LazyToStringInContext(
+	public static final Object LazyArgInContext(
 		final Object context,
 		final Object object
 	)
 	{
-		return LazyToStringInContext(context, () -> object);
+		return LazyArgInContext(context, () -> object);
 	}
 	
-	public static final Object LazyToStringInContext(
+	public static final Object LazyArgInContext(
 		final Object      context ,
 		final Supplier<?> supplier
 	)
@@ -85,7 +112,7 @@ public final class Logging
 		};
 	}
 
-	public static final Object LazyToString(final Supplier<?> supplier)
+	public static final Object LazyArg(final Supplier<?> supplier)
 	{
 		return new Object()
 		{

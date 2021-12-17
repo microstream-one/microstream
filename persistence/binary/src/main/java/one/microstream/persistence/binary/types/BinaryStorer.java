@@ -24,11 +24,10 @@ import static java.lang.System.identityHashCode;
 import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.systemString;
 import static one.microstream.persistence.types.PersistenceLogging.STORER_CONTEXT;
-import static one.microstream.util.Logging.LazyToString;
-import static one.microstream.util.Logging.LazyToStringInContext;
+import static one.microstream.util.logging.Logging.LazyArg;
+import static one.microstream.util.logging.Logging.LazyArgInContext;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.hashing.XHashing;
 import one.microstream.math.XMath;
@@ -45,6 +44,7 @@ import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.reference.ObjectSwizzling;
 import one.microstream.reference.Swizzling;
 import one.microstream.util.BufferSizeProviderIncremental;
+import one.microstream.util.logging.Logging;
 
 
 public interface BinaryStorer extends PersistenceStorer
@@ -88,7 +88,7 @@ public interface BinaryStorer extends PersistenceStorer
 		// constants //
 		//////////////
 
-		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		
 		protected static int defaultSlotSize()
@@ -414,8 +414,8 @@ public interface BinaryStorer extends PersistenceStorer
 		{
 			logger.debug(
 				"Store request: {}({})",
-				LazyToString(() -> systemString(root)),
-				LazyToStringInContext(STORER_CONTEXT, root)
+				LazyArg(() -> systemString(root)),
+				LazyArgInContext(STORER_CONTEXT, root)
 			);
 			
 			/* (03.12.2019 TM)NOTE:
@@ -450,8 +450,8 @@ public interface BinaryStorer extends PersistenceStorer
 			logger.debug(
 				"Storing     {}: {}({})",
 				item.oid,
-				LazyToString(() -> systemString(item.instance)),
-				LazyToStringInContext(STORER_CONTEXT, item.instance)
+				LazyArg(() -> systemString(item.instance)),
+				LazyArgInContext(STORER_CONTEXT, item.instance)
 			);
 			
 			synchronized(this.head)
@@ -510,7 +510,7 @@ public interface BinaryStorer extends PersistenceStorer
 		{
 			logger.debug(
 				"Committing {} object(s)",
-				LazyToString(this::size)   // use lazy here, #size() locks
+				LazyArg(this::size)   // use lazy here, #size() locks
 			);
 			
 			// isEmpty locks internally
@@ -606,8 +606,8 @@ public interface BinaryStorer extends PersistenceStorer
 			logger.debug(
 				"Registering {}: {}({})",
 				objectId,
-				LazyToString(() -> systemString(instance)),
-				LazyToStringInContext(STORER_CONTEXT, instance)
+				LazyArg(() -> systemString(instance)),
+				LazyArgInContext(STORER_CONTEXT, instance)
 			);
 			
 			synchronized(this.head)

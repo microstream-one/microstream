@@ -25,7 +25,6 @@ import static one.microstream.X.notNull;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
@@ -42,6 +41,7 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerCon
 import one.microstream.reference.Swizzling;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
+import one.microstream.util.logging.Logging;
 
 
 public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager, PersistenceTypeHandlerRegistry<D>
@@ -188,7 +188,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 
 	public final class Default<D> implements PersistenceTypeHandlerManager<D>
 	{
-		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

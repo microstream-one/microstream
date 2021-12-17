@@ -23,7 +23,6 @@ package one.microstream.persistence.internal;
 import static one.microstream.X.notNull;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.chars.VarString;
 import one.microstream.collections.types.XGettingEnum;
@@ -37,6 +36,7 @@ import one.microstream.persistence.types.PersistenceLegacyTypeMappingResultor;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeHandler;
+import one.microstream.util.logging.Logging;
 import one.microstream.util.similarity.MultiMatch;
 import one.microstream.util.similarity.Similarity;
 
@@ -161,7 +161,7 @@ public class LoggingLegacyTypeMappingResultor<D> implements PersistenceLegacyTyp
 	}
 	
 	
-	private final static Logger logger = LoggerFactory.getLogger(LoggingLegacyTypeMappingResultor.class);
+	private final static Logger logger = Logging.getLogger(LoggingLegacyTypeMappingResultor.class);
 	
 	
 	

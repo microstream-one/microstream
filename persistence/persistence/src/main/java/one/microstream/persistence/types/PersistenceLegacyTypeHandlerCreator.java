@@ -1,7 +1,6 @@
 package one.microstream.persistence.types;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.chars.XChars;
 
@@ -28,6 +27,7 @@ import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.reflect.XReflect;
+import one.microstream.util.logging.Logging;
 import one.microstream.util.similarity.Similarity;
 
 public interface PersistenceLegacyTypeHandlerCreator<D>
@@ -40,7 +40,7 @@ public interface PersistenceLegacyTypeHandlerCreator<D>
 	
 	public abstract class Abstract<D> implements PersistenceLegacyTypeHandlerCreator<D>
 	{
-		private final static Logger logger = LoggerFactory.getLogger(Abstract.class);
+		private final static Logger logger = Logging.getLogger(Abstract.class);
 		
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //

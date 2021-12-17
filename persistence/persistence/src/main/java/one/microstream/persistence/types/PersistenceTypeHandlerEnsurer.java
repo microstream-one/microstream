@@ -25,7 +25,6 @@ import static one.microstream.X.notNull;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.chars.XChars;
 import one.microstream.entity.Entity;
@@ -33,6 +32,7 @@ import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeNotPersistable;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.LambdaTypeRecognizer;
+import one.microstream.util.logging.Logging;
 
 /**
  * Named "ensurer" because depending on the case, it creates a new type handler or it just returns
@@ -69,7 +69,7 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 
 	public class Default<D> extends PersistenceDataTypeHolder.Default<D> implements PersistenceTypeHandlerEnsurer<D>
 	{
-		private final static Logger logger = LoggerFactory.getLogger(PersistenceTypeHandlerEnsurer.Default.class);
+		private final static Logger logger = Logging.getLogger(PersistenceTypeHandlerEnsurer.Default.class);
 		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //

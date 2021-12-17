@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import one.microstream.afs.types.AFile;
 import one.microstream.collections.EqHashTable;
@@ -62,6 +61,7 @@ import one.microstream.storage.types.StorageRawFileStatistics;
 import one.microstream.storage.types.StorageSystem;
 import one.microstream.storage.types.StorageTypeDictionary;
 import one.microstream.typing.KeyValue;
+import one.microstream.util.logging.Logging;
 
 
 /**
@@ -97,7 +97,7 @@ public interface EmbeddedStorageManager extends StorageManager
 
 	public final class Default implements EmbeddedStorageManager, Unpersistable, LazyReferenceManager.Controller
 	{
-		private final static Logger logger = LoggerFactory.getLogger(Default.class);
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		
 		///////////////////////////////////////////////////////////////////////////
