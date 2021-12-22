@@ -126,7 +126,7 @@ extends PersistenceTypeHandlerIterable<D>, PersistenceDataTypeHolder<D>
 			final PersistenceTypeHandler<D, ? super T> customHandler = this.customTypeHandlerRegistry.lookupTypeHandler(type);
 			if(customHandler != null)
 			{
-				this.logHandlerUsage("custom", customHandler);
+				this.logHandlerUsage("predefined", customHandler);
 				
 				return customHandler;
 			}
