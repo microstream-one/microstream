@@ -20,11 +20,11 @@ package one.microstream.storage.types;
  * #L%
  */
 
-import one.microstream.chars.VarString;
-import one.microstream.typing.Immutable;
-
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
+
+import one.microstream.chars.VarString;
+import one.microstream.typing.Immutable;
 
 public interface StorageConfiguration
 {
