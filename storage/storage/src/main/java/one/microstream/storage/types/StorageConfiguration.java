@@ -194,7 +194,7 @@ public interface StorageConfiguration
 				.add(this.housekeepingController).lf()
 				.add(this.entityCacheEvaluator  ).lf()
 				.add(this.dataFileEvaluator     ).lf()
-				.add(this.backupSetup           ).lf()
+				.add(this.backupSetup == null ? StorageBackupSetup.class.getName() + ": null": this.backupSetup).lf()
 				.toString()
 			;
 		}
