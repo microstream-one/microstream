@@ -20,11 +20,11 @@ package one.microstream.storage.types;
  * #L%
  */
 
-import static one.microstream.X.mayNull;
-import static one.microstream.X.notNull;
-
 import one.microstream.chars.VarString;
 import one.microstream.typing.Immutable;
+
+import static one.microstream.X.mayNull;
+import static one.microstream.X.notNull;
 
 public interface StorageConfiguration
 {
@@ -194,7 +194,7 @@ public interface StorageConfiguration
 				.add(this.housekeepingController).lf()
 				.add(this.entityCacheEvaluator  ).lf()
 				.add(this.dataFileEvaluator     ).lf()
-				.add(this.backupSetup           ).lf()
+				.add(this.backupSetup == null ? "one.microstream.storage.types.StorageBackupSetup: null " : this.backupSetup).lf()
 				.toString()
 			;
 		}
