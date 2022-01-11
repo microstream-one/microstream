@@ -12,8 +12,7 @@
     </parent>
 
     <properties>
-        <spring.version>5.3.8</spring.version>
-        <org.springframework.boot.version>2.5.0</org.springframework.boot.version>
+        <org.springframework.boot.version>2.6.2</org.springframework.boot.version>
     </properties>
 
 
