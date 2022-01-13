@@ -33,8 +33,7 @@
 			<artifactId>spark-core</artifactId>
 			<version>2.9.3</version>
 		</dependency>
-
-		<!-- JETTY DEPENDENCIES -->
+		<!-- override sparkjava dependencies -->
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
