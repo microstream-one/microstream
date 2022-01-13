@@ -20,6 +20,7 @@ package one.microstream.cache.hibernate.types;
  * #L%
  */
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -145,9 +146,9 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 				? (Class<? extends CacheManager>)setting
 				: this.loadClass(setting.toString(), settings)
 			;
-			return cacheManagerClass.newInstance();
+			return cacheManagerClass.getDeclaredConstructor().newInstance();
 		}
-		catch(ClassNotFoundException | InstantiationException | IllegalAccessException e)
+		catch(ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
 		{
 			throw new CacheException("Could not use explicit CacheManager : " + setting, e);
 		}

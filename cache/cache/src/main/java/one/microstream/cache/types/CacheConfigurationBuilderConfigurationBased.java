@@ -33,6 +33,8 @@ import one.microstream.configuration.types.ConfigurationParserXml;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageFoundationCreatorConfigurationBased;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 
+import java.lang.reflect.InvocationTargetException;
+
 public interface CacheConfigurationBuilderConfigurationBased
 {
 	@FunctionalInterface
@@ -217,11 +219,13 @@ public interface CacheConfigurationBuilderConfigurationBased
 				return Factory.class.cast(
 					this.classResolver
 						.loadClass(value)
+						.getDeclaredConstructor()
 						.newInstance()
 				);
 			}
 			catch(ClassNotFoundException | ClassCastException |
-				  InstantiationException | IllegalAccessException e
+				InstantiationException | IllegalAccessException |
+				NoSuchMethodException | InvocationTargetException e
 			)
 			{
 				throw new CacheException(e);
