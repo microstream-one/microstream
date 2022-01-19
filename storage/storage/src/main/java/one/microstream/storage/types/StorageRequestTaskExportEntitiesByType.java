@@ -63,14 +63,15 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		/////////////////
 
 		Default(
-			final long                                                                         timestamp   ,
-			final int                                                                          channelCount,
-			final StorageEntityTypeExportFileProvider                                          fileProvider,
-			final Predicate<? super StorageEntityTypeHandler>                                  isExportType,
-			final Function<? super StorageEntityTypeHandler, Predicate<? super StorageEntity>> predicateEntityProvider
+			final long                                                                         timestamp              ,
+			final int                                                                          channelCount           ,
+			final StorageEntityTypeExportFileProvider                                          fileProvider           ,
+			final Predicate<? super StorageEntityTypeHandler>                                  isExportType           ,
+			final Function<? super StorageEntityTypeHandler, Predicate<? super StorageEntity>> predicateEntityProvider, 
+			final StorageOperationController                                                   controller
 		)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.fileProvider            = notNull(fileProvider);
 			this.isExportType            = isExportType != null ? isExportType : e -> !e.isPrimitiveType();
 			this.predicateEntityProvider = predicateEntityProvider != null ? predicateEntityProvider : t -> null;
@@ -81,19 +82,21 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 			final long                                        timestamp   ,
 			final int                                         channelCount,
 			final StorageEntityTypeExportFileProvider         fileProvider,
-			final Predicate<? super StorageEntityTypeHandler> isExportType
+			final Predicate<? super StorageEntityTypeHandler> isExportType,
+			final StorageOperationController                  controller
 		)
 		{
-			this(timestamp, channelCount, fileProvider, isExportType, null);
+			this(timestamp, channelCount, fileProvider, isExportType, null, controller);
 		}
 
 		Default(
 			final long                                timestamp   ,
 			final int                                 channelCount,
-			final StorageEntityTypeExportFileProvider fileProvider
+			final StorageEntityTypeExportFileProvider fileProvider,
+			final StorageOperationController          controller
 		)
 		{
-			this(timestamp, channelCount, fileProvider, null, null);
+			this(timestamp, channelCount, fileProvider, null, null, controller);
 		}
 
 

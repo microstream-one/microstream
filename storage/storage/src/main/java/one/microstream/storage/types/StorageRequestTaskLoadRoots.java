@@ -31,9 +31,9 @@ public interface StorageRequestTaskLoadRoots extends StorageRequestTaskLoad
 		// constructors //
 		/////////////////
 
-		Default(final long timestamp, final int channelCount)
+		Default(final long timestamp, final int channelCount, final StorageOperationController controller)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 		}
 
 

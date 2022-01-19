@@ -45,12 +45,13 @@ public interface StorageRequestTaskFileCheck extends StorageRequestTask
 		/////////////////
 
 		Default(
-			final long timestamp     ,
-			final int  channelCount  ,
-			final long nanoTimeBudget
+			final long                       timestamp     ,
+			final int                        channelCount  ,
+			final long                       nanoTimeBudget,
+			final StorageOperationController controller
 		)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.nanoTimeBudget = nanoTimeBudget;
 		}
 
