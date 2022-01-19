@@ -42,11 +42,12 @@ public interface StorageChannelTask extends StorageTask
 		// instance fields //
 		////////////////////
 
-		private          int         remainingForCompletion;
-		private          int         remainingForProcessing;
+		private          int                        remainingForCompletion;
+		private          int                        remainingForProcessing;
 
-		private AtomicBoolean        hasProblems = new AtomicBoolean();
-		private final    Throwable[] problems   ; // unshared instance conveniently abused as a second lock
+		private          AtomicBoolean              hasProblems = new AtomicBoolean();
+		private final    Throwable[]                problems   ; // unshared instance conveniently abused as a second lock
+		protected final  StorageOperationController controller;
 
 
 
@@ -54,7 +55,10 @@ public interface StorageChannelTask extends StorageTask
 		// constructors //
 		/////////////////
 
-		public Abstract(final long timestamp, final int channelCount)
+		public Abstract(
+			final long timestamp,
+			final int channelCount,
+			final StorageOperationController controller)
 		{
 			super(timestamp);
 			
@@ -62,6 +66,7 @@ public interface StorageChannelTask extends StorageTask
 			this.remainingForProcessing = channelCount;
 			this.remainingForCompletion = channelCount;
 			this.problems = new Throwable[channelCount];
+			this.controller = controller;
 		}
 
 
@@ -72,10 +77,15 @@ public interface StorageChannelTask extends StorageTask
 
 		private void checkForProblems()
 		{
+			if(controller.hasDisruptions()) {
+				throw new StorageException("Aborting after: ", controller.disruptions().first());
+			}
+						
 			if(!this.hasProblems.get())
 			{
 				return;
 			}
+									
 			// (30.05.2013 TM)FIXME: check why this is never reached when task fails?
 			// (15.06.2013 TM)NOTE: should be fixed by double check in waitOnCompletion()
 			// (09.12.2019 TM)NOTE: still needs to be investigated.
@@ -143,7 +153,7 @@ public interface StorageChannelTask extends StorageTask
 			while(this.remainingForCompletion > 0)
 			{
 				this.checkForProblems(); // check for problems already while waiting
-				this.wait();
+				this.wait(100);
 			}
 			this.checkForProblems(); // check for problems after every channel reported completion
 		}

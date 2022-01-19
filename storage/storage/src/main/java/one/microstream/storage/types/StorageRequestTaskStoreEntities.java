@@ -59,10 +59,10 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 		// constructors //
 		/////////////////
 
-		Default(final long timestamp, final Binary data)
+		Default(final long timestamp, final Binary data, final StorageOperationController controller)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
-			super(timestamp, data.channelCount());
+			super(timestamp, data.channelCount(), controller);
 			this.data = data;
 		}
 

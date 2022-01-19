@@ -49,10 +49,11 @@ public interface StorageRequestTaskCacheCheck extends StorageRequestTask
 			final long                        timestamp      ,
 			final int                         channelCount   ,
 			final long                        nanoTimeBudget ,
-			final StorageEntityCacheEvaluator entityEvaluator
+			final StorageEntityCacheEvaluator entityEvaluator, 
+			final StorageOperationController  controller
 		)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.entityEvaluator = entityEvaluator; // may be null
 			this.nanoTimeBudget  = nanoTimeBudget;
 		}
