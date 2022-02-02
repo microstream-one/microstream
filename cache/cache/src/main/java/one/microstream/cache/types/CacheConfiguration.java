@@ -46,6 +46,7 @@ import javax.cache.expiry.ExpiryPolicy;
 import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheWriter;
 
+import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.configuration.exceptions.ConfigurationException;
 import one.microstream.configuration.types.Configuration;
@@ -1993,6 +1994,26 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 				return false;
 			}
 			return true;
+		}
+		
+
+		@Override
+		public String toString()
+		{
+			return VarString.New()
+				.add("keyType=").add(this.keyType.toString()).lf()
+				.add("valueType=").add(this.valueType.toString()).lf()
+				.add("listenerConfigurations=").add(this.listenerConfigurations).lf()
+				.add("cacheLoaderFactory=").add(this.cacheLoaderFactory).lf()
+				.add("cacheWriterFactory=").add(this.cacheWriterFactory).lf()
+				.add("expiryPolicyFactory=").add(this.expiryPolicyFactory).lf()
+				.add("isReadThrough=").add(this.isReadThrough).lf()
+				.add("isWriteThrough=").add(this.isWriteThrough).lf()
+				.add("isStatisticsEnabled=").add(this.isStatisticsEnabled).lf()
+				.add("isStoreByValue=").add(this.isStoreByValue).lf()
+				.add("isManagementEnabled=").add(this.isManagementEnabled)
+				.toString()
+			;
 		}
 
 	}
