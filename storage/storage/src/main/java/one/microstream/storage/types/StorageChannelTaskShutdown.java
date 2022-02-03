@@ -46,7 +46,7 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 			final StorageOperationController operationController
 		)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, operationController);
 			this.operationController = notNull(operationController);
 		}
 

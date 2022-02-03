@@ -459,6 +459,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 					this.eventLogger.logDisruption(this, t);
 					this.operationController.setChannelProcessingEnabled(false);
 					logger.debug("StorageChannel#{} processing disabled", this.channelIndex);
+					this.operationController.registerDisruption(t);
 					this.eventLogger.logChannelProcessingDisabled(this);
 					break;
 				}
