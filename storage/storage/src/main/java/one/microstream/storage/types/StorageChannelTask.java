@@ -1,5 +1,9 @@
 package one.microstream.storage.types;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+
 /*-
  * #%L
  * microstream-storage
@@ -21,8 +25,7 @@ package one.microstream.storage.types;
  */
 
 import one.microstream.storage.exceptions.StorageException;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import one.microstream.util.logging.Logging;
 
 public interface StorageChannelTask extends StorageTask
 {
@@ -38,15 +41,17 @@ public interface StorageChannelTask extends StorageTask
 	extends StorageTask.Abstract
 	implements StorageChannelTask
 	{
+		private final static Logger logger = Logging.getLogger(StorageChannelTask.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 
-		private          int                        remainingForCompletion;
-		private          int                        remainingForProcessing;
+		private       int         remainingForCompletion;
+		private       int         remainingForProcessing;
 
 		private          AtomicBoolean              hasProblems = new AtomicBoolean();
-		private final    Throwable[]                problems   ; // unshared instance conveniently abused as a second lock
+		private final Throwable[]    problems   ; // unshared instance conveniently abused as a second lock
 		protected final  StorageOperationController controller;
 
 
@@ -93,7 +98,7 @@ public interface StorageChannelTask extends StorageTask
 			{
 				if(this.problems[i] != null)
 				{
-					throw new StorageException("Problem in channel " + i, this.problems[i]);
+					throw new StorageException("Problem in channel #" + i, this.problems[i]);
 				}
 			}
 		}
@@ -179,6 +184,8 @@ public interface StorageChannelTask extends StorageTask
 		@Override
 		public final void addProblem(final int hashIndex, final Throwable problem)
 		{
+			logger.error("Error occured in storage channel#{}", hashIndex, problem);
+			
 			if(this.problems[hashIndex] == null)
 			{
 				this.problems[hashIndex] = problem;

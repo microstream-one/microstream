@@ -24,6 +24,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -862,6 +863,28 @@ public final class X
 		return Singleton.New(object);
 	}
 	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public static Iterable<?> Iterable(final Object array)
+	{
+		return () -> new Iterator()
+		{
+			      int position = 0;
+			final int length   = Array.getLength(array);
+			
+			@Override
+			public boolean hasNext()
+			{
+				return this.position < this.length;
+			}
+
+			@Override
+			public Object next()
+			{
+				return Array.get(array, this.position++);
+			}
+		};
+	}
+	
 	
 	@SuppressWarnings("unchecked")
 	public static final <T> T[] ArrayForElementType(final T sampleInstance, final int length)
@@ -1456,7 +1479,6 @@ public final class X
 			stackTraceCutDepth + 1
 		);
 	}
-
 	
 
 	///////////////////////////////////////////////////////////////////////////

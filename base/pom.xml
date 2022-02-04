@@ -18,4 +18,11 @@
 	<name>MicroStream Base</name>
 	<description>Commons Module of the MicroStream Framework</description>
 
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+	</dependencies>
+
 </project>

@@ -25,6 +25,8 @@ import static one.microstream.X.notNull;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+
 import one.microstream.afs.types.AFile;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.XSort;
@@ -59,6 +61,7 @@ import one.microstream.storage.types.StorageRawFileStatistics;
 import one.microstream.storage.types.StorageSystem;
 import one.microstream.storage.types.StorageTypeDictionary;
 import one.microstream.typing.KeyValue;
+import one.microstream.util.logging.Logging;
 
 
 /**
@@ -94,6 +97,9 @@ public interface EmbeddedStorageManager extends StorageManager
 
 	public final class Default implements EmbeddedStorageManager, Unpersistable, LazyReferenceManager.Controller
 	{
+		private final static Logger logger = Logging.getLogger(Default.class);
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -237,6 +243,8 @@ public interface EmbeddedStorageManager extends StorageManager
 		@Override
 		public final EmbeddedStorageManager.Default start()
 		{
+			logger.info("Starting embedded storage manager");
+			
 			final LazyReferenceManager lazyReferenceManager = LazyReferenceManager.get();
 			final boolean lazyReferenceManagerIsRunning = lazyReferenceManager.isRunning();
 			
@@ -246,6 +254,8 @@ public interface EmbeddedStorageManager extends StorageManager
 			{
 				this.ensureRequiredTypeHandlers();
 				this.initialize();
+				
+				logger.info("Embedded storage manager initialized");
 				
 				// this depends on completed initialization
 				this.ensureActiveLazyReferenceManager(lazyReferenceManager, lazyReferenceManagerIsRunning);
@@ -354,26 +364,37 @@ public interface EmbeddedStorageManager extends StorageManager
 
 		private void initialize()
 		{
-			final StorageConnection initConnection = this.createConnection();
+			try
+			{
+				final StorageConnection initConnection = this.createConnection();
 
-			PersistenceRoots loadedRoots = this.loadExistingRoots(initConnection);
-			if(loadedRoots == null)
-			{
-				// gets stored below, no matter the changed state (which is initially false)
-				loadedRoots = this.validateEmptyDatabaseAndReturnDefinedRoots(initConnection);
-			}
-			else
-			{
-				this.synchronizeRoots(loadedRoots);
-				if(!loadedRoots.hasChanged())
+				PersistenceRoots loadedRoots = this.loadExistingRoots(initConnection);
+				if(loadedRoots == null)
 				{
-					//  abort before storing because there is no need to.
-					return;
+					// gets stored below, no matter the changed state (which is initially false)
+					loadedRoots = this.validateEmptyDatabaseAndReturnDefinedRoots(initConnection);
 				}
+				else
+				{
+					this.synchronizeRoots(loadedRoots);
+					if(!loadedRoots.hasChanged())
+					{
+						//  abort before storing because there is no need to.
+						return;
+					}
+				}
+				
+				logger.debug("Storing required root objects and constants");
+				
+				// any other case than a perfectly synchronous loaded roots instance needs to store
+				initConnection.store(loadedRoots);
 			}
-			
-			// any other case than a perfectly synchronous loaded roots instance needs to store
-			initConnection.store(loadedRoots);
+			catch(final Exception e)
+			{
+				logger.error("Exception occured while initializing embedded storage manager", e);
+				
+				throw e;
+			}
 		}
 		
 		@Override

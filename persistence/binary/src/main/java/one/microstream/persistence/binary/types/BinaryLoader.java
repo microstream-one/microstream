@@ -25,6 +25,8 @@ import static one.microstream.X.notNull;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.math.XMath;
@@ -42,6 +44,7 @@ import one.microstream.persistence.types.PersistenceSourceSupplier;
 import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerLookup;
 import one.microstream.persistence.types.Persister;
+import one.microstream.util.logging.Logging;
 
 public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 {
@@ -83,6 +86,8 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 	public final class Default implements BinaryLoader, BinaryEntityDataReader, PersistenceReferenceLoader
 	{
+		private final static Logger logger = Logging.getLogger(Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
 		//////////////
@@ -457,6 +462,8 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 				 * In any case, there should be a distinction between logic to initially restore persisted state
 				 * and logic for regular runtime uses. The latter might be the same thing, but not always.
 				 */
+				
+				logger.trace("Updating {}", entry);
 //				XDebug.println("Updating " + entry);
 				
 				// (26.08.2019 TM)NOTE: paradigm change: #create may return null. Required for handling deleted enums.

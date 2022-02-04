@@ -23,11 +23,13 @@ package one.microstream.reference;
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+
 import one.microstream.memory.MemoryStatistics;
-import one.microstream.meta.XDebug;
 import one.microstream.reference.Lazy.Check;
 import one.microstream.reference.Lazy.Checker;
 import one.microstream.time.XTime;
+import one.microstream.util.logging.Logging;
 
 public interface LazyReferenceManager
 {
@@ -175,6 +177,8 @@ public interface LazyReferenceManager
 		// constants //
 		//////////////
 
+		final static Logger logger = Logging.getLogger(Default.class);
+		
 		private static final Clearer CLEARER = new Clearer();
 
 		// defaults mean to check every second with a budget of 1 MS (0.1% thread activity)
@@ -314,9 +318,9 @@ public interface LazyReferenceManager
 		// methods //
 		////////////
 		
-		public void DEBUG_printLoadCount(final String label)
+		private int countReferences()
 		{
-			final int count = this.iterate(new Consumer<Lazy<?>>()
+			return this.iterate(new Consumer<Lazy<?>>()
 			{
 				int count;
 
@@ -329,8 +333,6 @@ public interface LazyReferenceManager
 					}
 				}
 			}).count;
-			
-			XDebug.println('\n' + label + " Lazy loaded count = " + count);
 		}
 
 		final void internalCleanUp(final long nanoTimeBudget, final Checker checker)
@@ -383,7 +385,7 @@ public interface LazyReferenceManager
 				return;
 			}
 
-//			this.DEBUG_printLoadCount("Before cycle:");
+			logger.trace("Before cycle: {}", this.countReferences());
 			checker.beginCheckCycle();
 
 			cleanUp:
@@ -425,7 +427,7 @@ public interface LazyReferenceManager
 			// remember last checked entry for next cleanup run. Cursor field is strictly only used by one thread.
 			this.cursor = last;
 
-//			this.DEBUG_printLoadCount("After cycle:");
+			logger.trace("After cycle: {}", this.countReferences());
 			checker.endCheckCycle();
 		}
 
@@ -643,6 +645,8 @@ public interface LazyReferenceManager
 			@Override
 			public void run()
 			{
+				logger.debug("LazyReferenceManager started");
+				
 				LazyReferenceManager.Default parent;
 				while((parent = this.parent.get()) != null)
 				{
@@ -681,6 +685,7 @@ public interface LazyReferenceManager
 				}
 				
 				// either parent has been garbage collected or stopped, so terminate.
+				logger.debug("LazyReferenceManager stopped");
 //				XDebug.println(Thread.currentThread().getName() + " terminating.");
 			}
 		}
