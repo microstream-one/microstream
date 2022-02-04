@@ -441,7 +441,6 @@ public interface Lazy<T> extends Referencing<T>
 				LazyArg(() -> systemString(this.subject)),
 				this.subject
 			);
-//			XDebug.debugln("Checking " + this.subject + ": " + this.lastTouched + " vs " + millisecondThreshold);
 
 			// time check implicitely covers already cleared reference. May of course not clear unstored references.
 			if(this.lastTouched >= millisecondThreshold || !this.isStored())
@@ -455,7 +454,6 @@ public interface Lazy<T> extends Referencing<T>
 				LazyArg(() -> systemString(this.subject)),
 				this.subject
 			);
-//			XDebug.debugln("timeout-clearing " + this.objectId + ": " + XChars.systemString(this.subject));
 			this.internalClear();
 			return true;
 		}
@@ -777,7 +775,6 @@ public interface Lazy<T> extends Referencing<T>
 				this.cycleClearCount = 0;
 
 				logger.trace("Begin check cycle: {}", LazyArg(this::DEBUG_cycleState));
-//				this.DEBUG_printCycleState();
 			}
 			
 			@Override
@@ -893,7 +890,6 @@ public interface Lazy<T> extends Referencing<T>
 				{
 					logger.debug("Timeout-clearing lazy {}", XChars.systemString(lazyReference.peek()));
 					
-//					XDebug.println("Timeout-clearing lazy " + XChars.systemString(lazyReference.peek()));
 					this.registerClearing();
 					return true;
 				}
