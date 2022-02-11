@@ -784,6 +784,10 @@ public interface Lazy<T> extends Referencing<T>
 				{
 					this.cycleEvaluator.evaluateCycle(this.cycleMemoryStatistics, this.cycleClearCount, this.memoryQuota);
 				}
+				else
+				{
+					logger.trace("End check cycle: {}\ncleared references: {}", LazyArg(this::DEBUG_cycleState), this.cycleClearCount);
+				}
 			}
 			
 			private void updateMemoryUsage()

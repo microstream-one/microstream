@@ -384,8 +384,7 @@ public interface LazyReferenceManager
 			{
 				return;
 			}
-
-			logger.trace("Before cycle: {}", this.countReferences());
+		
 			checker.beginCheckCycle();
 
 			cleanUp:
@@ -427,7 +426,6 @@ public interface LazyReferenceManager
 			// remember last checked entry for next cleanup run. Cursor field is strictly only used by one thread.
 			this.cursor = last;
 
-			logger.trace("After cycle: {}", this.countReferences());
 			checker.endCheckCycle();
 		}
 
