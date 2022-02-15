@@ -80,6 +80,7 @@
 ** Use Cases
 *** xref:cache:use-cases/hibernate-second-level-cache.adoc[Hibernate Second Level Cache]
 *** xref:cache:use-cases/spring-cache.adoc[Spring Cache]
+* xref:communication:index.adoc[Communication]
 * Miscellaneous
 ** xref:misc:integrations/index.adoc[Integrations]
 *** xref:misc:integrations/helidon.adoc[Helidon]

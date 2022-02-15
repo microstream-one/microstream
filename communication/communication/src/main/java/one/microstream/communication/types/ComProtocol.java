@@ -40,28 +40,28 @@ public interface ComProtocol extends ComProtocolData
 		// (31.10.2018 TM)TODO: Maybe create a "Version" type with multiple sub version numbers?
 		return "1.0";
 	}
-		
-		
-		
+				
 	public static ComProtocolCreator Creator()
 	{
 		return ComProtocolCreator.New();
 	}
 	
 	public static ComProtocol New(
-		final String                        name          ,
-		final String                        version       ,
-		final ByteOrder                     byteOrder     ,
-		final PersistenceIdStrategy         idStrategy    ,
-		final PersistenceTypeDictionaryView typeDictionary
+		final String                        name             ,
+		final String                        version          ,
+		final ByteOrder                     byteOrder        ,
+		final int                           inactivityTimeout,
+		final PersistenceIdStrategy         idStrategy       ,
+		final PersistenceTypeDictionaryView persistenceTypeDictionaryView
 	)
 	{
 		return new ComProtocol.Default(
-			notNull(name)          ,
-			notNull(version)       ,
-			notNull(byteOrder)     ,
-			notNull(idStrategy)    ,
-			notNull(typeDictionary)
+			notNull(name)      ,
+			notNull(version)   ,
+			notNull(byteOrder) ,
+			inactivityTimeout  ,
+			notNull(idStrategy),
+			persistenceTypeDictionaryView
 		);
 	}
 	
@@ -71,11 +71,13 @@ public interface ComProtocol extends ComProtocolData
 		// instance fields //
 		////////////////////
 
-		private final String                        name          ;
-		private final String                        version       ;
-		private final ByteOrder                     byteOrder     ;
-		private final PersistenceIdStrategy         idStrategy    ;
-		private final PersistenceTypeDictionaryView typeDictionary;
+		private final String                        name             ;
+		private final String                        version          ;
+		private final ByteOrder                     byteOrder        ;
+		private final int                           inactivityTimeOut;
+		private final PersistenceIdStrategy         idStrategy       ;
+		private final PersistenceTypeDictionaryView typeDictionary   ;
+		
 		
 		
 		
@@ -84,19 +86,23 @@ public interface ComProtocol extends ComProtocolData
 		/////////////////
 		
 		Default(
-			final String                        name          ,
-			final String                        version       ,
-			final ByteOrder                     byteOrder     ,
-			final PersistenceIdStrategy         idStrategy    ,
+			final String                        name             ,
+			final String                        version          ,
+			final ByteOrder                     byteOrder        ,
+			final int                           inactivityTimeOut,
+			final PersistenceIdStrategy         idStrategy       ,
 			final PersistenceTypeDictionaryView typeDictionary
+			
 		)
 		{
 			super();
-			this.name           = name          ;
-			this.version        = version       ;
-			this.byteOrder      = byteOrder     ;
-			this.idStrategy     = idStrategy    ;
-			this.typeDictionary = typeDictionary;
+			this.name              = name             ;
+			this.version           = version          ;
+			this.byteOrder         = byteOrder        ;
+			this.inactivityTimeOut = inactivityTimeOut;
+			this.idStrategy        = idStrategy       ;
+			this.typeDictionary    = typeDictionary   ;
+			
 		}
 		
 		
@@ -133,6 +139,12 @@ public interface ComProtocol extends ComProtocolData
 		public final PersistenceTypeDictionaryView typeDictionary()
 		{
 			return this.typeDictionary;
+		}
+		
+		@Override
+		public final int inactivityTimeout()
+		{
+			return this.inactivityTimeOut;
 		}
 		
 	}

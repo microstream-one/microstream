@@ -33,7 +33,9 @@ public interface ComConnectionAcceptorCreator<C>
 		ComProtocolStringConverter protocolStringConverter,
 		ComConnectionHandler<C>    connectionHandler      ,
 		ComPersistenceAdaptor<C>   persistenceAdaptor     ,
-		ComHostChannelAcceptor<C>  channelAcceptor
+		ComHostChannelAcceptor<C>  channelAcceptor        ,
+		ComHostExceptionHandler<C> comHostExceptionHandler,
+		ComPeerIdentifier          peerIdentifier
 	);
 	
 	
@@ -65,7 +67,9 @@ public interface ComConnectionAcceptorCreator<C>
 			final ComProtocolStringConverter protocolStringConverter,
 			final ComConnectionHandler<C>    connectionHandler      ,
 			final ComPersistenceAdaptor<C>   persistenceAdaptor     ,
-			final ComHostChannelAcceptor<C>  channelAcceptor
+			final ComHostChannelAcceptor<C>  channelAcceptor        ,
+			final ComHostExceptionHandler<C> exceptionHandler       ,
+			final ComPeerIdentifier          peerIdentifier
 		)
 		{
 			return ComConnectionAcceptor.New(
@@ -73,7 +77,9 @@ public interface ComConnectionAcceptorCreator<C>
 				protocolStringConverter,
 				connectionHandler      ,
 				persistenceAdaptor     ,
-				channelAcceptor
+				channelAcceptor        ,
+				exceptionHandler       ,
+				peerIdentifier
 			);
 		}
 		

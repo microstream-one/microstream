@@ -48,6 +48,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		final String                                name                  ,
 		final String                                version               ,
 		final ByteOrder                             byteOrder             ,
+		final int                                   inactivityTimeout     ,
 		final PersistenceIdStrategy                 idStrategy            ,
 		final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
 		final ComProtocolCreator                    protocolCreator
@@ -57,6 +58,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 			notNull(name)                  ,
 			notNull(version)               ,
 			notNull(byteOrder)             ,
+			inactivityTimeout              ,
 			notNull(idStrategy)            ,
 			notNull(typeDictionaryProvider),
 			notNull(protocolCreator)
@@ -72,10 +74,10 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		private final String                                name                  ;
 		private final String                                version               ;
 		private final ByteOrder                             byteOrder             ;
+		private final int                                   inactivityTimeout     ;
 		private final PersistenceIdStrategy                 idStrategy            ;
 		private final PersistenceTypeDictionaryViewProvider typeDictionaryProvider;
 		private final ComProtocolCreator                    protocolCreator       ;
-		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -86,11 +88,13 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 			final String                                name                  ,
 			final String                                version               ,
 			final ByteOrder                             byteOrder             ,
+			final int                                   inactivityTimeout     ,
 			final PersistenceIdStrategy                 idStrategy            ,
 			final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
 			final ComProtocolCreator                    protocolCreator
 		)
 		{
+			
 			super();
 			this.name                   = name                  ;
 			this.version                = version               ;
@@ -98,6 +102,7 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 			this.idStrategy             = idStrategy            ;
 			this.typeDictionaryProvider = typeDictionaryProvider;
 			this.protocolCreator        = protocolCreator       ;
+			this.inactivityTimeout      = inactivityTimeout     ;
 		}
 		
 		
@@ -137,14 +142,21 @@ public interface ComProtocolProvider<C> extends ComProtocolData
 		}
 		
 		@Override
+		public int inactivityTimeout()
+		{
+			return this.inactivityTimeout;
+		}
+		
+		@Override
 		public ComProtocol provideProtocol(final C connection)
 		{
 			// the default implementation assigns the same id range to every client, hence no reference to connection
 			return this.protocolCreator.creatProtocol(
-				this.name()          ,
-				this.version()       ,
-				this.byteOrder()     ,
-				this.idStrategy()    ,
+				this.name()             ,
+				this.version()          ,
+				this.byteOrder()        ,
+				this.inactivityTimeout(),
+				this.idStrategy()       ,
 				this.typeDictionary()
 			);
 		}

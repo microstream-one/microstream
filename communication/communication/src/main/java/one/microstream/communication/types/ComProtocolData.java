@@ -43,5 +43,7 @@ public interface ComProtocolData extends PersistenceTypeDictionaryViewProvider
 	{
 		return this.typeDictionary();
 	}
+
+	public int inactivityTimeout();
 	
 }
