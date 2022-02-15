@@ -1,5 +1,7 @@
 package one.microstream.persistence.types;
 
+import java.util.function.BiConsumer;
+
 /*-
  * #%L
  * microstream-persistence
@@ -35,7 +37,7 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 	public boolean registerTypes(final Iterable<? extends PersistenceTypeLink> types)
 		throws PersistenceExceptionConsistency;
 	
-	
+	public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer);
 	
 	public static PersistenceTypeRegistry.Default New()
 	{
@@ -183,6 +185,12 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 			}
 			
 			return true;
+		}
+		
+		@Override
+		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) 
+		{			
+			this.typesPerIds.iterate(c -> consumer.accept(c.key(), c.value()));			
 		}
 		
 	}

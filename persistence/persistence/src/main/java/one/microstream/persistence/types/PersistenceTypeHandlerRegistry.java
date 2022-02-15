@@ -22,6 +22,7 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import one.microstream.collections.HashMapIdObject;
@@ -337,6 +338,13 @@ extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTyp
 			
 			return iterator;
 		}
+
+		@Override
+		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) 
+		{
+			this.typeRegistry.iteratePerIds(consumer);			
+		}
+		
 	}
 
 }

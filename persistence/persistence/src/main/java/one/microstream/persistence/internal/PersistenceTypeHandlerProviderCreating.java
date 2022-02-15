@@ -22,6 +22,7 @@ package one.microstream.persistence.internal;
 
 import static one.microstream.X.notNull;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
@@ -206,6 +207,12 @@ implements PersistenceTypeHandlerProvider<D>
 	public <C extends Consumer<? super PersistenceTypeHandler<D, ?>>> C iterateAllTypeHandlers(final C iterator)
 	{
 		return this.typeHandlerEnsurer.iterateAllTypeHandlers(iterator);
+	}
+
+	@Override
+	public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) 
+	{
+		this.typeManager.iteratePerIds(consumer);		
 	}
 
 }

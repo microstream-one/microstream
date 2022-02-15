@@ -1,5 +1,7 @@
 package one.microstream.persistence.internal;
 
+import java.util.function.BiConsumer;
+
 /*-
  * #%L
  * microstream-persistence
@@ -184,6 +186,15 @@ implements PersistenceTypeHandlerProvider<D>
 	PersistenceTypeHandlerProviderFailing(final Class<D> dataType)
 	{
 		super(dataType);
+	}
+
+	@Override
+	public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) {
+		/*
+		 * This is not an API OOP misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
+		 */
+		throw new UnsupportedOperationException();		
 	}
 
 }
