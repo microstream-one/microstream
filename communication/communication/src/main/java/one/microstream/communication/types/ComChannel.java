@@ -118,7 +118,7 @@ public interface ComChannel extends Closeable
 		@Override
 		public final void close()
 		{
-			logger.trace("closing ComChannel {}");
+			logger.trace("closing ComChannel");
 			this.persistenceManager.close();
 		}
 		
