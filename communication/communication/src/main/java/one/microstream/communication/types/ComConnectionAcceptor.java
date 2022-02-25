@@ -55,7 +55,7 @@ public interface ComConnectionAcceptor<C>
 		final ComProtocolStringConverter    protocolStringConverter,
 		final ComConnectionHandler<C>       connectionHandler      ,
 		final ComPersistenceAdaptor<C>      persistenceAdaptor     ,
-		final ComHostChannelAcceptor<C>     channelAcceptor		   ,
+		final ComHostChannelAcceptor<C>     channelAcceptor        ,
 		final ComHostExceptionHandler<C>    exceptionHandler       ,
 		final ComPeerIdentifier             peerIdentifier
 	)

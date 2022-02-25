@@ -148,11 +148,4 @@ public interface ComConnection
 		}
 		
 	}
-
-	
-
-	
-
-	
-
 }
