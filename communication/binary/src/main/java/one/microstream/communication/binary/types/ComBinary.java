@@ -193,18 +193,18 @@ public class ComBinary
 	}
 	
 	public static void writeChunk(
-		final ComConnection channel     ,
+		final ComConnection connection  ,
 		final ByteBuffer    headerBuffer,
 		final ByteBuffer[]  buffers
 	)
 		throws ComException, ComExceptionTimeout
 	{
 		// the chunk header (specifying the chunk data length) is sent first, then the actual chunk data.
-		channel.write(headerBuffer, operationTimeout());
+		connection.write(headerBuffer, operationTimeout());
 		
 		for(final ByteBuffer bb : buffers)
 		{
-			channel.write(bb, operationTimeout());
+			connection.write(bb, operationTimeout());
 		}
 	}
 	
