@@ -24,8 +24,8 @@ import one.microstream.com.ComException;
 
 public class ComExceptionTypeMismatch extends ComException
 {
-	private final long typeId;
-	final String typeName;
+	private final long   typeId;
+	private final String typeName;
 	
 	public ComExceptionTypeMismatch(final long typeId, final String typeName)
 	{

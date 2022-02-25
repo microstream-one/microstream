@@ -268,38 +268,38 @@ public class ComTLSConnection implements ComConnection
 	private HandshakeStatus unwrapHandshakeData() throws IOException
 	{
 		SSLEngineResult.HandshakeStatus hs = this.sslEngine.getHandshakeStatus();
-			 		
+		
 		if(this.sslEncryptedIn.position() == 0)
 		{
 			this.readInternal(this.sslEncryptedIn);
 		}
 		
 		this.sslEncryptedIn.flip();
-				
+		
 		while(hs == HandshakeStatus.NEED_UNWRAP &&
 			this.sslEncryptedIn.hasRemaining())
- 		{
-	 		final SSLEngineResult engineResult = this.sslEngine.unwrap(this.sslEncryptedIn, this.sslDecrypted);
-	 		hs = engineResult.getHandshakeStatus();
-	 			 			 			 			 		 			 		
-	 		final Status status = engineResult.getStatus();
-	 		
-	 		if(status != Status.OK)
-	 		{
-	 			if(status == Status.CLOSED || status == Status.BUFFER_OVERFLOW)
-	 			{
-	 				throw new ComException("TLS Handshake failed with engine status " + status);
-	 			}
-	 			
-	 			if(status == Status.BUFFER_UNDERFLOW)
-	 			{
-	 				this.readInternal(this.sslEncryptedIn);
-	 			}
-	 		}
- 		}
+		{
+			final SSLEngineResult engineResult = this.sslEngine.unwrap(this.sslEncryptedIn, this.sslDecrypted);
+			hs = engineResult.getHandshakeStatus();
+			
+			final Status status = engineResult.getStatus();
+			
+			if(status != Status.OK)
+			{
+				if(status == Status.CLOSED || status == Status.BUFFER_OVERFLOW)
+				{
+					throw new ComException("TLS Handshake failed with engine status " + status);
+				}
+				
+				if(status == Status.BUFFER_UNDERFLOW)
+				{
+					this.readInternal(this.sslEncryptedIn);
+				}
+			}
+		}
 		
 		this.sslEncryptedIn.compact();
- 		
+		
 		return hs;
 	}
 	
@@ -345,30 +345,30 @@ public class ComTLSConnection implements ComConnection
 		final ByteBuffer handshakeData = ByteBuffer.allocate(session.getApplicationBufferSize());
 		
 		this.sslEngine.beginHandshake();
-	    SSLEngineResult.HandshakeStatus hs = this.sslEngine.getHandshakeStatus();
-	    
-	    while (hs != SSLEngineResult.HandshakeStatus.FINISHED &&
-	            hs != SSLEngineResult.HandshakeStatus.NOT_HANDSHAKING)
-	    {
+		SSLEngineResult.HandshakeStatus hs = this.sslEngine.getHandshakeStatus();
+		
+		while (hs != SSLEngineResult.HandshakeStatus.FINISHED &&
+			hs != SSLEngineResult.HandshakeStatus.NOT_HANDSHAKING)
+		{
 			switch (hs)
-	    	{
-	        	case NEED_UNWRAP:
-	        		hs = this.unwrapHandshakeData();
-	        		break;
-	        		
-	        	case NEED_WRAP :
-	        		hs = this.wrapHandshakeData(handshakeData);
-	        		break;
-	        		
-	        	case NEED_TASK :
-	        		hs = this.executeHandshakeTask();
-	        		break;
-                	        		
-				default:
+			{
+			case NEED_UNWRAP:
+				hs = this.unwrapHandshakeData();
+				break;
+				
+			case NEED_WRAP :
+				hs = this.wrapHandshakeData(handshakeData);
+				break;
+				
+			case NEED_TASK :
+				hs = this.executeHandshakeTask();
+				break;
+				
+			default:
 					//should never happen but if so throw an exception to avoid unknown behavior during the SSL handshake
 					throw new ComException("Unexpected handshake status: " + hs );
-	    	}
-	    }
+			}
+		}
 	}
 		
 	/**

@@ -44,9 +44,9 @@ public class ComHandlerReceiveMessageNewType implements ComHandlerReceive<ComMes
 	// instance fields //
 	////////////////////
 	
-	private final PersistenceTypeHandlerManager<Binary> typeHandlerManager;
-	private final ComTypeDefinitionBuilder 				typeDefintionBuilder;
-	private final PersistenceTypeHandlerEnsurer<Binary> typeHandlerEnsurer;
+	private final PersistenceTypeHandlerManager<Binary> typeHandlerManager  ;
+	private final ComTypeDefinitionBuilder              typeDefintionBuilder;
+	private final PersistenceTypeHandlerEnsurer<Binary> typeHandlerEnsurer  ;
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -54,15 +54,15 @@ public class ComHandlerReceiveMessageNewType implements ComHandlerReceive<ComMes
 	/////////////////
 	
 	public ComHandlerReceiveMessageNewType(
-		final PersistenceTypeHandlerManager<Binary> typeHandlerManager,
-		final ComTypeDefinitionBuilder 				typeDefintionBuilder,
+		final PersistenceTypeHandlerManager<Binary> typeHandlerManager  ,
+		final ComTypeDefinitionBuilder              typeDefintionBuilder,
 		final PersistenceTypeHandlerEnsurer<Binary> typeHandlerEnsurer
 	)
 	{
 		super();
-		this.typeHandlerManager   		= typeHandlerManager;
-		this.typeDefintionBuilder		= typeDefintionBuilder;
-		this.typeHandlerEnsurer         = typeHandlerEnsurer;
+		this.typeHandlerManager         = typeHandlerManager  ;
+		this.typeDefintionBuilder       = typeDefintionBuilder;
+		this.typeHandlerEnsurer         = typeHandlerEnsurer  ;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
