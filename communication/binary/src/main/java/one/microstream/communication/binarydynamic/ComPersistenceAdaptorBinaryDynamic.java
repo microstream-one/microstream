@@ -27,6 +27,7 @@ import java.nio.ByteOrder;
 import java.util.function.Consumer;
 
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.com.ComException;
 import one.microstream.communication.binary.types.ComBinaryPersistenceRootsProvider;
 import one.microstream.communication.binary.types.ComPersistenceChannelBinary;
 import one.microstream.communication.types.ComClient;
@@ -39,7 +40,6 @@ import one.microstream.communication.types.ComPersistenceAdaptorCreator;
 import one.microstream.communication.types.ComProtocol;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryPersistenceFoundation;
-import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.internal.LoggingLegacyTypeMappingResultor;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceContextDispatcher;
@@ -394,19 +394,19 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 		this.iterateEntityTypes(c ->
 			typeHandlerManager.ensureTypeHandler(c)
 		);
-					
+		
 		typeHandlerManager.iteratePerIds((k,v) -> {
-			//XDebug.println("key: " + k + " value: " + v.getName());
-			
-			if(typeHandlerManager.lookupTypeHandler(v) == null)
+		
+			if(!v.isPrimitive() && typeHandlerManager.lookupTypeHandler(v) == null)
 			{
-				//XDebug.println("additional handler for " + v.getName());
-				try {
+				try
+				{
 					typeHandlerManager.ensureTypeHandler(v);
-				} catch(final PersistenceException e) {
-					//XDebug.println("No handler for " + v.getName() + ": " + e.getMessage());
 				}
-				
+				catch (final Exception e)
+				{
+					throw new ComException("Failed to ensure type handler for type " + v.getName(), e);
+				}
 			}
 		});
 		
