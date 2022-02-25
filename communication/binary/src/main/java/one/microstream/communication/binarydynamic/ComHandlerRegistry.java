@@ -30,7 +30,7 @@ public interface ComHandlerRegistry
 	public <T> boolean registerSendHandler    (final Class<T> type, final ComHandlerSend<?> handler);
 	public <T> boolean registerReceiveHandler (final Class<T> type, final ComHandlerReceive<?> handler);
 	
-	public <T extends ComMessage> ComHandlerSend<ComMessage> 	lookupSend(final Class<?> type);
+	public <T extends ComMessage> ComHandlerSend<ComMessage>    lookupSend(final Class<?> type);
 	public <T extends ComMessage> ComHandlerReceive<ComMessage> lookupReceive(final Class<?> type);
 
 	
