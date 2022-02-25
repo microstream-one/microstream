@@ -181,7 +181,7 @@ extends InstanceDispatcher
 		private int                             port                     ;
 		private InetSocketAddress               hostBindingAddress       ;
 		private InetSocketAddress               clientTargetAddress      ;
-		private int								clientConnectTimeout     ;
+		private int                             clientConnectTimeout     ;
 		
 		private String                          protocolName             ;
 		private String                          protocolVersion          ;
@@ -905,7 +905,7 @@ extends InstanceDispatcher
 				this.getConnectionHandler()         ,
 				this.getHostPersistenceAdaptor()    ,
 				this.getHostChannelAcceptor()       ,
-				this.getHostExceptionHandler()   ,
+				this.getHostExceptionHandler()      ,
 				this.getPeerIdentifier()
 			);
 
