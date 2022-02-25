@@ -57,9 +57,9 @@ public class ComTypeDefinitionBuilder
 		final PersistenceTypeDescriptionResolverProvider	typeDescriptionResolverProvider)
 	{
 		super();
-		this.typeDictionaryParser			 = typeDictionaryParser;
-		this.typeDefinitionCreator			 = typeDefinitionCreator;
-		this.typeDescriptionResolverProvider = typeDescriptionResolverProvider;
+		this.typeDictionaryParser				= typeDictionaryParser;
+		this.typeDefinitionCreator				= typeDefinitionCreator;
+		this.typeDescriptionResolverProvider	= typeDescriptionResolverProvider;
 			
 	}
 
