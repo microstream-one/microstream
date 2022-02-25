@@ -264,8 +264,7 @@ public final class XSockets
 		}
 		catch(final IOException e)
 		{
-			// (01.11.2018 TM)EXCP: proper exception
-			throw new ComException(e);
+			throw new ComException("channel read failed", e);
 		}
 		
 		if(numBytesRead < 0 )
@@ -398,7 +397,5 @@ public final class XSockets
 		// static only
 		throw new UnsupportedOperationException();
 	}
-
-
 
 }
