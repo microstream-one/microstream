@@ -114,7 +114,7 @@ public class ComTLSConnectionHandler extends ComConnectionHandler.Default
 	
 	@Override
 	public ComConnectionListener<ComConnection> createConnectionListener(final InetSocketAddress address)
-    {
+	{
 		final ServerSocketChannel serverSocketChannel = XSockets.openServerSocketChannel(address);
 		final ComConnectionListener<ComConnection> connectionListener =  new ComTLSConnectionListener(serverSocketChannel, this.context, this.tlsParameterProvider);
 		logger.debug("created new ComConnectionListener {}", connectionListener);
@@ -123,7 +123,7 @@ public class ComTLSConnectionHandler extends ComConnectionHandler.Default
 
 	@Override
 	public ComTLSConnection openConnection(final InetSocketAddress address)
-        {
+	{
 		final SocketChannel clientChannel = XSockets.openChannel(address);
 		final ComTLSConnection connection =  new ComTLSConnection(clientChannel, this.context, this.tlsParameterProvider, TLS_CLIENT_MODE);
 		logger.debug("created new ComConnection {}", connection);

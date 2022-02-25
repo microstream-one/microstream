@@ -352,19 +352,19 @@ public class ComTLSConnection implements ComConnection
 		{
 			switch (hs)
 			{
-			case NEED_UNWRAP:
-				hs = this.unwrapHandshakeData();
-				break;
-				
-			case NEED_WRAP :
-				hs = this.wrapHandshakeData(handshakeData);
-				break;
-				
-			case NEED_TASK :
-				hs = this.executeHandshakeTask();
-				break;
-				
-			default:
+				case NEED_UNWRAP:
+					hs = this.unwrapHandshakeData();
+					break;
+					
+				case NEED_WRAP :
+					hs = this.wrapHandshakeData(handshakeData);
+					break;
+					
+				case NEED_TASK :
+					hs = this.executeHandshakeTask();
+					break;
+					
+				default:
 					//should never happen but if so throw an exception to avoid unknown behavior during the SSL handshake
 					throw new ComException("Unexpected handshake status: " + hs );
 			}
