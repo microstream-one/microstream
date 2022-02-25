@@ -44,14 +44,14 @@ import one.microstream.util.BufferSizeProvider;
 public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C, Binary>
 {
 	public static ComPersistenceChannelBinary.Default New(
-		final ComConnection              channel           ,
+		final ComConnection              connection           ,
 		final BufferSizeProvider         bufferSizeProvider,
 		final ByteOrderTargeting<?>      byteOrderTargeting,
 		final PersistenceWriteController writeController
 	)
 	{
 		return new ComPersistenceChannelBinary.Default(
-			notNull(channel)           ,
+			notNull(connection)           ,
 			notNull(bufferSizeProvider),
 			notNull(byteOrderTargeting),
 			notNull(writeController)
@@ -132,13 +132,13 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		/////////////////
 
 		Default(
-			final ComConnection              channel           ,
+			final ComConnection              connection           ,
 			final BufferSizeProvider         bufferSizeProvider,
 			final ByteOrderTargeting<?>      byteOrderTargeting,
 			final PersistenceWriteController writeController
 		)
 		{
-			super(channel, bufferSizeProvider);
+			super(connection, bufferSizeProvider);
 			this.byteOrderTargeting = byteOrderTargeting;
 			this.writeController    = writeController   ;
 		}
