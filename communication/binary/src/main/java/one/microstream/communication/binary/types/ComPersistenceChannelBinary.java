@@ -68,7 +68,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		
 		private final BufferSizeProvider bufferSizeProvider;
 		private       ByteBuffer         defaultBufferRead;
-		private		  ByteBuffer		 defaultBufferWrite;
+		private       ByteBuffer         defaultBufferWrite;
 		
 		
 		
