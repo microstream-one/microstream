@@ -155,7 +155,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		}
 		
 		@Override
-		protected XGettingCollection<? extends Binary> internalRead(final ComConnection channel)
+		protected XGettingCollection<? extends Binary> internalRead(final ComConnection connection)
 			throws PersistenceExceptionTransfer
 		{
 			final ByteBuffer defaultBuffer = this.ensureDefaultBufferRead();
@@ -166,7 +166,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 			try
 			{
 				filledContentBuffer = ComBinary.readChunk(
-					channel,
+					connection,
 					defaultBuffer,
 					this.switchByteOrder()
 				);
@@ -193,7 +193,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		}
 
 		@Override
-		protected void internalWrite(final ComConnection channel, final Binary chunk)
+		protected void internalWrite(final ComConnection connection, final Binary chunk)
 			throws PersistenceExceptionTransfer
 		{
 //			this.DEBUG_printTargetByteOrder();
@@ -212,7 +212,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 						
 			try
 			{
-				ComBinary.writeChunk(channel, defaultBuffer, chunk.buffers());
+				ComBinary.writeChunk(connection, defaultBuffer, chunk.buffers());
 			}
 			catch(final ComException e)
 			{
