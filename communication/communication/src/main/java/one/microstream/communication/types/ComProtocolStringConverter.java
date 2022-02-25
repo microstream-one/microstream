@@ -31,6 +31,7 @@ import one.microstream.chars.XParsing;
 import one.microstream.chars._charArrayRange;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
+import one.microstream.com.ComException;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.types.PersistenceIdStrategy;
 import one.microstream.persistence.types.PersistenceIdStrategyStringConverter;
@@ -355,7 +356,6 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		
 		private int parseInteger(final String input)
 		{
-			//TODO: consider byteOrder?
 			return Integer.valueOf(input);
 		}
 		
@@ -380,9 +380,6 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 				KeyValue(this.labelByteOrder()         , null),
 				KeyValue(this.labelInactivityTimeout() , null),
 				KeyValue(this.labelIdStrategy()        , null)
-				
-				// type dictionary is a special trailing entry
-//				KeyValue(this.labelTypeDictionary() , null)
 			);
 		}
 
@@ -435,8 +432,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 				}
 				catch(final RuntimeException e)
 				{
-					// (04.11.2018 TM)EXCP: proper exception
-					throw new RuntimeException("Invalid entry '" + entry.key() + "' at index " + i, e);
+					throw new ComException("Invalid entry '" + entry.key() + "' at index " + i, e);
 				}
 			}
 			
@@ -477,8 +473,7 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			final String trailingValue = new String(input, iStart, iBound - iStart);
 			if(!content.add(label, trailingValue))
 			{
-				// (04.11.2018 TM)EXCP: proper exception
-				throw new RuntimeException("Duplicate entry '" + label + "'.");
+				throw new ComException("Duplicate entry '" + label + "'.");
 			}
 		}
 		
