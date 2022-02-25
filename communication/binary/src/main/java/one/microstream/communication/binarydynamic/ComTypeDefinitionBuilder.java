@@ -52,8 +52,8 @@ public class ComTypeDefinitionBuilder
 	/////////////////
 	
 	public ComTypeDefinitionBuilder(
-		final PersistenceTypeDictionaryParser 				typeDictionaryParser,
-		final PersistenceTypeDefinitionCreator 				typeDefinitionCreator,
+		final PersistenceTypeDictionaryParser				typeDictionaryParser,
+		final PersistenceTypeDefinitionCreator				typeDefinitionCreator,
 		final PersistenceTypeDescriptionResolverProvider	typeDescriptionResolverProvider)
 	{
 		super();
