@@ -35,7 +35,6 @@ import one.microstream.collections.types.XAddingEnum;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingEnum;
 import one.microstream.equality.Equalator;
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistency;
@@ -472,7 +471,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			);
 			this.registerLegacyTypeHandler(legacyTypeHandler);
 			
-			XDebug.println("registered legacy type handler for " + legacyTypeHandler.typeName() + " " + legacyTypeHandler.typeId());
+			logger.debug("registered legacy type handler for {} with id {}", legacyTypeHandler.typeName(), legacyTypeHandler.typeId());
 			
 			return legacyTypeHandler;
 		}
@@ -490,7 +489,6 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		{
 			synchronized(this.typeHandlerRegistry)
 			{
-//				typeDefinitions.iterate(this::ensureTypeHandler);
 				typeDefinitions.iterate(typeDefinition ->
 					this.ensureTypeHandler(typeDefinition) // debug-friendlier
 				);
@@ -1208,9 +1206,9 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		}
 
 		@Override
-		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) 
+		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer)
 		{
-			this.typeHandlerRegistry.iteratePerIds(consumer);			
+			this.typeHandlerRegistry.iteratePerIds(consumer);
 		}
 
 	}
