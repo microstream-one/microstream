@@ -32,23 +32,29 @@ import java.nio.channels.NetworkChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import org.slf4j.Logger;
+
 import one.microstream.memory.XMemory;
+import one.microstream.util.logging.Logging;
 
 public final class XSockets
 {
+	private final static Logger logger = Logging.getLogger(XSockets.class);
+	
 	public static ByteOrder byteOrder()
 	{
 		return ByteOrder.nativeOrder();
 	}
-	
 	
 	public static final ServerSocketChannel openServerSocketChannel(final InetSocketAddress address)
 		throws ComException
 	{
 		try
 		{
+			logger.debug("creating server socket with adresss {}", address);
 			final ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
 			serverSocketChannel.socket().bind(address);
+			logger.debug("bound ServerSocketChannel to {}", serverSocketChannel);
 			return serverSocketChannel;
 		}
 		catch(final IOException e)
@@ -249,16 +255,60 @@ public final class XSockets
 		public void execute(SocketChannel channel, ByteBuffer buffer) throws ComException; // funny "public"
 	}
 	
-	public static void read(final SocketChannel channel, final ByteBuffer buffer) throws ComException
+	public static int read(final SocketChannel channel, final ByteBuffer buffer) throws ComException
 	{
+		final int numBytesRead;
 		try
 		{
-			channel.read(buffer);
+			numBytesRead = channel.read(buffer);
 		}
 		catch(final IOException e)
 		{
-			throw new ComException(e);
+			throw new ComException("channel read failed", e);
 		}
+		
+		if(numBytesRead < 0 )
+		{
+			throw new ComException("channel reached end of stream");
+		}
+		
+		return numBytesRead;
+	}
+	
+	public static ByteBuffer read(final SocketChannel channel, final ByteBuffer buffer, final int length)
+	{
+		final ByteBuffer checkedBuffer;
+
+		if(length > buffer.capacity())
+		{
+			checkedBuffer = XMemory.allocateDirectNative(length);
+		}
+		else
+		{
+			(checkedBuffer = buffer).clear().limit(length);
+		}
+				
+		do
+		{
+			read(channel, checkedBuffer);
+			
+			if(checkedBuffer.hasRemaining())
+			{
+				try
+				{
+					Thread.sleep(IO_LOOP_SLEEP_TIME);
+				}
+				catch(final InterruptedException e)
+				{
+					throw new ComException(e);
+				}
+			}
+		}
+		while(checkedBuffer.hasRemaining());
+		
+		read(channel, checkedBuffer);
+		
+		return checkedBuffer;
 	}
 	
 	public static void write(final SocketChannel channel, final ByteBuffer buffer) throws ComException
@@ -331,7 +381,7 @@ public final class XSockets
 		}
 	}
 	
-	
+
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -347,4 +397,5 @@ public final class XSockets
 		// static only
 		throw new UnsupportedOperationException();
 	}
+
 }

@@ -22,7 +22,6 @@ package one.microstream.communication.types;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteOrder;
-import java.nio.channels.SocketChannel;
 
 import one.microstream.collections.HashEnum;
 import one.microstream.collections.types.XEnum;
@@ -41,6 +40,10 @@ extends InstanceDispatcher
 	
 	public ByteOrder getHostByteOrder();
 	
+	public int getInactivityTimeout();
+	
+	public int getClientConnectTimeout();
+	
 	public PersistenceIdStrategy getClientIdStrategy();
 			
 	public ComProtocolProvider<C> getProtocolProvider();
@@ -48,7 +51,6 @@ extends InstanceDispatcher
 	public ComProtocolProviderCreator<C> getProtocolProviderCreator();
 	
 	public ComProtocolCreator getProtocolCreator();
-	
 	
 	public ComProtocolStringConverter getProtocolStringConverter();
 	
@@ -76,6 +78,10 @@ extends InstanceDispatcher
 	
 	public ComConnectionLogicDispatcher<C> getConnectionLogicDispatcher();
 	
+	//Custom handler for channel errors
+	public ComHostExceptionHandler<C> getHostExceptionHandler();
+	
+	public ComPeerIdentifier getPeerIdentifier();
 	
 	// the port applies to host and client alike, that's what using a common channel is all about.
 	public int getPort();
@@ -90,6 +96,19 @@ extends InstanceDispatcher
 	public F setProtocolVersion(String protocolVersion);
 	
 	public F setHostByteOrder(ByteOrder hostByteOrder);
+	
+	/**
+	 * 
+	 * @param inactivityTimeout inactivity timeout in milliseconds
+	 * @return this
+	 */
+	public F setInactivityTimeout(int inactivityTimeout);
+	
+	/**
+	 * @param clientConnectTimeout Timeout for client connection attempts in milliseconds
+	 * @return this
+	 */
+	public F setClientConnectTimeout(int clientConnectTimeout);
 	
 	public F setClientIdStrategy(PersistenceIdStrategy idStrategy);
 	
@@ -139,6 +158,8 @@ extends InstanceDispatcher
 	
 	public F setClientTargetAddress(InetSocketAddress clientTargetAddress);
 	
+	public F setHostExceptionHandler(ComHostExceptionHandler<C> exceptionHandler);
+	
 	public ComHost<C> createHost();
 	
 	public ComClient<C> createClient();
@@ -160,10 +181,12 @@ extends InstanceDispatcher
 		private int                             port                     ;
 		private InetSocketAddress               hostBindingAddress       ;
 		private InetSocketAddress               clientTargetAddress      ;
+		private int                             clientConnectTimeout     ;
 		
 		private String                          protocolName             ;
 		private String                          protocolVersion          ;
-		private ByteOrder                       hostByteOrder                ;
+		private ByteOrder                       hostByteOrder            ;
+		private int                             inactivityTimeout        ;
 		private PersistenceIdStrategy           clientIdStrategy         ;
 		private ComProtocolCreator              protocolCreator          ;
 		private ComProtocolProvider<C>          protocolProvider         ;
@@ -186,6 +209,8 @@ extends InstanceDispatcher
 		
 		private ComClientCreator<C>             clientCreator            ;
 		private ComConnectionLogicDispatcher<C> connectionLogicDispatcher;
+		private ComHostExceptionHandler<C>      hostExceptionHandler     ;
+		private ComPeerIdentifier               peerIdentifier           ;
 
 		
 		
@@ -219,6 +244,18 @@ extends InstanceDispatcher
 			}
 			
 			return this.hostByteOrder;
+		}
+		
+		@Override
+		public int getInactivityTimeout()
+		{
+			return this.inactivityTimeout;
+		}
+		
+		@Override
+		public int getClientConnectTimeout()
+		{
+			return this.clientConnectTimeout;
 		}
 		
 		@Override
@@ -449,6 +486,7 @@ extends InstanceDispatcher
 				this.connectionHandler = this.ensureConnectionHandler();
 			}
 
+			this.connectionHandler.setClientConnectTimeout(this.getClientConnectTimeout());
 			return this.getConnectionLogicDispatcher().dispatch(this.connectionHandler);
 		}
 		
@@ -462,12 +500,39 @@ extends InstanceDispatcher
 			
 			return this.getConnectionLogicDispatcher().dispatch(this.connectionAcceptorCreator);
 		}
+		
+		@Override
+		public ComHostExceptionHandler<C> getHostExceptionHandler()
+		{
+			if(this.hostExceptionHandler == null)
+			{
+				this.hostExceptionHandler = this.ensureHostExceptionHandler();
+			}
+			
+			return this.hostExceptionHandler;
+		}
+		
+		@Override
+		public ComPeerIdentifier getPeerIdentifier()
+		{
+			if(this.peerIdentifier == null)
+			{
+				this.peerIdentifier = this.ensurePeerIdentifier();
+			}
+			
+			return this.peerIdentifier;
+		}
 
 		/*
 		 * "ensure" methods guarantee that a non-null/non-zero value is returned.
 		 * Either by returning an existing one (e.g. a constant) or by creating a new instance of the specified type.
 		 * If both options are not possible, the method will throw a MissingFoundationPartException.
 		 */
+	
+		protected ComPeerIdentifier ensurePeerIdentifier()
+		{
+			return ComPeerIdentifier.New();
+		}
 
 		protected String ensureProtocolName()
 		{
@@ -527,6 +592,7 @@ extends InstanceDispatcher
 				this.getProtocolName()          ,
 				this.getProtocolVersion()       ,
 				this.getHostByteOrder()         ,
+				this.getInactivityTimeout()     ,
 				this.getClientIdStrategy()      ,
 				this.getHostPersistenceAdaptor(),
 				this.getProtocolCreator()
@@ -614,7 +680,11 @@ extends InstanceDispatcher
 			);
 		}
 				
-
+		protected ComHostExceptionHandler<C> ensureHostExceptionHandler()
+		{
+			return ComHostExceptionHandler.New(this.getConnectionHandler());
+		}
+		
 		
 		@Override
 		public F setProtocolName(final String protocolName)
@@ -638,9 +708,23 @@ extends InstanceDispatcher
 		}
 		
 		@Override
+		public F setInactivityTimeout(final int inactivityTimeout)
+		{
+			this.inactivityTimeout = inactivityTimeout;
+			return this.$();
+		}
+		
+		@Override
 		public F setClientIdStrategy(final PersistenceIdStrategy idStrategy)
 		{
 			this.clientIdStrategy = idStrategy;
+			return this.$();
+		}
+		
+		@Override
+		public F setClientConnectTimeout(final int clientConnectTimeout)
+		{
+			this.clientConnectTimeout = clientConnectTimeout;
 			return this.$();
 		}
 				
@@ -803,17 +887,26 @@ extends InstanceDispatcher
 			this.hostIdStrategy = hostIdStrategy;
 			return this.$();
 		}
+		
+		@Override
+		public F setHostExceptionHandler(final ComHostExceptionHandler<C> exceptionHandler)
+		{
+			this.hostExceptionHandler = exceptionHandler;
+			return this.$();
+		}
 				
 		@Override
 		public ComHost<C> createHost()
 		{
 			final ComConnectionAcceptorCreator<C> conAccCreator = this.getConnectionAcceptorCreator();
 			final ComConnectionAcceptor<C> connectionAcceptor = conAccCreator.createConnectionAcceptor(
-				this.getProtocolProvider()       ,
-				this.getProtocolStringConverter(),
-				this.getConnectionHandler()      ,
-				this.getHostPersistenceAdaptor() ,
-				this.getHostChannelAcceptor()
+				this.getProtocolProvider()          ,
+				this.getProtocolStringConverter()   ,
+				this.getConnectionHandler()         ,
+				this.getHostPersistenceAdaptor()    ,
+				this.getHostChannelAcceptor()       ,
+				this.getHostExceptionHandler()      ,
+				this.getPeerIdentifier()
 			);
 
 			final ComHostCreator<C> hostCreator = this.getHostCreator();
@@ -823,7 +916,7 @@ extends InstanceDispatcher
 				connectionAcceptor
 			);
 		}
-		
+				
 		@Override
 		public ComClient<C> createClient()
 		{
@@ -833,14 +926,15 @@ extends InstanceDispatcher
 				this.getClientTargetAddress()     ,
 				this.getConnectionHandler()       ,
 				this.getProtocolStringConverter() ,
-				this.getClientPersistenceAdaptor()
+				this.getClientPersistenceAdaptor(),
+				this.getInactivityTimeout()
 			);
 		}
 		
 	}
 	
 	public class Default<F extends ComFoundation.Default<F>>
-	extends ComFoundation.Abstract<SocketChannel, F>
+	extends ComFoundation.Abstract<ComConnection, F>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -858,7 +952,7 @@ extends InstanceDispatcher
 		////////////
 		
 		@Override
-		protected ComHostChannelAcceptor<SocketChannel> ensureHostChannelAcceptor()
+		protected ComHostChannelAcceptor<ComConnection> ensureHostChannelAcceptor()
 		{
 			return Com::bounce;
 		}

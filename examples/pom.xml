@@ -30,6 +30,7 @@
 		<module>lazy-loading</module>
 		<module>loading</module>
 		<module>storing</module>
+		<module>communication</module>
 	</modules>
 	
 	<dependencyManagement>

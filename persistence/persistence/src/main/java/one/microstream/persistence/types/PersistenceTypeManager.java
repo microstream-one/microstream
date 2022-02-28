@@ -22,6 +22,8 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import java.util.function.BiConsumer;
+
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyUnknownTid;
 import one.microstream.reference.Swizzling;
@@ -194,6 +196,12 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 				throw new PersistenceExceptionConsistencyUnknownTid(typeId);
 			}
 			return type;
+		}
+
+		@Override
+		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) 
+		{
+			this.typeRegistry.iteratePerIds(consumer);			
 		}
 
 	}
