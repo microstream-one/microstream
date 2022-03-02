@@ -849,6 +849,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				throw new StorageExceptionConsistency("No entity found for objectId " + objectId);
 			}
 			entry.copyCachedData(this.dataCollector);
+			this.entityCache.checkForCacheClear(entry, System.currentTimeMillis());
 		}
 
 	}
@@ -898,6 +899,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			for(StorageEntity.Default entity = type.head; (entity = entity.typeNext) != null;)
 			{
 				entity.copyCachedData(this.dataCollector);
+				this.entityCache.checkForCacheClear(entity, System.currentTimeMillis());
 			}
 		}
 

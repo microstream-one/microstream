@@ -873,7 +873,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			entity.setDeleted();
 		}
 
-		private void checkForCacheClear(final StorageEntity.Default entry, final long evalTime)
+		void checkForCacheClear(final StorageEntity.Default entry, final long evalTime)
 		{
 			if(this.entityCacheEvaluator.clearEntityCache(this.usedCacheSize, evalTime, entry))
 			{
