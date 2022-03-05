@@ -39,7 +39,8 @@ public class ComExceptionRemoteClassNotFound extends ComException
 	 * 
 	 * @param typeName the type name of the missing class
 	 */
-	public ComExceptionRemoteClassNotFound(final String typeName) {
+	public ComExceptionRemoteClassNotFound(final String typeName)
+	{
 		super("Class not found: " + typeName);
 	}
 

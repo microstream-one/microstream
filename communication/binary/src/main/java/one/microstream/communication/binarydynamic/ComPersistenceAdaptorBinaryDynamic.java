@@ -282,7 +282,8 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 
 	private void ensureTypeHandlers(final PersistenceTypeHandlerManager<Binary> typeHandlerManager, final ComProtocol protocol)
 	{
-		for (final KeyValue<Long, PersistenceTypeDefinition> entry : protocol.typeDictionary().allTypeDefinitions()) {
+		for (final KeyValue<Long, PersistenceTypeDefinition> entry : protocol.typeDictionary().allTypeDefinitions())
+		{
 			typeHandlerManager.ensureTypeHandler(entry.value());
 		}
 	}

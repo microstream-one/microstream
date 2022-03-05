@@ -189,12 +189,13 @@ implements PersistenceTypeHandlerProvider<D>
 	}
 
 	@Override
-	public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) {
+	public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer)
+	{
 		/*
 		 * This is not an API OOP misdesign abuse of this exception (like in the JDK), but
 		 * rather this implementation actually does not support that operation.
 		 */
-		throw new UnsupportedOperationException();		
+		throw new UnsupportedOperationException();
 	}
 
 }
