@@ -127,8 +127,8 @@ public final class ByteBufferInputStream extends InputStream
 		return this.internalRead(buffer ->
 		{
 			final int amount = Math.min(length, buffer.remaining());
-	        buffer.get(bytes, offset, amount);
-	        return amount;
+			buffer.get(bytes, offset, amount);
+			return amount;
 		});
 	}
 

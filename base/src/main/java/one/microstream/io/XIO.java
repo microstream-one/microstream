@@ -537,15 +537,15 @@ public final class XIO
 	{
 		try(DirectoryStream<Path> stream = Files.newDirectoryStream(directory))
 		{
-	        for(final Path p : stream)
-	        {
-	        	if(!selector.test(p))
-	        	{
-	        		continue;
-	        	}
-	        	logic.accept(p);
-	        }
-	    }
+			for(final Path p : stream)
+			{
+				if(!selector.test(p))
+				{
+					continue;
+				}
+				logic.accept(p);
+			}
+		}
 		
 		return logic;
 	}
@@ -556,8 +556,8 @@ public final class XIO
 	{
 		try(DirectoryStream<Path> stream = Files.newDirectoryStream(directory))
 		{
-	        return !stream.iterator().hasNext();
-	    }
+			return !stream.iterator().hasNext();
+		}
 		catch(final IOException e)
 		{
 			throw e;
@@ -1328,7 +1328,7 @@ public final class XIO
 	 * For any special needs like copying from and/or to a position and/or only a part of the file and/or using
 	 * custom OpenOptions and/or modifying file timestamps and or performing pre- or post-actions, it is strongly
 	 * suggested to write a custom tailored version of a copying method. Covering all conceivable cases would result
-	 * in an overly complicated one-size-fits-all attempt and we all know how well those work in practice.	 *
+	 * in an overly complicated one-size-fits-all attempt and we all know how well those work in practice.
 	 * 
 	 * @param sourceFile the source file whose content shall be copied.
 	 * @param targetFile the target file that shall receive the copied content. Must already exist!

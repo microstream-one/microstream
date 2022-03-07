@@ -68,14 +68,18 @@ public class ComTLSConnection implements ComConnection
 	
 	private final Logger logger = Logging.getLogger(ComConnection.class);
 	
+	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
 	/////////////////
 	
-	public ComTLSConnection(final SocketChannel channel,
-		final SSLContext sslContext,
+	public ComTLSConnection(
+		final SocketChannel         channel             ,
+		final SSLContext            sslContext          ,
 		final TLSParametersProvider tlsParameterProvider,
-		final boolean clientMode)
+		final boolean               clientMode
+	)
 	{
 		super();
 		this.readTimeOut          = tlsParameterProvider.getHandshakeReadTimeOut();
@@ -85,6 +89,7 @@ public class ComTLSConnection implements ComConnection
 		this.tlsParameterProvider = tlsParameterProvider;
 	}
 
+	
 	
 	///////////////////////////////////////////////////////////////////////////
 	// methods //

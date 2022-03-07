@@ -1262,8 +1262,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		{
 			/* Note:
 			 * (see field declarations)
-             * 1.0) all final fields don't have to (can't) be resetted. Obviously.
-             * 1.1) entryBuffers don't have to be resetted since they get filled anew for every write.
+			 * 1.0) all final fields don't have to (can't) be resetted. Obviously.
+			 * 1.1) entryBuffers don't have to be resetted since they get filled anew for every write.
 			 */
 			
 			// 2.0) final references to mutable instances
@@ -1393,7 +1393,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				 */
 				throw new StorageExceptionConsistency(
 					this.channelIndex() + " has inconsistent pending deletes: count = "
-				  + this.pendingFileDeletes + ", wants to delete " + file
+					+ this.pendingFileDeletes + ", wants to delete " + file
 				);
 			}
 			this.pendingFileDeletes--;
@@ -1593,7 +1593,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			{
 				if(file.head.fileNext != startingFile.tail)
 				{
-					if(file.hasContent()) 
+					if(file.hasContent())
 					{
 						return file.head.fileNext;
 					}

@@ -197,11 +197,11 @@ public interface LazyReferenceManager
 		private final    Entry          head   = new Entry(null)      ;
 		private          Entry          tail   = this.head            ;
 		private          Entry          cursor = this.head            ; // current "last" entry for checking
-
-        private boolean         running        ;
+		
+		private boolean         running        ;
 		private ControllerEntry headController ;
 		private long            controllerCount;
-
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////

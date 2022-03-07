@@ -103,8 +103,8 @@ public final class BinaryHandlerStack extends AbstractBinaryHandlerCustomIterabl
 			handler
 		);
 		bytes.store_int(
-		    BINARY_OFFSET_CAPACITY_INCREMENT,
-		    SunJdk8Internals.getCapacityIncrement(instance)
+			BINARY_OFFSET_CAPACITY_INCREMENT,
+			SunJdk8Internals.getCapacityIncrement(instance)
 		);
 	}
 

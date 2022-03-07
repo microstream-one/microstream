@@ -61,8 +61,8 @@ public interface XSortableSequence<E> extends XGettingSequence<E>, Sortable<E>, 
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * 	Unlike the {@link #toReversed()} method, this method does not create a new collection,
-	 * 	but changes the order of its own elements.
+	 * Unlike the {@link #toReversed()} method, this method does not create a new collection,
+	 * but changes the order of its own elements.
 	 */
 	@Override
 	public XSortableSequence<E> reverse();
@@ -76,8 +76,8 @@ public interface XSortableSequence<E> extends XGettingSequence<E>, Sortable<E>, 
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * 	Unlike the {@link #reverse()} method, this method creates a new collection and does not change the
-	 * 	existing collection.
+	 * Unlike the {@link #reverse()} method, this method creates a new collection and does not change the
+	 * existing collection.
 	 */
 	@Override
 	public XSortableSequence<E> toReversed();

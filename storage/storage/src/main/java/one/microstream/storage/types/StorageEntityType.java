@@ -76,7 +76,7 @@ public interface StorageEntityType<E extends StorageEntity>
 		private final StorageEntityTypeHandler typeHandler             ;
 		private final boolean                  hasReferences           ;
 		private final long                     simpleReferenceDataCount;
-                                               
+		
 		private       long                     entityCount             ;
 		StorageEntityType.Default              hashNext                ;
 		StorageEntityType.Default              next                    ;

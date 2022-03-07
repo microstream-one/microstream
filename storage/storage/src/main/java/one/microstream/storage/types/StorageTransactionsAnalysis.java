@@ -310,7 +310,7 @@ public interface StorageTransactionsAnalysis
 		{
 			final long actualFileLength    = file.size()    ;
 			final long boundPosition       = startPosition + length;
-		          long currentFilePosition = startPosition         ;
+			      long currentFilePosition = startPosition         ;
 
 			if(currentFilePosition < 0 || currentFilePosition > actualFileLength)
 			{

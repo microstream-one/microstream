@@ -246,7 +246,7 @@ public interface StorageConnection extends Persister
 				)
 			);
 		}
-		else		
+		else
 		{
 			throw new StorageExceptionBackupFullBackupTargetNotEmpty(targetDirectory);
 		}

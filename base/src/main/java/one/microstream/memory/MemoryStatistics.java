@@ -28,37 +28,37 @@ package one.microstream.memory;
 public interface MemoryStatistics
 {
 	/**
-     * Returns the maximum amount of memory in bytes that can be
-     * used for memory management.  This method returns <code>-1</code>
-     * if the maximum memory size is undefined.
-     *
-     * <p> This amount of memory is not guaranteed to be available
-     * for memory management if it is greater than the amount of
-     * committed memory.  The Java virtual machine may fail to allocate
-     * memory even if the amount of used memory does not exceed this
-     * maximum size.
-     *
-     * @return the maximum amount of memory in bytes;
-     * <code>-1</code> if undefined.
-     */
+	 * Returns the maximum amount of memory in bytes that can be
+	 * used for memory management.  This method returns <code>-1</code>
+	 * if the maximum memory size is undefined.
+	 *
+	 * <p> This amount of memory is not guaranteed to be available
+	 * for memory management if it is greater than the amount of
+	 * committed memory.  The Java virtual machine may fail to allocate
+	 * memory even if the amount of used memory does not exceed this
+	 * maximum size.
+	 *
+	 * @return the maximum amount of memory in bytes;
+	 * <code>-1</code> if undefined.
+	 */
 	public long max();
 	
 	/**
-     * Returns the amount of memory in bytes that is committed for
-     * the Java virtual machine to use.  This amount of memory is
-     * guaranteed for the Java virtual machine to use.
-     *
-     * @return the amount of committed memory in bytes.
-     *
-     */
+	 * Returns the amount of memory in bytes that is committed for
+	 * the Java virtual machine to use.  This amount of memory is
+	 * guaranteed for the Java virtual machine to use.
+	 *
+	 * @return the amount of committed memory in bytes.
+	 *
+	 */
 	public long committed();
 	
 	/**
-     * Returns the amount of used memory in bytes.
-     *
-     * @return the amount of used memory in bytes.
-     *
-     */
+	 * Returns the amount of used memory in bytes.
+	 *
+	 * @return the amount of used memory in bytes.
+	 *
+	 */
 	public long used();
 		
 	
@@ -71,7 +71,6 @@ public interface MemoryStatistics
 		return new Default(max, committed, used);
 	}
 	
-		
 	public static class Default implements MemoryStatistics
 	{
 		///////////////////////////////////////////////////////////////////////////

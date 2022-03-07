@@ -76,12 +76,13 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 	/////////////////
 	
 	protected ComPersistenceAdaptorBinaryDynamic(
-		final BinaryPersistenceFoundation<?> foundation,
+		final BinaryPersistenceFoundation<?> foundation        ,
 		final BufferSizeProvider             bufferSizeProvider,
 		final PersistenceIdStrategy          hostInitIdStrategy,
-		final XGettingEnum<Class<?>>         entityTypes,
-		final ByteOrder                      hostByteOrder,
-		final PersistenceIdStrategy          hostIdStrategy)
+		final XGettingEnum<Class<?>>         entityTypes       ,
+		final ByteOrder                      hostByteOrder     ,
+		final PersistenceIdStrategy          hostIdStrategy
+	)
 	{
 		super();
 		this.foundation         = foundation;
@@ -98,7 +99,7 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 			final BufferSizeProvider             bufferSizeProvider,
 			final PersistenceIdStrategy          hostInitIdStrategy,
 			final XGettingEnum<Class<?>>         entityTypes       ,
-			final ByteOrder                      hostByteOrder,
+			final ByteOrder                      hostByteOrder     ,
 			final PersistenceIdStrategy          hostIdStrategy
 		)
 		{
@@ -245,14 +246,15 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 	}
 	
 	@Override
-	public BinaryPersistenceFoundation<?> provideClientPersistenceFoundation(final ComConnection connection,
-			final ComProtocol protocol)
+	public BinaryPersistenceFoundation<?> provideClientPersistenceFoundation(
+		final ComConnection connection,
+		final ComProtocol   protocol
+	)
 	{
 		final BinaryPersistenceFoundation<?> clientFoundation = this.createInitializationFoundation();
-				
-		clientFoundation.setTargetByteOrder      (protocol.byteOrder());
-		clientFoundation.setObjectIdProvider     (protocol.idStrategy().createObjectIdProvider());
-		clientFoundation.setTypeIdProvider       (protocol.idStrategy().createTypeIdProvider());
+		clientFoundation.setTargetByteOrder (protocol.byteOrder());
+		clientFoundation.setObjectIdProvider(protocol.idStrategy().createObjectIdProvider());
+		clientFoundation.setTypeIdProvider  (protocol.idStrategy().createTypeIdProvider());
 				
 		final PersistenceTypeDictionaryManager typeDictionaryManager = PersistenceTypeDictionaryManager.Transient(
 			clientFoundation.getTypeDictionaryCreator());
@@ -268,11 +270,11 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 		this.ensureTypeHandlers(typeHandlerManager, protocol);
 		
 		final ComPersistenceChannelBinary.Default channel = ComPersistenceChannelBinary.New(
-				connection,
-				this.bufferSizeProvider(),
-				clientFoundation,
-				this.comWriteController()
-			);
+			connection,
+			this.bufferSizeProvider(),
+			clientFoundation,
+			this.comWriteController()
+		);
 		
 		clientFoundation.setPersistenceChannel(channel);
 		
@@ -290,39 +292,38 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 
 	@Override
 	public ComHostChannel<ComConnection> createHostChannel(
-		final ComConnection connection,
-		final ComProtocol protocol,
-		final ComHost<ComConnection> parent)
+		final ComConnection          connection,
+		final ComProtocol            protocol  ,
+		final ComHost<ComConnection> parent
+	)
 	{
-		final PersistenceFoundation<?, ?>                hf  = this.hostConnectionFoundation(connection);
-		final PersistenceManager<?>                      pm  = hf.createPersistenceManager();
+		final PersistenceFoundation<?, ?>          hf  = this.hostConnectionFoundation(connection);
+		final PersistenceManager<?>                pm  = hf.createPersistenceManager();
 		@SuppressWarnings("unchecked")
-		final PersistenceTypeHandlerManager<Binary>      thm = (PersistenceTypeHandlerManager<Binary>) hf.getTypeHandlerManager();
+		final PersistenceTypeHandlerManager<Binary>thm = (PersistenceTypeHandlerManager<Binary>)hf.getTypeHandlerManager();
 		
 		final ComTypeDefinitionBuilder typeDefinitionBuilder = new ComTypeDefinitionBuilder(
 			hf.getTypeDictionaryParser(),
 			hf.getTypeDefinitionCreator(),
 			hf.getTypeDescriptionResolverProvider());
 				
-		final ComHostChannelDynamic<ComConnection> channel = new ComHostChannelDynamic<>
-		(
+		final ComHostChannelDynamic<ComConnection> channel = new ComHostChannelDynamic<>(
 			pm,
 			connection,
 			protocol,
 			parent,
 			thm,
 			typeDefinitionBuilder,
-			this.foundation.getTypeHandlerEnsurer());
+			this.foundation.getTypeHandlerEnsurer()
+		);
 		
-		final ComTypeMappingResolver tmr = new ComTypeMappingResolver
-		(
+		final ComTypeMappingResolver tmr = new ComTypeMappingResolver(
 			hf.getTypeDictionaryAssembler(),
 			connection,
 			protocol.typeDictionary(),
 			thm,
 			typeDefinitionBuilder
 		);
-				
 		tmr.resolveHost();
 		
 		return channel;
@@ -330,18 +331,19 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 	
 	@Override
 	public ComClientChannel<ComConnection> createClientChannel(
-		final ComConnection connection,
-		final ComProtocol protocol,
-		final ComClient<ComConnection> parent)
+		final ComConnection            connection,
+		final ComProtocol              protocol  ,
+		final ComClient<ComConnection> parent
+	)
 	{
 		final BinaryPersistenceFoundation<?> clientFoundation = this.provideClientPersistenceFoundation(connection, protocol);
 		final PersistenceTypeHandlerManager<Binary> thm = clientFoundation.getTypeHandlerManager();
 		
 		final ComTypeDefinitionBuilder typeDefinitionBuilder = new ComTypeDefinitionBuilder(
-				clientFoundation.getTypeDictionaryParser(),
-				clientFoundation.getTypeDefinitionCreator(),
-				clientFoundation.getTypeDescriptionResolverProvider());
-		
+			clientFoundation.getTypeDictionaryParser(),
+			clientFoundation.getTypeDefinitionCreator(),
+			clientFoundation.getTypeDescriptionResolverProvider()
+		);
 		
 		final PersistenceManager<?> pm = clientFoundation.createPersistenceManager();
 	
@@ -352,7 +354,8 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 			parent,
 			thm,
 			typeDefinitionBuilder,
-			this.foundation.getTypeHandlerEnsurer());
+			this.foundation.getTypeHandlerEnsurer()
+		);
 		
 		final ComTypeMappingResolver tmr = new ComTypeMappingResolver
 		(
@@ -362,9 +365,7 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 			thm,
 			typeDefinitionBuilder
 		);
-		
 		tmr.resolveClient();
-		
 		
 		return channel;
 	}
@@ -373,7 +374,6 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 	public PersistenceTypeDictionary provideTypeDictionaryInternal()
 	{
 		final PersistenceFoundation<?, ?> initFoundation = this.createInitializationFoundation();
-		
 		initFoundation.setTargetByteOrder      (this.hostByteOrder());
 		initFoundation.setObjectIdProvider     (this.hostIdStrategy().createObjectIdProvider());
 		initFoundation.setTypeIdProvider       (this.hostIdStrategy().createTypeIdProvider());
@@ -396,8 +396,8 @@ public class ComPersistenceAdaptorBinaryDynamic implements ComPersistenceAdaptor
 			typeHandlerManager.ensureTypeHandler(c)
 		);
 		
-		typeHandlerManager.iteratePerIds((k,v) -> {
-		
+		typeHandlerManager.iteratePerIds((k,v) ->
+		{
 			if(!v.isPrimitive() && typeHandlerManager.lookupTypeHandler(v) == null)
 			{
 				try

@@ -52,7 +52,8 @@ public abstract class ComChannelDynamic<C> implements ComChannel
 	public ComChannelDynamic(
 		final PersistenceManager<?> persistenceManager,
 		final C                     connection,
-		final ComProtocol           protocol)
+		final ComProtocol           protocol
+	)
 	{
 		this.connection         = connection;
 		this.persistenceManager = persistenceManager;

@@ -1018,9 +1018,10 @@ public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 
 	@Override
 	public final <T extends Consumer<? super KeyValue<K, V>>> T union(
-		final XGettingCollection<? extends KeyValue<K, V>> other,
-		final Equalator<? super KeyValue<K, V>> equalator,
-		final T target)
+		final XGettingCollection<? extends KeyValue<K, V>> other    ,
+		final Equalator<? super KeyValue<K, V>>            equalator,
+		final T                                            target
+	)
 	{
 		synchronized(this.lock)
 		{

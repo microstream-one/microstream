@@ -44,10 +44,10 @@ import java.nio.ByteBuffer;
  * For JDK 8:
  * <pre>{@code
  * // compensate missing proper typing in JDK
- *if(!(directByteBuffer instanceof sun.nio.ch.DirectBuffer))
- *{
- *	return; // or throw exception
- *}
+ * if(!(directByteBuffer instanceof sun.nio.ch.DirectBuffer))
+ * {
+ * 	return; // or throw exception
+ * }
  *
  *sun.misc.Cleaner cleaner = ((sun.nio.ch.DirectBuffer)directByteBuffer).cleaner();
  *

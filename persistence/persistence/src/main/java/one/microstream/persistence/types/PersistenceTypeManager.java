@@ -186,7 +186,7 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 				this.tidProvider.updateCurrentTypeId(highestTypeId);
 			}
 		}
-
+		
 		@Override
 		public Class<?> ensureType(final long typeId)
 		{
@@ -197,13 +197,13 @@ public interface PersistenceTypeManager extends PersistenceTypeRegistry
 			}
 			return type;
 		}
-
+		
 		@Override
-		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) 
+		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer)
 		{
-			this.typeRegistry.iteratePerIds(consumer);			
+			this.typeRegistry.iteratePerIds(consumer);
 		}
-
+		
 	}
 
 }

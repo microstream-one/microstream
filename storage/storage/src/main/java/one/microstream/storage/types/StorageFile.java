@@ -417,7 +417,7 @@ public interface StorageFile
 		}
 
 		public synchronized boolean close()
-		{		
+		{
 			boolean result = false;
 			
 			if(this.writeAccess != null)
@@ -426,7 +426,7 @@ public interface StorageFile
 				 this.writeAccess = null;
 			}
 			
-			if(this.readAccess != null ) 
+			if(this.readAccess != null )
 			{
 				result = this.readAccess.release();
 				this.readAccess = null;

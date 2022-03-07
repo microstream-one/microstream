@@ -171,8 +171,12 @@ public final class XUtilsArrayCollection
 		return AbstractArrayStorage.rangedIsSorted(a.internalGetStorageArray(), XTypes.to_int(a.size()), offset, length, comparator);
 	}
 
-	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>,
-	C extends Consumer<? super E>> C rngCopyTo(final A a, final int offset, final int length, final C target)
+	public static final <
+		E,
+		A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>,
+		C extends Consumer<? super E>
+	>
+	C rngCopyTo(final A a, final int offset, final int length, final C target)
 	{
 		return AbstractArrayStorage.rangedCopyTo(a.internalGetStorageArray(), XTypes.to_int(a.size()), offset, length, target);
 	}

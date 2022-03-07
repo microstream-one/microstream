@@ -202,10 +202,10 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		private       long      pendingMarksCount      ;
 		private final boolean[] pendingStoreUpdates    ;
 		private       int       pendingStoreUpdateCount;
-                                
+		
 		private final boolean[] needsSweep             ;
 		private       int       sweepingChannelCount   ;
-
+		
 		private long sweepGeneration     ;
 		private long lastSweepStart      ;
 		private long lastSweepEnd        ;
@@ -213,7 +213,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		private long gcColdGeneration    ;
 		private long lastGcHotCompletion ;
 		private long lastGcColdCompletion;
-
+		
 		/*
 		 * Indicates that no new data (store) has been received since the last sweep.
 		 * This basically means that no more gc marking or sweeping is necessary, however as stored entities
@@ -223,7 +223,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		 * This flag can be seen as "no new data level 1".
 		 */
 		private boolean gcHotPhaseComplete;
-
+		
 		/*
 		 * Indicates that not only no new data has been received since the last sweep, but also that a second sweep
 		 * has already been executed since then, removing all unreachable entities and effectively establishing

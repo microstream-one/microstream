@@ -210,9 +210,9 @@ implements PersistenceTypeHandlerProvider<D>
 	}
 
 	@Override
-	public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) 
+	public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer)
 	{
-		this.typeManager.iteratePerIds(consumer);		
+		this.typeManager.iteratePerIds(consumer);
 	}
 
 }

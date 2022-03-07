@@ -1067,9 +1067,9 @@ public final class XMemory
 	 *
 	 * @return a newly created direct byte buffer with the specified capacity and the platform's native byte order.
 	 *
-     * @throws IllegalArgumentException
-     *         If the {@code capacity} is a negative integer.
-     *
+	 * @throws IllegalArgumentException
+	 *         If the {@code capacity} is a negative integer.
+	 *
 	 * @see ByteBuffer#allocateDirect(int)
 	 * @see ByteBuffer#order(ByteOrder)
 	 */

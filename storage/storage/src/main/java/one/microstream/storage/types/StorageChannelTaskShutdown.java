@@ -1,27 +1,5 @@
 package one.microstream.storage.types;
 
-/*-
- * #%L
- * microstream-storage
- * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
- * %%
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
- * 
- * This Source Code may also be made available under the following Secondary
- * Licenses when the conditions for such availability set forth in the Eclipse
- * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
- * with the GNU Classpath Exception which is
- * available at https://www.gnu.org/software/classpath/license.html.
- * 
- * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
- * #L%
- */
-
-import static one.microstream.X.notNull;
-
 public interface StorageChannelTaskShutdown extends StorageChannelTask
 {
 	public final class Default
@@ -29,32 +7,16 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 	implements StorageChannelTaskShutdown
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		/* (07.03.2022 TM)FIXME: unused operationController
-		 * Why is this not used? Why does a task instance need to know the operation controller in the first place?
-		 * Or doesn't it? Since this reference is not used.
-		 * According to pull request comments, this refers to issue #285. Which is ... weird.
-		 * It's even redundant to the super class change.
-		 * Why is this here? Oversight? Why do people committing here not have proper compiler settings?
-		 */
-		private final StorageOperationController operationController;
-
-
-
-		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		public Default(
+		protected Default(
 			final long                       timestamp          ,
 			final int                        channelCount       ,
 			final StorageOperationController operationController
 		)
 		{
 			super(timestamp, channelCount, operationController);
-			this.operationController = notNull(operationController);
 		}
 
 

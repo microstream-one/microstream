@@ -354,8 +354,8 @@ public class Matrix<T>
 
 			private final int
 				centerRowIndex = (MatrixIterable.this.lastRow    + MatrixIterable.this.firstRow   ) / 2,
-			    centerColIndex = (MatrixIterable.this.lastColumn + MatrixIterable.this.firstColumn) / 2
-			  ;
+				centerColIndex = (MatrixIterable.this.lastColumn + MatrixIterable.this.firstColumn) / 2
+			;
 
 			{
 				this.nextRow();

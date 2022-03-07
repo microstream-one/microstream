@@ -105,8 +105,8 @@ public final class XChars
 	// CHECKSTYLE.ON: ConstantName
 
 	static final transient char
-	    DIGIT_LOWER_INDEX = '0'    , // for using " >= " and "<"
-	    DIGIT_UPPER_BOUND = '9' + 1  // for using " >= " and "<"
+		DIGIT_LOWER_INDEX = '0'    , // for using " >= " and "<"
+		DIGIT_UPPER_BOUND = '9' + 1  // for using " >= " and "<"
 	;
 
 	private static final char LOWEST_NON_WHITESPACE = ' ' + 1; // < and >= are faster than <= and >

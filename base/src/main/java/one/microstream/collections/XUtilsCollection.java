@@ -458,7 +458,8 @@ public final class XUtilsCollection
 		final long offset,
 		final long length,
 		final E sample,
-		final Equalator<? super E> equalator)
+		final Equalator<? super E> equalator
+	)
 	{
 		if(sequence instanceof AbstractSimpleArrayCollection<?>)
 		{

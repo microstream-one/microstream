@@ -68,7 +68,8 @@ public final class BinaryHandlerByte extends AbstractBinaryHandlerCustomValueFix
 		final Binary                          data    ,
 		final Byte                            instance,
 		final long                            objectId,
-		final PersistenceStoreHandler<Binary> handler)
+		final PersistenceStoreHandler<Binary> handler
+	)
 	{
 		data.storeByte(this.typeId(), objectId, instance.byteValue());
 	}

@@ -28,6 +28,7 @@ import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.persistence.types.PersistenceTypeHandlerEnsurer;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 
+
 public class ComClientChannelDynamic<C>
 	extends ComChannelDynamic<C>
 	implements ComClientChannel<C>
@@ -37,6 +38,7 @@ public class ComClientChannelDynamic<C>
 	////////////////////
 	
 	protected final ComClient<C> parent;
+	
 	
 		
 	///////////////////////////////////////////////////////////////////////////
@@ -62,13 +64,16 @@ public class ComClientChannelDynamic<C>
 	}
 
 	
+	
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
 
 	private void initalizeHandlersInternal(
-		final PersistenceTypeHandlerManager<Binary> typeHandlerManager,
-		final ComTypeDefinitionBuilder typeDefintionBuilder, final PersistenceTypeHandlerEnsurer<Binary> typeHandlerEnsurer)
+		final PersistenceTypeHandlerManager<Binary> typeHandlerManager  ,
+		final ComTypeDefinitionBuilder              typeDefintionBuilder,
+		final PersistenceTypeHandlerEnsurer<Binary> typeHandlerEnsurer
+	)
 	{
 		this.handlers.registerReceiveHandler(
 			ComMessageNewType.class,
@@ -76,31 +81,38 @@ public class ComClientChannelDynamic<C>
 				typeHandlerManager,
 				typeDefintionBuilder,
 				typeHandlerEnsurer
-				));
+			)
+		);
 		
 		this.handlers.registerSendHandler(
 			ComMessageNewType.class,
-			new ComHandlerSendMessageNewType(this));
+			new ComHandlerSendMessageNewType(this)
+		);
 		
 		this.handlers.registerReceiveHandler(
 			ComMessageData.class,
-			new ComHandlerSendReceiveMessageData(this));
+			new ComHandlerSendReceiveMessageData(this)
+		);
 		
 		this.handlers.registerSendHandler(
 			ComMessageData.class,
-			new ComHandlerSendReceiveMessageData(this));
+			new ComHandlerSendReceiveMessageData(this)
+		);
 		
 		this.handlers.registerReceiveHandler(
 			ComMessageStatus.class,
-			new ComHandlerReceiveMessageStatus(this));
+			new ComHandlerReceiveMessageStatus(this)
+		);
 		
 		this.handlers.registerSendHandler(
 			ComMessageStatus.class,
-			new ComHandlerReceiveMessageStatus(this));
+			new ComHandlerReceiveMessageStatus(this)
+		);
 		
 		this.handlers.registerSendHandler(
 			ComMessageClientTypeMismatch.class,
-			new ComHandlerSendMessageClientTypeMismatch(this));
+			new ComHandlerSendMessageClientTypeMismatch(this)
+		);
 	}
 
 

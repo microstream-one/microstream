@@ -57,7 +57,8 @@ public final class BinaryHandlerNativeArray_char extends AbstractBinaryHandlerNa
 		final Binary                          data    ,
 		final char[]                          array   ,
 		final long                            objectId,
-		final PersistenceStoreHandler<Binary> handler)
+		final PersistenceStoreHandler<Binary> handler
+	)
 	{
 		data.store_chars(this.typeId(), objectId, array);
 	}

@@ -131,24 +131,24 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		// state 3.0: mutable fields. Must be cleared on reset.
 		
 		private StorageEntity.Default liveCursor;
-                                            
+		
 		private long    usedCacheSize;
 		private boolean hasUpdatePendingSweep;
-                                                  
+		
 		// Statistics for debugging / monitoring / checking to compare with other channels and with the markmonitor
 		private long sweepGeneration, lastSweepStart, lastSweepEnd;
 		
-
+		
 		// state 3.1: variable length content
-        
+		
 		private       StorageEntity.Default[]     oidHashTable ;
 		private       int                         oidModulo    ; // long modulo makes not difference
 		private       long                        oidSize      ;
-                                                  
+		
 		private       StorageEntityType.Default[] tidHashTable ;
 		private       int                         tidModulo    ;
 		private       int                         tidSize      ;
-                                                  
+		
 		private final StorageEntityType.Default   typeHead     ; // effective immutable, so no reset
 		private       StorageEntityType.Default   typeTail     ;
 		private       StorageEntityType.Default   rootType     ;
@@ -1178,11 +1178,11 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			 * of the channels (only the dedicated channel thread may operate on the EntityCache instances).
 			 * Thread-local work of a channel would suddenly have to subject to a lock on the mark monitor
 			 *
-  			 * This issue is ignored for now, but must be fixed if root instances are to be replaceable.
-  			 *
-  			 * Clean solution:
-  			 * Copy all roots, but not directly into a ChunksBuffer, but into a special intermediate data structure
-  			 * with a OID->binary map and reported valid rootId of each channel.
+			 * This issue is ignored for now, but must be fixed if root instances are to be replaceable.
+			 *
+			 * Clean solution:
+			 * Copy all roots, but not directly into a ChunksBuffer, but into a special intermediate data structure
+			 * with a OID->binary map and reported valid rootId of each channel.
 			 */
 
 			// iterate over all entities of all root types and copy their data

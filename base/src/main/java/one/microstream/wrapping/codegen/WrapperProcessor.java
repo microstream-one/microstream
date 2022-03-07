@@ -147,8 +147,9 @@ public class WrapperProcessor extends AbstractProcessor
 	}
 	
 	private void collectMethods(
-		final TypeElement typeElement,
-		final Set<ExecutableElement> methods)
+		final TypeElement            typeElement,
+		final Set<ExecutableElement> methods
+	)
 	{
 		typeElement.getEnclosedElements().stream()
 			.filter(e -> e.getKind() == ElementKind.METHOD)
@@ -165,8 +166,9 @@ public class WrapperProcessor extends AbstractProcessor
 	}
 	
 	private boolean filter(
-		final ExecutableElement method,
-		final Collection<ExecutableElement> methods)
+		final ExecutableElement             method ,
+		final Collection<ExecutableElement> methods
+	)
 	{
 		return !method.isDefault()
 			&& !method.getModifiers().contains(Modifier.STATIC)
@@ -175,8 +177,9 @@ public class WrapperProcessor extends AbstractProcessor
 	}
 	
 	private boolean isOverwritten(
-		final ExecutableElement overridden,
-		final Collection<ExecutableElement> methods)
+		final ExecutableElement             overridden,
+		final Collection<ExecutableElement> methods
+	)
 	{
 		final Elements elements = this.processingEnv.getElementUtils();
 		return methods.stream()

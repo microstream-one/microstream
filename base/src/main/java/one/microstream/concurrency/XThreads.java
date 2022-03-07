@@ -103,9 +103,9 @@ public final class XThreads
 	 * different in this regard. Until that erratic and dangerous behavior is fixed, this method provides a
 	 * convenient encapsulation of handling the nonsense as well as possible.
 	 * 
-     * @param  millis
-     *         the length of time to sleep in milliseconds
-     * 
+	 * @param  millis
+	 *         the length of time to sleep in milliseconds
+	 * 
 	 * @see Thread#sleep(long)
 	 * @see Thread#stop()
 	 */
@@ -158,12 +158,12 @@ public final class XThreads
 	 * <p>
 	 * Also see the explanations in {@link #sleep(long)}
 	 * 
-     * @param  millis
-     *         the length of time to sleep in milliseconds
-     *
-     * @param  nanos
-     *         {@code 0-999999} additional nanoseconds to sleep
-     * 
+	 * @param  millis
+	 *         the length of time to sleep in milliseconds
+	 *
+	 * @param  nanos
+	 *         {@code 0-999999} additional nanoseconds to sleep
+	 * 
 	 * @see Thread#sleep(long)
 	 * @see Thread#stop()
 	 */

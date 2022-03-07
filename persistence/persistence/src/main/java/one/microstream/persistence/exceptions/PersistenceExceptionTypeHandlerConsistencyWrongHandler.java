@@ -58,26 +58,31 @@ public class PersistenceExceptionTypeHandlerConsistencyWrongHandler extends Pers
 	}
 
 	public PersistenceExceptionTypeHandlerConsistencyWrongHandler(
-		final Class<?>                    type       ,
+		final Class<?>                     type       ,
 		final PersistenceTypeHandler<?, ?> typeHandler,
-		final Throwable cause)
+		final Throwable                    cause
+	)
 	{
 		this(type, typeHandler, null, cause);
 	}
 
 	public PersistenceExceptionTypeHandlerConsistencyWrongHandler(
-		final Class<?>                    type       ,
+		final Class<?>                     type       ,
 		final PersistenceTypeHandler<?, ?> typeHandler,
-		final String message, final Throwable cause
+		final String                       message    ,
+		final Throwable                    cause
 	)
 	{
 		this(type, typeHandler, message, cause, true, true);
 	}
 
 	public PersistenceExceptionTypeHandlerConsistencyWrongHandler(
-		final Class<?> type,
-		final PersistenceTypeHandler<?, ?> typeHandler,
-		final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace
+		final Class<?>                     type              ,
+		final PersistenceTypeHandler<?, ?> typeHandler       ,
+		final String                       message           ,
+		final Throwable                    cause             ,
+		final boolean                      enableSuppression ,
+		final boolean                      writableStackTrace
 	)
 	{
 		super(message, cause, enableSuppression, writableStackTrace);

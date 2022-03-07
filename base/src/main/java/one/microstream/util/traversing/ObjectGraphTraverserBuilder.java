@@ -337,7 +337,7 @@ public interface ObjectGraphTraverserBuilder
 		private TraversalMutator                                   mutator                   ;
 		private Predicate<Object>                                  mutatorPredicate          ;
 		private Function<Object, ?>                                mutatorLogic              ;
-		                                                                                     
+		
 		private MutationListener                                   mutationListener          ;
 		private TraversalMode                                      traversalMode             ;
 		private TraversalReferenceHandlerProvider                  referenceHandlerProvider  ;
