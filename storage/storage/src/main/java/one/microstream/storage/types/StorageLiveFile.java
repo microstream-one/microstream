@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 
 import one.microstream.afs.types.AFile;
 import one.microstream.collections.XArrays;
-import one.microstream.storage.exceptions.StorageException;
+
 
 public interface StorageLiveFile<S extends StorageLiveFile<S>> extends StorageClosableFile, StorageBackupableFile
 {

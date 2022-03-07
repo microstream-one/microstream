@@ -310,6 +310,12 @@ public final class XIO
 	
 	public static final Path Path(final FileSystem fileSystem, final String... items)
 	{
+		if(items == null)
+		{
+			// (07.03.2022 TM)NOTE: not sure what to do here in that case.
+			throw new NullPointerException();
+		}
+		
 		/*
 		 * To workaround the JDK behavior of conveniently ignoring empty strings in the path items.
 		 * This is a critical bug if a leading separator is used to define an absolut path.
@@ -319,12 +325,25 @@ public final class XIO
 		 * - Paths#get hilariously ignores the "", reassembling {"", "mydir"} to just "mydir" instead of "/mydir".
 		 * To workaround that, that specific case is explicitely checked and a blank separator is prepended.
 		 */
-		if(items != null && items.length > 0 && "".equals(items[0]))
+		if(items.length > 0 && "".equals(items[0]))
 		{
 			return fileSystem.getPath(Character.toString(XIO.filePathSeparator()), items);
 		}
 		
-		// because why make it simple...
+		/* (07.03.2022 TM)XXX: Explaining comment missing
+		 * Why did this become necessary?
+		 * The previous version...
+		 * return fileSystem.getPath("", notNull(items));
+		 * ... worked fine in tests.
+		 * If there are edge cases and/or anomalies on certain platforms that make this change necessary,
+		 * it should be explained here, ESPECIALLY since the JDK behavior is the usual crappy mess as described
+		 * in the comment above.
+		 * Simply adding more complicated code with a minimalisted commit "Fix NIO path resolving", without any
+		 * explanation or mention of the corresponding issue containing the explanation is not good.
+		 * 
+		 * Also potential null pointer access warning.
+		 * Since this is more complex code than the previous version, I added an explicit null check above.
+		 */
 		return items.length == 1
 			? fileSystem.getPath(items[0])
 			: fileSystem.getPath(items[0], Arrays.copyOfRange(items, 1, items.length))

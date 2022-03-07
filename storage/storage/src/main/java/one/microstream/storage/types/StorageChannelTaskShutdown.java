@@ -32,6 +32,13 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 		// instance fields //
 		////////////////////
 
+		/* (07.03.2022 TM)FIXME: unused operationController
+		 * Why is this not used? Why does a task instance need to know the operation controller in the first place?
+		 * Or doesn't it? Since this reference is not used.
+		 * According to pull request comments, this refers to issue #285. Which is ... weird.
+		 * It's even redundant to the super class change.
+		 * Why is this here? Oversight? Why do people committing here not have proper compiler settings?
+		 */
 		private final StorageOperationController operationController;
 
 
