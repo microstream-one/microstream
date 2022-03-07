@@ -74,25 +74,25 @@ public class ComTypeMappingResolver
 	 * Constructs a ComTypeMappingResolver instance
 	 * 
 	 * @param typeDictionaryAssembler PersistenceTypeDictionaryAssembler
-	 * @param connection			  ComConnection
+	 * @param connection              connection
 	 * @param hostTypeDictionary      PersistenceTypeDictionaryView
 	 * @param typeHandlerManager      PersistenceTypeHandlerManager
 	 * @param typeDefinitionBuilder   ComTypeDefinitionBuilder
 	 */
 	public ComTypeMappingResolver(
 		final PersistenceTypeDictionaryAssembler    typeDictionaryAssembler,
-		final ComConnection                         connection,
-		final PersistenceTypeDictionaryView         hostTypeDictionary,
-		final PersistenceTypeHandlerManager<Binary> typeHandlerManager,
+		final ComConnection                         connection             ,
+		final PersistenceTypeDictionaryView         hostTypeDictionary     ,
+		final PersistenceTypeHandlerManager<Binary> typeHandlerManager     ,
 		final ComTypeDefinitionBuilder              typeDefinitionBuilder
 	)
 	{
 		super();
 		this.typeDictionaryAssembler = typeDictionaryAssembler;
-		this.connection              = connection;
-		this.hostTypeDictionary      = hostTypeDictionary;
-		this.typeHandlerManager      = typeHandlerManager;
-		this.typeDefinitionBuilder   = typeDefinitionBuilder;
+		this.connection              = connection             ;
+		this.hostTypeDictionary      = hostTypeDictionary     ;
+		this.typeHandlerManager      = typeHandlerManager     ;
+		this.typeDefinitionBuilder   = typeDefinitionBuilder  ;
 	}
 
 	

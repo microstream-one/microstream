@@ -528,7 +528,7 @@ public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchron
 
 	@Override
 	public final <T extends Consumer<? super KeyValue<K, V>>> T filterTo(
-		final T target,
+		final T                                 target   ,
 		final Predicate<? super KeyValue<K, V>> predicate
 	)
 	{
@@ -540,9 +540,10 @@ public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchron
 
 	@Override
 	public final <T extends Consumer<? super KeyValue<K, V>>> T union(
-		final XGettingCollection<? extends KeyValue<K, V>> other,
-		final Equalator<? super KeyValue<K, V>> equalator,
-		final T target)
+		final XGettingCollection<? extends KeyValue<K, V>> other    ,
+		final Equalator<? super KeyValue<K, V>>            equalator,
+		final T                                            target
+	)
 	{
 		synchronized(this.lock)
 		{
@@ -552,9 +553,9 @@ public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchron
 
 	@Override
 	public final <T extends Consumer<? super KeyValue<K, V>>> T intersect(
-		final XGettingCollection<? extends KeyValue<K, V>> other,
-		final Equalator<? super KeyValue<K, V>> equalator,
-		final T target
+		final XGettingCollection<? extends KeyValue<K, V>> other    ,
+		final Equalator<? super KeyValue<K, V>>            equalator,
+		final T                                            target
 	)
 	{
 		synchronized(this.lock)
@@ -565,9 +566,9 @@ public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchron
 
 	@Override
 	public final <T extends Consumer<? super KeyValue<K, V>>> T except(
-		final XGettingCollection<? extends KeyValue<K, V>> other,
-		final Equalator<? super KeyValue<K, V>> equalator,
-		final T target
+		final XGettingCollection<? extends KeyValue<K, V>> other    ,
+		final Equalator<? super KeyValue<K, V>>            equalator,
+		final T                                            target
 	)
 	{
 		synchronized(this.lock)

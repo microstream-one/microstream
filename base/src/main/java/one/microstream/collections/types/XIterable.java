@@ -25,19 +25,19 @@ import java.util.function.Consumer;
 
 public interface XIterable<E>
 {
-    /**
-     * Executes the given procedure for each element of the {@link XIterable}
-     * until all elements have been processed or the action throws an
-     * exception. Unless otherwise specified by the implementing class,
-     * procedures are performed in the order of iteration (if an iteration order
-     * is specified). Exceptions thrown by the procedure are relayed to the
-     * caller.<br>
-     * Should be identical to {@link Iterable#forEach(Consumer)}.
-     *
+	/**
+	 * Executes the given procedure for each element of the {@link XIterable}
+	 * until all elements have been processed or the action throws an
+	 * exception. Unless otherwise specified by the implementing class,
+	 * procedures are performed in the order of iteration (if an iteration order
+	 * is specified). Exceptions thrown by the procedure are relayed to the
+	 * caller.<br>
+	 * Should be identical to {@link Iterable#forEach(Consumer)}.
+	 *
 	 * @param <P> type of procedure
-     * @param procedure The procedure to be performed for each element
+	 * @param procedure The procedure to be performed for each element
 	 * @return Given procedure
-     */
+	 */
 	public <P extends Consumer<? super E>> P iterate(P procedure);
 
 	

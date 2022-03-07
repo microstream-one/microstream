@@ -43,13 +43,14 @@ public class ComHostChannelDynamic<C>
 	/////////////////
 	
 	public ComHostChannelDynamic(
-		final PersistenceManager<?> persistenceManager,
-		final C connection,
-		final ComProtocol protocol,
-		final ComHost<C> parent,
-		final PersistenceTypeHandlerManager<Binary> typeHandlerManager,
-		final ComTypeDefinitionBuilder typeDefintionBuilder,
-		final PersistenceTypeHandlerEnsurer<Binary> typeHandlerEnsurer)
+		final PersistenceManager<?>                 persistenceManager  ,
+		final C                                     connection          ,
+		final ComProtocol                           protocol            ,
+		final ComHost<C>                            parent              ,
+		final PersistenceTypeHandlerManager<Binary> typeHandlerManager  ,
+		final ComTypeDefinitionBuilder              typeDefintionBuilder,
+		final PersistenceTypeHandlerEnsurer<Binary> typeHandlerEnsurer
+	)
 	{
 		super(persistenceManager, connection, protocol);
 		this.parent = parent;
@@ -66,8 +67,10 @@ public class ComHostChannelDynamic<C>
 	////////////
 	
 	private void initalizeHandlersInternal(
-		final PersistenceTypeHandlerManager<Binary> typeHandlerManager,
-		final ComTypeDefinitionBuilder typeDefintionBuilder, final PersistenceTypeHandlerEnsurer<Binary> typeHandlerEnsurer)
+		final PersistenceTypeHandlerManager<Binary> typeHandlerManager  ,
+		final ComTypeDefinitionBuilder              typeDefintionBuilder,
+		final PersistenceTypeHandlerEnsurer<Binary> typeHandlerEnsurer
+	)
 	{
 		this.handlers.registerReceiveHandler(
 			ComMessageNewType.class,
@@ -75,7 +78,8 @@ public class ComHostChannelDynamic<C>
 				typeHandlerManager,
 				typeDefintionBuilder,
 				typeHandlerEnsurer
-				));
+			)
+		);
 		
 		this.handlers.registerSendHandler(
 			ComMessageNewType.class,

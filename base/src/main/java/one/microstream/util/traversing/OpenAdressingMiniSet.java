@@ -480,27 +480,30 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 
 	@Override
 	public <T extends Consumer<? super E>> T union(
-		final XGettingCollection<? extends E> other,
-		final Equalator<? super E> equalator,
-		final T target)
+		final XGettingCollection<? extends E> other    ,
+		final Equalator<? super E>            equalator,
+		final T                               target
+	)
 	{
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T intersect(
-		final XGettingCollection<? extends E> other,
-		final Equalator<? super E> equalator,
-		final T target)
+		final XGettingCollection<? extends E> other    ,
+		final Equalator<? super E>            equalator,
+		final T                               target
+	)
 	{
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T except(
-		final XGettingCollection<? extends E> other,
-		final Equalator<? super E> equalator,
-		final T target)
+		final XGettingCollection<? extends E> other    ,
+		final Equalator<? super E>            equalator,
+		final T                               target
+	)
 	{
 		throw new one.microstream.meta.NotImplementedYetError();
 	}

@@ -1239,7 +1239,7 @@ public final class XSort
 		if(high - low < 8)
 		{
 			insertionsort0(values, low, high + 1);
-		    return;
+			return;
 		}
 
 		int left, right;
@@ -1276,7 +1276,7 @@ public final class XSort
 		if(high - low < 8)
 		{
 			insertionsort0(values, low, high + 1, cmp);
-		    return;
+			return;
 		}
 
 		int left, right;

@@ -1,5 +1,7 @@
 package one.microstream.storage.types;
 
+import static one.microstream.X.notNull;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -47,12 +49,21 @@ public interface StorageChannelTask extends StorageTask
 		// instance fields //
 		////////////////////
 
-		private       int         remainingForCompletion;
-		private       int         remainingForProcessing;
+		private int remainingForCompletion;
+		private int remainingForProcessing;
 
-		private          AtomicBoolean              hasProblems = new AtomicBoolean();
-		private final Throwable[]    problems   ; // unshared instance conveniently abused as a second lock
-		protected final  StorageOperationController controller;
+		private final AtomicBoolean hasProblems = new AtomicBoolean();
+		private final Throwable[]   problems   ; // unshared instance conveniently abused as a second lock
+		
+		/* (07.03.2022 TM)NOTE:
+		 * Retrofitted to fix #285
+		 * While it seems more reasonable at first to check for disruptions in a passed context instance,
+		 * the static helper StorageRequestAcceptor#waitOnTask makes this approach a little tricky.
+		 * Also, since the change from the channel-based architecture to the cell-based architecture
+		 * will make all this cross-channel problem checking unnecessary in the future, this solution here
+		 * is acceptable for the time being.
+		 */
+		protected final StorageOperationController controller ;
 
 
 
@@ -61,17 +72,18 @@ public interface StorageChannelTask extends StorageTask
 		/////////////////
 
 		public Abstract(
-			final long timestamp,
-			final int channelCount,
-			final StorageOperationController controller)
+			final long                       timestamp   ,
+			final int                        channelCount,
+			final StorageOperationController controller
+		)
 		{
 			super(timestamp);
 			
 			// (20.11.2019 TM)NOTE: inlined assignments caused an "Unsafe" error on an ARM machine. No kidding.
-			this.remainingForProcessing = channelCount;
-			this.remainingForCompletion = channelCount;
-			this.problems = new Throwable[channelCount];
-			this.controller = controller;
+			this.remainingForProcessing = channelCount               ;
+			this.remainingForCompletion = channelCount               ;
+			this.controller             = notNull(controller)        ;
+			this.problems               = new Throwable[channelCount];
 		}
 
 
@@ -82,8 +94,9 @@ public interface StorageChannelTask extends StorageTask
 
 		private void checkForProblems()
 		{
-			if(controller.hasDisruptions()) {
-				throw new StorageException("Aborting after: ", controller.disruptions().first());
+			if(this.controller.hasDisruptions())
+			{
+				throw new StorageException("Aborting after: ", this.controller.disruptions().first());
 			}
 						
 			if(!this.hasProblems.get())

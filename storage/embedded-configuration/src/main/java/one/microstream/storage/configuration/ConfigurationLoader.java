@@ -72,7 +72,7 @@ public interface ConfigurationLoader
 	)
 	{
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
-	    final URL         url                = contextClassloader != null
+		final URL         url                = contextClassloader != null
 			? contextClassloader.getResource(path)
 			: ConfigurationLoader.class.getResource(path)
 		;
@@ -118,7 +118,7 @@ public interface ConfigurationLoader
 	)
 	{
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
-	    final URL         url                = contextClassloader != null
+		final URL         url                = contextClassloader != null
 			? contextClassloader.getResource(path)
 			: ConfigurationLoader.class.getResource(path)
 		;

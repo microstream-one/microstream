@@ -56,7 +56,7 @@ public final class OldCollections
 				c.add(t);
 			}
 		}
-	    return c;
+		return c;
 	}
 
 	@SafeVarargs
@@ -69,7 +69,7 @@ public final class OldCollections
 				collection.add(element);
 			}
 		}
-	    return collection;
+		return collection;
 	}
 
 	@SafeVarargs

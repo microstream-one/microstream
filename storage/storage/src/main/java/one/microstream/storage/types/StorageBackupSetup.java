@@ -23,7 +23,7 @@ package one.microstream.storage.types;
 import static one.microstream.X.notNull;
 
 import one.microstream.afs.types.ADirectory;
-import one.microstream.storage.types.StorageDataFileValidator.Creator;
+
 
 public interface StorageBackupSetup
 {
@@ -34,8 +34,8 @@ public interface StorageBackupSetup
 	);
 	
 	public StorageBackupHandler setupHandler(
-		StorageOperationController       operationController,
-		StorageWriteController           writeController    ,
+		StorageOperationController       operationController           ,
+		StorageWriteController           writeController               ,
 		StorageDataFileValidator.Creator backupDataFileValidatorCreator
 	);
 	

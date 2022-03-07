@@ -343,7 +343,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	 * The actual initial capacity will be calculated based on the higher of the two values {@code initialCapacity}
 	 * and {@code srcLength} as described in {@link #BulkList(int)}.
 	 * </p><p>
-	 * 	The specified initial elements array range is copied via {@link System#arraycopy(Object, int, Object, int, int)}.
+	 * The specified initial elements array range is copied via {@link System#arraycopy(Object, int, Object, int, int)}.
 	 * <p>
 	 *
 	 * @param initialCapacity the desired initial capacity for the new instance.

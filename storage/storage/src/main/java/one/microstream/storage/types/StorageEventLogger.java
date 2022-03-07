@@ -162,7 +162,7 @@ public interface StorageEventLogger
 		
 		public static String toChannelPartIdentifier(final StorageHashChannelPart channelPart)
 		{
-			return "StorageChannel#" + channelPart.channelIndex();
+			return StorageChannel.class.getSimpleName()+ '#' + channelPart.channelIndex();
 		}
 		
 		public static String stackTraceToString(final Throwable t)
@@ -218,7 +218,7 @@ public interface StorageEventLogger
 	 */
 	public static StorageEventLogger Debug()
 	{
-		return new StorageEventLogger.Debug(Debug::printString);
+		return new StorageEventLogger.Debug(Debug.Default::printString);
 	}
 	
 	/**

@@ -53,9 +53,10 @@ public class ComTLSConnectionListener extends ComConnectionListener.Default
 	/////////////////
 	
 	public ComTLSConnectionListener(
-		final ServerSocketChannel serverSocketChannel,
-		final SSLContext context,
-		final TLSParametersProvider tlsParameterProvider)
+		final ServerSocketChannel   serverSocketChannel ,
+		final SSLContext            context             ,
+		final TLSParametersProvider tlsParameterProvider
+	)
 	{
 		super(serverSocketChannel);
 		this.sslContext = context;

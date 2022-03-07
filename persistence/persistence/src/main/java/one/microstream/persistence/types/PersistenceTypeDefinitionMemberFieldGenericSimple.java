@@ -113,7 +113,7 @@ extends PersistenceTypeDefinitionMemberFieldGeneric, PersistenceTypeDescriptionM
 			return new PersistenceTypeDefinitionMemberFieldGenericSimple.Default(
 				this.typeName()               ,
 				qualifier                     ,
-				name				          ,
+				name                          ,
 				this.type                     ,
 				this.isReference()            ,
 				this.persistentMinimumLength(),

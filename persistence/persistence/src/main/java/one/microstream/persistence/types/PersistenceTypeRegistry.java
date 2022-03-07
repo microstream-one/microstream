@@ -188,9 +188,9 @@ public interface PersistenceTypeRegistry extends PersistenceTypeLookup
 		}
 		
 		@Override
-		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) 
-		{			
-			this.typesPerIds.iterate(c -> consumer.accept(c.key(), c.value()));			
+		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer)
+		{
+			this.typesPerIds.iterate(c -> consumer.accept(c.key(), c.value()));
 		}
 		
 	}

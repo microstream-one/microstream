@@ -42,9 +42,9 @@ public class ComTypeDefinitionBuilder
 	// instance fields //
 	////////////////////
 	
-	private final PersistenceTypeDictionaryParser 				typeDictionaryParser;
-	private final PersistenceTypeDefinitionCreator 				typeDefinitionCreator;
-	private final PersistenceTypeDescriptionResolverProvider 	typeDescriptionResolverProvider;
+	private final PersistenceTypeDictionaryParser            typeDictionaryParser           ;
+	private final PersistenceTypeDefinitionCreator           typeDefinitionCreator          ;
+	private final PersistenceTypeDescriptionResolverProvider typeDescriptionResolverProvider;
 
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -52,15 +52,16 @@ public class ComTypeDefinitionBuilder
 	/////////////////
 	
 	public ComTypeDefinitionBuilder(
-		final PersistenceTypeDictionaryParser				typeDictionaryParser,
-		final PersistenceTypeDefinitionCreator				typeDefinitionCreator,
-		final PersistenceTypeDescriptionResolverProvider	typeDescriptionResolverProvider)
+		final PersistenceTypeDictionaryParser            typeDictionaryParser           ,
+		final PersistenceTypeDefinitionCreator           typeDefinitionCreator          ,
+		final PersistenceTypeDescriptionResolverProvider typeDescriptionResolverProvider
+	)
 	{
 		super();
-		this.typeDictionaryParser				= typeDictionaryParser;
-		this.typeDefinitionCreator				= typeDefinitionCreator;
-		this.typeDescriptionResolverProvider	= typeDescriptionResolverProvider;
-			
+		this.typeDictionaryParser            = typeDictionaryParser           ;
+		this.typeDefinitionCreator           = typeDefinitionCreator          ;
+		this.typeDescriptionResolverProvider = typeDescriptionResolverProvider;
+		
 	}
 
 	

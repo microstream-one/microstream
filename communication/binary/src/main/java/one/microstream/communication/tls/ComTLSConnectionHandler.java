@@ -64,17 +64,18 @@ public class ComTLSConnectionHandler extends ComConnectionHandler.Default
 	/////////////////
 	
 	private ComTLSConnectionHandler(
-		final TLSKeyManagerProvider   keyManagerProvider,
+		final TLSKeyManagerProvider   keyManagerProvider  ,
 		final TLSTrustManagerProvider trustManagerProvider,
 		final TLSParametersProvider   tlsParameterProvider,
-		final SecureRandomProvider    randomProvider)
+		final SecureRandomProvider    randomProvider
+	)
 	{
 		super();
 		
 		this.tlsParameterProvider = tlsParameterProvider;
-		this.keyManagerProvider   = keyManagerProvider;
+		this.keyManagerProvider   = keyManagerProvider  ;
 		this.trustManagerProvider = trustManagerProvider;
-		this.randomProvider       = randomProvider;
+		this.randomProvider       = randomProvider      ;
 				
 		try
 		{
@@ -100,10 +101,11 @@ public class ComTLSConnectionHandler extends ComConnectionHandler.Default
 	}
 	
 	public static ComConnectionHandler<ComConnection> New(
-		final TLSKeyManagerProvider   keyManagerProvider,
+		final TLSKeyManagerProvider   keyManagerProvider  ,
 		final TLSTrustManagerProvider trustManagerProvider,
 		final TLSParametersProvider   tlsParameterProvider,
-		final SecureRandomProvider    randomProvider)
+		final SecureRandomProvider    randomProvider
+	)
 	{
 		return new ComTLSConnectionHandler(keyManagerProvider, trustManagerProvider, tlsParameterProvider, randomProvider);
 	}

@@ -310,6 +310,12 @@ public final class XIO
 	
 	public static final Path Path(final FileSystem fileSystem, final String... items)
 	{
+		if(items == null)
+		{
+			// (07.03.2022 TM)NOTE: not sure what to do here in that case.
+			throw new NullPointerException();
+		}
+		
 		/*
 		 * To workaround the JDK behavior of conveniently ignoring empty strings in the path items.
 		 * This is a critical bug if a leading separator is used to define an absolut path.
@@ -319,12 +325,19 @@ public final class XIO
 		 * - Paths#get hilariously ignores the "", reassembling {"", "mydir"} to just "mydir" instead of "/mydir".
 		 * To workaround that, that specific case is explicitely checked and a blank separator is prepended.
 		 */
-		if(items != null && items.length > 0 && "".equals(items[0]))
+		if(items.length > 0 && "".equals(items[0]))
 		{
 			return fileSystem.getPath(Character.toString(XIO.filePathSeparator()), items);
 		}
 		
-		// because why make it simple...
+		/* (07.03.2022 TM)XXX: Explaining comment missing
+		 * Why did this become necessary?
+		 * The previous version...
+		 * return fileSystem.getPath("", notNull(items));
+		 * ... worked fine in tests.
+		 * Also potential null pointer access warning.
+		 * Since this is more complex code than the previous version, I added an explicit null check above.
+		 */
 		return items.length == 1
 			? fileSystem.getPath(items[0])
 			: fileSystem.getPath(items[0], Arrays.copyOfRange(items, 1, items.length))
@@ -518,15 +531,15 @@ public final class XIO
 	{
 		try(DirectoryStream<Path> stream = Files.newDirectoryStream(directory))
 		{
-	        for(final Path p : stream)
-	        {
-	        	if(!selector.test(p))
-	        	{
-	        		continue;
-	        	}
-	        	logic.accept(p);
-	        }
-	    }
+			for(final Path p : stream)
+			{
+				if(!selector.test(p))
+				{
+					continue;
+				}
+				logic.accept(p);
+			}
+		}
 		
 		return logic;
 	}
@@ -537,8 +550,8 @@ public final class XIO
 	{
 		try(DirectoryStream<Path> stream = Files.newDirectoryStream(directory))
 		{
-	        return !stream.iterator().hasNext();
-	    }
+			return !stream.iterator().hasNext();
+		}
 		catch(final IOException e)
 		{
 			throw e;
@@ -1309,7 +1322,7 @@ public final class XIO
 	 * For any special needs like copying from and/or to a position and/or only a part of the file and/or using
 	 * custom OpenOptions and/or modifying file timestamps and or performing pre- or post-actions, it is strongly
 	 * suggested to write a custom tailored version of a copying method. Covering all conceivable cases would result
-	 * in an overly complicated one-size-fits-all attempt and we all know how well those work in practice.	 *
+	 * in an overly complicated one-size-fits-all attempt and we all know how well those work in practice.
 	 * 
 	 * @param sourceFile the source file whose content shall be copied.
 	 * @param targetFile the target file that shall receive the copied content. Must already exist!

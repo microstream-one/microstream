@@ -82,7 +82,7 @@ public interface EntityVersionCleaner<K>
 		private final Comparator<? super K> comparator;
 		
 		protected AmountPreserving(
-			final long                  maxPreservedVersions, 
+			final long                  maxPreservedVersions,
 			final Comparator<? super K> comparator
 		)
 		{
@@ -115,7 +115,7 @@ public interface EntityVersionCleaner<K>
 		
 		protected AgePreservingSystemTimeMillis(final long preservedAgeMillis)
 		{
-			super();			
+			super();
 			this.preservedAgeMillis = preservedAgeMillis;
 		}
 		
@@ -134,7 +134,7 @@ public interface EntityVersionCleaner<K>
 		
 		protected AgePreservingSystemNanoTime(final long preservedAgeNanos)
 		{
-			super();			
+			super();
 			this.preservedAgeNanos = preservedAgeNanos;
 		}
 		
@@ -153,7 +153,7 @@ public interface EntityVersionCleaner<K>
 		
 		protected AgePreservingInstant(final Duration preservedAge)
 		{
-			super();			
+			super();
 			this.preservedAge = preservedAge;
 		}
 		

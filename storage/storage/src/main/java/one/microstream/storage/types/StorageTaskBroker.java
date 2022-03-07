@@ -154,8 +154,8 @@ public interface StorageTaskBroker
 					task.timestamp() - 1,
 					this.channelCount   ,
 					nanoTimeBudget      ,
-					task                , 
-					operationController
+					task                ,
+					this.operationController
 				),
 				task
 			);
@@ -240,7 +240,7 @@ public interface StorageTaskBroker
 			throws InterruptedException
 		{
 			final StorageRequestTask dummy =
-				new StorageChannelSynchronizingTask.AbstractCompletingTask.Dummy(this.channelCount, operationController)
+				new StorageChannelSynchronizingTask.AbstractCompletingTask.Dummy(this.channelCount, this.operationController)
 			;
 			final StorageRequestTaskGarbageCollection gcTask =
 				this.enqueueTaskPrependingFullGc(dummy, nanoTimeBudget)
@@ -258,8 +258,8 @@ public interface StorageTaskBroker
 			final StorageRequestTaskCacheCheck task = this.taskCreator.createFullCacheCheckTask(
 				this.channelCount,
 				nanoTimeBudget,
-				entityEvaluator, 
-				operationController
+				entityEvaluator,
+				this.operationController
 			);
 			this.enqueueTaskAndNotifyAll(task);
 			return task;
@@ -274,7 +274,7 @@ public interface StorageTaskBroker
 			final StorageRequestTaskFileCheck task = this.taskCreator.createFullFileCheckTask(
 				this.channelCount,
 				nanoTimeBudget,
-				operationController
+				this.operationController
 			);
 			this.enqueueTaskAndNotifyAll(task);
 			return task;
@@ -290,7 +290,7 @@ public interface StorageTaskBroker
 			final StorageRequestTaskExportChannels task = this.taskCreator.createTaskExportChannels(
 				this.channelCount,
 				fileProvider,
-				operationController
+				this.operationController
 			);
 
 			/*
@@ -330,7 +330,7 @@ public interface StorageTaskBroker
 				this.fileEvaluator         ,
 				this.objectIdRangeEvaluator,
 				importFiles,
-				operationController
+				this.operationController
 			);
 			this.enqueueTaskAndNotifyAll(task);
 			return task;
@@ -340,7 +340,7 @@ public interface StorageTaskBroker
 		public StorageRequestTaskCreateStatistics enqueueCreateRawFileStatisticsTask() throws InterruptedException
 		{
 			final StorageRequestTaskCreateStatistics task = this.taskCreator.createCreateRawFileStatisticsTask(
-				this.channelCount, operationController
+				this.channelCount, this.operationController
 			);
 			this.enqueueTaskAndNotifyAll(task);
 			return task;
@@ -358,7 +358,7 @@ public interface StorageTaskBroker
 				this.channelCount ,
 				exportFileProvider,
 				isExportType,
-				operationController
+				this.operationController
 			);
 
 			// must let GC complete to get viable results
@@ -393,7 +393,7 @@ public interface StorageTaskBroker
 			this.validateChannelCount(data.channelCount());
 			
 			// task creation must be called AFTER acquiring the lock to ensure temporal consistency in the task chain
-			final StorageRequestTaskStoreEntities task = this.taskCreator.createSaveTask(data, operationController);
+			final StorageRequestTaskStoreEntities task = this.taskCreator.createSaveTask(data, this.operationController);
 			
 //			((StorageRequestTaskSaveEntities.Default)task).DEBUG_Print(null);
 			
@@ -410,7 +410,7 @@ public interface StorageTaskBroker
 			this.validateChannelCount(loadOids.length);
 			
 			// task creation must be called AFTER acquiring the lock to ensure temporal consistency in the task chain
-			final StorageRequestTaskLoadByOids task = this.taskCreator.createLoadTaskByOids(loadOids, operationController);
+			final StorageRequestTaskLoadByOids task = this.taskCreator.createLoadTaskByOids(loadOids, this.operationController);
 			this.enqueueTaskAndNotifyAll(task);
 			return task;
 		}
@@ -419,7 +419,7 @@ public interface StorageTaskBroker
 		public final synchronized StorageRequestTaskLoadRoots enqueueRootsLoadTask() throws InterruptedException
 		{
 			// task creation must be called AFTER acquiring the lock to ensure temporal consistency in the task chain
-			final StorageRequestTaskLoadRoots task = this.taskCreator.createRootsLoadTask(this.channelCount, operationController);
+			final StorageRequestTaskLoadRoots task = this.taskCreator.createRootsLoadTask(this.channelCount, this.operationController);
 			this.enqueueTaskAndNotifyAll(task);
 			return task;
 		}
@@ -431,7 +431,7 @@ public interface StorageTaskBroker
 			throws InterruptedException
 		{
 			// task creation must be called AFTER acquiring the lock to ensure temporal consistency in the task chain
-			final StorageRequestTaskLoadByTids task = this.taskCreator.createLoadTaskByTids(loadTids, this.channelCount, operationController);
+			final StorageRequestTaskLoadByTids task = this.taskCreator.createLoadTaskByTids(loadTids, this.channelCount, this.operationController);
 			this.enqueueTaskAndNotifyAll(task);
 			return task;
 		}
@@ -479,7 +479,8 @@ public interface StorageTaskBroker
 		}
 
 		@Override
-		public StorageOperationController operationController() {
+		public StorageOperationController operationController()
+		{
 			return this.operationController;
 		}
 

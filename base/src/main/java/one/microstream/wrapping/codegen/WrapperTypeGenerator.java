@@ -65,9 +65,10 @@ class WrapperTypeGenerator
 	private final VarString             source            = VarString.New();
 	
 	WrapperTypeGenerator(
-		final ProcessingEnvironment processingEnv,
-		final TypeElement wrappedTypeElement,
-		final Collection<ExecutableElement> methods)
+		final ProcessingEnvironment         processingEnv     ,
+		final TypeElement                   wrappedTypeElement,
+		final Collection<ExecutableElement> methods
+	)
 	{
 		super();
 		

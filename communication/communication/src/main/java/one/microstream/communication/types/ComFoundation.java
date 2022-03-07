@@ -191,7 +191,7 @@ extends InstanceDispatcher
 		private ComProtocolCreator              protocolCreator          ;
 		private ComProtocolProvider<C>          protocolProvider         ;
 		private ComProtocolProviderCreator<C>   protocolProviderCreator  ;
-                                                
+		
 		private ComProtocolStringConverter      protocolStringConverter  ;
 		
 		private ComHostCreator<C>               hostCreator              ;
@@ -211,7 +211,7 @@ extends InstanceDispatcher
 		private ComConnectionLogicDispatcher<C> connectionLogicDispatcher;
 		private ComHostExceptionHandler<C>      hostExceptionHandler     ;
 		private ComPeerIdentifier               peerIdentifier           ;
-
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////

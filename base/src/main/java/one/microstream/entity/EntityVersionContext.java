@@ -38,7 +38,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 	public static <K> EntityVersionContext<K> lookup(final Entity entity)
 	{
 		final EntityLayerVersioning<K> versioningLayer = Entity.searchLayer(
-			entity, 
+			entity,
 			EntityLayerVersioning.class
 		);
 		return versioningLayer != null
@@ -87,7 +87,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		
 		protected Abstract(final EntityVersionCleaner<K> cleaner)
 		{
-			super();			
+			super();
 			this.cleaner = mayNull(cleaner);
 		}
 		

@@ -340,9 +340,9 @@ extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTyp
 		}
 
 		@Override
-		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) 
+		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer)
 		{
-			this.typeRegistry.iteratePerIds(consumer);			
+			this.typeRegistry.iteratePerIds(consumer);
 		}
 		
 	}

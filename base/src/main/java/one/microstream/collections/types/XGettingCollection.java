@@ -61,36 +61,36 @@ Copyable
 	@Override
 	public Iterator<E> iterator();
 
-    /**
-     * Returns an array containing all of the elements in this collection.
-     *
-     * <p>The returned array will be "safe" in that no references to it are
-     * maintained by this list.  (In other words, this method must allocate
-     * a new array).  The caller is thus free to modify the returned array.
-     *
-     * <p>This method acts as bridge between MicroStream-based collections
-     * and Java-native-based APIs.
-     *
-     * @return an array containing all of the elements in this collection
-     */
+	/**
+	 * Returns an array containing all of the elements in this collection.
+	 *
+	 * <p>The returned array will be "safe" in that no references to it are
+	 * maintained by this list.  (In other words, this method must allocate
+	 * a new array).  The caller is thus free to modify the returned array.
+	 *
+	 * <p>This method acts as bridge between MicroStream-based collections
+	 * and Java-native-based APIs.
+	 *
+	 * @return an array containing all of the elements in this collection
+	 */
 	public default Object[] toArray()
 	{
 		return this.iterate(new ToArrayAggregator<>(new Object[X.checkArrayRange(this.size())])).yield();
 	}
 
-    /**
-     * Returns a <b>typed</b> array containing all of the elements in this collection.
-     *
-     * <p>The returned array will be "safe" in that no references to it are
-     * maintained by this list.  (In other words, this method must allocate
-     * a new array).  The caller is thus free to modify the returned array.
-     *
-     * <p>This method acts as bridge between MicroStream-based collections
-     * and Java-native-based APIs.
-     *
-     * @param type the {@link Class} representing type {@code E} at runtime.
-     * @return a typed array containing all of the elements in this collection
-     */
+	/**
+	 * Returns a <b>typed</b> array containing all of the elements in this collection.
+	 *
+	 * <p>The returned array will be "safe" in that no references to it are
+	 * maintained by this list.  (In other words, this method must allocate
+	 * a new array).  The caller is thus free to modify the returned array.
+	 *
+	 * <p>This method acts as bridge between MicroStream-based collections
+	 * and Java-native-based APIs.
+	 *
+	 * @param type the {@link Class} representing type {@code E} at runtime.
+	 * @return a typed array containing all of the elements in this collection
+	 */
 	public default E[] toArray(final Class<E> type)
 	{
 		return this.iterate(new ToArrayAggregator<>(X.Array(type, X.checkArrayRange(this.size())))).yield();

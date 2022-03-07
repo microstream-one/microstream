@@ -92,7 +92,7 @@ public interface PersistenceRoots extends PersistenceRootsView
 		 */
 
 		private final transient PersistenceRootResolver          rootResolver   ;
-	    private       transient EqHashTable<String, Long>        rootIdMapping  ;
+		private       transient EqHashTable<String, Long>        rootIdMapping  ;
 		private       transient EqConstHashTable<String, Object> resolvedEntries;
 		private       transient boolean                          hasChanged     ;
 		

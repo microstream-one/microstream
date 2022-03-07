@@ -197,11 +197,11 @@ public interface LazyReferenceManager
 		private final    Entry          head   = new Entry(null)      ;
 		private          Entry          tail   = this.head            ;
 		private          Entry          cursor = this.head            ; // current "last" entry for checking
-
-        private boolean         running        ;
+		
+		private boolean         running        ;
 		private ControllerEntry headController ;
 		private long            controllerCount;
-
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -318,22 +318,22 @@ public interface LazyReferenceManager
 		// methods //
 		////////////
 		
-		private int countReferences()
-		{
-			return this.iterate(new Consumer<Lazy<?>>()
-			{
-				int count;
-
-				@Override
-				public void accept(final Lazy<?> t)
-				{
-					if(t.peek() != null)
-					{
-						this.count++;
-					}
-				}
-			}).count;
-		}
+//		private int countReferences()
+//		{
+//			return this.iterate(new Consumer<Lazy<?>>()
+//			{
+//				int count;
+//
+//				@Override
+//				public void accept(final Lazy<?> t)
+//				{
+//					if(t.peek() != null)
+//					{
+//						this.count++;
+//					}
+//				}
+//			}).count;
+//		}
 
 		final void internalCleanUp(final long nanoTimeBudget, final Checker checker)
 		{

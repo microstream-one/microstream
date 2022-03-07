@@ -50,12 +50,12 @@ public class ComBinary
 	 * Maybe, the consequence will be a dynamically sized header, meaning there
 	 * 
 	 * 
-     * @return The length of the fixed-size chunk header.
+	 * @return The length of the fixed-size chunk header.
 	 */
 	public static int chunkHeaderLength()
 	{
-		return Long.BYTES		//chunk length
-			 + Long.BYTES;		//chunk length crc32 checksum
+		// chunk length + chunk length crc32 checksum
+		return Long.BYTES + Long.BYTES;
 	}
 	
 	public static long getChunkHeaderContentLength(
@@ -71,7 +71,8 @@ public class ComBinary
 	
 	public static long getChunkHeaderContentLengthChecksum(
 		final ByteBuffer directByteBuffer ,
-		final boolean    switchedByteOrder)
+		final boolean    switchedByteOrder
+	)
 	{
 		return switchedByteOrder
 				? Long.reverseBytes(XMemory.get_long(XMemory.getDirectByteBufferAddress(directByteBuffer) + Long.BYTES))
@@ -99,7 +100,8 @@ public class ComBinary
 	public static ByteBuffer setChunkHeaderContentLengthChecksum(
 		final ByteBuffer directByteBuffer ,
 		final long       checksum         ,
-		final boolean    switchedByteOrder)
+		final boolean    switchedByteOrder
+	)
 	{
 		XMemory.set_long(
 				XMemory.getDirectByteBufferAddress(directByteBuffer) + Long.BYTES,
@@ -117,9 +119,10 @@ public class ComBinary
 	}
 	
 	public static long calculateCRC32Checksum(
-			final ByteBuffer buffer,
-			final int position,
-			final int length)
+		final ByteBuffer buffer  ,
+		final int        position,
+		final int        length
+	)
 	{
 		final CRC32 crc32 = new CRC32();
 		final byte[] data = XMemory.toArray(buffer, position, length);

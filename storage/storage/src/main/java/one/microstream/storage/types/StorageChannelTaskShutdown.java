@@ -2,9 +2,9 @@ package one.microstream.storage.types;
 
 /*-
  * #%L
- * microstream-storage
+ * MicroStream Storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,8 +20,6 @@ package one.microstream.storage.types;
  * #L%
  */
 
-import static one.microstream.X.notNull;
-
 public interface StorageChannelTaskShutdown extends StorageChannelTask
 {
 	public final class Default
@@ -29,25 +27,16 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 	implements StorageChannelTaskShutdown
 	{
 		///////////////////////////////////////////////////////////////////////////
-		// instance fields //
-		////////////////////
-
-		private final StorageOperationController operationController;
-
-
-
-		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 
-		public Default(
+		protected Default(
 			final long                       timestamp          ,
 			final int                        channelCount       ,
 			final StorageOperationController operationController
 		)
 		{
 			super(timestamp, channelCount, operationController);
-			this.operationController = notNull(operationController);
 		}
 
 

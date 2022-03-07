@@ -66,7 +66,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		// starting point for the channels to process
 		private final SourceFileSlice[] sourceFileTails;
 
-		private AtomicBoolean    complete  = new AtomicBoolean();
+		private final AtomicBoolean    complete  = new AtomicBoolean();
 		private volatile long    maxObjectId; //TODO Check, why it is not assigned?
 		private          Thread  readThread ;
 
@@ -80,7 +80,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			final long                          timestamp             ,
 			final int                           channelCount          ,
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
-			final XGettingEnum<AFile>           importFiles, 
+			final XGettingEnum<AFile>           importFiles,
 			final StorageOperationController    controller
 		)
 		{
@@ -466,9 +466,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		final ImportBatch  headBatch  = new ImportBatch();
 		      ImportBatch  tailBatch ;
 		      ImportEntity tailEntity;
-		      
-		      
-		      
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
@@ -493,9 +493,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		
 		final ImportBatch     headBatch   ;
 		      SourceFileSlice next        ;
-		      
-		      
-		      
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
@@ -546,7 +546,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		////////////////////
 		
 		long        batchOffset;
-	    long        batchLength;
+		long        batchLength;
 		ImportBatch batchNext  ;
 		
 		
@@ -623,9 +623,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		final long                      objectId;
 		final StorageEntityType.Default type    ;
 		      ImportEntity              next    ;
-		      
-		      
-		      
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////

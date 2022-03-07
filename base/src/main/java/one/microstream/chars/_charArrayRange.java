@@ -31,7 +31,7 @@ public interface _charArrayRange
 	public int start();
 
 	public int bound();
-  
+
 	
 	
 

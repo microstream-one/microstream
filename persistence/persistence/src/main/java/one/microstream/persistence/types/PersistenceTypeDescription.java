@@ -93,7 +93,7 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	{
 		return buildTypeIdentifier(this);
 	}
- 	
+	
 	/**
 	 * Equal content description, without TypeId comparison
 	 * 

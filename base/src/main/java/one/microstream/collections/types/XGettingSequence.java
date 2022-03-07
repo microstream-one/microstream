@@ -178,8 +178,8 @@ public interface XGettingSequence<E> extends XGettingCollection<E>, ExtendedSequ
 	/**
 	 * Creates a new {@link XGettingSequence} with the reversed order of elements.
 	 * <p>
-	 * 	This method creates a new collection and does <b>not</b> change the
-	 * 	existing collection.
+	 * This method creates a new collection and does <b>not</b> change the
+	 * existing collection.
 	 * 
 	 * @return New copy of the collection
 	 */
