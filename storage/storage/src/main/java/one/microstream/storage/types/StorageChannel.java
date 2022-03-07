@@ -46,7 +46,7 @@ import one.microstream.util.BufferSizeProviderIncremental;
 import one.microstream.util.logging.Logging;
 
 
-public interface StorageChannel extends Runnable, StorageChannelResetablePart, StorageActivePart
+public interface StorageChannel extends Runnable, StorageChannelResetablePart, StorageActivePart, Destroyable
 {
 	public StorageTypeDictionary typeDictionary();
 
@@ -539,7 +539,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			{
 				try
 				{
-					this.reset();
+					this.destroy();
 				}
 				catch(final Throwable t1)
 				{
@@ -794,6 +794,12 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			this.entityCache.clearPendingStoreUpdate();
 		}
 
+		@Override
+		public final void destroy()
+		{
+			this.entityCache.reset();
+			this.fileManager.destroy();
+		}
 	}
 
 

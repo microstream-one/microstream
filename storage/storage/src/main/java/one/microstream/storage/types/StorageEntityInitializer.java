@@ -115,6 +115,8 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 				registerFileEntities(entityCache, initTime, dataFile, dataFile.size(), buffer, entityOffsets);
 			}
 			
+			XMemory.deallocateDirectByteBuffer(buffer);
+			
 			return headFile;
 		}
 		
