@@ -318,22 +318,23 @@ public interface LazyReferenceManager
 		// methods //
 		////////////
 		
-		private int countReferences()
-		{
-			return this.iterate(new Consumer<Lazy<?>>()
-			{
-				int count;
-
-				@Override
-				public void accept(final Lazy<?> t)
-				{
-					if(t.peek() != null)
-					{
-						this.count++;
-					}
-				}
-			}).count;
-		}
+		// (07.03.2022 TM)NOTE: unused, so I disable it. Why don't people committing here have proper compiler settings?
+//		private int countReferences()
+//		{
+//			return this.iterate(new Consumer<Lazy<?>>()
+//			{
+//				int count;
+//
+//				@Override
+//				public void accept(final Lazy<?> t)
+//				{
+//					if(t.peek() != null)
+//					{
+//						this.count++;
+//					}
+//				}
+//			}).count;
+//		}
 
 		final void internalCleanUp(final long nanoTimeBudget, final Checker checker)
 		{

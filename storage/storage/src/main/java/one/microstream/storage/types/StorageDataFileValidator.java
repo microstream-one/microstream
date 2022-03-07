@@ -22,7 +22,6 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
-import one.microstream.meta.XDebug;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
 import one.microstream.storage.exceptions.StorageExceptionIncompleteValidation;
 
@@ -93,7 +92,7 @@ public interface StorageDataFileValidator
 			final long            fileOffset     ,
 			final long            iterationLength
 		)
-		{				
+		{
 			final long remainingLength = this.fileIterator.iterateEntityData(
 				file,
 				fileOffset,
@@ -108,7 +107,7 @@ public interface StorageDataFileValidator
 					+ " in file " + file.identifier() + " at offset " + fileOffset
 				);
 			}
-		}		
+		}
 	}
 		
 	public static StorageDataFileValidator.Creator Creator(
@@ -125,7 +124,7 @@ public interface StorageDataFileValidator
 	}
 		
 	public interface Creator
-	{	
+	{
 		public StorageDataFileValidator createDataFileValidator();
 					
 		public class Default implements StorageDataFileValidator.Creator
@@ -145,7 +144,7 @@ public interface StorageDataFileValidator
 			
 			Default(
 				final BinaryEntityRawDataIterator.Provider entityDataIteratorProvider,
-				final StorageEntityDataValidator.Creator   entityDataValidatorCreator, 
+				final StorageEntityDataValidator.Creator   entityDataValidatorCreator,
 				final StorageTypeDictionary                storageTypeDictionary
 			)
 			{
@@ -161,17 +160,17 @@ public interface StorageDataFileValidator
 			////////////
 			
 			@Override
-			public StorageDataFileValidator createDataFileValidator() 
+			public StorageDataFileValidator createDataFileValidator()
 			{
 				return StorageDataFileValidator.New(
 					this.entityDataIteratorProvider.provideEntityDataIterator()            ,
-					this.entityDataValidatorCreator.createDataFileValidator(storageTypeDictionary),
+					this.entityDataValidatorCreator.createDataFileValidator(this.storageTypeDictionary),
 					StorageFileEntityDataIterator.New()
 				);
-			}	
+			}
 			
-		}	
+		}
 		
-	}	
+	}
 	
 }

@@ -50,7 +50,7 @@ public interface StorageChannelTask extends StorageTask
 		private       int         remainingForCompletion;
 		private       int         remainingForProcessing;
 
-		private          AtomicBoolean              hasProblems = new AtomicBoolean();
+		private final          AtomicBoolean              hasProblems = new AtomicBoolean();
 		private final Throwable[]    problems   ; // unshared instance conveniently abused as a second lock
 		protected final  StorageOperationController controller;
 
@@ -82,8 +82,9 @@ public interface StorageChannelTask extends StorageTask
 
 		private void checkForProblems()
 		{
-			if(controller.hasDisruptions()) {
-				throw new StorageException("Aborting after: ", controller.disruptions().first());
+			if(this.controller.hasDisruptions())
+			{
+				throw new StorageException("Aborting after: ", this.controller.disruptions().first());
 			}
 						
 			if(!this.hasProblems.get())
