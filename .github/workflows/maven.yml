@@ -29,6 +29,26 @@ jobs:
         env:
           MAVEN_USERNAME: ${{ secrets.REPO_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.REPO_PASSWORD }}
+
+      #java 11 build
+      - uses: actions/checkout@v2
+      - name: Set up Java 11 for publishing to Maven Central Repository
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+      - name: Build with java 11
+        run: mvn -pl integrations/cdi clean source:jar install -am -B
+      - name: Deploy module build with java 11
+        run: mvn -Pdeploy -pl integrations/cdi -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} deploy
+        env:
+          MAVEN_USERNAME: ${{ secrets.REPO_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.REPO_PASSWORD }}
+
+      #java 17 build
       - uses: actions/checkout@v2
       - name: Set up Java 17 for publishing to Maven Central Repository
         uses: actions/setup-java@v2
@@ -37,7 +57,7 @@ jobs:
           distribution: 'adopt'
           server-id: ossrh
           server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD             
+          server-password: MAVEN_PASSWORD
       - name: Build with java 17
         run: mvn -pl persistence/binary-jdk17 clean source:jar install -am -B
       - name: Deploy module build with java 17        

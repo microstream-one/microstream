@@ -79,4 +79,20 @@
         </plugins>
     </build>
 
+	<profiles>
+		<profile>
+			<id>from_java_11</id>
+			<activation>
+				<jdk>[11,)</jdk>
+			</activation>
+			<modules>
+				<module>wildfly</module>
+				<module>openliberty</module>
+				<module>payara-micro</module>
+				<module>helidon-mp</module>
+				<module>cdi-javase</module>
+			</modules>
+		</profile>
+	</profiles>
+
 </project>
