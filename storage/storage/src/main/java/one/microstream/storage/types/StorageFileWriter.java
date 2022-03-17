@@ -73,13 +73,13 @@ public interface StorageFileWriter
 	 * @return the amount of bytes written
 	 */
 	public default long writeImport(
-		final StorageFile         sourceFile  ,
+		final StorageImportSource source      ,
 		final long                sourceOffset,
 		final long                copyLength  ,
 		final StorageLiveDataFile targetFile
 	)
 	{
-		return sourceFile.copyTo(targetFile, sourceOffset, copyLength);
+		return source.copyTo(targetFile, sourceOffset, copyLength);
 	}
 	
 	public default long writeTransfer(

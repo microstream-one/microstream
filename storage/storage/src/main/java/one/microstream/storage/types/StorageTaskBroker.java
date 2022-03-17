@@ -22,6 +22,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
 import one.microstream.afs.types.AFile;
@@ -71,6 +72,9 @@ public interface StorageTaskBroker
 		throws InterruptedException;
 
 	public StorageRequestTask enqueueImportFromFilesTask(XGettingEnum<AFile> importFiles)
+		throws InterruptedException;
+
+	public StorageRequestTask enqueueImportFromByteBuffersTask(XGettingEnum<ByteBuffer> importData)
 		throws InterruptedException;
 
 	public StorageRequestTaskCreateStatistics enqueueCreateRawFileStatisticsTask()
@@ -325,11 +329,27 @@ public interface StorageTaskBroker
 			throws InterruptedException
 		{
 			// always use the internal evaluator to match live operation
-			final StorageRequestTaskImportData task = this.taskCreator.createImportFromFilesTask(
+			final StorageRequestTaskImportDataFiles task = this.taskCreator.createImportFromFilesTask(
 				this.channelCount          ,
 				this.fileEvaluator         ,
 				this.objectIdRangeEvaluator,
-				importFiles,
+				importFiles                ,
+				this.operationController
+			);
+			this.enqueueTaskAndNotifyAll(task);
+			return task;
+		}
+
+		@Override
+		public StorageRequestTask enqueueImportFromByteBuffersTask(final XGettingEnum<ByteBuffer> importData)
+			throws InterruptedException
+		{
+			// always use the internal evaluator to match live operation
+			final StorageRequestTaskImportDataByteBuffers task = this.taskCreator.createImportFromByteBuffersTask(
+				this.channelCount          ,
+				this.fileEvaluator         ,
+				this.objectIdRangeEvaluator,
+				importData                 ,
 				this.operationController
 			);
 			this.enqueueTaskAndNotifyAll(task);

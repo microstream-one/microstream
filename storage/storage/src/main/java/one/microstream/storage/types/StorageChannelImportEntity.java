@@ -29,4 +29,64 @@ public interface StorageChannelImportEntity
 	public long objectId();
 	
 	public StorageChannelImportEntity next();
+	
+	
+	
+	public static class Default implements StorageChannelImportEntity
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		final int                                length  ;
+		final long                               objectId;
+		final StorageEntityType.Default          type    ;
+		      StorageChannelImportEntity.Default next    ;
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Default(
+			final int                       length  ,
+			final long                      objectId,
+			final StorageEntityType.Default type
+		)
+		{
+			super();
+			this.length   = length  ;
+			this.objectId = objectId;
+			this.type     = type    ;
+		}
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		@Override
+		public final int length()
+		{
+			return this.length;
+		}
+		
+		@Override
+		public final StorageEntityType.Default type()
+		{
+			return this.type;
+		}
+		
+		@Override
+		public final long objectId()
+		{
+			return this.objectId;
+		}
+		
+		@Override
+		public final StorageChannelImportEntity.Default next()
+		{
+			return this.next;
+		}
+		
+	}
+	
 }

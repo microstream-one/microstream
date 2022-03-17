@@ -1181,6 +1181,12 @@ public final class XMemory
 		return buffer;
 	}
 
+	public static final ByteBuffer slice(final ByteBuffer source, final long position, final long limit)
+	{
+		final ByteBuffer tmp = source.duplicate();
+		tmp.limit((int)(position + limit)).position((int)position);
+		return tmp.slice();
+	}
 
 
 	///////////////////////////////////////////////////////////////////////////

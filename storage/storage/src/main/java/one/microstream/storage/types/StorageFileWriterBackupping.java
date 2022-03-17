@@ -75,14 +75,14 @@ public interface StorageFileWriterBackupping extends StorageFileWriter
 		
 		@Override
 		public final long writeImport(
-			final StorageFile         sourceFile  ,
+			final StorageImportSource source      ,
 			final long                sourceOffset,
 			final long                copyLength  ,
 			final StorageLiveDataFile targetFile
 		)
 		{
 			final long oldTargetFileLength = targetFile.size();
-			this.delegate.writeImport(sourceFile, sourceOffset, copyLength, targetFile);
+			this.delegate.writeImport(source, sourceOffset, copyLength, targetFile);
 			
 			// backup item is enqueued and will be processed by the backup thread, which then decrements the user count.
 			this.itemEnqueuer.enqueueCopyingItem(targetFile, oldTargetFileLength, copyLength);

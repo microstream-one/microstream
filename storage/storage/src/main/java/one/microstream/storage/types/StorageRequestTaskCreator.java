@@ -22,6 +22,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
 import one.microstream.afs.types.AFile;
@@ -52,15 +53,15 @@ public interface StorageRequestTaskCreator
 	);
 	
 	public StorageRequestTaskLoadByTids createLoadTaskByTids(
-		PersistenceIdSet           loadTids    , 
-		int                        channelCount, 
+		PersistenceIdSet           loadTids    ,
+		int                        channelCount,
 		StorageOperationController controller
 	);
 
 	public default StorageRequestTaskExportEntitiesByType createExportTypesTask(
 		final int                                 channelCount      ,
 		final StorageEntityTypeExportFileProvider exportFileProvider,
-		StorageOperationController                controller
+		final StorageOperationController                controller
 	)
 	{
 		return this.createExportTypesTask(channelCount, exportFileProvider, controller);
@@ -97,11 +98,19 @@ public interface StorageRequestTaskCreator
 		StorageOperationController  operationController
 	);
 
-	public StorageRequestTaskImportData createImportFromFilesTask(
+	public StorageRequestTaskImportDataFiles createImportFromFilesTask(
 		int                           channelCount          ,
 		StorageDataFileEvaluator      fileEvaluator         ,
 		StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
 		XGettingEnum<AFile>           importFiles,
+		StorageOperationController    controller
+	);
+
+	public StorageRequestTaskImportDataByteBuffers createImportFromByteBuffersTask(
+		int                           channelCount          ,
+		StorageDataFileEvaluator      fileEvaluator         ,
+		StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
+		XGettingEnum<ByteBuffer>      importData            ,
 		StorageOperationController    controller
 	);
 
@@ -159,156 +168,174 @@ public interface StorageRequestTaskCreator
 		{
 			return new StorageChannelTaskShutdown.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				channelCount,
+				channelCount                                 ,
 				operationController
 			);
 		}
 
 		@Override
 		public StorageRequestTaskStoreEntities createSaveTask(
-			final Binary                     data      ,
-			final StorageOperationController controller
+			final Binary                     data               ,
+			final StorageOperationController operationController
 		)
 		{
 			return new StorageRequestTaskStoreEntities.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				data,
-				controller
+				data                                         ,
+				operationController
 			);
 		}
 
 		@Override
 		public StorageRequestTaskLoadByOids createLoadTaskByOids(
-			final PersistenceIdSet[]   loadOids  ,
-			final StorageOperationController controller
+			final PersistenceIdSet[]         loadOids           ,
+			final StorageOperationController operationController
 		)
 		{
 			return new StorageRequestTaskLoadByOids.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				loadOids,
-				controller
+				loadOids                                     ,
+				operationController
 			);
 		}
 
 		@Override
 		public StorageRequestTaskLoadRoots createRootsLoadTask(
-			final int                        channelCount,
-			final StorageOperationController controller
+			final int                        channelCount       ,
+			final StorageOperationController operationController
 		)
 		{
 			return new StorageRequestTaskLoadRoots.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				channelCount,
-				controller
+				channelCount                                 ,
+				operationController
 			);
 		}
 		
 		@Override
 		public StorageRequestTaskLoadByTids createLoadTaskByTids(
-			final PersistenceIdSet           loadTids, 
-			final int                        channelCount, 
-			final StorageOperationController controller
+			final PersistenceIdSet           loadTids           ,
+			final int                        channelCount       ,
+			final StorageOperationController operationController
 		)
 		{
 			return new StorageRequestTaskLoadByTids.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				loadTids,
-				channelCount,
-				controller
+				loadTids                                     ,
+				channelCount                                 ,
+				operationController
 			);
 		}
 
 		@Override
 		public StorageRequestTaskExportEntitiesByType createExportTypesTask(
-			final int                                         channelCount      ,
-			final StorageEntityTypeExportFileProvider         exportFileProvider,
-			final Predicate<? super StorageEntityTypeHandler> isExportType      ,
-			final StorageOperationController                  controller
+			final int                                         channelCount       ,
+			final StorageEntityTypeExportFileProvider         exportFileProvider ,
+			final Predicate<? super StorageEntityTypeHandler> isExportType       ,
+			final StorageOperationController                  operationController
 		)
 		{
 			return new StorageRequestTaskExportEntitiesByType.Default(
 				this.timestampProvider.currentNanoTimestamp(),
 				channelCount                                 ,
 				exportFileProvider                           ,
-				isExportType,
-				controller
+				isExportType                                 ,
+				operationController
 			);
 		}
 
 		@Override
 		public StorageRequestTaskExportChannels createTaskExportChannels(
-			final int                        channelCount,
-			final StorageLiveFileProvider    fileProvider,
-			final StorageOperationController controller
+			final int                        channelCount       ,
+			final StorageLiveFileProvider    fileProvider       ,
+			final StorageOperationController operationController
 		)
 		{
 			return new StorageRequestTaskExportChannels.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				channelCount,
-				fileProvider,
-				controller
+				channelCount                                 ,
+				fileProvider                                 ,
+				operationController
 			);
 		}
 
 		@Override
 		public StorageRequestTaskCreateStatistics createCreateRawFileStatisticsTask(
-			final int                        channelCount,
-			final StorageOperationController controller
+			final int                        channelCount       ,
+			final StorageOperationController operationController
 		)
 		{
 			return new StorageRequestTaskCreateStatistics.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				channelCount,
-				controller
+				channelCount                                 ,
+				operationController
 			);
 		}
 
 		@Override
 		public StorageRequestTaskFileCheck createFullFileCheckTask(
-			final int                        channelCount  ,
-			final long                       nanoTimeBudget,
-			final StorageOperationController controller
+			final int                        channelCount       ,
+			final long                       nanoTimeBudget     ,
+			final StorageOperationController operationController
 		)
 		{
 			return new StorageRequestTaskFileCheck.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				channelCount,
-				nanoTimeBudget,
-				controller
+				channelCount                                 ,
+				nanoTimeBudget                               ,
+				operationController
 			);
 		}
 
 		@Override
 		public StorageRequestTaskCacheCheck createFullCacheCheckTask(
-			final int                         channelCount   ,
-			final long                        nanoTimeBudget ,
-			final StorageEntityCacheEvaluator entityEvaluator,
-			final StorageOperationController  controller
+			final int                         channelCount       ,
+			final long                        nanoTimeBudget     ,
+			final StorageEntityCacheEvaluator entityEvaluator    ,
+			final StorageOperationController  operationController
 		)
 		{
 			return new StorageRequestTaskCacheCheck.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				channelCount,
-				nanoTimeBudget,
-				entityEvaluator,
-				controller
+				channelCount                                 ,
+				nanoTimeBudget                               ,
+				entityEvaluator                              ,
+				operationController
 			);
 		}
 
 		@Override
-		public StorageRequestTaskImportData createImportFromFilesTask(
+		public StorageRequestTaskImportDataFiles createImportFromFilesTask(
 			final int                           channelCount          ,
 			final StorageDataFileEvaluator      fileEvaluator         ,
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
 			final XGettingEnum<AFile>           importFiles           ,
+			final StorageOperationController    operationController
+		)
+		{
+			return new StorageRequestTaskImportDataFiles.Default(
+				this.timestampProvider.currentNanoTimestamp(),
+				channelCount                                 ,
+				objectIdRangeEvaluator                       ,
+				importFiles                                  ,
+				operationController
+			);
+		}
+
+		@Override
+		public StorageRequestTaskImportDataByteBuffers createImportFromByteBuffersTask(
+			final int                           channelCount          ,
+			final StorageDataFileEvaluator      fileEvaluator         ,
+			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
+			final XGettingEnum<ByteBuffer>      importData            ,
 			final StorageOperationController    controller
 		)
 		{
-			return new StorageRequestTaskImportData.Default(
+			return new StorageRequestTaskImportDataByteBuffers.Default(
 				this.timestampProvider.currentNanoTimestamp(),
-				channelCount,
-				objectIdRangeEvaluator,
-				importFiles,
+				channelCount                                 ,
+				objectIdRangeEvaluator                       ,
+				importData                                   ,
 				controller
 			);
 		}
