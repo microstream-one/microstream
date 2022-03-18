@@ -5,7 +5,7 @@ package one.microstream.storage.restclient.app.types;
  * #%L
  * microstream-storage-restclient-app
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
