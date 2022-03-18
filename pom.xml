@@ -43,6 +43,7 @@
 		<license.inceptionYear>2019</license.inceptionYear>
 		<license.licenseName>epl_v2</license.licenseName>
 		<license.licenceFile>${basedir}/LICENSE</license.licenceFile>
+		<license.canUpdateCopyright>true</license.canUpdateCopyright>
 		<api.version>7.0</api.version>
 		<javadoc.failed.on.error>false</javadoc.failed.on.error>
 	</properties>
