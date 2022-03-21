@@ -311,6 +311,8 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			rebuildOidHashSlots(this.oidHashTable, newSlots, this.channelHashShift, newModulo);
 			this.oidHashTable = newSlots;
 			this.oidModulo    = newModulo;
+			
+			logger.debug("Enlarged StorageEntityCache to {} entries!", newSlots.length);
 		}
 
 		private static void rebuildOidHashSlots(
@@ -345,6 +347,8 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			rebuildOidHashSlots(this.oidHashTable, newSlots, this.channelHashShift, newModulo);
 			this.oidHashTable = newSlots;
 			this.oidModulo    = newModulo;
+			
+			logger.debug("Consolidated StorageEntityCache to {} entries!", newSlots.length);
 		}
 
 		private void rebuildTidHashTable()
@@ -871,6 +875,9 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 
 			// 5.) mark entity as deleted
 			entity.setDeleted();
+						
+			// decrement size, otherwise the the cache can't shrink
+			this.oidSize--;
 		}
 
 		private void checkForCacheClear(final StorageEntity.Default entry, final long evalTime)
@@ -1280,7 +1287,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			{
 				this.resetLiveCursor();
 				
-				logger.debug("StorageChannel#{} completed live check", this.channelIndex);
+				logger.trace("StorageChannel#{} completed live check", this.channelIndex);
 				this.eventLogger.logLiveCheckComplete(this);
 
 				// report live check completed
