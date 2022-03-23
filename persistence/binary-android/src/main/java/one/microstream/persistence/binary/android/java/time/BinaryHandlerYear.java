@@ -69,7 +69,7 @@ public final class BinaryHandlerYear extends AbstractBinaryHandlerCustomNonRefer
 		final PersistenceStoreHandler<Binary> handler
 	)
 	{
-		data.storeEntityHeader(Long.BYTES, this.typeId(), objectId);
+		data.storeEntityHeader(Integer.BYTES, this.typeId(), objectId);
 		
 		data.store_long(instance.getValue());
 	}

@@ -29,10 +29,11 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerLocalTime extends AbstractBinaryHandlerCustomNonReferentialFixedLength<LocalTime>
 {
-	static final long BINARY_OFFSET_HOUR   =                                0L;
-	static final long BINARY_OFFSET_MINUTE = BINARY_OFFSET_HOUR   + Byte.BYTES;
-	static final long BINARY_OFFSET_SECOND = BINARY_OFFSET_MINUTE + Byte.BYTES;
-	static final long BINARY_OFFSET_NANO   = BINARY_OFFSET_SECOND + Byte.BYTES;
+	static final long BINARY_OFFSET_HOUR   =                                   0L;
+	static final long BINARY_OFFSET_MINUTE = BINARY_OFFSET_HOUR   + Byte   .BYTES;
+	static final long BINARY_OFFSET_SECOND = BINARY_OFFSET_MINUTE + Byte   .BYTES;
+	static final long BINARY_OFFSET_NANO   = BINARY_OFFSET_SECOND + Byte   .BYTES;
+	static final long BINARY_LENGTH        = BINARY_OFFSET_NANO   + Integer.BYTES;
 	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -77,7 +78,7 @@ public final class BinaryHandlerLocalTime extends AbstractBinaryHandlerCustomNon
 		final PersistenceStoreHandler<Binary> handler
 	)
 	{
-		data.storeEntityHeader(Long.BYTES, this.typeId(), objectId);
+		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
 		
 		data.store_byte(BINARY_OFFSET_HOUR  , (byte)instance.getHour());
 		data.store_byte(BINARY_OFFSET_MINUTE, (byte)instance.getMinute());

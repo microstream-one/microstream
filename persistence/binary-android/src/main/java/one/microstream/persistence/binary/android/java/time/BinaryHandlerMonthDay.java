@@ -29,8 +29,9 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerMonthDay extends AbstractBinaryHandlerCustomNonReferentialFixedLength<MonthDay>
 {
-	static final long BINARY_OFFSET_MONTH =                                   0L;
-	static final long BINARY_OFFSET_DAY   = BINARY_OFFSET_MONTH  + Integer.BYTES;
+	static final long BINARY_OFFSET_MONTH =                                  0L;
+	static final long BINARY_OFFSET_DAY   = BINARY_OFFSET_MONTH + Integer.BYTES;
+	static final long BINARY_LENGTH       = BINARY_OFFSET_DAY   + Integer.BYTES;
 	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -73,7 +74,7 @@ public final class BinaryHandlerMonthDay extends AbstractBinaryHandlerCustomNonR
 		final PersistenceStoreHandler<Binary> handler
 	)
 	{
-		data.storeEntityHeader(Long.BYTES, this.typeId(), objectId);
+		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
 		
 		data.store_int(BINARY_OFFSET_MONTH, instance.getMonthValue());
 		data.store_int(BINARY_OFFSET_DAY  , instance.getDayOfMonth());

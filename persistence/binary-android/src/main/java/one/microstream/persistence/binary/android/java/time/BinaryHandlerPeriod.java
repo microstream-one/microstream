@@ -32,6 +32,7 @@ public final class BinaryHandlerPeriod extends AbstractBinaryHandlerCustomNonRef
 	static final long BINARY_OFFSET_YEARS  =                                   0L;
 	static final long BINARY_OFFSET_MONTHS = BINARY_OFFSET_YEARS  + Integer.BYTES;
 	static final long BINARY_OFFSET_DAYS   = BINARY_OFFSET_MONTHS + Integer.BYTES;
+	static final long BINARY_LENGTH        = BINARY_OFFSET_DAYS   + Integer.BYTES;
 	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -75,7 +76,7 @@ public final class BinaryHandlerPeriod extends AbstractBinaryHandlerCustomNonRef
 		final PersistenceStoreHandler<Binary> handler
 	)
 	{
-		data.storeEntityHeader(Long.BYTES, this.typeId(), objectId);
+		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
 		
 		data.store_int(BINARY_OFFSET_YEARS , instance.getYears());
 		data.store_int(BINARY_OFFSET_MONTHS, instance.getMonths());

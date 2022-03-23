@@ -36,6 +36,7 @@ public final class BinaryHandlerLocalDateTime extends AbstractBinaryHandlerCusto
 	static final long BINARY_OFFSET_MINUTE = BINARY_OFFSET_HOUR   + Byte   .BYTES;
 	static final long BINARY_OFFSET_SECOND = BINARY_OFFSET_MINUTE + Byte   .BYTES;
 	static final long BINARY_OFFSET_NANO   = BINARY_OFFSET_SECOND + Byte   .BYTES;
+	static final long BINARY_LENGTH        = BINARY_OFFSET_NANO   + Integer.BYTES;
 	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -83,7 +84,7 @@ public final class BinaryHandlerLocalDateTime extends AbstractBinaryHandlerCusto
 		final PersistenceStoreHandler<Binary> handler
 	)
 	{
-		data.storeEntityHeader(Long.BYTES, this.typeId(), objectId);
+		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
 		
 		data.store_int  (BINARY_OFFSET_YEAR  , instance.getYear());
 		data.store_short(BINARY_OFFSET_MONTH , (short)instance.getMonthValue());

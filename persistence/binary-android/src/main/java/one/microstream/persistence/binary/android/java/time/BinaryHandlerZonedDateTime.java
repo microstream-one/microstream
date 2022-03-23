@@ -85,7 +85,10 @@ public final class BinaryHandlerZonedDateTime extends AbstractBinaryHandlerCusto
 		final PersistenceStoreHandler<Binary> handler
 	)
 	{
-		data.storeEntityHeader(Long.BYTES, this.typeId(), objectId);
+		final String zoneId              = instance.getZone().getId();
+		final long   entityContentLength = BINARY_OFFSET_ID + Binary.calculateBinaryLengthChars(zoneId.length());
+		
+		data.storeEntityHeader(entityContentLength, this.typeId(), objectId);
 		
 		data.store_int       (BINARY_OFFSET_YEAR  , instance.getYear());
 		data.store_short     (BINARY_OFFSET_MONTH , (short)instance.getMonthValue());
@@ -94,7 +97,7 @@ public final class BinaryHandlerZonedDateTime extends AbstractBinaryHandlerCusto
 		data.store_byte      (BINARY_OFFSET_MINUTE, (byte)instance.getMinute());
 		data.store_byte      (BINARY_OFFSET_SECOND, (byte)instance.getSecond());
 		data.store_int       (BINARY_OFFSET_NANO  , instance.getNano());
-		data.storeStringValue(BINARY_OFFSET_ID    , instance.getZone().getId());
+		data.storeStringValue(BINARY_OFFSET_ID    , zoneId);
 	}
 
 	@Override

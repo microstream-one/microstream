@@ -29,6 +29,10 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 
 public final class BinaryHandlerInstant extends AbstractBinaryHandlerCustomNonReferentialFixedLength<Instant>
 {
+	static final long BINARY_OFFSET_SECOND =                                    0L;
+	static final long BINARY_OFFSET_NANO   = BINARY_OFFSET_SECOND  + Long   .BYTES;
+	static final long BINARY_LENGTH        = BINARY_OFFSET_NANO    + Integer.BYTES;
+	
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
@@ -49,7 +53,8 @@ public final class BinaryHandlerInstant extends AbstractBinaryHandlerCustomNonRe
 		super(
 			Instant.class,
 			CustomFields(
-				CustomField(long.class, "epochMilli")
+				CustomField(long.class, "second"),
+				CustomField(int.class , "nano"  )
 			)
 		);
 	}
@@ -69,15 +74,19 @@ public final class BinaryHandlerInstant extends AbstractBinaryHandlerCustomNonRe
 		final PersistenceStoreHandler<Binary> handler
 	)
 	{
-		data.storeEntityHeader(Long.BYTES, this.typeId(), objectId);
+		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
 		
-		data.store_long(instance.toEpochMilli());
+		data.store_long(BINARY_OFFSET_SECOND, instance.getEpochSecond());
+		data.store_int (BINARY_OFFSET_NANO  , instance.getNano()       );
 	}
 
 	@Override
 	public final Instant create(final Binary data, final PersistenceLoadHandler handler)
 	{
-		return Instant.ofEpochMilli(data.read_long(0L));
+		return Instant.ofEpochSecond(
+			data.read_long(BINARY_OFFSET_SECOND),
+			data.read_int (BINARY_OFFSET_NANO)
+		);
 	}
 
 	@Override
