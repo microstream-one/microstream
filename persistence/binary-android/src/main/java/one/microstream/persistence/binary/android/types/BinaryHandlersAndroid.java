@@ -39,8 +39,8 @@ import one.microstream.persistence.types.PersistenceFoundation;
 /**
  * Registeres special type handlers written for Android.
  * Some of them have to sacrifice referencial integrity for funcionality.
- * 
- * @see https://github.com/microstream-one/microstream/issues/245#issuecomment-921660371
+ * <p>
+ * See <a href="https://github.com/microstream-one/microstream/issues/245#issuecomment-921660371">Issue</a> for further details.
  */
 public final class BinaryHandlersAndroid
 {
