@@ -70,7 +70,8 @@ public interface StorageImportSourceByteBuffer extends StorageImportSource
 	    @Override
 	    public boolean close()
 	    {
-	    	return XMemory.deallocateDirectByteBuffer(this.buffer);
+	    	// no-op
+	    	return true;
 	    }
 
 		@Override
