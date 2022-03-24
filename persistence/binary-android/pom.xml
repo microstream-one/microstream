@@ -14,7 +14,7 @@
 	<artifactId>microstream-persistence-binary-android</artifactId>
 	
 	<name>MicroStream Persistence Android</name>
-	<description>MicroStream Persistence Specialized Type Handlers</description>
+	<description>MicroStream Persistence Specialized Android Type Handlers</description>
 	
 	<dependencies>
 		<dependency>
