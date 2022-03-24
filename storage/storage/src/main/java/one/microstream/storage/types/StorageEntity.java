@@ -257,19 +257,19 @@ public interface StorageEntity
 		 * initialized (JVM default value or value determined in the constructor)
 		 */
 		private Default(
-			final long                         objectId      ,
-			final TypeInFile                   type          ,
+			final long                  objectId      ,
+			final TypeInFile            type          ,
 			final StorageEntity.Default hashNext      ,
-			final byte                         referenceCount
+			final byte                  referenceCount
 		)
 		{
 			super();
-			this.objectId       = objectId      ;
-			this.hashNext       = hashNext      ;
+			this.objectId       = objectId         ;
+			this.hashNext       = hashNext         ;
 			this.lastTouched    = Integer.MAX_VALUE; // initially "touched in eternity", especially for dummy entities.
-			this.typeInFile     = type          ;
-			this.referenceCount = referenceCount;
-			this.gcState        = GC_INITIAL    ;
+			this.typeInFile     = type             ;
+			this.referenceCount = referenceCount   ;
+			this.gcState        = GC_INITIAL       ;
 		}
 
 		private static byte calculateReferenceCount(final boolean hasReferences, final long simpleReferenceCount)
@@ -453,7 +453,7 @@ public interface StorageEntity
 		)
 		{
 			this.storagePosition = storagePosition;
-			this.length = length;
+			this.length          = length         ;
 		}
 
 		final boolean isProper()
