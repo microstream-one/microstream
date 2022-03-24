@@ -62,7 +62,7 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 		private final StorageImportSource.Abstract[] sourceTails;
 
 		private final    AtomicBoolean complete  = new AtomicBoolean();
-		private volatile long          maxObjectId; //TODO Check, why it is not assigned?
+		private volatile long          maxObjectId;
 		private          Thread        readThread ;
 		Abstract(
 			final long                          timestamp             ,
@@ -168,8 +168,6 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 			private       S                              source               ;
 			private       int                            currentBatchChannel  ;
 			private       long                           currentSourcePosition;
-			private       long                           maxObjectId          ;
-
 			
 			
 			///////////////////////////////////////////////////////////////////////////
@@ -245,9 +243,9 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 					this.addToCurrentBatch(intLength, objectId, type);
 				}
 
-				if(objectId >= this.maxObjectId)
+				if(objectId >= StorageRequestTaskImportData.Abstract.this.maxObjectId)
 				{
-					this.maxObjectId = objectId;
+					 StorageRequestTaskImportData.Abstract.this.maxObjectId = objectId;
 				}
 
 				// keep track of current source position to offset the batch correctly
