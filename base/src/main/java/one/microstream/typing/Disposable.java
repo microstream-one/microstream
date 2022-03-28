@@ -1,4 +1,4 @@
-package one.microstream.storage.types;
+package one.microstream.typing;
 
 /*-
  * #%L
@@ -20,7 +20,7 @@ package one.microstream.storage.types;
  * #L%
  */
 
-public interface Destroyable 
+public interface Disposable 
 {
 	/**
 	 * Release resources used by the implementing class
@@ -28,6 +28,6 @@ public interface Destroyable
 	 * 
 	 * After calling, the owning object may be in an inoperable state which it can't recover from! 
 	 */
-	public void destroy();
+	public void dispose();
 	
 }

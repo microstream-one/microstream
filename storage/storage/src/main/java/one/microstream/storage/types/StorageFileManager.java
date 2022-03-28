@@ -47,13 +47,14 @@ import one.microstream.storage.exceptions.StorageExceptionIoWriting;
 import one.microstream.storage.exceptions.StorageExceptionIoWritingChunk;
 import one.microstream.storage.types.StorageRawFileStatistics.FileStatistics;
 import one.microstream.storage.types.StorageTransactionsAnalysis.EntryAggregator;
+import one.microstream.typing.Disposable;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BufferSizeProvider;
 import one.microstream.util.logging.Logging;
 
 
 // note that the name channel refers to the entity hash channel, not an nio channel
-public interface StorageFileManager extends StorageChannelResetablePart, Destroyable
+public interface StorageFileManager extends StorageChannelResetablePart, Disposable
 {
 	/* (17.09.2014 TM)TODO: Much more loose coupling
 	 * Make all storage stuff much more loosely coupled with more interface methods and
@@ -269,7 +270,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Destroy
 		////////////
 
 		@Override
-		public final void destroy()
+		public final void dispose()
 		{
 			this.clearRegisteredFiles();
 			this.deleteBuffers();
@@ -924,7 +925,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Destroy
 			catch(final RuntimeException e)
 			{
 				//as this instance won't be restarted any more, destroy allocated buffers
-				parent.destroy();
+				parent.dispose();
 				throw e;
 			}
 			finally
