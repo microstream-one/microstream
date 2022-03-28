@@ -41,12 +41,13 @@ import one.microstream.persistence.types.PersistenceIdSet;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageExceptionConsistency;
 import one.microstream.time.XTime;
+import one.microstream.typing.Disposable;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.BufferSizeProviderIncremental;
 import one.microstream.util.logging.Logging;
 
 
-public interface StorageChannel extends Runnable, StorageChannelResetablePart, StorageActivePart
+public interface StorageChannel extends Runnable, StorageChannelResetablePart, StorageActivePart, Disposable
 {
 	public StorageTypeDictionary typeDictionary();
 
@@ -539,7 +540,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			{
 				try
 				{
-					this.reset();
+					this.dispose();
 				}
 				catch(final Throwable t1)
 				{
@@ -794,6 +795,12 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			this.entityCache.clearPendingStoreUpdate();
 		}
 
+		@Override
+		public final void dispose()
+		{
+			this.entityCache.reset();
+			this.fileManager.dispose();
+		}
 	}
 
 
