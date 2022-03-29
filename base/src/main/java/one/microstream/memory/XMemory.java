@@ -1143,6 +1143,14 @@ public final class XMemory
 		}
 		return bytes;
 	}
+	
+	public static final ByteBuffer toDirectByteBuffer(final byte[] bytes)
+	{
+		final ByteBuffer buffer = allocateDirectNative(bytes.length);
+		buffer.put(bytes);
+		buffer.flip();
+		return buffer;
+	}
 
 	public static final long getPositionLimit(final ByteBuffer buffer)
 	{
