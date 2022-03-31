@@ -561,7 +561,9 @@ public interface EmbeddedStorageManager extends StorageManager
 		}
 		
 
-		
+		/**
+		 * @deprecated will be removed in version 8
+		 */
 		@Deprecated
 		@Override
 		public final Reference<Object> defaultRoot()
