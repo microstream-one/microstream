@@ -44,7 +44,7 @@ import one.microstream.storage.types.StorageLiveFileProvider;
 
 /**
  * 
- * @deprecated replaced by {@link EmbeddedStorageConfigurationBuilder}, will be removed in a future release
+ * @deprecated replaced by {@link EmbeddedStorageConfigurationBuilder}, will be removed in version 8
  * @see EmbeddedStorageConfiguration
  * @see one.microstream.storage.configuration
  */

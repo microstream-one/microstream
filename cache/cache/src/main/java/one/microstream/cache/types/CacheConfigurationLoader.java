@@ -41,7 +41,7 @@ import one.microstream.chars.XChars;
 
 /**
  *
- * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationLoader}, will be removed in a future release
+ * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationLoader}, will be removed in version 8
  */
 @Deprecated
 @FunctionalInterface

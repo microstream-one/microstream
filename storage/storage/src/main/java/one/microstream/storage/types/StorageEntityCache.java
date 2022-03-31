@@ -90,7 +90,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		 * 
 		 * @param enabled <code>true</code> if the gc should be enabled, <code>false</code> otherwise
 		 * 
-		 * @deprecated experimental, will be removed in a future release
+		 * @deprecated experimental
 		 */
 		@Deprecated
 		public static void setGarbageCollectionEnabled(final boolean enabled)

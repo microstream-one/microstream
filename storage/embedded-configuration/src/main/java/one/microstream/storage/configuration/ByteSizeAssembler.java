@@ -26,7 +26,7 @@ import one.microstream.configuration.types.ByteUnit;
 
 /**
  * 
- * @deprecated will be removed in a future release
+ * @deprecated will be removed in version 8
  * @see one.microstream.storage.configuration
  */
 @Deprecated

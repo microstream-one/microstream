@@ -22,7 +22,7 @@ package one.microstream.cache.exceptions;
 
 /**
  * 
- * @deprecated will be removed in a future release
+ * @deprecated will be removed in version 8
  */
 @Deprecated
 public class CacheConfigurationIoException extends CacheConfigurationException

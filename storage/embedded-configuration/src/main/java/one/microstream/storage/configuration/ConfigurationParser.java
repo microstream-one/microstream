@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationParser}, will be removed in a future release
+ * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationParser}, will be removed in version 8
  * @see one.microstream.storage.configuration
  */
 @Deprecated

@@ -30,7 +30,7 @@ import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 
 /**
  * 
- * @deprecated will be removed in a future release
+ * @deprecated will be removed in version 8
  */
 @Deprecated
 public interface CacheLoaderWriterFactories<K, V>

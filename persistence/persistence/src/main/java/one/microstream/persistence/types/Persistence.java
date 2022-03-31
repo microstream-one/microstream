@@ -1022,7 +1022,7 @@ public class Persistence
 	 * @param refactoringsFile the file to read from
 	 * @return a new mapping provider
 	 * 
-	 * @deprecated replaced by {@link #RefactoringMapping(Path)}
+	 * @deprecated replaced by {@link #RefactoringMapping(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
@@ -1090,7 +1090,7 @@ public class Persistence
 	/**
 	 * @param file the file to read from
 	 * @return refactoring mappings from the file
-	 * @deprecated replaced by {@link #readRefactoringMappings(Path)}
+	 * @deprecated replaced by {@link #readRefactoringMappings(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final File file)
