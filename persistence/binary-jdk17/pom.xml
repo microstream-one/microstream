@@ -19,6 +19,7 @@
 	<properties>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
+		<org.eclipse.jdt.ecj.version>3.29.0</org.eclipse.jdt.ecj.version>
 	</properties>
 	
 	<dependencies>
