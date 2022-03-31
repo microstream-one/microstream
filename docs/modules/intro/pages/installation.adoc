@@ -202,6 +202,9 @@ From a technical point of view, storage as well as serialization is a process th
 |microstream-storage-restservice-sparkjava
 |REST service implementation which utilizes SparkJava and provides REST endpoints.
 
+|microstream-integrations-cdi
+|xref:misc:integrations/cdi.adoc[CDI Extension]
+
 |microstream-integrations-spring-boot
 |xref:misc:integrations/spring-boot.adoc[Spring Boot Integration]
 |===
