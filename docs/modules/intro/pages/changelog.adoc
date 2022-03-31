@@ -1,5 +1,22 @@
 = Changelog
 
+== 7.0
+
+=== *Features*
+
+* xref:misc:integrations/cdi.adoc[CDI Extension]
+* https://github.com/microstream-one/microstream/issues/293[Logging]
+* https://github.com/microstream-one/microstream/pull/286[Serializer API]
+* https://github.com/microstream-one/microstream/pull/325[Android Type Handlers]
+
+=== *Bugfixes*
+
+* TODO
+
+=== *Migration guide*
+
+From version 6 no actions are necessary, for older versions see xref:#5_0_migration-guide[below].
+
 == 6.1
 
 Bugfix release.
