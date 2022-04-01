@@ -20,16 +20,15 @@ package one.microstream.persistence.binary.util;
  * #L%
  */
 
-import static java.lang.System.identityHashCode;
 import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
 import java.util.function.Function;
 
 import one.microstream.X;
+import one.microstream.collections.HashTable;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.hashing.XHashing;
-import one.microstream.math.XMath;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryStorer;
@@ -37,9 +36,7 @@ import one.microstream.persistence.binary.types.ChunksBuffer;
 import one.microstream.persistence.binary.types.ChunksBufferByteReversing;
 import one.microstream.persistence.binary.types.ChunksWrapper;
 import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
-import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceIdSet;
-import one.microstream.persistence.types.PersistenceLocalObjectIdRegistry;
 import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.persistence.types.PersistenceObjectIdRequestor;
 import one.microstream.persistence.types.PersistenceObjectManager;
@@ -204,12 +201,12 @@ public interface Serializer<M> extends AutoCloseable
 			this.foundation = foundation;
 			this.toMedium   = toMedium  ;
 			this.toBinary   = toBinary  ;
+			this.lazyInit();
 		}
 		
 		@Override
 		public synchronized M serialize(final Object object)
 		{
-			this.lazyInit();
 			this.storer.store(object);
 			this.storer.commit();
 			return this.toMedium.apply(this.output);
@@ -219,7 +216,6 @@ public interface Serializer<M> extends AutoCloseable
 		@Override
 		public synchronized <T> T deserialize(final M data)
 		{
-			this.lazyInit();
 			this.input = this.toBinary.apply(data);
 			return (T)this.persistenceManager.get();
 		}
@@ -257,7 +253,7 @@ public interface Serializer<M> extends AutoCloseable
 		
 		
 		static class SerializerStorer
-		implements BinaryStorer, PersistenceStoreHandler<Binary>, PersistenceLocalObjectIdRegistry<Binary>
+		implements BinaryStorer, PersistenceStoreHandler<Binary>, PersistenceObjectIdRequestor<Binary>
 		{
 			static class Creator implements PersistenceStorer.Creator<Binary>
 			{
@@ -304,7 +300,6 @@ public interface Serializer<M> extends AutoCloseable
 						bufferSizeProvider  ,
 						this.switchByteOrder
 					);
-					objectManager.registerLocalRegistry(storer);
 					return storer;
 				}
 				
@@ -328,12 +323,9 @@ public interface Serializer<M> extends AutoCloseable
 			
 			private ChunksBuffer[] chunks;
 
-			final   Item   head = new Item(null, 0L, null, null);
-			private Item   tail;
-			private Item[] hashSlots;
-			private int    hashRange;
-			private long   itemCount;
-
+			final   Item                    head = new Item(null, 0L, null, null);
+			private Item                    tail;
+			private HashTable<Object, Item> hashSlots;
 
 			public SerializerStorer(
 				final PersistenceObjectManager<Binary>      objectManager     ,
@@ -360,12 +352,6 @@ public interface Serializer<M> extends AutoCloseable
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
 			////////////
-			
-			@Override
-			public final PersistenceObjectManager<Binary> parentObjectManager()
-			{
-				return this.objectManager;
-			}
 
 			@Override
 			public final ObjectSwizzling getObjectRetriever()
@@ -382,13 +368,13 @@ public interface Serializer<M> extends AutoCloseable
 			@Override
 			public final long currentCapacity()
 			{
-				return this.hashSlots.length;
+				return this.hashSlots.size();
 			}
 
 			@Override
 			public final long size()
 			{
-				return this.itemCount;
+				return this.hashSlots.size();
 			}
 
 			@Override
@@ -424,8 +410,7 @@ public interface Serializer<M> extends AutoCloseable
 
 			protected void internalInitialize(final int hashLength)
 			{
-				this.hashSlots = new Item[hashLength];
-				this.hashRange = hashLength - 1;
+				this.hashSlots = HashTable.NewCustom(hashLength);
 				
 				// initializing/clearing item chain
 				(this.tail = this.head).next = null;
@@ -440,12 +425,7 @@ public interface Serializer<M> extends AutoCloseable
 			@Override
 			public PersistenceStorer ensureCapacity(final long desiredCapacity)
 			{
-				if(this.currentCapacity() >= desiredCapacity)
-				{
-					return this;
-				}
-				this.rebuildStoreItems(XHashing.padHashLength(desiredCapacity));
-				
+				//no-op; done by Hashtable
 				return this;
 			}
 			
@@ -568,22 +548,6 @@ public interface Serializer<M> extends AutoCloseable
 			}
 			
 			@Override
-			public void iterateMergeableEntries(final PersistenceAcceptor iterator)
-			{
-				for(Item e = this.head; (e = e.next) != null;)
-				{
-					// skip items are local only and not valid for being visible to (i.e. merged into) global context
-					if(isSkipItem(e))
-					{
-						continue;
-					}
-					
-					// mergeable entry
-					iterator.accept(e.oid, e.instance);
-				}
-			}
-
-			@Override
 			public final Object commit()
 			{
 				// isEmpty locks internally
@@ -591,14 +555,7 @@ public interface Serializer<M> extends AutoCloseable
 				{
 					// must validate here, too, in case the WriteController disabled writing during the storer's existence.
 					this.target.validateIsStoringEnabled();
-					
-					this.typeManager.checkForPendingRootInstances();
-					this.typeManager.checkForPendingRootsStoring(this);
-					
 					this.target.write(this.chunks[0].complete());
-					
-					this.typeManager.clearStorePendingRoots();
-					this.objectManager.mergeEntries(this);
 				}
 				
 				this.clear();
@@ -609,49 +566,16 @@ public interface Serializer<M> extends AutoCloseable
 			
 			public final long lookupOid(final Object object)
 			{
-				for(Item e = this.hashSlots[identityHashCode(object) & this.hashRange]; e != null; e = e.link)
+				final Item item = this.hashSlots.get(object);
+			
+				if(item != null)
 				{
-					if(e.instance == object)
-					{
-						return e.oid;
-					}
+					return item.oid;
 				}
 
 				// returning 0 is a valid case: an instance registered to be skipped by using the null-OID.
 				return Swizzling.notFoundId();
 			}
-			
-			private static boolean isSkipItem(final Item item)
-			{
-				return item.typeHandler == null;
-			}
-			
-			@Override
-			public final <T> long lookupObjectId(
-				final T                                    object           ,
-				final PersistenceObjectIdRequestor<Binary> objectIdRequestor,
-				final PersistenceTypeHandler<Binary, T>    optionalHandler
-			)
-			{
-				for(Item e = this.hashSlots[identityHashCode(object) & this.hashRange]; e != null; e = e.link)
-				{
-					if(e.instance == object)
-					{
-						if(isSkipItem(e))
-						{
-							// skip-entry for this storer, so it can offer nothing to the receiver.
-							break;
-						}
-						
-						// found a local entry in the current storer, transfer object<->id association to the receiver.
-						objectIdRequestor.registerGuaranteed(e.oid, object, optionalHandler);
-						return e.oid;
-					}
-				}
-				
-				return Swizzling.notFoundId();
-			}
-			
 
 			@Override
 			public final <T> void registerGuaranteed(
@@ -689,15 +613,6 @@ public interface Serializer<M> extends AutoCloseable
 			{
 				// default is eager logic.
 				this.registerGuaranteed(objectId, instance, optionalHandler);
-			}
-			
-			protected final long register(final Object instance)
-			{
-				/* Note:
-				 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
-				 * - depending on implementation lazy or eager callback, the other variant is a no-op respectively
-				 */
-				return this.objectManager.ensureObjectId(instance, this, null);
 			}
 			
 			protected final long registerGuaranteed(final Object instance)
@@ -756,49 +671,18 @@ public interface Serializer<M> extends AutoCloseable
 				final long                                      objectId
 			)
 			{
-				if(++this.itemCount >= this.hashRange)
-				{
-					this.rebuildStoreItems();
-				}
 
-				return this.hashSlots[identityHashCode(instance) & this.hashRange] =
-					new Item(
-						instance,
-						objectId,
-						(PersistenceTypeHandler<Binary, Object>)typeHandler,
-						this.hashSlots[identityHashCode(instance) & this.hashRange]
-					)
-				;
+				final Item item = new Item(
+					instance,
+					objectId,
+					(PersistenceTypeHandler<Binary, Object>)typeHandler,
+					null);
+
+				this.hashSlots.put(instance, item);
+				return item;
 			}
 
-			public final void rebuildStoreItems()
-			{
-				this.rebuildStoreItems(this.hashSlots.length * 2);
-			}
 
-			public final void rebuildStoreItems(final int newLength)
-			{
-				// moreless academic check for more than 1 billion entries
-				if(this.hashSlots.length >= XMath.highestPowerOf2_int())
-				{
-					return; // note that aborting rebuild does not ruin anything.
-				}
-
-				final int newRange;
-				final Item[] newSlots = new Item[(newRange = newLength - 1) + 1];
-				for(Item entry : this.hashSlots)
-				{
-					for(Item next; entry != null; entry = next)
-					{
-						next = entry.link;
-						entry.link = newSlots[identityHashCode(entry.instance) & newRange];
-						newSlots[identityHashCode(entry.instance) & newRange] = entry;
-					}
-				}
-				this.hashSlots = newSlots;
-				this.hashRange = newRange;
-			}
-			
 			
 			static final class Item
 			{
