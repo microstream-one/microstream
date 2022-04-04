@@ -82,20 +82,13 @@
 							<serverName>${final.name}</serverName>
 							<bootstrapProperties>
 								<project.name>${final.name}</project.name>
-								<jwt.issuer>https://server.example.com</jwt.issuer>
 								<app.context.root>/</app.context.root>
 							</bootstrapProperties>
 						</configuration>
 					</plugin>
 				</plugins>
 			</build>
-			<dependencies>
-				<dependency>
-					<groupId>io.jaegertracing</groupId>
-					<artifactId>jaeger-client</artifactId>
-					<version>1.5.0</version>
-				</dependency>
-			</dependencies>
+
 		</profile>
 	</profiles>
 </project>
