@@ -218,7 +218,7 @@ The relation with the properties from [Microstream docs](https://docs.microstrea
 * ```one.microstream.transaction.file.prefix```: transaction-file-prefix; Name prefix of the storage transaction file. Default is "transactions_".
 * ```one.microstream.transaction.file.suffix```: transaction-file-suffix; Name suffix of the storage transaction file. Default is ".sft".
 * ```one.microstream.type.dictionary.file.name```: type-dictionary-file-name; The name of the dictionary file. Default is "PersistenceTypeDictionary.ptd".
-* ```microstream.rescued.file.suffix```: rescued-file-suffix; Name suffix of the storage rescue files. Default is ".bak".
+* ```one.microstream.rescued.file.suffix```: rescued-file-suffix; Name suffix of the storage rescue files. Default is ".bak".
 * ```one.microstream.lock.file.name```: lock-file-name; Name of the lock file. Default is "used.lock".
 * ```one.microstream.housekeeping.interval```: housekeeping-interval; Interval for the housekeeping. This is work like garbage collection or cache checking. In combination with houseKeepingNanoTimeBudget the maximum processor time for housekeeping work can be set. Default is 1 second.
 * ```one.microstream.housekeeping.time.budget```: housekeeping-time-budget; Number of nanoseconds used for each housekeeping cycle. Default is 10 milliseconds = 0.01 seconds.
