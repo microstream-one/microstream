@@ -32,7 +32,7 @@ import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfi
 
 
 /**
- * The relation with the properties from Microstream docs:
+ * The relation with the properties from MicroStream docs:
  * https://docs.microstream.one/manual/storage/configuration/properties.html
  */
 public enum ConfigurationCoreProperties
@@ -41,7 +41,7 @@ public enum ConfigurationCoreProperties
 	 * The base directory of the storage in the file system. Default is "storage" in the working directory.
 	 */
 	STORAGE_DIRECTORY(
-		"microstream.storage.directory",
+		Constants.PREFIX + "storage.directory",
 		EmbeddedStorageConfigurationPropertyNames.STORAGE_DIRECTORY
 	),
 	
@@ -49,7 +49,7 @@ public enum ConfigurationCoreProperties
 	 * The live file system configuration. See storage targets configuration.
 	 */
 	STORAGE_FILESYSTEM(
-		"microstream.storage.filesystem",
+			Constants.PREFIX + "storage.filesystem",
 		EmbeddedStorageConfigurationPropertyNames.STORAGE_FILESYSTEM
 	),
 	
@@ -57,7 +57,7 @@ public enum ConfigurationCoreProperties
 	 * If configured, the storage will not delete files. Instead of deleting a file it will be moved to this directory.
 	 */
 	DELETION_DIRECTORY(
-		"microstream.deletion.directory",
+			Constants.PREFIX + "deletion.directory",
 		EmbeddedStorageConfigurationPropertyNames.DELETION_DIRECTORY
 	),
 	
@@ -65,7 +65,7 @@ public enum ConfigurationCoreProperties
 	 * If configured, files that will get truncated are copied into this directory.
 	 */
 	TRUNCATION_DIRECTORY(
-		"microstream.truncation.directory",
+			Constants.PREFIX + "truncation.directory",
 		EmbeddedStorageConfigurationPropertyNames.TRUNCATION_DIRECTORY
 	),
 	
@@ -73,7 +73,7 @@ public enum ConfigurationCoreProperties
 	 * The backup directory.
 	 */
 	BACKUP_DIRECTORY(
-		"microstream.backup.directory",
+			Constants.PREFIX + "backup.directory",
 		EmbeddedStorageConfigurationPropertyNames.BACKUP_DIRECTORY
 	),
 	
@@ -81,7 +81,7 @@ public enum ConfigurationCoreProperties
 	 * The backup file system configuration. See storage targets configuration.
 	 */
 	BACKUP_FILESYSTEM(
-		"microstream.backup.filesystem",
+			Constants.PREFIX + "backup.filesystem",
 		EmbeddedStorageConfigurationPropertyNames.BACKUP_FILESYSTEM
 	),
 	
@@ -90,7 +90,7 @@ public enum ConfigurationCoreProperties
 	 * to its directory. Default is 1.
 	 */
 	CHANNEL_COUNT(
-		"microstream.channel.count",
+			Constants.PREFIX + "channel.count",
 		EmbeddedStorageConfigurationPropertyNames.CHANNEL_COUNT
 	),
 	
@@ -98,7 +98,7 @@ public enum ConfigurationCoreProperties
 	 * Name prefix of the subdirectories used by the channel threads. Default is "channel_".
 	 */
 	CHANNEL_DIRECTORY_PREFIX(
-		"microstream.channel.directory.prefix",
+			Constants.PREFIX + "channel.directory.prefix",
 		EmbeddedStorageConfigurationPropertyNames.CHANNEL_DIRECTORY_PREFIX
 	),
 	
@@ -106,7 +106,7 @@ public enum ConfigurationCoreProperties
 	 * Name prefix of the storage files. Default is "channel_".
 	 */
 	DATA_FILE_PREFIX(
-		"microstream.data.file.prefix",
+			Constants.PREFIX + "data.file.prefix",
 		EmbeddedStorageConfigurationPropertyNames.DATA_FILE_PREFIX
 	),
 	
@@ -114,7 +114,7 @@ public enum ConfigurationCoreProperties
 	 * Name suffix of the storage files. Default is ".dat".
 	 */
 	DATA_FILE_SUFFIX(
-		"microstream.data.file.suffix",
+			Constants.PREFIX + "data.file.suffix",
 		EmbeddedStorageConfigurationPropertyNames.DATA_FILE_SUFFIX
 	),
 	
@@ -122,7 +122,7 @@ public enum ConfigurationCoreProperties
 	 * Name prefix of the storage transaction file. Default is "transactions_".
 	 */
 	TRANSACTION_FILE_PREFIX(
-		"microstream.transaction.file.prefix",
+			Constants.PREFIX + "transaction.file.prefix",
 		EmbeddedStorageConfigurationPropertyNames.TRANSACTION_FILE_PREFIX
 	),
 	
@@ -130,7 +130,7 @@ public enum ConfigurationCoreProperties
 	 * Name suffix of the storage transaction file. Default is ".sft".
 	 */
 	TRANSACTION_FILE_SUFFIX(
-		"microstream.transaction.file.suffix",
+			Constants.PREFIX + "transaction.file.suffix",
 		EmbeddedStorageConfigurationPropertyNames.TRANSACTION_FILE_SUFFIX
 	),
 	
@@ -138,7 +138,7 @@ public enum ConfigurationCoreProperties
 	 * The name of the dictionary file. Default is "PersistenceTypeDictionary.ptd".
 	 */
 	TYPE_DICTIONARY_FILE_NAME(
-		"microstream.type.dictionary.file.name",
+			Constants.PREFIX + "type.dictionary.file.name",
 		EmbeddedStorageConfigurationPropertyNames.TYPE_DICTIONARY_FILE_NAME
 	),
 	
@@ -146,7 +146,7 @@ public enum ConfigurationCoreProperties
 	 * Name suffix of the storage rescue files. Default is ".bak".
 	 */
 	RESCUED_FILE_SUFFIX(
-		"microstream.rescued.file.suffix",
+			Constants.PREFIX + "rescued.file.suffix",
 		EmbeddedStorageConfigurationPropertyNames.RESCUED_FILE_SUFFIX
 	),
 	
@@ -154,7 +154,7 @@ public enum ConfigurationCoreProperties
 	 * Name of the lock file. Default is "used.lock".
 	 */
 	LOCK_FILE_NAME(
-		"microstream.lock.file.name",
+			Constants.PREFIX + "lock.file.name",
 		EmbeddedStorageConfigurationPropertyNames.LOCK_FILE_NAME
 	),
 	
@@ -163,7 +163,7 @@ public enum ConfigurationCoreProperties
 	 * houseKeepingNanoTimeBudget the maximum processor time for housekeeping work can be set. Default is 1 second.
 	 */
 	HOUSEKEEPING_INTERVAL(
-		"microstream.housekeeping.interval",
+			Constants.PREFIX + "housekeeping.interval",
 		EmbeddedStorageConfigurationPropertyNames.HOUSEKEEPING_INTERVAL
 	),
 	
@@ -171,7 +171,7 @@ public enum ConfigurationCoreProperties
 	 * Number of nanoseconds used for each housekeeping cycle. Default is 10 milliseconds = 0.01 seconds.
 	 */
 	HOUSEKEEPING_TIME_BUDGET(
-		"microstream.housekeeping.time.budget",
+			Constants.PREFIX + "housekeeping.time.budget",
 		EmbeddedStorageConfigurationPropertyNames.HOUSEKEEPING_TIME_BUDGET
 	),
 	
@@ -179,7 +179,7 @@ public enum ConfigurationCoreProperties
 	 * Abstract threshold value for the lifetime of entities in the cache. Default is 1000000000.
 	 */
 	ENTITY_CACHE_THRESHOLD(
-		"microstream.entity.cache.threshold",
+			Constants.PREFIX + "entity.cache.threshold",
 		EmbeddedStorageConfigurationPropertyNames.ENTITY_CACHE_THRESHOLD
 	),
 	
@@ -188,7 +188,7 @@ public enum ConfigurationCoreProperties
 	 * accessed in this timespan it will be removed from the cache. Default is 1 day.
 	 */
 	ENTITY_CACHE_TIMEOUT(
-		"microstream.entity.cache.timeout",
+			Constants.PREFIX + "entity.cache.timeout",
 		EmbeddedStorageConfigurationPropertyNames.ENTITY_CACHE_TIMEOUT
 	),
 	
@@ -196,7 +196,7 @@ public enum ConfigurationCoreProperties
 	 * Minimum file size for a data file to avoid cleaning it up. Default is 1024^2 = 1 MiB.
 	 */
 	DATA_FILE_MINIMUM_SIZE(
-		"microstream.data.file.minimum.size",
+			Constants.PREFIX + "data.file.minimum.size",
 		EmbeddedStorageConfigurationPropertyNames.DATA_FILE_MINIMUM_SIZE
 	),
 	
@@ -204,7 +204,7 @@ public enum ConfigurationCoreProperties
 	 * Maximum file size for a data file to avoid cleaning it up. Default is 1024^2*8 = 8 MiB.
 	 */
 	DATA_FILE_MAXIMUM_SIZE(
-		"microstream.data.file.maximum.size",
+			Constants.PREFIX + "data.file.maximum.size",
 		EmbeddedStorageConfigurationPropertyNames.DATA_FILE_MAXIMUM_SIZE
 	),
 	
@@ -213,7 +213,7 @@ public enum ConfigurationCoreProperties
 	 * dissolved. Default is 0.75 (75%).
 	 */
 	DATA_FILE_MINIMUM_USE_RATIO(
-		"microstream.data.file.minimum.use.ratio",
+			Constants.PREFIX + "data.file.minimum.use.ratio",
 		EmbeddedStorageConfigurationPropertyNames.DATA_FILE_MINIMUM_USE_RATIO
 	),
 	
@@ -222,19 +222,19 @@ public enum ConfigurationCoreProperties
 	 * shall be subjected to file cleanups as well.
 	 */
 	DATA_FILE_CLEANUP_HEAD_FILE(
-		"microstream.data.file.cleanup.head.file",
+			Constants.PREFIX + "data.file.cleanup.head.file",
 		EmbeddedStorageConfigurationPropertyNames.DATA_FILE_CLEANUP_HEAD_FILE
 	),
 	
 	/**
 	 * Allow custom properties in through Microprofile, using this prefix. E.g.:
-	 * If you want to include the "custom.test" property, you will set it as "microstream.property.custom.test"
+	 * If you want to include the "custom.test" property, you will set it as "one.microstream.property.custom.test"
 	 */
 	CUSTOM(
-		"microstream.property",
+			Constants.PREFIX + "property",
 		""
 	);
-	
+
 	private final String microprofile;
 	private final String microstream ;
 	
@@ -306,5 +306,10 @@ public enum ConfigurationCoreProperties
 		config.getOptionalValue(property.getMicroprofile(), String.class)
 			.ifPresent(v -> properties.put(property.getMicrostream(), v))
 		;
+	}
+
+	private static class Constants
+	{
+		static final String PREFIX = "one.microstream.";
 	}
 }
