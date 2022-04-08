@@ -4,17 +4,11 @@ Based on the REST API we provide a client, which serves a convenient web user in
 
 It is a runnable jar which starts a simple web server which then can be accessed by a browser of your choice.
 
-To download it use maven
+To download it use the following Maven command to download it into the current directory.
 
-[source, xml, title="pom.xml", subs=attributes+]
+[source, shell, title="CLI"]
 ----
-<dependencies>
-	<dependency>
-		<groupId>one.microstream</groupId>
-		<artifactId>microstream-storage-restclient-app</artifactId>
-		<version>{maven-version}</version>
-	</dependency>
-</dependencies>
+mvn dependency:get -Dartifact=one.microstream:microstream-storage-restclient-app:{maven-version}:jar -Dtransitive=false -Ddest=storage.restclient.app-{maven-version}.jar
 ----
 
 or this direct link:
@@ -26,10 +20,10 @@ The port parameter is optional, default port is 8080.
 
 [source, text, subs=attributes+]
 ----
-java -jar storage.restclient.app-{maven-version}.jar --port=80
+java -jar storage.restclient.app-{maven-version}.jar --server.port=8888
 ----
 
-Then just open http://localhost in your browser, select the base URL of the REST service and click connect.
+Then just open http://localhost:8888 in your browser, select the base URL of the REST service and click connect.
 
 image::rest-client-gui.png[]
 
