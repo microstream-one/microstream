@@ -26,15 +26,15 @@ It is made up of the following modules:
 |microstream-storage-restservice
 |Abstract REST service interface, which uses the REST adapter to access low level storage data.
 
-|microstream-storage-restservice-sparkjava
-|REST service implementation which utilizes SparkJava and provides REST endpoints.
-
 |microstream-storage-restclient
 |Abstract REST client interface, which serves as a Java wrapper for the REST API.
+
+|microstream-storage-restservice-sparkjava
+|REST service implementation which utilizes SparkJava and provides REST endpoints.
 
 |microstream-storage-restclient-jersey
 |REST client implementation which utilizes Jersey as a webservice framework.
 
 |microstream-storage-restclient-app
-|microstream-Executable client app with web user interface, which connects to a REST service.
+|microstream-Executable client app with web user interface, which connects to a REST service and provides a simple UI to navigate through the Object Graph from the root.
 |===
