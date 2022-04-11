@@ -238,12 +238,12 @@ There is a list of properties in the ```CacheProperties``` enum.
 
 The primary purpose of this configuration is to allow you to explore the Configuration of Cache through Eclipse MicroProfile.
      
-* ```microstream.cache.loader.factory```: cacheLoaderFactory - A CacheLoader should be configured for "Read Through" caches to load values when a cache miss occurs.
-* ```microstream.cache.writer.factory```: cacheWriterFactory - A CacheWriter is used for write-through to an external resource.
-* ```microstream.cache.expires.factory```: expiryPolicyFactory - Determines when cache entries will expire based on creation, access and modification operations.
-* ```microstream.cache.read.through```: readThrough - When in "read-through" mode, cache misses that occur due to cache entries not existing as a result of performing a "get" will appropriately cause the configured CacheLoader to be invoked.
-* ```microstream.cache.write.through```: writeThrough - When in "write-through" mode, cache updates that occur as a result of performing "put" operations will appropriately cause the configured CacheWriter to be invoked. 
-* ```microstream.cache.store.value```: storeByValue - When a cache is storeByValue, any mutation to the key or value does not affect the key of value stored in the cache.
-* ```microstream.cache.statistics```: statisticsEnabled - Checks whether statistics collection is enabled in this cache. 
-* ```microstream.cache.management```: managementEnabled - Checks whether management is enabled on this cache. 
+* ```one.microstream.cache.loader.factory```: cacheLoaderFactory - A CacheLoader should be configured for "Read Through" caches to load values when a cache miss occurs.
+* ```one.microstream.cache.writer.factory```: cacheWriterFactory - A CacheWriter is used for write-through to an external resource.
+* ```one.microstream.cache.expires.factory```: expiryPolicyFactory - Determines when cache entries will expire based on creation, access and modification operations.
+* ```one.microstream.cache.read.through```: readThrough - When in "read-through" mode, cache misses that occur due to cache entries not existing as a result of performing a "get" will appropriately cause the configured CacheLoader to be invoked.
+* ```one.microstream.cache.write.through```: writeThrough - When in "write-through" mode, cache updates that occur as a result of performing "put" operations will appropriately cause the configured CacheWriter to be invoked. 
+* ```one.microstream.cache.store.value```: storeByValue - When a cache is storeByValue, any mutation to the key or value does not affect the key of value stored in the cache.
+* ```one.microstream.cache.statistics```: statisticsEnabled - Checks whether statistics collection is enabled in this cache. 
+* ```one.microstream.cache.management```: managementEnabled - Checks whether management is enabled on this cache. 
 
