@@ -4,7 +4,7 @@ If the application works in MVC frameworks, the work is often done by getting so
 and then store it back in a data store. This style of work application always works with a copy of the data.
 Which allows it to use mutable data only within a single thread. The developer doesn't have to worry about data
 synchronization and then store this data in a database transaction.
-This way of working is very practical, it does not require developers to have knowledge of multithreaded
+This way of working is very practical, it does not require developers to have knowledge of multi-threaded
 programming and thanks to this it is very widespread.
 
 Can similar technical work be used when working with MicroStream?
@@ -22,15 +22,7 @@ More here: https://en.wikipedia.org/wiki/Object_copying
 What is actually needed at this point is a deep copy. You need to create a complete copy of the complete subgraph from this object.
 
 == Deep Copy Utility (ObjectCopier)
-MicroStream provides the full support for a deep copy. However, the following conditions must be met:
-
-[WARNING]
-====
-. Data must be already saved and manage by MicroStream.
-. There are no circular references. The Object Graph is a Tree. (From graph theory, object graph contains no circles.)
-====
-
-If these two above conditions are met, ObjectCopier can be relatively easily called and a deep copy of the data will be created.
+MicroStream provides full support for a deep copy. It can be relatively easily called and a deep copy of the data will be created.
 
 [source, java]
 ----
@@ -49,11 +41,11 @@ If these two above conditions are met, ObjectCopier can be relatively easily cal
 
 What are the parts of this code?
 
-. Just create an instance of ObjectCopier class due to factory method New();
-. Get customer
+. Just create an instance of ObjectCopier class with factory method `New()`;
+. Get the customer
 . Make a deep copy of the customer object
 . Modify this object graph
-. In synchronized mode save this customer instead of the original customer and save it into a datastore
+. In synchronized mode save this customer instead of the original customer and store it into a datastore
 
 This simple example written in pseudocode aims to demonstrate one of the many ways to solve
-working over a shared object graph in a multi-threaded environment.
+working over a shared object graph in a multi-threaded environment. Make sure you close the _copier_ after you have used it to clean up all the resources.
