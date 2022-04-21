@@ -24,19 +24,36 @@ import one.microstream.X;
 import one.microstream.persistence.binary.jdk17.java.util.BinaryHandlerImmutableCollectionsList12;
 import one.microstream.persistence.binary.jdk17.java.util.BinaryHandlerImmutableCollectionsSet12;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceFoundation;
+import one.microstream.persistence.types.PersistenceTypeHandlerRegistration;
 
 public final class BinaryHandlersJDK17
 {
-	public static <F extends PersistenceFoundation<Binary, ?>> F registerJDK17TypeHandlers(final F foundation)
+	public static <F extends PersistenceTypeHandlerRegistration.Executor<Binary>> F registerJDK17TypeHandlers(final F executor)
 	{
-		foundation.executeTypeHandlerRegistration((r, c) ->
+		executor.executeTypeHandlerRegistration((r, c) ->
 			r.registerTypeHandlers(X.List(
 				BinaryHandlerImmutableCollectionsSet12.New(),
 				BinaryHandlerImmutableCollectionsList12.New()
 			))
 		);
 
-		return foundation;
+		return executor;
 	}
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 *
+	 * @throws UnsupportedOperationException when called
+	 */
+	protected BinaryHandlersJDK17()
+	{
+		// static only
+		throw new UnsupportedOperationException();
+	}
+	
 }

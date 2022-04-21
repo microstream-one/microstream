@@ -34,7 +34,7 @@ import one.microstream.persistence.binary.android.java.time.BinaryHandlerYear;
 import one.microstream.persistence.binary.android.java.time.BinaryHandlerYearMonth;
 import one.microstream.persistence.binary.android.java.time.BinaryHandlerZonedDateTime;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceFoundation;
+import one.microstream.persistence.types.PersistenceTypeHandlerRegistration;
 
 /**
  * Registeres special type handlers written for Android.
@@ -44,9 +44,9 @@ import one.microstream.persistence.types.PersistenceFoundation;
  */
 public final class BinaryHandlersAndroid
 {
-	public static <F extends PersistenceFoundation<Binary, ?>> F registerAndroidTypeHandlers(final F foundation)
+	public static <F extends PersistenceTypeHandlerRegistration.Executor<Binary>> F registerAndroidTypeHandlers(final F executor)
 	{
-		foundation.executeTypeHandlerRegistration((r, c) ->
+		executor.executeTypeHandlerRegistration((r, c) ->
 			r.registerTypeHandlers(X.List(
 				BinaryHandlerDuration.New(),
 				BinaryHandlerInstant.New(),
@@ -63,6 +63,23 @@ public final class BinaryHandlersAndroid
 			))
 		);
 		
-		return foundation;
+		return executor;
 	}
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 *
+	 * @throws UnsupportedOperationException when called
+	 */
+	protected BinaryHandlersAndroid()
+	{
+		// static only
+		throw new UnsupportedOperationException();
+	}
+	
 }
