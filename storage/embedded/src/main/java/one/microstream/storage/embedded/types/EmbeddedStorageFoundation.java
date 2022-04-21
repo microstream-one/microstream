@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
-import one.microstream.persistence.types.PersistenceFoundation;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceRefactoringMappingProvider;
 import one.microstream.persistence.types.PersistenceRootResolverProvider;
@@ -77,7 +76,8 @@ import one.microstream.util.logging.Logging;
  *
  * @param <F> the "self-type" of the  {@link EmbeddedStorageManager} implementation.
  */
-public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>> extends StorageFoundation<F>
+public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>>
+extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary>
 {
 	public static interface Creator
 	{
@@ -363,17 +363,6 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * @see EmbeddedStorageConnectionFoundation#setRefactoringMappingProvider(PersistenceRefactoringMappingProvider)
 	 */
 	public F setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
-
-	/**
-	 * Convenience method for {@code this.getConnectionFoundation().executeTypeHandlerRegistration(typeHandlerRegistration)}.
-	 * <p>
-	 * See {@link PersistenceFoundation#executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration)} for details.
-	 *
-	 * @param typeHandlerRegistration the {@link PersistenceTypeHandlerRegistration} to be executed.
-	 *
-	 * @return {@literal this} to allow method chaining.
-	 */
-	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration);
 
 	public F registerTypeHandler(PersistenceTypeHandler<Binary, ?> typeHandler);
 
@@ -741,10 +730,9 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		}
 
 		@Override
-		public F executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration)
+		public void executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration)
 		{
 			this.getConnectionFoundation().executeTypeHandlerRegistration(typeHandlerRegistration);
-			return this.$();
 		}
 
 		@Override
