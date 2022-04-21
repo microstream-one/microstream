@@ -123,7 +123,10 @@ import one.microstream.util.InstanceDispatcher;
  * @param <F> the foundation type
  */
 public interface SerializerFoundation<F extends SerializerFoundation<?>>
-extends ByteOrderTargeting.Mutable<F>, PersistenceDataTypeHolder<Binary>, InstanceDispatcher
+extends ByteOrderTargeting.Mutable<F>,
+        PersistenceDataTypeHolder<Binary>,
+        PersistenceTypeHandlerRegistration.Executor<Binary>,
+        InstanceDispatcher
 {
 	public XMap<Class<?>, PersistenceTypeHandler<Binary, ?>> customTypeHandlers();
 
@@ -375,18 +378,7 @@ extends ByteOrderTargeting.Mutable<F>, PersistenceDataTypeHolder<Binary>, Instan
 	public F setInstantiator(PersistenceInstantiator<Binary> instantiator);
 	
 	public F setInstantiatorProvider(PersistenceTypeInstantiatorProvider<Binary> instantiatorProvider);
-	
-	/**
-	 * Executes the passed {@link PersistenceTypeHandlerRegistration} logic while supplying this instance's
-	 * {@link PersistenceCustomTypeHandlerRegistry} and {@link PersistenceSizedArrayLengthController} instances.
-	 * The passed instance itself will not be referenced after the method exits.
-	 * 
-	 * @param typeHandlerRegistration the {@link PersistenceTypeHandlerRegistration} to be executed.
-	 * 
-	 * @return {@literal this} to allow method chaining.
-	 */
-	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration);
-	
+
 	public XTable<String, BinaryValueSetter> getCustomTranslatorLookup();
 	
 	public XEnum<BinaryValueTranslatorKeyBuilder> getTranslatorKeyBuilders();
@@ -2234,14 +2226,12 @@ extends ByteOrderTargeting.Mutable<F>, PersistenceDataTypeHolder<Binary>, Instan
 		////////////
 
 		@Override
-		public F executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration)
+		public void executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration)
 		{
 			typeHandlerRegistration.registerTypeHandlers(
 				this.getCustomTypeHandlerRegistry(),
 				this.getSizedArrayLengthController()
 			);
-			
-			return this.$();
 		}
 		
 		

@@ -1,47 +1,60 @@
 = Properties
 
 These are the available properties of the `CacheConfiguration` type.
-The names are used accordingly in the external configuration files.
+The property names are used in the external configuration files.
 They can be found as constants in `CacheConfigurationPropertyNames`.
 
-[options="header",cols="1,2a"]
+[options="header",cols="1,1,2a"]
 |===
 |Property
+|Type
 |Description
 
-|keyType
+|key-type
+|Fully Qualified Class Name
 |Determines the required type of keys for the Cache.
 
-|valueType
+|value-type
+|Fully Qualified Class Name
 |Determines the required type of values for the Cache.
 
-|storageConfigurationResourceName
+|storage-configuration-resource-name
+|absolute or relative file name
 |Path for the  xref:storage:configuration/index.adoc#external-configuration[storage configuration] for the backing store.
 
-|cacheLoaderFactory
+|cache-loader-factory
+|Fully Qualified Class Name of JCache factory implementation for a `javax.cache.integration.CacheLoader`
 |A CacheLoader should be configured for "Read Through" caches to load values when a cache miss occurs.
 
-|cacheWriterFactory
+|cache-writer-factory
+|Fully Qualified Class Name of JCache factory implementation for a `javax.cache.integration.CacheWriter`
 |A CacheWriter is used for write-through to an external resource.
 
-|expiryPolicyFactory
+|expiry-policy-factory
+|Fully Qualified Class Name of JCache factory implementation for a `javax.cache.expiry.ExpiryPolicy`
 |Determines when cache entries will expire based on creation, access and modification operations.
 
-|evictionManagerFactory
+|eviction-manager-factory
+|Fully Qualified Class Name of JCache factory implementation for a `one.microstream.cache.types.EvictionManager`
 |Clears cache entries using a policy. Works interval-based or on entry creation.
 
-|readThrough
+|read-through
+|boolean parsed according to the https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html#parseBoolean-java.lang.String-[java.lang.Boolean.parseBoolean()] rules
 |When in "read-through" mode, cache misses that occur due to cache entries not existing as a result of performing a "get" will appropriately cause the configured CacheLoader to be invoked.
 
-|writeThrough
+|write-through
+|boolean parsed according to the https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html#parseBoolean-java.lang.String-[java.lang.Boolean.parseBoolean()] rules
 |When in "write-through" mode, cache updates that occur as a result of performing "put" operations will appropriately cause the configured CacheWriter to be invoked.
 
-|storeByValue
+|store-by-value
+|boolean parsed according to the https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html#parseBoolean-java.lang.String-[java.lang.Boolean.parseBoolean()] rules
 |When a cache is storeByValue, any mutation to the key or value does not affect the key of value stored in the cache.
 
-|statisticsEnabled
+|statistics-enabled
+|boolean parsed according to the https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html#parseBoolean-java.lang.String-[java.lang.Boolean.parseBoolean()] rules
 |Checks whether statistics collection is enabled in this cache.
 
-|managementEnabled
+|management-enabled
+|boolean parsed according to the https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html#parseBoolean-java.lang.String-[java.lang.Boolean.parseBoolean()] rules
 |Checks whether management is enabled on this cache.
 |===

@@ -1,6 +1,6 @@
 = Cache
 
-Since version 3 MicroStream provides a JCache (https://www.jcp.org/en/jsr/detail?id=107[JSR-107]) implementation, which is optionally backed by the MicroStream Storage.
+Since version 3 MicroStream provides a JCache (https://www.jcp.org/en/jsr/detail?id=107[JSR-107]) implementation, which is optionally backed by a MicroStream Storage.
 
 JCache standardizes caching for the Java platform.
 It provides a common mechanism to cache values in a map-like structure.
@@ -19,7 +19,7 @@ The most common use cases are:
 Why another JCache implementation, you may wonder.
 There is already a myriad of providers out there. +
 MicroStream's very own serialization and storage can be utilized to get the best out of caches.
-For example you are not limited to `java.io.Serializable` types, when storing by value.
+For example, you are not limited to `java.io.Serializable` types, when storing a value.
 That means every key-value pair gets copied every time you put and get entries in and out of a cache.
 And if a cache is used with a backing store, MicroStream's storage can be used to get the best possible performance.
 

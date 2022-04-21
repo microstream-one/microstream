@@ -563,6 +563,7 @@ public interface LazyReferenceManager
 				// adding logic ensures there can be at the most one entry, so one match suffices to end the loop.
 				this.headController = this.headController.next;
 				this.controllerCount--;
+				this.stopIfNoControllers();
 				return true;
 			}
 			
@@ -584,6 +585,7 @@ public interface LazyReferenceManager
 					this.controllerCount--;
 					
 					// adding logic ensures there can be at the most one entry, so one match suffices to end the loop.
+					this.stopIfNoControllers();
 					return true;
 				}
 			}
@@ -591,7 +593,19 @@ public interface LazyReferenceManager
 			// passed controller not found
 			return false;
 		}
-		
+
+		/**
+		 * When there are no controllers attached to this object, stop the LazyReferenceManager so that no
+		 * daemon threads running anymore and program can exit normally.
+		 */
+		private void stopIfNoControllers()
+		{
+			if (this.controllerCount == 0)
+			{
+				this.stop();
+			}
+		}
+
 		@Override
 		public <P extends Consumer<? super LazyReferenceManager.Controller>> P iterateControllers(
 			final P iterator

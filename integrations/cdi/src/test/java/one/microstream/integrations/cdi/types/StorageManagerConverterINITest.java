@@ -36,7 +36,7 @@ import javax.inject.Inject;
 public class StorageManagerConverterINITest
 {
 	@Inject
-	@ConfigProperty(name = "microstream.ini")
+	@ConfigProperty(name = "one.microstream.ini")
 	private StorageManager manager;
 	
 	@Test

@@ -53,7 +53,7 @@ public interface PersistenceRootResolverProvider
 	 * 
 	 * @param root the root object
 	 * @return this
-	 * @deprecated replaced by {@link #setRoot(Object)}
+	 * @deprecated replaced by {@link #setRoot(Object)}, will be removed in version 8
 	 */
 	@Deprecated
 	public default PersistenceRootResolverProvider registerRoot(final Object root)

@@ -29,6 +29,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.spi.BeanManager;
 
 import one.microstream.integrations.cdi.exceptions.CDIExceptionStorage;
@@ -53,8 +55,8 @@ class StorageBean<T> extends AbstractBean<T>
 		this.type       = type;
 		this.types      = Collections.singleton(type);
 		this.qualifiers = new HashSet<>();
-		this.qualifiers.add(AnnotationLiteralUtil.DEFAULT_ANNOTATION);
-		this.qualifiers.add(AnnotationLiteralUtil.ANY_ANNOTATION);
+		this.qualifiers.add(new Default.Literal());
+		this.qualifiers.add(new Any.Literal());
 	}
 	
 	@Override

@@ -90,7 +90,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		 * 
 		 * @param enabled <code>true</code> if the gc should be enabled, <code>false</code> otherwise
 		 * 
-		 * @deprecated experimental, will be removed in a future release
+		 * @deprecated experimental
 		 */
 		@Deprecated
 		public static void setGarbageCollectionEnabled(final boolean enabled)
@@ -660,14 +660,20 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			 * the byte order switching for storage usage. Should the need arise in the future, additional
 			 * time can be invested to solve this.
 			 */
-			
-//			DEBUGStorage.println("looking for " + Binary.getEntityObjectId(entityAddress));
+								
 			final StorageEntity.Default entry;
 			if((entry = this.getEntry(Binary.getEntityObjectIdRawValue(entityAddress))) != null)
 			{
-//				DEBUGStorage.println("updating entry " + entry);
-				this.resetExistingEntityForUpdate(entry);
-				return entry;
+				final long entityTypeId = Binary.getEntityTypeIdRawValue(entityAddress);
+				if(entry.typeId() == entityTypeId) {
+					this.resetExistingEntityForUpdate(entry);
+					return entry;
+				}
+				
+				logger.debug("Entity {} typeId changed, old: {}, new: {}",
+					entry.objectId(),
+					entry.typeId(),
+					entityTypeId);
 			}
 
 //			DEBUGStorage.println("creating " + Binary.getEntityObjectId(entityAddress) + ", " + Binary.getEntityTypeId(entityAddress) + ", [" + Binary.getEntityLength(entityAddress) + "]");
@@ -861,6 +867,8 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			final StorageEntity.Default     previousInType
 		)
 		{
+			logger.debug("Deleting entity {}, typeId: {}", entity.objectId(), entity.typeId());
+			
 			// 1.) unregister entity from hash table (= unfindable by future requests)
 			this.unregisterEntity(entity);
 
