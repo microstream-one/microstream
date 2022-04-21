@@ -563,7 +563,7 @@ public interface LazyReferenceManager
 				// adding logic ensures there can be at the most one entry, so one match suffices to end the loop.
 				this.headController = this.headController.next;
 				this.controllerCount--;
-				stopIfNoControllers();
+				this.stopIfNoControllers();
 				return true;
 			}
 			
@@ -585,7 +585,7 @@ public interface LazyReferenceManager
 					this.controllerCount--;
 					
 					// adding logic ensures there can be at the most one entry, so one match suffices to end the loop.
-					stopIfNoControllers();
+					this.stopIfNoControllers();
 					return true;
 				}
 			}
@@ -602,7 +602,7 @@ public interface LazyReferenceManager
 		{
 			if (this.controllerCount == 0)
 			{
-				stop();
+				this.stop();
 			}
 		}
 
