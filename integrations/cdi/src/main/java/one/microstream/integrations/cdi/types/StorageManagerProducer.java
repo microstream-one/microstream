@@ -67,8 +67,5 @@ class StorageManagerProducer
 	{
 		LOGGER.info("Closing the default StorageManager");
 		manager.close();
-		LOGGER.info("Closing the LazyReferenceManager");
-		final LazyReferenceManager referenceManager = LazyReferenceManager.get();
-		referenceManager.stop();
 	}
 }
