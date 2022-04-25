@@ -19,6 +19,7 @@ package one.microstream.integrations.cdi.types.cache;
  * #L%
  */
 
+import one.microstream.integrations.cdi.types.ConfigurationCoreProperties;
 import one.microstream.integrations.cdi.types.test.CDIExtension;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -27,6 +28,8 @@ import org.junit.jupiter.api.Test;
 
 import javax.cache.Cache;
 import javax.inject.Inject;
+
+import static one.microstream.integrations.cdi.types.ConfigurationCoreProperties.STORAGE_DIRECTORY;
 
 @CDIExtension
 public class StorageCacheTest {
@@ -38,16 +41,24 @@ public class StorageCacheTest {
     @BeforeAll
     public static void beforeAll() {
         System.setProperty(CacheProperties.STORAGE.get(), Boolean.TRUE.toString());
+        System.setProperty(STORAGE_DIRECTORY.getMicroprofile(), "target/cache");
     }
 
     @AfterAll
     public static void afterAll() {
         System.clearProperty(CacheProperties.STORAGE.get());
+        System.clearProperty(STORAGE_DIRECTORY.getMicroprofile());
     }
 
     @Test
     public void shouldCreateStorableInstance(){
         Assertions.assertNotNull(cache);
+    }
+
+    @Test
+    public void shouldCreateValues() {
+        cache.put(1, "one");
+        Assertions.assertNotNull(cache.get(1));
     }
 
 }
