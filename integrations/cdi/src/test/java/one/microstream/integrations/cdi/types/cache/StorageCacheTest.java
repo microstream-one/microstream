@@ -18,13 +18,36 @@ package one.microstream.integrations.cdi.types.cache;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+
 import one.microstream.integrations.cdi.types.test.CDIExtension;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import javax.cache.Cache;
+import javax.inject.Inject;
 
 @CDIExtension
 public class StorageCacheTest {
 
-    public void beforeAll() {
+    @Inject
+    @StorageCache("storage")
+    private Cache<Integer, String> cache;
 
+    @BeforeAll
+    public static void beforeAll() {
+        System.setProperty(CacheProperties.STORAGE.get(), Boolean.TRUE.toString());
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        System.clearProperty(CacheProperties.STORAGE.get());
+    }
+
+    @Test
+    public void shouldCreateStorableInstance(){
+        Assertions.assertNotNull(cache);
     }
 
 }
