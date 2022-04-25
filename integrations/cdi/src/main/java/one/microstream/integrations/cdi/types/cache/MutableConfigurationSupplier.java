@@ -23,6 +23,7 @@ package one.microstream.integrations.cdi.types.cache;
 
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.cache.configuration.Factory;
@@ -143,13 +144,14 @@ class MutableConfigurationSupplier<K, V> implements Supplier<MutableConfiguratio
 		}
 		if(this.storage)
 		{
-			LOGGER.warning("The storage option is disable so, we'll ignore this option");
+			LOGGER.log(Level.FINE, "Using the storage option to this cache, so it will enable write and read through");
 			StorageManager storageManager = this.storageManager.get();
 			CacheStore<K, V> cacheStore = CacheStore.New(cacheProperty.getName(),storageManager);
 			configuration.setCacheLoaderFactory(() -> cacheStore);
 			configuration.setCacheWriterFactory(() -> cacheStore);
 			configuration.setWriteThrough(true);
-			configuration.setWriteThrough(true);
+			configuration.setReadThrough(true);
+
 		}
 		return configuration;
 	}
