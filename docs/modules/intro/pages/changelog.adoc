@@ -6,12 +6,17 @@
 
 * xref:misc:integrations/cdi.adoc[CDI Extension]
 * https://github.com/microstream-one/microstream/issues/293[Logging]
-* https://github.com/microstream-one/microstream/pull/286[Serializer API]
+* xref:misc:serializer/index.adoc[Serializer API]
 * https://github.com/microstream-one/microstream/pull/325[Android Type Handlers]
 
 === *Bugfixes*
 
-* TODO
+* Stop LazyrefenceManager automatically https://github.com/microstream-one/microstream/pull/343[[343]]
+* Check for cache clear after loading storage entities https://github.com/microstream-one/microstream/pull/326[[326]]
+* Reduce memory usage https://github.com/microstream-one/microstream/pull/323[[323]]
+* Fixed storage stalls in case of errors during the housekeeping phase https://github.com/microstream-one/microstream/pull/303[[303]]
+* Eliminate null in StorageConfiguration.toString() https://github.com/microstream-one/microstream/issues/205[[205]]
+* Fixed exclusive file access conflicts when restarting storage https://github.com/microstream-one/microstream/issues/282[[282]]
 
 === *Migration guide*
 

@@ -82,6 +82,7 @@
 *** xref:cache:use-cases/spring-cache.adoc[Spring Cache]
 * xref:communication:index.adoc[Communication]
 * Miscellaneous
+** xref:misc:serializer/index.adoc[Serializer]
 ** xref:misc:integrations/index.adoc[Integrations]
 *** xref:misc:integrations/helidon.adoc[Helidon]
 *** xref:misc:integrations/spring-boot.adoc[Spring-Boot]
