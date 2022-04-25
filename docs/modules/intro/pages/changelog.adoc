@@ -5,7 +5,7 @@
 === *Features*
 
 * xref:misc:integrations/cdi.adoc[CDI Extension]
-* https://github.com/microstream-one/microstream/issues/293[Logging]
+* xref:misc:logging/index.adoc[Logging]
 * xref:misc:serializer/index.adoc[Serializer API]
 * https://github.com/microstream-one/microstream/pull/325[Android Type Handlers]
 
