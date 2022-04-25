@@ -32,6 +32,7 @@ import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheWriter;
 import javax.enterprise.inject.Instance;
 
+import one.microstream.cache.types.CacheStore;
 import org.eclipse.microprofile.config.Config;
 
 import one.microstream.storage.types.StorageManager;
@@ -60,7 +61,6 @@ class MutableConfigurationSupplier<K, V> implements Supplier<MutableConfiguratio
 	private final Factory<CacheWriter<K, V>> writerFactory    ;
 	private final Factory<ExpiryPolicy>      expiryFactory    ;
 	
-	@SuppressWarnings("unused") // (17.03.2022 FH) XXX: check why it is not used
 	private final Instance<StorageManager>   storageManager;
 	
 	private MutableConfigurationSupplier(
@@ -144,12 +144,12 @@ class MutableConfigurationSupplier<K, V> implements Supplier<MutableConfiguratio
 		if(this.storage)
 		{
 			LOGGER.warning("The storage option is disable so, we'll ignore this option");
-			// StorageManager storageManager = this.storageManager.get();
-			// CacheStore<K, V> cacheStore = CacheStore.New(cacheProperty.getName(),storageManager);
-			// configuration.setCacheLoaderFactory(() -> cacheStore);
-			// configuration.setCacheWriterFactory(() -> cacheStore);
-			// configuration.setWriteThrough(true);
-			// configuration.setWriteThrough(true);
+			StorageManager storageManager = this.storageManager.get();
+			CacheStore<K, V> cacheStore = CacheStore.New(cacheProperty.getName(),storageManager);
+			configuration.setCacheLoaderFactory(() -> cacheStore);
+			configuration.setCacheWriterFactory(() -> cacheStore);
+			configuration.setWriteThrough(true);
+			configuration.setWriteThrough(true);
 		}
 		return configuration;
 	}
