@@ -40,6 +40,7 @@ module microstream.base
 	exports one.microstream.equality;
 	exports one.microstream.entity;
 	exports one.microstream.util.similarity;
+	exports one.microstream.util.logging;
 	exports one.microstream.util.iterables;
 	exports one.microstream.collections.types;
 	exports one.microstream.util.traversing;
@@ -60,4 +61,5 @@ module microstream.base
 	requires java.desktop;
 	requires java.management;
 	requires jdk.unsupported;
+	requires org.slf4j;
 }

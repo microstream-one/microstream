@@ -19,10 +19,11 @@
  */
 module microstream.integrations.cdi
 {
-	exports one.microstream.integrations.cdi;
-	exports one.microstream.integrations.cdi.cache;
-	exports one.microstream.integrations.cdi.config;
-	exports one.microstream.integrations.cdi.extension;
+	exports one.microstream.integrations.cdi.exceptions;
+	exports one.microstream.integrations.cdi.types;
+	exports one.microstream.integrations.cdi.types.config;
+	exports one.microstream.integrations.cdi.types.extension;
+	exports one.microstream.integrations.cdi.types.cache;
 	
 	requires cache.api;
 	requires jakarta.enterprise.cdi.api;
@@ -34,6 +35,7 @@ module microstream.integrations.cdi
 	requires microstream.base;
 	requires microstream.configuration;
 	requires microstream.persistence;
+	requires microstream.persistence.binary;
 	requires microstream.storage;
 	requires microstream.storage.embedded;
 	requires microstream.storage.embedded.configuration;
