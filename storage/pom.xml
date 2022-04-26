@@ -24,6 +24,7 @@
 		<module>embedded</module>
 		<module>embedded-configuration</module>
 		<module>rest</module>
+		<module>embedded-tooling</module>
 	</modules>
 
 </project>
