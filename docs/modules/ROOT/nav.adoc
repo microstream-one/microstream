@@ -83,7 +83,6 @@
 * xref:communication:index.adoc[Communication]
 * Miscellaneous
 ** xref:misc:logging/index.adoc[Logging]
-** xref:misc:serializer/index.adoc[Serializer]
 ** xref:misc:integrations/index.adoc[Integrations]
 *** xref:misc:integrations/helidon.adoc[Helidon]
 *** xref:misc:integrations/spring-boot.adoc[Spring-Boot]
