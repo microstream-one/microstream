@@ -16,6 +16,7 @@
 	<properties>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
+		<helidon.version>2.3.2</helidon.version>
 		<mainClass>io.helidon.microprofile.cdi.Main</mainClass>
 	</properties>
 
@@ -24,7 +25,7 @@
 			<dependency>
 				<groupId>io.helidon</groupId>
 				<artifactId>helidon-dependencies</artifactId>
-				<version>2.3.2</version>
+				<version>${helidon.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -76,6 +77,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
+						<version>3.0.0</version>
 						<configuration>
 							<mainClass>${mainClass}</mainClass>
 						</configuration>
@@ -83,10 +85,12 @@
 					<plugin>
 						<groupId>io.helidon.build-tools</groupId>
 						<artifactId>helidon-maven-plugin</artifactId>
+						<version>${helidon.version}</version>
 					</plugin>
 					<plugin>
 						<groupId>io.helidon.build-tools</groupId>
 						<artifactId>helidon-cli-maven-plugin</artifactId>
+						<version>${helidon.version}</version>
 					</plugin>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
@@ -113,6 +117,7 @@
 					<plugin>
 						<groupId>org.jboss.jandex</groupId>
 						<artifactId>jandex-maven-plugin</artifactId>
+						<version>1.2.2</version>
 						<executions>
 							<execution>
 								<id>make-index</id>

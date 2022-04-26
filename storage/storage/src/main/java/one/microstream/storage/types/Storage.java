@@ -123,7 +123,7 @@ public final class Storage
 	 * 
 	 * @return a new {@link StorageLiveFileProvider} instance.
 	 * 
-	 * @deprecated replaced by {@link #FileProvider(Path)}
+	 * @deprecated replaced by {@link #FileProvider(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final StorageLiveFileProvider FileProvider(final File storageDirectory)
@@ -554,7 +554,7 @@ public final class Storage
 	 * 
 	 * @return a new {@link StorageBackupSetup} instance.
 	 * 
-	 * @deprecated replaced by {@link #BackupSetup(Path)}
+	 * @deprecated replaced by {@link #BackupSetup(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final StorageBackupSetup BackupSetup(final File backupDirectory)

@@ -33,7 +33,7 @@ import one.microstream.storage.configuration.Configuration;
 import one.microstream.storage.configuration.ConfigurationPropertyParser;
 
 /**
- * @deprecated replaced by {@link CacheConfigurationBuilderConfigurationBased}, will be removed in a future release
+ * @deprecated replaced by {@link CacheConfigurationBuilderConfigurationBased}, will be removed in version 8
  */
 @Deprecated
 public interface CacheConfigurationPropertyParser

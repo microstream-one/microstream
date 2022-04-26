@@ -24,7 +24,7 @@ import javax.cache.CacheException;
 
 /**
  * 
- * @deprecated will be removed in a future release
+ * @deprecated will be removed in version 8
  */
 @Deprecated
 public class CacheConfigurationException extends CacheException

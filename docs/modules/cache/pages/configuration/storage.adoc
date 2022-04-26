@@ -19,33 +19,33 @@ If you prefer an external configuration, you can link the xref:storage:configura
 
 [source, text, title="cache-config.properties"]
 ----
-keyType = java.lang.Integer
-valueType = java.lang.String
+key-type = java.lang.Integer
+value-type = java.lang.String
 
-readThrough = true
-writeThrough = true
+read-through = true
+write-through = true
 
-storageConfigurationResourceName = microstream-storage.properties
+storage-configuration-resource-name = microstream-storage.properties
 ----
 
 [source, text, title="microstream-storage.properties"]
 ----
-baseDirectory = ~/cache-data
-channelCount = 4
+storage-directory = ~/cache-data
+channel-count = 4
 ----
 
-Or you can embed the storage configuration using the `storage.` prefix:
+Or you can embed the storage configuration within the cache configuration using the `storage.` prefix:
 
 [source, text, title="cache-config.properties"]
 ----
-keyType = java.lang.Integer
-valueType = java.lang.String
+key-type = java.lang.Integer
+value-type = java.lang.String
 
-readThrough = true
-writeThrough = true
+read-through = true
+write-through = true
 
-storage.baseDirectory = ~/cache-data
-storage.channelCount = 4
+storage.storage-directory = ~/cache-data
+storage.channel-count = 4
 ----
 
 == Spring example

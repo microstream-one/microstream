@@ -175,7 +175,7 @@ public final class EmbeddedStorage
 	 * @param directory the storage directory
 	 * @return a new storage foundation
 	 * 
-	 * @deprecated replaced by {@link #Foundation(Path)}
+	 * @deprecated replaced by {@link #Foundation(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final EmbeddedStorageFoundation<?> Foundation(
@@ -325,7 +325,7 @@ public final class EmbeddedStorage
 	 *
 	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 * 
-	 * @deprecated replaced by {@link #start(Path)}
+	 * @deprecated replaced by {@link #start(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final EmbeddedStorageManager start(
@@ -484,7 +484,7 @@ public final class EmbeddedStorage
 	 *
 	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 * 
-	 * @deprecated replaced by {@link #start(Object, Path)} and {@link #start(Object, ADirectory)}
+	 * @deprecated replaced by {@link #start(Object, Path)} and {@link #start(Object, ADirectory)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final EmbeddedStorageManager start(

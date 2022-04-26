@@ -96,7 +96,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @deprecated replaced by {@link #load()}, will be removed in a future release
+	 * @deprecated replaced by {@link #load()}, will be removed in version 8
 	 * 
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 */
@@ -134,7 +134,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param charset the charset used to load the configuration
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 * 
-	 * @deprecated replaced by {@link #load(Charset)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(Charset)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
@@ -209,7 +209,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class for value type
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 * 
-	 * @deprecated replaced by {@link #load(Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K, V> CacheConfiguration<K, V> Load(
@@ -263,7 +263,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class for value type
 	 * @return the loaded configuration or <code>null</code> if none was found
 	 * 
-	 * @deprecated replaced by {@link #load(Charset,Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(Charset,Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K, V> CacheConfiguration<K, V> Load(
@@ -343,7 +343,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param path a classpath resource, a file path or an URL
 	 * @return the configuration or <code>null</code> if none was found
 	 * 
-	 * @deprecated replaced by {@link #load(String)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(String)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
@@ -381,7 +381,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration or <code>null</code> if none was found
 	 * 
-	 * @deprecated replaced by {@link #load(String,Charset)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(String,Charset)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
@@ -426,7 +426,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class of the value type
 	 * @return the configuration or <code>null</code> if none was found
 	 * 
-	 * @deprecated replaced by {@link #load(String,Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(String,Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K, V> CacheConfiguration<K, V> Load(
@@ -478,7 +478,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class of the value type
 	 * @return the configuration or <code>null</code> if none was found
 	 * 
-	 * @deprecated replaced by {@link #load(String,Charset,Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(String,Charset,Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K, V> CacheConfiguration<K, V> Load(
@@ -546,7 +546,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param path file system path
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(Path)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
@@ -578,7 +578,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(Path,Charset)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(Path,Charset)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
@@ -613,7 +613,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param file file path
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(File)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(File)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
@@ -645,7 +645,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(File,Charset)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(File,Charset)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
@@ -680,7 +680,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param url URL path
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(URL)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(URL)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
@@ -712,7 +712,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(URL,Charset)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(URL,Charset)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
@@ -747,7 +747,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param inputStream the stream to read from
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(InputStream)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(InputStream)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
@@ -779,7 +779,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param charset the charset used to load the configuration
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(InputStream,Charset)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(InputStream,Charset)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static CacheConfiguration<?, ?> Load(
@@ -818,7 +818,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class for value type
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(Path,Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(Path,Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K,V> CacheConfiguration<K, V> Load(
@@ -864,7 +864,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class for value type
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(Path,Charset,Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(Path,Charset,Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K,V> CacheConfiguration<K, V> Load(
@@ -911,7 +911,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class for value type
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(File,Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(File,Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K,V> CacheConfiguration<K, V> Load(
@@ -957,7 +957,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class for value type
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(File,Charset,Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(File,Charset,Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K,V> CacheConfiguration<K, V> Load(
@@ -1004,7 +1004,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class for value type
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(URL,Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(URL,Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K,V> CacheConfiguration<K, V> Load(
@@ -1050,7 +1050,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class for value type
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(URL,Charset,Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(URL,Charset,Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K,V> CacheConfiguration<K, V> Load(
@@ -1097,7 +1097,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class for value type
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(InputStream,Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(InputStream,Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K,V> CacheConfiguration<K, V> Load(
@@ -1143,7 +1143,7 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	 * @param valueType the class for value type
 	 * @return the configuration
 	 * 
-	 * @deprecated replaced by {@link #load(InputStream,Charset,Class,Class)}, will be removed in a future release
+	 * @deprecated replaced by {@link #load(InputStream,Charset,Class,Class)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static <K,V> CacheConfiguration<K, V> Load(

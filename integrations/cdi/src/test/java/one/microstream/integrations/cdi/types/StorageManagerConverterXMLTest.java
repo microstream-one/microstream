@@ -37,7 +37,7 @@ import one.microstream.storage.types.StorageManager;
 public class StorageManagerConverterXMLTest
 {
 	@Inject
-	@ConfigProperty(name = "microstream.xml")
+	@ConfigProperty(name = "one.microstream.xml")
 	private StorageManager manager;
 	
 	@Test

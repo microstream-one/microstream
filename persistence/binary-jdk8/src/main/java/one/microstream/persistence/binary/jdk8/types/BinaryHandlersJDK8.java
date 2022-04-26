@@ -31,13 +31,13 @@ import one.microstream.persistence.binary.jdk8.java.util.BinaryHandlerProperties
 import one.microstream.persistence.binary.jdk8.java.util.BinaryHandlerStack;
 import one.microstream.persistence.binary.jdk8.java.util.BinaryHandlerVector;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.types.PersistenceFoundation;
+import one.microstream.persistence.types.PersistenceTypeHandlerRegistration;
 
 public final class BinaryHandlersJDK8
 {
-	public static <F extends PersistenceFoundation<Binary, ?>> F registerJDK8TypeHandlers(final F foundation)
+	public static <F extends PersistenceTypeHandlerRegistration.Executor<Binary>> F registerJDK8TypeHandlers(final F executor)
 	{
-		foundation.executeTypeHandlerRegistration((r, c) ->
+		executor.executeTypeHandlerRegistration((r, c) ->
 			r.registerTypeHandlers(X.List(
 				// JDK 1.0 collections
 				BinaryHandlerVector.New(c)      ,
@@ -56,6 +56,23 @@ public final class BinaryHandlersJDK8
 			))
 		);
 		
-		return foundation;
+		return executor;
 	}
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// constructors //
+	/////////////////
+	
+	/**
+	 * Dummy constructor to prevent instantiation of this static-only utility class.
+	 *
+	 * @throws UnsupportedOperationException when called
+	 */
+	protected BinaryHandlersJDK8()
+	{
+		// static only
+		throw new UnsupportedOperationException();
+	}
+	
 }
