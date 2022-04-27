@@ -3,7 +3,7 @@ package one.microstream.entity.codegen;
 
 /*-
  * #%L
- * microstream-base
+ * MicroStream Base
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -21,12 +21,12 @@ package one.microstream.entity.codegen;
  * #L%
  */
 
-import java.beans.Introspector;
 import java.util.List;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 
+import one.microstream.chars.XChars;
 import one.microstream.entity.Entity;
 
 /**
@@ -66,7 +66,7 @@ class TypeGeneratorUpdaterType extends TypeGenerator
 			? ""
 			: "<>";
 		final String                               varName                      =
-			Introspector.decapitalize(this.entityName);
+			XChars.decapitalize(this.entityName);
 		
 		this.add("public interface ").add(this.typeName).add(typeParametersDeclCode)
 			.add(" extends ").add(this.addImport(Entity.class)).add(".Updater<")
