@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-communication
+ * microstream-cache
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,11 +17,19 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.communication
+module microstream.cache
 {
-	exports one.microstream.communication.types;
+	exports one.microstream.cache.types;
+	exports one.microstream.cache.exceptions;
 	
-	requires microstream.afs;
+	requires cache.api;
+	requires java.management;
 	requires microstream.base;
+	requires microstream.configuration;
 	requires microstream.persistence;
+	requires microstream.persistence.binary;
+	requires microstream.storage;
+	requires microstream.storage.embedded;
+	requires microstream.storage.embedded.configuration;
+	requires org.slf4j;
 }

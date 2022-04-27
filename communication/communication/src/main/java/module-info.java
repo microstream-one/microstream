@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-integrations-cdi
+ * microstream-communication
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,26 +17,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.integrations.cdi
+module microstream.communication
 {
-	exports one.microstream.integrations.cdi.exceptions;
-	exports one.microstream.integrations.cdi.types;
-	exports one.microstream.integrations.cdi.types.config;
-	exports one.microstream.integrations.cdi.types.extension;
-	exports one.microstream.integrations.cdi.types.cache;
+	exports one.microstream.communication.types;
 	
-	requires cache.api;
-	requires jakarta.enterprise.cdi.api;
-	requires jakarta.inject.api;
-	requires jakarta.interceptor.api;
-	requires java.annotation;
-	requires java.logging;
-	requires microprofile.config.api;
+	requires microstream.afs;
 	requires microstream.base;
-	requires microstream.configuration;
 	requires microstream.persistence;
-	requires microstream.persistence.binary;
-	requires microstream.storage;
-	requires microstream.storage.embedded;
-	requires microstream.storage.embedded.configuration;
+	requires org.slf4j;
 }

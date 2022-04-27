@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-afs
+ * microstream-persistence
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,10 +17,13 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.afs
+module microstream.persistence
 {
-	exports one.microstream.afs.types;
-	exports one.microstream.afs.exceptions;
+	exports one.microstream.persistence.exceptions;
+	exports one.microstream.persistence.types;
+	exports one.microstream.persistence.internal;
 	
+	requires microstream.afs;
 	requires microstream.base;
+	requires org.slf4j;
 }

@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-cache
+ * microstream-afs-nio
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,19 +17,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.cache
+module microstream.afs.nio
 {
-	exports one.microstream.cache.types;
-	exports one.microstream.cache.exceptions;
-	
-	requires cache.api;
-	requires java.management;
-	requires microstream.afs;
+	exports one.microstream.afs.nio.types;
+
 	requires microstream.base;
-	requires microstream.configuration;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
-	requires microstream.storage;
-	requires microstream.storage.embedded;
-	requires microstream.storage.embedded.configuration;
+	requires microstream.afs;
 }

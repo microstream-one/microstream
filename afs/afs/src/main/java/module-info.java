@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-afs-nio
+ * microstream-afs
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,10 +17,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.afs.nio
+module microstream.afs
 {
-	exports one.microstream.afs.nio.types;
+	exports one.microstream.afs.types;
+	exports one.microstream.afs.exceptions;
 	
-	requires microstream.afs;
-	requires microstream.base;
+	requires transitive microstream.base;
 }

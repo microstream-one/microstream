@@ -36,6 +36,7 @@ module microstream.persistence.binary
 	exports one.microstream.persistence.binary.java.util.concurrent;
 	exports one.microstream.persistence.binary.one.microstream.entity;
 	exports one.microstream.persistence.binary.one.microstream.persistence.types;
+	exports one.microstream.persistence.binary.util;
 	exports one.microstream.persistence.binary.one.microstream.collections;
 	
 	requires java.sql;
@@ -43,4 +44,5 @@ module microstream.persistence.binary
 	requires microstream.afs;
 	requires microstream.base;
 	requires microstream.persistence;
+	requires org.slf4j;
 }

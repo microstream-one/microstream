@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-configuration
+ * microstream-storage
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,11 +17,16 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.configuration
+module microstream.storage
 {
-	exports one.microstream.configuration.exceptions;
-	exports one.microstream.configuration.types;
+	exports one.microstream.storage.util;
+	exports one.microstream.storage.types;
+	exports one.microstream.storage.exceptions;
 	
-	requires java.xml;
+	requires microstream.afs;
+	requires microstream.afs.nio;
 	requires microstream.base;
+	requires microstream.persistence;
+	requires microstream.persistence.binary;
+	requires org.slf4j;
 }

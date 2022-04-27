@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-communication-binary
+ * microstream-configuration
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,13 +17,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.communication.binary
+module microstream.configuration
 {
-	exports one.microstream.communication.binary.types;
+	exports one.microstream.configuration.exceptions;
+	exports one.microstream.configuration.types;
 	
-	requires microstream.afs;
+	requires java.xml;
 	requires microstream.base;
-	requires microstream.communication;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
+	requires org.slf4j;
 }

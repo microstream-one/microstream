@@ -19,8 +19,8 @@
  */
 module microstream.persistence.binary.jdk17
 {
-	exports one.microstream.persistence.binary.jdk17.types;
 	exports one.microstream.persistence.binary.jdk17.java.util;
+	exports one.microstream.persistence.binary.jdk17.types;
 	
 	requires microstream.base;
 	requires microstream.persistence;
