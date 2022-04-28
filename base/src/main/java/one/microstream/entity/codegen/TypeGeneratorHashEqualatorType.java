@@ -3,7 +3,7 @@ package one.microstream.entity.codegen;
 
 /*-
  * #%L
- * MicroStream Base
+ * microstream-base
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
