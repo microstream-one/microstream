@@ -22,7 +22,6 @@ module microstream.configuration
 	exports one.microstream.configuration.exceptions;
 	exports one.microstream.configuration.types;
 	
-	requires java.xml;
-	requires microstream.base;
-	requires org.slf4j;
+	requires transitive microstream.base;
+	requires transitive java.xml;
 }

@@ -21,8 +21,5 @@ module microstream.communication
 {
 	exports one.microstream.communication.types;
 	
-	requires microstream.afs;
-	requires microstream.base;
-	requires microstream.persistence;
-	requires org.slf4j;
+	requires transitive microstream.persistence;
 }

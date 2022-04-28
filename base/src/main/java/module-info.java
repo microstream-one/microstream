@@ -58,7 +58,7 @@ module microstream.base
 	exports one.microstream.time;
 
 	requires java.compiler;
-	requires java.management;
-	requires jdk.unsupported;
-	requires org.slf4j;
+	requires transitive java.management;
+	requires transitive jdk.unsupported;
+	requires transitive org.slf4j;
 }

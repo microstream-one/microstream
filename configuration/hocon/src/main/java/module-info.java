@@ -21,7 +21,6 @@ module microstream.configuration.hocon
 {
 	exports one.microstream.configuration.hocon.types;
 	
-	requires microstream.base;
-	requires microstream.configuration;
-	requires typesafe.config;
+	requires transitive microstream.configuration;
+	requires transitive typesafe.config;
 }

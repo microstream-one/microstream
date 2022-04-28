@@ -22,7 +22,5 @@ module microstream.persistence.binary.android
 	exports one.microstream.persistence.binary.android.types;
 	exports one.microstream.persistence.binary.android.java.time;
 	
-	requires microstream.base;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
+	requires transitive microstream.persistence.binary;
 }

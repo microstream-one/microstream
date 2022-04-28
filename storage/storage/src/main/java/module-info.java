@@ -23,10 +23,6 @@ module microstream.storage
 	exports one.microstream.storage.types;
 	exports one.microstream.storage.exceptions;
 	
-	requires microstream.afs;
-	requires microstream.afs.nio;
-	requires microstream.base;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
-	requires org.slf4j;
+	requires transitive microstream.afs.nio;
+	requires transitive microstream.persistence.binary;
 }

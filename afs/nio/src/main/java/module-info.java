@@ -21,6 +21,5 @@ module microstream.afs.nio
 {
 	exports one.microstream.afs.nio.types;
 
-	requires microstream.base;
-	requires microstream.afs;
+	requires transitive microstream.afs;
 }

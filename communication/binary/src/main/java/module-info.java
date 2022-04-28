@@ -23,10 +23,6 @@ module microstream.communication.binary
 	exports one.microstream.communication.binarydynamic;
 	exports one.microstream.communication.tls;
 	
-	requires microstream.afs;
-	requires microstream.base;
-	requires microstream.communication;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
-	requires org.slf4j;
+	requires transitive microstream.communication;
+	requires transitive microstream.persistence.binary;
 }

@@ -21,12 +21,8 @@ module microstream.cache.hibernate
 {
 	exports one.microstream.cache.hibernate.types;
 	
-	requires cache.api;
-	requires java.naming;
-	requires java.persistence;
-	requires microstream.base;
-	requires microstream.cache;
-	requires microstream.configuration;
-	requires microstream.storage.embedded;
-	requires org.hibernate.orm.core;
+	requires transitive microstream.cache;
+	requires transitive java.naming;
+	requires transitive java.persistence;
+	requires transitive org.hibernate.orm.core;
 }

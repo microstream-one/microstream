@@ -39,10 +39,6 @@ module microstream.persistence.binary
 	exports one.microstream.persistence.binary.util;
 	exports one.microstream.persistence.binary.one.microstream.collections;
 	
-	requires java.sql;
-	requires jdk.unsupported;
-	requires microstream.afs;
-	requires microstream.base;
-	requires microstream.persistence;
-	requires org.slf4j;
+	requires transitive microstream.persistence;
+	requires java.sql; // for type handlers
 }
