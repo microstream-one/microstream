@@ -22,5 +22,5 @@ module microstream.afs
 	exports one.microstream.afs.types;
 	exports one.microstream.afs.exceptions;
 	
-	requires transitive microstream.base;
+	requires microstream.base;
 }
