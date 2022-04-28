@@ -21,6 +21,7 @@ package one.microstream.integrations.cdi.types.extension;
  * #L%
  */
 
+import one.microstream.exceptions.NoSuchMethodRuntimeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,13 +42,13 @@ class ConstructorUtilTest
 	@Test
 	public void shouldReturnErrorWhenThereIsInterface()
 	{
-		Assertions.assertThrows(CDIExceptionMissingDefaultConstructor.class, () -> XReflect.defaultInstantiate(Animal.class));
+		Assertions.assertThrows(NoSuchMethodRuntimeException.class, () -> XReflect.defaultInstantiate(Animal.class));
 	}
 	
 	@Test
 	public void shouldReturnErrorWhenThereNoDefaultConstructor()
 	{
-		Assertions.assertThrows(CDIExceptionMissingDefaultConstructor.class, () -> XReflect.defaultInstantiate(Lion.class));
+		Assertions.assertThrows(NoSuchMethodRuntimeException.class, () -> XReflect.defaultInstantiate(Lion.class));
 	}
 	
 	@Test
