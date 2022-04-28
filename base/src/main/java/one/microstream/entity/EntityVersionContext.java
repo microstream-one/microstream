@@ -35,6 +35,7 @@ import one.microstream.hashing.XHashing;
  */
 public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 {
+	@SuppressWarnings("unchecked")
 	public static <K> EntityVersionContext<K> lookup(final Entity entity)
 	{
 		final EntityLayerVersioning<K> versioningLayer = Entity.searchLayer(
@@ -58,7 +59,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 	
 	public EntityVersionCleaner<K> cleaner();
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public default <E extends Entity> XGettingTable<K, E> versions(final E entity)
 	{
 		Entity layer = entity;

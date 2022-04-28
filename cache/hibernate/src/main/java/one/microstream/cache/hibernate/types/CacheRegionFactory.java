@@ -58,10 +58,10 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 {
 	private final    CacheKeysFactory                   cacheKeysFactory;
 	private volatile CacheManager                       cacheManager;
-	private AtomicBoolean                               isExplicitCacheManager = new AtomicBoolean();
+	private final AtomicBoolean                               isExplicitCacheManager = new AtomicBoolean();
 	private volatile CacheConfiguration<Object, Object> cacheConfiguration;
 	private volatile MissingCacheStrategy               missingCacheStrategy;
-	private AtomicLong                                  cacheLockTimeout = new AtomicLong();
+	private final AtomicLong                                  cacheLockTimeout = new AtomicLong();
 
 	public CacheRegionFactory()
 	{
@@ -85,6 +85,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	@Override
 	protected void prepareForUse(
 		final SessionFactoryOptions settings,
+		@SuppressWarnings("rawtypes") // superclass uses raw type
 		final Map properties
 	)
 	{

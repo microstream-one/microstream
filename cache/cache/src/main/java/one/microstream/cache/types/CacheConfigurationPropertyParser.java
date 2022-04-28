@@ -22,6 +22,7 @@ package one.microstream.cache.types;
 
 import static one.microstream.X.notNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -175,6 +176,7 @@ public interface CacheConfigurationPropertyParser
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		protected <T> Factory<T> valueAsFactory(
 			final String value
 		)
@@ -184,11 +186,14 @@ public interface CacheConfigurationPropertyParser
 				return Factory.class.cast(
 					this.classResolver
 						.loadClass(value)
+						.getDeclaredConstructor()
 						.newInstance()
 				);
 			}
 			catch(ClassNotFoundException | ClassCastException |
-				  InstantiationException | IllegalAccessException e
+				  InstantiationException | IllegalAccessException |
+				  IllegalArgumentException | InvocationTargetException |
+				  NoSuchMethodException | SecurityException e
 			)
 			{
 				throw new CacheException(e);
