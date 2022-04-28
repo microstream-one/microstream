@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import one.microstream.integrations.cdi.exceptions.CDIExceptionMissingDefaultConstructor;
 import one.microstream.reflect.XReflect;
 
 
