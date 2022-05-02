@@ -32,10 +32,9 @@ module microstream.integrations.spring.boot
 	exports one.microstream.integrations.spring.boot.types.oraclecloud;
 	
 	requires transitive microstream.storage.embedded.configuration;
-	requires org.slf4j;
-	requires spring.beans;
-	requires spring.boot;
-	requires spring.boot.autoconfigure;
-	requires spring.context;
-	requires spring.core;
+	requires transitive spring.beans;
+	requires transitive spring.boot;
+	requires transitive spring.boot.autoconfigure;
+	requires transitive spring.context;
+	requires transitive spring.core;
 }
