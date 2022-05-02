@@ -31,15 +31,7 @@ module microstream.integrations.spring.boot {
     requires spring.beans;
     requires spring.boot;
     requires spring.core;
-    requires microstream.base;
-    requires microstream.storage.embedded.configuration;
-    requires microstream.storage.embedded;
-    requires microstream.storage;
-    requires microstream.afs;
-    requires microstream.afs.nio;
-    requires microstream.configuration;
-    requires microstream.persistence;
-    requires microstream.persistence.binary;
+    requires transitive microstream.storage.embedded.configuration;
     requires spring.context;
     requires org.slf4j;
 
