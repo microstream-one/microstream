@@ -29,6 +29,8 @@ import one.microstream.afs.types.AFS;
 import one.microstream.afs.types.AFile;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
+import one.microstream.persistence.types.PersistenceTypeDictionaryExporter;
+import one.microstream.persistence.types.PersistenceTypeDictionaryStorer;
 import one.microstream.storage.exceptions.StorageExceptionBackup;
 import one.microstream.storage.exceptions.StorageExceptionBackupCopying;
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
@@ -60,11 +62,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		StorageLiveChannelFile<?> file
 	);
 	
-	public default StorageBackupHandler start()
-	{
-		this.setRunning(true);
-		return this;
-	}
+	public StorageBackupHandler start();
 	
 	public default StorageBackupHandler stop()
 	{
@@ -87,7 +85,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		final StorageBackupItemQueue           itemQueue          ,
 		final StorageOperationController       operationController,
 		final StorageWriteController           writeController    ,
-		final StorageDataFileValidator.Creator validatorCreator
+		final StorageDataFileValidator.Creator validatorCreator   ,
+		final StorageTypeDictionary            typeDictionary
 	)
 	{
 		final StorageBackupFileProvider backupFileProvider = backupSetup.backupFileProvider();
@@ -103,11 +102,12 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			notNull(itemQueue)          ,
 			notNull(operationController),
 			notNull(writeController)    ,
-			notNull(validatorCreator)
+			notNull(validatorCreator)   ,
+			notNull(typeDictionary)
 		);
 	}
 	
-	public final class Default implements StorageBackupHandler, StorageBackupInventory
+	public final class Default implements StorageBackupHandler, StorageBackupInventory, PersistenceTypeDictionaryStorer
 	{
 		private final static Logger logger = Logging.getLogger(Default.class);
 		
@@ -115,12 +115,14 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		// instance fields //
 		////////////////////
 		
-		private final StorageBackupSetup               backupSetup        ;
-		private final ChannelInventory[]               channelInventories ;
-		private final StorageBackupItemQueue           itemQueue          ;
-		private final StorageOperationController       operationController;
-		private final StorageWriteController           writeController    ;
-		private final StorageDataFileValidator.Creator validatorCreator   ;
+		private final StorageBackupSetup                backupSetup           ;
+		private final ChannelInventory[]                channelInventories    ;
+		private final StorageBackupItemQueue            itemQueue             ;
+		private final StorageOperationController        operationController   ;
+		private final StorageWriteController            writeController       ;
+		private final StorageDataFileValidator.Creator  validatorCreator      ;
+		private final StorageTypeDictionary             typeDictionary        ;
+		private final PersistenceTypeDictionaryExporter typeDictionaryExporter;
 		
 		private boolean running; // being "ordered" to run.
 		private boolean active ; // being actually active, e.g. executing the last loop before running check.
@@ -138,16 +140,20 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			final StorageBackupItemQueue           itemQueue          ,
 			final StorageOperationController       operationController,
 			final StorageWriteController           writeController    ,
-			final StorageDataFileValidator.Creator validatorCreator
+			final StorageDataFileValidator.Creator validatorCreator   ,
+			final StorageTypeDictionary            typeDictionary
 		)
 		{
 			super();
-			this.channelInventories  = channelInventories ;
-			this.backupSetup         = backupSetup        ;
-			this.itemQueue           = itemQueue          ;
-			this.operationController = operationController;
-			this.writeController     = writeController    ;
-			this.validatorCreator    = validatorCreator   ;
+			this.channelInventories     = channelInventories ;
+			this.backupSetup            = backupSetup        ;
+			this.itemQueue              = itemQueue          ;
+			this.operationController    = operationController;
+			this.writeController        = writeController    ;
+			this.validatorCreator       = validatorCreator   ;
+			this.typeDictionary         = typeDictionary     ;
+			
+			this.typeDictionaryExporter = PersistenceTypeDictionaryExporter.New(this);
 		}
 
 		
@@ -172,6 +178,14 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		public final synchronized boolean isActive()
 		{
 			return this.active;
+		}
+		
+		@Override
+		public final StorageBackupHandler start()
+		{
+			this.ensureTypeDictionaryBackup();
+			this.setRunning(true);
+			return this;
 		}
 		
 		/**
@@ -240,6 +254,12 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		}
 		
 		@Override
+		public void storeTypeDictionary(final String typeDictionaryString)
+		{
+			this.setup().backupFileProvider().provideTypeDictionaryIoHandler().storeTypeDictionary(typeDictionaryString);
+		}
+		
+		@Override
 		public void run()
 		{
 			logger.info("Starting backup handler");
@@ -278,6 +298,19 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				logger.info("Backup handler stopped");
 			}
 			
+		}
+		
+		private void ensureTypeDictionaryBackup()
+		{
+			if(!this.setup().backupFileProvider().provideTypeDictionaryFile().exists())
+			{
+				logger.debug("Creating new type dictionary backup");
+				this.typeDictionaryExporter.exportTypeDictionary(this.typeDictionary);
+			}
+			else
+			{
+				logger.debug("Existing type dictionary backup found");
+			}
 		}
 		
 		private void tryInitialize(final int channelIndex)
@@ -733,7 +766,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				
 				collectedFiles.iterate(this::registerBackupFile);
 			}
-						
+			
 		}
 		
 	}
