@@ -19,8 +19,8 @@
 	<description>Executable Client App with Web User Interface</description>
 
 	<properties>
-		<vaadin.version>14.6.8</vaadin.version>
-		<spring.boot.version>2.3.10.RELEASE</spring.boot.version>
+		<vaadin.version>14.8.9</vaadin.version>
+		<spring.boot.version>2.6.7</spring.boot.version>
 	</properties>
 
 	<dependencyManagement>
