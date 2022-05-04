@@ -34,6 +34,8 @@ public interface StorageFileNameProvider
 {
 	public String provideChannelDirectoryName(int hashIndex);
 	
+	public String channelDirectoryPrefix();
+	
 	public String dataFileType();
 	
 	public String transactionsFileType();
@@ -217,6 +219,7 @@ public interface StorageFileNameProvider
 			return this.transactionsFilePrefix;
 		}
 
+		@Override
 		public String channelDirectoryPrefix()
 		{
 			return this.channelDirectoryPrefix;
