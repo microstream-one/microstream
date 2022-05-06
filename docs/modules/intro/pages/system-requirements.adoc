@@ -38,7 +38,7 @@ Tested and officially supported JDKs:
 | 11, 17
 
 | http://dragonwell-jdk.io/[Alibaba Dragonwell]
-| 11
+| 11, 17
 
 | https://www.graalvm.org/[GraalVM]
 | 20.0+
