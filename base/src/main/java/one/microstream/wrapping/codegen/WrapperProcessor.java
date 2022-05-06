@@ -47,10 +47,7 @@ import one.microstream.wrapping.GenerateWrapper;
 import one.microstream.wrapping.GenerateWrapperFor;
 
 
-/**
- * 
- * 
- */
+@SuppressWarnings("exports")
 public class WrapperProcessor extends AbstractProcessor
 {
 	private final static String     OPTION_TYPES = "microstream.wrapper.types";

@@ -12,7 +12,7 @@
     </parent>
 
     <properties>
-        <org.springframework.boot.version>2.6.2</org.springframework.boot.version>
+        <org.springframework.boot.version>2.6.7</org.springframework.boot.version>
     </properties>
 
 
@@ -82,7 +82,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>

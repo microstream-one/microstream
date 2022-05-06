@@ -31,7 +31,6 @@ module microstream.storage.restclient.app
 	requires microstream.storage.restclient;
 	requires microstream.storage.restclient.jersey;
 	requires org.apache.tomcat.embed.core;
-	requires org.slf4j;
 	requires spring.beans;
 	requires spring.boot;
 	requires spring.boot.autoconfigure;
@@ -46,6 +45,7 @@ module microstream.storage.restclient.app
 	requires vaadin.notification.flow;
 	requires vaadin.ordered.layout.flow;
 	requires vaadin.split.layout.flow;
+	requires vaadin.spring;
 	requires vaadin.tabs.flow;
 	requires vaadin.text.field.flow;
 }

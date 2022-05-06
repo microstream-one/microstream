@@ -31,7 +31,6 @@ import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.Config;
 
-import one.microstream.reference.LazyReferenceManager;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
 import one.microstream.storage.types.StorageManager;
 

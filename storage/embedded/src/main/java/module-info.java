@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-storage-restclient
+ * microstream-storage-embedded
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,12 +17,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.storage.restclient
+module microstream.storage.embedded
 {
-	exports one.microstream.storage.restclient.exceptions;
-	exports one.microstream.storage.restclient.types;
+	exports one.microstream.storage.embedded.types;
 	
-	requires microstream.base;
-	requires microstream.persistence;
-	requires microstream.storage.restadapter;
+	requires transitive microstream.storage;
 }

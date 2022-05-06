@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-persistence-binary-android
+ * microstream-afs-sql
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,12 +17,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.persistence.binary.android
+module microstream.afs.sql
 {
-	exports one.microstream.persistence.binary.android.types;
-	exports one.microstream.persistence.binary.android.java.time;
+	exports one.microstream.afs.sql.types;
 	
-	requires microstream.base;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
+	requires transitive microstream.afs;
+	requires transitive microstream.configuration;
+	requires transitive java.sql;
 }

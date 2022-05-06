@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-storage-embedded
+ * microstream-afs
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,14 +17,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.storage.embedded
+module microstream.afs
 {
-	exports one.microstream.storage.embedded.types;
+	exports one.microstream.afs.types;
+	exports one.microstream.afs.exceptions;
 	
-	requires microstream.afs;
-	requires microstream.afs.nio;
-	requires microstream.base;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
-	requires microstream.storage;
+	requires transitive microstream.base;
 }

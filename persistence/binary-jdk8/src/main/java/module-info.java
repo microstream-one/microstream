@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-configuration
+ * microstream-persistence-binary-jdk8
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,11 +17,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.configuration
+module microstream.persistence.binary.jdk8
 {
-	exports one.microstream.configuration.exceptions;
-	exports one.microstream.configuration.types;
+	exports one.microstream.persistence.binary.jdk8.types;
+	exports one.microstream.persistence.binary.jdk8.java.util;
 	
-	requires java.xml;
-	requires microstream.base;
+	requires transitive microstream.persistence.binary;
 }

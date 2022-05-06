@@ -21,7 +21,6 @@ package one.microstream.integrations.spring.boot.types;
  */
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -54,8 +53,6 @@ public class MicrostreamConfiguration
 
     public Map<String, String> readProperties(final Environment env)
     {
-        final Map<String, String> rtn = new HashMap<>();
-
         final MutablePropertySources sources = ((AbstractEnvironment) env).getPropertySources();
 
         return sources.stream()

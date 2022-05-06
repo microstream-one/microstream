@@ -27,10 +27,7 @@ import one.microstream.chars.VarString;
 import one.microstream.entity.EntityException;
 
 
-/**
- * 
- * 
- */
+@SuppressWarnings("exports")
 public class EntityExceptionInvalidEntityMethod extends EntityException
 {
 	private final ExecutableElement method;

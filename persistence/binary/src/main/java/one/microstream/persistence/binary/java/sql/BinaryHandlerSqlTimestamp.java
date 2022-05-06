@@ -33,6 +33,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
  * 
  * 
  */
+@SuppressWarnings("exports")
 public final class BinaryHandlerSqlTimestamp extends AbstractBinaryHandlerCustomNonReferentialFixedLength<Timestamp>
 {
 	///////////////////////////////////////////////////////////////////////////

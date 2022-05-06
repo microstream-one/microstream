@@ -21,7 +21,6 @@ package one.microstream.entity.codegen;
  * #L%
  */
 
-import java.beans.Introspector;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +28,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 
 
 /**
@@ -60,7 +60,7 @@ class TypeGeneratorAppendableType extends TypeGenerator
 		final String                               typeParametersCode = typeParameters.isEmpty()
 			? ""
 			: typeParameters.stream().map(tp -> "?").collect(Collectors.joining(", ", "<", ">"));
-		final String                               varName            = Introspector.decapitalize(this.entityName);
+		final String                               varName            = XChars.decapitalize(this.entityName);
 		
 		this.add("public interface ").add(this.typeName)
 			.add(" extends ").add(this.addImport(VarString.class)).add(".Appendable")

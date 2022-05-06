@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-storage-restservice-sparkjava
+ * microstream-storage-restadapter
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,16 +17,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.storage.restservice.sparkjava
+module microstream.storage.restadapter
 {
-	exports one.microstream.storage.restservice.sparkjava.exceptions;
-	exports one.microstream.storage.restservice.sparkjava.types;
+	exports one.microstream.storage.restadapter.types;
+	exports one.microstream.storage.restadapter.exceptions;
 	
-	requires com.google.gson;
-	requires microstream.base;
-	requires microstream.persistence;
-	requires microstream.storage;
-	requires microstream.storage.restadapter;
-	requires microstream.storage.restservice;
-	requires spark.core;
+	requires transitive microstream.storage;
 }

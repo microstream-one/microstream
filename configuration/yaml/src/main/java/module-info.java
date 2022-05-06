@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-persistence
+ * microstream-configuration-yaml
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,12 +17,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.persistence
+module microstream.configuration.yaml
 {
-	exports one.microstream.persistence.exceptions;
-	exports one.microstream.persistence.types;
-	exports one.microstream.persistence.internal;
+	exports one.microstream.configuration.yaml.types;
 	
-	requires microstream.afs;
-	requires microstream.base;
+	requires transitive microstream.configuration;
+	requires transitive org.yaml.snakeyaml;
 }

@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-storage-restadapter
+ * microstream-configuration
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,14 +17,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.storage.restadapter
+module microstream.configuration
 {
-	exports one.microstream.storage.restadapter.types;
-	exports one.microstream.storage.restadapter.exceptions;
+	exports one.microstream.configuration.exceptions;
+	exports one.microstream.configuration.types;
 	
-	requires microstream.afs;
-	requires microstream.base;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
-	requires microstream.storage;
+	requires transitive microstream.base;
+	requires transitive java.xml;
 }

@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-storage-restservice
+ * microstream-configuration-hocon
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,13 +17,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.storage.restservice
+module microstream.configuration.hocon
 {
-	exports one.microstream.storage.restservice.types;
-	exports one.microstream.storage.restservice.exceptions;
+	exports one.microstream.configuration.hocon.types;
 	
-	requires microstream.base;
-	requires microstream.persistence;
-	requires microstream.storage;
-	requires microstream.storage.restadapter;
+	requires transitive microstream.configuration;
+	requires transitive typesafe.config;
 }

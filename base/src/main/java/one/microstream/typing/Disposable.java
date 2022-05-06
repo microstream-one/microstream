@@ -2,7 +2,7 @@ package one.microstream.typing;
 
 /*-
  * #%L
- * MicroStream Base
+ * microstream-base
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%

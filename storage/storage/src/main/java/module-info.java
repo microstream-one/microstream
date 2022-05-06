@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-storage-restclient-jersey
+ * microstream-storage
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,15 +17,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.storage.restclient.jersey
+module microstream.storage
 {
-	exports one.microstream.storage.restclient.jersey.types;
+	exports one.microstream.storage.util;
+	exports one.microstream.storage.types;
+	exports one.microstream.storage.exceptions;
 	
-	requires com.google.gson;
-	requires java.ws.rs;
-	requires microstream.base;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
-	requires microstream.storage.restadapter;
-	requires microstream.storage.restclient;
+	requires transitive microstream.afs.nio;
+	requires transitive microstream.persistence.binary;
 }

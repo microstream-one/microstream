@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-afs
+ * microstream-storage-restservice
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,10 +17,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.afs
+module microstream.storage.restservice
 {
-	exports one.microstream.afs.types;
-	exports one.microstream.afs.exceptions;
+	exports one.microstream.storage.restservice.types;
+	exports one.microstream.storage.restservice.exceptions;
 	
-	requires microstream.base;
+	requires transitive microstream.storage.restadapter;
 }

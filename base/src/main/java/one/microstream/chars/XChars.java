@@ -2277,7 +2277,7 @@ public final class XChars
 		final Integer[] ints = new Integer[intStrings.length];
 		for(int i = 0; i < intStrings.length; i++)
 		{
-			ints[i] = new Integer(intStrings[i]);
+			ints[i] = Integer.parseInt(intStrings[i]);
 		}
 
 		return ints;
@@ -2967,6 +2967,24 @@ public final class XChars
 		return "]" + lowerBound + "; " + upperBound + "[";
 	}
 		
+	
+	public static String decapitalize(final String name)
+	{
+        if(name == null || name.length() == 0)
+        {
+            return name;
+        }
+        if(name.length() > 1
+        && Character.isUpperCase(name.charAt(1))
+        && Character.isUpperCase(name.charAt(0))
+        )
+        {
+            return name;
+        }
+        final char chars[] = name.toCharArray();
+        chars[0] = Character.toLowerCase(chars[0]);
+        return new String(chars);
+    }
 
 	
 	///////////////////////////////////////////////////////////////////////////

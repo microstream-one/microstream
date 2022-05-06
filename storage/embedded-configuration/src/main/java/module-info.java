@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-configuration-hocon
+ * microstream-storage-embedded-configuration
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,11 +17,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.configuration.hocon
+module microstream.storage.embedded.configuration
 {
-	exports one.microstream.configuration.hocon.types;
+	exports one.microstream.storage.embedded.configuration.types;
+	exports one.microstream.storage.configuration;
 	
-	requires microstream.base;
-	requires microstream.configuration;
-	requires typesafe.config;
+	requires java.xml;
+	requires transitive microstream.configuration;
+	requires transitive microstream.storage.embedded;
 }

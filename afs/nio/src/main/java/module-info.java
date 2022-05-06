@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-storage-embedded-configuration
+ * microstream-afs-nio
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,19 +17,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.storage.embedded.configuration
+module microstream.afs.nio
 {
-	exports one.microstream.storage.configuration;
-	exports one.microstream.storage.embedded.configuration;
-	exports one.microstream.storage.embedded.configuration.types;
-	
-	requires java.xml;
-	requires microstream.afs;
-	requires microstream.afs.nio;
-	requires microstream.base;
-	requires microstream.configuration;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
-	requires microstream.storage;
-	requires microstream.storage.embedded;
+	exports one.microstream.afs.nio.types;
+
+	requires transitive microstream.afs;
 }

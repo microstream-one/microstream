@@ -18,18 +18,7 @@
 	<description>Microstream Integrations Project</description>
 
 	<modules>
+		<module>cdi</module>
 		<module>spring-boot</module>
 	</modules>
-
-	<profiles>
-		<profile>
-			<id>from_java_11</id>
-			<activation>
-				<jdk>[11,)</jdk>
-			</activation>
-			<modules>
-				<module>cdi</module>
-			</modules>
-		</profile>
-	</profiles>
 </project>

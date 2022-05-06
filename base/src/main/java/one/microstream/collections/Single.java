@@ -1084,7 +1084,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	}
 
 
-	final class OldSingle implements one.microstream.collections.old.OldSingle<E>
+	public final class OldSingle implements one.microstream.collections.old.OldSingle<E>
 	{
 		@Override
 		public int size()

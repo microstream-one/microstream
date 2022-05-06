@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-persistence-binary-jdk8
+ * microstream-communication-binary
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,13 +17,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.persistence.binary.jdk8
+module microstream.communication.binary
 {
-	exports one.microstream.persistence.binary.jdk8.types;
-	exports one.microstream.persistence.binary.jdk8.java.util;
+	exports one.microstream.communication.binary.types;
+	exports one.microstream.communication.binarydynamic;
+	exports one.microstream.communication.tls;
 	
-	requires jdk.unsupported;
-	requires microstream.base;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
+	requires transitive microstream.communication;
+	requires transitive microstream.persistence.binary;
 }

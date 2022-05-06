@@ -497,7 +497,7 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 
 
 
-	final class OldEmpty implements OldList<E>, OldSet<E>
+	public final class OldEmpty implements OldList<E>, OldSet<E>
 	{
 		@Override
 		public Empty<E> parent()

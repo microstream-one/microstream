@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-configuration-yaml
+ * microstream-storage-restclient-jersey
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,11 +17,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.configuration.yaml
+module microstream.storage.restclient.jersey
 {
-	exports one.microstream.configuration.yaml.types;
+	exports one.microstream.storage.restclient.jersey.types;
 	
-	requires microstream.base;
-	requires microstream.configuration;
-	requires org.yaml.snakeyaml;
+	requires transitive microstream.storage.restclient;
+	requires transitive com.google.gson;
+	requires transitive java.ws.rs;
 }

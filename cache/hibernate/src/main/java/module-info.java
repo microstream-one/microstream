@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-communication-binary
+ * microstream-cache-hibernate
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,13 +17,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.communication.binary
+module microstream.cache.hibernate
 {
-	exports one.microstream.communication.binary.types;
+	exports one.microstream.cache.hibernate.types;
 	
-	requires microstream.afs;
-	requires microstream.base;
-	requires microstream.communication;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
+	requires transitive microstream.cache;
+	requires transitive java.naming;
+	requires transitive java.persistence;
+	requires transitive org.hibernate.orm.core;
 }

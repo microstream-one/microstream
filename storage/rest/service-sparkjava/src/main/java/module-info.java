@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-cache-hibernate
+ * microstream-storage-restservice-sparkjava
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,16 +17,12 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.cache.hibernate
+module microstream.storage.restservice.sparkjava
 {
-	exports one.microstream.cache.hibernate.types;
+	exports one.microstream.storage.restservice.sparkjava.exceptions;
+	exports one.microstream.storage.restservice.sparkjava.types;
 	
-	requires cache.api;
-	requires java.naming;
-	requires java.persistence;
-	requires microstream.base;
-	requires microstream.cache;
-	requires microstream.configuration;
-	requires microstream.storage.embedded;
-	requires org.hibernate.orm.core;
+	requires transitive microstream.storage.restservice;
+	requires transitive com.google.gson;
+	requires transitive spark.core;
 }

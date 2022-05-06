@@ -1,8 +1,8 @@
 /*-
  * #%L
- * microstream-persistence-binary-jdk17
+ * microstream-storage-restclient
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -17,12 +17,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.persistence.binary.jdk17
+module microstream.storage.restclient
 {
-	exports one.microstream.persistence.binary.jdk17.types;
-	exports one.microstream.persistence.binary.jdk17.java.util;
+	exports one.microstream.storage.restclient.exceptions;
+	exports one.microstream.storage.restclient.types;
 	
-	requires microstream.base;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
+	requires transitive microstream.storage.restadapter;
 }
