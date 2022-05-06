@@ -58,10 +58,10 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 {
 	private final    CacheKeysFactory                   cacheKeysFactory;
 	private volatile CacheManager                       cacheManager;
-	private final AtomicBoolean                               isExplicitCacheManager = new AtomicBoolean();
+	private final AtomicBoolean                         isExplicitCacheManager = new AtomicBoolean();
 	private volatile CacheConfiguration<Object, Object> cacheConfiguration;
 	private volatile MissingCacheStrategy               missingCacheStrategy;
-	private final AtomicLong                                  cacheLockTimeout = new AtomicLong();
+	private final AtomicLong                            cacheLockTimeout = new AtomicLong();
 
 	public CacheRegionFactory()
 	{
