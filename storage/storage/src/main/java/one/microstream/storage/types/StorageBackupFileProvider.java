@@ -48,6 +48,7 @@ public interface StorageBackupFileProvider extends StorageFileProvider
 		int channelIndex
 	);
 	
+	public AFile provideTypeDictionaryFile();
 	
 	
 	public static StorageBackupFileProvider New()
@@ -136,6 +137,12 @@ public interface StorageBackupFileProvider extends StorageFileProvider
 			final AFile file = this.provideTransactionsFile(channelIndex);
 			
 			return StorageBackupTransactionsFile.New(file, channelIndex);
+		}
+		
+		@Override
+		public AFile provideTypeDictionaryFile()
+		{
+			return this.defineTypeDictionaryFile();
 		}
 							
 	}

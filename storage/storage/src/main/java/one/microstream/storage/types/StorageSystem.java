@@ -338,7 +338,8 @@ public interface StorageSystem extends StorageController
 				this.backupHandler = this.backupSetup.setupHandler(
 					this.operationController,
 					this.writeController,
-					this.backupDataFileValidatorCreator
+					this.backupDataFileValidatorCreator,
+					this.typeDictionary()
 				);
 			}
 			
