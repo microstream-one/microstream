@@ -184,7 +184,7 @@ public interface SqlFileSystem extends AFileSystem, AResolver<SqlPath, SqlPath>
 		{
 			return XChars.assembleSeparated(
 				vs,
-				SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR_CHAR,
+				SqlPath.getSeparatorChar(),
 				item.toPath()
 			);
 		}
