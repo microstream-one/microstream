@@ -132,13 +132,13 @@ public interface ComConnection
 		@Override
 		public void readUnsecure(final ByteBuffer buffer)
 		{
-			XSockets.readCompletely(this.channel, buffer);
+			this.readCompletely(buffer);
 		}
 		
 		@Override
 		public void writeUnsecured(final ByteBuffer buffer)
 		{
-			XSockets.writeCompletely(this.channel, buffer);
+			this.writeCompletely(buffer);
 		}
 
 		@Override
