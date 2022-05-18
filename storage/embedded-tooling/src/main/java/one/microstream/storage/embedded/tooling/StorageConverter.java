@@ -180,18 +180,18 @@ public class StorageConverter
 			}
 		}
 
-		this.transferRegisteredEntites();
+		this.transferRegisteredEntities();
 
 		logger.trace("clearing current file entities");
 		this.currentFileEntities.clear();
 	}
 
-	private void transferRegisteredEntites()
+	private void transferRegisteredEntities()
 	{
-		this.currentFileEntities.forEach((k, v) -> this.transferRegisteredEntiy(k, v));
+		this.currentFileEntities.forEach(this::transferRegisteredEntity);
 	}
 
-	private void transferRegisteredEntiy(final long oid, final FileEntity fileEntry)
+	private void transferRegisteredEntity(final long oid, final FileEntity fileEntry)
 	{
 		this.transferEntity(oid, fileEntry);
 	}
@@ -202,19 +202,19 @@ public class StorageConverter
 
 		if (this.processedIds.contains(oid))
 		{
-			logger.trace("oid {} skipped, allready processed", oid);
+			logger.trace("oid {} skipped, already processed", oid);
 			return;
 		}
 
 		if (this.currentFileEntities.put(oid, new FileEntity(offset, itemLength)) == null)
 		{
 			logger.trace("adding new FileEntry oid {}, address {}, offset {}, length {} for processing",
-					oid, offset, itemLength);
+					oid, address, offset, itemLength);
 		}
 		else
 		{
 			logger.trace("replaced existing FileEntry for oid {}, address {}, offset {}, length {} for processing",
-					oid, offset, itemLength);
+					oid, address, offset, itemLength);
 		}
 	}
 

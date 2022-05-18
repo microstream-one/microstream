@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import one.microstream.afs.types.AWritableFile;
 
 /**
- * Helper to hold all informations of a single target "File"
+ * Helper to hold all information of a single target "File"
  * of a {@link StorageConverterTarget} a on place
  */
 public class StorageConverterTargetFile
@@ -44,7 +44,7 @@ public class StorageConverterTargetFile
 	/////////////////
 	
 	/**
-	 * Create a {@Link StorageConverterTargetFile} instance
+	 * Create a {@link StorageConverterTargetFile} instance
 	 * 
 	 * @param file the target storage file
 	 * @param fileNumber the file number

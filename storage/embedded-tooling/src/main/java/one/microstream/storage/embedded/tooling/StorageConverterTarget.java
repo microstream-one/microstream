@@ -92,7 +92,7 @@ public class StorageConverterTarget implements Closeable
 	 */
 	public void storeTypeDictionary(final String srcTypeDictionary)
 	{
-		logger.debug("transfering type dictionary to target");
+		logger.debug("transferring type dictionary to target");
 		
 		this.fileProvider.provideTypeDictionaryIoHandler().storeTypeDictionary(srcTypeDictionary);
 	}
@@ -101,14 +101,14 @@ public class StorageConverterTarget implements Closeable
 	 * Write the content of the supplied ByteBuffer
 	 * to the targets storage system.
 	 * 
-	 * @param buffer content to be transfered
+	 * @param buffer content to be transferred
 	 * @param oid object id
 	 */
 	public void transferBytes(final ByteBuffer buffer, final long oid)
 	{
 		final int targetChannel = (int) (oid % this.channelCount);
 		
-		logger.trace("Transfering blob pos: {}, limit: {} to target channel {} ",
+		logger.trace("Transferring blob pos: {}, limit: {} to target channel {} ",
 				buffer.position(), buffer.limit(), targetChannel);
 		
 		this.transferBytesToChannel(buffer, targetChannel);

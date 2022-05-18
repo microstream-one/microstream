@@ -26,7 +26,7 @@ import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfi
 import one.microstream.storage.types.StorageConfiguration;
 
 /**
- * Utility class that allows to convert a storage into an other
+ * Utility class that allows to convert a storage into another
  * one. The current implementation can change channel count only
  * and is limited to the systems default NioFileSystem
  * because of the missing possibility to define the StorageFileSystem
@@ -47,7 +47,7 @@ public class MainUtilStorageConverter
 					
 	public static void main(final String[] args)
 	{
-		verifiyArguments(args);
+		verifyArguments(args);
 		
 		final String srcConfigFile = args[0];
 		final String dstConfigFile = args[1];
@@ -65,10 +65,10 @@ public class MainUtilStorageConverter
 		final StorageConverter storageConverter = new StorageConverter(sourceConfig, targetConfig);
 		storageConverter.start();
 		
-		System.out.println("storage convertion finished!");
+		System.out.println("storage conversion finished!");
 	}
 
-	private static void verifiyArguments(final String[] args)
+	private static void verifyArguments(final String[] args)
 	{
 		if(args.length == 2)
 		{
@@ -80,17 +80,17 @@ public class MainUtilStorageConverter
 				}
 				else
 				{
-					System.out.println("can't read file " + args[0]);
+					System.err.println("can't read file " + args[1]);
 				}
 			}
 			else
 			{
-				System.out.println("can't read file " + args[0]);
+				System.err.println("can't read file " + args[0]);
 			}
 		}
 		else
 		{
-			System.out.println("invalid number of arguments arguments");
+			System.err.println("invalid number of arguments");
 		}
 		
 		System.out.println(HELP);
