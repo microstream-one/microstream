@@ -23,6 +23,7 @@ package one.microstream.collections.old;
 import java.util.Collection;
 import java.util.Iterator;
 
+import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XGettingSet;
 import one.microstream.functional.XFunc;
 import one.microstream.typing.XTypes;
@@ -138,6 +139,13 @@ public abstract class AbstractOldGettingSet<E> implements OldSet<E>
 	public Object[] toArray()
 	{
 		return this.subject.toArray();
+	}
+
+	@Override
+	public <T> T[] toArray(final T[] target)
+	{
+		XArrays.copyTo(this.parent(), target);
+		return target;
 	}
 
 	@Override

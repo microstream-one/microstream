@@ -37,7 +37,7 @@ extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTyp
 {
 	public <T> boolean registerTypeHandler(PersistenceTypeHandler<D, T> typeHandler);
 	
-	public <T> long registerTypeHandlers(Iterable<? extends PersistenceTypeHandler<D, T>> typeHandlers);
+	public long registerTypeHandlers(Iterable<? extends PersistenceTypeHandler<D, ?>> typeHandlers);
 	
 	public <T> boolean registerTypeHandler(Class<T> type, PersistenceTypeHandler<D, ? super T> typeHandler);
 	
@@ -215,14 +215,14 @@ extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTyp
 		}
 
 		@Override
-		public <T> long registerTypeHandlers(
-			final Iterable<? extends PersistenceTypeHandler<D, T>> typeHandlers
+		public long registerTypeHandlers(
+			final Iterable<? extends PersistenceTypeHandler<D, ?>> typeHandlers
 		)
 		{
 			synchronized(this.handlersByType)
 			{
 				long registeredCount = 0;
-				for(final PersistenceTypeHandler<D, T> handler : typeHandlers)
+				for(final PersistenceTypeHandler<D, ?> handler : typeHandlers)
 				{
 					if(this.registerTypeHandler(handler))
 					{

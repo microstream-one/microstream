@@ -120,11 +120,12 @@ extends AbstractBinaryHandlerCustomIterableSizedArray<EqBulkList<?>>
 		);
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
-	public final EqBulkList<?> create(final Binary data, final PersistenceLoadHandler handler)
+	public final EqBulkList create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		// this method only creates shallow instances, so hashEqualator gets set during update like other references.
-		return new EqBulkList<>((Equalator<?>)null);
+		return new EqBulkList((Equalator)null);
 	}
 
 	@Override
