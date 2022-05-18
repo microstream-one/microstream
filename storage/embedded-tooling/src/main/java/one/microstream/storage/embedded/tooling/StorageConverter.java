@@ -135,7 +135,6 @@ public class StorageConverter
 	{
 		logger.trace("processing entity {}", oid);
 
-		// TODO: validate position and limits
 		this.bufferIn.limit((int) (entity.offset + entity.length));
 		this.bufferIn.position((int) entity.offset);
 
