@@ -21,13 +21,5 @@ module microstream.storage.embedded.tooling
 {
 	exports one.microstream.storage.embedded.tooling;
 
-	requires microstream.afs;
-	requires microstream.base;
-	requires microstream.configuration;
-	requires microstream.persistence;
-	requires microstream.persistence.binary;
-	requires microstream.storage;
-	requires microstream.storage.embedded;
-	requires microstream.storage.embedded.configuration;
-	requires org.slf4j;
+	requires transitive microstream.storage.embedded.configuration;
 }
