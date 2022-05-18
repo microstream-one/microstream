@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -22,17 +22,22 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import org.slf4j.Logger;
+
 import one.microstream.X;
 import one.microstream.afs.types.AFS;
 import one.microstream.afs.types.AFile;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.EqHashTable;
+import one.microstream.persistence.types.PersistenceTypeDictionaryExporter;
+import one.microstream.persistence.types.PersistenceTypeDictionaryStorer;
 import one.microstream.storage.exceptions.StorageExceptionBackup;
 import one.microstream.storage.exceptions.StorageExceptionBackupCopying;
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageBackupAhead;
 import one.microstream.storage.exceptions.StorageExceptionBackupEmptyStorageForNonEmptyBackup;
 import one.microstream.storage.exceptions.StorageExceptionBackupInconsistentFileLength;
 import one.microstream.storage.types.StorageBackupHandler.Default.ChannelInventory;
+import one.microstream.util.logging.Logging;
 
 public interface StorageBackupHandler extends Runnable, StorageActivePart
 {
@@ -57,11 +62,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		StorageLiveChannelFile<?> file
 	);
 	
-	public default StorageBackupHandler start()
-	{
-		this.setRunning(true);
-		return this;
-	}
+	public StorageBackupHandler start();
 	
 	public default StorageBackupHandler stop()
 	{
@@ -79,12 +80,13 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 	
 	
 	public static StorageBackupHandler New(
-		final StorageBackupSetup         backupSetup        ,
-		final int                        channelCount       ,
-		final StorageBackupItemQueue     itemQueue          ,
-		final StorageOperationController operationController,
-		final StorageWriteController     writeController    ,
-		final StorageDataFileValidator   validator
+		final StorageBackupSetup               backupSetup        ,
+		final int                              channelCount       ,
+		final StorageBackupItemQueue           itemQueue          ,
+		final StorageOperationController       operationController,
+		final StorageWriteController           writeController    ,
+		final StorageDataFileValidator.Creator validatorCreator   ,
+		final StorageTypeDictionary            typeDictionary
 	)
 	{
 		final StorageBackupFileProvider backupFileProvider = backupSetup.backupFileProvider();
@@ -95,27 +97,32 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		});
 		
 		return new StorageBackupHandler.Default(
-	                cis                 ,
+			        cis                 ,
 			notNull(backupSetup)        ,
 			notNull(itemQueue)          ,
 			notNull(operationController),
 			notNull(writeController)    ,
-			notNull(validator)
+			notNull(validatorCreator)   ,
+			notNull(typeDictionary)
 		);
 	}
 	
-	public final class Default implements StorageBackupHandler, StorageBackupInventory
+	public final class Default implements StorageBackupHandler, StorageBackupInventory, PersistenceTypeDictionaryStorer
 	{
+		private final static Logger logger = Logging.getLogger(Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final StorageBackupSetup         backupSetup        ;
-		private final ChannelInventory[]         channelInventories ;
-		private final StorageBackupItemQueue     itemQueue          ;
-		private final StorageOperationController operationController;
-		private final StorageWriteController     writeController    ;
-		private final StorageDataFileValidator   validator          ;
+		private final StorageBackupSetup                backupSetup           ;
+		private final ChannelInventory[]                channelInventories    ;
+		private final StorageBackupItemQueue            itemQueue             ;
+		private final StorageOperationController        operationController   ;
+		private final StorageWriteController            writeController       ;
+		private final StorageDataFileValidator.Creator  validatorCreator      ;
+		private final StorageTypeDictionary             typeDictionary        ;
+		private final PersistenceTypeDictionaryExporter typeDictionaryExporter;
 		
 		private boolean running; // being "ordered" to run.
 		private boolean active ; // being actually active, e.g. executing the last loop before running check.
@@ -128,21 +135,25 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		/////////////////
 		
 		Default(
-			final ChannelInventory[]         channelInventories ,
-			final StorageBackupSetup         backupSetup        ,
-			final StorageBackupItemQueue     itemQueue          ,
-			final StorageOperationController operationController,
-			final StorageWriteController     writeController    ,
-			final StorageDataFileValidator   validator
+			final ChannelInventory[]               channelInventories ,
+			final StorageBackupSetup               backupSetup        ,
+			final StorageBackupItemQueue           itemQueue          ,
+			final StorageOperationController       operationController,
+			final StorageWriteController           writeController    ,
+			final StorageDataFileValidator.Creator validatorCreator   ,
+			final StorageTypeDictionary            typeDictionary
 		)
 		{
 			super();
-			this.channelInventories  = channelInventories ;
-			this.backupSetup         = backupSetup        ;
-			this.itemQueue           = itemQueue          ;
-			this.operationController = operationController;
-			this.writeController     = writeController    ;
-			this.validator           = validator          ;
+			this.channelInventories     = channelInventories ;
+			this.backupSetup            = backupSetup        ;
+			this.itemQueue              = itemQueue          ;
+			this.operationController    = operationController;
+			this.writeController        = writeController    ;
+			this.validatorCreator       = validatorCreator   ;
+			this.typeDictionary         = typeDictionary     ;
+			
+			this.typeDictionaryExporter = PersistenceTypeDictionaryExporter.New(this);
 		}
 
 		
@@ -167,6 +178,14 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		public final synchronized boolean isActive()
 		{
 			return this.active;
+		}
+		
+		@Override
+		public final StorageBackupHandler start()
+		{
+			this.ensureTypeDictionaryBackup();
+			this.setRunning(true);
+			return this;
 		}
 		
 		/**
@@ -203,6 +222,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		@Override
 		public void initialize(final int channelIndex)
 		{
+			logger.debug("Initializing backup for channel #{}", channelIndex);
+			
 			try
 			{
 				this.tryInitialize(channelIndex);
@@ -217,9 +238,13 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		@Override
 		public void synchronize(final StorageInventory storageInventory)
 		{
+			logger.debug("Synchronizing backup with storage");
+			
 			try
 			{
 				this.trySynchronize(storageInventory);
+				
+				logger.debug("Backup synchronized successfully");
 			}
 			catch(final RuntimeException e)
 			{
@@ -229,8 +254,16 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		}
 		
 		@Override
+		public void storeTypeDictionary(final String typeDictionaryString)
+		{
+			this.setup().backupFileProvider().provideTypeDictionaryIoHandler().storeTypeDictionary(typeDictionaryString);
+		}
+		
+		@Override
 		public void run()
 		{
+			logger.info("Starting backup handler");
+			
 			// must be the method instead of the field to check the lock but don't conver the whole loop
 			try
 			{
@@ -241,10 +274,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				{
 					try
 					{
-						if(!this.itemQueue.processNextItem(this, 10_000))
-						{
-							this.validator.freeMemory();
-						}
+						this.itemQueue.processNextItem(this, 10_000);
 					}
 					catch(final InterruptedException e)
 					{
@@ -264,8 +294,23 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				// must close all open files on any aborting case (after stopping and before throwing an exception)
 				this.closeAllDataFiles();
 				this.active = false;
+				
+				logger.info("Backup handler stopped");
 			}
 			
+		}
+		
+		private void ensureTypeDictionaryBackup()
+		{
+			if(!this.setup().backupFileProvider().provideTypeDictionaryFile().exists())
+			{
+				logger.debug("Creating new type dictionary backup");
+				this.typeDictionaryExporter.exportTypeDictionary(this.typeDictionary);
+			}
+			else
+			{
+				logger.debug("Existing type dictionary backup found");
+			}
 		}
 		
 		private void tryInitialize(final int channelIndex)
@@ -372,6 +417,24 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				// the last/latest/highest existing backup file can validly diverge in length.
 				if(backupTargetFile.number() == lastBackupFileNumber)
 				{
+					if(storageFileLength > backupTargetFileLength)
+					{
+						// missing length is copied to update the backup file only if the amount of bytes is greater then zero
+						this.copyFilePart(
+							dataFile,
+							backupTargetFileLength,
+							storageFileLength - backupTargetFileLength,
+							backupTargetFile
+						);
+					}
+					
+					//if the backup target is larger we don't need to correct it here. It will be truncated later on.
+					continue;
+				}
+				
+				//a 0-Byte sized backup file can be updated
+				if(backupTargetFile.number() > lastBackupFileNumber && backupTargetFileLength == 0)
+				{
 					// missing length is copied to update the backup file
 					this.copyFilePart(
 						dataFile,
@@ -421,6 +484,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 					backupTransactionFile.moveTo(wf);
 				});
 			}
+			//remove deleted file from inventory
+			backupInventory.transactionFile = null;
 		}
 		
 		
@@ -455,7 +520,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			{
 				// on any mismatch, the backup transaction file is deleted (potentially moved&renamed) and rebuilt.
 				this.deleteBackupTransactionFile(backupInventory);
-				this.copyFile(liveTransactionsFile, backupTransactionFile);
+				final StorageBackupTransactionsFile backupTransactionFileNew = liveTransactionsFile.ensureBackupFile(this);
+				this.copyFile(liveTransactionsFile, backupTransactionFileNew);
 			}
 		}
 				
@@ -485,7 +551,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 					// (16.06.2020 TM)TODO: nasty instanceof
 					if(backupTargetFile instanceof StorageBackupDataFile)
 					{
-						this.validator.validateFile((StorageBackupDataFile)backupTargetFile, oldBackupFileLength, length);
+						this.validatorCreator.createDataFileValidator()
+							.validateFile((StorageBackupDataFile)backupTargetFile, oldBackupFileLength, length);
 					}
 				}
 				catch(final Exception e)
@@ -513,6 +580,13 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			// note: the original target file of the copying is irrelevant. Only the backup target file counts.
 			final StorageBackupFile backupTargetFile = sourceFile.ensureBackupFile(this);
 			
+			logger.debug(
+				"Copying backup file part from {}, length {}: {}",
+				sourcePosition,
+				copyLength,
+				backupTargetFile.file().toPathString()
+			);
+			
 			this.copyFilePart(sourceFile, sourcePosition, copyLength, backupTargetFile);
 		}
 
@@ -523,6 +597,12 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		)
 		{
 			final StorageBackupChannelFile backupTargetFile = file.ensureBackupFile(this);
+			
+			logger.debug(
+				"Truncating backup file to {} bytes: {}",
+				newLength,
+				backupTargetFile.file().toPathString()
+			);
 			
 			StorageFileWriter.truncateFile(backupTargetFile, newLength, this.backupSetup.backupFileProvider());
 			
@@ -539,6 +619,8 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			
 			final StorageBackupChannelFile backupTargetFile = file.ensureBackupFile(this);
 			
+			logger.debug("Deleting backup file: {}", backupTargetFile.file().toPathString());
+			
 			StorageFileWriter.deleteFile(
 				backupTargetFile,
 				this.writeController,
@@ -551,7 +633,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		final void closeAllDataFiles()
 		{
 			final DisruptionCollectorExecuting<StorageClosableFile> closer = DisruptionCollectorExecuting.New(file ->
-				StorageClosableFile.close(file, null)
+				file.close()
 			);
 			
 			for(final ChannelInventory channel : this.channelInventories)
@@ -684,7 +766,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 				
 				collectedFiles.iterate(this::registerBackupFile);
 			}
-						
+			
 		}
 		
 	}

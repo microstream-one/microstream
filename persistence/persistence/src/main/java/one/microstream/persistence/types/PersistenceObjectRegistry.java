@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -73,7 +73,7 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 	public long minimumCapacity();
 
 	/**
-	 * Returns the current size potential before a (maybe costly) rebuild becomes necessary.
+	 * @return the current size potential before a (maybe costly) rebuild becomes necessary.
 	 */
 	public long capacity();
 	
@@ -87,7 +87,7 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 	 * Makes sure the internal storage structure is prepared to provide a {@link #capacity()} of at least
 	 * the passed capacity value.
 	 * 
-	 * @param capacity
+	 * @param capacity the new minimum capacity
 	 * @return whether a rebuild of internal storage structures was necessary.
 	 */
 	public boolean ensureCapacity(long capacity);

@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -1018,9 +1018,10 @@ public final class LockedMap<K, V> implements XMap<K, V>, Synchronized
 
 	@Override
 	public final <T extends Consumer<? super KeyValue<K, V>>> T union(
-		final XGettingCollection<? extends KeyValue<K, V>> other,
-		final Equalator<? super KeyValue<K, V>> equalator,
-		final T target)
+		final XGettingCollection<? extends KeyValue<K, V>> other    ,
+		final Equalator<? super KeyValue<K, V>>            equalator,
+		final T                                            target
+	)
 	{
 		synchronized(this.lock)
 		{

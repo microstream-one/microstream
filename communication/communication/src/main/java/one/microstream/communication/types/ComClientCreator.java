@@ -4,7 +4,7 @@ package one.microstream.communication.types;
  * #%L
  * microstream-communication
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -24,7 +24,10 @@ import static one.microstream.X.notNull;
 
 import java.net.InetSocketAddress;
 
-
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 @FunctionalInterface
 public interface ComClientCreator<C>
 {
@@ -32,7 +35,8 @@ public interface ComClientCreator<C>
 		InetSocketAddress          hostAddress       ,
 		ComConnectionHandler<C>    connectionHandler ,
 		ComProtocolStringConverter protocolParser    ,
-		ComPersistenceAdaptor<C>   persistenceAdaptor
+		ComPersistenceAdaptor<C>   persistenceAdaptor,
+		int                        inactivityTimeOut
 	);
 	
 	
@@ -48,14 +52,16 @@ public interface ComClientCreator<C>
 			final InetSocketAddress          hostAddress       ,
 			final ComConnectionHandler<C>    connectionHandler ,
 			final ComProtocolStringConverter protocolParser    ,
-			final ComPersistenceAdaptor<C>   persistenceAdaptor
+			final ComPersistenceAdaptor<C>   persistenceAdaptor,
+			final int                        inactivityTimeOut
 		)
 		{
 			return ComClient.New(
 				notNull(hostAddress)       ,
 				notNull(connectionHandler) ,
 				notNull(protocolParser)    ,
-				notNull(persistenceAdaptor)
+				notNull(persistenceAdaptor),
+				inactivityTimeOut
 			);
 		}
 		

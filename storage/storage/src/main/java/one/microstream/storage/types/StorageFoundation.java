@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -50,7 +50,7 @@ import one.microstream.util.ProcessIdentityProvider;
  *
  * @param <F> the "self-type" of the  {@link StorageFoundation} implementation.
  */
-public interface StorageFoundation<F extends StorageFoundation<?>>
+public interface StorageFoundation<F extends StorageFoundation<?>> extends InstanceDispatcher
 {
 	/* (11.06.2019 TM)NOTE:
 	 * JavaDoc-Note: all setters and getters use the same text with only the type name inserted.
@@ -1030,7 +1030,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			return StorageDataFileValidator.Creator(
 				this.getEntityDataIteratorProvider(),
-				this.getEntityDataValidatorCreator()
+				this.getEntityDataValidatorCreator(),
+				this.getTypeDictionary()
 			);
 		}
 		
@@ -1055,7 +1056,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		
 		protected StorageEventLogger ensureEventLogger()
 		{
-			return StorageEventLogger.NoOp();
+			return StorageEventLogger.Default();
 		}
 		
 		// provide instead of ensure because the instance may be null (meaning no lock file)

@@ -4,7 +4,7 @@ package one.microstream.util.iterables;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -65,8 +65,8 @@ public final class ArrayListReadOnlyIterator<E> implements ListIterator<E>
 
 	/**
 	 *
-	 * @param e
-	 * @throws UnsupportedOperationException
+	 * @param e the element to add
+	 * @throws UnsupportedOperationException because this operation is not supported
 	 * @see java.util.ListIterator#add(java.lang.Object)
 	 */
 	@Override
@@ -149,7 +149,7 @@ public final class ArrayListReadOnlyIterator<E> implements ListIterator<E>
 
 	/**
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException because this operation is not supported
 	 * @see java.util.ListIterator#remove()
 	 */
 	@Override
@@ -159,8 +159,7 @@ public final class ArrayListReadOnlyIterator<E> implements ListIterator<E>
 	}
 
 	/**
-	 * @param e
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException because this operation is not supported
 	 * @see java.util.ListIterator#set(java.lang.Object)
 	 */
 	@Override

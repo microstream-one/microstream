@@ -4,7 +4,7 @@ package one.microstream.io;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -127,8 +127,8 @@ public final class ByteBufferInputStream extends InputStream
 		return this.internalRead(buffer ->
 		{
 			final int amount = Math.min(length, buffer.remaining());
-	        buffer.get(bytes, offset, amount);
-	        return amount;
+			buffer.get(bytes, offset, amount);
+			return amount;
 		});
 	}
 

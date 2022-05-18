@@ -5,7 +5,7 @@ package one.microstream.cache.types;
  * #%L
  * microstream-cache
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -39,7 +39,7 @@ import javax.cache.integration.CacheWriterException;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XTable;
 import one.microstream.reference.Lazy;
-import one.microstream.storage.embedded.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageManager;
 
 
 public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
@@ -47,7 +47,7 @@ public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
 	public Iterator<K> keys();
 	
 	
-	public static <K, V> CacheStore<K, V> New(final String cacheKey, final EmbeddedStorageManager storage)
+	public static <K, V> CacheStore<K, V> New(final String cacheKey, final StorageManager storage)
 	{
 		return new Default<>(cacheKey, storage);
 	}
@@ -55,9 +55,9 @@ public interface CacheStore<K, V> extends CacheLoader<K, V>, CacheWriter<K, V>
 	public static class Default<K, V> implements CacheStore<K, V>
 	{
 		private final String                 cacheKey;
-		private final EmbeddedStorageManager storage;
+		private final StorageManager storage;
 		
-		Default(final String cacheKey, final EmbeddedStorageManager storage)
+		Default(final String cacheKey, final StorageManager storage)
 		{
 			super();
 			

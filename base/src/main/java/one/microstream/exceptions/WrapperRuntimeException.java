@@ -1,13 +1,10 @@
-/**
- *
- */
 package one.microstream.exceptions;
 
 /*-
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -27,9 +24,6 @@ package one.microstream.exceptions;
 /**
  * Checked exceptions are a badly designed concept that ruin functional programming and seduce to swallow exceptions
  * with a foolish print instead of handling them properly and ignore unchecked exceptions altogether.
- * 
- * 
- *
  */
 public class WrapperRuntimeException extends RuntimeException
 {

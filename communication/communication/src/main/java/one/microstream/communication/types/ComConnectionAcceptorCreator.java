@@ -4,7 +4,7 @@ package one.microstream.communication.types;
  * #%L
  * microstream-communication
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,7 +20,11 @@ package one.microstream.communication.types;
  * #L%
  */
 
-
+/**
+ * 
+ *
+ * @param <C> the connection's communication layer type
+ */
 @FunctionalInterface
 public interface ComConnectionAcceptorCreator<C>
 {
@@ -29,7 +33,9 @@ public interface ComConnectionAcceptorCreator<C>
 		ComProtocolStringConverter protocolStringConverter,
 		ComConnectionHandler<C>    connectionHandler      ,
 		ComPersistenceAdaptor<C>   persistenceAdaptor     ,
-		ComHostChannelAcceptor<C>  channelAcceptor
+		ComHostChannelAcceptor<C>  channelAcceptor        ,
+		ComHostExceptionHandler<C> comHostExceptionHandler,
+		ComPeerIdentifier          peerIdentifier
 	);
 	
 	
@@ -61,7 +67,9 @@ public interface ComConnectionAcceptorCreator<C>
 			final ComProtocolStringConverter protocolStringConverter,
 			final ComConnectionHandler<C>    connectionHandler      ,
 			final ComPersistenceAdaptor<C>   persistenceAdaptor     ,
-			final ComHostChannelAcceptor<C>  channelAcceptor
+			final ComHostChannelAcceptor<C>  channelAcceptor        ,
+			final ComHostExceptionHandler<C> exceptionHandler       ,
+			final ComPeerIdentifier          peerIdentifier
 		)
 		{
 			return ComConnectionAcceptor.New(
@@ -69,7 +77,9 @@ public interface ComConnectionAcceptorCreator<C>
 				protocolStringConverter,
 				connectionHandler      ,
 				persistenceAdaptor     ,
-				channelAcceptor
+				channelAcceptor        ,
+				exceptionHandler       ,
+				peerIdentifier
 			);
 		}
 		

@@ -4,7 +4,7 @@ package one.microstream.storage.configuration;
  * #%L
  * microstream-storage-embedded-configuration
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -28,7 +28,7 @@ import one.microstream.configuration.types.DurationUnit;
 
 /**
  *
- * @deprecated will be removed in a future release
+ * @deprecated will be removed in version 8
  * @see one.microstream.storage.configuration
  */
 @Deprecated

@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -27,4 +27,20 @@ public interface PersistenceTypeHandlerRegistration<D>
 		PersistenceCustomTypeHandlerRegistry<D> customTypeHandlerRegistry ,
 		PersistenceSizedArrayLengthController   sizedArrayLengthController
 	);
+	
+	
+	@FunctionalInterface
+	public static interface Executor<D>
+	{
+		/**
+		 * Executes the passed {@link PersistenceTypeHandlerRegistration} logic while supplying this instance's
+		 * {@link PersistenceCustomTypeHandlerRegistry} and {@link PersistenceSizedArrayLengthController} instances.
+		 * The passed instance itself will not be referenced after the method exits.
+		 * 
+		 * @param typeHandlerRegistration the {@link PersistenceTypeHandlerRegistration} to be executed.
+		 */
+		public void executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<D> typeHandlerRegistration);
+		
+	}
+	
 }

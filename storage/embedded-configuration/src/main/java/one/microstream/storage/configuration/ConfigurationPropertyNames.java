@@ -5,7 +5,7 @@ package one.microstream.storage.configuration;
  * #%L
  * microstream-storage-embedded-configuration
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -25,7 +25,7 @@ import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfi
 
 /**
  * 
- * @deprecated replaced by {@link EmbeddedStorageConfigurationPropertyNames}, will be removed in a future release
+ * @deprecated replaced by {@link EmbeddedStorageConfigurationPropertyNames}, will be removed in version 8
  * @see one.microstream.storage.configuration
  */
 @Deprecated
@@ -97,7 +97,7 @@ public interface ConfigurationPropertyNames
 	public final static String LOCK_FILE_NAME                = "lockFileName";
 
 	/**
-	 * @deprecated replaced by {@link #HOUSEKEEPING_INTERVAL_MS}, will be removed in a future release
+	 * @deprecated replaced by {@link #HOUSEKEEPING_INTERVAL_MS}, will be removed in version 8
 	 */
 	@Deprecated
 	public final static String HOUSEKEEPING_INTERVAL         = "houseKeepingInterval";
@@ -108,7 +108,7 @@ public interface ConfigurationPropertyNames
 	public final static String HOUSEKEEPING_INTERVAL_MS      = "housekeepingIntervalMs";
 
 	/**
-	 * @deprecated replaced by {@link #HOUSEKEEPING_TIME_BUDGET_NS}, will be removed in a future release
+	 * @deprecated replaced by {@link #HOUSEKEEPING_TIME_BUDGET_NS}, will be removed in version 8
 	 */
 	@Deprecated
 	public final static String HOUSEKEEPING_NANO_TIME_BUDGET = "houseKeepingNanoTimeBudget";
@@ -124,7 +124,7 @@ public interface ConfigurationPropertyNames
 	public final static String ENTITY_CACHE_THRESHOLD        = "entityCacheThreshold";
 
 	/**
-	 * @deprecated replaced by {@link #ENTITY_CACHE_TIMEOUT_MS}, will be removed in a future release
+	 * @deprecated replaced by {@link #ENTITY_CACHE_TIMEOUT_MS}, will be removed in version 8
 	 */
 	@Deprecated
 	public final static String ENTITY_CACHE_TIMEOUT          = "entityCacheTimeout";
@@ -135,7 +135,7 @@ public interface ConfigurationPropertyNames
 	public final static String ENTITY_CACHE_TIMEOUT_MS       = "entityCacheTimeoutMs";
 
 	/**
-	 * @deprecated replaced by {@link #DATA_FILE_MINIMUM_SIZE}, will be removed in a future release
+	 * @deprecated replaced by {@link #DATA_FILE_MINIMUM_SIZE}, will be removed in version 8
 	 */
 	@Deprecated
 	public final static String DATA_FILE_MIN_SIZE            = "dataFileMinSize";
@@ -146,7 +146,7 @@ public interface ConfigurationPropertyNames
 	public final static String DATA_FILE_MINIMUM_SIZE        = "dataFileMinimumSize";
 
 	/**
-	 * @deprecated replaced by {@link #DATA_FILE_MAXIMUM_SIZE}, will be removed in a future release
+	 * @deprecated replaced by {@link #DATA_FILE_MAXIMUM_SIZE}, will be removed in version 8
 	 */
 	@Deprecated
 	public final static String DATA_FILE_MAX_SIZE            = "dataFileMaxSize";
@@ -157,7 +157,7 @@ public interface ConfigurationPropertyNames
 	public final static String DATA_FILE_MAXIMUM_SIZE        = "dataFileMaximumSize";
 
 	/**
-	 * @deprecated replaced by {@link #DATA_FILE_MINIMUM_USE_RATIO}, will be removed in a future release
+	 * @deprecated replaced by {@link #DATA_FILE_MINIMUM_USE_RATIO}, will be removed in version 8
 	 */
 	@Deprecated
 	public final static String DATA_FILE_DISSOLVE_RATIO      = "dataFileDissolveRatio";

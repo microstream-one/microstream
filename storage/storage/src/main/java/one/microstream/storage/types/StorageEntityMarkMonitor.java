@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -22,11 +22,14 @@ package one.microstream.storage.types;
 
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+
 import one.microstream.chars.VarString;
 import one.microstream.math.XMath;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 import one.microstream.reference.Swizzling;
 import one.microstream.storage.exceptions.StorageException;
+import one.microstream.util.logging.Logging;
 
 
 /**
@@ -173,6 +176,8 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 	final class Default implements StorageEntityMarkMonitor, StorageReferenceMarker
 	{
+		private final static Logger logger = Logging.getLogger(Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -197,10 +202,10 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		private       long      pendingMarksCount      ;
 		private final boolean[] pendingStoreUpdates    ;
 		private       int       pendingStoreUpdateCount;
-                                
+		
 		private final boolean[] needsSweep             ;
 		private       int       sweepingChannelCount   ;
-
+		
 		private long sweepGeneration     ;
 		private long lastSweepStart      ;
 		private long lastSweepEnd        ;
@@ -208,7 +213,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		private long gcColdGeneration    ;
 		private long lastGcHotCompletion ;
 		private long lastGcColdCompletion;
-
+		
 		/*
 		 * Indicates that no new data (store) has been received since the last sweep.
 		 * This basically means that no more gc marking or sweeping is necessary, however as stored entities
@@ -218,7 +223,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		 * This flag can be seen as "no new data level 1".
 		 */
 		private boolean gcHotPhaseComplete;
-
+		
 		/*
 		 * Indicates that not only no new data has been received since the last sweep, but also that a second sweep
 		 * has already been executed since then, removing all unreachable entities and effectively establishing
@@ -421,6 +426,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		{
 			if(this.gcColdPhaseComplete)
 			{
+				logger.debug("GC not needed");
 				this.eventLogger.logGarbageCollectorNotNeeded();
 				return;
 			}
@@ -439,6 +445,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				this.gcColdPhaseComplete = true;
 				this.lastGcColdCompletion = System.currentTimeMillis();
 				this.gcColdGeneration++;
+				logger.debug("Storage GC completed #{} @ {}", this.gcColdGeneration, this.lastGcColdCompletion);
 				this.eventLogger.logGarbageCollectorCompleted(this.gcColdGeneration, this.lastGcColdCompletion);
 			}
 			else
@@ -446,6 +453,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				this.gcHotPhaseComplete = true;
 				this.lastGcHotCompletion = System.currentTimeMillis();
 				this.gcHotGeneration++;
+				logger.debug("Storage GC completed hot phase #{} @ {}", this.gcHotGeneration, this.lastGcHotCompletion);
 				this.eventLogger.logGarbageCollectorCompletedHotPhase(this.gcHotGeneration, this.lastGcHotCompletion);
 				
 			}
@@ -526,6 +534,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			// mark this channel as having completed the sweep
 			this.needsSweep[channel.channelIndex()] = false;
 			
+			logger.debug("StorageChannel#{} completed sweeping", channel.channelIndex());
 			this.eventLogger.logGarbageCollectorSweepingComplete(channel);
 
 			// decrement sweep channel count and execute completion logic if required.
@@ -751,9 +760,6 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				
 				/**
 				 * Add the passed oid and returns the resulting size.
-				 * 
-				 * @param oid
-				 * @return
 				 */
 				final int add(final long oid)
 				{

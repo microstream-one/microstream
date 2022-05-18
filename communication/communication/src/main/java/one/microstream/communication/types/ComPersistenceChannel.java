@@ -4,7 +4,7 @@ package one.microstream.communication.types;
  * #%L
  * microstream-communication
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -25,7 +25,11 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
 import one.microstream.persistence.types.PersistenceChannel;
 import one.microstream.persistence.types.PersistenceIdSet;
 
-
+/**
+ * 
+ * @param <C> the communication layer type
+ * @param <D> the data type
+ */
 public interface ComPersistenceChannel<C, D> extends PersistenceChannel<D>
 {
 	

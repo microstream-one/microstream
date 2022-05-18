@@ -4,7 +4,7 @@ package one.microstream.persistence.internal;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -138,10 +138,9 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 
 	/**
-	 * Note on hashDensity: Reasonable values are within [0.75; 2.00].
-	 * 
-	 * @param hashDensity
-	 * @param minimumCapacity
+	 * @param hashDensity reasonable values are within [0.75; 2.00].
+	 * @param minimumCapacity the initial minimum capacity
+	 * @return the newly created {@link DefaultObjectRegistry}
 	 */
 	public static DefaultObjectRegistry New(
 		final float hashDensity    ,

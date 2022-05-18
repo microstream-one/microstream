@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -51,7 +51,7 @@ import one.microstream.util.iterables.TrivialIterator;
  *
  * .
  *
- * @param <E>
+ * @param <E> the type of elements in this collection
  * @see Singleton
  */
 public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XReferencing<E>
@@ -556,7 +556,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 
 
 
-	final class OldConstant implements OldList<E>, OldSet<E>
+	public final class OldConstant implements OldList<E>, OldSet<E>
 	{
 		@Override
 		public final Constant<E> parent()

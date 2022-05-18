@@ -4,7 +4,7 @@ package one.microstream.configuration.types;
  * #%L
  * microstream-configuration
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -148,6 +148,7 @@ public interface Configuration
 		 * Maps values and child-configurations from the specified source into this builder.
 		 * This can be used to get values from one or more external resources.
 		 * 
+		 * @param <S> the source type
 		 * @param mapper the mapper for the source
 		 * @param source the input source
 		 * @return this builder
@@ -526,6 +527,7 @@ public interface Configuration
 	 * <p>
 	 * The String value is parsed by the registered {@link ConfigurationValueMapper} for the specified type.
 	 * 
+	 * @param <T> the value type
 	 * @param key the key to look up
 	 * @param type the type to map to
 	 * @return the assigned value, or <code>null</code>
@@ -641,6 +643,7 @@ public interface Configuration
 	 * Gets the assigned value of the specified key as {@link Optional},
 	 * which is empty if the configuration doesn't contain the key.
 	 * 
+	 * @param <T> the value type
 	 * @param key the key to look up
 	 * @param type the type to map to
 	 * @return a filled or empty {@link Optional}

@@ -4,7 +4,7 @@ package one.microstream.memory;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -44,10 +44,10 @@ import java.nio.ByteBuffer;
  * For JDK 8:
  * <pre>{@code
  * // compensate missing proper typing in JDK
- *if(!(directByteBuffer instanceof sun.nio.ch.DirectBuffer))
- *{
- *	return; // or throw exception
- *}
+ * if(!(directByteBuffer instanceof sun.nio.ch.DirectBuffer))
+ * {
+ * 	return; // or throw exception
+ * }
  *
  *sun.misc.Cleaner cleaner = ((sun.nio.ch.DirectBuffer)directByteBuffer).cleaner();
  *

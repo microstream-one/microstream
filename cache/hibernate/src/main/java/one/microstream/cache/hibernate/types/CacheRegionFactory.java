@@ -4,7 +4,7 @@ package one.microstream.cache.hibernate.types;
  * #%L
  * microstream-cache-hibernate
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,6 +20,7 @@ package one.microstream.cache.hibernate.types;
  * #L%
  */
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -57,10 +58,10 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 {
 	private final    CacheKeysFactory                   cacheKeysFactory;
 	private volatile CacheManager                       cacheManager;
-	private AtomicBoolean                               isExplicitCacheManager = new AtomicBoolean();
+	private final AtomicBoolean                         isExplicitCacheManager = new AtomicBoolean();
 	private volatile CacheConfiguration<Object, Object> cacheConfiguration;
 	private volatile MissingCacheStrategy               missingCacheStrategy;
-	private AtomicLong                                  cacheLockTimeout = new AtomicLong();
+	private final AtomicLong                            cacheLockTimeout = new AtomicLong();
 
 	public CacheRegionFactory()
 	{
@@ -84,6 +85,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	@Override
 	protected void prepareForUse(
 		final SessionFactoryOptions settings,
+		@SuppressWarnings("rawtypes") // superclass uses raw type
 		final Map properties
 	)
 	{
@@ -145,9 +147,9 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 				? (Class<? extends CacheManager>)setting
 				: this.loadClass(setting.toString(), settings)
 			;
-			return cacheManagerClass.newInstance();
+			return cacheManagerClass.getDeclaredConstructor().newInstance();
 		}
-		catch(ClassNotFoundException | InstantiationException | IllegalAccessException e)
+		catch(ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
 		{
 			throw new CacheException("Could not use explicit CacheManager : " + setting, e);
 		}

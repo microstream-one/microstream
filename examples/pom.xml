@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-parent</artifactId>
-		<version>05.01.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -18,18 +18,24 @@
 
 	<modules>
 		<module>blobs</module>
+		<module>cdi-javase</module>
+		<module>communication</module>
 		<module>custom-type-handler</module>
 		<module>custom-legacy-type-handler</module>
 		<module>deleting</module>
 		<module>eager-storing</module>
 		<module>filesystems</module>
+		<module>helidon-mp</module>
 		<module>helloworld</module>
 		<module>helloworld-ini</module>
 		<module>items</module>
 		<module>layered-entities</module>
 		<module>lazy-loading</module>
 		<module>loading</module>
+		<module>openliberty</module>
+		<module>payara-micro</module>
 		<module>storing</module>
+		<module>wildfly</module>
 	</modules>
 	
 	<dependencyManagement>
@@ -61,7 +67,21 @@
 					<skip>true</skip>
 				</configuration>
 			</plugin>
-		</plugins>
-	</build>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

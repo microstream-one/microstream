@@ -1,13 +1,10 @@
-/**
- *
- */
 package one.microstream.branching;
 
 /*-
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -26,9 +23,6 @@ package one.microstream.branching;
 /**
  * Thrown to signals the outer context to break the current loop,
  * normally proceeding with the actions following the loop.
- *
- * 
- *
  */
 public class ThrowBreak extends AbstractBranchingThrow
 {

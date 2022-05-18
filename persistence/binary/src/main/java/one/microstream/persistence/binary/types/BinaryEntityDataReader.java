@@ -4,7 +4,7 @@ package one.microstream.persistence.binary.types;
  * #%L
  * microstream-persistence-binary
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -27,7 +27,7 @@ public interface BinaryEntityDataReader
 	/**
 	 * Expects a raw memory address pointing to the location of a entity raw binary data, starting with its header.
 	 *
-	 * @param entitiesData
+	 * @param entitiesData the buffer to read from
 	 */
 	public void readBinaryEntities(ByteBuffer entitiesData);
 }

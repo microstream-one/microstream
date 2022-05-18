@@ -1,13 +1,10 @@
-/**
- *
- */
 package one.microstream.util.iterables;
 
 /*-
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -26,10 +23,6 @@ package one.microstream.util.iterables;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-/**
- * 
- *
- */
 public class ChainedArraysIterable<T> implements Iterable<T>
 {
 	final T[][] iterables;

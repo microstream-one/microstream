@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -3311,9 +3311,7 @@ public abstract class AbstractArrayStorage
 			final int endIndex = offset + length - d;
 			for(int i = offset - d; i != endIndex;)
 			{
-				if(equalator.equal(
-					data[i += d],
-					sample))
+				if(equalator.equal(data[i += d], sample))
 				{
 					data[i] = newElement;
 					return i;
@@ -3447,9 +3445,7 @@ public abstract class AbstractArrayStorage
 		{
 			for(int i = 0; i < size; i++)
 			{
-				if(equalator.equal(
-					data[i],
-					sample))
+				if(equalator.equal(data[i], sample))
 				{
 					data[i] = newElement;
 					replaceCount++;
@@ -4183,7 +4179,8 @@ public abstract class AbstractArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final char separator)
+		final char separator
+	)
 	{
 		final int d; // bi-directional index movement
 		if((d = checkIterationDirection(size, offset, length)) == 0)

@@ -4,7 +4,7 @@ package one.microstream.util;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -23,7 +23,7 @@ package one.microstream.util;
 public interface Cloneable<S>
 {
 	/**
-	 * This method creates a new instance of the same {@link Class}, specified by <S>, of the instance on which
+	 * This method creates a new instance of the same {@link Class}, specified by &lt;S&gt;, of the instance on which
 	 * this method is called. Whatever initializations required to create a functional new instance are performed.
 	 * <p>
 	 * However, this method does NOT create a copy of the current instance. (A common mistake is to confuse cloning

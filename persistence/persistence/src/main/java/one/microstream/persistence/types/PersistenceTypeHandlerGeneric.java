@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -29,8 +29,8 @@ import java.lang.reflect.Field;
  * It may not use any custom persistent state or logic like e.g. {@link PersistenceTypeHandlerCustom}.
  *
  * 
- * @param <D>
- * @param <T>
+ * @param <D> the data type
+ * @param <T> the handled type
  * 
  * @see PersistenceTypeHandlerCustom
  */

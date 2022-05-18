@@ -4,7 +4,7 @@ package one.microstream.persistence.binary.internal;
  * #%L
  * microstream-persistence-binary
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -731,8 +731,6 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 	
 	/**
 	 * Only the last field may have variable length, otherweise simple offsets can't be used.
-	 * 
-	 * @param binaryFields
 	 */
 	private static <F extends BinaryField<?>> F checkVariableLengthLayout(
 		final XTable<String, F> binaryFields

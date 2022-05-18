@@ -24,7 +24,7 @@ MicroStream is available under [Eclipse Public License - v 2.0](LICENSE).
 
 ## Build
 
-To build MicroStream you need Java 8 and Maven.
+To build MicroStream you need Java 11 and Maven.
 
 Just run
 

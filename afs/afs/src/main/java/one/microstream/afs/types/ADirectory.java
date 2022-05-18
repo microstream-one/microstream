@@ -4,7 +4,7 @@ package one.microstream.afs.types;
  * #%L
  * microstream-afs
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -156,6 +156,7 @@ public interface ADirectory extends AItem, AResolving
 	
 	/**
 	 * Removes all child items ({@link ADirectory} or {@link AFile}) that have no physical equivalent.
+	 * @return the amount of removed items
 	 */
 	public int consolidate();
 	
@@ -174,6 +175,12 @@ public interface ADirectory extends AItem, AResolving
 	 * Downgraded to T0D0 since MicroStream does not require directory mutations (for now...).
 	 */
 	
+	/**
+	 * Returns true if the directory does not contain any other file or directories
+	 * 
+	 * @return true if this directory is empty
+	 */
+	public boolean isEmpty();
 	
 	public abstract class Abstract
 	extends AItem.Abstract
@@ -229,6 +236,15 @@ public interface ADirectory extends AItem, AResolving
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+			
+		@Override
+		public final boolean isEmpty() 
+		{
+			synchronized(this.mutex())
+			{
+				return this.fileSystem().ioHandler().isEmpty(this);
+			}
+		}
 		
 		@Override
 		public final AItem getItem(final String identifier)

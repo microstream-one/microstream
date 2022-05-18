@@ -4,7 +4,7 @@ package one.microstream.afs.types;
  * #%L
  * microstream-afs
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -78,6 +78,8 @@ public interface AFileSystem extends AResolving, WriteController
 	
 	/**
 	 * Ensures the default root directory. May not be supported by different file system implementations.
+	 * @return the root directory
+	 * @throws UnsupportedOperationException if the file system doesn't have a default root
 	 */
 	public ADirectory ensureDefaultRoot();
 	

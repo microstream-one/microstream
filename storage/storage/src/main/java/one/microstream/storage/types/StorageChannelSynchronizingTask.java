@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -40,11 +40,14 @@ public interface StorageChannelSynchronizingTask extends StorageChannelTask
 		// constructors //
 		/////////////////
 
-		public AbstractCompletingTask(final long timestamp, final int channelCount)
+		public AbstractCompletingTask(
+			final long                       timestamp   ,
+			final int                        channelCount, 
+			final StorageOperationController controller
+		)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 		}
-
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -140,9 +143,9 @@ public interface StorageChannelSynchronizingTask extends StorageChannelTask
 		public static final class Dummy extends AbstractCompletingTask<Void> implements StorageRequestTask
 		{
 
-			public Dummy(final int channelCount)
+			public Dummy(final int channelCount, StorageOperationController controller)
 			{
-				super(0, channelCount);
+				super(0, channelCount, controller);
 			}
 
 		}

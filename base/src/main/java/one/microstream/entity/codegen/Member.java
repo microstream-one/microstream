@@ -5,7 +5,7 @@ package one.microstream.entity.codegen;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -21,12 +21,11 @@ package one.microstream.entity.codegen;
  * #L%
  */
 
-import java.beans.Introspector;
-
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
 
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 
 /**
  * 
@@ -71,7 +70,7 @@ class Member
 		
 		return offset <= 0 || methodName.length() <= offset
 			? methodName
-			: Introspector.decapitalize(methodName.substring(offset));
+			: XChars.decapitalize(methodName.substring(offset));
 	}
 	
 	private static String setterName(final String name)

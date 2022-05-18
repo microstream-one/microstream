@@ -4,7 +4,7 @@ package one.microstream.communication.types;
  * #%L
  * microstream-communication
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -25,15 +25,24 @@ import static one.microstream.X.notNull;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-import one.microstream.com.XSockets;
+import org.slf4j.Logger;
 
+import one.microstream.com.XSockets;
+import one.microstream.util.logging.Logging;
+
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 public interface ComConnectionListener<C>
 {
+	public ComConnection createConnection(SocketChannel channel);
+	
 	public C listenForConnection();
 	
 	public void close();
 	
-	
+	public boolean isAlive();
 	
 	public static ComConnectionListener.Default Default(final ServerSocketChannel serverSocketChannel)
 	{
@@ -42,42 +51,65 @@ public interface ComConnectionListener<C>
 		);
 	}
 	
-	public final class Default implements ComConnectionListener<SocketChannel>
+	public class Default implements ComConnectionListener<ComConnection>
 	{
+		///////////////////////////////////////////////////////////////////////////
+		// constants //
+		//////////////
+		
+		private final static Logger logger = Logging.getLogger(ComConnectionListener.class);
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
 		private final ServerSocketChannel serverSocketChannel;
 		
-		
-		
+						
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Default(final ServerSocketChannel serverSocketChannel)
+		protected Default(final ServerSocketChannel serverSocketChannel)
 		{
 			super();
 			this.serverSocketChannel = serverSocketChannel;
 		}
-		
-		
+				
 		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
 
 		@Override
-		public final SocketChannel listenForConnection()
+		public ComConnection createConnection(final SocketChannel channel)
 		{
-			return XSockets.acceptSocketChannel(this.serverSocketChannel);
+			final ComConnection connection =  new ComConnection.Default(channel);
+			logger.debug("created new ComConnection {}", connection);
+			return connection;
+		}
+		
+		@Override
+		public final ComConnection listenForConnection()
+		{
+			logger.debug("listening for incoming connections at {} ", this.serverSocketChannel);
+			final SocketChannel channel = XSockets.acceptSocketChannel(this.serverSocketChannel);
+			logger.debug("incomming connection {}", channel);
+			return this.createConnection(channel);
 		}
 
 		@Override
 		public final void close()
 		{
+			logger.debug("closing serverSocket Channel {}", this.serverSocketChannel);
 			XSockets.closeChannel(this.serverSocketChannel);
+		}
+
+		@Override
+		public boolean isAlive()
+		{
+			return this.serverSocketChannel.isOpen();
 		}
 		
 	}

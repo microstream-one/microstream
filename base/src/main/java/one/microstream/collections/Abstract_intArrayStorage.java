@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -461,7 +461,8 @@ public abstract class Abstract_intArrayStorage
 	public static final int count(
 		final int[] data,
 		final int size,
-		final _intPredicate predicate)
+		final _intPredicate predicate
+	)
 	{
 		int count = 0;
 		for(int i = 0; i < size; i++)
@@ -3346,7 +3347,8 @@ public abstract class Abstract_intArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final char separator)
+		final char separator
+	)
 	{
 		final int d; // bi - directional index movement
 		if((d = checkIterationDirection(size, offset, length)) == 0)

@@ -1,13 +1,10 @@
-/**
- * 
- */
 package one.microstream.math;
 
 /*-
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -23,46 +20,23 @@ package one.microstream.math;
  * #L%
  */
 
-/**
- * 
- *
- */
 public class InvalidCoordinateException extends RuntimeException
 {
-	/**
-	 * 
-	 */
-
-	
-	
-	/**
-	 * 
-	 */
 	public InvalidCoordinateException()
 	{
 		super();
 	}
 
-	/**
-	 * @param message
-	 */
 	public InvalidCoordinateException(final String message)
 	{
 		super(message);
 	}
 
-	/**
-	 * @param cause
-	 */
 	public InvalidCoordinateException(final Throwable cause)
 	{
 		super(cause);
 	}
 
-	/**
-	 * @param message
-	 * @param cause
-	 */
 	public InvalidCoordinateException(final String message, final Throwable cause)
 	{
 		super(message, cause);

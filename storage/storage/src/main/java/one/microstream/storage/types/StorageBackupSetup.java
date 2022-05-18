@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -24,6 +24,7 @@ import static one.microstream.X.notNull;
 
 import one.microstream.afs.types.ADirectory;
 
+
 public interface StorageBackupSetup
 {
 	public StorageBackupFileProvider backupFileProvider();
@@ -33,9 +34,10 @@ public interface StorageBackupSetup
 	);
 	
 	public StorageBackupHandler setupHandler(
-		StorageOperationController operationController,
-		StorageWriteController     writeController    ,
-		StorageDataFileValidator   validator
+		StorageOperationController       operationController           ,
+		StorageWriteController           writeController               ,
+		StorageDataFileValidator.Creator backupDataFileValidatorCreator,
+		StorageTypeDictionary            storageTypeDictionary
 	);
 	
 
@@ -133,9 +135,10 @@ public interface StorageBackupSetup
 		
 		@Override
 		public StorageBackupHandler setupHandler(
-			final StorageOperationController operationController,
-			final StorageWriteController     writeController    ,
-			final StorageDataFileValidator   validator
+			final StorageOperationController       operationController,
+			final StorageWriteController           writeController    ,
+			final StorageDataFileValidator.Creator validatorCreator   ,
+			final StorageTypeDictionary            typeDictionary
 		)
 		{
 			final int channelCount = operationController.channelCountProvider().getChannelCount();
@@ -145,7 +148,8 @@ public interface StorageBackupSetup
 				this.itemQueue     ,
 				operationController,
 				writeController    ,
-				validator
+				validatorCreator   ,
+				typeDictionary
 			);
 		}
 		

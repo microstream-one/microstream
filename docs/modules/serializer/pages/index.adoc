@@ -1,0 +1,33 @@
+= Serializer
+
+MicroStream's serialization engine, which is used by the storage and the cache, can be used standalone as well.
+It is usable as as replacement for the default Java serialization to convert objects to a binary format and vice versa. This API is part of the persistence-binary module:
+
+== Prerequisites
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-persistence-binary</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+== Usage
+
+You can use any medium type, but for most purposes the byte array version should be sufficient, to transfer the serialized form over the transport layer of your choice.
+Simply create a serializer instance, optionally based on a foundation, and call the serialize and deserialize methods.
+
+[source, java]
+----
+final SerializerFoundation<?> foundation = SerializerFoundation.New()
+	.registerEntityTypes(Customer.class);
+final Serializer<byte[]> serializer = Serializer.Bytes(foundation);
+byte[] data = serializer.serialize(customer);
+Customer restored = serializer.deserialize(data);
+----
+
+

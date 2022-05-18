@@ -1,11 +1,14 @@
 
 package one.microstream.cache.types;
 
+import one.microstream.persistence.binary.types.Binary;
+import one.microstream.persistence.binary.util.Serializer;
+
 /*-
  * #%L
  * microstream-cache
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -33,7 +36,7 @@ public interface ObjectConverter
 		return new ByReference();
 	}
 	
-	public static ObjectConverter ByValue(final Serializer serializer)
+	public static ObjectConverter ByValue(final Serializer<Binary> serializer)
 	{
 		return new ByValue(serializer);
 	}
@@ -63,9 +66,9 @@ public interface ObjectConverter
 	
 	public static class ByValue implements ObjectConverter
 	{
-		private final Serializer serializer;
+		private final Serializer<Binary> serializer;
 		
-		ByValue(final Serializer serializer)
+		ByValue(final Serializer<Binary> serializer)
 		{
 			super();
 			
@@ -77,15 +80,14 @@ public interface ObjectConverter
 		{
 			return SerializedObject.New(
 				value.hashCode(),
-				this.serializer.write(value)
+				this.serializer.serialize(value)
 			);
 		}
 		
-		@SuppressWarnings("unchecked")
 		@Override
 		public <T> T externalize(final Object internal)
 		{
-			return (T)this.serializer.read(
+			return this.serializer.deserialize(
 				((SerializedObject)internal).serializedData()
 			);
 		}

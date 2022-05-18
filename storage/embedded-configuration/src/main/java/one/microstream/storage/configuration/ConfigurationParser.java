@@ -5,7 +5,7 @@ package one.microstream.storage.configuration;
  * #%L
  * microstream-storage-embedded-configuration
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationParser}, will be removed in a future release
+ * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationParser}, will be removed in version 8
  * @see one.microstream.storage.configuration
  */
 @Deprecated
@@ -77,6 +77,7 @@ public interface ConfigurationParser
 
 	/**
 	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Ini()
 	{
@@ -88,6 +89,7 @@ public interface ConfigurationParser
 	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
 	 *
 	 * @param propertyParser a custom property parser
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Ini(
 		final ConfigurationPropertyParser propertyParser
@@ -98,6 +100,7 @@ public interface ConfigurationParser
 
 	/**
 	 * Creates a new {@link ConfigurationParser} which reads xml files.
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Xml()
 	{
@@ -108,6 +111,7 @@ public interface ConfigurationParser
 	 * Creates a new {@link ConfigurationParser} which reads xml files.
 	 *
 	 * @param propertyParser a custom property parser
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Xml(
 		final ConfigurationPropertyParser propertyParser

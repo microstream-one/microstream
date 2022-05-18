@@ -5,7 +5,7 @@ package one.microstream.storage.embedded.configuration.types;
  * #%L
  * microstream-storage-embedded-configuration
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -107,6 +107,7 @@ public final class EmbeddedStorageConfiguration
 	 * <p>
 	 * The search order is as described in {@link ConfigurationLoader#New(String)}.
 	 * 
+	 * @param path the path to load the configuration from
 	 * @return the loaded configuration builder
 	 * @throws ConfigurationExceptionNoConfigurationFound if no configuration can be found at the given path
 	 * @see #PathProperty()
@@ -153,7 +154,8 @@ public final class EmbeddedStorageConfiguration
 	 * <p>
 	 * The search order is as described in {@link ConfigurationLoader#New(String)}.
 	 * 
-	 * @param charset the charset used to parse the configuration	 *
+	 * @param path the path to load the configuration from
+	 * @param charset the charset used to parse the configuration
 	 * @return the loaded configuration builder
 	 * @throws ConfigurationExceptionNoConfigurationFound if no configuration can be found at the given path
 	 * @see #PathProperty()
@@ -175,8 +177,8 @@ public final class EmbeddedStorageConfiguration
 	/**
 	 * Tries to load the storage configuration based on a given loader and parser.
 	 * 
-	 * @param loader
-	 * @param parser
+	 * @param loader the loader to use
+	 * @param parser the parser to use
 	 * @return the loaded configuration builder
 	 */
 	public static EmbeddedStorageConfigurationBuilder load(
@@ -210,7 +212,7 @@ public final class EmbeddedStorageConfiguration
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private EmbeddedStorageConfiguration()
 	{

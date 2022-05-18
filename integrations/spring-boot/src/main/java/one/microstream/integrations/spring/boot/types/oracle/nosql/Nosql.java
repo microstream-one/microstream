@@ -4,7 +4,7 @@ package one.microstream.integrations.spring.boot.types.oracle.nosql;
  * #%L
  * microstream-spring
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -152,220 +152,220 @@ public class Nosql
 
     public String getStoreName()
     {
-        return storeName;
+        return this.storeName;
     }
 
-    public void setStoreName(String storeName)
+    public void setStoreName(final String storeName)
     {
         this.storeName = storeName;
     }
 
     public String getHelperHosts()
     {
-        return helperHosts;
+        return this.helperHosts;
     }
 
-    public void setHelperHosts(String helperHosts)
+    public void setHelperHosts(final String helperHosts)
     {
         this.helperHosts = helperHosts;
     }
 
     public String getUsername()
     {
-        return username;
+        return this.username;
     }
 
-    public void setUsername(String username)
+    public void setUsername(final String username)
     {
         this.username = username;
     }
 
     public String getPassword()
     {
-        return password;
+        return this.password;
     }
 
-    public void setPassword(String password)
+    public void setPassword(final String password)
     {
         this.password = password;
     }
 
     public String getCheckInterval()
     {
-        return checkInterval;
+        return this.checkInterval;
     }
 
-    public void setCheckInterval(String checkInterval)
+    public void setCheckInterval(final String checkInterval)
     {
         this.checkInterval = checkInterval;
     }
 
     public String getConsistency()
     {
-        return consistency;
+        return this.consistency;
     }
 
-    public void setConsistency(String consistency)
+    public void setConsistency(final String consistency)
     {
         this.consistency = consistency;
     }
 
     public String getDurability()
     {
-        return durability;
+        return this.durability;
     }
 
-    public void setDurability(String durability)
+    public void setDurability(final String durability)
     {
         this.durability = durability;
     }
 
     public String getLobChunkSize()
     {
-        return lobChunkSize;
+        return this.lobChunkSize;
     }
 
-    public void setLobChunkSize(String lobChunkSize)
+    public void setLobChunkSize(final String lobChunkSize)
     {
         this.lobChunkSize = lobChunkSize;
     }
 
     public String getLobChunksPerPartition()
     {
-        return lobChunksPerPartition;
+        return this.lobChunksPerPartition;
     }
 
-    public void setLobChunksPerPartition(String lobChunksPerPartition)
+    public void setLobChunksPerPartition(final String lobChunksPerPartition)
     {
         this.lobChunksPerPartition = lobChunksPerPartition;
     }
 
     public String getLobTimeout()
     {
-        return lobTimeout;
+        return this.lobTimeout;
     }
 
-    public void setLobTimeout(String lobTimeout)
+    public void setLobTimeout(final String lobTimeout)
     {
         this.lobTimeout = lobTimeout;
     }
 
     public String getLobVerificationBytes()
     {
-        return lobVerificationBytes;
+        return this.lobVerificationBytes;
     }
 
-    public void setLobVerificationBytes(String lobVerificationBytes)
+    public void setLobVerificationBytes(final String lobVerificationBytes)
     {
         this.lobVerificationBytes = lobVerificationBytes;
     }
 
     public String getMaxCheckRetries()
     {
-        return maxCheckRetries;
+        return this.maxCheckRetries;
     }
 
-    public void setMaxCheckRetries(String maxCheckRetries)
+    public void setMaxCheckRetries(final String maxCheckRetries)
     {
         this.maxCheckRetries = maxCheckRetries;
     }
 
     public String getNetworkRoundtripTimeout()
     {
-        return networkRoundtripTimeout;
+        return this.networkRoundtripTimeout;
     }
 
-    public void setNetworkRoundtripTimeout(String networkRoundtripTimeout)
+    public void setNetworkRoundtripTimeout(final String networkRoundtripTimeout)
     {
         this.networkRoundtripTimeout = networkRoundtripTimeout;
     }
 
     public String getReadZones()
     {
-        return readZones;
+        return this.readZones;
     }
 
-    public void setReadZones(String readZones)
+    public void setReadZones(final String readZones)
     {
         this.readZones = readZones;
     }
 
     public String getRegistryOpenTimeout()
     {
-        return registryOpenTimeout;
+        return this.registryOpenTimeout;
     }
 
-    public void setRegistryOpenTimeout(String registryOpenTimeout)
+    public void setRegistryOpenTimeout(final String registryOpenTimeout)
     {
         this.registryOpenTimeout = registryOpenTimeout;
     }
 
     public String getRegistryReadTimeout()
     {
-        return registryReadTimeout;
+        return this.registryReadTimeout;
     }
 
-    public void setRegistryReadTimeout(String registryReadTimeout)
+    public void setRegistryReadTimeout(final String registryReadTimeout)
     {
         this.registryReadTimeout = registryReadTimeout;
     }
 
     public String getRequestTimeout()
     {
-        return requestTimeout;
+        return this.requestTimeout;
     }
 
-    public void setRequestTimeout(String requestTimeout)
+    public void setRequestTimeout(final String requestTimeout)
     {
         this.requestTimeout = requestTimeout;
     }
 
     public String getSgAttrsCacheTimeout()
     {
-        return sgAttrsCacheTimeout;
+        return this.sgAttrsCacheTimeout;
     }
 
-    public void setSgAttrsCacheTimeout(String sgAttrsCacheTimeout)
+    public void setSgAttrsCacheTimeout(final String sgAttrsCacheTimeout)
     {
         this.sgAttrsCacheTimeout = sgAttrsCacheTimeout;
     }
 
     public String getSocketOpenTimeout()
     {
-        return socketOpenTimeout;
+        return this.socketOpenTimeout;
     }
 
-    public void setSocketOpenTimeout(String socketOpenTimeout)
+    public void setSocketOpenTimeout(final String socketOpenTimeout)
     {
         this.socketOpenTimeout = socketOpenTimeout;
     }
 
     public String getSocketReadTimeout()
     {
-        return socketReadTimeout;
+        return this.socketReadTimeout;
     }
 
-    public void setSocketReadTimeout(String socketReadTimeout)
+    public void setSocketReadTimeout(final String socketReadTimeout)
     {
         this.socketReadTimeout = socketReadTimeout;
     }
 
     public String getUseAsync()
     {
-        return useAsync;
+        return this.useAsync;
     }
 
-    public void setUseAsync(String useAsync)
+    public void setUseAsync(final String useAsync)
     {
         this.useAsync = useAsync;
     }
 
     public String getSecurityProperties()
     {
-        return securityProperties;
+        return this.securityProperties;
     }
 
-    public void setSecurityProperties(String securityProperties)
+    public void setSecurityProperties(final String securityProperties)
     {
         this.securityProperties = securityProperties;
     }

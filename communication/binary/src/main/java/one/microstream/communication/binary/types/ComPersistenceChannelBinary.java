@@ -4,7 +4,7 @@ package one.microstream.communication.binary.types;
  * #%L
  * microstream-communication-binary
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -23,13 +23,12 @@ package one.microstream.communication.binary.types;
 import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.com.ComException;
-import one.microstream.com.XSockets;
+import one.microstream.communication.types.ComConnection;
 import one.microstream.communication.types.ComPersistenceChannel;
 import one.microstream.memory.XMemory;
 import one.microstream.meta.XDebug;
@@ -45,14 +44,14 @@ import one.microstream.util.BufferSizeProvider;
 public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C, Binary>
 {
 	public static ComPersistenceChannelBinary.Default New(
-		final SocketChannel              channel           ,
+		final ComConnection              connection           ,
 		final BufferSizeProvider         bufferSizeProvider,
 		final ByteOrderTargeting<?>      byteOrderTargeting,
 		final PersistenceWriteController writeController
 	)
 	{
 		return new ComPersistenceChannelBinary.Default(
-			notNull(channel)           ,
+			notNull(connection)           ,
 			notNull(bufferSizeProvider),
 			notNull(byteOrderTargeting),
 			notNull(writeController)
@@ -68,7 +67,8 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		////////////////////
 		
 		private final BufferSizeProvider bufferSizeProvider;
-		private       ByteBuffer         defaultBuffer     ;
+		private       ByteBuffer         defaultBufferRead;
+		private       ByteBuffer         defaultBufferWrite;
 		
 		
 		
@@ -88,23 +88,35 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		// methods //
 		////////////
 		
-		protected ByteBuffer ensureDefaultBuffer()
+		protected ByteBuffer ensureDefaultBufferRead()
 		{
-			if(this.defaultBuffer == null)
+			if(this.defaultBufferRead == null)
 			{
-				this.defaultBuffer = XMemory.allocateDirectNative(
+				this.defaultBufferRead = XMemory.allocateDirectNative(
 					this.bufferSizeProvider.provideBufferSize()
 				);
 			}
 			
-			return this.defaultBuffer;
+			return this.defaultBufferRead;
+		}
+		
+		protected ByteBuffer ensureDefaultBufferWrite()
+		{
+			if(this.defaultBufferWrite == null)
+			{
+				this.defaultBufferWrite = XMemory.allocateDirectNative(
+					this.bufferSizeProvider.provideBufferSize()
+				);
+			}
+			
+			return this.defaultBufferWrite;
 		}
 		
 	}
 	
 
 	
-	public final class Default extends ComPersistenceChannelBinary.Abstract<SocketChannel>
+	public final class Default extends ComPersistenceChannelBinary.Abstract<ComConnection>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -120,13 +132,13 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		/////////////////
 
 		Default(
-			final SocketChannel              channel           ,
+			final ComConnection              connection           ,
 			final BufferSizeProvider         bufferSizeProvider,
 			final ByteOrderTargeting<?>      byteOrderTargeting,
 			final PersistenceWriteController writeController
 		)
 		{
-			super(channel, bufferSizeProvider);
+			super(connection, bufferSizeProvider);
 			this.byteOrderTargeting = byteOrderTargeting;
 			this.writeController    = writeController   ;
 		}
@@ -143,10 +155,10 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		}
 		
 		@Override
-		protected XGettingCollection<? extends Binary> internalRead(final SocketChannel channel)
+		protected XGettingCollection<? extends Binary> internalRead(final ComConnection connection)
 			throws PersistenceExceptionTransfer
 		{
-			final ByteBuffer defaultBuffer = this.ensureDefaultBuffer();
+			final ByteBuffer defaultBuffer = this.ensureDefaultBufferRead();
 			
 //			this.DEBUG_printTargetByteOrder();
 			
@@ -154,7 +166,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 			try
 			{
 				filledContentBuffer = ComBinary.readChunk(
-					channel,
+					connection,
 					defaultBuffer,
 					this.switchByteOrder()
 				);
@@ -181,27 +193,26 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		}
 
 		@Override
-		protected void internalWrite(final SocketChannel channel, final Binary chunk)
+		protected void internalWrite(final ComConnection connection, final Binary chunk)
 			throws PersistenceExceptionTransfer
 		{
 //			this.DEBUG_printTargetByteOrder();
 			
 			final ByteBuffer defaultBuffer = ComBinary.setChunkHeaderContentLength(
-				this.ensureDefaultBuffer(),
+				this.ensureDefaultBufferWrite(),
 				chunk.totalLength(),
 				this.switchByteOrder()
 			);
-			
-//			for(final ByteBuffer bb : chunk.buffers())
-//			{
-//				DEBUG_printBufferBinaryValues(bb);
-//			}
-			
+				
+			ComBinary.setChunkHeaderContentLengthChecksum(
+					defaultBuffer,
+					ComBinary.calculateChunkHeaderContentLengthChecksum(defaultBuffer),
+					this.switchByteOrder()
+				);
+						
 			try
 			{
-				this.validateIsWritable();
-				
-				ComBinary.writeChunk(channel, defaultBuffer, chunk.buffers());
+				ComBinary.writeChunk(connection, defaultBuffer, chunk.buffers());
 			}
 			catch(final ComException e)
 			{
@@ -211,7 +222,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		
 		private final void close()
 		{
-			XSockets.closeChannel(this.getConnection());
+			this.getConnection().close();
 		}
 		
 		@Override
@@ -263,8 +274,6 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		{
 			return this.writeController.isStoringEnabled();
 		}
-		
-
 		
 		@Deprecated
 		static void DEBUG_printBufferBinaryValues(final ByteBuffer bb)

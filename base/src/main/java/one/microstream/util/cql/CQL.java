@@ -4,7 +4,7 @@ package one.microstream.util.cql;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -177,7 +177,9 @@ public final class CQL
 	/**
 	 * Fluent alias for {@code predicate.negate()}.
 	 *
-	 * @param predicate
+	 * @param <T> the type of the input to the predicate
+	 * @param predicate the predicate to negate
+	 * @return the negated predicate
 	 */
 	public static <T> Predicate<T> not(final Predicate<T> predicate)
 	{
@@ -188,7 +190,9 @@ public final class CQL
 	 * Helper method to make a lambda or method reference expression chainable.
 	 * They somehow forgot that in the lambda language extension, so it has to be worked around, sadly.
 	 *
-	 * @param predicate
+	 * @param <T> the type of the input to the predicate
+	 * @param predicate the condiation
+	 * @return the given predicate
 	 */
 	public static <T> Predicate<T> where(final Predicate<T> predicate)
 	{
@@ -197,8 +201,10 @@ public final class CQL
 
 	/**
 	 * Fluent alias for {@code Comparator#reversed()}
-	 *
-	 * @param order
+	 * 
+	 * @param <T> the type of objects that may be compared by this comparator
+	 * @param order the comparator the be reversed
+	 * @return the reversed comparator
 	 */
 	public static <T> Comparator<T> reversed(final Comparator<T> order)
 	{
@@ -209,7 +215,9 @@ public final class CQL
 	 * Helper method to make a lambda or method reference expression chainable.
 	 * They somehow forgot that in the lambda language extension, so it has to be worked around, sadly.
 	 *
-	 * @param order
+	 * @param <T> the type of objects that may be compared by this comparator
+	 * @param order the comparator
+	 * @return the given comparator
 	 */
 	public static <T> Comparator<T> comparing(final Comparator<T> order)
 	{

@@ -5,7 +5,7 @@ package one.microstream.wrapping.codegen;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -47,10 +47,7 @@ import one.microstream.wrapping.GenerateWrapper;
 import one.microstream.wrapping.GenerateWrapperFor;
 
 
-/**
- * 
- * 
- */
+@SuppressWarnings("exports")
 public class WrapperProcessor extends AbstractProcessor
 {
 	private final static String     OPTION_TYPES = "microstream.wrapper.types";
@@ -147,8 +144,9 @@ public class WrapperProcessor extends AbstractProcessor
 	}
 	
 	private void collectMethods(
-		final TypeElement typeElement,
-		final Set<ExecutableElement> methods)
+		final TypeElement            typeElement,
+		final Set<ExecutableElement> methods
+	)
 	{
 		typeElement.getEnclosedElements().stream()
 			.filter(e -> e.getKind() == ElementKind.METHOD)
@@ -165,8 +163,9 @@ public class WrapperProcessor extends AbstractProcessor
 	}
 	
 	private boolean filter(
-		final ExecutableElement method,
-		final Collection<ExecutableElement> methods)
+		final ExecutableElement             method ,
+		final Collection<ExecutableElement> methods
+	)
 	{
 		return !method.isDefault()
 			&& !method.getModifiers().contains(Modifier.STATIC)
@@ -175,8 +174,9 @@ public class WrapperProcessor extends AbstractProcessor
 	}
 	
 	private boolean isOverwritten(
-		final ExecutableElement overridden,
-		final Collection<ExecutableElement> methods)
+		final ExecutableElement             overridden,
+		final Collection<ExecutableElement> methods
+	)
 	{
 		final Elements elements = this.processingEnv.getElementUtils();
 		return methods.stream()

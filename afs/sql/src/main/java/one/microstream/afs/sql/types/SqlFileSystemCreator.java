@@ -4,7 +4,7 @@ package one.microstream.afs.sql.types;
  * #%L
  * microstream-afs-sql
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -21,6 +21,8 @@ package one.microstream.afs.sql.types;
  */
 
 import static one.microstream.chars.XChars.notEmpty;
+
+import java.lang.reflect.InvocationTargetException;
 
 import javax.sql.DataSource;
 
@@ -64,7 +66,7 @@ public abstract class SqlFileSystemCreator extends ConfigurationBasedCreator.Abs
 		try
 		{
 			final SqlDataSourceProvider dataSourceProvider = (SqlDataSourceProvider)
-				Class.forName(dataSourceProviderClassName).newInstance()
+				Class.forName(dataSourceProviderClassName).getDeclaredConstructor().newInstance()
 			;
 			final SqlProvider sqlProvider = this.createSqlProvider(
 				sqlConfiguration,
@@ -76,7 +78,11 @@ public abstract class SqlFileSystemCreator extends ConfigurationBasedCreator.Abs
 				: SqlConnector.New(sqlProvider)
 			);
 		}
-		catch(InstantiationException | IllegalAccessException | ClassNotFoundException e)
+		catch(InstantiationException | IllegalAccessException |
+			  ClassNotFoundException | IllegalArgumentException |
+			  InvocationTargetException | NoSuchMethodException |
+			  SecurityException e
+		)
 		{
 			throw new ConfigurationException(sqlConfiguration, e);
 		}

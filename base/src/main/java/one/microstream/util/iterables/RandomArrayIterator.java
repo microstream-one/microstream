@@ -4,7 +4,7 @@ package one.microstream.util.iterables;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -90,9 +90,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 	// getters //
 	////////////
 
-	/**
-	 *
-	 */
 	public int getCount()
 	{
 		return this.count;
@@ -104,9 +101,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 	// setters //
 	////////////
 
-	/**
-	 * @param count the count to set
-	 */
 	public RandomArrayIterator<E> setCount(final int count)
 	{
 		this.count = count;
@@ -119,20 +113,12 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 	// declared methods //
 	/////////////////////
 
-	/**
-	 *
-	 * @param amount
-	 */
 	public RandomArrayIterator<E> incrementCount(final int amount)
 	{
 		this.count += amount;
 		return this;
 	}
 
-	/**
-	 *
-	 * @param amount
-	 */
 	public RandomArrayIterator<E> decrementCount(final int amount)
 	{
 		this.count -= amount;
@@ -193,7 +179,7 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 	/**
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException because this operation is not supported
 	 * @see java.util.Iterator#remove()
 	 */
 	@Override
@@ -231,9 +217,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 		// getters //
 		////////////
 
-		/**
-		 *
-		 */
 		public int getCount()
 		{
 			return this.count;
@@ -245,9 +228,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 		// setters //
 		////////////
 
-		/**
-		 * @param count the count to set
-		 */
 		public Factory<E> setCount(final int count)
 		{
 			this.count = count;
@@ -260,20 +240,12 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 		// declared methods //
 		/////////////////////
 
-		/**
-		 *
-		 * @param amount
-		 */
 		public Factory<E> incrementCount(final int amount)
 		{
 			this.count += amount;
 			return this;
 		}
 
-		/**
-		 *
-		 * @param amount
-		 */
 		public Factory<E> decrementCount(final int amount)
 		{
 			this.count -= amount;

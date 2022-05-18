@@ -4,7 +4,7 @@ package one.microstream.chars;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -30,11 +30,19 @@ public interface EscapeHandler
 	public boolean needsEscaping(char chr);
 
 	/**
-	 * Contract: if no transformation is needed, the same character value is returned.
-	 * TO DO: proper JavDoc
-	 *
-	 *
-	 * @param chr
+	 * Transforms the given character on demand. Following escaped characters are transformed:
+	 * <ul>
+	 * <li>'\t' -&gt; 't'</li>
+	 * <li>'\b' -&gt; 'b'</li>
+	 * <li>'\n' -&gt; 'n'</li>
+	 * <li>'\r' -&gt; 'r'</li>
+	 * <li>'\f' -&gt; 'f'</li>
+	 * </ul>
+	 * 
+	 * If no transformation is needed, the same character value is returned.
+	 * 
+	 * @param chr the character to uneescape
+	 * @return the unescaped value
 	 */
 	public char transformEscapedChar(char chr);
 

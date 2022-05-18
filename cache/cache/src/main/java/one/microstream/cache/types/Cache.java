@@ -5,7 +5,7 @@ package one.microstream.cache.types;
  * #%L
  * microstream-cache
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -61,13 +61,18 @@ import javax.cache.integration.CompletionListener;
 import javax.cache.processor.EntryProcessor;
 import javax.cache.processor.EntryProcessorException;
 
+import org.slf4j.Logger;
+
 import one.microstream.X;
 import one.microstream.cache.types.MBeanServerUtils.MBeanType;
 import one.microstream.collections.BulkList;
 import one.microstream.collections.types.XList;
 import one.microstream.exceptions.IORuntimeException;
+import one.microstream.persistence.binary.util.Serializer;
 import one.microstream.reference.Reference;
+import one.microstream.reflect.ClassLoaderProvider;
 import one.microstream.typing.KeyValue;
+import one.microstream.util.logging.Logging;
 
 /**
  * JSR-107 compliant {@link javax.cache.Cache}.
@@ -81,10 +86,10 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	public CacheManager getCacheManager();
 
 	/**
-	 * Returns the {@link CacheConfiguration} which was used to create this cache.
+	 * @return the {@link CacheConfiguration} which was used to create this cache.
 	 */
 	public CacheConfiguration<K, V> getConfiguration();
-
+	
 	/**
 	 * Returns the amount of entries in this cache.
 	 *
@@ -110,6 +115,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 	 * <p>
 	 * Short for <code>putAll(map, replaceExistingValues, true)</code>
 	 *
+	 * @param map entries to add
+	 * @param replaceExistingValues if values with same keys should be replaces
 	 * @see #putAll(Map, boolean, boolean)
 	 */
 	public default void putAll(
@@ -135,16 +142,19 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 	/**
 	 * Enables or disables the management bean of this cache.
+	 * @param enabled <code>true</code> if the management bean should be enabled
 	 */
 	public void setManagementEnabled(boolean enabled);
 
 	/**
 	 * Enables or disables statistics gathering.
+	 * @param enabled <code>true</code> if the statistics gathering should be enabled
 	 */
 	public void setStatisticsEnabled(boolean enabled);
 
 	/**
 	 * Evicts given entries from this cache.
+	 * @param entriesToEvict the entries to evict
 	 */
 	public void evict(Iterable<KeyValue<Object, CachedValue>> entriesToEvict);
 
@@ -169,6 +179,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 	public static class Default<K, V> implements Cache<K, V>
 	{
+		private final static Logger logger = Logging.getLogger(Default.class);
+		
 		private final String                                      name                    ;
 		private final CacheManager                                manager                 ;
 		private final CacheConfiguration<K, V>                    configuration           ;
@@ -184,8 +196,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 		private final ExecutorService                             executorService         ;
 		private final CacheConfigurationMXBean                    cacheConfigurationMXBean;
 		private final CacheStatisticsMXBean                       cacheStatisticsMXBean   ;
-		private AtomicBoolean                                     isStatisticsEnabled     = new AtomicBoolean();
-		private AtomicBoolean                                     isClosed                = new AtomicBoolean();
+		private final AtomicBoolean                               isStatisticsEnabled     = new AtomicBoolean();
+		private final AtomicBoolean                               isClosed                = new AtomicBoolean();
 
 		/*
 		 * According to spec cache and configuration, which may be mutable,
@@ -207,9 +219,11 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 			this.objectConverter = configuration.isStoreByValue()
 				? ObjectConverter.ByValue(
-					Serializer.get(
-						Thread.currentThread().getContextClassLoader(),
-						configuration.getSerializerFieldPredicate()
+					Serializer.Binary(
+						configuration.getSerializerFoundation()
+							.setClassLoaderProvider(
+								ClassLoaderProvider.New(Thread.currentThread().getContextClassLoader())
+							)
 					)
 				)
 				: ObjectConverter.ByReference()
@@ -271,6 +285,12 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			{
 				this.evictionManager.install(this, this.cacheTable);
 			}
+			
+			logger.debug(
+				"MicroStream Cache '{}' created with following configuration:\n{}",
+				name,
+				configuration
+			);
 		}
 
 		@Override
@@ -395,6 +415,8 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 			}
 
 			this.cacheTable.clear();
+			
+			logger.debug("MicroStream Cache '{}' closed", this.name);
 		}
 
 		@Override

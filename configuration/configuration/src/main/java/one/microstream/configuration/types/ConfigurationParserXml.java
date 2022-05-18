@@ -4,7 +4,7 @@ package one.microstream.configuration.types;
  * #%L
  * microstream-configuration
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -57,6 +57,7 @@ public interface ConfigurationParserXml extends ConfigurationParser
 	/**
 	 * Pseudo-constructor to create a new XML parser.
 	 * 
+	 * @param mapper a custom mapper
 	 * @return a new XML parser
 	 */
 	public static ConfigurationParserXml New(

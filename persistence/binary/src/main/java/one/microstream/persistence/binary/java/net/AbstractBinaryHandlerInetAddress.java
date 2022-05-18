@@ -4,7 +4,7 @@ package one.microstream.persistence.binary.java.net;
  * #%L
  * microstream-persistence-binary
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -97,9 +97,9 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 	/**
 	 * Based on <a href="https://en.wikipedia.org/wiki/IPv6">https://en.wikipedia.org/wiki/IPv6</a>.
 	 * 
-	 * @param ipV6Address
+	 * @param ipV6Address the address to parse
+	 * @return the parts of the ip address
 	 */
-	// Because I have nothing better to do than writing an IP address parser. Yay.
 	public static byte[] parseIpV6Address(final String ipV6Address)
 	{
 		final String[] parts = ipV6Address.split("\\:");

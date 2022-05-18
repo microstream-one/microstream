@@ -4,7 +4,7 @@ package one.microstream.util;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -31,7 +31,7 @@ import one.microstream.collections.BulkList;
  * An instance that collects (buffers) elements and gets notified once the collecting process is completed.
  *
  * 
- * @param <E>
+ * @param <E> the collected element's type
  */
 public interface BufferingCollector<E>
 {

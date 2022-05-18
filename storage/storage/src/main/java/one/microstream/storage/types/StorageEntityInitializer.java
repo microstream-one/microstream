@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -115,6 +115,8 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 				registerFileEntities(entityCache, initTime, dataFile, dataFile.size(), buffer, entityOffsets);
 			}
 			
+			XMemory.deallocateDirectByteBuffer(buffer);
+			
 			return headFile;
 		}
 		
@@ -171,9 +173,6 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 				
 		/**
 		 * 
-		 * @param file
-		 * @param buffer
-		 * @param entityOffsets
 		 * @return the entity count.
 		 */
 		private static int indexEntities(

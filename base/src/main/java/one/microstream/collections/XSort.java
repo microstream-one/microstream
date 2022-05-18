@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -931,6 +931,7 @@ public final class XSort
 	 *
 	 * @param <E> the type of the elements to be sorted.
 	 * @param elements the elements to be sorted.
+	 * @param buffer the array to be used as a buffer by the sorting algorithm.
 	 * @param start the starting index (inclusive) of the subrange to be sorted.
 	 * @param bound the bounding index (exclusive) of the subrange to be sorted.
 	 * @param comparator the {@link Comparator} defining the sortation order of the elements.
@@ -1068,9 +1069,9 @@ public final class XSort
 	 * performance gain is achieved for lengths above 10.000. Length above 1 million yields performance boosts
 	 * around 40% to 100%.
 	 *
-	 * @param <E>
-	 * @param elements
-	 * @param comparator
+	 * @param <E> the type of the elements to be sorted.
+	 * @param elements the elements to be sorted.
+	 * @param comparator the {@link Comparator} defining the sortation order of the elements.
 	 */
 	public static <E> void parallelSort(final E[] elements, final Comparator<? super E> comparator)
 	{
@@ -1238,7 +1239,7 @@ public final class XSort
 		if(high - low < 8)
 		{
 			insertionsort0(values, low, high + 1);
-		    return;
+			return;
 		}
 
 		int left, right;
@@ -1275,7 +1276,7 @@ public final class XSort
 		if(high - low < 8)
 		{
 			insertionsort0(values, low, high + 1, cmp);
-		    return;
+			return;
 		}
 
 		int left, right;
@@ -2417,7 +2418,7 @@ public final class XSort
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XSort()
 	{

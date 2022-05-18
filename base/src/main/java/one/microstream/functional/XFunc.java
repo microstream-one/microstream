@@ -4,7 +4,7 @@ package one.microstream.functional;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -48,6 +48,8 @@ public final class XFunc
 	
 	/**
 	 * Functional alias for{@code return true;}.
+	 * @param <T> the type of the input to the predicate
+	 * @return the all predicate
 	 */
 	public static final <T> Predicate<T> all()
 	{
@@ -57,6 +59,8 @@ public final class XFunc
 
 	/**
 	 * Functional alias for{@code return true;}.
+	 * @param <T> the type of the input to the predicate
+	 * @return the any predicate
 	 */
 	public static final <T> Predicate<T> any()
 	{
@@ -65,6 +69,8 @@ public final class XFunc
 
 	/**
 	 * Functional alias for {@code return false;}.
+	 * @param <T> the type of the input to the predicate
+	 * @return the none predicate
 	 */
 	public static final <T> Predicate<T> none()
 	{
@@ -74,6 +80,8 @@ public final class XFunc
 
 	/**
 	 * Functional alias for {@code return e != null;}.
+	 * @param <T> the type of the input to the predicate
+	 * @return the not null predicate
 	 */
 	public static <T> Predicate<T> notNull()
 	{
@@ -96,6 +104,8 @@ public final class XFunc
 
 	/**
 	 * Literally a no-op {@link Consumer}.
+	 * @param <E> the type of the input to the operation
+	 * @param e the input, which is simply ignored
 	 */
 	public static <E> void noOp(final E e)
 	{
@@ -121,6 +131,7 @@ public final class XFunc
 	/**
 	 * Required to use lambdas or method reference in conjunction with {@link Predicate#and(Predicate)} etc.
 	 * 
+	 * @param <T> the type of the input to the predicate
 	 * @param predicate a predicate instance
 	 * @return the passed predicate instance without execution any further logic.
 	 */
@@ -241,6 +252,10 @@ public final class XFunc
 
 	/**
 	 * Fluent alias for {@code predicate.negate()}.
+	 * 
+	 * @param <T> the type of the input to the predicate
+	 * @param predicate the predicate to negate
+	 * @return the negated predicate
 	 */
 	public static <T> Predicate<T> not(final Predicate<T> predicate)
 	{
@@ -627,17 +642,19 @@ public final class XFunc
 	 * <p>
 	 * Consider the following example with V1 extends V:
 	 * (e.g. V is an interface and V1 is an implementation of V)
-	 * <code><pre>{@code
-	 *XMap<K, V1> workingCollection = ... ;
-	 *XImmutableMap<K, V> finalCollection = ConstHashTable.NewProjected(input, <K>passthrough(), <V1, V>upcast());
-	 * }</pre></code>
+	 * <pre>
+	 * XMap&lt;K, V1&gt; workingCollection = ... ;
+	 * XImmutableMap&lt;K, V&gt; finalCollection = ConstHashTable.NewProjected(input, &lt;K&gt;passthrough(), &lt;V1, V&gt;upcast());
+	 * </pre>
 	 *
-	 *
+	 * @param <T> the type of the input to the function
+	 * @param <R> the type of the result of the function
+	 * @return the upcast passthrough function
 	 */
 	@SuppressWarnings("unchecked")
-	public static final <T extends S, S> Function<T, S> upcast()
+	public static final <T extends R, R> Function<T, R> upcast()
 	{
-		return (Function<T, S>)passThrough();
+		return (Function<T, R>)passThrough();
 	}
 	
 	
@@ -682,7 +699,7 @@ public final class XFunc
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XFunc()
 	{

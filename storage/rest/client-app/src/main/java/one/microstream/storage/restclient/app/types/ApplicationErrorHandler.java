@@ -2,9 +2,9 @@ package one.microstream.storage.restclient.app.types;
 
 /*-
  * #%L
- * microstream-storage-restclient-app
+ * MicroStream Storage REST Client App
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,8 +20,6 @@ package one.microstream.storage.restclient.app.types;
  * #L%
  */
 
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.DefaultErrorHandler;
 import com.vaadin.flow.server.ErrorEvent;
@@ -29,15 +27,16 @@ import com.vaadin.flow.server.ErrorHandler;
 import com.vaadin.flow.server.VaadinSession;
 
 import one.microstream.storage.restclient.app.ui.InternalErrorView;
+import one.microstream.util.logging.Logging;
 
 
 public class ApplicationErrorHandler implements ErrorHandler
 {
 	public static final String THROWABLE_ATTRIBUTE = ApplicationErrorHandler.class.getName() + "#THROWABLE";
 	
-	public static void handle(Throwable throwable)
+	public static void handle(final Throwable throwable)
 	{
-		LoggerFactory.getLogger(ApplicationErrorHandler.class)
+		Logging.getLogger(ApplicationErrorHandler.class)
 			.error(throwable.getMessage(), throwable);
 		
 		VaadinSession.getCurrent().setAttribute(THROWABLE_ATTRIBUTE, throwable);
@@ -51,7 +50,7 @@ public class ApplicationErrorHandler implements ErrorHandler
 	}
 	
 	@Override
-	public void error(ErrorEvent event)
+	public void error(final ErrorEvent event)
 	{
 		handle(DefaultErrorHandler.findRelevantThrowable(event.getThrowable()));
 	}

@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -59,10 +59,10 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 		// constructors //
 		/////////////////
 
-		Default(final long timestamp, final Binary data)
+		Default(final long timestamp, final Binary data, final StorageOperationController controller)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
-			super(timestamp, data.channelCount());
+			super(timestamp, data.channelCount(), controller);
 			this.data = data;
 		}
 

@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -103,6 +103,10 @@ public interface StorageLiveFileProvider extends StorageFileProvider
 	 * @param fileHandlerCreator may <b>not</b> be null.
 	 * @param deletionDirectory may be null.
 	 * @param truncationDirectory may be null.
+	 * @param structureProvider may <b>not</b> be null.
+	 * @param fileNameProvider may <b>not</b> be null.
+	 * 
+	 * @return a new {@link StorageLiveFileProvider} instance
 	 */
 	public static StorageLiveFileProvider.Default New(
 		final ADirectory                                   baseDirectory      ,
@@ -183,6 +187,7 @@ public interface StorageLiveFileProvider extends StorageFileProvider
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLiveFileProvider.Builder}.
 	 * 
+	 * @param fileSystem the file system to use
 	 * @return a new {@link StorageLiveFileProvider.Builder} instance.
 	 */
 	public static StorageLiveFileProvider.Builder<?> Builder(final AFileSystem fileSystem)

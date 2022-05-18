@@ -4,7 +4,7 @@ package one.microstream.collections.types;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -35,6 +35,7 @@ public interface XJoinable<E>
 	 * @param joiner is the actual function to do the joining
 	 * @param aggregate where to join into
 	 * @param <A> type of aggregate
+	 * @return the joined aggregate
 	 */
 	public <A> A join(BiConsumer<? super E, ? super A> joiner, A aggregate);
 }

@@ -4,7 +4,7 @@ package one.microstream.hashing;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -195,7 +195,9 @@ public final class XHashing
 	/**
 	 * Wrappers the passed {@link HashEqualator} instance as a {@link KeyValue} {@link HashEqualator} instance, using
 	 * the {@link KeyValue} instance's key as the hash element.
-	 *
+	 * 
+	 * @param <K> the key type
+	 * @param <V> the value type
 	 * @param hashEqualator single element {@link HashEqualator} instance to be wrapped.
 	 * @return the passed instance as a {@link KeyValue} {@link HashEqualator} instance.
 	 */
@@ -236,7 +238,7 @@ public final class XHashing
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XHashing()
 	{

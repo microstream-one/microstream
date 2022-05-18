@@ -1,40 +1,40 @@
-# Microstream-spring
+# MicroStream Spring Boot Integration
 
-Allows integration of Microstream with Spring boot.
+Allows integration of MicroStream with Spring Boot.
 
 ## How to use
 
-The `src/it` folder contains examples of Microstream integration with Spring boot.
+The `src/it` folder contains examples of MicroStream integration with Spring Boot.
 
-## General:
+## General
 
-Microstream supports configurations using configuration files. These same configuration items are intended for use in
-spring boot, but with the prefix `one.microstream`
+MicroStream supports configurations using configuration files. These same configuration items are intended for use in
+Spring Boot, but with the prefix `one.microstream`
 
-#### Example:
+#### Example
 
 `storage-filesystem.sql.postgres.user=username`<br>
 the spring configuration will look like this:<br>
 `one.microstream.storage-filesystem.sql.postgres.user=username`
 
-### Important:
+### Important
 
-This framework forwards all configuration keys to the Microstream. It is important to follow the format that needs
-Nicrostream framework regardless of what the Spring configuration framework allows.
+This framework forwards all configuration keys to the MicroStream. It is important to follow the format that the
+MicroStream framework needs regardless of what the Spring configuration framework allows.
 
-### Class Loader:
+### Class Loader
 
-Spring boot class loader. If you use another class loader, such as hot replace, you may get an exception:
+Spring Boot class loader. If you use another class loader, such as hot replace, you may get an exception:
 `one.microstream.exceptions.TypeCastException`<br>
-In this case it is possible to force the use of the CurrentThread classloader for Microstream.<br>
+In this case it is possible to force the use of the current thread's class loader for MicroStream.<br>
 `one.microstream.use-current-thread-class-loader=false` <br>
-This value is not passed to the Microstream Framework but is set directly in this module.
+This value is not passed to the MicroStream framework but is set directly in this module.
 
 ## Debug
 
-Microstream Spring module supports standard spring logging, so you can add into your config:<br>
+MicroStream Spring module supports standard Spring logging, so you can add into your config:<br>
 `logging.level.one.microstream=debug`
-for to obtain all microstream configuration keys:
+in order to obtain all MicroStream configuration keys:
 
 ```
 2021-08-23 15:16:02.979 DEBUG 18469 --- [           main] o.m.spring.MicrostreamConfiguration      : Microstream configuration items:

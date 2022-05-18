@@ -4,7 +4,7 @@ package one.microstream.communication.types;
  * #%L
  * microstream-communication
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -25,7 +25,10 @@ import java.nio.ByteOrder;
 import one.microstream.persistence.types.PersistenceIdStrategy;
 import one.microstream.persistence.types.PersistenceTypeDictionaryViewProvider;
 
-
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 @FunctionalInterface
 public interface ComProtocolProviderCreator<C>
 {
@@ -33,6 +36,7 @@ public interface ComProtocolProviderCreator<C>
 		String                                name                  ,
 		String                                version               ,
 		ByteOrder                             byteOrder             ,
+		int                                   inactivityTimeout     ,
 		PersistenceIdStrategy                 idStrategy            ,
 		PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
 		ComProtocolCreator                    protocolCreator
@@ -57,7 +61,6 @@ public interface ComProtocolProviderCreator<C>
 		}
 		
 		
-		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
@@ -67,21 +70,23 @@ public interface ComProtocolProviderCreator<C>
 			final String                                name                  ,
 			final String                                version               ,
 			final ByteOrder                             byteOrder             ,
+			final int                                   inactivityTimeout     ,
 			final PersistenceIdStrategy                 idStrategy            ,
 			final PersistenceTypeDictionaryViewProvider typeDictionaryProvider,
 			final ComProtocolCreator                    protocolCreator
+			
 		)
 		{
 			return new ComProtocolProvider.Default<>(
 				name                  ,
 				version               ,
 				byteOrder             ,
+				inactivityTimeout     ,
 				idStrategy            ,
 				typeDictionaryProvider,
 				protocolCreator
 			);
 		}
-		
 	}
 	
 }

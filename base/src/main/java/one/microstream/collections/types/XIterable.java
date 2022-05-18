@@ -4,7 +4,7 @@ package one.microstream.collections.types;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -25,19 +25,19 @@ import java.util.function.Consumer;
 
 public interface XIterable<E>
 {
-    /**
-     * Executes the given procedure for each element of the {@link XIterable}
-     * until all elements have been processed or the action throws an
-     * exception. Unless otherwise specified by the implementing class,
-     * procedures are performed in the order of iteration (if an iteration order
-     * is specified). Exceptions thrown by the procedure are relayed to the
-     * caller.<br>
-     * Should be identical to {@link Iterable#forEach(Consumer)}.
-     *
+	/**
+	 * Executes the given procedure for each element of the {@link XIterable}
+	 * until all elements have been processed or the action throws an
+	 * exception. Unless otherwise specified by the implementing class,
+	 * procedures are performed in the order of iteration (if an iteration order
+	 * is specified). Exceptions thrown by the procedure are relayed to the
+	 * caller.<br>
+	 * Should be identical to {@link Iterable#forEach(Consumer)}.
+	 *
 	 * @param <P> type of procedure
-     * @param procedure The procedure to be performed for each element
+	 * @param procedure The procedure to be performed for each element
 	 * @return Given procedure
-     */
+	 */
 	public <P extends Consumer<? super E>> P iterate(P procedure);
 
 	
@@ -50,9 +50,9 @@ public interface XIterable<E>
 	 * expecting an {@link XIterable} instance. Through this abstraction, logic can be written that can be
 	 * equally executed on single objects (via this wrapper) or multiple objects (via X-collections).
 	 * <p>
-	 * <u>Example</u>:<code><pre> someRegistryLogic.register(persons);
-	 * someRegistryLogic.register(new Exector<Person>(singlePerson));
-	 * </pre></code>
+	 * <u>Example</u>:<pre> someRegistryLogic.register(persons);
+	 * someRegistryLogic.register(new Exector&lt;Person&gt;(singlePerson));
+	 * </pre>
 	 *
 	 * 
 	 */

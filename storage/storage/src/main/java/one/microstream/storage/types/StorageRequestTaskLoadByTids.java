@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -40,9 +40,9 @@ public interface StorageRequestTaskLoadByTids extends StorageRequestTaskLoad
 		// constructors //
 		/////////////////
 
-		Default(final long timestamp, final PersistenceIdSet tidList, final int channelCount)
+		Default(final long timestamp, final PersistenceIdSet tidList, final int channelCount, final StorageOperationController controller)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.tidList = tidList;
 		}
 

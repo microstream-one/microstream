@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -31,6 +31,7 @@ public interface StorageBackupThreadProvider extends StorageThreadProviding
 	 * Interfering with the thread from outside the storage compound has undefined and potentially
 	 * unpredictable and erronous behavior.
 	 *
+	 * @param backupHandler the handler to wrap
 	 * @return a {@link Thread} instance to be used as a storage backup worker thread.
 	 */
 	public default Thread provideBackupThread(final StorageBackupHandler backupHandler)

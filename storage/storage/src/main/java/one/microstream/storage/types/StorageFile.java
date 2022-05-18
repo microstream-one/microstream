@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -399,11 +399,6 @@ public interface StorageFile
 		
 		protected synchronized AReadableFile ensureReadable()
 		{
-			if(this.file.fileSystem().isWritable())
-			{
-				return this.ensureWritable();
-			}
-			
 			this.internalOpenReading();
 			
 			return this.readAccess;
@@ -423,14 +418,19 @@ public interface StorageFile
 
 		public synchronized boolean close()
 		{
-			if(this.writeAccess == null)
+			boolean result = false;
+			
+			if(this.writeAccess != null)
 			{
-				return false;
+				 result = this.writeAccess.release();
+				 this.writeAccess = null;
 			}
 			
-			// release closes implicitely.
-			final boolean result = this.writeAccess.release();
-			this.writeAccess = null;
+			if(this.readAccess != null )
+			{
+				result = this.readAccess.release();
+				this.readAccess = null;
+			}
 			
 			return result;
 		}

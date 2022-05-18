@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -30,6 +30,7 @@ public interface PersistenceSizedArrayLengthController
 	
 	/**
 	 * Recommended for storing data (does not change program behavior).
+	 * @return an unrestricted array length controller
 	 * 
 	 */
 	public static PersistenceSizedArrayLengthController.Unrestricted Unrestricted()
@@ -39,7 +40,7 @@ public interface PersistenceSizedArrayLengthController
 	
 	/**
 	 * Recommended for communication (prevents array bombs).
-	 * 
+	 * @return a fitting array length controller
 	 */
 	public static PersistenceSizedArrayLengthController.Fitting Fitting()
 	{

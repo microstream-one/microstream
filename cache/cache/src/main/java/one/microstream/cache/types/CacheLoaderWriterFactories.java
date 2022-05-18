@@ -4,7 +4,7 @@ package one.microstream.cache.types;
  * #%L
  * microstream-cache
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -30,7 +30,7 @@ import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 
 /**
  * 
- * @deprecated will be removed in a future release
+ * @deprecated will be removed in version 8
  */
 @Deprecated
 public interface CacheLoaderWriterFactories<K, V>

@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -458,7 +458,8 @@ public final class XUtilsCollection
 		final long offset,
 		final long length,
 		final E sample,
-		final Equalator<? super E> equalator)
+		final Equalator<? super E> equalator
+	)
 	{
 		if(sequence instanceof AbstractSimpleArrayCollection<?>)
 		{
@@ -2286,7 +2287,7 @@ public final class XUtilsCollection
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XUtilsCollection()
 	{

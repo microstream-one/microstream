@@ -4,7 +4,7 @@ package one.microstream.math;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -81,7 +81,7 @@ public final class XMath
 	 * Note that {@code exponent} may not be negative, otherwise an {@code IllegalArgumentException} is
 	 * thrown.
 	 *
-	 * @param base
+	 * @param base the base
 	 * @param exponent my not be negative
 	 * @return {@code base^exponent}
 	 * @throws IllegalArgumentException if {@code exponent} is negative
@@ -312,7 +312,7 @@ public final class XMath
 	 * Returns the integer value of base-10 logarithm of the passed value.
 	 * <p>
 	 * Examples:
-	 * <code><pre>
+	 * <pre>
 	 * log10(1) = 0
 	 * log10(8) = 0
 	 * log10(10) = 1
@@ -320,10 +320,11 @@ public final class XMath
 	 * log10(100) = 2
 	 * log10(1000000000) = 9
 	 * log10(2147483647) = 9
-	 * </pre></code>
+	 * </pre>
 	 * Note that passing a value lower than or equal 0 will throw an  {@link IllegalArgumentException}.
 	 *
-	 * @param value
+	 * @param value the value to calculate the logarithm on
+	 * @return the integer value of base-10 logarithm of the passed value
 	 */
 	public static final int log10discrete(final int value) throws IllegalArgumentException
 	{
@@ -364,14 +365,14 @@ public final class XMath
 	 * <p>
 	 * The additional length for the minus of to represent negative values is acounted for as well.<br>
 	 * Examples:
-	 * <code><pre>
+	 * <pre>
 	 * stringLength(0) = 1
 	 * stringLength(+6) = 1
 	 * stringLength(10) = 2
 	 * stringLength(+2147483647) = 10
 	 * stringLength(-1) = 2
 	 * stringLength(-2147483648) = 11
-	 * </pre></code>
+	 * </pre>
 	 *
 	 * @param value the {@code int} value whose string length shall be calculated
 	 * @return the length the passed value's string representation will require.
@@ -1629,7 +1630,7 @@ public final class XMath
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XMath()
 	{

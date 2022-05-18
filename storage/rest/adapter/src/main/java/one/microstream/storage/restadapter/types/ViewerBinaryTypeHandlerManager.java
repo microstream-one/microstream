@@ -1,10 +1,12 @@
 package one.microstream.storage.restadapter.types;
 
+import java.util.function.BiConsumer;
+
 /*-
  * #%L
  * microstream-storage-restadapter
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -320,6 +322,22 @@ public class ViewerBinaryTypeHandlerManager implements PersistenceTypeHandlerMan
 	public PersistenceTypeHandlerManager<Binary> get()
 	{
 		return this;
+	}
+
+	@Override
+	public <T> PersistenceLegacyTypeHandler<Binary, ? super T> ensureLegacyTypeHandler
+	(
+			final PersistenceTypeDefinition legacyTypeDefinition,
+			final PersistenceTypeHandler<Binary, ? super T> currentTypeHandler
+	) 
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer) 
+	{
+		throw new UnsupportedOperationException();		
 	}
 
 }

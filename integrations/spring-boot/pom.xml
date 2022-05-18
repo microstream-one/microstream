@@ -7,13 +7,12 @@
     <parent>
         <groupId>one.microstream</groupId>
         <artifactId>microstream-integrations-parent</artifactId>
-        <version>05.01.00-MS-GA-SNAPSHOT</version>
+        <version>08.00.00-MS-GA-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <properties>
-        <spring.version>5.3.8</spring.version>
-        <org.springframework.boot.version>2.5.0</org.springframework.boot.version>
+        <org.springframework.boot.version>2.6.7</org.springframework.boot.version>
     </properties>
 
 
@@ -53,12 +52,12 @@
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded</artifactId>
-            <version>05.01.00-MS-GA-SNAPSHOT</version>
+            <version>08.00.00-MS-GA-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded-configuration</artifactId>
-            <version>05.01.00-MS-GA-SNAPSHOT</version>
+            <version>08.00.00-MS-GA-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
@@ -78,6 +77,13 @@
                         <usePhrasedTestCaseClassName>true</usePhrasedTestCaseClassName>
                         <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
                     </statelessTestsetReporter>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

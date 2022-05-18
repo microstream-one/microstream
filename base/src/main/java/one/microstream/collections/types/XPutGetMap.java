@@ -4,7 +4,7 @@ package one.microstream.collections.types;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -22,9 +22,18 @@ package one.microstream.collections.types;
 
 import one.microstream.typing.KeyValue;
 
-
+/**
+ * 
+ * @param <K> the key type
+ * @param <V> the value type
+ */
 public interface XPutGetMap<K, V> extends XPuttingMap<K, V>, XAddGetMap<K, V>
 {
+	/**
+	 * 
+	 * @param <K> the key type
+	 * @param <V> the value type
+	 */
 	public interface Creator<K, V> extends XPuttingMap.Creator<K, V>, XAddGetMap.Creator<K, V>
 	{
 		@Override
@@ -36,8 +45,9 @@ public interface XPutGetMap<K, V> extends XPuttingMap<K, V>, XAddGetMap<K, V>
 	/**
 	 * Ensures the passed key and value to be contained as an entry in the map. Returns the old value or {@code null}.
 	 * 
-	 * @param key
-	 * @param value
+	 * @param key the key
+	 * @param value the value
+	 * @return the old value or {@code null}.
 	 */
 	public KeyValue<K, V> putGet(K key, V value);
 	

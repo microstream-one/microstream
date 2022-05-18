@@ -5,7 +5,7 @@ package one.microstream.wrapping.codegen;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -65,9 +65,10 @@ class WrapperTypeGenerator
 	private final VarString             source            = VarString.New();
 	
 	WrapperTypeGenerator(
-		final ProcessingEnvironment processingEnv,
-		final TypeElement wrappedTypeElement,
-		final Collection<ExecutableElement> methods)
+		final ProcessingEnvironment         processingEnv     ,
+		final TypeElement                   wrappedTypeElement,
+		final Collection<ExecutableElement> methods
+	)
 	{
 		super();
 		

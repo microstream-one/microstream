@@ -4,7 +4,7 @@ package one.microstream.afs.types;
  * #%L
  * microstream-afs
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -29,6 +29,8 @@ public interface ARoot extends ADirectory
 	 * E.g.
 	 * https://
 	 * file://
+	 * 
+	 * @return the protocol
 	 */
 	public String protocol();
 	
@@ -56,10 +58,12 @@ public interface ARoot extends ADirectory
 	
 	
 	/**
+	 * Creates a new root directory
 	 * Note: {@code identifier} can be {@literal ""} since local file paths might start with a "/".
-	 * @param fileSystem
-	 * @param protocol
-	 * @param identifier
+	 * @param fileSystem the root's file system
+	 * @param protocol the used protocol
+	 * @param identifier the identifier of the root directory
+	 * @return the newly created root directory
 	 * 
 	 */
 	public static ARoot New(

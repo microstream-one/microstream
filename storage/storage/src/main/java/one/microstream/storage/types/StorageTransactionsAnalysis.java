@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -310,7 +310,7 @@ public interface StorageTransactionsAnalysis
 		{
 			final long actualFileLength    = file.size()    ;
 			final long boundPosition       = startPosition + length;
-		          long currentFilePosition = startPosition         ;
+			      long currentFilePosition = startPosition         ;
 
 			if(currentFilePosition < 0 || currentFilePosition > actualFileLength)
 			{
@@ -447,7 +447,7 @@ public interface StorageTransactionsAnalysis
 		/**
 		 * Dummy constructor to prevent instantiation of this static-only utility class.
 		 * 
-		 * @throws UnsupportedOperationException
+		 * @throws UnsupportedOperationException when called
 		 */
 		private Logic()
 		{

@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -47,13 +47,14 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 		/////////////////
 
 		Default(
-			final long        timestamp     ,
-			final int         channelCount  ,
-			final long        nanoTimeBudget,
-			final StorageTask actualTask
+			final long                       timestamp     ,
+			final int                        channelCount  ,
+			final long                       nanoTimeBudget,
+			final StorageTask                actualTask    ,
+			final StorageOperationController controller
 		)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.actualTask     = actualTask    ;
 			this.nanoTimeBudget = nanoTimeBudget;
 		}

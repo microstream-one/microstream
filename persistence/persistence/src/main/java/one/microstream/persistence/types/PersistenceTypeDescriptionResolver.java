@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -40,7 +40,9 @@ public interface PersistenceTypeDescriptionResolver extends PersistenceTypeResol
 	 * as the value. The value can be potentially null to indicate deletion.
 	 * If the lookup did not yield any result, {@code null} is returned.
 	 * 
-	 * @param sourceIdentifier
+	 * @param sourceIdentifier the source identifier
+	 * @return a key-value pair with the passed source identifier as the key and a mapped target identifier
+	 * as the value
 	 */
 	public KeyValue<String, String> lookup(String sourceIdentifier);
 	
@@ -79,9 +81,11 @@ public interface PersistenceTypeDescriptionResolver extends PersistenceTypeResol
 	 * as the value. The value can be potentially null to indicate deletion.
 	 * If the lookup did not yield any result, {@code null} is returned.
 	 * 
-	 * @param sourceType
-	 * @param sourceMember
-	 * @param targetType
+	 * @param sourceType the source type
+	 * @param sourceMember the source member
+	 * @param targetType the target type
+	 * @return a key-value pair with the passed source member as the key and a mapped target member
+	 * as the value
 	 */
 	public KeyValue<PersistenceTypeDefinitionMember, PersistenceTypeDefinitionMember> resolveMember(
 		PersistenceTypeDefinition       sourceType  ,

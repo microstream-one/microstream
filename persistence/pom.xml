@@ -9,7 +9,7 @@
     <parent>
         <groupId>one.microstream</groupId>
         <artifactId>microstream-parent</artifactId>
-        <version>05.01.00-MS-GA-SNAPSHOT</version>
+        <version>08.00.00-MS-GA-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -23,6 +23,7 @@
         <module>persistence</module>
         <module>binary</module>
         <module>binary-jdk8</module>
+        <module>binary-android</module>
     </modules>
 
     <profiles>

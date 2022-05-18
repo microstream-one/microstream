@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -171,8 +171,12 @@ public final class XUtilsArrayCollection
 		return AbstractArrayStorage.rangedIsSorted(a.internalGetStorageArray(), XTypes.to_int(a.size()), offset, length, comparator);
 	}
 
-	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>,
-	C extends Consumer<? super E>> C rngCopyTo(final A a, final int offset, final int length, final C target)
+	public static final <
+		E,
+		A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>,
+		C extends Consumer<? super E>
+	>
+	C rngCopyTo(final A a, final int offset, final int length, final C target)
 	{
 		return AbstractArrayStorage.rangedCopyTo(a.internalGetStorageArray(), XTypes.to_int(a.size()), offset, length, target);
 	}
@@ -627,7 +631,7 @@ public final class XUtilsArrayCollection
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XUtilsArrayCollection()
 	{

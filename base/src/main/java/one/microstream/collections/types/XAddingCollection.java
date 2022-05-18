@@ -4,7 +4,7 @@ package one.microstream.collections.types;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -33,8 +33,8 @@ import one.microstream.functional.Aggregator;
  * add all elements that do not logically conflict with already contained elements
  * according to the collection's logic. ("add to"/"increase" collection).
  * <p>
- * Examples:<br/>
- * Set: Only add element, if no equal element is already contained<br/>
+ * Examples:<br>
+ * Set: Only add element, if no equal element is already contained<br>
  * Bag: Always add all elements
  *
  * @param <E> type of contained elements

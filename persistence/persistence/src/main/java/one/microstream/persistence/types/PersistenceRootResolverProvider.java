@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -51,7 +51,9 @@ public interface PersistenceRootResolverProvider
 	 * To avoid confusion, this method has been renamed to {@link #setRoot(Object)}.
 	 * The old variant will be removed in a future release.
 	 * 
-	 * @deprecated replaced by {@link #setRoot(Object)}
+	 * @param root the root object
+	 * @return this
+	 * @deprecated replaced by {@link #setRoot(Object)}, will be removed in version 8
 	 */
 	@Deprecated
 	public default PersistenceRootResolverProvider registerRoot(final Object root)

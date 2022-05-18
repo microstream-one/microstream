@@ -4,7 +4,7 @@ package one.microstream.storage.embedded.types;
  * #%L
  * microstream-storage-embedded
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -172,7 +172,10 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @deprecated replaced by {@link #Foundation(Path)}
+	 * @param directory the storage directory
+	 * @return a new storage foundation
+	 * 
+	 * @deprecated replaced by {@link #Foundation(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final EmbeddedStorageFoundation<?> Foundation(
@@ -318,7 +321,11 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @deprecated replaced by {@link #start(Path)}
+	 * @param directory the directory where the storage will be located.
+	 *
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
+	 * 
+	 * @deprecated replaced by {@link #start(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final EmbeddedStorageManager start(
@@ -471,7 +478,13 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @deprecated replaced by {@link #start(Object, Path)} and {@link #start(Object, ADirectory)}
+	 * @param root      root the explicitely defined root instance of the persistent entity graph.
+	 *
+	 * @param directory the directory where the storage will be located.
+	 *
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
+	 * 
+	 * @deprecated replaced by {@link #start(Object, Path)} and {@link #start(Object, ADirectory)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final EmbeddedStorageManager start(
@@ -662,7 +675,7 @@ public final class EmbeddedStorage
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private EmbeddedStorage()
 	{

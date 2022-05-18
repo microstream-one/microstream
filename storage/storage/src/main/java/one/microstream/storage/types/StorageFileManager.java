@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -28,6 +28,8 @@ import static one.microstream.math.XMath.notNegative;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+
 import one.microstream.X;
 import one.microstream.afs.types.AFS;
 import one.microstream.afs.types.AFile;
@@ -45,12 +47,14 @@ import one.microstream.storage.exceptions.StorageExceptionIoWriting;
 import one.microstream.storage.exceptions.StorageExceptionIoWritingChunk;
 import one.microstream.storage.types.StorageRawFileStatistics.FileStatistics;
 import one.microstream.storage.types.StorageTransactionsAnalysis.EntryAggregator;
+import one.microstream.typing.Disposable;
 import one.microstream.typing.XTypes;
 import one.microstream.util.BufferSizeProvider;
+import one.microstream.util.logging.Logging;
 
 
 // note that the name channel refers to the entity hash channel, not an nio channel
-public interface StorageFileManager extends StorageChannelResetablePart
+public interface StorageFileManager extends StorageChannelResetablePart, Disposable
 {
 	/* (17.09.2014 TM)TODO: Much more loose coupling
 	 * Make all storage stuff much more loosely coupled with more interface methods and
@@ -107,6 +111,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 
 	public final class Default implements StorageFileManager, StorageFileUser
 	{
+		private final static Logger logger = Logging.getLogger(Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constants //
 		//////////////
@@ -262,7 +268,14 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+
+		@Override
+		public final void dispose()
+		{
+			this.clearRegisteredFiles();
+			this.deleteBuffers();
+		}
+
 		final boolean isFileCleanupEnabled()
 		{
 			return this.writeController.isFileCleanupEnabled();
@@ -911,8 +924,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			}
 			catch(final RuntimeException e)
 			{
-				// on any exception, reset (clear) the internal state
-				parent.reset();
+				//as this instance won't be restarted any more, destroy allocated buffers
+				parent.dispose();
 				throw e;
 			}
 			finally
@@ -1262,8 +1275,8 @@ public interface StorageFileManager extends StorageChannelResetablePart
 		{
 			/* Note:
 			 * (see field declarations)
-             * 1.0) all final fields don't have to (can't) be resetted. Obviously.
-             * 1.1) entryBuffers don't have to be resetted since they get filled anew for every write.
+			 * 1.0) all final fields don't have to (can't) be resetted. Obviously.
+			 * 1.1) entryBuffers don't have to be resetted since they get filled anew for every write.
 			 */
 			
 			// 2.0) final references to mutable instances
@@ -1275,6 +1288,24 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			
 			// at this point, it is either 0 already or it won't matter since everything has been cleared.
 			this.pendingFileDeletes = 0;
+		}
+		
+		/**
+		 * The deleteBuffers method is used to allow an early deallocation
+		 * of the used DirectByteBuffers in order to reduce the off-heap
+		 * memory footprint without the need to relay on the GC.
+		 * after calling this method the StorageManager is left in a inoperable state.
+		 */
+		public final void deleteBuffers()
+		{
+			logger.debug("Destroying all buffers explicitly!");
+
+			XMemory.deallocateDirectByteBuffer(this.entryBufferFileCreation);
+			XMemory.deallocateDirectByteBuffer(this.entryBufferStore);
+			XMemory.deallocateDirectByteBuffer(this.entryBufferTransfer);
+			XMemory.deallocateDirectByteBuffer(this.entryBufferFileDeletion);
+			XMemory.deallocateDirectByteBuffer(this.entryBufferFileTruncation);
+			XMemory.deallocateDirectByteBuffer(this.standardByteBuffer);
 		}
 
 		final void handleLastFile(
@@ -1393,7 +1424,7 @@ public interface StorageFileManager extends StorageChannelResetablePart
 				 */
 				throw new StorageExceptionConsistency(
 					this.channelIndex() + " has inconsistent pending deletes: count = "
-				  + this.pendingFileDeletes + ", wants to delete " + file
+					+ this.pendingFileDeletes + ", wants to delete " + file
 				);
 			}
 			this.pendingFileDeletes--;
@@ -1593,7 +1624,10 @@ public interface StorageFileManager extends StorageChannelResetablePart
 			{
 				if(file.head.fileNext != startingFile.tail)
 				{
-					return file.head.fileNext;
+					if(file.hasContent())
+					{
+						return file.head.fileNext;
+					}
 				}
 			}
 			while((file = file.next) != startingFile);

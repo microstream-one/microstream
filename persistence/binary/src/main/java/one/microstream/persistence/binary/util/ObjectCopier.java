@@ -4,7 +4,7 @@ package one.microstream.persistence.binary.util;
  * #%L
  * microstream-persistence-binary
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -25,17 +25,8 @@ import static one.microstream.X.notNull;
 import java.io.Closeable;
 
 import one.microstream.X;
-import one.microstream.collections.types.XGettingCollection;
 import one.microstream.persistence.binary.types.Binary;
-import one.microstream.persistence.binary.types.BinaryPersistence;
-import one.microstream.persistence.binary.types.BinaryPersistenceFoundation;
-import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
-import one.microstream.persistence.types.PersistenceContextDispatcher;
-import one.microstream.persistence.types.PersistenceIdSet;
 import one.microstream.persistence.types.PersistenceManager;
-import one.microstream.persistence.types.PersistenceSource;
-import one.microstream.persistence.types.PersistenceTarget;
-import one.microstream.persistence.types.PersistenceTypeDictionaryManager;
 import one.microstream.reference.Reference;
 
 public interface ObjectCopier extends Closeable
@@ -48,10 +39,10 @@ public interface ObjectCopier extends Closeable
 	
 	public static ObjectCopier New()
 	{
-		return new Default(BinaryPersistence.Foundation());
+		return new Default(SerializerFoundation.New());
 	}
 	
-	public static ObjectCopier New(final BinaryPersistenceFoundation<?> foundation)
+	public static ObjectCopier New(final SerializerFoundation<?> foundation)
 	{
 		return new Default(
 			notNull(foundation)
@@ -61,10 +52,10 @@ public interface ObjectCopier extends Closeable
 	
 	public static class Default implements ObjectCopier
 	{
-		private final BinaryPersistenceFoundation<?> foundation        ;
-		private PersistenceManager<Binary>           persistenceManager;
+		private final SerializerFoundation<?> foundation        ;
+		private PersistenceManager<Binary>    persistenceManager;
 				
-		Default(final BinaryPersistenceFoundation<?> foundation)
+		Default(final SerializerFoundation<?> foundation)
 		{
 			super();
 			this.foundation = foundation;
@@ -95,48 +86,15 @@ public interface ObjectCopier extends Closeable
 		{
 			if(this.persistenceManager == null)
 			{
-				final Reference<Binary> buffer = X.Reference(null);
-				final CopySource        source = ()   -> X.Constant(buffer.get());
-				final CopyTarget        target = data -> buffer.set(data);
-				
-				final BinaryPersistenceFoundation<?> foundation = this.foundation
-					.setPersistenceSource(source)
-					.setPersistenceTarget(target)
-					.setContextDispatcher(PersistenceContextDispatcher.LocalObjectRegistration())
-				;
-				
-				foundation.setTypeDictionaryManager(
-					PersistenceTypeDictionaryManager.Transient(
-						foundation.getTypeDictionaryCreator()
-					)
-				);
-				
-				this.persistenceManager = foundation.createPersistenceManager();
+				final Reference<Binary> buffer = X.Reference(null)               ;
+				final Serializer.Source source = ()   -> X.Constant(buffer.get());
+				final Serializer.Target target = data -> buffer.set(data)        ;
+
+				this.persistenceManager = this.foundation.createPersistenceManager(source, target);
 			}
 			else
 			{
 				this.persistenceManager.objectRegistry().truncateAll();
-			}
-		}
-		
-		
-		static interface CopySource extends PersistenceSource<Binary>
-		{
-			@Override
-			default XGettingCollection<? extends Binary> readByObjectIds(final PersistenceIdSet[] oids)
-				throws PersistenceExceptionTransfer
-			{
-				return null;
-			}
-		}
-		
-		
-		static interface CopyTarget extends PersistenceTarget<Binary>
-		{
-			@Override
-			default boolean isWritable()
-			{
-				return true;
 			}
 		}
 		

@@ -4,7 +4,7 @@ package one.microstream.persistence.exceptions;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -51,39 +51,44 @@ public class PersistenceExceptionTypeHandlerConsistencyConflictedType extends Pe
 	}
 
 	public PersistenceExceptionTypeHandlerConsistencyConflictedType(
-		final Class<?>                    type             ,
+		final Class<?>                     type             ,
 		final PersistenceTypeHandler<?, ?> actualTypeHandler,
 		final PersistenceTypeHandler<?, ?> passedTypeHandler,
-		final String message
+		final String                       message
 	)
 	{
 		this(type, actualTypeHandler, passedTypeHandler, message, null);
 	}
 
 	public PersistenceExceptionTypeHandlerConsistencyConflictedType(
-		final Class<?>                    type             ,
+		final Class<?>                     type              ,
 		final PersistenceTypeHandler<?, ?> actualTypeHandler,
 		final PersistenceTypeHandler<?, ?> passedTypeHandler,
-		final Throwable cause)
+		final Throwable                    cause
+	)
 	{
 		this(type, actualTypeHandler, passedTypeHandler, null, cause);
 	}
 
 	public PersistenceExceptionTypeHandlerConsistencyConflictedType(
-		final Class<?>                    type             ,
+		final Class<?>                     type             ,
 		final PersistenceTypeHandler<?, ?> actualTypeHandler,
 		final PersistenceTypeHandler<?, ?> passedTypeHandler,
-		final String message, final Throwable cause
+		final String                       message          ,
+		final Throwable                    cause
 	)
 	{
 		this(type, actualTypeHandler, passedTypeHandler, message, cause, true, true);
 	}
 
 	public PersistenceExceptionTypeHandlerConsistencyConflictedType(
-		final Class<?>                    type             ,
-		final PersistenceTypeHandler<?, ?> actualTypeHandler,
-		final PersistenceTypeHandler<?, ?> passedTypeHandler,
-		final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace
+		final Class<?>                     type              ,
+		final PersistenceTypeHandler<?, ?> actualTypeHandler ,
+		final PersistenceTypeHandler<?, ?> passedTypeHandler ,
+		final String                       message           ,
+		final Throwable                    cause             ,
+		final boolean                      enableSuppression ,
+		final boolean                      writableStackTrace
 	)
 	{
 		super(message, cause, enableSuppression, writableStackTrace);

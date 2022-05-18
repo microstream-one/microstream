@@ -1,13 +1,10 @@
-/**
- *
- */
 package one.microstream.collections.sorting;
 
 /*-
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -30,7 +27,7 @@ import java.util.Comparator;
  * <p>
  * This type is mutually exclusive to {@link Sorted}.
  *
- * 
+ * @param <E> the type of the input to the operation
  *
  */
 public interface Sortable<E>

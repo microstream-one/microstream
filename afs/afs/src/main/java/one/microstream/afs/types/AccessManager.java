@@ -4,7 +4,7 @@ package one.microstream.afs.types;
  * #%L
  * microstream-afs
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -580,7 +580,7 @@ public interface AccessManager
 				e.add(wrapper);
 				
 				// may not retire file before conversion since that might need some of file's state.
-				this.unregisterExclusive(file, e);
+				e.exclusive = null;
 				
 				return wrapper;
 			}
@@ -905,7 +905,7 @@ public interface AccessManager
 			if(entry.removeShared(file) && entry.exclusive == null)
 			{
 				// if there is no more need for the entry itself, remove it.
-				this.fileUsers.removeFor(file);
+				this.fileUsers.removeFor(file.actual());
 			}
 		}
 		
@@ -936,6 +936,7 @@ public interface AccessManager
 		protected void removeExclusive(final AWritableFile file, final FileEntry entry)
 		{
 			entry.exclusive = null;
+			this.fileUsers.removeFor(file.actual());
 			file.retire();
 		}
 				

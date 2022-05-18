@@ -4,7 +4,7 @@ package one.microstream.persistence.binary.types;
  * #%L
  * microstream-persistence-binary
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -71,6 +71,7 @@ public final class BinaryValueTranslators
 	 * results than would be expected based on the stored instances).<p>
 	 * However, arbitrary mappings can be added to suit the needs of specific programs.
 	 * 
+	 * @param switchByteOrder byte order switch flag
 	 * @return a default mapping of primitive-to-primitive binary value translators.
 	 */
 	public static final TypeMapping<BinaryValueSetter> createDefaultValueTranslators(final boolean switchByteOrder)
@@ -1313,7 +1314,7 @@ public final class BinaryValueTranslators
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private BinaryValueTranslators()
 	{

@@ -5,7 +5,7 @@ package one.microstream.storage.configuration;
  * #%L
  * microstream-storage-embedded-configuration
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -38,7 +38,7 @@ import one.microstream.chars.XChars;
 
 /**
  * 
- * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationLoader}, will be removed in a future release
+ * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationLoader}, will be removed in version 8
  * @see one.microstream.storage.configuration
  */
 @Deprecated
@@ -72,7 +72,7 @@ public interface ConfigurationLoader
 	)
 	{
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
-	    final URL         url                = contextClassloader != null
+		final URL         url                = contextClassloader != null
 			? contextClassloader.getResource(path)
 			: ConfigurationLoader.class.getResource(path)
 		;
@@ -118,7 +118,7 @@ public interface ConfigurationLoader
 	)
 	{
 		final ClassLoader contextClassloader = Thread.currentThread().getContextClassLoader();
-	    final URL         url                = contextClassloader != null
+		final URL         url                = contextClassloader != null
 			? contextClassloader.getResource(path)
 			: ConfigurationLoader.class.getResource(path)
 		;

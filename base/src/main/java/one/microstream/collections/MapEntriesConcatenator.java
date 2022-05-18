@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -32,6 +32,8 @@ import one.microstream.typing.KeyValue;
  * Configurable {@link KeyValue} to-String concatenator.
  *
  * 
+ * @param <K> the key type
+ * @param <V> the value type
  *
  */
 public class MapEntriesConcatenator<K, V>
@@ -126,11 +128,11 @@ public class MapEntriesConcatenator<K, V>
 	/**
 	 * Convenience method that combines all setters in one call.
 	 *
-	 * @param mapStartSymbol
-	 * @param mapEndSymbol
-	 * @param preKeySymbol
-	 * @param mappingSymbol
-	 * @param postValueSymbol
+	 * @param mapStartSymbol map start symbol
+	 * @param mapEndSymbol map end symbol
+	 * @param preKeySymbol pre key symbol
+	 * @param mappingSymbol mapping symbol
+	 * @param postValueSymbol post value symbol
 	 * @return this instance.
 	 */
 	public MapEntriesConcatenator<K, V> configure(

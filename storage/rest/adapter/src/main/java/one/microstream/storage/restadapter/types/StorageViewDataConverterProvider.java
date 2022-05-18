@@ -4,7 +4,7 @@ package one.microstream.storage.restadapter.types;
  * #%L
  * microstream-storage-restadapter
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -25,8 +25,8 @@ public interface StorageViewDataConverterProvider
 	/**
 	 * Get the converter for the requested format.
 	 *
-	 * @param format
-	 * @return StorageViewDataConverter
+	 * @param format the format to get the converter for
+	 * @return the registered converter, or <code>null</code> if none was found
 	 */
 	public StorageViewDataConverter getConverter(String format);
 }

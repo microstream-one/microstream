@@ -1,0 +1,44 @@
+= Logging
+
+MicroStream logs against the simple logging facade https://www.slf4j.org/[SLF4J].
+Just add and configure the logging framework of your choice to see the logger's output.
+
+Here's a small example with https://logback.qos.ch/[logback].
+Add the logback dependency:
+
+[source, xml, title="pom.xml"]
+----
+<dependencies>
+	<dependency>
+		<groupId>ch.qos.logback</groupId>
+		<artifactId>logback-classic</artifactId>
+		<version>${logback.version}</version>
+	</dependency>
+</dependencies>
+----
+
+And the logback configuration:
+
+[source, xml, title="logback.xml"]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n
+            </Pattern>
+        </layout>
+    </appender>
+
+    <logger name="one.microstream" level="debug" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <root level="error">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>
+----

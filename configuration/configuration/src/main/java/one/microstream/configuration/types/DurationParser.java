@@ -4,7 +4,7 @@ package one.microstream.configuration.types;
  * #%L
  * microstream-configuration
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -49,6 +49,7 @@ public interface DurationParser
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link DurationParser}, with {@link DurationUnit#MS} as default unit.
+	 * @return a new duraction parser
 	 */
 	public static DurationParser New()
 	{
@@ -57,6 +58,8 @@ public interface DurationParser
 	
 	/**
 	 * Pseudo-constructor method to create a new {@link DurationParser}.
+	 * @param defaultUnit a custom default unit
+	 * @return a new duraction parser
 	 */
 	public static DurationParser New(
 		final DurationUnit defaultUnit

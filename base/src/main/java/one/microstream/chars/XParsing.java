@@ -4,7 +4,7 @@ package one.microstream.chars;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -55,9 +55,10 @@ public final class XParsing
 	 * Skips to the position beyond the second occurance of the current character (input[iStart]).
 	 * This simple logic does NOT support escaping.
 	 * 
-	 * @param input
-	 * @param iStart
-	 * @param iBound
+	 * @param input the input character array
+	 * @param iStart the search start
+	 * @param iBound the exclusive bound
+	 * @return the calculated position
 	 */
 	public static final int skipSimpleQuote(final char[] input, final int iStart, final int iBound)
 	{
@@ -231,7 +232,7 @@ public final class XParsing
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XParsing()
 	{

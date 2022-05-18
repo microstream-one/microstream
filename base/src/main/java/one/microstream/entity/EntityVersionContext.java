@@ -5,7 +5,7 @@ package one.microstream.entity;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -35,10 +35,11 @@ import one.microstream.hashing.XHashing;
  */
 public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 {
+	@SuppressWarnings("unchecked")
 	public static <K> EntityVersionContext<K> lookup(final Entity entity)
 	{
 		final EntityLayerVersioning<K> versioningLayer = Entity.searchLayer(
-			entity, 
+			entity,
 			EntityLayerVersioning.class
 		);
 		return versioningLayer != null
@@ -58,7 +59,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 	
 	public EntityVersionCleaner<K> cleaner();
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public default <E extends Entity> XGettingTable<K, E> versions(final E entity)
 	{
 		Entity layer = entity;
@@ -87,7 +88,7 @@ public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 		
 		protected Abstract(final EntityVersionCleaner<K> cleaner)
 		{
-			super();			
+			super();
 			this.cleaner = mayNull(cleaner);
 		}
 		

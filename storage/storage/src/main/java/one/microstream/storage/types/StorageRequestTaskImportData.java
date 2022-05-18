@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -66,7 +66,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		// starting point for the channels to process
 		private final SourceFileSlice[] sourceFileTails;
 
-		private AtomicBoolean    complete  = new AtomicBoolean();
+		private final AtomicBoolean    complete  = new AtomicBoolean();
 		private volatile long    maxObjectId; //TODO Check, why it is not assigned?
 		private          Thread  readThread ;
 
@@ -80,11 +80,12 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			final long                          timestamp             ,
 			final int                           channelCount          ,
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
-			final XGettingEnum<AFile>           importFiles
+			final XGettingEnum<AFile>           importFiles,
+			final StorageOperationController    controller
 		)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.importFiles            = importFiles;
 			this.objectIdRangeEvaluator = objectIdRangeEvaluator;
 			this.entityCaches           = new StorageEntityCache.Default[channelCount];
@@ -465,9 +466,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		final ImportBatch  headBatch  = new ImportBatch();
 		      ImportBatch  tailBatch ;
 		      ImportEntity tailEntity;
-		      
-		      
-		      
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
@@ -492,9 +493,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		
 		final ImportBatch     headBatch   ;
 		      SourceFileSlice next        ;
-		      
-		      
-		      
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
@@ -545,7 +546,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		////////////////////
 		
 		long        batchOffset;
-	    long        batchLength;
+		long        batchLength;
 		ImportBatch batchNext  ;
 		
 		
@@ -622,9 +623,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		final long                      objectId;
 		final StorageEntityType.Default type    ;
 		      ImportEntity              next    ;
-		      
-		      
-		      
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////

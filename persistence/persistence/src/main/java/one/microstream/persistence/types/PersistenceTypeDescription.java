@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -93,12 +93,13 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	{
 		return buildTypeIdentifier(this);
 	}
- 	
+	
 	/**
 	 * Equal content description, without TypeId comparison
 	 * 
-	 * @param td1
-	 * @param td2
+	 * @param td1 the first description
+	 * @param td2 the second description
+	 * @return if both descriptions are equal
 	 */
 	public static boolean equalDescription(
 		final PersistenceTypeDescription td1,
@@ -114,8 +115,9 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	/**
 	 * Equal structure, regardless of the member's definition type (reflective or custom-defined)
 	 * 
-	 * @param td1
-	 * @param td2
+	 * @param td1 the first description
+	 * @param td2 the second description
+	 * @return if both descriptions' structures are equal
 	 */
 	public static boolean equalStructure(
 		final PersistenceTypeDescription td1,

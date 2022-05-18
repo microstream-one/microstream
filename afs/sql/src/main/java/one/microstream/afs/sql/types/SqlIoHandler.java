@@ -4,7 +4,7 @@ package one.microstream.afs.sql.types;
  * #%L
  * microstream-afs-sql
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -228,6 +228,12 @@ public interface SqlIoHandler extends AIoHandler
 			this.connector.visitFiles      (dirPath, directory::ensureFile     );
 		}
 
+		@Override
+		protected boolean specificIsEmpty(final ADirectory directory) 
+		{		
+			return this.connector.isEmpty(this.toSubjectDirectory(directory));
+		}
+		
 		@Override
 		protected boolean specificOpenReading(
 			final SqlReadableFile file

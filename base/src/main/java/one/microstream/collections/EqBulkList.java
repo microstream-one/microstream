@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -109,6 +109,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 	/**
 	 * Default constructor instantiating an empty instance with default (minimum) capacity.
+	 * 
+	 * @param equalator the equality logic
 	 */
 	public EqBulkList(final Equalator<? super E> equalator)
 	{
@@ -127,7 +129,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	 * <li>The lowest power of two value that is equal to or greater than the given initial capacity.</li>
 	 * <li>The default (minimum) capacity.</li>
 	 * </ul>
-	 *
+	 * 
+	 * @param equalator the equality logic
 	 * @param initialCapacity the desired custom initial capacity.
 	 */
 	public EqBulkList(final Equalator<? super E> equalator, final int initialCapacity)
@@ -162,7 +165,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	 * Note that providing no element at all in the VarArgs parameter will automatically cause the
 	 * default constructor {@link #EqBulkList(Equalator)} to be used instead. Explicitely providing an {@code null} array
 	 * reference will cause a {@link NullPointerException}.
-	 *
+	 * 
+	 * @param equalator the equality logic
 	 * @param elements the initial elements for the new instance.
 	 * @throws NullPointerException if an explicit {@code null} array reference was passed.
 	 *
@@ -189,7 +193,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	 * and {@code srcLength} as described in {@link #EqBulkList(Equalator, int)}.
 	 * <p>
 	 * The specified initial elements array range is copied via {@link System#arraycopy(Object, int, Object, int, int)}.
-	 *
+	 * 
+	 * @param equalator the equality logic
 	 * @param initialCapacity the desired initial capacity for the new instance.
 	 * @param src the source array containg the desired range of initial elements.
 	 * @param srcStart the start index of the desired range of initial elements in the source array.
@@ -216,7 +221,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	 * Calling this constructor without complying to these rules will result in a broken instance.
 	 * <p>
 	 * It is recommended to NOT use this constructor outside collections-framework-internal implementations.
-	 *
+	 * 
+	 * @param equalator the equality logic
 	 * @param storageArray the array to be used as the storage for the new instance.
 	 * @param size the element size of the new instance.
 	 */

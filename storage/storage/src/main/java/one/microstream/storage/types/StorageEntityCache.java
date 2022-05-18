@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -27,6 +27,8 @@ import static one.microstream.math.XMath.positive;
 
 import java.nio.ByteBuffer;
 
+import org.slf4j.Logger;
+
 import one.microstream.X;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.functional.ThrowingProcedure;
@@ -40,6 +42,7 @@ import one.microstream.storage.exceptions.StorageException;
 import one.microstream.storage.exceptions.StorageExceptionConsistency;
 import one.microstream.storage.exceptions.StorageExceptionGarbageCollector;
 import one.microstream.storage.exceptions.StorageExceptionInitialization;
+import one.microstream.util.logging.Logging;
 
 
 public interface StorageEntityCache<E extends StorageEntity> extends StorageChannelResetablePart
@@ -70,9 +73,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 	public final class Default
 	implements StorageEntityCache<StorageEntity.Default>, Unpersistable
 	{
-		///////////////////////////////////////////////////////////////////////////
-		// constants //
-		//////////////
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		// (24.11.2017 TM)TODO: there seems to still be a GC race condition bug, albeit only very rarely.
 		private static boolean experimentalGcEnabled = false;
@@ -87,7 +88,9 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		 * and can disappear at any release.<br>
 		 * <b>Do not use this is production mode.</b>
 		 * 
-		 * @deprecated experimental, will be removed in a future release
+		 * @param enabled <code>true</code> if the gc should be enabled, <code>false</code> otherwise
+		 * 
+		 * @deprecated experimental
 		 */
 		@Deprecated
 		public static void setGarbageCollectionEnabled(final boolean enabled)
@@ -128,24 +131,24 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		// state 3.0: mutable fields. Must be cleared on reset.
 		
 		private StorageEntity.Default liveCursor;
-                                            
+		
 		private long    usedCacheSize;
 		private boolean hasUpdatePendingSweep;
-                                                  
+		
 		// Statistics for debugging / monitoring / checking to compare with other channels and with the markmonitor
 		private long sweepGeneration, lastSweepStart, lastSweepEnd;
 		
-
+		
 		// state 3.1: variable length content
-        
+		
 		private       StorageEntity.Default[]     oidHashTable ;
 		private       int                         oidModulo    ; // long modulo makes not difference
 		private       long                        oidSize      ;
-                                                  
+		
 		private       StorageEntityType.Default[] tidHashTable ;
 		private       int                         tidModulo    ;
 		private       int                         tidSize      ;
-                                                  
+		
 		private final StorageEntityType.Default   typeHead     ; // effective immutable, so no reset
 		private       StorageEntityType.Default   typeTail     ;
 		private       StorageEntityType.Default   rootType     ;
@@ -308,6 +311,8 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			rebuildOidHashSlots(this.oidHashTable, newSlots, this.channelHashShift, newModulo);
 			this.oidHashTable = newSlots;
 			this.oidModulo    = newModulo;
+			
+			logger.debug("Enlarged StorageEntityCache to {} entries!", newSlots.length);
 		}
 
 		private static void rebuildOidHashSlots(
@@ -342,6 +347,8 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			rebuildOidHashSlots(this.oidHashTable, newSlots, this.channelHashShift, newModulo);
 			this.oidHashTable = newSlots;
 			this.oidModulo    = newModulo;
+			
+			logger.debug("Consolidated StorageEntityCache to {} entries!", newSlots.length);
 		}
 
 		private void rebuildTidHashTable()
@@ -653,14 +660,20 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			 * the byte order switching for storage usage. Should the need arise in the future, additional
 			 * time can be invested to solve this.
 			 */
-			
-//			DEBUGStorage.println("looking for " + Binary.getEntityObjectId(entityAddress));
+								
 			final StorageEntity.Default entry;
 			if((entry = this.getEntry(Binary.getEntityObjectIdRawValue(entityAddress))) != null)
 			{
-//				DEBUGStorage.println("updating entry " + entry);
-				this.resetExistingEntityForUpdate(entry);
-				return entry;
+				final long entityTypeId = Binary.getEntityTypeIdRawValue(entityAddress);
+				if(entry.typeId() == entityTypeId) {
+					this.resetExistingEntityForUpdate(entry);
+					return entry;
+				}
+				
+				logger.debug("Entity {} typeId changed, old: {}, new: {}",
+					entry.objectId(),
+					entry.typeId(),
+					entityTypeId);
 			}
 
 //			DEBUGStorage.println("creating " + Binary.getEntityObjectId(entityAddress) + ", " + Binary.getEntityTypeId(entityAddress) + ", [" + Binary.getEntityLength(entityAddress) + "]");
@@ -719,8 +732,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		 * If the entity has no reference, it can be marked black right away. This either anticipates/replaces the black marking
 		 * by the GC and should actually not be necessary, however as the effort to do it at this point is rather minimal, it's done
 		 * nonetheless.
-		 *
-		 * @param entry
 		 */
 		private void markEntityForChangedData(final StorageEntity.Default entry)
 		{
@@ -856,6 +867,8 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			final StorageEntity.Default     previousInType
 		)
 		{
+			logger.debug("Deleting entity {}, typeId: {}", entity.objectId(), entity.typeId());
+			
 			// 1.) unregister entity from hash table (= unfindable by future requests)
 			this.unregisterEntity(entity);
 
@@ -870,9 +883,12 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 
 			// 5.) mark entity as deleted
 			entity.setDeleted();
+						
+			// decrement size, otherwise the the cache can't shrink
+			this.oidSize--;
 		}
 
-		private void checkForCacheClear(final StorageEntity.Default entry, final long evalTime)
+		void checkForCacheClear(final StorageEntity.Default entry, final long evalTime)
 		{
 			if(this.entityCacheEvaluator.clearEntityCache(this.usedCacheSize, evalTime, entry))
 			{
@@ -898,8 +914,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		/**
 		 * Returns {@code true} if there are no more oids to mark and {@code false} if time ran out.
 		 * (Meaning the returned boolean effectively means "Was there enough time?")
-		 *
-		 * @param nanoTimeBudgetBound
 		 */
 		private boolean incrementalMark(final long nanoTimeBudgetBound)
 		{
@@ -941,6 +955,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 					if(!this.zombieOidHandler.handleZombieOid(oidsBuffer[oidsMarkIndex - 1]))
 					{
 						// if the handler didn't throw an exception but didn't say it's handled, either, then log it.
+						logger.warn("Storage GC marking encountered zombie ObjectId {}", oidsBuffer[oidsMarkIndex - 1]);
 						this.eventLogger.logGarbageCollectorEncounteredZombieObjectId(oidsBuffer[oidsMarkIndex - 1]);
 					}
 					continue;
@@ -1178,11 +1193,11 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			 * of the channels (only the dedicated channel thread may operate on the EntityCache instances).
 			 * Thread-local work of a channel would suddenly have to subject to a lock on the mark monitor
 			 *
-  			 * This issue is ignored for now, but must be fixed if root instances are to be replaceable.
-  			 *
-  			 * Clean solution:
-  			 * Copy all roots, but not directly into a ChunksBuffer, but into a special intermediate data structure
-  			 * with a OID->binary map and reported valid rootId of each channel.
+			 * This issue is ignored for now, but must be fixed if root instances are to be replaceable.
+			 *
+			 * Clean solution:
+			 * Copy all roots, but not directly into a ChunksBuffer, but into a special intermediate data structure
+			 * with a OID->binary map and reported valid rootId of each channel.
 			 */
 
 			// iterate over all entities of all root types and copy their data
@@ -1280,6 +1295,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			{
 				this.resetLiveCursor();
 				
+				logger.trace("StorageChannel#{} completed live check", this.channelIndex);
 				this.eventLogger.logLiveCheckComplete(this);
 
 				// report live check completed

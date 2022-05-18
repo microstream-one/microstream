@@ -4,7 +4,7 @@ package one.microstream.reflect;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -45,6 +45,7 @@ public interface ReflectiveCopier<S>
 	
 	/**
 	 * Does not necessarily have to be S. S could be an interface.
+	 * @return the source class
 	 */
 	public Class<?> sourceClass();
 	

@@ -4,7 +4,7 @@ package one.microstream.util.xcsv;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -74,7 +74,7 @@ public interface XCsvConfiguration
 	public boolean isControlCharacter(char c);
 
 	/**
-	 * Returns a potentially cached char array of {@link #commentFullTerminator()} for read-only use.
+	 * @return a potentially cached char array of {@link #commentFullTerminator()} for read-only use.
 	 */
 	public default char[] commentFullTerminatorArray()
 	{
@@ -478,7 +478,7 @@ public interface XCsvConfiguration
 		return new XCsvConfiguration.Builder.Default();
 	}
 
-	public interface Builder
+	public interface Builder extends InstanceDispatcher
 	{
 		public char getLineSeparator();
 

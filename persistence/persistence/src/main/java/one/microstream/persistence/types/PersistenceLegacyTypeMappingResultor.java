@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -46,10 +46,13 @@ public interface PersistenceLegacyTypeMappingResultor<D>
 	 * </ul>
 	 * ... the created mapping.
 	 * 
-	 * @param legacyTypeDefinition
-	 * @param currentTypeHandler
-	 * @param explicitMappings
-	 * @param matchedMembers
+	 * @param <T> the handled type
+	 * @param legacyTypeDefinition the type definition
+	 * @param currentTypeHandler the type handler
+	 * @param explicitMappings given explicit mappings
+	 * @param explicitNewMembers given explicit new members
+	 * @param matchedMembers given matched members
+	 * @return the calculated result
 	 * 
 	 */
 	public default <T> PersistenceLegacyTypeMappingResult<D, T> createMappingResult(
@@ -298,7 +301,7 @@ public interface PersistenceLegacyTypeMappingResultor<D>
 		/**
 		 * Dummy constructor to prevent instantiation of this static-only utility class.
 		 * 
-		 * @throws UnsupportedOperationException
+		 * @throws UnsupportedOperationException when called
 		 */
 		private Static()
 		{

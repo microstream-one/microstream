@@ -4,7 +4,7 @@ package one.microstream.hashing;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -23,7 +23,7 @@ package one.microstream.hashing;
 
 /**
  * 
- *
+ * @param <T> the hashed element's type
  */
 public interface Hasher<T>
 {
@@ -34,12 +34,10 @@ public interface Hasher<T>
 	/**
 	 * Type interface to indicate that the implementation uses {@link Object#hashCode()} (that actually only makes
 	 * sense for proper value types, not for entity types).
-	 *
 	 * 
-	 *
-	 * @param <E>
+	 * @param <T> the hashed element's type
 	 */
-	public interface ValueHashCode<E> extends Hasher<E>
+	public interface ValueHashCode<T> extends Hasher<T>
 	{
 		// type interface only
 	}
@@ -57,14 +55,11 @@ public interface Hasher<T>
 	 * The purpose of this marker interface is to indicate that using an implementation of it will not create
 	 * hash values that will mess up a hash-based element distribution, which allows certain algorithm optimisations,
 	 * for example in hashing collections.
-	 *
-	 *
 	 * 
-	 *
-	 * @param <E>
+	 * @param <T> the hashed element's type
 	 * @see IdentityHashCode
 	 */
-	public interface ImmutableHashCode<E> extends Hasher<E>
+	public interface ImmutableHashCode<T> extends Hasher<T>
 	{
 		// type interface only
 	}
@@ -72,11 +67,9 @@ public interface Hasher<T>
 	/**
 	 * Type interface to indicate that the implementation uses {@link System#identityHashCode(Object)}.
 	 *
-	 * 
-	 *
-	 * @param <E>
+	 * @param <T> the hashed element's type
 	 */
-	public interface IdentityHashCode<E> extends ImmutableHashCode<E>
+	public interface IdentityHashCode<T> extends ImmutableHashCode<T>
 	{
 		// type interface only
 	}

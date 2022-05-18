@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -22,6 +22,7 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import one.microstream.collections.HashMapIdObject;
@@ -337,6 +338,13 @@ extends PersistenceTypeHandlerLookup<D>, PersistenceTypeRegistry, PersistenceTyp
 			
 			return iterator;
 		}
+
+		@Override
+		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer)
+		{
+			this.typeRegistry.iteratePerIds(consumer);
+		}
+		
 	}
 
 }

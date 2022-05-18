@@ -1,13 +1,10 @@
-/**
- * 
- */
 package one.microstream.functional;
 
 /*-
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -23,16 +20,6 @@ package one.microstream.functional;
  * #L%
  */
 
-/**
- * 
- *
- */
-/*
- * "Consumer" in the JDK is an hilariously wrong term for the used pattern.
- * The passed value is NOT "consumed" (absorbed, removed, deleted).
- * The used pattern is merely a piece of logic that is applied ("visits") the passed value, but does NOT consume it.
- * "Procedure" is MUCH more fitting.
- */
 public interface _charProcedure
 {
 	public void accept(char c);

@@ -4,7 +4,7 @@ package one.microstream.persistence.binary.jdk8.java.util;
  * #%L
  * microstream-persistence-binary-jdk8
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -103,8 +103,8 @@ public final class BinaryHandlerVector extends AbstractBinaryHandlerCustomIterab
 			handler
 		);
 		bytes.store_int(
-		    BINARY_OFFSET_CAPACITY_INCREMENT,
-		    SunJdk8Internals.getCapacityIncrement(instance)
+			BINARY_OFFSET_CAPACITY_INCREMENT,
+			SunJdk8Internals.getCapacityIncrement(instance)
 		);
 	}
 

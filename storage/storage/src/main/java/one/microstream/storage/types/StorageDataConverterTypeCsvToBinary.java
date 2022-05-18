@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -63,6 +63,13 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		/**
 		 * Starts parsing a value from the given data array starting at the given offset, esnures the completely
 		 * parsed value will get written, returns the position stopping position as the new current offset.
+		 * 
+		 * @param data the data array
+		 * @param offset start offset
+		 * @param bound bound offset
+		 * @param separator separator char
+		 * @param terminator terminator char
+		 * @return the position stopping position as the new current offset
 		 */
 		public int handleValue(char[] data, int offset, int bound, char separator, char terminator);
 	}

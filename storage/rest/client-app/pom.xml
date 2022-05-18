@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-storage-rest-parent</artifactId>
-		<version>05.01.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -19,8 +19,8 @@
 	<description>Executable Client App with Web User Interface</description>
 
 	<properties>
-		<vaadin.version>14.5.3</vaadin.version>
-		<spring.boot.version>2.3.10.RELEASE</spring.boot.version>
+		<vaadin.version>14.8.9</vaadin.version>
+		<spring.boot.version>2.6.7</spring.boot.version>
 	</properties>
 
 	<dependencyManagement>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage-restclient-jersey</artifactId>
-			<version>05.01.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>

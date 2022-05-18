@@ -4,7 +4,7 @@ package one.microstream.integrations.spring.boot.types;
  * #%L
  * microstream-spring
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,12 +20,12 @@ package one.microstream.integrations.spring.boot.types;
  * #L%
  */
 
-import one.microstream.reflect.ClassLoaderProvider;
-import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
-import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
-import one.microstream.storage.embedded.types.EmbeddedStorageManager;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.source.ConfigurationPropertyName;
 import org.springframework.context.annotation.Bean;
@@ -36,11 +36,11 @@ import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import one.microstream.reflect.ClassLoaderProvider;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
+import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
+import one.microstream.storage.embedded.types.EmbeddedStorageManager;
+import one.microstream.util.logging.Logging;
 
 
 @Configuration
@@ -49,12 +49,10 @@ public class MicrostreamConfiguration
 {
 
     private static final String PREFIX = "one.microstream.";
-    Logger logger = LoggerFactory.getLogger(MicrostreamConfiguration.class);
+    Logger logger = Logging.getLogger(MicrostreamConfiguration.class);
 
-    public Map<String, String> readProperties(Environment env)
+    public Map<String, String> readProperties(final Environment env)
     {
-        Map<String, String> rtn = new HashMap<>();
-
         final MutablePropertySources sources = ((AbstractEnvironment) env).getPropertySources();
 
         return sources.stream()
@@ -66,7 +64,7 @@ public class MicrostreamConfiguration
                 .collect(Collectors.toMap(prop -> prop.replaceFirst(PREFIX, ""), env::getProperty));
     }
 
-    public Map<String, String> normalizeProperties(Map<String, String> properties)
+    public Map<String, String> normalizeProperties(final Map<String, String> properties)
     {
         return properties.entrySet().stream()
                 .collect(Collectors.toMap(
@@ -77,34 +75,34 @@ public class MicrostreamConfiguration
 
     @Bean
     @Lazy
-    public EmbeddedStorageFoundation<?> embeddedStorageFoundation(Environment env)
+    public EmbeddedStorageFoundation<?> embeddedStorageFoundation(final Environment env)
     {
-        Map<String, String> values = normalizeProperties(readProperties(env));
+        final Map<String, String> values = this.normalizeProperties(this.readProperties(env));
 
-        EmbeddedStorageConfigurationBuilder builder = EmbeddedStorageConfigurationBuilder.New();
+        final EmbeddedStorageConfigurationBuilder builder = EmbeddedStorageConfigurationBuilder.New();
 
         if (values.containsKey("use-current-thread-class-loader"))
         {
             if (Objects.equals(values.get("use-current-thread-class-loader"), "true"))
             {
-                logger.debug("using current thread class loader");
+                this.logger.debug("using current thread class loader");
             }
             values.remove("use-current-thread-class-loader");
 
         }
 
-        logger.debug("Microstream configuration items: ");
+        this.logger.debug("Microstream configuration items: ");
         values.forEach((key, value) ->
         {
             if (value != null)
             {
                 if (key.contains("password"))
                 {
-                    logger.debug(key + " : xxxxxx");
+                    this.logger.debug(key + " : xxxxxx");
                 }
                 else
                 {
-                    logger.debug(key + " : " + value);
+                    this.logger.debug(key + " : " + value);
                 }
                 builder.set(key, value);
             }
@@ -117,9 +115,9 @@ public class MicrostreamConfiguration
 
     @Bean(destroyMethod = "shutdown")
     @Lazy
-    public EmbeddedStorageManager embeddedStorageManager(Environment env, MicrostreamConfigurationProperties configuration)
+    public EmbeddedStorageManager embeddedStorageManager(final Environment env, final MicrostreamConfigurationProperties configuration)
     {
-        EmbeddedStorageFoundation<?> embeddedStorageFoundation = embeddedStorageFoundation(env);
+        final EmbeddedStorageFoundation<?> embeddedStorageFoundation = this.embeddedStorageFoundation(env);
 
         if (configuration.getUseCurrentThreadClassLoader())
         {

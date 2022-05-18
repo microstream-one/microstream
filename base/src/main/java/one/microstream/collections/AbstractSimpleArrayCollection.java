@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -50,7 +50,9 @@ public abstract class AbstractSimpleArrayCollection<E> extends AbstractSectioned
 	 * of code locations. Note that the calling logic must guarantee the type safety (see calls of this method
 	 * for examples)
 	 *
-	 * @param subject
+	 * @param subject the collection to get the storage array from
+	 * @param <E> the element type
+	 * @return the storage array used by the list, containing all elements in straight order.
 	 */
 	@SuppressWarnings("unchecked")
 	protected static <E> E[] internalGetStorageArray(final AbstractSimpleArrayCollection<?> subject)

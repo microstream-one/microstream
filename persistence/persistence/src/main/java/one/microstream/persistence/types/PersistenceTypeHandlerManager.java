@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -22,7 +22,10 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
+import org.slf4j.Logger;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
@@ -39,6 +42,7 @@ import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerCon
 import one.microstream.reference.Swizzling;
 import one.microstream.reflect.XReflect;
 import one.microstream.typing.KeyValue;
+import one.microstream.util.logging.Logging;
 
 
 public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager, PersistenceTypeHandlerRegistry<D>
@@ -57,6 +61,12 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 	public <T> PersistenceTypeHandler<D, ? super T> ensureTypeHandler(Class<T> type);
 	
 	public <T> PersistenceTypeHandler<D, ? super T> ensureTypeHandler(PersistenceTypeDefinition typeDefinition);
+	
+	public <T> PersistenceLegacyTypeHandler<D, ? super T> ensureLegacyTypeHandler
+	(
+		final PersistenceTypeDefinition    legacyTypeDefinition,
+		final PersistenceTypeHandler<D, ? super T> currentTypeHandler
+	);
 	
 	public void ensureTypeHandlers(XGettingEnum<PersistenceTypeDefinition> typeDefinitions);
 
@@ -185,6 +195,8 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 
 	public final class Default<D> implements PersistenceTypeHandlerManager<D>
 	{
+		private final static Logger logger = Logging.getLogger(Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -447,16 +459,19 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			return this.ensureLegacyTypeHandler(typeDefinition, runtimeTypeHandler);
 		}
 		
-		private <T> PersistenceLegacyTypeHandler<D, T> ensureLegacyTypeHandler(
+		@Override
+		public <T> PersistenceLegacyTypeHandler<D, ? super T> ensureLegacyTypeHandler(
 			final PersistenceTypeDefinition    legacyTypeDefinition,
-			final PersistenceTypeHandler<D, T> currentTypeHandler
+			final PersistenceTypeHandler<D, ? super T> currentTypeHandler
 		)
 		{
-			final PersistenceLegacyTypeHandler<D, T> legacyTypeHandler = this.legacyTypeMapper.ensureLegacyTypeHandler(
+			final PersistenceLegacyTypeHandler<D, ? super T> legacyTypeHandler = this.legacyTypeMapper.ensureLegacyTypeHandler(
 				legacyTypeDefinition,
 				currentTypeHandler
 			);
 			this.registerLegacyTypeHandler(legacyTypeHandler);
+			
+			logger.debug("registered legacy type handler for {} with id {}", legacyTypeHandler.typeName(), legacyTypeHandler.typeId());
 			
 			return legacyTypeHandler;
 		}
@@ -474,7 +489,6 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		{
 			synchronized(this.typeHandlerRegistry)
 			{
-//				typeDefinitions.iterate(this::ensureTypeHandler);
 				typeDefinitions.iterate(typeDefinition ->
 					this.ensureTypeHandler(typeDefinition) // debug-friendlier
 				);
@@ -930,6 +944,8 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		@Override
 		public final synchronized PersistenceTypeHandlerManager<D> initialize()
 		{
+			logger.info("Initializing type handler manager");
+			
 			if(this.initialized)
 			{
 //				XDebug.debugln("already initialized");
@@ -1187,6 +1203,12 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 				// finally add the type descriptions
 				this.typeDictionaryManager.registerTypeDefinitions(typeDictionary.allTypeDefinitions().values());
 			}
+		}
+
+		@Override
+		public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer)
+		{
+			this.typeHandlerRegistry.iteratePerIds(consumer);
 		}
 
 	}

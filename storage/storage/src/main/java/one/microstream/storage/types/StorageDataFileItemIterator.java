@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -216,7 +216,7 @@ public interface StorageDataFileItemIterator
 
 			final long actualFileLength    = file.size()           ;
 			final long boundPosition       = startPosition + length;
-		          long currentFilePosition = startPosition         ;
+			      long currentFilePosition = startPosition         ;
 
 			if(currentFilePosition < 0 || currentFilePosition > actualFileLength)
 			{
@@ -228,7 +228,7 @@ public interface StorageDataFileItemIterator
 			}
 
 			final NextItemLength nextItemLength = new NextItemLength();
-			      
+			
 			ByteBuffer buffer = bufferProvider.provideInitialBuffer();
 
 			try
@@ -238,7 +238,7 @@ public interface StorageDataFileItemIterator
 				{
 					// ensure buffer size according to buffer size provider
 					buffer = bufferProvider.provideBuffer(buffer, nextItemLength.value);
-
+					
 					// end of file special case: adjust buffer limit if buffer would exceed the bounds
 					if(currentFilePosition + buffer.limit() >= boundPosition)
 					{
@@ -264,7 +264,7 @@ public interface StorageDataFileItemIterator
 					"currentFilePosition = " + currentFilePosition + ". nextEntityLength = " + nextItemLength.value, e
 				);
 			}
-
+			
 			bufferProvider.cleanUp();
 			return itemProcessor;
 		}

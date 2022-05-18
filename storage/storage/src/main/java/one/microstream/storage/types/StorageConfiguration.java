@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -194,7 +194,7 @@ public interface StorageConfiguration
 				.add(this.housekeepingController).lf()
 				.add(this.entityCacheEvaluator  ).lf()
 				.add(this.dataFileEvaluator     ).lf()
-				.add(this.backupSetup           ).lf()
+				.add(this.backupSetup == null ? StorageBackupSetup.class.getName() + ": null": this.backupSetup).lf()
 				.toString()
 			;
 		}

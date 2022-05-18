@@ -4,7 +4,7 @@ package one.microstream.hashing;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -49,7 +49,7 @@ public interface HashImmutable
 	 * used.
 	 *
 	 * @param  other the reference object with which to compare.
-	 * @return {@code true} if this object can be treated as the <i>same</i> as <tt>other</tt>,
+	 * @return {@code true} if this object can be treated as the <i>same</i> as {@code other}
 	 *         {@code false} otherwise.
 	 * @see    #hashCode()
 	 */

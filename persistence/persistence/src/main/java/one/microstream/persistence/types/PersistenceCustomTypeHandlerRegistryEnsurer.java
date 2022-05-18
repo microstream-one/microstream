@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -26,7 +26,7 @@ import one.microstream.reference.Reference;
  * 
  * 
  *
- * @param <D>
+ * @param <D> the data type
  */
 /* (16.10.2019 TM)NOTE:
  * Required to replace/modularize the calling of BinaryPersistence#createDefaultCustomTypeHandlerRegistry

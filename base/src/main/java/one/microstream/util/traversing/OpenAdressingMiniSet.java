@@ -4,7 +4,7 @@ package one.microstream.util.traversing;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -48,7 +48,7 @@ import one.microstream.math.XMath;
  *
  * 
  *
- * @param <E>
+ * @param <E> type of contained elements
  */
 public final class OpenAdressingMiniSet<E> implements XSet<E>
 {
@@ -480,27 +480,30 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 
 	@Override
 	public <T extends Consumer<? super E>> T union(
-		final XGettingCollection<? extends E> other,
-		final Equalator<? super E> equalator,
-		final T target)
+		final XGettingCollection<? extends E> other    ,
+		final Equalator<? super E>            equalator,
+		final T                               target
+	)
 	{
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T intersect(
-		final XGettingCollection<? extends E> other,
-		final Equalator<? super E> equalator,
-		final T target)
+		final XGettingCollection<? extends E> other    ,
+		final Equalator<? super E>            equalator,
+		final T                               target
+	)
 	{
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T except(
-		final XGettingCollection<? extends E> other,
-		final Equalator<? super E> equalator,
-		final T target)
+		final XGettingCollection<? extends E> other    ,
+		final Equalator<? super E>            equalator,
+		final T                               target
+	)
 	{
 		throw new one.microstream.meta.NotImplementedYetError();
 	}

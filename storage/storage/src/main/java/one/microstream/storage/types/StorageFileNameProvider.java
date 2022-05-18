@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -398,6 +398,9 @@ public interface StorageFileNameProvider
 		 * @param transactionsFileSuffix may <b>not</b> be null.
 		 * @param typeDictionaryFileName may <b>not</b> be null.
 		 * @param lockFileName may <b>not</b> be null.
+		 * @param rescuedFileSuffix may <b>not</b> be null.
+		 * 
+		 * @return a new {@link StorageFileNameProvider} instance
 		 */
 		public static StorageFileNameProvider.Default New(
 			final String channelDirectoryPrefix,

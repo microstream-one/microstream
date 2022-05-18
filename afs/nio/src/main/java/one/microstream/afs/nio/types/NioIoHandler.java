@@ -4,7 +4,7 @@ package one.microstream.afs.nio.types;
  * #%L
  * microstream-afs-nio
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -278,6 +278,12 @@ public interface NioIoHandler extends AIoHandler
 			{
 				throw new IORuntimeException(e);
 			}
+		}
+		
+		@Override
+		protected boolean specificIsEmpty(final ADirectory directory) 
+		{		
+			return XIO.unchecked.hasNoFiles(this.toSubjectDirectory(directory));			
 		}
 
 		@Override

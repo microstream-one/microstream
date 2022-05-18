@@ -4,7 +4,7 @@ package one.microstream.storage.embedded.types;
  * #%L
  * microstream-storage-embedded
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -23,10 +23,11 @@ package one.microstream.storage.embedded.types;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
-import one.microstream.persistence.types.PersistenceFoundation;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceRefactoringMappingProvider;
 import one.microstream.persistence.types.PersistenceRootResolverProvider;
@@ -54,6 +55,7 @@ import one.microstream.storage.types.StorageTaskBroker;
 import one.microstream.storage.types.StorageTimestampProvider;
 import one.microstream.storage.types.StorageTypeDictionary;
 import one.microstream.storage.types.StorageWriteController;
+import one.microstream.util.logging.Logging;
 
 
 /**
@@ -74,7 +76,8 @@ import one.microstream.storage.types.StorageWriteController;
  *
  * @param <F> the "self-type" of the  {@link EmbeddedStorageManager} implementation.
  */
-public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>> extends StorageFoundation<F>
+public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>>
+extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary>
 {
 	public static interface Creator
 	{
@@ -361,17 +364,6 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 */
 	public F setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
 
-	/**
-	 * Convenience method for {@code this.getConnectionFoundation().executeTypeHandlerRegistration(typeHandlerRegistration)}.
-	 * <p>
-	 * See {@link PersistenceFoundation#executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration)} for details.
-	 *
-	 * @param typeHandlerRegistration the {@link PersistenceTypeHandlerRegistration} to be executed.
-	 *
-	 * @return {@literal this} to allow method chaining.
-	 */
-	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration);
-
 	public F registerTypeHandler(PersistenceTypeHandler<Binary, ?> typeHandler);
 
 	public F registerTypeHandlers(Iterable<? extends PersistenceTypeHandler<Binary, ?>> typeHandlers);
@@ -393,6 +385,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	extends StorageFoundation.Default<F>
 	implements EmbeddedStorageFoundation<F>
 	{
+		private final static Logger logger = Logging.getLogger(EmbeddedStorageFoundation.Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -736,10 +730,9 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		}
 
 		@Override
-		public F executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration)
+		public void executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration)
 		{
 			this.getConnectionFoundation().executeTypeHandlerRegistration(typeHandlerRegistration);
-			return this.$();
 		}
 
 		@Override
@@ -773,6 +766,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object root)
 		{
+			logger.info("Creating embedded storage manager");
+			
 			final Database database = this.ensureDatabase();
 
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();

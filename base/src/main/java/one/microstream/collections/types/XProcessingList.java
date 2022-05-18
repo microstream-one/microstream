@@ -5,7 +5,7 @@ package one.microstream.collections.types;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -50,8 +50,8 @@ public interface XProcessingList<E> extends XRemovingList<E>, XGettingList<E>, X
 	/**
 	 * Creates a new {@link XProcessingList} with the reversed order of elements.
 	 * <p>
-	 * 	This method creates a new collection and does <b>not</b> change the
-	 * 	existing collection.
+	 * This method creates a new collection and does <b>not</b> change the
+	 * existing collection.
 	 */
 	@Override
 	public XProcessingList<E> toReversed();

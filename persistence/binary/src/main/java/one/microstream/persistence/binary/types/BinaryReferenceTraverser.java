@@ -4,7 +4,7 @@ package one.microstream.persistence.binary.types;
  * #%L
  * microstream-persistence-binary
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -44,7 +44,7 @@ public interface BinaryReferenceTraverser
 	 * For example, an objectId is 8 bytes long. 5 objectIds are 40 bytes long.
 	 * Skipping 6 bytes (primitives) is 6 bytes long.
 	 * An implementation handling a variable length structure reports 0 bytes here.
-	 * 
+	 * @return the amount of bytes that a particular instance of an implementing type covers or advances
 	 */
 	public default int coveredConstantByteCount()
 	{

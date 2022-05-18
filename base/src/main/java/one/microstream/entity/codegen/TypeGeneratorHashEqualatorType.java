@@ -5,7 +5,7 @@ package one.microstream.entity.codegen;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -21,7 +21,6 @@ package one.microstream.entity.codegen;
  * #L%
  */
 
-import java.beans.Introspector;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -31,6 +30,7 @@ import javax.lang.model.element.TypeParameterElement;
 
 import one.microstream.X;
 import one.microstream.chars.VarString;
+import one.microstream.chars.XChars;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.typing.Stateless;
 
@@ -82,7 +82,7 @@ class TypeGeneratorHashEqualatorType extends TypeGenerator
 			.add(this.typeName).add(", ").add(this.addImport(Stateless.class)).newline()
 			.tab().add("{").newline();
 		
-		final String varName  = Introspector.decapitalize(this.entityName);
+		final String varName  = XChars.decapitalize(this.entityName);
 		final String varName1 = varName.concat("1");
 		final String varName2 = varName.concat("2");
 		

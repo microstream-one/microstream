@@ -4,7 +4,7 @@ package one.microstream.storage.restservice.types;
  * #%L
  * microstream-storage-restservice
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -29,7 +29,7 @@ public interface StorageRestServiceProvider
 	 * Return a StorageRestService instance initialized with the provided StorageRestAdapter.
 	 * This method is required for the RestServiceResolver.
 	 *
-	 * @param adapter
+	 * @param adapter the adapter to initialize the service with
 	 * @return StorageRestService instance
 	 */
 	public StorageRestService provideService(final StorageRestAdapter adapter);

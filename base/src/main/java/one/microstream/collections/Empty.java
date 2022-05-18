@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -50,7 +50,7 @@ import one.microstream.util.iterables.EmptyListIterator;
  *
  * .
  *
- * @param <E>
+ * @param <E> the type of elements in this collection
  */
 public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Stateless
 {
@@ -497,7 +497,7 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 
 
 
-	final class OldEmpty implements OldList<E>, OldSet<E>
+	public final class OldEmpty implements OldList<E>, OldSet<E>
 	{
 		@Override
 		public Empty<E> parent()

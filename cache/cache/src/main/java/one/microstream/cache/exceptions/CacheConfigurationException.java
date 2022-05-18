@@ -4,7 +4,7 @@ package one.microstream.cache.exceptions;
  * #%L
  * microstream-cache
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -24,7 +24,7 @@ import javax.cache.CacheException;
 
 /**
  * 
- * @deprecated will be removed in a future release
+ * @deprecated will be removed in version 8
  */
 @Deprecated
 public class CacheConfigurationException extends CacheException

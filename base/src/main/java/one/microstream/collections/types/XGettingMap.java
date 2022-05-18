@@ -4,7 +4,7 @@ package one.microstream.collections.types;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -32,7 +32,8 @@ import one.microstream.typing.KeyValue;
 
 /**
  * 
- *
+ * @param <K> the key type
+ * @param <V> the value type
  */
 public interface XGettingMap<K, V> extends ExtendedMap<K, V>, XGettingSet<KeyValue<K, V>>
 {

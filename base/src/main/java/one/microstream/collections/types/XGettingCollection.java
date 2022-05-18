@@ -4,7 +4,7 @@ package one.microstream.collections.types;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -61,35 +61,36 @@ Copyable
 	@Override
 	public Iterator<E> iterator();
 
-    /**
-     * Returns an array containing all of the elements in this collection.
-     *
-     * <p>The returned array will be "safe" in that no references to it are
-     * maintained by this list.  (In other words, this method must allocate
-     * a new array).  The caller is thus free to modify the returned array.
-     *
-     * <p>This method acts as bridge between MicroStream-based collections
-     * and Java-native-based APIs.
-     *
-     * @return an array containing all of the elements in this collection
-     */
+	/**
+	 * Returns an array containing all of the elements in this collection.
+	 *
+	 * <p>The returned array will be "safe" in that no references to it are
+	 * maintained by this list.  (In other words, this method must allocate
+	 * a new array).  The caller is thus free to modify the returned array.
+	 *
+	 * <p>This method acts as bridge between MicroStream-based collections
+	 * and Java-native-based APIs.
+	 *
+	 * @return an array containing all of the elements in this collection
+	 */
 	public default Object[] toArray()
 	{
 		return this.iterate(new ToArrayAggregator<>(new Object[X.checkArrayRange(this.size())])).yield();
 	}
 
-    /**
-     * Returns a <b>typed</b> array containing all of the elements in this collection.
-     *
-     * <p>The returned array will be "safe" in that no references to it are
-     * maintained by this list.  (In other words, this method must allocate
-     * a new array).  The caller is thus free to modify the returned array.
-     *
-     * <p>This method acts as bridge between MicroStream-based collections
-     * and Java-native-based APIs.
-     *
-     * @return a typed array containing all of the elements in this collection
-     */
+	/**
+	 * Returns a <b>typed</b> array containing all of the elements in this collection.
+	 *
+	 * <p>The returned array will be "safe" in that no references to it are
+	 * maintained by this list.  (In other words, this method must allocate
+	 * a new array).  The caller is thus free to modify the returned array.
+	 *
+	 * <p>This method acts as bridge between MicroStream-based collections
+	 * and Java-native-based APIs.
+	 *
+	 * @param type the {@link Class} representing type {@code E} at runtime.
+	 * @return a typed array containing all of the elements in this collection
+	 */
 	public default E[] toArray(final Class<E> type)
 	{
 		return this.iterate(new ToArrayAggregator<>(X.Array(type, X.checkArrayRange(this.size())))).yield();
@@ -264,11 +265,12 @@ Copyable
 	 * <p>
 	 * <b>Example:</b><br>
 	 * <code>
-	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,2,3);<br>
-	 * BulkList&#60;Integer&#62; distinctCollection = collection1.distinct(BulkList.New());
+	 * BulkList&lt;Integer&gt; collection1 = BulkList.New(1,2,2,3);<br>
+	 * BulkList&lt;Integer&gt; distinctCollection = collection1.distinct(BulkList.New());
 	 * </code><br>
 	 * Results in <code>distinctCollection</code> containing 1, 2 and 3.
 	 * 
+	 * @param <T> type of the target
 	 * @param target on which the {@link Consumer#accept(Object)} is called for every distinct element of this collection.
 	 * @return Given target
 	 */
@@ -283,12 +285,13 @@ Copyable
 	 * new collections can be used as target.
 	 * <p>
 	 * <b>Example:</b><br>
-	 * <code>
-	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,2,3);<br>
-	 * BulkList&#60;Integer&#62; distinctCollection = collection1.distinct(BulkList.New(), Equalator.identity());
-	 * </code><br>
+	 * <pre>
+	 * BulkList&lt;Integer&gt; collection1 = BulkList.New(1,2,2,3);
+	 * BulkList&lt;Integer&gt; distinctCollection = collection1.distinct(BulkList.New(), Equalator.identity());
+	 * </pre>
 	 * Results in <code>distinctCollection</code> containing 1, 2 and 3.
 	 * 
+	 * @param <T> type of the target
 	 * @param target on which the {@link Consumer#accept(Object)} is called for every distinct element of this collection.
 	 * @param equalator defines what distinct means (which elements are equal to one another)
 	 * @return Given target
@@ -302,12 +305,13 @@ Copyable
 	 * new collections can be used as target.
 	 * <p>
 	 * <b>Example:</b><br>
-	 * <code>
-	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,3);<br>
-	 * BulkList&#60;Integer&#62; copiedCollection = collection1.copyTo(BulkList.New());
-	 * </code><br>
+	 * <pre>
+	 * BulkList&lt;Integer&gt; collection1 = BulkList.New(1,2,3);
+	 * BulkList&lt;Integer&gt; copiedCollection = collection1.copyTo(BulkList.New());
+	 * </pre>
 	 * Results in <code>copiedCollection</code> containing 1, 2 and 3.
 	 * 
+	 * @param <T> type of the target
 	 * @param target on which the {@link Consumer#accept(Object)} is called for all elements of this collection.
 	 * @return Given target
 	 */
@@ -321,12 +325,13 @@ Copyable
 	 * new collections can be used as target.
 	 * <p>
 	 * <b>Example:</b><br>
-	 * <code>
-	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,3);<br>
-	 * BulkList&#60;Integer&#62; filteredCollection = collection1.filterTo(BulkList.New(), e-> e % 2 == 0);
-	 * </code><br>
+	 * <pre>
+	 * BulkList&lt;Integer&gt; collection1 = BulkList.New(1,2,3);
+	 * BulkList&lt;Integer&gt; filteredCollection = collection1.filterTo(BulkList.New(), e-&gt; e % 2 == 0);
+	 * </pre>
 	 * Results in <code>filteredCollection</code> containing 2.
 	 * 
+	 * @param <T> type of the target
 	 * @param target on which the {@link Consumer#accept(Object)} is called for elements that test {@code true}.
 	 * @param predicate on which to test all elements.
 	 * @return Given target
@@ -343,12 +348,14 @@ Copyable
 	 * new collections can be used as target.
 	 * <p>
 	 * <b>Example:</b><br>
-	 * <code>
-	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,3);<br>
-	 * BulkList&#60;Integer&#62; collection2 = BulkList.New(2,3,4);<br>
-	 * BulkList&#60;Integer&#62; union = collection1.union(collection2, Equalator.identity(), <b>BulkList.New()</b>);
-	 * </code><br>
+	 * <pre>
+	 * BulkList&lt;Integer&gt; collection1 = BulkList.New(1,2,3);
+	 * BulkList&lt;Integer&gt; collection2 = BulkList.New(2,3,4);
+	 * BulkList&lt;Integer&gt; union = collection1.union(collection2, Equalator.identity(), <b>BulkList.New()</b>);
+	 * </pre>
 	 * Results in <code>union</code> containing 1, 2, 3 and 4.
+	 * 
+	 * @param <T> type of the target
 	 * @param other collection to build a union with.
 	 * @param equalator which is used for the equal-tests.
 	 * @param target on which the {@link Consumer#accept(Object)} is called for all unified elements.
@@ -365,12 +372,14 @@ Copyable
 	 * new collections can be used as target.
 	 * <p>
 	 * <b>Example:</b><br>
-	 * <code>
-	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,3);<br>
-	 * BulkList&#60;Integer&#62; collection2 = BulkList.New(2,3,4);<br>
-	 * BulkList&#60;Integer&#62; intersection = collection1.intersect(collection2, Equalator.identity(), <b>BulkList.New()</b>);
-	 * </code><br>
+	 * <pre>
+	 * BulkList&lt;Integer&gt; collection1 = BulkList.New(1,2,3);
+	 * BulkList&lt;Integer&gt; collection2 = BulkList.New(2,3,4);
+	 * BulkList&lt;Integer&gt; intersection = collection1.intersect(collection2, Equalator.identity(), <b>BulkList.New()</b>);
+	 * </pre>
 	 * Results in <code>intersection</code> containing 2 and 3.
+	 * 
+	 * @param <T> type of the target
 	 * @param other collection to intersect with.
 	 * @param equalator which is used for the equal-tests.
 	 * @param target on which the {@link Consumer#accept(Object)} is called for equal elements.
@@ -386,12 +395,13 @@ Copyable
 	 * new collections can be used as target.
 	 * <p>
 	 * <b>Example:</b><br>
-	 * <code>
-	 * BulkList&#60;Integer&#62; collection1 = BulkList.New(1,2,3);<br>
-	 * BulkList&#60;Integer&#62; collection2 = BulkList.New(2,3,4);<br>
-	 * BulkList&#60;Integer&#62; exceptCollection = collection1.except(collection2, Equalator.identity(), <b>BulkList.New()</b>);
-	 * </code><br>
+	 * <pre>
+	 * BulkList&lt;Integer&gt; collection1 = BulkList.New(1,2,3);
+	 * BulkList&lt;Integer&gt; collection2 = BulkList.New(2,3,4);
+	 * BulkList&lt;Integer&gt; exceptCollection = collection1.except(collection2, Equalator.identity(), <b>BulkList.New()</b>);
+	 * </pre>
 	 * Results in <code>exceptCollection</code> containing 1.
+	 * 
 	 * @param <T> type of the target
 	 * @param other collection whose elements are excluded from the target.
 	 * @param equalator which is used for the equal-tests.
@@ -439,7 +449,7 @@ Copyable
 	 * <p>
 	 * {@inheritDoc}
 	 *
-	 * @param o
+	 * @param o  the reference object with which to compare.
 	 */
 	@Override
 	@Deprecated

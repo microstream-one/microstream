@@ -4,7 +4,7 @@ package one.microstream.persistence.types;
  * #%L
  * microstream-persistence
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -30,6 +30,7 @@ import one.microstream.collections.types.XEnum;
 import one.microstream.collections.types.XMap;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.functional.InstanceDispatcherLogic;
+import one.microstream.persistence.internal.LoggingLegacyTypeMappingResultor;
 import one.microstream.persistence.internal.PersistenceTypeHandlerProviderCreating;
 import one.microstream.reference.ObjectSwizzling;
 import one.microstream.reference.Reference;
@@ -51,18 +52,20 @@ import one.microstream.util.InstanceDispatcher;
  * Hence it can be seen as a kind of "master instance" of the built persistence layer or as its "foundation".
  *
  * 
- * @param <D>
+ * @param <D> the data type
+ * @param <F> the foundation type
  */
 public interface PersistenceFoundation<D, F extends PersistenceFoundation<D, ?>>
-extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, PersistenceDataTypeHolder<D>
+extends Cloneable<PersistenceFoundation<D, F>>,
+        ByteOrderTargeting.Mutable<F>,
+        PersistenceDataTypeHolder<D>,
+        PersistenceTypeHandlerRegistration.Executor<D>,
+        InstanceDispatcher
 {
 	// the pseudo-self-type F is to avoid having to override every setter in every sub class (it was really tedious)
 	
 	@Override
 	public PersistenceFoundation<D, F> Clone();
-
-	// (14.04.2013 TM)XXX: move dispatching aspect to separate super type
-	public InstanceDispatcherLogic getInstanceDispatcherLogic();
 	
 	public XMap<Class<?>, PersistenceTypeHandler<D, ?>> customTypeHandlers();
 
@@ -399,17 +402,6 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 	public F setInstantiator(PersistenceInstantiator<D> instantiator);
 	
 	public F setInstantiatorProvider(PersistenceTypeInstantiatorProvider<D> instantiatorProvider);
-	
-	/**
-	 * Executes the passed {@link PersistenceTypeHandlerRegistration} logic while supplying this instance's
-	 * {@link PersistenceCustomTypeHandlerRegistry} and {@link PersistenceSizedArrayLengthController} instances.
-	 * The passed instance itself will not be referenced after the method exits.
-	 * 
-	 * @param typeHandlerRegistration the {@link PersistenceTypeHandlerRegistration} to be executed.
-	 * 
-	 * @return {@literal this} to allow method chaining.
-	 */
-	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<D> typeHandlerRegistration);
 		
 	public F setCustomTypeHandlerRegistryEnsurer(
 		PersistenceCustomTypeHandlerRegistryEnsurer<D> customTypeHandlerRegistryEnsurer
@@ -2338,8 +2330,9 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 				
 		protected PersistenceLegacyTypeMappingResultor<D> ensureLegacyTypeMappingResultor()
 		{
-			// default is silent, which is dangerous when heuristics are in play. Should be wrapped by the user.
-			return PersistenceLegacyTypeMappingResultor.New();
+			return LoggingLegacyTypeMappingResultor.New(
+				PersistenceLegacyTypeMappingResultor.New()
+			);
 		}
 		
 		protected PersistenceLegacyTypeHandlerCreator<D> ensureLegacyTypeHandlerCreator()
@@ -2516,14 +2509,12 @@ extends Cloneable<PersistenceFoundation<D, F>>, ByteOrderTargeting.Mutable<F>, P
 		////////////
 
 		@Override
-		public F executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<D> typeHandlerRegistration)
+		public void executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<D> typeHandlerRegistration)
 		{
 			typeHandlerRegistration.registerTypeHandlers(
 				this.getCustomTypeHandlerRegistry(),
 				this.getSizedArrayLengthController()
 			);
-			
-			return this.$();
 		}
 		
 		@Override

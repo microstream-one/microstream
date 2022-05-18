@@ -4,7 +4,7 @@ package one.microstream.util.similarity;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -24,7 +24,7 @@ package one.microstream.util.similarity;
  *
  * 
  *
- * @param <T>
+ * @param <T> the checked element's type
  */
 public class SimilatorSequence<T> implements Similator<T>
 {

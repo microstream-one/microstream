@@ -4,7 +4,7 @@ package one.microstream.util.similarity;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -95,6 +95,8 @@ public interface MultiMatcher<E>
 	 * better matching pairs just to not leave them unmatched.
 	 * To deactivate this special casing, set the threshold to 1.0, meaning only items that fit perfectly anyway
 	 * take precedence over others.
+	 * 
+	 * @return the singleton precedence threshold
 	 */
 	public double singletonPrecedenceThreshold();
 	

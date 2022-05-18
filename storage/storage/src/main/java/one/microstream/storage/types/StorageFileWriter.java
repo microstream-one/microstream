@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -65,6 +65,12 @@ public interface StorageFileWriter
 	
 	/**
 	 * Logically the same as a store, but technically the same as a transfer with an external source file.
+	 * 
+	 * @param sourceFile the source file
+	 * @param sourceOffset the source offset
+	 * @param copyLength the copy length
+	 * @param targetFile the target file
+	 * @return the amount of bytes written
 	 */
 	public default long writeImport(
 		final StorageFile         sourceFile  ,

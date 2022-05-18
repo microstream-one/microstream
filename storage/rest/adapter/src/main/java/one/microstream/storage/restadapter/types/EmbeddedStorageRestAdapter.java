@@ -4,7 +4,7 @@ package one.microstream.storage.restadapter.types;
  * #%L
  * microstream-storage-restadapter
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -91,8 +91,8 @@ public interface EmbeddedStorageRestAdapter
 		 *
 		 * Get an object's description by a microstream ObjectId
 		 *
-		 * @param objectId
-		 * @return ViewerObjectDescription
+		 * @param objectId the object id to look up
+		 * @return description of the object
 		 */
 		@Override
 		public ObjectDescription getStorageObject(final long objectId)
@@ -124,7 +124,7 @@ public interface EmbeddedStorageRestAdapter
 		 *
 		 * Get java constants values
 		 *
-		 * @param objectId
+		 * @param objectId the object id to look up
 		 * @return the constants value as object
 		 */
 		@Override

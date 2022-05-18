@@ -4,7 +4,7 @@ package one.microstream.afs.sql.types;
  * #%L
  * microstream-afs-sql
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -30,9 +30,6 @@ import one.microstream.collections.XArrays;
 
 public interface SqlPath
 {
-	final static String DIRECTORY_TABLE_NAME_SEPARATOR      = "_";
-	final static char   DIRECTORY_TABLE_NAME_SEPARATOR_CHAR = '_';
-
 	public String[] pathElements();
 
 	public String identifier();
@@ -46,7 +43,7 @@ public interface SqlPath
 		final String fullQualifiedPath
 	)
 	{
-		return XChars.splitSimple(fullQualifiedPath, DIRECTORY_TABLE_NAME_SEPARATOR);
+		return XChars.splitSimple(fullQualifiedPath, getSeparatorString());
 	}
 
 	public static SqlPath New(
@@ -59,6 +56,44 @@ public interface SqlPath
 	}
 
 
+	public static SqlPathSeparatorProvider set(final SqlPathSeparatorProvider sqlPathSeparatorProvider)
+	{
+		return Static.set(sqlPathSeparatorProvider);
+	}
+	
+	public static SqlPathSeparatorProvider get()
+	{
+		return Static.get();
+	}
+	
+	static String getSeparatorString()
+	{
+		return Static.get().getSqlPathSeparator();
+	}
+	
+	static char getSeparatorChar()
+	{
+		return Static.get().getSqlPathSeparatorChar();
+	}
+	
+	
+	public final class Static
+	{
+		static SqlPathSeparatorProvider pathSeparatorProvider = SqlPathSeparatorProvider.New();
+		
+		static synchronized SqlPathSeparatorProvider set(final SqlPathSeparatorProvider sqlPathSeparatorProvider)
+		{
+			pathSeparatorProvider = sqlPathSeparatorProvider;
+			return pathSeparatorProvider;
+		}
+
+		static synchronized SqlPathSeparatorProvider get()
+		{
+			return pathSeparatorProvider;
+		}
+		
+	}
+	
 	public final static class Default implements SqlPath
 	{
 		private final String[] pathElements     ;
@@ -91,7 +126,7 @@ public interface SqlPath
 			{
 				this.fullQualifiedName = Arrays
 					.stream(this.pathElements)
-					.collect(joining(DIRECTORY_TABLE_NAME_SEPARATOR))
+					.collect(joining(SqlPath.getSeparatorString()))
 				;
 			}
 

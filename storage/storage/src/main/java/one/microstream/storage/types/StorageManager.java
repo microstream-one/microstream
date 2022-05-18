@@ -4,7 +4,7 @@ package one.microstream.storage.types;
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -135,7 +135,7 @@ public interface StorageManager extends StorageController, StorageConnection, Da
 	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
 	 * It is advised to use {@link #root()} and {@link #setRoot(Object)} instead.
 	 * 
-	 * @deprecated
+	 * @deprecated will be removed in version 8
 	 * 
 	 * @return a mutable {@link Reference} to the root object.
 	 */
@@ -146,7 +146,7 @@ public interface StorageManager extends StorageController, StorageConnection, Da
 	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
 	 * It is advised to use {@link #root()} instead, for which this method is an alias.
 	 * 
-	 * @deprecated
+	 * @deprecated will be removed in version 8
 	 * 
 	 * @return the root object.
 	 */
@@ -160,7 +160,7 @@ public interface StorageManager extends StorageController, StorageConnection, Da
 	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
 	 * It is advised to use {@link #storeRoot()} instead, for which this method is an alias.
 	 * 
-	 * @deprecated
+	 * @deprecated will be removed in version 8
 	 * 
 	 * @return stores the root object and returns its objectId.
 	 */

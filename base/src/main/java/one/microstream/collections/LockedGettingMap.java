@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -528,7 +528,7 @@ public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchron
 
 	@Override
 	public final <T extends Consumer<? super KeyValue<K, V>>> T filterTo(
-		final T target,
+		final T                                 target   ,
 		final Predicate<? super KeyValue<K, V>> predicate
 	)
 	{
@@ -540,9 +540,10 @@ public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchron
 
 	@Override
 	public final <T extends Consumer<? super KeyValue<K, V>>> T union(
-		final XGettingCollection<? extends KeyValue<K, V>> other,
-		final Equalator<? super KeyValue<K, V>> equalator,
-		final T target)
+		final XGettingCollection<? extends KeyValue<K, V>> other    ,
+		final Equalator<? super KeyValue<K, V>>            equalator,
+		final T                                            target
+	)
 	{
 		synchronized(this.lock)
 		{
@@ -552,9 +553,9 @@ public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchron
 
 	@Override
 	public final <T extends Consumer<? super KeyValue<K, V>>> T intersect(
-		final XGettingCollection<? extends KeyValue<K, V>> other,
-		final Equalator<? super KeyValue<K, V>> equalator,
-		final T target
+		final XGettingCollection<? extends KeyValue<K, V>> other    ,
+		final Equalator<? super KeyValue<K, V>>            equalator,
+		final T                                            target
 	)
 	{
 		synchronized(this.lock)
@@ -565,9 +566,9 @@ public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchron
 
 	@Override
 	public final <T extends Consumer<? super KeyValue<K, V>>> T except(
-		final XGettingCollection<? extends KeyValue<K, V>> other,
-		final Equalator<? super KeyValue<K, V>> equalator,
-		final T target
+		final XGettingCollection<? extends KeyValue<K, V>> other    ,
+		final Equalator<? super KeyValue<K, V>>            equalator,
+		final T                                            target
 	)
 	{
 		synchronized(this.lock)

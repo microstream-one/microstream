@@ -1,10 +1,12 @@
 package one.microstream.storage.types;
 
+import org.slf4j.Logger;
+
 /*-
  * #%L
  * microstream-storage
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -21,6 +23,7 @@ package one.microstream.storage.types;
  */
 
 import one.microstream.storage.exceptions.StorageException;
+import one.microstream.util.logging.Logging;
 
 @FunctionalInterface
 public interface StorageExceptionHandler
@@ -48,6 +51,8 @@ public interface StorageExceptionHandler
 	
 	public final class Default implements StorageExceptionHandler
 	{
+		private final static Logger logger = Logging.getLogger(Default.class);
+		
 		Default()
 		{
 			super();
@@ -56,6 +61,8 @@ public interface StorageExceptionHandler
 		@Override
 		public void handleException(final Throwable exception, final StorageChannel channel)
 		{
+			logger.error("Exception occured in storage channel#{}", channel.channelIndex(), exception);
+			
 			StorageExceptionHandler.defaultHandleException(exception, channel);
 		}
 		

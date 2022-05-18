@@ -4,7 +4,7 @@ package one.microstream.collections;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -53,7 +53,7 @@ import one.microstream.util.iterables.TrivialIterator;
  *
  * .
  *
- * @param <E>
+ * @param <E> the type of elements in this collection
  * @see Constant
  */
 public class Singleton<E> implements XReference<E>
@@ -766,7 +766,7 @@ public class Singleton<E> implements XReference<E>
 
 
 
-	final class OldSingleton implements OldList<E>, OldSet<E>
+	public final class OldSingleton implements OldList<E>, OldSet<E>
 	{
 		@Override
 		public final Singleton<E> parent()

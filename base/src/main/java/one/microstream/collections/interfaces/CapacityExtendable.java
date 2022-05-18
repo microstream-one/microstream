@@ -4,7 +4,7 @@ package one.microstream.collections.interfaces;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -38,7 +38,8 @@ public interface CapacityExtendable extends CapacityCarrying
 	 * Ensures that the next {@literal minimalFreeCapacity} elements can be actually added in a fast way,
 	 * meaning for example no internal storage rebuild will be necessary.
 	 * 
-	 * @param minimalFreeCapacity
+	 * @param minimalFreeCapacity the capacity to ensure
+	 * @return this
 	 */
 	public CapacityExtendable ensureFreeCapacity(long minimalFreeCapacity);
 

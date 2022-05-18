@@ -172,6 +172,9 @@ From a technical point of view, storage as well as serialization is a process th
 |microstream-persistence-binary-jdk8
 |xref:storage:addendum/specialized-type-handlers.adoc[Specialized type handlers] for JDK 8 collection types.
 
+|microstream-persistence-binary-jdk17
+|xref:storage:addendum/specialized-type-handlers.adoc#jdk17[Specialized type handlers] for immutable JDK 17 collection types.
+
 |microstream-storage
 |Basic framework to manage a graph of Java data persisted as binary data as a database. Can be used both to implement an embedded database solution (in the same process as the Java application) and a standalone or server-mode database solution (in a separate process). Other forms of persistence than binary data are deliberately not supported because they would not bring any noteworthy advantages but many disadvantages for the task.
 
@@ -198,5 +201,11 @@ From a technical point of view, storage as well as serialization is a process th
 
 |microstream-storage-restservice-sparkjava
 |REST service implementation which utilizes SparkJava and provides REST endpoints.
+
+|microstream-integrations-cdi
+|xref:misc:integrations/cdi.adoc[CDI Extension]
+
+|microstream-integrations-spring-boot
+|xref:misc:integrations/spring-boot.adoc[Spring Boot Integration]
 |===
 

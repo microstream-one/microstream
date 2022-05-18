@@ -4,7 +4,7 @@ package one.microstream.util;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -64,6 +64,7 @@ public interface BundleInfo
 	/**
 	 * 
 	 * @param bundleName the name of the bundle, in Maven environments the artifact id
+	 * @return the loaded bundle info
 	 */
 	public static BundleInfo Load(final String bundleName)
 	{
@@ -151,11 +152,11 @@ public interface BundleInfo
 		public Integer majorVersion();
 		
 		public Integer minorVersion();
-	    
+		
 		public Integer incrementalVersion();
-	    
+		
 		public Integer buildNumber();
-	    
+		
 		public String qualifier();
 		
 		public default boolean isSnapshot()
@@ -256,7 +257,7 @@ public interface BundleInfo
 					Integer incrementalVersion = null;
 					Integer buildNumber        = null;
 					String  qualifier          = null;
-						 			
+					
 					String  part1;
 					String  part2              = null;
 
@@ -287,7 +288,7 @@ public interface BundleInfo
 						}
 					}
 					
-					if((!part1.contains(".")) && !part1.startsWith("0"))
+					if(!part1.contains(".") && !part1.startsWith("0"))
 					{
 						majorVersion = tryParseInt(part1);
 						if(majorVersion == null)
@@ -463,6 +464,20 @@ public interface BundleInfo
 								builtAt
 							);
 						}
+					}
+					
+					final Properties pomProperties = this.loadPomProperties();
+					final String versionString = pomProperties.getProperty("version");
+					if(versionString != null)
+					{
+						final Version version = new Version.Parser.MavenVersionParser().parse(versionString);
+						return new BundleInfo.Default(
+							this.bundleName,
+							version        ,
+							"MicroStream"  ,
+							"MicroStream"  ,
+							Instant.now()
+						);
 					}
 				}
 				catch(final Exception e)

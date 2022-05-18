@@ -4,7 +4,7 @@ package one.microstream.collections.interfaces;
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -33,7 +33,7 @@ public interface CapacityCarrying extends Sized
 	public long maximumCapacity();
 
 	/**
-	 * Returns the amount of elements this carrier instance can collect before reaching its maximimum capacity.
+	 * @return the amount of elements this carrier instance can collect before reaching its maximimum capacity.
 	 *
 	 */
 	public default long remainingCapacity()
@@ -42,7 +42,7 @@ public interface CapacityCarrying extends Sized
 	}
 
 	/**
-	 * Returns true if the current capacity cannot be increased any more.
+	 * @return true if the current capacity cannot be increased any more.
 	 */
 	public default boolean isFull()
 	{

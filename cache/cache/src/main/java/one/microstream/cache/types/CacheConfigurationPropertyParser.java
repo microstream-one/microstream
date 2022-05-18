@@ -4,7 +4,7 @@ package one.microstream.cache.types;
  * #%L
  * microstream-cache
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -22,6 +22,7 @@ package one.microstream.cache.types;
 
 import static one.microstream.X.notNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ import one.microstream.storage.configuration.Configuration;
 import one.microstream.storage.configuration.ConfigurationPropertyParser;
 
 /**
- * @deprecated replaced by {@link CacheConfigurationBuilderConfigurationBased}, will be removed in a future release
+ * @deprecated replaced by {@link CacheConfigurationBuilderConfigurationBased}, will be removed in version 8
  */
 @Deprecated
 public interface CacheConfigurationPropertyParser
@@ -175,6 +176,7 @@ public interface CacheConfigurationPropertyParser
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		protected <T> Factory<T> valueAsFactory(
 			final String value
 		)
@@ -184,11 +186,14 @@ public interface CacheConfigurationPropertyParser
 				return Factory.class.cast(
 					this.classResolver
 						.loadClass(value)
+						.getDeclaredConstructor()
 						.newInstance()
 				);
 			}
 			catch(ClassNotFoundException | ClassCastException |
-				  InstantiationException | IllegalAccessException e
+				  InstantiationException | IllegalAccessException |
+				  IllegalArgumentException | InvocationTargetException |
+				  NoSuchMethodException | SecurityException e
 			)
 			{
 				throw new CacheException(e);

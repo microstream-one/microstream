@@ -1,13 +1,10 @@
-/**
- *
- */
 package one.microstream.collections.types;
 
 /*-
  * #%L
  * microstream-base
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -34,10 +31,6 @@ import one.microstream.collections.old.OldList;
 import one.microstream.equality.Equalator;
 import one.microstream.reference.Referencing;
 
-/**
- * 
- *
- */
 // (15.01.2013 TM)FIXME: Rename to XSingle or so
 public interface XReferencing<E> extends XGettingList<E>, XGettingEnum<E>, Referencing<E>
 {
