@@ -92,7 +92,7 @@ public class StorageConverterTarget implements Closeable
 	 */
 	public void storeTypeDictionary(final String srcTypeDictionary)
 	{
-		logger.debug("transferring type dictionary to target");
+		logger.debug("Transferring type dictionary to target.");
 		
 		this.fileProvider.provideTypeDictionaryIoHandler().storeTypeDictionary(srcTypeDictionary);
 	}
@@ -108,7 +108,7 @@ public class StorageConverterTarget implements Closeable
 	{
 		final int targetChannel = (int) (oid % this.channelCount);
 		
-		logger.trace("Transferring blob pos: {}, limit: {} to target channel {} ",
+		logger.trace("Transferring blob pos: {}, limit: {} to target channel {}.",
 				buffer.position(), buffer.limit(), targetChannel);
 		
 		this.transferBytesToChannel(buffer, targetChannel);
@@ -142,7 +142,7 @@ public class StorageConverterTarget implements Closeable
 
 	private StorageConverterTargetFile createNewStorageFile(final long fileNumber, final int channelIndex)
 	{
-		logger.debug("creating new storage file {} for channel {}", fileNumber, channelIndex);
+		logger.debug("Creating new storage file {} for channel {}.", fileNumber, channelIndex);
 		
 		final AWritableFile file = this.fileProvider.provideDataFile(channelIndex, fileNumber).useWriting();
 		file.ensureExists();

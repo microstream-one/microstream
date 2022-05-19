@@ -59,13 +59,13 @@ public class MainUtilStorageConverter
 			.createEmbeddedStorageFoundation().getConfiguration();
 		
 		
-		System.out.println("source storage configuration: " + srcConfigFile);
-		System.out.println("target storage configuration: " + dstConfigFile);
+		System.out.println("Source storage configuration: " + srcConfigFile);
+		System.out.println("Target storage configuration: " + dstConfigFile);
 		
 		final StorageConverter storageConverter = new StorageConverter(sourceConfig, targetConfig);
 		storageConverter.start();
 		
-		System.out.println("storage conversion finished!");
+		System.out.println("Storage conversion finished!");
 	}
 
 	private static void verifyArguments(final String[] args)
@@ -80,17 +80,17 @@ public class MainUtilStorageConverter
 				}
 				else
 				{
-					System.err.println("can't read file " + args[1]);
+					System.err.println("Can't read file " + args[1]);
 				}
 			}
 			else
 			{
-				System.err.println("can't read file " + args[0]);
+				System.err.println("Can't read file " + args[0]);
 			}
 		}
 		else
 		{
-			System.err.println("invalid number of arguments");
+			System.err.println("Invalid number of arguments.");
 		}
 		
 		System.out.println(HELP);

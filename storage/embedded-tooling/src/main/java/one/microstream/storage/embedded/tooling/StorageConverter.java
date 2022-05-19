@@ -133,7 +133,7 @@ public class StorageConverter
 
 	private void transferEntity(final long oid, final FileEntity entity)
 	{
-		logger.trace("processing entity {}", oid);
+		logger.trace("Processing entity {}.", oid);
 
 		this.bufferIn.limit((int) (entity.offset + entity.length));
 		this.bufferIn.position((int) entity.offset);
@@ -144,7 +144,7 @@ public class StorageConverter
 
 	private void processFile(final StorageDataInventoryFile storageDataInventoryFile)
 	{
-		logger.debug("processing storageFile: {}", storageDataInventoryFile.identifier());
+		logger.debug("Processing storageFile: {}", storageDataInventoryFile.identifier());
 
 		this.bufferIn = XMemory.allocateDirectNative(storageDataInventoryFile.size());
 		storageDataInventoryFile.readBytes(this.bufferIn);
@@ -182,7 +182,7 @@ public class StorageConverter
 
 		this.transferRegisteredEntities();
 
-		logger.trace("clearing current file entities");
+		logger.trace("Clearing current file entities.");
 		this.currentFileEntities.clear();
 	}
 
@@ -202,18 +202,18 @@ public class StorageConverter
 
 		if (this.processedIds.contains(oid))
 		{
-			logger.trace("oid {} skipped, already processed", oid);
+			logger.trace("Oid {} skipped, already processed.", oid);
 			return;
 		}
 
 		if (this.currentFileEntities.put(oid, new FileEntity(offset, itemLength)) == null)
 		{
-			logger.trace("adding new FileEntry oid {}, address {}, offset {}, length {} for processing",
+			logger.trace("Adding new FileEntry oid {}, address {}, offset {}, length {} for processing.",
 					oid, address, offset, itemLength);
 		}
 		else
 		{
-			logger.trace("replaced existing FileEntry for oid {}, address {}, offset {}, length {} for processing",
+			logger.trace("Replaced existing FileEntry for oid {}, address {}, offset {}, length {} for processing.",
 					oid, address, offset, itemLength);
 		}
 	}
@@ -228,7 +228,7 @@ public class StorageConverter
 
 	private void processChannel(final StorageInventory channelInventory)
 	{
-		logger.trace("processing channel {}", channelInventory.channelIndex());
+		logger.trace("Processing channel {}.", channelInventory.channelIndex());
 
 		final XGettingList<StorageDataInventoryFile> reversedFiles = channelInventory.dataFiles().values().toReversed();
 		final Iterator<? extends StorageDataInventoryFile> iterator = reversedFiles.iterator();
