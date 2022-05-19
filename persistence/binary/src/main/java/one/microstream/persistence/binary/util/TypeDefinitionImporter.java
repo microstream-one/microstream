@@ -85,11 +85,11 @@ public interface TypeDefinitionImporter
 				{
 					if(PersistenceTypeDescriptionMember.equalMembers(typeDefinition.allMembers(), handler.allMembers(), this.memberValidator))
 					{
-						logger.trace("handler for type {}, typeId {} already registered", typeDefinition.type(), typeDefinition.typeId());
+						logger.trace("Handler for type {}, typeId {} already registered.", typeDefinition.type(), typeDefinition.typeId());
 					}
 					else
 					{
-						logger.trace("trying to create legacy type handler for type {}, typeId {}", typeDefinition.type(), typeDefinition.typeId());
+						logger.trace("Trying to create legacy type handler for type {}, typeId {}.", typeDefinition.type(), typeDefinition.typeId());
 						this.typeHandlerManager.updateCurrentHighestTypeId(typeDefinition.typeId());
 						this.typeHandlerManager.ensureLegacyTypeHandler(typeDefinition, handler);
 					}
@@ -100,12 +100,12 @@ public interface TypeDefinitionImporter
 									
 					if(PersistenceTypeDescriptionMember.equalMembers(typeDefinition.allMembers(), th.allMembers(), this.memberValidator))
 					{
-						logger.trace("trying to create type handler for new type {}, typeId {}", typeDefinition.type(), typeDefinition.typeId());
+						logger.trace("Trying to create type handler for new type {}, typeId {}.", typeDefinition.type(), typeDefinition.typeId());
 						this.typeHandlerManager.ensureTypeHandler(typeDefinition.type());
 					}
 					else
 					{
-						logger.trace("trying to create legacy type handler for new type {}, typeId {}", typeDefinition.type(), typeDefinition.typeId());
+						logger.trace("Trying to create legacy type handler for new type {}, typeId {}.", typeDefinition.type(), typeDefinition.typeId());
 						this.typeHandlerManager.updateCurrentHighestTypeId(typeDefinition.typeId());
 						this.typeHandlerManager.ensureLegacyTypeHandler(typeDefinition, th);
 					}
@@ -114,7 +114,7 @@ public interface TypeDefinitionImporter
 			}
 			else
 			{
-				logger.error("Failed to resolve new type {}", typeDefinition.typeName());
+				logger.error("Failed to resolve new type {}.", typeDefinition.typeName());
 				throw new PersistenceExceptionTypeImportTypeNotFound(typeDefinition.typeName());
 			}
 			

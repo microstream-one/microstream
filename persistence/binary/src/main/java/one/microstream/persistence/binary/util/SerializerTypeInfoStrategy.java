@@ -215,7 +215,7 @@ public interface SerializerTypeInfoStrategy extends PersistenceTypeDefinitionReg
 		@Override
 		public void observeTypeDefinitionRegistration(final PersistenceTypeDefinition typeDefinition)
 		{
-			logger.debug("new type registered: {}", typeDefinition);
+			logger.debug("New type registered: {}.", typeDefinition);
 			this.updateAvailable = true;
 		}
 

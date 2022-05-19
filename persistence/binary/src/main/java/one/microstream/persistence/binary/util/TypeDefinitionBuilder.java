@@ -38,7 +38,7 @@ import one.microstream.persistence.types.PersistenceTypeDictionaryEntry;
 import one.microstream.persistence.types.PersistenceTypeDictionaryParser;
 
 /**
- * Create PersistenceTypeDefinitions from type Strings created by the
+ * Create PersistenceTypeDefinitions from type strings created by the
  * {@link PersistenceTypeDictionaryAssembler}
  */
 public interface TypeDefinitionBuilder
