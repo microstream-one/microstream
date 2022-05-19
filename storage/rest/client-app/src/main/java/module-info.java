@@ -22,6 +22,10 @@ module microstream.storage.restclient.app
 	exports one.microstream.storage.restclient.app.types;
 	exports one.microstream.storage.restclient.app.ui;
 	
+	provides com.vaadin.flow.server.VaadinServiceInitListener
+	    with one.microstream.storage.restclient.app.types.ApplicationServiceInitListener
+	;
+	
 	requires flow.data;
 	requires flow.html.components;
 	requires flow.server;

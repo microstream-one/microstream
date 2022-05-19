@@ -56,6 +56,11 @@ module microstream.base
 	exports one.microstream.math;
 	exports one.microstream.util.cql;
 	exports one.microstream.time;
+	
+	provides javax.annotation.processing.Processor
+	    with one.microstream.entity.codegen.EntityProcessor,
+	         one.microstream.wrapping.codegen.WrapperProcessor
+	;
 
 	requires java.compiler;
 	requires transitive java.management;
