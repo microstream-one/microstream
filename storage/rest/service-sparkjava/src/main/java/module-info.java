@@ -22,6 +22,13 @@ module microstream.storage.restservice.sparkjava
 	exports one.microstream.storage.restservice.sparkjava.exceptions;
 	exports one.microstream.storage.restservice.sparkjava.types;
 	
+	provides one.microstream.storage.restadapter.types.StorageViewDataConverter
+	    with one.microstream.storage.restservice.sparkjava.types.StorageViewDataConverterJson
+	;
+	provides one.microstream.storage.restservice.types.StorageRestServiceProvider
+	    with one.microstream.storage.restservice.sparkjava.types.StorageRestServiceProviderSparkJava
+	;
+	
 	requires transitive microstream.storage.restservice;
 	requires transitive com.google.gson;
 	requires transitive spark.core;
