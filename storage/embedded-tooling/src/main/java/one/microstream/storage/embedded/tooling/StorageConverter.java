@@ -41,7 +41,7 @@ import one.microstream.util.logging.Logging;
 
 /**
  * 
- * Converts a EmbeddedStorage into an other one.
+ * Converts a EmbeddedStorage into another one.
  *
  */
 public class StorageConverter
