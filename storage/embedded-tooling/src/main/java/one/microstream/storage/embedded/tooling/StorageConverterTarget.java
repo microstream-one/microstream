@@ -58,7 +58,7 @@ public class StorageConverterTarget implements Closeable
 		
 	/**
 	 * Creates a {@link StorageConverterTarget} instance based on the supplied
-	 * Storage configuration.}
+	 * Storage configuration.
 	 * 
 	 * @param storageConfiguration {@link StorageConfiguration}
 	 */
@@ -99,7 +99,7 @@ public class StorageConverterTarget implements Closeable
 	
 	/**
 	 * Write the content of the supplied ByteBuffer
-	 * to the targets storage system.
+	 * to the targets' storage system.
 	 * 
 	 * @param buffer content to be transferred
 	 * @param oid object id

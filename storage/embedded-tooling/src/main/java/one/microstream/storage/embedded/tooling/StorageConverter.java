@@ -85,7 +85,7 @@ public class StorageConverter
 	/////////////////
 	
 	/**
-	 * Converts a EmbeddedStorage into an other one.
+	 * Converts a EmbeddedStorage into another one.
 	 * 
 	 * @param sourceStorageConfiguration configuration for storage to be converted.
 	 * @param targetStorageConfiguration configuration of the target storage.
