@@ -1,8 +1,8 @@
-package one.microstream.storage.embedded.tooling;
+package one.microstream.storage.embedded.tools.converter;
 
 /*-
  * #%L
- * MicroStream Embedded Storage Tooling
+ * MicroStream Embedded Storage Tools Converter
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%

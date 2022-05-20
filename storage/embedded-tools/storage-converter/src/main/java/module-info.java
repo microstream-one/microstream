@@ -1,6 +1,6 @@
 /*-
  * #%L
- * MicroStream Embedded Storage Tooling
+ * MicroStream Embedded Storage Tools Converter
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,9 +17,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.storage.embedded.tooling
+module microstream.storage.embedded.tools.converter
 {
-	exports one.microstream.storage.embedded.tooling;
+	exports one.microstream.storage.embedded.tools.converter;
 
 	requires transitive microstream.storage.embedded.configuration;
 }

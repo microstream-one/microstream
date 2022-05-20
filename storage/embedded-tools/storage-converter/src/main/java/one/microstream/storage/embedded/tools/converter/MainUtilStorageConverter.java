@@ -1,8 +1,8 @@
-package one.microstream.storage.embedded.tooling;
+package one.microstream.storage.embedded.tools.converter;
 
 /*-
  * #%L
- * MicroStream Embedded Storage Tooling
+ * MicroStream Embedded Storage Tools Converter
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -33,6 +33,7 @@ import one.microstream.storage.types.StorageConfiguration;
  * in configuration files.
  * If the file system has to be changed the {@link StorageConverter} class
  * may be used in a custom converter implementation.
+ * Existing backups will not be converted!
  *
  */
 public class MainUtilStorageConverter
