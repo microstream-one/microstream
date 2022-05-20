@@ -2166,10 +2166,14 @@ public interface Cache<K, V> extends javax.cache.Cache<K, V>, Unwrappable
 
 					if(value != null)
 					{
+						final long creationTime = cachedValue != null
+							? cachedValue.creationTime()
+							: now
+						;
 						cachedValue = CachedValue.New(
 							this.objectConverter.internalize(value),
-							now,
-							this.expiryForCreation().getAdjustedTime(now)
+							creationTime,
+							this.expiryForCreation().getAdjustedTime(creationTime)
 						);
 
 						if(cachedValue.isExpiredAt(now))
