@@ -174,27 +174,7 @@ public interface TypedSerializer<M> extends Serializer<M>
 			throw new UnsupportedOperationException();
 		}
 	}
-	
-	
-	public static interface Source extends PersistenceSource<Binary>
-	{
-		@Override
-		default XGettingCollection<? extends Binary> readByObjectIds(final PersistenceIdSet[] oids)
-			throws PersistenceExceptionTransfer
-		{
-			return null;
-		}
-	}
-	
-	
-	public static interface Target extends PersistenceTarget<Binary>
-	{
-		@Override
-		default boolean isWritable()
-		{
-			return true;
-		}
-	}
+
 		
 	public static class Default<M> implements TypedSerializer<M>
 	{
@@ -314,7 +294,7 @@ public interface TypedSerializer<M> extends Serializer<M>
 			
 			if(typeInfoCount > 0 && this.lastTypeInfoImportTimeStamp < typeInfoTimeStamp)
 			{
-				logger.debug("importing type informations from input");
+				logger.debug("importing type information from input");
 				
 				this.input = ChunksWrapper.New(Arrays.copyOfRange(in.buffers(), 1, typeInfoCount + 1));
 				final SerializerTypeInfo typeInfo = (SerializerTypeInfo)this.persistenceManager.get();
