@@ -514,7 +514,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 	 * Returns the currently set {@link StorageStructureValidator} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createStorageSystem()}, a suitable instance is created via an internal default
+	 * execution of {@link #createStorageSystem()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
