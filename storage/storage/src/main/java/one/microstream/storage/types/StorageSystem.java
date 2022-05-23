@@ -113,7 +113,8 @@ public interface StorageSystem extends StorageController
 		private final StorageLockFileManager.Creator       lockFileManagerCreator        ;
 		private final StorageEventLogger                   eventLogger                   ;
 		private final boolean                              switchByteOrder               ;
-
+		private final StorageStructureValidator            storageStructureValidator     ;
+		
 		// state flags //
 		private final AtomicBoolean    isStartingUp       = new AtomicBoolean();
 		private final AtomicBoolean    isShuttingDown     = new AtomicBoolean();
@@ -164,7 +165,8 @@ public interface StorageSystem extends StorageController
 			final StorageLockFileSetup                 lockFileSetup                 ,
 			final StorageLockFileManager.Creator       lockFileManagerCreator        ,
 			final StorageExceptionHandler              exceptionHandler              ,
-			final StorageEventLogger                   eventLogger
+			final StorageEventLogger                   eventLogger                   ,
+			final StorageStructureValidator            storageStructureValidator
 		)
 		{
 			super();
@@ -207,6 +209,7 @@ public interface StorageSystem extends StorageController
 			this.backupDataFileValidatorCreator = notNull(backupDataFileValidatorCreator)      ;
 			this.eventLogger                    = notNull(eventLogger)                         ;
 			this.switchByteOrder                =         switchByteOrder                      ;
+			this.storageStructureValidator      = notNull(storageStructureValidator)           ;
 		}
 
 
@@ -489,6 +492,8 @@ public interface StorageSystem extends StorageController
 			// first of all, the lock file needs to be obtained before any writing action may occur.
 			this.initializeLockFileManager();
 			
+			this.storageStructureValidator.validate();
+									
 			// thread safety and state consistency ensured prior to calling
 
 			// create channels, setup task processing and start threads

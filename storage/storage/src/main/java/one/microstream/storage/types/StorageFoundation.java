@@ -510,7 +510,19 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 	
 	public StorageHousekeepingBroker getHousekeepingBroker();
 
-	
+	/**
+	 * Returns the currently set {@link StorageStructureValidator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * execution of {@link #createStorageSystem()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return the currently set instance, potentially created on-demand if required.
+	 * 
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
+	 */
+	public StorageStructureValidator getStorageStructureValidator();
 	
 	/**
 	 * Sets the {@link StorageConfiguration} instance to be used for the assembly.
@@ -799,6 +811,14 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 
 	public F setHousekeepingBroker(StorageHousekeepingBroker housekeepingBroker);
 	
+	/**
+	 * Sets the {@link StorageStructureValidator} instance to be used for the assembly.
+	 * 
+	 * @param storageStructureValidator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setStorageStructureValidator(final StorageStructureValidator storageStructureValidator);
 	
 	/**
 	 * Creates and returns a new {@link StorageSystem} instance by using the current state of all registered
@@ -861,6 +881,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 		private StorageEventLogger                    eventLogger                  ;
 		private StorageWriteController                writeController              ;
 		private StorageHousekeepingBroker             housekeepingBroker           ;
+		private StorageStructureValidator             storageStructureValidator    ;
 
 		
 		
@@ -1092,6 +1113,14 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 			return StorageHousekeepingBroker.New();
 		}
 				
+		
+		protected StorageStructureValidator ensureStorageStructureValidator()
+		{
+			return StorageStructureValidator.New(
+				this.getConfiguration().fileProvider(),
+				this.getConfiguration().channelCountProvider()
+			);
+		}
 		
 
 		@Override
@@ -1444,6 +1473,15 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 			return this.housekeepingBroker;
 		}
 
+		@Override
+		public StorageStructureValidator getStorageStructureValidator()
+		{
+			if(this.storageStructureValidator == null)
+			{
+				this.storageStructureValidator = this.dispatch(this.ensureStorageStructureValidator());
+			}
+			return this.storageStructureValidator;
+		}
 		
 		
 		@Override
@@ -1719,6 +1757,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 			return this.$();
 		}
 		
+		@Override
+		public F setStorageStructureValidator(final StorageStructureValidator storageStructureValidator)
+		{
+			this.storageStructureValidator = storageStructureValidator;
+			return this.$();
+		}
+		
 		public final boolean isByteOrderMismatch()
 		{
 			/* (11.02.2019 TM)NOTE: On byte order switching:
@@ -1767,7 +1812,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 				this.getLockFileSetup()                ,
 				this.getLockFileManagerCreator()       ,
 				this.getExceptionHandler()             ,
-				this.getEventLogger()
+				this.getEventLogger()                  ,
+				this.getStorageStructureValidator()
 			);
 		}
 
