@@ -1,4 +1,4 @@
-package one.microstream.storage.embedded.tools.converter;
+package one.microstream.storage.embedded.tools.storage.converter;
 
 /*-
  * #%L

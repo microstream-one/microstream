@@ -17,9 +17,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.storage.embedded.tools.converter
+module microstream.storage.embedded.tools.storage.converter
 {
-	exports one.microstream.storage.embedded.tools.converter;
+	exports one.microstream.storage.embedded.tools.storage.converter;
 
 	requires transitive microstream.storage.embedded.configuration;
 }

@@ -13,10 +13,10 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>microstream-storage-embedded-tools-converter</artifactId>
+	<artifactId>microstream-storage-embedded-tools-storage-converter</artifactId>
 
-	<name>MicroStream Embedded Storage Tools Converter</name>
-	<description>MicroStream Embedded Storage Tools Converter</description>
+	<name>MicroStream Embedded Storage Tools Storage Converter</name>
+	<description>MicroStream Embedded Storage Tools Storage Converter</description>
 
 	<dependencies>
 		<dependency>
@@ -38,7 +38,7 @@
 						<configuration>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>one.microstream.storage.embedded.tools.converter.MainUtilStorageConverter</mainClass>
+									<mainClass>one.microstream.storage.embedded.tools.storage.converter.MainUtilStorageConverter</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
