@@ -22,7 +22,7 @@ package one.microstream.storage.types;
 
 import one.microstream.afs.types.AFile;
 
-public interface StorageChannelFile extends StorageFile, StorageHashChannelPart
+public interface StorageChannelFile extends StorageClosableFile, StorageHashChannelPart
 {
 	@Override
 	public int channelIndex();
@@ -32,7 +32,7 @@ public interface StorageChannelFile extends StorageFile, StorageHashChannelPart
 	
 	public abstract class Abstract
 	extends StorageFile.Abstract
-	implements StorageChannelFile, StorageClosableFile
+	implements StorageChannelFile
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
