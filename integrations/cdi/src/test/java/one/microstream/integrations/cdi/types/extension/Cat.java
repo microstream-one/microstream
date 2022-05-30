@@ -21,9 +21,9 @@ package one.microstream.integrations.cdi.types.extension;
  * #L%
  */
 
-class Cat
+public class Cat
 {
-	Cat()
+	public Cat()
 	{
 	}
 }

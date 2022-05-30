@@ -22,6 +22,8 @@ package one.microstream.afs.sql.types;
 
 import static one.microstream.chars.XChars.notEmpty;
 
+import java.lang.reflect.InvocationTargetException;
+
 import javax.sql.DataSource;
 
 import one.microstream.afs.types.AFileSystem;
@@ -64,7 +66,7 @@ public abstract class SqlFileSystemCreator extends ConfigurationBasedCreator.Abs
 		try
 		{
 			final SqlDataSourceProvider dataSourceProvider = (SqlDataSourceProvider)
-				Class.forName(dataSourceProviderClassName).newInstance()
+				Class.forName(dataSourceProviderClassName).getDeclaredConstructor().newInstance()
 			;
 			final SqlProvider sqlProvider = this.createSqlProvider(
 				sqlConfiguration,
@@ -76,7 +78,11 @@ public abstract class SqlFileSystemCreator extends ConfigurationBasedCreator.Abs
 				: SqlConnector.New(sqlProvider)
 			);
 		}
-		catch(InstantiationException | IllegalAccessException | ClassNotFoundException e)
+		catch(InstantiationException | IllegalAccessException |
+			  ClassNotFoundException | IllegalArgumentException |
+			  InvocationTargetException | NoSuchMethodException |
+			  SecurityException e
+		)
 		{
 			throw new ConfigurationException(sqlConfiguration, e);
 		}

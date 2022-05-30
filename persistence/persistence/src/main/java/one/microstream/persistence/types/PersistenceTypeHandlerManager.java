@@ -648,7 +648,7 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 		}
 		
 		@Override
-		public <T> long registerTypeHandlers(final Iterable<? extends PersistenceTypeHandler<D, T>> typeHandlers)
+		public long registerTypeHandlers(final Iterable<? extends PersistenceTypeHandler<D, ?>> typeHandlers)
 		{
 			synchronized(this.typeHandlerRegistry)
 			{

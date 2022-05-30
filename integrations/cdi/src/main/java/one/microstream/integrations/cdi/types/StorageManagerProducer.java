@@ -31,7 +31,6 @@ import javax.inject.Inject;
 
 import org.eclipse.microprofile.config.Config;
 
-import one.microstream.reference.LazyReferenceManager;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
 import one.microstream.storage.types.StorageManager;
 
@@ -67,8 +66,5 @@ class StorageManagerProducer
 	{
 		LOGGER.info("Closing the default StorageManager");
 		manager.close();
-		LOGGER.info("Closing the LazyReferenceManager");
-		final LazyReferenceManager referenceManager = LazyReferenceManager.get();
-		referenceManager.stop();
 	}
 }

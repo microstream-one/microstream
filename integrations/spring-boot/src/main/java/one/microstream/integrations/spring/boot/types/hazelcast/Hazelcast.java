@@ -39,5 +39,5 @@ public class Hazelcast
      * Creates a Config based on a Hazelcast file and uses the System.properties to resolve variables.
      * </ul>
      */
-    private String configuration;
+    String configuration;
 }

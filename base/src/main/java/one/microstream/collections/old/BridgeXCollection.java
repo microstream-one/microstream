@@ -23,6 +23,7 @@ package one.microstream.collections.old;
 import java.util.Collection;
 import java.util.Iterator;
 
+import one.microstream.collections.XArrays;
 import one.microstream.collections.types.XCollection;
 import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XSet;
@@ -164,6 +165,13 @@ public class BridgeXCollection<E> implements OldCollection<E>
 	public Object[] toArray()
 	{
 		return this.subject.toArray();
+	}
+
+	@Override
+	public <T> T[] toArray(final T[] target)
+	{
+		XArrays.copyTo(this.parent(), target);
+		return target;
 	}
 
 }

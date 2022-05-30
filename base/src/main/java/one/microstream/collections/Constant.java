@@ -556,7 +556,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 
 
 
-	final class OldConstant implements OldList<E>, OldSet<E>
+	public final class OldConstant implements OldList<E>, OldSet<E>
 	{
 		@Override
 		public final Constant<E> parent()

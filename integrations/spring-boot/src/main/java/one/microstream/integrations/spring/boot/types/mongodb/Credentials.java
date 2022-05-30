@@ -39,20 +39,20 @@ public class Credentials
      * Creates a MongoCredential instance with an unspecified mechanism. The client will negotiate the best mechanism based on the version of the server that the client is authenticating to. Credentials will be loaded from the credentials.username and credentials.password properties.
      * </ul>
      */
-    private String authMechanism;
+    String authMechanism;
 
     /**
      * The username, used for various auth mechanisms.
      */
-    private String username;
+    String username;
 
     /**
      * The password, used for various auth mechanisms.
      */
-    private String password;
+    String password;
 
     /**
      * The source where the user is defined. This can be either "$external" or the name of a database. Used when credentials.auth-mechanism=plain.
      */
-    private String source;
+    String source;
 }

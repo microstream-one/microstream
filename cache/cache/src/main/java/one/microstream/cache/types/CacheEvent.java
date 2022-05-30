@@ -85,6 +85,7 @@ public class CacheEvent<K, V> extends CacheEntryEvent<K, V> implements Unwrappab
 		this.oldValueAvailable = oldValueAvailable;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Cache<K, V> getCache()
 	{
 		return super.getSource();

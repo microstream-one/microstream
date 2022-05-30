@@ -230,15 +230,10 @@ public interface EmbeddedStorageManager extends StorageManager
 		}
 		
 		private void rollbackLazyReferenceManager(
-			final LazyReferenceManager lazyReferenceManager,
-			final boolean    lazyReferenceManagerWasRunning
+			final LazyReferenceManager lazyReferenceManager
 		)
 		{
 			lazyReferenceManager.removeController(this);
-			if(!lazyReferenceManagerWasRunning)
-			{
-				lazyReferenceManager.stop();
-			}
 		}
 
 		@Override
@@ -265,7 +260,7 @@ public interface EmbeddedStorageManager extends StorageManager
 			{
 				try
 				{
-					this.rollbackLazyReferenceManager(lazyReferenceManager, lazyReferenceManagerIsRunning);
+					this.rollbackLazyReferenceManager(lazyReferenceManager);
 					
 					if(this.storageSystem instanceof StorageKillable)
 					{

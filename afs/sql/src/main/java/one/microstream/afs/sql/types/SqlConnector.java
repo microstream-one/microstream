@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.LongFunction;
 
+import one.microstream.chars.XChars;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
 import one.microstream.reference.Reference;
@@ -180,7 +181,7 @@ public interface SqlConnector
 		)
 		throws SQLException
 		{
-			final String       directoryPrefix = directory.fullQualifiedName() + SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR;
+			final String       directoryPrefix = directory.fullQualifiedName() + SqlPath.getSeparatorString();
 			final List<String> directories     = new ArrayList<>();
 
 			if(this.useCache)
@@ -203,11 +204,16 @@ public interface SqlConnector
 					)
 				);
 			}
-
+		
 			directories.stream()
 				.filter(name -> name.startsWith(directoryPrefix)
 					&& name.length() > directoryPrefix.length()
-					&& name.indexOf(SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR, directoryPrefix.length()) == -1
+				)
+				.map( name ->
+					name.replace(directoryPrefix, "")
+				)
+				.map( name ->
+						XChars.splitSimple(name, SqlPath.getSeparatorString())[0]
 				)
 				.forEach(visitor::visitItem);
 		}
