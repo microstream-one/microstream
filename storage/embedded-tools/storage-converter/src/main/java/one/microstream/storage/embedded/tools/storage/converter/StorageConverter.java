@@ -147,7 +147,15 @@ public class StorageConverter
 		logger.debug("Processing storageFile: {}", storageDataInventoryFile.identifier());
 
 		this.bufferIn = XMemory.allocateDirectNative(storageDataInventoryFile.size());
-		storageDataInventoryFile.readBytes(this.bufferIn);
+		
+		try
+		{
+			storageDataInventoryFile.readBytes(this.bufferIn);
+		}
+		finally
+		{
+			storageDataInventoryFile.close();
+		}
 
 		final long bufferStartAddress = XMemory.getDirectByteBufferAddress(this.bufferIn);
 		final long bufferBoundAddress = bufferStartAddress + this.bufferIn.limit();
