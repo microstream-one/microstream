@@ -27,10 +27,26 @@ public interface SerializerTypeInfoStrategyCreator
 {
 	public SerializerTypeInfoStrategy create(PersistenceManager<Binary> persistenceManager);
 	
+	/**
+	 * A Creator for a {@link SerializerTypeInfoStrategy}.
+	 * The created SerializerTypeInfoStrategy includes only type information
+	 * for types added to the serializers type registry in the current serialization.
+	 * Types that are registered during the serializers setup are never included.
+	 */
 	public static class IncrementalDiff implements SerializerTypeInfoStrategyCreator
 	{
 		private final boolean includeTypeInfoOnce;
 		
+		/**
+		 * Construct a creator for a {@link SerializerTypeInfoStrategy}.
+		 * The created SerializerTypeInfoStrategy includes only type information
+		 * for types added to the serializers type registry in the current serialization.
+		 * Types that are registered during the serializers setup are never included.
+		 * 
+		 * @param includeTypeInfoOnce If true, the new type information is included
+		 * only once in the serialization pass that has the new type.
+		 * Subsequent serialization will not contain type information if no new type was serialized.
+		 */
 		public IncrementalDiff(final boolean includeTypeInfoOnce)
 		{
 			super();
@@ -44,10 +60,28 @@ public interface SerializerTypeInfoStrategyCreator
 		}
 	}
 	
+	/**
+	 * A Creator for a {@link SerializerTypeInfoStrategy}.
+	 * The created SerializerTypeInfoStrategy includes type information
+	 * for types added to the serializers type registry in the current serialization
+	 * and all previous serializations.
+	 * Types that are registered during the serializers setup are never included.
+	 */
 	public static class Diff implements SerializerTypeInfoStrategyCreator
 	{
 		private final boolean includeTypeInfoOnce;
 		
+		/**
+		 * Construct a Creator for a {@link SerializerTypeInfoStrategy}.
+		 * The created SerializerTypeInfoStrategy includes type information
+		 * for types added to the serializers type registry in the current serialization
+		 * and all previous serializations.
+		 * Types that are registered during the serializers setup are never included.
+		 *
+		 * @param includeTypeInfoOnce If true, the new type information is included
+		 * only once in the serialization pass that has the new type.
+		 * Subsequent serialization will not contain type information if no new type was serialized.
+		 */
 		public Diff(final boolean includeTypeInfoOnce)
 		{
 			super();
@@ -61,10 +95,25 @@ public interface SerializerTypeInfoStrategyCreator
 		}
 	}
 	
+	/**
+	 * A Creator for a {@link SerializerTypeInfoStrategy}.
+	 * The created SerializerTypeInfoStrategy includes type information
+	 * for all types currently known to the serializer including those registered during the setup.
+	 *
+	 */
 	public static class TypeDictionary implements SerializerTypeInfoStrategyCreator
 	{
 		private final boolean includeTypeInfoOnce;
 		
+		/**
+		 * A Creator for a {@link SerializerTypeInfoStrategy}.
+		 * The created SerializerTypeInfoStrategy includes type information
+		 * for all types currently known to the serializer including those registered during the setup.
+		 * 
+		 * @param includeTypeInfoOnce If true, the type information is included
+		 * only in the serialization pass that has the new types.
+		 * Subsequent serialization will not contain type information if no new type was serialized.
+		 */
 		public TypeDictionary(final boolean includeTypeInfoOnce)
 		{
 			super();
