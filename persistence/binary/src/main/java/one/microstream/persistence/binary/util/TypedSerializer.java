@@ -32,17 +32,12 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 
 import one.microstream.X;
-import one.microstream.collections.types.XGettingCollection;
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.ChunksWrapper;
 import one.microstream.persistence.binary.util.Serializer.Default.SerializerStorer;
-import one.microstream.persistence.exceptions.PersistenceExceptionTransfer;
-import one.microstream.persistence.types.PersistenceIdSet;
 import one.microstream.persistence.types.PersistenceManager;
-import one.microstream.persistence.types.PersistenceSource;
-import one.microstream.persistence.types.PersistenceTarget;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.Storer;
 import one.microstream.util.logging.Logging;
@@ -62,11 +57,29 @@ import one.microstream.util.logging.Logging;
  */
 public interface TypedSerializer<M> extends Serializer<M>
 {
+	/**
+	 * Create a new TypedSerializer instance using the default configuration.
+	 * The serialized data is supplied as microstream {@link Binary}.
+	 * The serializer will include the whole set of current type information
+	 * in every serialized Binary.
+	 * 
+	 * @return A new TypedSerializer instance.
+	 */
 	public static Serializer<Binary> Binary()
 	{
 		return Binary(SerializerFoundation.New());
 	}
 	
+	/**
+	 * Create a new TypedSerializer instance based upon the supplied
+	 * {@link SerializerFoundation}.
+	 * The serialized data is supplied as byte array.
+	 * The serializer will include the whole set of current type information
+	 * in every serialized Binary.
+	 * 
+	 * @param foundation
+	 * @return
+	 */
 	public static Serializer<Binary> Binary(final SerializerFoundation<?> foundation)
 	{
 		return New(
@@ -76,11 +89,29 @@ public interface TypedSerializer<M> extends Serializer<M>
 		);
 	}
 	
+	/**
+	 * Create a new TypedSerializer instance using the default configuration.
+	 * The serialized data is supplied as byte array.
+	 * The serializer will include the whole set of current type information
+	 * in every serialized byte array.
+	 * 
+	 * @return A new TypedSerializer instance.
+	 */
 	public static Serializer<byte[]> Bytes()
 	{
 		return Bytes(SerializerFoundation.New());
 	}
 	
+	/**
+	 * Create a new TypedSerializer instance based upon the supplied
+	 * {@link SerializerFoundation}.
+	 * The serialized data is supplied as byte array.
+	 * The serializer will include the whole set of current type information
+	 * in every serialized byte array.
+	 * 
+	 * @param foundation {@link SerializerFoundation} used to configure the serializer instance.
+	 * @return A new TypedSerializer instance.
+	 */
 	public static Serializer<byte[]> Bytes(final SerializerFoundation<?> foundation)
 	{
 		return New(
