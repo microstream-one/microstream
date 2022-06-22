@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.equality.Equalator;
+import one.microstream.persistence.binary.exceptions.BinaryPersistenceExceptionTypeImportTypeNotFound;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMember;
@@ -115,7 +116,7 @@ public interface TypeDefinitionImporter
 			else
 			{
 				logger.error("Failed to resolve new type {}.", typeDefinition.typeName());
-				throw new PersistenceExceptionTypeImportTypeNotFound(typeDefinition.typeName());
+				throw new BinaryPersistenceExceptionTypeImportTypeNotFound(typeDefinition.typeName());
 			}
 			
 		}

@@ -1,4 +1,4 @@
-package one.microstream.persistence.binary.util;
+package one.microstream.persistence.binary.exceptions;
 
 /*-
  * #%L
@@ -20,12 +20,10 @@ package one.microstream.persistence.binary.util;
  * #L%
  */
 
-import one.microstream.persistence.exceptions.PersistenceException;
-
 @SuppressWarnings("serial")
-public class PersistenceExceptionTypeImportTypeNotFound extends PersistenceException
+public class BinaryPersistenceExceptionTypeImportTypeNotFound extends BinaryPersistenceException
 {
-	public PersistenceExceptionTypeImportTypeNotFound(final String typeName)
+	public BinaryPersistenceExceptionTypeImportTypeNotFound(final String typeName)
 	{
 		super("Failed to resolve type " + typeName);
 	}
