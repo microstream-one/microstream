@@ -1,7 +1,7 @@
 = Serializer
 
 MicroStream's serialization engine, which is used by the storage and the cache, can be used standalone as well.
-It is usable as as replacement for the default Java serialization to convert objects to a binary format and vice versa. This API is part of the persistence-binary module:
+It is usable as a replacement for the default Java serialization to convert objects to a binary format and vice versa. This API is part of the persistence-binary module:
 
 == Prerequisites
 
@@ -19,7 +19,7 @@ It is usable as as replacement for the default Java serialization to convert obj
 == Usage
 
 You can use any medium type, but for most purposes the byte array version should be sufficient, to transfer the serialized form over the transport layer of your choice.
-Simply create a serializer instance, optionally based on a foundation, and call the serialize and deserialize methods.
+Simply create a serializer instance, optionally based on a foundation, and call the `serialize` and `deserialize` methods.
 
 [source, java]
 ----
@@ -31,12 +31,12 @@ Customer restored = serializer.deserialize(data);
 ----
 
 == Type handling
-The serializer uses the Microstream type handling system. This includes registration of new types on demand during serialization and xref:legacy-type-mapping/index.adoc[legacy type mapping] when deserializing.
-The `SerializerFoundation` provides an API like the Microstream storage to configure the type handling behavior.
+The serializer uses the MicroStream type handling system. This includes registration of new types on demand during serialization and xref:storage:legacy-type-mapping/index.adoc[legacy type mapping] when deserializing.
+The `SerializerFoundation` provides an API like the MicroStream storage to configure the type handling behavior.
 
 [IMPORTANT]
 The default Serializer implementation does not include type information in the serialized output!
-If you want to deserialize that with another serializer instance you must register all classes using the `SerializerFoundation` before you create the serializer or use a <<TypedSerializer>>!
+If you want to deserialize that with another serializer instance you must register all classes using the `SerializerFoundation` before you create the serializer or use a `TypedSerializer`!
 
 == TypedSerializer
 The `TypedSerializer` implementation includes type information into the serialized output.
