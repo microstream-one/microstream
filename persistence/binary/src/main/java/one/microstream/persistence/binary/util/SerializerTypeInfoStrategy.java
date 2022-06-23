@@ -20,12 +20,11 @@ package one.microstream.persistence.binary.util;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 
 import one.microstream.chars.VarString;
+import one.microstream.collections.BulkList;
+import one.microstream.collections.types.XList;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
@@ -79,7 +78,7 @@ public interface SerializerTypeInfoStrategy extends PersistenceTypeDefinitionReg
 		////////////////////
 		
 		protected final PersistenceTypeDictionaryAssembler typeAssembler      ;
-		protected final List<String>                       newTypes           ;
+		protected final XList<String>                      newTypes           ;
 		protected       boolean                            updateAvailable    ;
 		protected final boolean                            includeTypeInfoOnce;
 		
@@ -91,7 +90,7 @@ public interface SerializerTypeInfoStrategy extends PersistenceTypeDefinitionReg
 		{
 			super();
 			this.typeAssembler       = PersistenceTypeDictionaryAssembler.New();
-			this.newTypes            = new ArrayList<>();
+			this.newTypes            = BulkList.New();
 			this.includeTypeInfoOnce = includeTypeInfoOnce;
 			
 			persistenceManager.typeDictionary().setTypeDescriptionRegistrationObserver(this);
@@ -121,7 +120,7 @@ public interface SerializerTypeInfoStrategy extends PersistenceTypeDefinitionReg
 		@Override
 		public SerializerTypeInfo get()
 		{
-			final SerializerTypeInfo typeInfo = new SerializerTypeInfo(this.newTypes);
+			final SerializerTypeInfo typeInfo = new SerializerTypeInfo(this.newTypes.immure());
 			this.newTypes.clear();
 			this.updateAvailable = false;
 			return typeInfo;
@@ -167,7 +166,7 @@ public interface SerializerTypeInfoStrategy extends PersistenceTypeDefinitionReg
 		@Override
 		public SerializerTypeInfo get()
 		{
-			final SerializerTypeInfo typeInfo = new SerializerTypeInfo(this.newTypes);
+			final SerializerTypeInfo typeInfo = new SerializerTypeInfo(this.newTypes.immure());
 			this.updateAvailable = false;
 			return typeInfo;
 		}
@@ -223,7 +222,7 @@ public interface SerializerTypeInfoStrategy extends PersistenceTypeDefinitionReg
 		public SerializerTypeInfo get()
 		{
 			final String assembledTypeDictionary = this.typeAssembler.assemble(this.persistenceTypeDictionary);
-			final SerializerTypeInfo typeInfo   = new SerializerTypeInfo(assembledTypeDictionary);
+			final SerializerTypeInfo typeInfo    = new SerializerTypeInfo(new BulkList<>(assembledTypeDictionary).immure());
 			this.updateAvailable                 = false;
 			return typeInfo;
 		}

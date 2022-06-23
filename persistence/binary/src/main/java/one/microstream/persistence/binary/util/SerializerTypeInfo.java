@@ -1,5 +1,7 @@
 package one.microstream.persistence.binary.util;
 
+import one.microstream.collections.types.XGettingList;
+
 /*-
  * #%L
  * MicroStream Persistence Binary
@@ -20,23 +22,16 @@ package one.microstream.persistence.binary.util;
  * #L%
  */
 
-import java.util.Collection;
-
 public class SerializerTypeInfo
 {
-	private final String[] serializedTypes;
+	private final XGettingList<String> serializedTypes;
 	
-	public SerializerTypeInfo(final Collection<String> newTypes)
+	public SerializerTypeInfo(final XGettingList<String> newTypes)
 	{
-		this.serializedTypes = newTypes.toArray(new String[0]);
+		this.serializedTypes = newTypes;
 	}
 
-	public SerializerTypeInfo(final String assembledTypeDictionary)
-	{
-		this.serializedTypes = new String[] {assembledTypeDictionary};
-	}
-
-	public String[] getSerializedTypes()
+	public XGettingList<String> getSerializedTypes()
 	{
 		return this.serializedTypes;
 	}
