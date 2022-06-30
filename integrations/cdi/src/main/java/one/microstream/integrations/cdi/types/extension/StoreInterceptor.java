@@ -23,32 +23,33 @@ package one.microstream.integrations.cdi.types.extension;
 
 import static java.util.Optional.ofNullable;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
-import one.microstream.concurrency.XThreads;
 import one.microstream.integrations.cdi.types.Store;
-import one.microstream.storage.types.StorageManager;
+import one.microstream.integrations.cdi.types.dirty.DirtyInstanceCollector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
+/**
+ * CDI Interceptor to store the instances that are marked as dirty.
+ */
 @Store
 @Interceptor
 @Priority(Interceptor.Priority.APPLICATION)
-class StoreInterceptor
+public class StoreInterceptor
 {
-	private static final Logger LOGGER = Logger.getLogger(StoreInterceptor.class.getName());
-	
+	private static final Logger LOGGER = LoggerFactory.getLogger(StoreInterceptor.class);
+
 	@Inject
-	private StorageManager      manager;
-	
+	private DirtyInstanceCollector collector;
+
 	@Inject
-	private StorageExtension    extension;
+	private InstanceStorer instanceStorer;
 	
 	@AroundInvoke
 	public Object store(final InvocationContext context) throws Exception
@@ -56,21 +57,32 @@ class StoreInterceptor
 		
 		final Store store = ofNullable(context.getMethod().getAnnotation(Store.class)).orElse(
 			context.getMethod().getDeclaringClass().getAnnotation(Store.class));
-		LOGGER.log(
-			Level.FINEST,
+		LOGGER.debug(
 			"Using Store operation in the "
 				+ context.getMethod()
-				+ " using the store type: "
-				+ store.value()
+				+ " using the store methodology: "
+				+ (store.asynchronous() ? "Asynchronous" : "Synchronous")
 		);
 		
 		final Object result = context.proceed();
-		XThreads.executeSynchronized(() ->
-		{
-			final StoreStrategy strategy = StoreStrategy.of(store);
-			strategy.store(store, this.manager, this.extension);
-		});
+		this.processDirtyInstances(store);
 		
 		return result;
+	}
+
+	private void processDirtyInstances(final Store store)
+	{
+		for (Object dirtyInstance : this.collector.getDirtyInstances()) {
+			LOGGER.debug("Storing object type {}",dirtyInstance.getClass().getName());
+			if (store.asynchronous()) {
+				this.instanceStorer.queueForProcessing(new InstanceData(dirtyInstance, store.clearLazy()));
+			} else {
+				this.instanceStorer.storeChanged(dirtyInstance, store.clearLazy());
+			}
+		}
+
+		// Clean out the list of dirty instances.
+		this.collector.processedInstances();
+
 	}
 }

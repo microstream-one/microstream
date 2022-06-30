@@ -21,68 +21,69 @@ package one.microstream.integrations.cdi.types.extension;
  * #L%
  */
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.logging.Logger;
+import one.microstream.integrations.cdi.types.Storage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.AfterBeanDiscovery;
-import javax.enterprise.inject.spi.AnnotatedType;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.Extension;
-import javax.enterprise.inject.spi.ProcessAnnotatedType;
-import javax.enterprise.inject.spi.WithAnnotations;
-
-import one.microstream.integrations.cdi.types.Storage;
+import javax.enterprise.inject.spi.*;
+import java.util.*;
+import java.util.logging.Logger;
 
 
 /**
- * This extension will look for entities with the Storage and then load it.
+ * This extension will look for Objects that are marked with {@link Storage}.
  */
 @ApplicationScoped
 public class StorageExtension implements Extension
 {
-	
-	private static final Logger                 LOGGER      = Logger.getLogger(StorageExtension.class.getName());
-	
-	private final Set<Class<?>>                 storageRoot = new HashSet<>();
-	private final Map<Class<?>, EntityMetadata> entities    = new HashMap<>();
-	
+
+	private static final Logger LOGGER = Logger.getLogger(StorageExtension.class.getName());
+
+	private final Set<Class<?>> storageRoot = new HashSet<>();
+
+	private final Map<Class<?>, Set<InjectionPoint>> storageInjectionPoints = new HashMap<>();
+
 	<T> void loadEntity(@Observes @WithAnnotations({Storage.class}) final ProcessAnnotatedType<T> target)
 	{
 		final AnnotatedType<T> annotatedType = target.getAnnotatedType();
-		if(annotatedType.isAnnotationPresent(Storage.class))
+		if (annotatedType.isAnnotationPresent(Storage.class))
 		{
-			final Class<T> javaClass = target.getAnnotatedType().getJavaClass();
+
+			final Class<T> javaClass = target.getAnnotatedType()
+					.getJavaClass();
 			this.storageRoot.add(javaClass);
 			LOGGER.info("New class found annotated with @Storage is " + javaClass);
 		}
 	}
-	
+
+	void collectInjectionsFromStorageBean(@Observes final ProcessInjectionPoint<?, ?> pip)
+	{
+		final InjectionPoint ip = pip.getInjectionPoint();
+		if (ip.getBean() != null && ip.getBean().getBeanClass().getAnnotation(Storage.class) != null) {
+			this.storageInjectionPoints
+					.computeIfAbsent(ip.getBean().getBeanClass(), k -> new HashSet<>())
+					.add(ip);
+		}
+	}
+
 	void onAfterBeanDiscovery(@Observes final AfterBeanDiscovery afterBeanDiscovery, final BeanManager beanManager)
 	{
-		LOGGER.info(String.format("Processing StorageExtension:  %d found", this.storageRoot.size()));
-		if(this.storageRoot.size() > 1)
+		LOGGER.info(String.format("Processing StorageExtension:  %d @Storage found", this.storageRoot.size()));
+		if (this.storageRoot.size() > 1)
 		{
 			throw new IllegalStateException(
-				"In the application must have only a class with the Storage annotation, classes: "
-					+ this.storageRoot);
+					"In the application must have only one class with the Storage annotation, classes: "
+							+ this.storageRoot);
 		}
 		this.storageRoot.forEach(entity ->
 		{
-			final StorageBean<?> bean = new StorageBean<>(beanManager, entity);
+			Set<InjectionPoint> injectionPoints = this.storageInjectionPoints.get(entity);
+			if (injectionPoints == null) {
+				injectionPoints = Collections.emptySet();
+			}
+			final StorageBean<?> bean = new StorageBean<>(beanManager, entity, injectionPoints);
 			afterBeanDiscovery.addBean(bean);
-			this.entities.put(entity, EntityMetadata.of(entity));
 		});
-	}
-	
-	<T> Optional<EntityMetadata> get(final Class<T> entity)
-	{
-		return Optional.ofNullable(this.entities.get(entity));
 	}
 	
 	@Override
@@ -92,9 +93,6 @@ public class StorageExtension implements Extension
 			+
 			"storageRoot="
 			+ this.storageRoot
-			+
-			", entities="
-			+ this.entities
 			+
 			'}';
 	}

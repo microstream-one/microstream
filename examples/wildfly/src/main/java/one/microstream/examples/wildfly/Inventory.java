@@ -28,18 +28,25 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import one.microstream.integrations.cdi.types.DirtyMarker;
 import one.microstream.integrations.cdi.types.Storage;
+
+import javax.inject.Inject;
 
 
 @Storage
 public class Inventory
 {
+
+	@Inject
+	private DirtyMarker dirtyMarker;
+
 	private final Set<Product> products = new HashSet<>();
 	
 	public void add(final Product product)
 	{
 		Objects.requireNonNull(product, "product is required");
-		this.products.add(product);
+		this.dirtyMarker.mark(this.products).add(product);
 	}
 	
 	public Set<Product> getProducts()
@@ -54,7 +61,7 @@ public class Inventory
 	
 	public void deleteById(final long id)
 	{
-		this.products.removeIf(this.isIdEquals(id));
+		this.dirtyMarker.mark(this.products).removeIf(this.isIdEquals(id));
 		
 	}
 	
