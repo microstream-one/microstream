@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import one.microstream.integrations.cdi.types.DirtyMarker;
 import one.microstream.integrations.cdi.types.Store;
 
 

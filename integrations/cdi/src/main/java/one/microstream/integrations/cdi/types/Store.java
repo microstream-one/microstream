@@ -31,12 +31,14 @@ import javax.interceptor.InterceptorBinding;
 
 
 /**
- * This annotation indicates the operation that will be stored using Microstream automatically.
- * It is a high-level implementation to save either the Iterable and Map instances
- * or the root itself, where you can set by StoreType.
- * By default, it is lazy, and using the EAGER only is extremely necessary.
+ * This annotation indicates the options how the changes will be stored by the MicroStream integration.
+ * Storage is done by default in an asynchronous way (to not slow down the user request) and Lazy references
+ * are cleared after they are stored.  The member values of this annotation are ignored when the configuration keys
+ * xxx FIXME are set. When the configuration key values are set to false, you indicate that at an application level data
+ * is stored synchronously and/or Lazy references are not cleared.
+ *
+ * FIXME
  * The rule is: "The Object that has been modified has to be stored!".
- * So, to more tuning and optimization in the persistence process,
  * you can always have the option to do it manually through
  * the {@link one.microstream.storage.types.StorageManager#store(Object)} method.
  * Ref: https://docs.microstream.one/manual/storage/storing-data/index.html
@@ -46,32 +48,20 @@ import javax.interceptor.InterceptorBinding;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Store
 {
+
 	/**
-	 * Defines the instance that will call the {@link one.microstream.storage.types.StorageManager#store(Object)}
-	 * method where:
-	 * EAGER is the whole root
-	 * Lazy only the Iterable and Map instances
-	 *
-	 * @return the {@link StoreType}
+	 * Indicate if the instances that are marked as Dirty are stored asynchronously or synchronously. Value is ignored
+	 * when the configuration key FIXME
+	 * @return if data is stored synchronously or asynchronously.
 	 */
 	@Nonbinding
-	StoreType value() default StoreType.LAZY;
-	
+	boolean asynchronous() default true;
+
 	/**
-	 * Define the fields there will be stored.
-	 * By default, all iterable or Map domains are targets of the storage method.
-	 *
-	 * @return the storage fields targets in the
+	 * Indicates if {@link one.microstream.reference.Lazy} references are cleared after they are stored. Value is
+	 * ignored when the configuration key FIXME
+	 * @return Clear the Lazy references after storing.
 	 */
 	@Nonbinding
-	String[] fields() default {""};
-	
-	/**
-	 * Define if Microstream will ignore the {@link Store#fields()} and then store the whole entity class root.
-	 * By default, it will use the fields.
-	 * 
-	 * @return it will store the fields or the root class.
-	 */
-	@Nonbinding
-	boolean root() default false;
+	boolean clearLazy() default true;
 }

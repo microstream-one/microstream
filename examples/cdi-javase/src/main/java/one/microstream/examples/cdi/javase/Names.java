@@ -27,17 +27,25 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import one.microstream.integrations.cdi.types.DirtyMarker;
 import one.microstream.integrations.cdi.types.Storage;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 
 @Storage
 public class Names implements Supplier<Set<String>>
 {
+
+	@Inject
+	private DirtyMarker dirtyMarker;
+
 	private final Set<String> names = new HashSet<>();
 	
 	public void add(final String name)
 	{
-		this.names.add(Objects.requireNonNull(name, "name is required"));
+		this.dirtyMarker.mark(this.names).add(Objects.requireNonNull(name, "name is required"));
 	}
 	
 	@Override

@@ -23,37 +23,53 @@ package one.microstream.integrations.cdi.types.interceptor;
 
 import one.microstream.integrations.cdi.types.Agenda;
 import one.microstream.integrations.cdi.types.Store;
-import one.microstream.integrations.cdi.types.StoreType;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Objects;
 
 
 @ApplicationScoped
-public class AgendaLazyService
+public class AgendaService
 {
 	@Inject
 	private Agenda agenda;
-	
+
+	@Store
+	public void addName(final String name)
+	{
+		Objects.requireNonNull(name, "name is required");
+		this.agenda.add(name);
+	}
+
 	@Store
 	public void addNameLazy(final String name)
 	{
 		Objects.requireNonNull(name, "name is required");
-		this.agenda.add(name);
+		this.agenda.addToLazy(name);
 	}
-	
-	@Store(fields = "names")
-	public void updateName(final String name)
+
+	@Store(asynchronous = false)
+	public void addNameSynchro(final String name)
 	{
 		Objects.requireNonNull(name, "name is required");
 		this.agenda.add(name);
 	}
-	
-	@Store(value = StoreType.LAZY, root = true)
-	public void addNameRoot(final String name)
+
+	@Store(asynchronous = false)
+	public void addNameLazySynchro(final String name)
 	{
 		Objects.requireNonNull(name, "name is required");
-		this.agenda.add(name);
+		this.agenda.addToLazy(name);
 	}
+
+	@Store
+	public void addNames(final String... names)
+	{
+		Objects.requireNonNull(names, "names is required");
+		Arrays.stream(names)
+				.forEach(name -> this.agenda.add(name));
+	}
+
 }

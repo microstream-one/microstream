@@ -21,6 +21,9 @@ package one.microstream.examples.cdi.javase;
  * #L%
  */
 
+import org.jboss.weld.context.RequestContext;
+import org.jboss.weld.context.unbound.UnboundLiteral;
+
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,6 +35,11 @@ public class App1
 	{
 		try(SeContainer container = SeContainerInitializer.newInstance().initialize())
 		{
+			// Activate RequestScope
+			RequestContext requestContext = container.select(RequestContext.class, UnboundLiteral.INSTANCE)
+					.get();
+			requestContext.activate();
+
 			final String      sebastian = "Sebastian";
 			final String      otavio    = "Otavio";
 			final NameCounter counter   = container.select(NameCounter.class).get();

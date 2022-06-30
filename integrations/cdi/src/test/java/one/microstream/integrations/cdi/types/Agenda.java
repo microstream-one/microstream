@@ -21,6 +21,9 @@ package one.microstream.integrations.cdi.types;
  * #L%
  */
 
+import one.microstream.reference.Lazy;
+
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
@@ -30,31 +33,56 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Storage
 public class Agenda
 {
+
+	@Inject
+	private DirtyMarker dirtyMarker;
+
 	private final Set<String> names;
-	
+
+	private final Lazy<Set<String>> lazyNames;
+
 	public Agenda()
 	{
 		this.names = new ConcurrentSkipListSet<>();
+		this.lazyNames = Lazy.Reference(new ConcurrentSkipListSet<>());
 	}
-	
+
 	public void add(final String name)
 	{
-		this.names.add(name);
+		this.dirtyMarker.mark(this.names)
+				.add(name);
 	}
-	
+
+	public void addToLazy(final String name)
+	{
+		this.dirtyMarker.mark(this.lazyNames)
+				.get()
+				.add(name);
+	}
+
 	public Set<String> getNames()
 	{
 		return Collections.unmodifiableSet(this.names);
 	}
-	
+
+	public Set<String> getLazySet()
+	{
+		return this.lazyNames.get();
+	}
+
+	public boolean isLazySetLoaded()
+	{
+		return this.lazyNames.isLoaded();
+	}
+
 	@Override
 	public boolean equals(final Object o)
 	{
-		if(this == o)
+		if (this == o)
 		{
 			return true;
 		}
-		if(o == null || this.getClass() != o.getClass())
+		if (o == null || this.getClass() != o.getClass())
 		{
 			return false;
 		}

@@ -21,50 +21,50 @@ package one.microstream.integrations.cdi.types.extension;
  * #L%
  */
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.spi.*;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.InjectionPoint;
-import javax.enterprise.inject.spi.PassivationCapable;
-
 
 /**
- * A template class to all the {@link Bean} at the Eclipse JNoSQL artemis project.
- * It will work as Template method.
+ * A template class to all the programmatic {@link Bean}s that are defined.
  *
- * @param <T>
- *            the bean type
+ * @param <T> the bean type
  */
 public abstract class AbstractBean<T> implements Bean<T>, PassivationCapable
 {
 	private final BeanManager beanManager;
-	
-	protected AbstractBean(final BeanManager beanManager)
+	private final Set<InjectionPoint> injectionPoints;
+
+	protected AbstractBean(final BeanManager beanManager, final Set<InjectionPoint> injectionPoints)
 	{
 		this.beanManager = beanManager;
+		this.injectionPoints = injectionPoints;
 	}
-	
+
 	protected <B> B getInstance(final Class<B> clazz)
 	{
 		return BeanManagers.getInstance(clazz, this.beanManager);
 	}
-	
-	protected <B> B getInstance(final Class<B> clazz, final Annotation qualifier)
+
+	protected void injectDependencies(final T root)
 	{
-		return BeanManagers.getInstance(clazz, qualifier, this.beanManager);
+		final AnnotatedType<T> type = (AnnotatedType<T>) this.beanManager.createAnnotatedType(root.getClass());
+		final CreationalContext<T> context = this.beanManager.createCreationalContext(null);
+		this.beanManager.getInjectionTargetFactory(type)
+				.createInjectionTarget(this)
+				.inject(root, context);
 	}
-	
+
 	@Override
 	public Set<InjectionPoint> getInjectionPoints()
 	{
-		return Collections.emptySet();
+		return this.injectionPoints;
 	}
-	
+
 	@Override
 	public boolean isNullable()
 	{

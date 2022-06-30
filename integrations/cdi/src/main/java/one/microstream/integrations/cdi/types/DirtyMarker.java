@@ -1,9 +1,8 @@
-
-package one.microstream.integrations.cdi.types.extension;
+package one.microstream.integrations.cdi.types;
 
 /*-
  * #%L
- * microstream-integrations-cdi
+ * MicroStream Integrations CDI
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -21,23 +20,27 @@ package one.microstream.integrations.cdi.types.extension;
  * #L%
  */
 
-import java.util.Objects;
-
-import one.microstream.integrations.cdi.types.Store;
-import one.microstream.integrations.cdi.types.StoreType;
-import one.microstream.storage.types.StorageManager;
-
-
-interface StoreStrategy
+/**
+ * Definition of the CDI bean that is capable of marking instances as dirty. The method
+ * signature of the `mark` method is designed to allow a fluent API alike experience.
+ *
+ * Examples <p/>
+ * <code>
+ * @Inject DirtyMarker dirtyMarker;
+ *
+ * @Inject DataRoot root;
+ *
+ * @Store
+ * public void doSomething() {
+ *     ...
+ *     dirtyMarker.mark(root.getProducts()).add(product);
+ *     ...
+ *     dirtyMarker.mark(product).setName(newName);
+ * }
+ * </code>
+ */
+public interface DirtyMarker
 {
-	void store(Store store, StorageManager manager, StorageExtension extension);
-	
-	static StoreStrategy of(final Store store)
-	{
-		Objects.requireNonNull(store, "store is required");
-		return StoreType.EAGER.equals(store.value())
-			? StoreTypeStrategy.EAGER
-			: StoreTypeStrategy.LAZY
-		;
-	}
+
+    <T> T mark(T instance);
 }

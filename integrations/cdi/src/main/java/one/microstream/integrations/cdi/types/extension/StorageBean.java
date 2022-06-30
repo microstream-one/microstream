@@ -23,15 +23,13 @@ package one.microstream.integrations.cdi.types.extension;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.InjectionPoint;
 
 import one.microstream.integrations.cdi.exceptions.CDIExceptionStorage;
 import one.microstream.integrations.cdi.types.Storage;
@@ -49,9 +47,12 @@ class StorageBean<T> extends AbstractBean<T>
 	private final Set<Type>       types     ;
 	private final Set<Annotation> qualifiers;
 	
-	protected StorageBean(final BeanManager beanManager, final Class<T> type)
+	protected StorageBean(final BeanManager beanManager
+			, final Class<T> type
+			, final Set<InjectionPoint> injectionPoints
+	)
 	{
-		super(beanManager);
+		super(beanManager, injectionPoints);
 		this.type       = type;
 		this.types      = Collections.singleton(type);
 		this.qualifiers = new HashSet<>();
@@ -72,7 +73,7 @@ class StorageBean<T> extends AbstractBean<T>
 		final StorageManager manager = this.getInstance(StorageManager.class);
 		final Object         root    = manager.root();
 		T                    entity;
-		if(Objects.isNull(root))
+		if (Objects.isNull(root))
 		{
 			entity = XReflect.defaultInstantiate(this.type);
 			manager.setRoot(entity);
@@ -89,9 +90,10 @@ class StorageBean<T> extends AbstractBean<T>
 				throw new CDIExceptionStorage(this.type, root.getClass());
 			}
 		}
+		this.injectDependencies(entity);
 		return entity;
 	}
-	
+
 	@Override
 	public Set<Class<? extends Annotation>> getStereotypes()
 	{

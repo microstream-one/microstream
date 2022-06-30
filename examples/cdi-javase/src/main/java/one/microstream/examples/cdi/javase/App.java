@@ -22,6 +22,8 @@ package one.microstream.examples.cdi.javase;
  */
 
 import one.microstream.storage.types.StorageManager;
+import org.jboss.weld.context.RequestContext;
+import org.jboss.weld.context.unbound.UnboundLiteral;
 
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
@@ -33,11 +35,18 @@ public class App
 	{
 		try(SeContainer container = SeContainerInitializer.newInstance().initialize())
 		{
-			final StorageManager manager = container.select(StorageManager.class).get();
+			// Activate RequestScope
+			RequestContext requestContext = container.select(RequestContext.class, UnboundLiteral.INSTANCE)
+					.get();
+			requestContext.activate();
+
+			final StorageManager manager = container.select(StorageManager.class)
+					.get();
 			final Object root = manager.root();
 			System.out.println("The root value: " + root);
-			final NamesService service = container.select(NamesService.class).get();
-			
+			final NamesService service = container.select(NamesService.class)
+					.get();
+
 			System.out.println("The names: " + service.getNames());
 			service.add("Sebastian");
 			service.add("Otavio");
