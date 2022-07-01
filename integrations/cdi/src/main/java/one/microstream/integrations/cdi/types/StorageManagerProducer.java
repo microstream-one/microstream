@@ -37,7 +37,7 @@ import one.microstream.storage.types.StorageManager;
 
 
 @ApplicationScoped
-class StorageManagerProducer
+public class StorageManagerProducer
 {
 	private static final Logger LOGGER = Logger.getLogger(StorageManagerProducer.class.getName());
 	

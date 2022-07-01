@@ -29,7 +29,7 @@ import org.slf4j.helpers.SubstituteLogger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 public class TestLogger extends EventRecodingLogger
 {
 
-    private static final Queue<SubstituteLoggingEvent> eventQueue = new ArrayBlockingQueue<>(100);
+    private static final Queue<SubstituteLoggingEvent> eventQueue = new LinkedBlockingQueue<>();
 
     public TestLogger(final String name)
     {
