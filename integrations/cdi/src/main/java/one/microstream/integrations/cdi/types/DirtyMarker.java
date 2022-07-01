@@ -23,21 +23,21 @@ package one.microstream.integrations.cdi.types;
 /**
  * Definition of the CDI bean that is capable of marking instances as dirty. The method
  * signature of the `mark` method is designed to allow a fluent API alike experience.
+ * <p>&nbsp;</p>
+ * Examples <p>&nbsp;</p>
+ * <pre>
+ * &#64;Inject DirtyMarker dirtyMarker;
  *
- * Examples <p/>
- * <code>
- * @Inject DirtyMarker dirtyMarker;
+ * &#64;Inject DataRoot root;
  *
- * @Inject DataRoot root;
- *
- * @Store
+ * &#64;Store
  * public void doSomething() {
  *     ...
  *     dirtyMarker.mark(root.getProducts()).add(product);
  *     ...
  *     dirtyMarker.mark(product).setName(newName);
  * }
- * </code>
+ * </pre>
  */
 public interface DirtyMarker
 {
