@@ -1,0 +1,42 @@
+= Updating persisted state
+By default legacy type mapping does not cause the persisted state of objects to be updated to the latest type definition.
+Instead the persisted data is mapped to the latest state in memory only. 
+In some cases it my be desirable to update the persisted state of mapped instances.
+To archive that two options exist:
+
+== Update single instances:
+To update some few specific instances you can just store them again after loading the storage.
+Therefore you use the default storage <<Storing Data, API>>.
+
+
+== Update the whole storage:
+We introduced some helper classes to simplify the process of updating the whole storage.
+When set up in the connection foundation they will ensure that every instance that has legacy type mapping applied, will be persisted in it's new form directly after loading.
+
+[source,java]
+----
+final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation(myDataDir);
+final EmbeddedStorageConnectionFoundation<?> connectionFoundation = foundation.getConnectionFoundation();
+connectionFoundation.setLegacyTypeHandlerCreator(
+	PersistenceLegacyTypeHandlerUpdatingCreator.New(connectionFoundation));
+----
+[IMPORTANT]
+====
+By default <<Lazy Loading, Lazy References>> are not loaded during startup. But they must be loaded to update all instances behind them.
+====
+
+[source,java]
+----
+final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation(myDataDir);
+final EmbeddedStorageConnectionFoundation<?> connectionFoundation = foundation.getConnectionFoundation();
+connectionFoundation.setLegacyTypeHandlerCreator(
+	PersistenceLegacyTypeHandlerUpdatingCreator.New(connectionFoundation)); //<1>
+
+final EmbeddedStorageManager storage = foundation.start(); //<2>
+
+LazyReferenceManager.get().iterate(l -> {l.get(); l.clear(); }); //<3> 
+----
+<1> Setup the connection foundation.
+<2> Start the storage and get all initially loaded instances updated.
+<3> Load, update and unload all lazy referenced elements. 
+
