@@ -47,7 +47,7 @@ public class StaticLoggerBinder implements LoggerFactoryBinder
      * this field is usually modified with each release. Per SLF4J,
      * "To avoid constant folding by the compiler, this field must *not* be final".
      */
-    public static String REQUESTED_API_VERSION = "1.8";
+    public static String REQUESTED_API_VERSION = "1.7";
 
     /**
      * Logger factory class.

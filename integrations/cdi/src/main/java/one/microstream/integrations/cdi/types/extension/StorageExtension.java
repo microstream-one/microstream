@@ -22,10 +22,12 @@ package one.microstream.integrations.cdi.types.extension;
  */
 
 import one.microstream.integrations.cdi.types.Storage;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.*;
+import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -43,6 +45,8 @@ public class StorageExtension implements Extension
 
 	private final Map<Class<?>, Set<InjectionPoint>> storageInjectionPoints = new HashMap<>();
 
+	private final Set<String> storageManagerConfigInjectionNames = new HashSet<>();
+
 	<T> void loadEntity(@Observes @WithAnnotations({Storage.class}) final ProcessAnnotatedType<T> target)
 	{
 		final AnnotatedType<T> annotatedType = target.getAnnotatedType();
@@ -59,11 +63,40 @@ public class StorageExtension implements Extension
 	void collectInjectionsFromStorageBean(@Observes final ProcessInjectionPoint<?, ?> pip)
 	{
 		final InjectionPoint ip = pip.getInjectionPoint();
-		if (ip.getBean() != null && ip.getBean().getBeanClass().getAnnotation(Storage.class) != null) {
+		if (ip.getBean() != null && ip.getBean()
+				.getBeanClass()
+				.getAnnotation(Storage.class) != null)
+		{
 			this.storageInjectionPoints
-					.computeIfAbsent(ip.getBean().getBeanClass(), k -> new HashSet<>())
+					.computeIfAbsent(ip.getBean()
+											 .getBeanClass(), k -> new HashSet<>())
 					.add(ip);
 		}
+		// Is @Inject @ConfigProperty on StorageManager?
+		if (isStorageManagerFromConfig(ip))
+		{
+			this.storageManagerConfigInjectionNames.add(getConfigPropertyValueOf(ip));
+
+		}
+	}
+
+	private String getConfigPropertyValueOf(final InjectionPoint ip)
+	{
+		return ip.getQualifiers()
+				.stream()
+				.filter(q -> q.annotationType()
+						.isAssignableFrom(ConfigProperty.class))
+				.findAny()
+				.map(q -> ((ConfigProperty) q).name())
+				.orElse("");
+	}
+
+	private boolean isStorageManagerFromConfig(final InjectionPoint ip)
+	{
+		return ip.getQualifiers()
+				.stream()
+				.anyMatch(q -> q.annotationType()
+						.isAssignableFrom(ConfigProperty.class));
 	}
 
 	void onAfterBeanDiscovery(@Observes final AfterBeanDiscovery afterBeanDiscovery, final BeanManager beanManager)
@@ -75,6 +108,12 @@ public class StorageExtension implements Extension
 					"In the application must have only one class with the Storage annotation, classes: "
 							+ this.storageRoot);
 		}
+		if (this.storageManagerConfigInjectionNames.size()>1 && !this.storageRoot.isEmpty()) {
+			throw new IllegalStateException(
+					"It is not supported to define multiple StorageManager's through @ConfigProperty in combination with a @Storage annotated class. Names : "
+							+ this.storageManagerConfigInjectionNames);
+
+		}
 		this.storageRoot.forEach(entity ->
 		{
 			Set<InjectionPoint> injectionPoints = this.storageInjectionPoints.get(entity);
@@ -85,7 +124,12 @@ public class StorageExtension implements Extension
 			afterBeanDiscovery.addBean(bean);
 		});
 	}
-	
+
+	public Set<String> getStorageManagerConfigInjectionNames()
+	{
+		return this.storageManagerConfigInjectionNames;
+	}
+
 	@Override
 	public String toString()
 	{
