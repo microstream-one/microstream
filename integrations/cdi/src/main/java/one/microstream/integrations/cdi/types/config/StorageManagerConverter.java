@@ -23,12 +23,13 @@ package one.microstream.integrations.cdi.types.config;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
 import org.eclipse.microprofile.config.spi.Converter;
 
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
 import one.microstream.storage.types.StorageManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -36,7 +37,7 @@ import one.microstream.storage.types.StorageManager;
  */
 public class StorageManagerConverter implements Converter<StorageManager>
 {
-	private static final Logger                      LOGGER = Logger.getLogger(StorageManagerConverter.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(StorageManagerConverter.class);
 	
 	private static final Map<String, StorageManager> MAP    = new ConcurrentHashMap<>();
 	

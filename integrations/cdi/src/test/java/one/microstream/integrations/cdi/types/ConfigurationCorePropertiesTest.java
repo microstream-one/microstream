@@ -22,14 +22,13 @@ package one.microstream.integrations.cdi.types;
  */
 
 import io.smallrye.config.inject.ConfigExtension;
-import one.microstream.integrations.cdi.types.cache.CacheProperties;
 import one.microstream.integrations.cdi.types.logging.TestLogger;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationPropertyNames;
 import org.eclipse.microprofile.config.Config;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -45,8 +44,9 @@ class ConfigurationCorePropertiesTest
 	@Inject
 	private Config config;
 
-	@BeforeAll
-	public static void beforeAll() {
+	@BeforeEach
+	public void setup()
+	{
 		TestLogger.reset();
 	}
 

@@ -20,10 +20,10 @@ package one.microstream.integrations.cdi.types.cache;
  */
 
 import io.smallrye.config.inject.ConfigExtension;
+import one.microstream.integrations.cdi.types.ConfigurationCoreProperties;
 import one.microstream.integrations.cdi.types.StorageManagerProducer;
 import one.microstream.integrations.cdi.types.extension.StorageExtension;
 import one.microstream.integrations.cdi.types.logging.TestLogger;
-import one.microstream.storage.types.StorageManager;
 import org.jboss.weld.junit5.auto.AddBeanClasses;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
@@ -31,47 +31,41 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.slf4j.event.LoggingEvent;
 
 import javax.cache.Cache;
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-
-import java.util.List;
-
-import static one.microstream.integrations.cdi.types.ConfigurationCoreProperties.STORAGE_DIRECTORY;
 
 @EnableAutoWeld  // So that Weld container is started
 @AddBeanClasses({StorageCacheProducer.class, StorageManagerProducer.class})  // For @StorageCache
-@AddExtensions({ConfigExtension.class})  // SmallRye Config extension And MicroStream extension for StorageManager
-public class StorageCacheTest {
+@AddExtensions({StorageExtension.class, ConfigExtension.class})
+// SmallRye Config extension And MicroStream extension for StorageManager
+public class StorageCacheTest
+{
 
     @Inject
     @StorageCache("storage")
     private Cache<Integer, String> cache;
 
     @BeforeAll
-    public static void beforeAll() {
+    public static void beforeAll()
+    {
         System.setProperty(CacheProperties.STORAGE.get(), Boolean.TRUE.toString());
-        System.setProperty(STORAGE_DIRECTORY.getMicroProfile(), "target/cache");
+        System.setProperty(ConfigurationCoreProperties.STORAGE_DIRECTORY.getMicroProfile(), "target/cache");
         TestLogger.reset();
     }
 
     @AfterAll
-    public static void afterAll() {
+    public static void afterAll()
+    {
         System.clearProperty(CacheProperties.STORAGE.get());
-        System.clearProperty(STORAGE_DIRECTORY.getMicroProfile());
+        System.clearProperty(ConfigurationCoreProperties.STORAGE_DIRECTORY.getMicroProfile());
     }
 
     @Test
-    public void shouldCreateStorableInstance(){
+    public void shouldCacheValues()
+    {
         Assertions.assertNotNull(cache);
-    }
-
-    @Test
-    public void shouldCacheValues() {
-        cache.put(1, "one");
+        this.cache.put(1, "one");
         Assertions.assertNotNull(cache.get(1));
     }
 

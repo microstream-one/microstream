@@ -22,47 +22,74 @@ package one.microstream.integrations.cdi.types;
  */
 
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+import one.microstream.integrations.cdi.types.extension.StorageExtension;
+import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.eclipse.microprofile.config.Config;
 
 import one.microstream.reference.LazyReferenceManager;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
 import one.microstream.storage.types.StorageManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @ApplicationScoped
 public class StorageManagerProducer
 {
-	private static final Logger LOGGER = Logger.getLogger(StorageManagerProducer.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(StorageManagerProducer.class);
 	
 	@Inject
-	private Config              config;
-	
+	private Config config;
+
+	@Inject
+	private StorageExtension storageExtension;
+
 	@Produces
 	@ApplicationScoped
 	public StorageManager getStoreManager()
 	{
-		
+
+		if (storageExtension.getStorageManagerConfigInjectionNames().isEmpty())
+		{
+			return storageManagerFromProperties();
+		} else {
+			// StorageManager through StorageManagerConverter
+			String configName = storageExtension.getStorageManagerConfigInjectionNames()
+					.iterator()
+					.next();
+			LOGGER.info(
+					"Loading StorageManager from file indicated by MicroProfile Config key : "
+							+ configName
+			);
+
+			// This will succeed since it is already validated during deployment of the application.
+			return config.getValue(configName, StorageManager.class);
+		}
+	}
+
+	private EmbeddedStorageManager storageManagerFromProperties()
+	{
 		final Map<String, String> properties = ConfigurationCoreProperties.getProperties(this.config);
 		LOGGER.info(
-			"Loading default StorageManager loading from MicroProfile Config properties. The keys: "
-				+ properties.keySet()
+				"Loading default StorageManager from MicroProfile Config properties. The keys: "
+						+ properties.keySet()
 		);
-		
+
 		final EmbeddedStorageConfigurationBuilder builder = EmbeddedStorageConfigurationBuilder.New();
-		for(final Map.Entry<String, String> entry : properties.entrySet())
+		for (final Map.Entry<String, String> entry : properties.entrySet())
 		{
 			builder.set(entry.getKey(), entry.getValue());
 		}
-		return builder.createEmbeddedStorageFoundation().start();
+		return builder.createEmbeddedStorageFoundation()
+				.start();
 	}
-	
+
 	public void dispose(@Disposes final StorageManager manager)
 	{
 		LOGGER.info("Closing the default StorageManager");
