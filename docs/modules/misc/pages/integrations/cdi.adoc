@@ -1,17 +1,136 @@
 = CDI Extension
 
-MicroStream comes with a CDI extension.
+MicroStream comes with a CDI extension which allows accessing the functionality of MicroStream through the usage of a few annotations.
+
 It is available within this artifact:
 
 [source, xml, title="pom.xml", subs=attributes+]
 ----
 <dependencies>
-	<dependency>
-		<groupId>one.microstream</groupId>
-		<artifactId>microstream-integrations-cdi</artifactId>
-		<version>{maven-version}</version>
-	</dependency>
+   <dependency>
+      <groupId>one.microstream</groupId>
+      <artifactId>microstream-integrations-cdi</artifactId>
+      <version>{maven-version}</version>
+   </dependency>
 </dependencies>
 ----
 
-For more information consult the https://github.com/microstream-one/microstream/tree/master/integrations/cdi[readme] file.
+The integration requires the _javax_ namespace and requires a https://jakarta.ee/specifications/cdi/[CDI] 2.0 implementation or higher
+and an https://github.com/eclipse/microprofile-config[Eclipse MicroProfile Config] 2.0 implementation or higher.
+
+== Configuration
+
+The configuration of the _StorageManager_ can be done using key/value pairs that are provided by MicroProfile Config.  The configuration keys must be prefixed by `one.microstream`
+
+[source]
+----
+one.microstream.storage-directory=/opt/data/microstream
+one.microstream.channel-count=2
+----
+
+Since the `-`character is not supported in some sources (like the environment variables), you can also define the configuration keys using the `.` character.
+
+[source]
+----
+one.microstream.storage-directory=/opt/data/microstream
+one.microstream.channel-count=2
+----
+
+Besides that, the regular MicroProfile Config rules about keys are applied (since we are using MicroProfile Config directly, see https://github.com/eclipse/microprofile-config/blob/master/spec/src/main/asciidoc/configsources.asciidoc#environment-variables-mapping-rules[specification]).
+
+The configured and started _StorageManager_ is a CDI bean and thus can be injected or retrieved programmatically.
+
+[source, java]
+----
+@Inject
+private StorageManager storageManager;
+
+public void someMethod() {
+    StorageManager storageManager = CDI.current().select(StorageManager.class).get();
+}
+----
+
+There is a second option to configure and retrieve the _StorageManager_, and it makes use of the MicroStream functionality to read the configuration from any file.
+
+[source, java]
+----
+@Inject
+@ConfigProperty(name = "one.microstream.ini")
+private StorageManager storageManager;
+----
+
+The above construct makes use of the MicroProfile Config functionality that you _convert_ the value of the key `one.microstream.ini` and convert it into a _StorageManager_.  The value of the key is expected to point to an existing file. The formats XML, INI, and properties are supported.
+
+The _StorageManager_  is also fully configured and started just as you would use it when using the first option of configuration.
+
+If you define it multiple times, within different beans for example, you always receive the same instance of the _StorageManager_ when you specify the same value for the _name_ member of the `@ConfigProperty` annotation.
+
+This way, you can define and use multiple _StorageManager_s within your application.
+
+== Root object
+
+The root object can be indicated by using the `@Storage` annotation on the class.  This annotation converts the POJO into a CDI bean (there is no need to use any scope-defining annotation) with Application Scope.
+
+Besides converting it into a CDI bean, any field injection within this class is also resolved.
+
+The integration also defines the instance of the class that is created as the root object (`StorageManager.setRoot()`) and stores the initial value (`StorageManager.storeRoot()`) when storageManager does not have a root object assigned yet (this happens only the very first time when you start up your application and the storage doesn't contain any data yet)
+
+The POJO must have a (default) no-argument constructor so that the integration can create an instance of it.
+
+You can only annotate 1 class with the `@Storage`  annotation, if you have marked multiple, the deployment of your application will fail at the CDI validation phase.  You cannot use the `@Storage`  functionality when you have defined multiple _StorageManager_'s through the MicroProfile Config Converter option (See option 2 in the Configuration section above)
+
+== Store marked instances
+
+The most important rule when using MicroStream is:
+
+----
+The Object that has been modified has to be stored!
+----
+
+and with this CDI integration, you get some guidance to do that.  With the _DirtyMarker_ you can mark the instances that you change, and they can be stored automatically using the `@Store` CDI interceptor.  A typical use case is
+
+[source, java]
+----
+@Storage
+public class Inventory{
+
+   @Inject
+   private DirtyMarker dirtyMarker;
+
+   private final Set<Product> products = new HashSet<>();
+
+   public void add(Product product) {
+      Objects.requireNonNull(product, "product is required");
+      dirtyMarker.mark(products).add(product);
+   }
+}
+
+@ApplicationScoped
+public class ProductRepositoryStorage {
+
+   @Inject
+   private Inventory inventory;
+
+   @Store
+   public Product save(Product item) {
+      inventory.add(item);
+      return item;
+   }
+}
+----
+
+The CDI bean implementation of `DirtyMarker` captures the list of all instances that are marked during a single request. The `mark()` method allows for a fluent API style so that within the same statement you can mark an instance and perform the change through a setter for example. It gives you an easy and visual way of the changes that you make in the database.
+
+The `@Store` CDI interceptor on the calling method makes sure that all instances that are marked are presented to the _StorageManager_
+
+By default, the CDI interceptor will use an asynchronous way of storing the instances so that the response can be sent faster since it doesn't need to wait before data is stored.
+
+Also, if you mark any `Lazy` instance of MicroStream, it will be cleared automatically when it is stored.
+
+You can change this behaviour by specifying different member values.
+
+[source, java]
+----
+@Store(asynchronous = false, clearLazy = false)
+----
+
