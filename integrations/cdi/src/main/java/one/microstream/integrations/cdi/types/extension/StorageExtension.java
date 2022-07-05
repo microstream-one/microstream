@@ -22,12 +22,14 @@ package one.microstream.integrations.cdi.types.extension;
  */
 
 import one.microstream.integrations.cdi.types.Storage;
+import one.microstream.storage.types.StorageManager;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.*;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -93,7 +95,9 @@ public class StorageExtension implements Extension
 
 	private boolean isStorageManagerFromConfig(final InjectionPoint ip)
 	{
-		return ip.getQualifiers()
+		return ip.getMember() instanceof Field
+				&& ((Field)ip.getMember()).getType().isAssignableFrom(StorageManager.class)
+				&& ip.getQualifiers()
 				.stream()
 				.anyMatch(q -> q.annotationType()
 						.isAssignableFrom(ConfigProperty.class));
