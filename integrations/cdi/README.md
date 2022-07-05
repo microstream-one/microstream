@@ -1,6 +1,6 @@
-# Microstream CDI extension
+# MicroStream CDI extension
 
-The Microstream CDI extension is an open-source project to integrate the Jakarta EE/MicroProfile world with the Microstream persistence solution.
+The MicroStream CDI extension is an open-source project to integrate the Jakarta EE/MicroProfile world with the MicroStream persistence solution.
 
 This project has two minimum requirements:
 
@@ -15,7 +15,7 @@ To use in your project you can put it on your maven project:
 <dependency>
     <groupId>one.microstream</groupId>
     <artifactId>microstream-integrations-cdi</artifactId>
-    <version>...</version>
+    <version>${microstream.version}</version>
 </dependency>
 ```
 
@@ -32,10 +32,15 @@ private StorageManager manager;
 
 The CDI will create an instance application-scoped, and it will close automatically.
 
+It read all configuration keys starting with the prefix `one.microstream` and converts them to configuration keys of MicroStream (for the list, see [User guide](https://docs.microstream.one/manual/storage/configuration/properties.html)). The `-` character can be replaced by a `.` within the configuration key when it is not supported for that source.
+
+Not only the filesystem is supported as a target but also the other targets like databases and only the dependency needs to be added to your project.
+
 ### Storage
 
-The Storage annotation allows injecting an entity from Microstream.
-Each application must have a unique class with this annotation.
+The `@Storage` annotation defines the root object for the _StorageManager_.
+Each application must have a unique class with this annotation and it is converted into a CDI bean within the Application Scope. Also (field) injection is supported within this class.
+
 Note: To increase performance use immutable sub-graphs as often as possible.
 
 ```java
@@ -45,8 +50,6 @@ public class NameStorage {
 }
 ```
 
-It will create/load this annotation using CDI.
-
 ```java
 @Inject
 private NameStorage names;
@@ -54,100 +57,39 @@ private NameStorage names;
 
 ### Store
 
-This annotation indicates the operation that will be stored using Microstream automatically.
-It is a high-level implementation to save either the Iterable and Map instances or the root itself, where you can set by StoreType.
-By default, it is ```LAZY```, and using the ```EAGER``` only is extremely necessary.
-The rule is: "The Object that has been modified has to be stored!".
-So, to more tuning and optimization in the persistence process, you can always have the option to do it manually through
-```StorageManager#store(Object)```. 
-[To get more information](https://docs.microstream.one/manual/storage/storing-data/index.html).
+This annotation indicates that instances that are marked as dirty will be stored by the _StorageManager_ at the end of the method (it is a CDI interceptor)
+
+Since the rule is: "The Object that has been modified has to be stored!" the CDI integration makes it easy to indicate the modified object using a fluent API.
 
 ```java
-@Inject
-private Items items;
 
-@Override
+@Inject
+private DirtyMarker dirtyMarker;
+
 @Store
 public Item save(Item item) {
-    this.items.add(item);
-    return item;
-}
-
+        dirtyMarker.mark(this.items).add(item);
+        return item;
+        }
 ```
 
-Inside the lazy type, we also can filter the fields to be stored in operation. E.g., Give an Inventory instance where you have several attributes. You can only keep the products field in a method and another the list of users ass it shows the method bellow.
+The `mark()` method returns the instance itself but adds it to the set of changed instances. All items within this set are stored at the end of the method.
 
-The lazy mode will execute: ```StorageManager#store(Object)```.
+By default, this is done in an asynchronous way to speed up the user response. Also, if the marked object is a `Lazy` reference, it is cleared after it is stored.
+
+You can alter this behaviour by using the member values of the annotation.
+
+```java
+@Store(asynchronous = false, clearLazy = false)
+```
+
+Instead of using the `@Store` annotation, you can always tune and optimize the persistence process to your needs by using the _StorageManager_ manually.
+```StorageManager#store(Object)```.
 [To get more information](https://docs.microstream.one/manual/storage/storing-data/index.html).
 
-```java
-@Inject
-private Inventory inventory;
-
-@Store(fields = "products")
-public void add(Product product) {
-       this.inventory.add(product);
-}
-
-@Store(fields = "users")
-public void add(User user) {
-       this.inventory.add(user);
-}
-
-//be default lazy, and it will store all iterable and map fields
-@Store
-public void add(Product product, User user) {
-       this.inventory.add(user);
-       this.inventory.add(product);
-}
-//avoid this combination it has a high performance cost.
-@Store(StoreType.LAZY, root = true)
-public void add(String name) {
-        this.inventory.setName(name)
- }
-```
-
-In another hand we have the ```EAGER``` strategy that will execute the save eagerly:
-E.g.: 
-```java
-Storer storer = storage.createEagerStorer();
-storer.store(inventory.getProducts());
-storer.commit();
-```
-
-Contrary to Lazy storing this will also store modified child objects at the cost of performance.
-
-```java
-@Inject
-private Inventory inventory;
-
-@Store(value = StoreType.EAGER, fields = "products")
-public void add(Product product) {
-       this.inventory.add(product);
-}
-
-@Store(value = StoreType.EAGER, fields = "users")
-public void add(User user) {
-       this.inventory.add(user);
-}
-
-//be default, it will store all iterable and map fields
-@Store(value = StoreType.EAGER)
-public void add(Product product, User user) {
-       this.inventory.add(user);
-       this.inventory.add(product);
-}
-
-@Store(StoreType.EAGER, root = true)
-public void add(String name) {
-        this.inventory.setName(name)
- }
-```
-
-[To get more information](https://docs.microstream.one/manual/storage/storing-data/lazy-eager-full.html)
 ### Cache
 
-You can use Microsctream as a cache as well, thanks to the ```StorageCache``` annotation.
+You can use MicroStream as a cache in CDI as well, thanks to the ```@StorageCache``` annotation.
 
 ```java
 @Inject
@@ -181,7 +123,7 @@ The integration allows receiving all information from the Eclipse MicroProfile C
 configuration or a single file.
 Thus, you can overwrite any properties following the good practices in the Market, such as [the Twelve-Factor App](https://12factor.net/).
 
-By default, Eclipse Microprofile will read all the properties and do a parser to Microstream, with the properties parses below. Furthermore,  you can read the properties directly as the Microstream way.
+By default, Eclipse Microprofile will read all the properties and do a parser to MicroStream, with the properties parses below. Furthermore,  you can read the properties directly in the MicroStream way.
 
 It will use the Eclipse Microprofile to read/parse the properties.
 
@@ -190,16 +132,13 @@ It will use the Eclipse Microprofile to read/parse the properties.
 private StorageManager manager;
 ```
 
-This injection will look in the ```microprofile-config.properties``` file to the property that will be a file to load directly by Microstream with the ``EmbeddedStorageConfiguration.load(value);`` method.
+The following snippet will look in the ```microprofile-config.properties``` file and other Config sources to the property that will be a file to load directly by MicroStream with the ``EmbeddedStorageConfiguration.load(value);`` method.
 
 ```java
 @Inject
 @ConfigProperty(name = "one.microstream.ini")
 private StorageManager manager;
 ```
-
-
-
 
 ### Core
 
@@ -228,7 +167,6 @@ The relation with the properties from [Microstream docs](https://docs.microstrea
 * ```one.microstream.data.file.maximum.size```: data-file-maximum-size; Maximum file size for a data file to avoid cleaning it up. Default is 1024^2*8 = 8 MiB.
 * ```one.microstream.data.file.minimum.use.ratio```: data-file-minimum-use-ratio; The ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent the file from being dissolved. Default is 0.75 (75%).
 * ```one.microstream.data.file.cleanup.head.file```: data-file-cleanup-head-file; A flag defining whether the current head file (the only file actively written to) shall be subjected to file cleanups as well.
-* ```one.microstream.property```: Allow custom properties in through Microprofile, using this prefix. E.g.: If you want to include the "custom.test" property, you will set it as "one.microstream.property.custom.test"
 
 ### Cache
 
@@ -237,13 +175,13 @@ The relation with the properties from [Microstream docs](https://docs.microstrea
 There is a list of properties in the ```CacheProperties``` enum.
 
 The primary purpose of this configuration is to allow you to explore the Configuration of Cache through Eclipse MicroProfile.
-     
+
 * ```one.microstream.cache.loader.factory```: cacheLoaderFactory - A CacheLoader should be configured for "Read Through" caches to load values when a cache miss occurs.
 * ```one.microstream.cache.writer.factory```: cacheWriterFactory - A CacheWriter is used for write-through to an external resource.
 * ```one.microstream.cache.expires.factory```: expiryPolicyFactory - Determines when cache entries will expire based on creation, access and modification operations.
 * ```one.microstream.cache.read.through```: readThrough - When in "read-through" mode, cache misses that occur due to cache entries not existing as a result of performing a "get" will appropriately cause the configured CacheLoader to be invoked.
-* ```one.microstream.cache.write.through```: writeThrough - When in "write-through" mode, cache updates that occur as a result of performing "put" operations will appropriately cause the configured CacheWriter to be invoked. 
+* ```one.microstream.cache.write.through```: writeThrough - When in "write-through" mode, cache updates that occur as a result of performing "put" operations will appropriately cause the configured CacheWriter to be invoked.
 * ```one.microstream.cache.store.value```: storeByValue - When a cache is storeByValue, any mutation to the key or value does not affect the key of value stored in the cache.
-* ```one.microstream.cache.statistics```: statisticsEnabled - Checks whether statistics collection is enabled in this cache. 
+* ```one.microstream.cache.statistics```: statisticsEnabled - Checks whether statistics collection is enabled in this cache.
 * ```one.microstream.cache.management```: managementEnabled - Checks whether management is enabled on this cache. 
 

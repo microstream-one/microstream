@@ -109,6 +109,11 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>${maven.surefire.plugin.version}</version>
+            <configuration>
+                <!-- testing is using some level stuff and mainly needed to pass on JDK 17 -->
+                <argLine>--illegal-access=permit</argLine>
+                <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+            </configuration>
         </plugin>
     </plugins>
     </build>
