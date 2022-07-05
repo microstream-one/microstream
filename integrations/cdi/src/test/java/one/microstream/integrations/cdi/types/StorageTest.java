@@ -21,46 +21,70 @@ package one.microstream.integrations.cdi.types;
  * #L%
  */
 
-import java.util.Set;
-
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
-
+import one.microstream.integrations.cdi.types.dirty.DirtyMarkerImpl;
+import one.microstream.integrations.cdi.types.extension.StorageExtension;
+import one.microstream.storage.types.StorageManager;
+import org.jboss.weld.junit5.auto.ActivateScopes;
+import org.jboss.weld.junit5.auto.AddBeanClasses;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import one.microstream.integrations.cdi.types.extension.BeanManagers;
-import one.microstream.integrations.cdi.types.test.CDIExtension;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.CDI;
+import javax.inject.Inject;
+import java.util.Set;
 
 
-@CDIExtension
+@EnableAutoWeld
+@AddExtensions(StorageExtension.class)
+@ActivateScopes(RequestScoped.class)
+@AddBeanClasses(DirtyMarkerImpl.class)  // JUnit 5 Weld extension doesn't pick up bean with @Typed
 public class StorageTest
 {
+	// Test if a class annotated with @Storage is converted into an ApplicationScoped bean.
 	@Inject
-	private Agenda      agenda;
-	
+	private Agenda agenda;
+
 	@Inject
 	private BeanManager beanManager;
-	
+
+	@ApplicationScoped
+	@Produces
+	// StorageBean requires a StorageManager
+	private StorageManager storageManagerMock = Mockito.mock(StorageManager.class);
+
 	@Test
 	@DisplayName("Should check if it create an instance by annotation")
 	public void shouldCreateInstance()
 	{
 		Assertions.assertNotNull(this.agenda);
+		this.agenda.add("JUnit");
+
+		// Another way of testing we have only 1 instance of @Storage bean.
+		final Agenda instance = CDI.current()
+				.select(Agenda.class)
+				.get();
+		Assertions.assertEquals("JUnit", instance.getNames()
+				.iterator()
+				.next());
 	}
-	
+
 	@Test
-	public void shouldCreateNameRootInjection()
+	public void shouldCreateApplicationScopedBean()
 	{
-		this.agenda.add("Otavio");
-		this.agenda.add("Ada");
 		final Set<Bean<?>> beans = this.beanManager.getBeans(Agenda.class);
-		Assertions.assertFalse(beans.isEmpty());
-		final Agenda instance = BeanManagers.getInstance(Agenda.class);
-		Assertions.assertEquals(instance, this.agenda);
-		Assertions.assertEquals(instance.getNames(), this.agenda.getNames());
-		
+		Assertions.assertEquals(1, beans.size());
+		final Bean<?> storageBean = beans.iterator()
+				.next();
+		Assertions.assertEquals(ApplicationScoped.class, storageBean.getScope());
+
 	}
 }

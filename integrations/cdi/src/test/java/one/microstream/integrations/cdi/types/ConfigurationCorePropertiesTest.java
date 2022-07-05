@@ -41,6 +41,9 @@ import java.util.Set;
 @AddExtensions(ConfigExtension.class)  // SmallRye Config extension to Support MicroProfile Config within this test
 class ConfigurationCorePropertiesTest
 {
+	// Testing the ConfigurationCoreProperties functionality.
+	// - convert the MicroProfile config key/values to Map entries as MicroStream config values.
+
 	@Inject
 	private Config config;
 
@@ -55,9 +58,9 @@ class ConfigurationCorePropertiesTest
 	{
 		final Map<String, String> properties = ConfigurationCoreProperties.getProperties(this.config);
 		Assertions.assertNotNull(properties);
-		Assertions.assertEquals(3, properties.keySet()
+		Assertions.assertEquals(4, properties.keySet()
 				.size());
-		Assertions.assertEquals(Set.of("xml", "ini", "properties"), properties.keySet());
+		Assertions.assertEquals(Set.of("xml", "ini", "properties", "storage-directory"), properties.keySet());
 	}
 
 	@Test

@@ -43,6 +43,9 @@ import java.util.Set;
 @ExtendWith(MockitoExtension.class)
 class StorageManagerProducerTest
 {
+    // Test the StorageManagerProducer
+    // - Support for creating a StorageManager based on configuration values
+    // - Use the StorageManager from MicroProfile Config Converter (which uses external files like ini or xml)
 
     @Mock
     private Config configMock;
