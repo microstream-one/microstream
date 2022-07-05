@@ -47,7 +47,7 @@ public abstract class AbstractBean<T> implements Bean<T>, PassivationCapable
 
 	protected <B> B getInstance(final Class<B> clazz)
 	{
-		return BeanManagers.getInstance(clazz, this.beanManager);
+		return CDI.current().select(clazz).get();
 	}
 
 	protected void injectDependencies(final T root)
