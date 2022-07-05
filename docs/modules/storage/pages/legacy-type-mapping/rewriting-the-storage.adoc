@@ -6,7 +6,7 @@ To archive that two options exist:
 
 == Update single instances:
 To update some few specific instances you can just store them again after loading the storage.
-Therefore you use the default storage <<Storing Data, API>>.
+Therefore you use the default storage xref:storing-data/index.adoc#Storing Data[API].
 
 
 == Update the whole storage:
@@ -22,7 +22,7 @@ connectionFoundation.setLegacyTypeHandlerCreator(
 ----
 [IMPORTANT]
 ====
-By default <<Lazy Loading, Lazy References>> are not loaded during startup. But they must be loaded to update all instances behind them.
+By default xref:loading-data/lazy-loading/index.adoc[Lazy References] are not loaded during startup. But they must be loaded to update all instances behind them.
 ====
 
 [source,java]
