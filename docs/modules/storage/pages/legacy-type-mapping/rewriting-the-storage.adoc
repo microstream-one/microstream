@@ -4,12 +4,12 @@ Instead the persisted data is mapped to the latest state in memory only.
 In some cases it my be desirable to update the persisted state of mapped instances.
 To archive that two options exist:
 
-== Update single instances:
+== Update single instances
 To update some few specific instances you can just store them again after loading the storage.
 Therefore you use the default storage xref:storing-data/index.adoc#Storing Data[API].
 
 
-== Update the whole storage:
+== Update the whole storage
 We introduced some helper classes to simplify the process of updating the whole storage.
 When set up in the connection foundation they will ensure that every instance that has legacy type mapping applied, will be persisted in it's new form directly after loading.
 
