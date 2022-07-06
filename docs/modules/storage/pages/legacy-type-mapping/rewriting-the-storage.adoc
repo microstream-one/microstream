@@ -1,4 +1,4 @@
-= Updating persisted state
+= Updating persisted states
 By default legacy type mapping does not cause the persisted state of objects to be updated to the latest type definition.
 Instead the persisted data is mapped to the latest state in memory only. 
 In some cases it my be desirable to update the persisted state of mapped instances.

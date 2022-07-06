@@ -49,6 +49,7 @@
 ** xref:storage:application-life-cycle.adoc[Application Life-Cycle]
 ** xref:storage:legacy-type-mapping/index.adoc[Legacy Type Mapping]
 *** xref:storage:legacy-type-mapping/user-interaction.adoc[User Interaction]
+*** xref:storage:legacy-type-mapping/rewriting-the-storage.adoc[Updating persisted states]
 ** xref:storage:import-export.adoc[Import / Export]
 ** xref:storage:housekeeping.adoc[Housekeeping]
 ** Customizing
