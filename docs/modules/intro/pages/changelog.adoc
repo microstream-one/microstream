@@ -6,7 +6,7 @@
 
 * xref:misc:integrations/cdi.adoc[CDI Extension]
 * xref:misc:logging/index.adoc[Logging]
-* xref:misc:serializer/index.adoc[Serializer API]
+* xref:serializer:index.adoc[Serializer API]
 * https://github.com/microstream-one/microstream/pull/325[Android Type Handlers]
 
 === *Bugfixes*
