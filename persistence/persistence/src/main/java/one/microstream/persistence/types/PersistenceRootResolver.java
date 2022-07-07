@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import one.microstream.X;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
@@ -303,12 +304,22 @@ public interface PersistenceRootResolver
 				return null;
 			}
 			
-			final PersistenceTypeHandler<?, ?> enumTypeHandler = typeHandlerManager.lookupTypeHandler(
+			PersistenceTypeHandler<?, ?> enumTypeHandler = typeHandlerManager.lookupTypeHandler(
 				enumTypeId.longValue()
 			);
+			
 			if(enumTypeHandler == null)
 			{
-				throw new PersistenceException("Unknown TypeId: " + enumTypeId);
+				//Under some circumstances the required type-handler may be missing
+				//(Issue https://github.com/microstream-one/microstream/issues/209).
+				//Try to create one…
+				typeHandlerManager.ensureTypeHandlersByTypeIds(X.Enum(enumTypeId));
+				enumTypeHandler = typeHandlerManager.lookupTypeHandler(enumTypeId.longValue());
+				if(enumTypeHandler == null)
+				{
+					throw new PersistenceException(
+						"No PersistenceTypeHandler found for root enum constant with TypeId: " + enumTypeId);
+				}
 			}
 			
 			// Checks for enum type internally. May be null for discarded (i.e. legacy) enums.
