@@ -176,8 +176,12 @@ class StoreInterceptorTest
 		// Some logic that needs to be done to handle Lazy properly. (so that we can check .isLoaded)
 		Mockito.doAnswer((Answer<Void>) invocationOnMock ->
 				{
-					Lazy.Default lazy = (Lazy.Default) invocationOnMock.getArguments()[0];
-					lazy.$link(1L, objectSwizzlingMock);
+					Object argument = invocationOnMock.getArguments()[0];
+					if (argument instanceof Lazy)
+					{
+						Lazy.Default lazy = (Lazy.Default) argument;
+						lazy.$link(1L, objectSwizzlingMock);
+					}
 					return null;
 				})
 				.when(storageManagerMock)
@@ -294,8 +298,12 @@ class StoreInterceptorTest
 		// Some logic that needs to be done to handle Lazy properly. (so that we can check .isLoaded)
 		Mockito.doAnswer((Answer<Void>) invocationOnMock ->
 				{
-					Lazy.Default lazy = (Lazy.Default) invocationOnMock.getArguments()[0];
-					lazy.$link(1L, objectSwizzlingMock);
+					Object argument = invocationOnMock.getArguments()[0];
+					if (argument instanceof Lazy)
+					{
+						Lazy.Default lazy = (Lazy.Default) argument;
+						lazy.$link(1L, objectSwizzlingMock);
+					}
 					return null;
 				})
 				.when(storageManagerMock)
