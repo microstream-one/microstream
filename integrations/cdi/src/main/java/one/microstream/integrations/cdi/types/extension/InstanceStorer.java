@@ -155,6 +155,14 @@ public class InstanceStorer
 
     public void storeChanged(final Object dirtyInstance, final boolean clearLazy)
     {
+        if (dirtyInstance instanceof Lazy) {
+            // When a Lazy is marked, the developer probably wants to store the referenced instance in the Lazy.
+            Object instance = ((Lazy<?>) dirtyInstance).peek();
+            if (instance != null)
+            {
+                this.manager.store(instance);
+            }
+        }
         this.manager.store(dirtyInstance);
         if (clearLazy && dirtyInstance instanceof Lazy)
         {

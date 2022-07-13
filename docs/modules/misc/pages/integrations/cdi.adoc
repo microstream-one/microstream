@@ -125,6 +125,8 @@ The `@Store` CDI interceptor on the calling method makes sure that all instances
 
 By default, the CDI interceptor will use an asynchronous way of storing the instances so that the response can be sent faster since it doesn't need to wait before data is stored.
 
+If you _mark_ a `Lazy` instance, the reference that is _inside_ the Lazy reference is also stored to the storage target. This is to make sure that an item that is added to a List within the Lazy is also stored. And you don't need to mark the Lazy and the reference _inside_ it separately.
+
 Also, if you mark any `Lazy` instance of MicroStream, it will be cleared automatically when it is stored.
 
 You can change this behaviour by specifying different member values.
