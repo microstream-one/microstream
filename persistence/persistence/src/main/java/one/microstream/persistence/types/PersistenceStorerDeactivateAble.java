@@ -34,6 +34,11 @@ public class PersistenceStorerDeactivateAble implements PersistenceStorer {
 	// methods //
 	////////////
 	
+	/**
+	 * Enable or disable writing support.
+	 * 
+	 * @param enabledWrites
+	 */
 	public void enableWrites(final boolean enabledWrites)
 	{
 		if(enabledWrites)
@@ -46,11 +51,17 @@ public class PersistenceStorerDeactivateAble implements PersistenceStorer {
 		}
 	}
 	
+	/**
+	 * Enable writing support.
+	 */
 	public void enableWrites()
 	{
 		this.actual = this.fullFeaturedStorer;
 	}
 	
+	/**
+	 * Disable writing support
+	 */
 	public void disableWrites()
 	{
 		this.actual = this.noOpStorer;
