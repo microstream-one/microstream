@@ -46,7 +46,7 @@ public class StorerModeController
 		
 		public CleaningThread(final StorerModeController controller)
 		{
-			super();
+			super("Microstream-StorerModeController");
 			this.controller = controller;
 		}
 		
