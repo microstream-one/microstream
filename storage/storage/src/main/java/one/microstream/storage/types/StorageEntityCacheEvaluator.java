@@ -1,5 +1,25 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import one.microstream.chars.VarString;
 import one.microstream.exceptions.NumberRangeException;
 
@@ -89,7 +109,7 @@ public interface StorageEntityCacheEvaluator
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
 	 *
-	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}.
+	 * @return a new {@link StorageEntityCacheEvaluator} instance.
 	 *
 	 * @see StorageEntityCacheEvaluator#New(long)
 	 * @see StorageEntityCacheEvaluator#New(long, long)
@@ -113,9 +133,10 @@ public interface StorageEntityCacheEvaluator
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageEntityCacheEvaluator#New(long, long)}.
 	 *
-	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
+	 * @param timeoutMs the time (in milliseconds, greater than 0) of not being read (the "age"), after which a particular
+	 *        entity's data will be cleared from the Storage's internal cache.
 	 *
-	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}
+	 * @return a new {@link StorageEntityCacheEvaluator} instance.
 	 *
 	 * @throws NumberRangeException if the passed value is equal to or lower than 0.
 	 *

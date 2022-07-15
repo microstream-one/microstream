@@ -1,7 +1,29 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.function.Consumer;
 
 import one.microstream.meta.XDebug;
@@ -24,8 +46,8 @@ public interface StorageEventLogger
 	 * {@link InterruptedException}. The actually fitting common term is "Disruption".
 	 * Throwable is a very low-level technical, compiler-oriented expression.
 	 * 
-	 * @param channel
-	 * @param t
+	 * @param channel the affected channel
+	 * @param t the reason for the disruption
 	 */
 	public default void logDisruption(final StorageChannel channel, final Throwable t)
 	{
@@ -37,8 +59,6 @@ public interface StorageEventLogger
 		// no-op by default
 	}
 	
-	
-
 	public default void logGarbageCollectorSweepingComplete(final StorageEntityCache<?> entityCache)
 	{
 		// no-op by default
@@ -65,12 +85,22 @@ public interface StorageEventLogger
 	}
 	
 	
-	
+	/**
+	 * Creates a NoOp StorageEventLogger that does really nothing.
+	 * 
+	 * @return a StorageEventLogger.NoOp instance
+	 */
 	public static StorageEventLogger NoOp()
 	{
 		return new StorageEventLogger.NoOp();
 	}
 	
+	/**
+	 * NoOp StorageEventLogger
+	 * 
+	 * Doesn't log any storage events
+	 *
+	 */
 	public final class NoOp implements StorageEventLogger
 	{
 		NoOp()
@@ -80,20 +110,36 @@ public interface StorageEventLogger
 	}
 	
 	
-	
-	public static StorageEventLogger Debug()
+	/**
+	 * Creates a Default StorageEventLogger thats prints to the console.
+	 * 
+	 * @return a StorageEventLogger.Default instance
+	 */
+	public static StorageEventLogger Default()
 	{
-		return new StorageEventLogger.Debug(Debug::printString);
+		return new StorageEventLogger.Default(Default::printString);
 	}
 	
-	public static StorageEventLogger Debug(final Consumer<? super String> messageConsumer)
+	/**
+	 * Creates a Default StorageEventLogger that forwards its output to the supplied Consumer
+	 * 
+	 * @param messageConsumer a Consumer that processes the forwarded log messages
+	 * @return a StorageEventLogger.Default instance
+	 */
+	public static StorageEventLogger Default(final Consumer<? super String> messageConsumer)
 	{
-		return new StorageEventLogger.Debug(
+		return new StorageEventLogger.Default(
 			notNull(messageConsumer)
 		);
 	}
 	
-	public class Debug implements StorageEventLogger
+	/**
+	 * Default implementation of StorageEventLogger
+	 * 
+	 * This implementation doesn't log behavior but logs exceptions
+	 *
+	 */
+	public class Default implements StorageEventLogger
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// static methods //
@@ -116,33 +162,37 @@ public interface StorageEventLogger
 		
 		public static String toChannelPartIdentifier(final StorageHashChannelPart channelPart)
 		{
-			return "StorageChannel#" + channelPart.channelIndex();
+			return StorageChannel.class.getSimpleName()+ '#' + channelPart.channelIndex();
 		}
 		
-		
-		
+		public static String stackTraceToString(final Throwable t)
+		{
+			final StringWriter stringWriter = new StringWriter();
+			final PrintWriter printWriter = new PrintWriter(stringWriter);
+			t.printStackTrace(printWriter);
+			
+			return printWriter.toString();
+		}
 		
 		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final Consumer<? super String> messageConsumer;
+		protected final Consumer<? super String> messageConsumer;
 		
-		
-		
+			
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
 		
-		Debug(final Consumer<? super String> messageConsumer)
+		Default(final Consumer<? super String> messageConsumer)
 		{
 			super();
 			this.messageConsumer = notNull(messageConsumer);
 		}
 		
-		
-		
+				
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
@@ -152,6 +202,60 @@ public interface StorageEventLogger
 			this.messageConsumer.accept(s);
 		}
 		
+		@Override
+		public void logDisruption(final StorageChannel channel, final Throwable t)
+		{
+			this.log(toChannelIdentifier(channel) + " encountered disrupting exception " + t);
+			t.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * Creates a Debug StorageEventLogger thats prints to the console.
+	 * 
+	 * @return a StorageEventLogger.Debug instance
+	 */
+	public static StorageEventLogger Debug()
+	{
+		return new StorageEventLogger.Debug(Debug.Default::printString);
+	}
+	
+	/**
+	 * Creates a Debug StorageEventLogger forwards its output to the supplied Consumer
+	 * 
+	 * @param messageConsumer a Consumer that processes the forwarded log messages
+	 * @return a StorageEventLogger.Debug instance
+	 */
+	public static StorageEventLogger Debug(final Consumer<? super String> messageConsumer)
+	{
+		return new StorageEventLogger.Debug(
+			notNull(messageConsumer)
+		);
+	}
+	
+	/**
+	 * Debug implementation of StorageEventLogger
+	 * 
+	 * This implementation logs behavior and exceptions
+	 *
+	 */
+	public class Debug extends Default
+	{
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+		
+		Debug(final Consumer<? super String> messageConsumer)
+		{
+			super(messageConsumer);
+		}
+		
+				
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+			
 		@Override
 		public void logChannelProcessingDisabled(final StorageChannel channel)
 		{
@@ -163,13 +267,7 @@ public interface StorageEventLogger
 		{
 			this.log(toChannelIdentifier(channel) + " stopped working.");
 		}
-		
-		@Override
-		public void logDisruption(final StorageChannel channel, final Throwable t)
-		{
-			this.log(toChannelIdentifier(channel) + " encountered exception " + t);
-		}
-		
+				
 		@Override
 		public void logLiveCheckComplete(final StorageEntityCache<?> entityCache)
 		{

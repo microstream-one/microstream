@@ -1,5 +1,25 @@
 package one.microstream.collections;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.collections.XArrays.removeAllFromArray;
 
 import java.util.Comparator;
@@ -32,7 +52,11 @@ import one.microstream.util.iterables.GenericListIterator;
 
 
 /**
+ * Collection that is ordered and allows duplicates. Aims to be more efficient, logically structured
+ * and with more built in features than {@link java.util.List}.
  * Full scale general purpose implementation of extended collection type {@link XList}.
+ * <p>
+ * In contrast to {@link EqBulkList} this implementation uses the default isSame-Equalator({@link Equalator#identity()}
  * <p>
  * This array-backed implementation is optimal for all needs of a list that do not require frequent structural
  * modification (insert or remove) of single elements before the end of the list.<br>
@@ -41,28 +65,24 @@ import one.microstream.util.iterables.GenericListIterator;
  * {@link #inputAll(long, Object...)}, {@link #removeRange(long, long)}, etc.), this implementation has equal or
  * massively superior performance to linked-list implementation is most cases.
  * <p>
- * This implementation is NOT synchronized and thus should only be used by a
+ * This implementation is <b>not</b> synchronized and thus should only be used by a
  * single thread or in a thread-safe manner (i.e. read-only as soon as multiple threads access it).<br>
  * See {@link SynchList} wrapper class to use a list in a synchronized manner.
  * <p>
- * Note that this List implementation does NOT keep track of modification count as JDK's collection implementations do
+ * Note that this List implementation does <b>not</b> keep track of modification count as JDK's collection implementations do
  * (and thus never throws a {@link ConcurrentModificationException}), for two reasons:<br>
  * 1.) It is already explicitly declared thread-unsafe and for single-thread (or thread-safe)
  * use only.<br>
- * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
+ * 2.) The common modCount-concurrency exception behavior ("failfast") has inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
- * and removing more than one element of it without using the iterator's method.<br>
- * <br>
- * Current conclusion is that the JDK's failfast implementations buy unneeded (and even unreliable as stated by
- * official guides) concurrency modification recognition at the cost of performance loss and even a bug when already
- * used in a thread-safe manner.
+ * and removing more than one element of it without using the iterator's method.
  * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
  * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
  * {@link Iterator} paradigm.
  *
+ * @param <E> type of contained elements
  * 
- * @version 0.95, 2011 - 12 - 12
  */
 public final class BulkList<E> extends AbstractSimpleArrayCollection<E>
 implements XList<E>, Composition, IdentityEqualityLogic
@@ -79,16 +99,34 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	// static methods //
 	///////////////////
 
+	/**
+	 * @param <E> type of contained elements
+	 * @return Function that creates an immutable, typed list out of a {@link BulkList}
+	 */
 	public static <E> Function<BulkList<E>, ConstList<E>> Immurer()
 	{
 		return b -> b.immure();
 	}
 
+	/**
+	 * Creates an {@link Aggregator} that accepts elements and adds them to a new {@link BulkList}.
+	 * 
+	 * @param <E> type of contained elements
+	 * @return The created aggregator.
+	 */
 	public static <E> Aggregator<E, BulkList<E>> Builder()
 	{
 		return Builder(DEFAULT_INITIAL_CAPACITY);
 	}
 
+	/**
+	 * Creates a {@link Aggregator} that accepts elements and adds them to a new {@link BulkList}
+	 * with a specific initial capacity.
+	 * 
+	 * @param <E> type of contained elements
+	 * @param initialCapacity of the list
+	 * @return The created aggregator
+	 */
 	public static <E> Aggregator<E, BulkList<E>> Builder(final long initialCapacity)
 	{
 		return new Aggregator<E, BulkList<E>>()
@@ -109,28 +147,65 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		};
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link BulkList} instance with default (minimum) capacity.
+	 * 
+	 * @param <E> type of contained elements
+	 * @return a new {@link BulkList} instance.
+	 */
 	public static final <E> BulkList<E> New()
 	{
 		return new BulkList<>();
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link BulkList} instance with a given initial capacity.
+	 * 
+	 * @param <E> type of contained elements
+	 * @param initialCapacity the desired custom initial capacity.
+	 * @return a new {@link BulkList} instance.
+	 */
 	public static final <E> BulkList<E> New(final long initialCapacity)
 	{
 		return new BulkList<>(X.checkArrayRange(initialCapacity));
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link BulkList} instance with default (minimum) capacity
+	 * and the given element already included.
+	 * 
+	 * @param <E> type of contained elements
+	 * @param initialElement that will be included in the list
+	 * @return a new {@link BulkList} instance.
+	 */
 	// just New(E) confuses the compiler with New(int) when using ::New and causes ambiguity with New(E...)
 	public static final <E> BulkList<E> NewFromSingle(final E initialElement)
 	{
 		return new BulkList<>(initialElement);
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link BulkList} instance containing all elements of the passed
+	 * array. The element size of the new instance will be equal to the passed arrays length.
+	 * 
+	 * @param <E> type of contained elements
+	 * @param initialElements the initial elements for the new instance.
+	 * @return a new {@link BulkList} instance.
+	 * @throws NullPointerException if an explicit {@code null} array reference was passed.
+	 */
 	@SafeVarargs
 	public static final <E> BulkList<E> New(final E... initialElements)
 	{
 		return new BulkList<>(initialElements);
 	}
 
+	/**
+	 * Pseudo-constructor method to create a new {@link BulkList} instance and adds all the given elements to it.
+	 * 
+	 * @param <E> type of contained elements
+	 * @param initialElements to add to the created instance
+	 * @return a new {@link BulkList} instance.
+	 */
 	public static final <E> BulkList<E> New(final XIterable<? extends E> initialElements)
 	{
 		final BulkList<E> newInstance = new BulkList<>();
@@ -138,6 +213,13 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return newInstance;
 	}
 	
+	/**
+	 * Pseudo-constructor method to create a new {@link BulkList} instance and adds all the given elements to it.
+	 * 
+	 * @param <E> type of contained elements
+	 * @param initialElements to add to the created instance
+	 * @return a new {@link BulkList} instance.
+	 */
 	public static final <E> BulkList<E> New(final Iterable<? extends E> initialElements)
 	{
 		final BulkList<E> newInstance = new BulkList<>();
@@ -145,7 +227,14 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return newInstance;
 	}
 	
-
+	/**
+	 * Pseudo-constructor method to create a new {@link BulkList} instance with the needed amount of capacity and adds all
+	 * elements to it.
+	 *
+	 * @param <E> type of contained elements
+	 * @param initialElements to add to the created instance
+	 * @return a new {@link BulkList} instance.
+	 */
 	public static final <E> BulkList<E> New(final XGettingCollection<? extends E> initialElements)
 	{
 		return new BulkList<E>(XTypes.to_int(initialElements.size())).addAll(initialElements);
@@ -176,6 +265,11 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		this.data = newArray(DEFAULT_INITIAL_CAPACITY);
 	}
 
+	/**
+	 * Default constructor instantiating an instance with default (minimum) capacity
+	 * and the given element already included.
+	 * @param initialElement that will be included in the list
+	 */
 	public BulkList(final E initialElement)
 	{
 		super();
@@ -192,7 +286,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	 * <li>The lowest power of two value that is equal to or greater than the given initial capacity.</li>
 	 * <li>The default (minimum) capacity.</li>
 	 * </ul>
-	 *
 	 * @param initialCapacity the desired custom initial capacity.
 	 */
 	public BulkList(final int initialCapacity)
@@ -223,9 +316,9 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	 * array. The element size of the new instance will be equal to the passed array's length.
 	 * <p>
 	 * Note that providing no element at all in the VarArgs parameter will automatically cause the
-	 * default constructor {@link #BulkList()} to be used instead. Explicitely providing an {@code null} array
+	 * default constructor {@link #BulkList()} to be used instead. Explicitly providing an {@code null} array
 	 * reference will cause a {@link NullPointerException}.
-	 *
+	 * </p>
 	 * @param elements the initial elements for the new instance.
 	 * @throws NullPointerException if an explicit {@code null} array reference was passed.
 	 *
@@ -249,8 +342,9 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	 * <p>
 	 * The actual initial capacity will be calculated based on the higher of the two values {@code initialCapacity}
 	 * and {@code srcLength} as described in {@link #BulkList(int)}.
-	 * <p>
+	 * </p><p>
 	 * The specified initial elements array range is copied via {@link System#arraycopy(Object, int, Object, int, int)}.
+	 * <p>
 	 *
 	 * @param initialCapacity the desired initial capacity for the new instance.
 	 * @param src the source array containg the desired range of initial elements.
@@ -643,6 +737,10 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return this.size - oldSize;
 	}
 
+	/**
+	 * @return The current {@link Equalator} for this collection instance,
+	 * which in this case is always a '=='-operation. (identity check)
+	 */
 	@Override
 	public final Equalator<? super E> equality()
 	{
@@ -695,6 +793,10 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return procedure;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see AbstractArrayStorage#join(Object[], int, BiConsumer, Object)
+	 */
 	@Override
 	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
@@ -709,12 +811,20 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return procedure;
 	}
 
+	/**
+	 * {@inheritDoc}<br>
+	 * Does not throw {@link NullPointerException} if element is <code>null</code>.
+	 */
 	@Override
 	public final long count(final E element)
 	{
 		return AbstractArrayStorage.forwardCount(this.data, 0, this.size, element);
 	}
 
+	/**
+	 * {@inheritDoc}<br>
+	 * Throws {@link NullPointerException} if predicate is <code>null</code>.
+	 */
 	@Override
 	public final long countBy(final Predicate<? super E> predicate)
 	{
@@ -767,6 +877,17 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 	// element querying //
 
+	/**
+	 * Gets the first element in the collection. This is a parameterless alias for {@code at(0)}.
+	 * <p>
+	 * {@link #first()} is an alias for this method.
+	 *
+	 * @throws NoSuchElementException if collection is empty
+	 * @see #at(long)
+	 * @see #first()
+	 * @see #last()
+	 * @return the first element.
+	 */
 	@Override
 	public final E get() throws NoSuchElementException
 	{
@@ -841,6 +962,9 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return false;
 	}
 
+	/**
+	 * @return Always true in {@link BulkList}, because null is generally allowed.
+	 */
 	@Override
 	public final boolean nullAllowed()
 	{
@@ -893,6 +1017,12 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return AbstractArrayStorage.forwardContainsSame(this.data, 0, this.size, element);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * In {@link BulkList} this method is identical to the {@link BulkList#containsId(Object)} method,
+	 * since the {@link Equalator} is the default {@link Equalator#identity()}.
+	 */
 	@Override
 	public final boolean contains(final E element)
 	{
@@ -1211,6 +1341,11 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 	// replacing - single //
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * If the element is equal is defined by a '==' comparation (same).
+	 */
 	@Override
 	public final boolean replaceOne(final E element, final E replacement)
 	{
@@ -1435,6 +1570,11 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return this.nullAdd();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * In this implementation it is identical to {@link BulkList#add(Object)}.
+	 */
 	@Override
 	public final boolean put(final E element)
 	{
@@ -1803,6 +1943,11 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		this.data = newArray(1);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * In a {@link BulkList}, this does nothing.
+	 */
 	@Override
 	public final long consolidate()
 	{

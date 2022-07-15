@@ -9,26 +9,19 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-afs-parent</artifactId>
 	<packaging>pom</packaging>
+	
+	<name>MicroStream Abstract File System</name>
+	<description>File System Abstraction Project</description>
 
 	<modules>
 		<module>afs</module>
-		<module>aws</module>
-		<module>azure</module>
-		<module>blobstore</module>
-		<module>googlecloud</module>
-		<module>hazelcast</module>
-		<module>kafka</module>
-		<module>mongodb</module>
 		<module>nio</module>
-		<module>oracle</module>
-		<module>oraclecloud</module>
-		<module>redis</module>
 		<module>sql</module>
 	</modules>
 

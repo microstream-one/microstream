@@ -1,14 +1,28 @@
-/**
- * 
- */
 package one.microstream.math;
+
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
 
 /**
  * Class that wraps a combination of start value and remaining value to implement a countdown.<br>
  * The countdown can be decremented, resetted and be checked for having expired or still being active.
- * 
- * 
- *
  */
 public class Countdown
 {
@@ -100,6 +114,7 @@ public class Countdown
 	}
 	
 	/**
+	 * @param offset the offset to decrease this countdown with
 	 * @return the unconsumed amount of {@code offset} due to preterm expiration of the countdown.
 	 * @see #decrement()
 	 */
@@ -163,7 +178,7 @@ public class Countdown
 	
 	/**
 	 * Tells if this countdown is still active (meaning its remaining value is greater than 0)
-	 * @return {@code true} if this countdown's remaining value is greater 0, <tt>false</tt> otherwise.
+	 * @return <code>true</code> if this countdown's remaining value is greater 0, <code>false</code> otherwise.
 	 * @see #isAtStart()
 	 * @see #isExpired()
 	 */
@@ -174,7 +189,7 @@ public class Countdown
 	
 	/**
 	 * Tells if this countdown is expired(meaning its remaining value is 0)
-	 * @return {@code true} if this countdown's remaining value 0, <tt>false</tt> otherwise.
+	 * @return <code>true</code> if this countdown's remaining value 0, <code>false</code> otherwise.
 	 * @see #isActive()
 	 * @see #isAtStart()
 	 */
@@ -185,8 +200,8 @@ public class Countdown
 	
 	/**
 	 * Tells if this countdown is still full (meaning its remaining value is equal to its start value)
-	 * @return {@code true} if this countdown's remaining value is the same as its start value,
-	 * <tt>false</tt> otherwise.
+	 * @return <code>true</code> if this countdown's remaining value is the same as its start value,
+	 * <code>false</code> otherwise.
 	 * @see #isActive()
 	 * @see #isExpired()
 	 */

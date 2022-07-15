@@ -1,5 +1,25 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -8,6 +28,7 @@ import java.nio.file.Paths;
 import one.microstream.afs.nio.types.NioFileSystem;
 import one.microstream.afs.types.ADirectory;
 import one.microstream.afs.types.AFileSystem;
+import one.microstream.exceptions.NumberRangeException;
 import one.microstream.persistence.types.Persistence;
 
 
@@ -70,6 +91,7 @@ public final class Storage
 	 * Returns the default storage directory in the current working directory and with a filename defined by
 	 * {@link StorageLiveFileProvider.Defaults#defaultStorageDirectory}.
 	 *
+	 * @param fileSystem the file system to use
 	 * @return the default storage directory located in the current working directory.
 	 */
 	public static ADirectory defaultStorageDirectory(final AFileSystem fileSystem)
@@ -78,9 +100,11 @@ public final class Storage
 	}
 	
 	/**
-	 * {@linkDoc StorageLiveFileProvider#New()}
-	 *
-	 * @return {@linkDoc StorageLiveFileProvider#New()@return}
+	 * Creates a new {@link StorageLiveFileProvider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLiveFileProvider#New()}.
+	 * 
+	 * @return a new {@link StorageLiveFileProvider} instance.
 	 *
 	 * @see Storage#FileProvider(Path)
 	 * @see StorageLiveFileProvider#New()
@@ -95,11 +119,11 @@ public final class Storage
 	/**
 	 * Alias for {@code FileProvider(storageDirectory.toPath())}
 	 *
-	 * @param storageDirectory {@linkDoc StorageLiveFileProvider#New(ADirectory):}
-	 *
-	 * @return {@linkDoc StorageLiveFileProvider#New(ADirectory)@return}
-	 *
-	 * @deprecated replaced by {@link #FileProvider(Path)}
+	 * @param storageDirectory the directory where the storage will be located.
+	 * 
+	 * @return a new {@link StorageLiveFileProvider} instance.
+	 * 
+	 * @deprecated replaced by {@link #FileProvider(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final StorageLiveFileProvider FileProvider(final File storageDirectory)
@@ -108,14 +132,16 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLiveFileProvider#New(ADirectory)}
-	 *
-	 * @param storageDirectory {@linkDoc StorageLiveFileProvider#New(ADirectory):}
-	 *
-	 * @return {@linkDoc StorageLiveFileProvider#New(ADirectory)@return}
+	 * Creates a new {@link StorageLiveFileProvider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLiveFileProvider#New(ADirectory)}.
+	 * 
+	 * @param storageDirectory the directory where the storage will be located.
+	 * 
+	 * @return a new {@link StorageLiveFileProvider} instance.
 	 *
 	 * @see Storage#FileProvider()
-	 * @see StorageLiveFileProvider#New(Path)
+	 * @see StorageLiveFileProvider#New(ADirectory)
 	 * @see StorageLiveFileProvider.Builder
 	 * @see StorageLiveFileProvider.Defaults
 	 */
@@ -134,9 +160,11 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLiveFileProvider#Builder()}
-	 *
-	 * @return {@linkDoc StorageLiveFileProvider#Builder()@return}
+	 * Creates a new {@link StorageLiveFileProvider.Builder}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLiveFileProvider#Builder()}.
+	 * 
+	 * @return a new {@link StorageLiveFileProvider.Builder} instance.
 	 *
 	 * @see Storage#FileProvider()
 	 * @see Storage#FileProvider(Path)
@@ -147,6 +175,18 @@ public final class Storage
 		return StorageLiveFileProvider.Builder();
 	}
 	
+	/**
+	 * Creates a new {@link StorageLiveFileProvider.Builder}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLiveFileProvider#Builder(AFileSystem)}.
+	 *
+	 * @param fileSystem the file system to use
+	 * @return a new {@link StorageLiveFileProvider.Builder} instance.
+	 * 
+	 * @see Storage#FileProvider()
+	 * @see Storage#FileProvider(Path)
+	 * @see StorageLiveFileProvider.Builder
+	 */
 	public static final StorageLiveFileProvider.Builder<?> FileProviderBuilder(final AFileSystem fileSystem)
 	{
 		return StorageLiveFileProvider.Builder(fileSystem);
@@ -195,10 +235,12 @@ public final class Storage
 	
 
 	/**
-	 * {@linkDoc StorageConfiguration#New()}
-	 *
-	 * @return {@linkDoc StorageConfiguration#New()@return}
-	 *
+	 * Creates a new {@link StorageConfiguration}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageConfiguration#New()}.
+	 * 
+	 * @return a new {@link StorageConfiguration} instance.
+	 * 
 	 * @see Storage#Configuration(StorageLiveFileProvider)
 	 * @see StorageConfiguration#New()
 	 * @see StorageConfiguration.Builder
@@ -209,12 +251,14 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageConfiguration#New(StorageLiveFileProvider)}
-	 *
-	 * @param fileProvider {@linkDoc StorageConfiguration#New(StorageLiveFileProvider):}
-	 *
-	 * @return {@linkDoc StorageConfiguration#New(StorageLiveFileProvider)@return}
-	 *
+	 * Creates a new {@link StorageConfiguration}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageConfiguration#New(StorageLiveFileProvider)}.
+	 * 
+	 * @param fileProvider the {@link StorageLiveFileProvider} to provide directory and file names.
+	 * 
+	 * @return a new {@link StorageConfiguration} instance.
+	 * 
 	 * @see Storage#Configuration()
 	 * @see StorageConfiguration#New(StorageLiveFileProvider)
 	 * @see StorageConfiguration.Builder
@@ -227,10 +271,12 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageConfiguration#Builder()}
-	 *
-	 * @return {@linkDoc StorageConfiguration#Builder()@return}
-	 *
+	 * Creates a new {@link StorageConfiguration.Builder}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageConfiguration#Builder()}.
+	 * 
+	 * @return a new {@link StorageConfiguration.Builder} instance.
+	 * 
 	 * @see Storage#Configuration()
 	 * @see Storage#Configuration(StorageLiveFileProvider)
 	 * @see StorageConfiguration#Builder()
@@ -242,10 +288,12 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageHousekeepingController#New()}
-	 *
-	 * @return {@linkDoc StorageHousekeepingController#New()@return}
-	 *
+	 * Creates a new {@link StorageHousekeepingController}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageHousekeepingController#New()}.
+	 * 
+	 * @return a new {@link StorageHousekeepingController} instance.
+	 * 
 	 * @see Storage#HousekeepingController(long, long)
 	 * @see StorageHousekeepingController#New()
 	 * @see StorageHousekeepingController.Defaults
@@ -256,12 +304,20 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageHousekeepingController#New(long, long)}
-	 *
-	 * @param housekeepingIntervalMs {@linkDoc StorageHousekeepingController#New(long, long):}	 *
-	 * @param housekeepingTimeBudgetNs {@linkDoc StorageHousekeepingController#New(long, long):}
-	 *
-	 * @return {@linkDoc StorageHousekeepingController#New(long, long)@return}
+	 * Creates a new {@link StorageHousekeepingController}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageHousekeepingController#New(long, long)}.
+	 * 
+	 * @param housekeepingIntervalMs the interval in milliseconds that the storage threads shall
+	 *        execute their various housekeeping actions (like cache clearing checks, file consolidation, etc.).
+	 *        Must be greater than zero.
+	 * 
+	 * @param housekeepingTimeBudgetNs the time budget in nanoseconds that each storage thread will use to perform
+	 *        a housekeeping action. This is a best effort value, not a strictly reliable border value. This means
+	 *        a housekeeping action can occasionally take slightly longer than specified here.
+	 *        Must be greater than zero.
+	 * 
+	 * @return a new {@link StorageHousekeepingController} instance.
 	 *
 	 * @see Storage#HousekeepingController()
 	 * @see StorageHousekeepingController#New(long, long)
@@ -275,9 +331,11 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageEntityCacheEvaluator#New()}
-	 *
-	 * @return {@linkDoc StorageEntityCacheEvaluator#New()@return}
+	 * Creates a new {@link StorageEntityCacheEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageEntityCacheEvaluator#New()}.
+	 * 
+	 * @return a new {@link StorageEntityCacheEvaluator} instance.
 	 *
 	 * @see Storage#EntityCacheEvaluator(long)
 	 * @see Storage#EntityCacheEvaluator(long, long)
@@ -289,13 +347,16 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageEntityCacheEvaluator#New(long)}
+	 * Creates a new {@link StorageEntityCacheEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageEntityCacheEvaluator#New(long)}.
+	 * 
+	 * @param timeoutMs the time (in milliseconds, greater than 0) of not being read (the "age"), after which a particular
+	 *        entity's data will be cleared from the Storage's internal cache.
 	 *
-	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long):}
+	 * @return a new {@link StorageEntityCacheEvaluator} instance.
 	 *
-	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long)@return}
-	 *
-	 * @throws {@linkDoc StorageEntityCacheEvaluator#New(long)@throws}
+	 * @throws NumberRangeException if the passed value is equal to or lower than 0.
 	 *
 	 * @see Storage#EntityCacheEvaluator()
 	 * @see Storage#EntityCacheEvaluator(long, long)
@@ -309,14 +370,19 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageEntityCacheEvaluator#New(long, long)}
+	 * Creates a new {@link StorageEntityCacheEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageEntityCacheEvaluator#New(long, long)}.
+	 * 
+	 * @param timeoutMs the time (in milliseconds, greater than 0) of not being read (the "age"), after which a particular
+	 *        entity's data will be cleared from the Storage's internal cache.
 	 *
-	 * @param timeoutMs {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
-	 * @param threshold {@linkDoc StorageEntityCacheEvaluator#New(long, long):}
+	 * @param threshold an abstract value (greater than 0) to evaluate the product of size and age of an entity in relation
+	 *        to the current cache size in order to determine if the entity's data shall be cleared from the cache.
 	 *
-	 * @return {@linkDoc StorageEntityCacheEvaluator#New(long, long)@return}
+	 * @return a new {@link StorageEntityCacheEvaluator} instance.
 	 *
-	 * @throws {@linkDoc StorageEntityCacheEvaluator#New(long, long)@throws}
+	 * @throws NumberRangeException if any of the passed values is equal to or lower than 0.
 	 *
 	 * @see Storage#EntityCacheEvaluator()
 	 * @see Storage#EntityCacheEvaluator(long)
@@ -331,9 +397,11 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageChannelCountProvider#New()}
-	 *
-	 * @return {@linkDoc StorageChannelCountProvider#New()@return}
+	 * Creates a new {@link StorageChannelCountProvider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageChannelCountProvider#New()}.
+	 * 
+	 * @return a new {@link StorageChannelCountProvider} instance.
 	 *
 	 * @see Storage#ChannelCountProvider(int)
 	 * @see StorageChannelCountProvider#New()
@@ -344,11 +412,16 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageChannelCountProvider#New(int)}
+	 * Creates a new {@link StorageChannelCountProvider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageChannelCountProvider#New(int)}.
+	 * 
+	 * @param channelCount the number of channels. Must be a 2^n number with n greater than or equal 0.
 	 *
-	 * @param channelCount {@linkDoc StorageChannelCountProvider#New(int):}
+	 * @return a new {@link StorageChannelCountProvider} instance.
 	 *
-	 * @return {@linkDoc StorageChannelCountProvider#New(int)@return}
+	 * @throws IllegalArgumentException if the passed value is higher than the value returned by
+	 *         {@link StorageChannelCountProvider.Validation#maximumChannelCount()}
 	 */
 	public static final StorageChannelCountProvider ChannelCountProvider(final int channelCount)
 	{
@@ -356,9 +429,11 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageDataFileEvaluator#New()}
-	 *
-	 * @return {@linkDoc StorageDataFileEvaluator#New()@return}
+	 * Creates a new {@link StorageDataFileEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageDataFileEvaluator#New()}.
+	 * 
+	 * @return a new {@link StorageDataFileEvaluator} instance.
 	 *
 	 * @see Storage#DataFileEvaluator(int, int)
 	 * @see Storage#DataFileEvaluator(int, int, double)
@@ -370,12 +445,20 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageDataFileEvaluator#New(int, int)}
+	 * Creates a new {@link StorageDataFileEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageDataFileEvaluator#New(int, int)}.
+	 * 
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved.
 	 *
-	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int):}
-	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int):}
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that already exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of, for example, 30 MB.
 	 *
-	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int)@return}
+	 * @return a new {@link StorageDataFileEvaluator} instance.
 	 *
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int, double)
@@ -390,12 +473,27 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageDataFileEvaluator#New(int, int, double)}
+	 * Creates a new {@link StorageDataFileEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageDataFileEvaluator#New(int, int, double)}.
+	 * 
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved.
 	 *
-	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
-	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that already exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of, for example, 30 MB.
 	 *
-	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
+	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
+	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
+	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        as a negative value length header).<br>
+	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
+	 *        file dissolving (data transfers to new files) is required and vice versa.
+	 *
+	 * @return a new {@link StorageDataFileEvaluator} instance.
 	 *
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int)
@@ -411,14 +509,30 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean)}
+	 * Creates a new {@link StorageDataFileEvaluator}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageDataFileEvaluator#New(int, int, double, boolean)}.
+	 * 
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved.
 	 *
-	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
-	 * @param cleanUpHeadFile {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean):}
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that already exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of, for example, 30 MB.
 	 *
-	 * @return dissolveHeadfile {@linkDoc StorageDataFileEvaluator#New(int, int, double, boolean)@return}
+	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
+	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
+	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        as a negative value length header).<br>
+	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
+	 *        file dissolving (data transfers to new files) is required and vice versa.
+	 * 
+	 * @param cleanUpHeadFile a flag defining wether the current head file (the only file actively written to)
+	 *        shall be subjected to file cleanups as well.
+	 *
+	 * @return a new {@link StorageDataFileEvaluator} instance.
 	 *
 	 * @see Storage#DataFileEvaluator()
 	 * @see Storage#DataFileEvaluator(int, int)
@@ -436,7 +550,11 @@ public final class Storage
 	}
 
 	/**
-	 * @deprecated replaced by {@link #BackupSetup(Path)}
+	 * @param backupDirectory the directory where the backup shall be located.
+	 * 
+	 * @return a new {@link StorageBackupSetup} instance.
+	 * 
+	 * @deprecated replaced by {@link #BackupSetup(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final StorageBackupSetup BackupSetup(final File backupDirectory)
@@ -445,13 +563,15 @@ public final class Storage
 	}
 	
 	/**
-	 * {@linkDoc StorageBackupSetup#New(ADirectory)}
+	 * Creates a new {@link StorageBackupSetup}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageBackupSetup#New(ADirectory)}.
+	 * 
+	 * @param backupDirectory the directory where the backup shall be located.
+	 * 
+	 * @return a new {@link StorageBackupSetup} instance.
 	 *
-	 * @param backupDirectory {@linkDoc StorageBackupSetup#New(ADirectory):}
-	 *
-	 * @return {@linkDoc StorageBackupSetup#New(ADirectory)@return}
-	 *
-	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
+	 * @see StorageBackupSetup#New(StorageBackupFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final Path backupDirectory)
@@ -464,13 +584,15 @@ public final class Storage
 	}
 	
 	/**
-	 * {@linkDoc StorageBackupSetup#New(ADirectory)}
+	 * Creates a new {@link StorageBackupSetup}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageBackupSetup#New(ADirectory)}.
+	 * 
+	 * @param backupDirectory the directory where the backup shall be located.
+	 * 
+	 * @return a new {@link StorageBackupSetup} instance.
 	 *
-	 * @param backupDirectory {@linkDoc StorageBackupSetup#New(ADirectory):}
-	 *
-	 * @return {@linkDoc StorageBackupSetup#New(ADirectory)@return}
-	 *
-	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
+	 * @see StorageBackupSetup#New(ADirectory)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final ADirectory backupDirectory)
@@ -479,14 +601,16 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageBackupSetup#New(ADirectory)}
+	 * Creates a new {@link StorageBackupSetup}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageBackupSetup#New(ADirectory)}.
+	 * 
+	 * @param backupDirectoryPath the directory where the backup shall be located.
+	 * 
+	 * @return a new {@link StorageBackupSetup} instance.
 	 *
-	 * @param backupDirectoryPath the path to the backup directory
-	 *
-	 * @return {@linkDoc StorageBackupSetup#New(ADirectory)@return}
-	 *
-	 * @see StorageBackupSetup#New(Path)
-	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
+	 * @see StorageBackupSetup#New(ADirectory)
+	 * @see StorageBackupSetup#New(StorageBackupFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final String backupDirectoryPath)
@@ -495,13 +619,15 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider)}
+	 * Creates a new {@link StorageBackupSetup}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageBackupSetup#New(StorageBackupFileProvider)}.
+	 * 
+	 * @param backupFileProvider the {@link StorageBackupFileProvider} to define where the backup files will be located.
+	 * 
+	 * @return a new {@link StorageBackupSetup} instance.
 	 *
-	 * @param backupFileProvider {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider):}
-	 *
-	 * @return {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider)@return}
-	 *
-	 * @see StorageBackupSetup#New(Path)
+	 * @see StorageBackupSetup#New(StorageBackupFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	public static final StorageBackupSetup BackupSetup(final StorageBackupFileProvider backupFileProvider)
@@ -510,9 +636,11 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLockFileSetup#Provider()}
-	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider()@return}
+	 * Creates a new {@link StorageLockFileSetup.Provider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLockFileSetup#Provider()}.
+	 * 
+	 * @return a new {@link StorageLockFileSetup.Provider} instance.
 	 *
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider(Charset)
@@ -525,12 +653,13 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLockFileSetup#Provider(Charset)}
-	 *
-	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset):}
-	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset)@return}
-	 *
+	 * Creates a new {@link StorageLockFileSetup.Provider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLockFileSetup#Provider(Charset)}.
+	 * 
+	 * @param charset the {@link Charset} to be used for the lock file content.
+	 * @return a new {@link StorageLockFileSetup.Provider} instance.
+	 * 
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider()
 	 * @see #LockFileSetupProvider(long)
@@ -544,11 +673,12 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLockFileSetup#Provider(long)}
-	 *
-	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(long):}
-	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(long)@return}
+	 * Creates a new {@link StorageLockFileSetup.Provider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLockFileSetup#Provider(long)}.
+	 * 
+	 * @param updateInterval the update interval in ms.
+	 * @return a new {@link StorageLockFileSetup.Provider} instance.
 	 *
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider()
@@ -563,12 +693,14 @@ public final class Storage
 	}
 
 	/**
-	 * {@linkDoc StorageLockFileSetup#Provider(Charset, long)}
-	 *
-	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
-	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
-	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
+	 * Creates a new {@link StorageLockFileSetup.Provider}.
+	 * <p>
+	 * For a detailed explanation see {@link StorageLockFileSetup#Provider(Charset, long)}.
+	 * 
+	 * @param charset the {@link Charset} to be used for the lock file content.
+	 * @param updateInterval the update interval in ms.
+	 * 
+	 * @return a new {@link StorageLockFileSetup.Provider} instance.
 	 *
 	 * @see StorageLockFileSetup
 	 * @see #LockFileSetupProvider()
@@ -593,7 +725,8 @@ public final class Storage
 	 * Depending on the passed functions, this call can do anything from cleaning/optimizing the storage a little to
 	 * fully reorganize/optimize the storage files, clear the complete cache and making the storage virtually dormant
 	 * until the next store.
-	 *
+	 * 
+	 * @param <C> the storage connection type
 	 * @param storageConnection The connection to the storage that shall be consolidated.
 	 * @param entityEvaluator   The function evaluating whether to clear an entity from the cache.<br>
 	 *                          May be {@literal null} to indicate the use of the live configuration as a default.
@@ -620,9 +753,10 @@ public final class Storage
 	 * Calls {@link Storage#consolidate(StorageConnection, StorageEntityCacheEvaluator)}
 	 * with {@literal null} as additional parameters (causing live configuration to be used instead).
 	 *
-	 * @param storageConnection {@linkDoc Storage#consolidate(StorageConnection, StorageEntityCacheEvaluator):}
+	 * @param <C> the storage connection type
+	 * @param storageConnection The connection to the storage that shall be consolidated.
 	 *
-	 * @return {@linkDoc Storage#consolidate(StorageConnection, StorageEntityCacheEvaluator)@return}
+	 * @return the passed storageConnection instance.
 	 */
 	public static final <C extends StorageConnection> C consolidate(final C storageConnection)
 	{
@@ -638,7 +772,7 @@ public final class Storage
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private Storage()
 	{

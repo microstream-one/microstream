@@ -1,5 +1,25 @@
 package one.microstream.storage.restadapter.types;
 
+/*-
+ * #%L
+ * microstream-storage-restadapter
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -129,7 +149,6 @@ public class ViewerObjectDescriptionCreator
 	 * Collect "variable sized" elements
 	 *
 	 * @param values ObjectDescription values
-	 * @return
 	 */
 	private Object[] variableLengthValues(final Object[] values)
 	{
@@ -142,9 +161,6 @@ public class ViewerObjectDescriptionCreator
 	 * only elements within [startIndex and endIndex[ are taken into account
 	 *
 	 * @param values input ObjectDescription values
-	 * @param startIndex
-	 * @param endIndex
-	 * @return
 	 */
 	private Object[] traverseValues(final Object[] values, final int startIndex, final int endIndex)
 	{
@@ -231,10 +247,6 @@ public class ViewerObjectDescriptionCreator
 
 	/**
 	 * Set the primitive value of the new ViewerObjectDescription object
-	 *
-	 * @param description
-	 * @param objDesc
-	 * @param valueLength
 	 */
 	private static void setPrimitiveValue(
 		final ObjectDescription description,
@@ -256,7 +268,6 @@ public class ViewerObjectDescriptionCreator
 	 * @param arrayLength length of the array
 	 * @param startIndex index to start
 	 * @param count number of desired elements
-	 * @return
 	 */
 	private static int getClampedArrayIndex(final long arrayLength, final long startIndex, final long count)
 	{
@@ -268,10 +279,6 @@ public class ViewerObjectDescriptionCreator
 	 * return a substring starting at index 0 with a max length of "valueLength"
 	 * if valueLength exceeds the strings length it will be limited to the strings length,
 	 * no exceptions are thrown.
-	 *
-	 * @param data
-	 * @param valueLength
-	 * @return
 	 */
 	private static String limitsPrimitiveType(final String data, final long valueLength)
 	{

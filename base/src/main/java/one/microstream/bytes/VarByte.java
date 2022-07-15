@@ -1,5 +1,25 @@
 package one.microstream.bytes;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -18,10 +38,6 @@ import one.microstream.memory.XMemory;
 
 
 
-/**
- *
- * 
- */
 public final class VarByte implements Externalizable
 {
 	// (24.07.2013 TM)FIXME: Overhaul VarByte via VarString implementation
@@ -96,7 +112,8 @@ public final class VarByte implements Externalizable
 	 * Otherwise, use the factory methods as they are faster due to skipping capacity checks and bounds adjustment.<br>
 	 * <p>
 	 * Note that the given {@code initialCapacity} will still be adjusted to the next higher 2^n bounding value.
-	 * @param initialCapacity
+	 * @param initialCapacity the initial size of the buffer
+	 * @return a new VarByte instance
 	 */
 	public static VarByte New(final int initialCapacity)
 	{
@@ -195,10 +212,7 @@ public final class VarByte implements Externalizable
 		this.data = data;
 		this.size = size;
 	}
-	/**
-	 * @param out
-	 * @throws IOException
-	 */
+
 	@Override
 	public void writeExternal(final ObjectOutput out) throws IOException
 	{
@@ -772,7 +786,7 @@ public final class VarByte implements Externalizable
 
 	/**
 	 *
-	 * @param varByte
+	 * @param varByte the VarByte to check
 	 * @return {@code true} if {@code varByte} is either {@code null} or empty.
 	 * @see VarByte#isEmpty()
 	 */
@@ -857,7 +871,8 @@ public final class VarByte implements Externalizable
 
 	/**
 	 * Only preferable to {@link #reset()} for security reasons.
-	 *
+	 * 
+	 * @return this
 	 */
 	public VarByte clear()
 	{

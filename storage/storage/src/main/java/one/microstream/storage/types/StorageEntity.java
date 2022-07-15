@@ -1,5 +1,25 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import one.microstream.afs.types.AWritableFile;
 import one.microstream.functional.ThrowingProcedure;
 import one.microstream.memory.XMemory;
@@ -18,25 +38,25 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 public interface StorageEntity
 {
 	/**
-	 * the entity's data length, meaning the pure content length without any header or meta data.
+	 * @return The entity's data length, meaning the pure content length without any header or meta data.
 	 *
 	 */
 	public long dataLength();
 
 	/**
-	 * The entity's type id.
+	 * @return The entity's type id.
 	 *
 	 */
 	public long typeId();
 
 	/**
-	 * The entity's biunique identifying id number.
+	 * @return The entity's biunique identifying id number.
 	 *
 	 */
 	public long objectId();
 
 	/**
-	 * The information if this entity's type has reference fields (regardless of a particular entity's actual data).
+	 * @return The information if this entity's type has reference fields (regardless of a particular entity's actual data).
 	 *
 	 */
 	public boolean hasReferences();
@@ -46,13 +66,15 @@ public interface StorageEntity
 	 * returned by {@link #dataLength()} as only parts of an entity (e.g. only references) might be loaded into cache
 	 * and because the cache might hold the header/meta data of an entity as well.
 	 *
+	 *  @return The length this entity occupies in the cache.
 	 */
 	public long cachedDataLength();
 
 	/**
 	 * The approximate system time that this particular entity has been last touched.
 	 * The returned value is compatible to the value returned by {@link System#currentTimeMillis()}.
-	 *
+	 * 
+	 *  @return approximate system time that this particular entity has been last touched
 	 */
 	public long lastTouched();
 
@@ -233,12 +255,6 @@ public interface StorageEntity
 		/**
 		 * Central constructor that maps all initially externally settable values. All others are only internally
 		 * initialized (JVM default value or value determined in the constructor)
-		 *
-		 * @param objectId
-		 * @param type
-		 * @param lastTouched
-		 * @param hashNext
-		 * @param referenceCount
 		 */
 		private Default(
 			final long                         objectId      ,

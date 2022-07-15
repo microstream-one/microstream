@@ -1,6 +1,24 @@
 package one.microstream.collections.types;
 
-import java.lang.ref.WeakReference;
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
 
 import one.microstream.collections.interfaces.ConsolidatableCollection;
 import one.microstream.collections.interfaces.ExtendedCollection;
@@ -38,22 +56,15 @@ ReleasingCollection<E>
 	@Override
 	public void truncate();
 
-	/**
-	 * Consolidates the internal storage of this collection by discarding all elements of the internal storage that
-	 * have become obsolete or otherwise unneeded anymore. (e.g. {@link WeakReference} entries whose reference has
-	 * been cleared).<p>
-	 * If this is not possible or not needed in the concrete implementation, this method does nothing and returns 0.
-	 *
-	 * @return the number of discarded entries.
-	 */
 	@Override
 	public long consolidate();
 
 	/**
 	 * Optimizes internal memory usage by rebuilding the storage to only occupy as much memory as needed to store
 	 * the currently contained elements in terms of the collection's current memory usage configuration
-	 * (e.g. hash density).<p>
-	 * If this is not possible or not needed in the concreate implementation, this method does nothing.<p>
+	 * (e.g. hash density).
+	 * <p>
+	 * If this is not possible or not needed in the concreate implementation, this method does nothing.
 	 * <p>
 	 * Note that this method can consume a considerable amount of time depending on the implementation and should
 	 * only be called intentionally and accurately when reducing occupied memory is needed.
@@ -73,6 +84,14 @@ ReleasingCollection<E>
 
 	public long removeAll(XGettingCollection<? extends E> elements);
 
+	/**
+	 * Removing all elements except the ones contained in the given elements-collection.
+	 * <p>
+	 * Basically intersect this collection with the given collection and only keeping the resulting elements.
+	 * 
+	 * @param elements to retain
+	 * @return Amount of deleted elements
+	 */
 	public long retainAll(XGettingCollection<? extends E> elements);
 
 	public long removeDuplicates();

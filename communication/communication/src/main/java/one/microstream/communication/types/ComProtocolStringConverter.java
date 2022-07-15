@@ -1,5 +1,25 @@
 package one.microstream.communication.types;
 
+/*-
+ * #%L
+ * microstream-communication
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.KeyValue;
 import static one.microstream.X.notNull;
 
@@ -23,9 +43,6 @@ import one.microstream.typing.KeyValue;
 
 /**
  * A "StringConverter" is hereby defined as a logic instance that handles both conversion to and from a String-form.
- * 
- * 
- *
  */
 public interface ComProtocolStringConverter extends ObjectStringConverter<ComProtocol>
 {
@@ -78,6 +95,11 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		return "IdStrategy";
 	}
 	
+	public static String defaultLableInactivityTimeout()
+	{
+		return "InactivityTimeout";
+	}
+	
 	public static PersistenceIdStrategyStringConverter defaultIdStrategyStringConverter()
 	{
 		// light-weight and easy collectable one-shot instance instead of permanent constant instance.
@@ -124,6 +146,11 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 	public default String labelIdStrategy()
 	{
 		return defaultLabelIdStrategy();
+	}
+	
+	public default String labelInactivityTimeout()
+	{
+		return defaultLableInactivityTimeout();
 	}
 	
 	public default PersistenceIdStrategyStringConverter idStrategyStringConverter()
@@ -199,11 +226,12 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		{
 			final char separator = this.protocolItemSeparator();
 			
-			this.assembleName          (vs, protocol).add(separator).lf();
-			this.assembleVersion       (vs, protocol).add(separator).lf();
-			this.assembleByteOrder     (vs, protocol).add(separator).lf();
-			this.assembleIdStrategy    (vs, protocol).add(separator).lf();
-			this.assembleTypeDictionary(vs, protocol);
+			this.assembleName             (vs, protocol).add(separator).lf();
+			this.assembleVersion          (vs, protocol).add(separator).lf();
+			this.assembleByteOrder        (vs, protocol).add(separator).lf();
+			this.assembleInactivityTimeout(vs, protocol).add(separator).lf();
+			this.assembleIdStrategy       (vs, protocol).add(separator).lf();
+			this.assembleTypeDictionary   (vs, protocol);
 			
 			return vs;
 		}
@@ -244,6 +272,17 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 				.add(p.byteOrder())
 				.add(this.delimiter())
 			;
+		}
+		
+		private VarString assembleInactivityTimeout(final VarString vs, final ComProtocol p)
+		{
+			return vs
+					.add(this.labelInactivityTimeout())
+					.add(this.assigner()).blank()
+					.add(this.delimiter())
+					.add(p.inactivityTimeout())
+					.add(this.delimiter())
+				;
 		}
 		
 		private VarString assembleIdStrategy(final VarString vs, final ComProtocol p)
@@ -301,18 +340,23 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 			final XGettingTable<String, String> content
 		)
 		{
-			final String            version    = content.get(this.labelProtocolVersion());
-			final ByteOrder         byteOrder  = this.parseByteOrder(content.get(this.labelByteOrder()));
-			final PersistenceIdStrategy idStrategy = this.parseIdStrategy(content.get(this.labelIdStrategy()));
-			
-			final PersistenceTypeDictionary typeDict = this.parseTypeDictionary(content.get(this.labelTypeDictionary()));
+			final String            version           = content.get(this.labelProtocolVersion());
+			final ByteOrder         byteOrder         = this.parseByteOrder(content.get(this.labelByteOrder()));
+			final int               inactivityTimeout = this.parseInteger(content.get(this.labelInactivityTimeout()));
+			final PersistenceIdStrategy idStrategy    = this.parseIdStrategy(content.get(this.labelIdStrategy()));
+			final PersistenceTypeDictionary typeDict  = this.parseTypeDictionary(content.get(this.labelTypeDictionary()));
 						
-			return ComProtocol.New(protocolName, version, byteOrder, idStrategy, typeDict.view());
+			return ComProtocol.New(protocolName, version, byteOrder, inactivityTimeout, idStrategy, typeDict.view());
 		}
 		
 		private ByteOrder parseByteOrder(final String input)
 		{
 			return XMemory.parseByteOrder(input);
+		}
+		
+		private int parseInteger(final String input)
+		{
+			return Integer.valueOf(input);
 		}
 		
 		private PersistenceIdStrategy parseIdStrategy(final String input)
@@ -332,11 +376,10 @@ public interface ComProtocolStringConverter extends ObjectStringConverter<ComPro
 		private EqHashTable<String, String> initializeContentTable()
 		{
 			return EqHashTable.New(
-				KeyValue(this.labelProtocolVersion(), null),
-				KeyValue(this.labelByteOrder()      , null),
-				KeyValue(this.labelIdStrategy()     , null)
-				// type dictionary is a special trailing entry
-//				KeyValue(this.labelTypeDictionary() , null)
+				KeyValue(this.labelProtocolVersion()   , null),
+				KeyValue(this.labelByteOrder()         , null),
+				KeyValue(this.labelInactivityTimeout() , null),
+				KeyValue(this.labelIdStrategy()        , null)
 			);
 		}
 

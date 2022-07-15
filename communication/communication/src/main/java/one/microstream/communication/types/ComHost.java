@@ -1,16 +1,41 @@
 package one.microstream.communication.types;
 
+/*-
+ * #%L
+ * microstream-communication
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.net.InetSocketAddress;
+
+import org.slf4j.Logger;
+
+import one.microstream.com.ComException;
+import one.microstream.util.logging.Logging;
 
 /**
  * Host type to listen for new connections and relay them to logic for further processing,
  * potentially in another, maybe even dedicated thread.
  * 
  * 
- *
+ * @param <C> the communication layer type
  */
 public interface ComHost<C> extends Runnable
 {
@@ -28,7 +53,7 @@ public interface ComHost<C> extends Runnable
 	
 	public void stop();
 	
-	public boolean isRunning();
+	public boolean isListening();
 	
 	
 	
@@ -56,8 +81,9 @@ public interface ComHost<C> extends Runnable
 		private final ComConnectionAcceptor<C> connectionAcceptor;
 		
 		private transient ComConnectionListener<C> liveConnectionListener;
+		private volatile boolean stopped;
 		
-		
+		private final static Logger logger = Logging.getLogger(Default.class);
 		
 		
 		
@@ -98,24 +124,31 @@ public interface ComHost<C> extends Runnable
 		@Override
 		public void run()
 		{
-			// the whole method may not be synchronized, otherweise a running host could never be stopped
+			logger.info("Starting Microstream Communication Server ...");
+			// the whole method may not be synchronized, otherwise a running host could never be stopped
 			synchronized(this)
 			{
-				if(this.isRunning())
+				if(this.isListening())
 				{
 					// if the host is already running, this method must abort here.
 					return;
 				}
-				
 				this.liveConnectionListener = this.connectionHandler.createConnectionListener(this.address);
 			}
-			
-			this.acceptConnections();
+			if(!this.stopped)
+			{
+				logger.info("Microstream Communication Server started!");
+				this.acceptConnections();
+			}
 		}
 		
 		@Override
-		public synchronized void stop()
+		public void stop()
 		{
+			logger.debug("Stopping ComHost...");
+			
+			this.stopped = true;
+			
 			if(this.liveConnectionListener == null)
 			{
 				return;
@@ -123,23 +156,31 @@ public interface ComHost<C> extends Runnable
 			
 			this.liveConnectionListener.close();
 			this.liveConnectionListener = null;
+			
+			logger.info("ComHost has been stopped");
 		}
 
 		@Override
-		public synchronized boolean isRunning()
+		public synchronized boolean isListening()
 		{
-			return this.liveConnectionListener != null;
+			
+			if(this.liveConnectionListener != null)
+			{
+				return this.liveConnectionListener.isAlive();
+			}
+			
+			return false;
 		}
 
 		@Override
 		public void acceptConnections()
 		{
 			// repeatedly accept new connections until stopped.
-			while(true)
+			while(!this.stopped)
 			{
 				synchronized(this)
 				{
-					if(!this.isRunning())
+					if(!this.isListening())
 					{
 						break;
 					}
@@ -151,7 +192,18 @@ public interface ComHost<C> extends Runnable
 		
 		private void synchAcceptConnection()
 		{
-			final C connection = this.liveConnectionListener.listenForConnection();
+			final C connection;
+			try
+			{
+				connection = this.liveConnectionListener.listenForConnection();
+			}
+			catch(final ComException e)
+			{
+				//intentional, don't stop the host if a connection attempt failed
+				logger.error("Failed connection attempt", e);
+				return;
+			}
+			
 			this.connectionAcceptor.acceptConnection(connection, this);
 		}
 	}

@@ -8,10 +8,12 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream-parent</artifactId>
-	<version>04.02.00-MS-GA-SNAPSHOT</version>
+	<version>08.00.00-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
+	<description>Microstream Project</description>
+	<url>https://microstream.one</url>
 
 	<organization>
 		<name>MicroStream Software</name>
@@ -25,10 +27,24 @@
 		</developer>
 	</developers>
 
+	<licenses>
+		<license>
+			<name>Eclipse Public License - v 2.0</name>
+			<url>https://www.eclipse.org/legal/epl-2.0/</url>
+		</license>
+	</licenses>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<org.owasp.depencency.check.version>6.1.6</org.owasp.depencency.check.version>
+		<org.eclipse.jdt.ecj.version>3.29.0</org.eclipse.jdt.ecj.version>
+		<license.inceptionYear>2019</license.inceptionYear>
+		<license.licenseName>epl_v2</license.licenseName>
+		<license.licenceFile>${basedir}/LICENSE</license.licenceFile>
+		<api.version>8.0</api.version>
+		<javadoc.failed.on.error>false</javadoc.failed.on.error>
 	</properties>
 
 	<modules>
@@ -39,42 +55,15 @@
 		<module>configuration</module>
 		<module>persistence</module>
 		<module>storage</module>
+		<module>integrations</module>
+		<module>examples</module>
 	</modules>
-
-	<repositories>
-		<repository>
-			<id>microstream-maven-releases</id>
-			<url>https://repo.microstream.one/repository/maven-public/</url>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<id>microstream-maven-releases</id>
-			<url>https://repo.microstream.one/repository/maven-releases/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-		<pluginRepository>
-			<id>microstream-maven-snapshots</id>
-			<url>https://repo.microstream.one/repository/maven-snapshots/</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<distributionManagement>
 		<repository>
-			<id>microstream-repo</id>
-			<url>https://repo.microstream.one/repository/maven-releases/</url>
+			<id>ossrh</id>
+			<name>Sonytype Nexus Releases</name>
+			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 		<snapshotRepository>
 			<id>microstream-repo</id>
@@ -83,51 +72,47 @@
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:git@bitbucket.org:microstreamone/microstream.git</connection>
-		<developerConnection>scm:git:git@bitbucket.org:microstreamone/microstream.git</developerConnection>
-		<url>https://bitbucket.org/microstreamone/microstream.git</url>
+		<connection>scm:git:git@github.com:microstream-one/microstream.git</connection>
+		<developerConnection>scm:git:git@github.com:microstream-one/microstream.git</developerConnection>
+		<url>https://github.com/microstream-one/microstream</url>
 		<tag>HEAD</tag>
 	</scm>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.32</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-engine</artifactId>
+				<version>5.8.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-params</artifactId>
+				<version>5.8.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>4.3.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-junit-jupiter</artifactId>
+				<version>4.3.1</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
-		<resources>
-			<resource>
-				<directory>${maven.multiModuleProjectDirectory}</directory>
-				<includes>
-					<include>LICENSE</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<compilerId>eclipse</compilerId>
-				</configuration>
-				<executions>
-					<execution>
-						<id>default-compile</id>
-						<configuration>
-							<compilerArgument>-proc:none</compilerArgument>
-						</configuration>
-					</execution>
-				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.codehaus.plexus</groupId>
-						<artifactId>plexus-compiler-eclipse</artifactId>
-						<version>2.8.5</version>
-					</dependency>
-					<dependency>
-						<groupId>org.eclipse.jdt</groupId>
-						<artifactId>ecj</artifactId>
-						<version>3.24.0</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -138,12 +123,12 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>one.microstream</groupId>
-				<artifactId>microstream-source-maven-plugin</artifactId>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.owasp</groupId>
-				<artifactId>dependency-check-maven</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -151,7 +136,30 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.0</version>
+					<version>3.10.1</version>
+					<configuration>
+						<compilerId>eclipse</compilerId>
+					</configuration>
+					<executions>
+						<execution>
+							<id>default-compile</id>
+							<configuration>
+								<compilerArgument>-proc:none</compilerArgument>
+							</configuration>
+						</execution>
+					</executions>
+					<dependencies>
+						<dependency>
+							<groupId>org.codehaus.plexus</groupId>
+							<artifactId>plexus-compiler-eclipse</artifactId>
+							<version>2.11.1</version>
+						</dependency>
+						<dependency>
+							<groupId>org.eclipse.jdt</groupId>
+							<artifactId>ecj</artifactId>
+							<version>${org.eclipse.jdt.ecj.version}</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.felix</groupId>
@@ -181,7 +189,7 @@
 					<version>3.2.0</version>
 					<configuration>
 						<archive>
-							<!-- <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> -->
+							<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
 							<manifestEntries>
 								<built-by>${project.organization.name}</built-by>
 							</manifestEntries>
@@ -189,40 +197,37 @@
 					</configuration>
 				</plugin>
 				<plugin>
-					<groupId>one.microstream</groupId>
-					<artifactId>microstream-source-maven-plugin</artifactId>
-					<version>02.00.00-MS-GA</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<goals>
-								<goal>jar-no-fork</goal>
-							</goals>
-							<configuration>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.2.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                            <configuration>
 								<archive>
+									<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
 									<manifestEntries>
 										<built-by>${project.organization.name}</built-by>
 									</manifestEntries>
 								</archive>
-								<sourceHeaderFile>${maven.multiModuleProjectDirectory}/HEADER</sourceHeaderFile>
 							</configuration>
-						</execution>
-					</executions>
-				</plugin>
+                        </execution>
+                    </executions>
+                </plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.3.0</version>
 					<configuration>
 						<doclint>none</doclint>
 						<failOnError>false</failOnError>
 						<notree>true</notree>
-						<additionalOptions>-html5</additionalOptions>
-						<javadocExecutable>${javadoc.executable}</javadocExecutable>
 						<source>8</source>
 						<doctitle>MicroStream API</doctitle>
 						<windowtitle>MicroStream API</windowtitle>
-						<sourcepath>${project.build.directory}/sources</sourcepath>
 						<stylesheetfile>${maven.multiModuleProjectDirectory}/etc/styles/javadoc-stylesheet.css</stylesheetfile>
 						<archive>
 							<manifestEntries>
@@ -232,11 +237,32 @@
 					</configuration>
 					<executions>
 						<execution>
-							<id>aggregate</id>
+							<id>attach-javadocs</id>
 							<goals>
-								<goal>aggregate</goal>
+								<goal>jar</goal>
 							</goals>
-							<phase>site</phase>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>license-maven-plugin</artifactId>
+					<version>2.0.0</version>
+					<configuration>
+						<overrideFile>false</overrideFile>
+						<includes>
+							<include>**/*.java</include>
+						</includes>
+						<ignoreNoFileToScan>true</ignoreNoFileToScan>
+					</configuration>
+					<executions>
+						<execution>
+							<id>add-licence</id>
+							<phase>process-sources</phase>
+							<goals>
+								<goal>update-file-header</goal>
+								<goal>update-project-license</goal>
+							</goals>
 						</execution>
 					</executions>
 				</plugin>
@@ -253,52 +279,42 @@
 							</goals>
 						</execution>
 					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-release-plugin</artifactId>
-					<version>2.5.3</version>
 					<configuration>
-						<mavenExecutorId>forked-path</mavenExecutorId>
-						<useReleaseProfile>false</useReleaseProfile>
-						<arguments>-Psonatype-oss-release</arguments>
-						<releaseProfiles>release</releaseProfiles>
-						<goals>deploy</goals>
+						<!-- Prevent gpg from using pinentry programs -->
+						<gpgArguments>
+							<arg>--pinentry-mode</arg>
+							<arg>loopback</arg>
+						</gpgArguments>
 					</configuration>
 				</plugin>
 				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>flatten-maven-plugin</artifactId>
-					<version>1.2.5</version>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.8.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>3.0.0</version>
 					<executions>
 						<execution>
-							<id>flatten</id>
-							<phase>process-resources</phase>
+							<id>enforce-files-exist</id>
 							<goals>
-								<goal>flatten</goal>
+								<goal>enforce</goal>
 							</goals>
 							<configuration>
-								<flattenMode>ossrh</flattenMode>
+								<rules>
+									<requireFilesExist>
+										<message>The module-info is not present</message>
+										<files>
+											<file>${project.basedir}/src/main/java/module-info.java</file>
+										</files>
+									</requireFilesExist>
+								</rules>
+								<fail>true</fail>
 							</configuration>
 						</execution>
-						<execution>
-							<id>flatten.clean</id>
-							<phase>clean</phase>
-							<goals>
-								<goal>clean</goal>
-							</goals>
-						</execution>
 					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.owasp</groupId>
-					<artifactId>dependency-check-maven</artifactId>
-					<version>6.0.5</version>
-				</plugin>
-				<plugin>
-					<groupId>org.moditect</groupId>
-					<artifactId>moditect-maven-plugin</artifactId>
-					<version>1.0.0.RC1</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -306,30 +322,52 @@
 
 	<profiles>
 		<profile>
-			<id>JMS</id>
-			<activation>
-				<file>
-					<exists>src/module-info.java</exists>
-				</file>
-			</activation>
+			<id>deploy</id>
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.moditect</groupId>
-						<artifactId>moditect-maven-plugin</artifactId>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>javadoc-aggregate</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.3.0</version>
+						<configuration>
+							<doclint>html,syntax,accessibility,reference,missing</doclint>
+							<failOnError>${javadoc.failed.on.error}</failOnError>
+							<notree>true</notree>
+							<additionalOptions>-html5</additionalOptions>
+							<source>8</source>
+							<doctitle>MicroStream API ${api.version}</doctitle>
+							<windowtitle>MicroStream API ${api.version}</windowtitle>
+							<stylesheetfile>${maven.multiModuleProjectDirectory}/etc/styles/javadoc-stylesheet.css</stylesheetfile>
+							<javadocExecutable>${javadoc.executable}</javadocExecutable>
+							<excludePackageNames>one.microstream.examples.*,echoexample</excludePackageNames>
+							<archive>
+								<manifestEntries>
+									<built-by>${project.organization.name}</built-by>
+								</manifestEntries>
+							</archive>
+						</configuration>
 						<executions>
 							<execution>
-								<id>add-module-infos</id>
-								<phase>package</phase>
+								<id>aggregate</id>
 								<goals>
-									<goal>add-module-info</goal>
+									<goal>aggregate</goal>
 								</goals>
-								<configuration>
-									<jvmVersion>9</jvmVersion>
-									<module>
-										<moduleInfoFile>src/module-info.java</moduleInfoFile>
-									</module>
-								</configuration>
+								<phase>site</phase>
 							</execution>
 						</executions>
 					</plugin>
@@ -337,20 +375,17 @@
 			</build>
 		</profile>
 		<profile>
-			<id>deploy</id>
+			<id>module-info-check</id>
+			<activation>
+				<file>
+					<exists>src/main/java</exists>
+				</file>
+			</activation>
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>flatten-maven-plugin</artifactId>
-					</plugin>
-					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-release-plugin</artifactId>
+						<artifactId>maven-enforcer-plugin</artifactId>
 					</plugin>
 				</plugins>
 			</build>

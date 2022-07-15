@@ -1,7 +1,28 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -42,14 +63,15 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		/////////////////
 
 		Default(
-			final long                                                                         timestamp   ,
-			final int                                                                          channelCount,
-			final StorageEntityTypeExportFileProvider                                          fileProvider,
-			final Predicate<? super StorageEntityTypeHandler>                                  isExportType,
-			final Function<? super StorageEntityTypeHandler, Predicate<? super StorageEntity>> predicateEntityProvider
+			final long                                                                         timestamp              ,
+			final int                                                                          channelCount           ,
+			final StorageEntityTypeExportFileProvider                                          fileProvider           ,
+			final Predicate<? super StorageEntityTypeHandler>                                  isExportType           ,
+			final Function<? super StorageEntityTypeHandler, Predicate<? super StorageEntity>> predicateEntityProvider, 
+			final StorageOperationController                                                   controller
 		)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.fileProvider            = notNull(fileProvider);
 			this.isExportType            = isExportType != null ? isExportType : e -> !e.isPrimitiveType();
 			this.predicateEntityProvider = predicateEntityProvider != null ? predicateEntityProvider : t -> null;
@@ -60,19 +82,21 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 			final long                                        timestamp   ,
 			final int                                         channelCount,
 			final StorageEntityTypeExportFileProvider         fileProvider,
-			final Predicate<? super StorageEntityTypeHandler> isExportType
+			final Predicate<? super StorageEntityTypeHandler> isExportType,
+			final StorageOperationController                  controller
 		)
 		{
-			this(timestamp, channelCount, fileProvider, isExportType, null);
+			this(timestamp, channelCount, fileProvider, isExportType, null, controller);
 		}
 
 		Default(
 			final long                                timestamp   ,
 			final int                                 channelCount,
-			final StorageEntityTypeExportFileProvider fileProvider
+			final StorageEntityTypeExportFileProvider fileProvider,
+			final StorageOperationController          controller
 		)
 		{
-			this(timestamp, channelCount, fileProvider, null, null);
+			this(timestamp, channelCount, fileProvider, null, null, controller);
 		}
 
 
@@ -218,7 +242,7 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 		final StorageEntityTypeHandler         type            ;
 		final Predicate<? super StorageEntity> predicateEntity ;
 
-		private volatile int currentChannel;
+		private final AtomicInteger currentChannel = new AtomicInteger();
 
 
 
@@ -248,13 +272,13 @@ public interface StorageRequestTaskExportEntitiesByType extends StorageRequestTa
 
 		final synchronized void incrementProgress()
 		{
-			this.currentChannel++;
+			this.currentChannel.incrementAndGet();
 			this.notifyAll();
 		}
 
 		final boolean isCurrentChannel(final StorageChannel channel)
 		{
-			return this.currentChannel == channel.channelIndex();
+			return this.currentChannel.get() == channel.channelIndex();
 		}
 
 		final boolean isLastChannel(final StorageChannel channel)

@@ -1,11 +1,32 @@
 package one.microstream.persistence.types;
 
+/*-
+ * #%L
+ * microstream-persistence
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import one.microstream.X;
 import one.microstream.collections.EqConstHashTable;
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
@@ -283,12 +304,22 @@ public interface PersistenceRootResolver
 				return null;
 			}
 			
-			final PersistenceTypeHandler<?, ?> enumTypeHandler = typeHandlerManager.lookupTypeHandler(
+			PersistenceTypeHandler<?, ?> enumTypeHandler = typeHandlerManager.lookupTypeHandler(
 				enumTypeId.longValue()
 			);
+			
 			if(enumTypeHandler == null)
 			{
-				throw new PersistenceException("Unknown TypeId: " + enumTypeId);
+				//Under some circumstances the required type-handler may be missing
+				//(Issue https://github.com/microstream-one/microstream/issues/209).
+				//Try to create one…
+				typeHandlerManager.ensureTypeHandlersByTypeIds(X.Enum(enumTypeId));
+				enumTypeHandler = typeHandlerManager.lookupTypeHandler(enumTypeId.longValue());
+				if(enumTypeHandler == null)
+				{
+					throw new PersistenceException(
+						"No PersistenceTypeHandler found for root enum constant with TypeId: " + enumTypeId);
+				}
 			}
 			
 			// Checks for enum type internally. May be null for discarded (i.e. legacy) enums.

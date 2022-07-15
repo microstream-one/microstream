@@ -1,5 +1,25 @@
 package one.microstream.collections;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 
 import static one.microstream.X.notNull;
 
@@ -28,7 +48,23 @@ import one.microstream.math.XMath;
 import one.microstream.typing.Composition;
 import one.microstream.typing.XTypes;
 
-
+/**
+ * Collection that is ordered and does not allow duplicates. Aims to be more efficient, logically structured
+ * and with more built in features than {@link java.util.Set}.
+ * <p>
+ * Additionally to the {@link HashEnum}, this implementation needs an {@link HashEqualator}
+ * to first define equality between elements and second define the hash method to use.
+ * <p>
+ * This implementation is <b>not</b> synchronized and thus should only be used by a
+ * single thread or in a thread-safe manner (i.e. read-only as soon as multiple threads access it).<br>
+ * See {@link SynchSet} wrapper class to use a list in a synchronized manner.
+ * <p>
+ * Also note that by being an extended collection, this implementation offers various functional and batch procedures
+ * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * {@link Iterator} paradigm.
+ * 
+ * @param <E> type of contained elements
+ */
 public final class EqHashEnum<E> extends AbstractChainCollection<E, E, E, ChainEntryLinkedHashedStrong<E>>
 implements XEnum<E>, HashCollection<E>, Composition
 {
@@ -614,6 +650,9 @@ implements XEnum<E>, HashCollection<E>, Composition
 		return null;
 	}
 
+	/**
+	 * Adds the passed element if it is not yet contained.
+	 */
 	@Override
 	public final boolean add(final E element)
 	{
@@ -629,6 +668,11 @@ implements XEnum<E>, HashCollection<E>, Composition
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * In this implementation it overwrites equal, already contained elements.
+	 */
 	@Override
 	public final boolean put(final E element)
 	{

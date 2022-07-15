@@ -2,7 +2,7 @@
 
 == Prerequisites
 
-[source,xml,title="pom.xml"]
+[source, xml, title="pom.xml", subs=attributes+]
 ----
 <dependencies>
 	<dependency>
@@ -131,5 +131,5 @@ If you want to store any other object than the root itself, just call `storageMa
 
 [TIP]
 ====
-The full code for the Hello World example is on https://github.com/microstream-one/examples/tree/master/helloworld[GitHub].
+The full code for the Hello World example is on https://github.com/microstream-one/microstream/tree/master/examples/helloworld[GitHub].
 ====

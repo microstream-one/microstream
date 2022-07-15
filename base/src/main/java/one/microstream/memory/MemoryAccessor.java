@@ -1,5 +1,25 @@
 package one.microstream.memory;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.function.Predicate;
@@ -14,7 +34,7 @@ public interface MemoryAccessor
 	/**
 	 * Guarantees the full usability of this class by validating if all functionality is usable.
 	 * 
-	 * @throws Error
+	 * @throws Error if not all functionality is usable
 	 */
 	public void guaranteeUsability();
 	
@@ -247,6 +267,9 @@ public interface MemoryAccessor
 	
 	/**
 	 * Array alias vor #objectFieldOffset(Field).
+	 * 
+	 * @param fields the fields to retrieve the offsets for
+	 * @return the fields' offsets
 	 */
 	public long[] objectFieldOffsets(Field... fields);
 	
@@ -255,15 +278,19 @@ public interface MemoryAccessor
 	 * The difference is that the actual object's class is not the declaring class of its fields if
 	 * it only extends another class but does not declare an object field itself.
 	 * 
-	 * @param objectClass
-	 * @param field
-	 * @return
+	 * @param objectClass specific object class
+	 * @param field the field to retrieve the offset for
+	 * @return the field's offset
 	 */
 	public long objectFieldOffset(Class<?> objectClass, Field field);
 	
 
 	/**
 	 * Array alias vor #objectFieldOffset(Class, Field).
+	 * 
+	 * @param objectClass specific object class
+	 * @param fields the fields to retrieve the offsets for
+	 * @return the fields' offsets
 	 */
 	public long[] objectFieldOffsets(Class<?> objectClass, Field... fields);
 	
@@ -289,8 +316,8 @@ public interface MemoryAccessor
 	 * Uses the passed fields if required by the implementation. If not, this method behaves exactely like
 	 * {@link #ensureClassInitialized(Class)}.
 	 * 
-	 * @param c
-	 * @param usedFields
+	 * @param c the class to ensure the initialization for
+	 * @param usedFields the used fields
 	 */
 	public default void ensureClassInitialized(final Class<?> c, final Iterable<Field> usedFields)
 	{

@@ -1,0 +1,13 @@
+= Integrations
+
+Various MicroStream integrations are currently available.
+
+Integrations created by MicroStream are
+
+- xref:misc:integrations/spring-boot.adoc[Spring Boot]
+- xref:misc:integrations/cdi.adoc[Jakarta EE CDI]
+
+And MicroStream is also integrated by the following vendors
+
+- xref:misc:integrations/helidon.adoc[Helidon]
+- Micronaut

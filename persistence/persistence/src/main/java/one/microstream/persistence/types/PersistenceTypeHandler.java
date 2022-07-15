@@ -1,5 +1,25 @@
 package one.microstream.persistence.types;
 
+/*-
+ * #%L
+ * microstream-persistence
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
@@ -78,9 +98,9 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 	 * E.g. can be used to cause a hash collection to hash all its initially collected entries after their
 	 * instances have been built.
 	 *
-	 * @param data
-	 * @param instance
-	 * @param handler
+	 * @param data the data target
+	 * @param instance the source instance
+	 * @param handler the appropriate handler
 	 */
 	public void complete(D data, T instance, PersistenceLoadHandler handler);
 
@@ -99,7 +119,9 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 	 * The same type may occur more than once.
 	 * The order in which the types are provided is undefined, i.e. depending on the implementation.
 	 * 
-	 * @param logic
+	 * @param <C> the logic type
+	 * @param logic the iteration logic
+	 * @return the given logic
 	 */
 	public <C extends Consumer<? super Class<?>>> C iterateMemberTypes(C logic);
 	
@@ -140,7 +162,7 @@ public interface PersistenceTypeHandler<D, T> extends PersistenceTypeDefinition,
 	 * <p>
 	 * See occurances of {@link PersistenceExceptionTypeNotPersistable}.
 	 * 
-	 * @throws PersistenceExceptionTypeNotPersistable
+	 * @throws PersistenceExceptionTypeNotPersistable if the handler's type is not persistable
 	 * 
 	 * @see PersistenceExceptionTypeNotPersistable
 	 */

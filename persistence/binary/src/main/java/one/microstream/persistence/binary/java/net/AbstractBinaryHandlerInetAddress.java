@@ -1,5 +1,25 @@
 package one.microstream.persistence.binary.java.net;
 
+/*-
+ * #%L
+ * microstream-persistence-binary
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.net.InetAddress;
 
 import one.microstream.chars.XChars;
@@ -77,10 +97,9 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 	/**
 	 * Based on <a href="https://en.wikipedia.org/wiki/IPv6">https://en.wikipedia.org/wiki/IPv6</a>.
 	 * 
-	 * @param ipV6Address
-	 * @return
+	 * @param ipV6Address the address to parse
+	 * @return the parts of the ip address
 	 */
-	// Because I have nothing better to do than writing an IP address parser. Yay.
 	public static byte[] parseIpV6Address(final String ipV6Address)
 	{
 		final String[] parts = ipV6Address.split("\\:");

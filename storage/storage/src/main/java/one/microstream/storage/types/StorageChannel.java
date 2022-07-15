@@ -1,11 +1,33 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.notNegative;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.function.Predicate;
+
+import org.slf4j.Logger;
 
 import one.microstream.X;
 import one.microstream.afs.types.AWritableFile;
@@ -19,11 +41,13 @@ import one.microstream.persistence.types.PersistenceIdSet;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageExceptionConsistency;
 import one.microstream.time.XTime;
+import one.microstream.typing.Disposable;
 import one.microstream.typing.KeyValue;
 import one.microstream.util.BufferSizeProviderIncremental;
+import one.microstream.util.logging.Logging;
 
 
-public interface StorageChannel extends Runnable, StorageChannelResetablePart, StorageActivePart
+public interface StorageChannel extends Runnable, StorageChannelResetablePart, StorageActivePart, Disposable
 {
 	public StorageTypeDictionary typeDictionary();
 
@@ -89,6 +113,8 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 	public final class Default implements StorageChannel, Unpersistable, StorageHousekeepingExecutor
 	{
+		private final static Logger logger = Logging.getLogger(Default.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -117,7 +143,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 		/**
 		 * The remaining housekeeping budget in nanoseconds for the current interval.
-		 * @see StorageHousekeepingController#housekeepingTimeBudgetNs(long)
+		 * @see StorageHousekeepingController#housekeepingTimeBudgetNs()
 		 */
 		private long housekeepingIntervalBudgetNs;
 		
@@ -246,6 +272,8 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public boolean performIssuedGarbageCollection(final long nanoTimeBudget)
 		{
+			logger.trace("StorageChannel#{} performing issued garbage collection", this.channelIndex);
+			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 
@@ -260,6 +288,8 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				return true;
 			}
 			
+			logger.trace("StorageChannel#{} performing issued file cleanup check", this.channelIndex);
+			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 			
@@ -272,6 +302,8 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			final StorageEntityCacheEvaluator evaluator
 		)
 		{
+			logger.trace("StorageChannel#{} performing issued entity cache check", this.channelIndex);
+			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 
@@ -286,6 +318,8 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				return true;
 			}
 			
+			logger.trace("StorageChannel#{} performing incremental file cleanup check", this.channelIndex);
+			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 			
@@ -295,6 +329,8 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public boolean performGarbageCollection(final long nanoTimeBudget)
 		{
+			logger.trace("StorageChannel#{} performing incremental garbage collection", this.channelIndex);
+			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 			
@@ -306,6 +342,8 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			final long nanoTimeBudget
 		)
 		{
+			logger.trace("StorageChannel#{} performing incremental entity cache check", this.channelIndex);
+			
 			// turn budget into the budget bounding value for easier and faster checking
 			final long nanoTimeBudgetBound = XTime.calculateNanoTimeBudgetBound(nanoTimeBudget);
 			
@@ -373,6 +411,8 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 		private void work() throws InterruptedException
 		{
+			logger.debug("StorageChannel#{} started", this.channelIndex);
+			
 			final StorageOperationController    operationController    = this.operationController   ;
 			final StorageHousekeepingController housekeepingController = this.housekeepingController;
 
@@ -397,6 +437,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				 */
 				if(!operationController.checkProcessingEnabled())
 				{
+					logger.debug("StorageChannel#{} processing disabled", this.channelIndex);
 					this.eventLogger.logChannelProcessingDisabled(this);
 					break;
 				}
@@ -415,8 +456,11 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				}
 				catch(final Throwable t)
 				{
+					logger.error("StorageChannel#{} encountered disrupting exception", this.channelIndex, t);
 					this.eventLogger.logDisruption(this, t);
 					this.operationController.setChannelProcessingEnabled(false);
+					logger.debug("StorageChannel#{} processing disabled", this.channelIndex);
+					this.operationController.registerDisruption(t);
 					this.eventLogger.logChannelProcessingDisabled(this);
 					break;
 				}
@@ -438,6 +482,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 //				DEBUGStorage.println(this.channelIndex + " current Task: " + currentTask);
 			}
 			
+			logger.debug("StorageChannel#{} stopped", this.channelIndex);
 			this.eventLogger.logChannelStoppedWorking(this);
 		}
 
@@ -487,6 +532,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				 * interruping ultimately means just stop running in a ordered fashion
 				 */
 				workingDisruption = t;
+				logger.error("StorageChannel#{} encountered disrupting exception", this.channelIndex, t);
 				this.eventLogger.logDisruption(this, t);
 				this.exceptionHandler.handleException(t, this);
 			}
@@ -494,7 +540,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			{
 				try
 				{
-					this.reset();
+					this.dispose();
 				}
 				catch(final Throwable t1)
 				{
@@ -562,6 +608,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		@Override
 		public final ChunksBuffer collectLoadByOids(final ChunksBuffer[] resultArray, final PersistenceIdSet loadOids)
 		{
+			logger.debug("StorageChannel#{} loading {} references", this.channelIndex, loadOids.size());
 //			DEBUGStorage.println(this.channelIndex + " loading " + loadOids.size() + " references");
 
 			/* it is probably best to start (any maybe continue) with lots of small, memory-agile
@@ -748,6 +795,12 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			this.entityCache.clearPendingStoreUpdate();
 		}
 
+		@Override
+		public final void dispose()
+		{
+			this.entityCache.reset();
+			this.fileManager.dispose();
+		}
 	}
 
 
@@ -803,6 +856,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				throw new StorageExceptionConsistency("No entity found for objectId " + objectId);
 			}
 			entry.copyCachedData(this.dataCollector);
+			this.entityCache.checkForCacheClear(entry, System.currentTimeMillis());
 		}
 
 	}
@@ -852,6 +906,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			for(StorageEntity.Default entity = type.head; (entity = entity.typeNext) != null;)
 			{
 				entity.copyCachedData(this.dataCollector);
+				this.entityCache.checkForCacheClear(entity, System.currentTimeMillis());
 			}
 		}
 

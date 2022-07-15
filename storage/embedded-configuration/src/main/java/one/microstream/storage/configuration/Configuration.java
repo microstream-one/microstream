@@ -1,6 +1,26 @@
 
 package one.microstream.storage.configuration;
 
+/*-
+ * #%L
+ * microstream-storage-embedded-configuration
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.notEmpty;
 
@@ -10,7 +30,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.time.Duration;
 
 import one.microstream.chars.XChars;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
@@ -20,13 +39,12 @@ import one.microstream.storage.types.StorageChannelCountProvider;
 import one.microstream.storage.types.StorageDataFileEvaluator;
 import one.microstream.storage.types.StorageEntityCacheEvaluator;
 import one.microstream.storage.types.StorageFileNameProvider;
-import one.microstream.storage.types.StorageFileProvider;
 import one.microstream.storage.types.StorageHousekeepingController;
 import one.microstream.storage.types.StorageLiveFileProvider;
 
 /**
  * 
- * @deprecated replaced by {@link EmbeddedStorageConfigurationBuilder}, will be removed in a future release
+ * @deprecated replaced by {@link EmbeddedStorageConfigurationBuilder}, will be removed in version 8
  * @see EmbeddedStorageConfiguration
  * @see one.microstream.storage.configuration
  */
@@ -865,17 +883,8 @@ public interface Configuration
 		return EmbeddedStorageFoundationCreator.New().createFoundation(this);
 	}
 
-	/**
-	 * The base directory of the storage in the file system.
-	 */
 	public Configuration setBaseDirectory(String baseDirectory);
 
-	/**
-	 * The base directory of the storage in the file system.
-	 *
-	 * @param baseDirectoryInUserHome
-	 *            relative location in the user home directory
-	 */
 	public default Configuration setBaseDirectoryInUserHome(final String baseDirectoryInUserHome)
 	{
 		final File userHomeDir = new File(System.getProperty("user.home"));
@@ -883,42 +892,18 @@ public interface Configuration
 		return this;
 	}
 
-	/**
-	 * The base directory of the storage in the file system.
-	 */
 	public String getBaseDirectory();
 
-	/**
-	 * The deletion directory.
-	 */
 	public Configuration setDeletionDirectory(String deletionDirectory);
 
-	/**
-	 * The deletion directory.
-	 */
 	public String getDeletionDirectory();
 
-	/**
-	 * The truncation directory.
-	 */
 	public Configuration setTruncationDirectory(String truncationDirectory);
 
-	/**
-	 * The truncation directory.
-	 */
 	public String getTruncationDirectory();
 
-	/**
-	 * The backup directory.
-	 */
 	public Configuration setBackupDirectory(String backupDirectory);
 
-	/**
-	 * The backup directory.
-	 *
-	 * @param backupDirectoryInUserHome
-	 *            relative location in the user home directory
-	 */
 	public default Configuration setBackupDirectoryInUserHome(final String backupDirectoryInUserHome)
 	{
 		final File userHomeDir = new File(System.getProperty("user.home"));
@@ -926,105 +911,34 @@ public interface Configuration
 		return this;
 	}
 
-	/**
-	 * The backup directory.
-	 */
 	public String getBackupDirectory();
 
-	/**
-	 * The number of threads and number of directories used by the storage
-	 * engine. Every thread has exclusive access to its directory. Default is
-	 * <code>1</code>.
-	 *
-	 * @param channelCount
-	 *            the new channel count, must be a power of 2
-	 */
 	public Configuration setChannelCount(int channelCount);
 
-	/**
-	 * The number of threads and number of directories used by the storage
-	 * engine. Every thread has exclusive access to its directory.
-	 */
 	public int getChannelCount();
 
-	/**
-	 * Name prefix of the subdirectories used by the channel threads. Default is
-	 * <code>"channel_"</code>.
-	 *
-	 * @param channelDirectoryPrefix
-	 *            new prefix
-	 */
 	public Configuration setChannelDirectoryPrefix(String channelDirectoryPrefix);
 
-	/**
-	 * Name prefix of the subdirectories used by the channel threads.
-	 */
 	public String getChannelDirectoryPrefix();
 
-	/**
-	 * Name prefix of the storage files. Default is <code>"channel_"</code>.
-	 *
-	 * @param dataFilePrefix
-	 *            new prefix
-	 */
 	public Configuration setDataFilePrefix(String dataFilePrefix);
 
-	/**
-	 * Name prefix of the storage files.
-	 */
 	public String getDataFilePrefix();
 
-	/**
-	 * Name suffix of the storage files. Default is <code>".dat"</code>.
-	 *
-	 * @param dataFileSuffix
-	 *            new suffix
-	 */
 	public Configuration setDataFileSuffix(String dataFileSuffix);
 
-	/**
-	 * Name suffix of the storage files.
-	 */
 	public String getDataFileSuffix();
 
-	/**
-	 * Name prefix of the storage transaction file. Default is <code>"transactions_"</code>.
-	 *
-	 * @param transactionFilePrefix
-	 *            new prefix
-	 */
 	public Configuration setTransactionFilePrefix(String transactionFilePrefix);
 
-	/**
-	 * Name prefix of the storage transaction file.
-	 */
 	public String getTransactionFilePrefix();
 
-	/**
-	 * Name suffix of the storage transaction file. Default is <code>".sft"</code>.
-	 *
-	 * @param transactionFileSuffix
-	 *            new suffix
-	 */
 	public Configuration setTransactionFileSuffix(String transactionFileSuffix);
 
-	/**
-	 * Name suffix of the storage transaction file.
-	 */
 	public String getTransactionFileSuffix();
 
-	/**
-	 * The name of the dictionary file. Default is
-	 * <code>"PersistenceTypeDictionary.ptd"</code>.
-	 *
-	 * @param typeDictionaryFilename
-	 *            new name
-	 */
 	public Configuration setTypeDictionaryFilename(String typeDictionaryFilename);
 
-	/**
-	 * The name of the dictionary file.
-	 */
 	public String getTypeDictionaryFilename();
 
 	public Configuration setRescuedFileSuffix(String rescuedFileSuffix);
@@ -1035,262 +949,104 @@ public interface Configuration
 
 	public String getLockFileName();
 
-	/**
-	 * @deprecated replaced by {@link #setHousekeepingIntervalMs(long)}, will be removed in a future release
-	 */
-	@Deprecated
 	public default Configuration setHouseKeepingInterval(final long houseKeepingInterval)
 	{
 		return this.setHousekeepingIntervalMs(houseKeepingInterval);
 	}
 
-	/**
-	 * Interval in milliseconds for the houskeeping. This is work like garbage
-	 * collection or cache checking. In combination with
-	 * {@link #setHousekeepingTimeBudgetNs(long)} the maximum processor
-	 * time for housekeeping work can be set. Default is <code>1000</code>
-	 * (every second).
-	 *
-	 * @param houseKeepingIntervalMs
-	 *            the new interval
-	 *
-	 * @see #setHousekeepingTimeBudgetNs(long)
-	 */
 	public Configuration setHousekeepingIntervalMs(long houseKeepingIntervalMs);
 
-	/**
-	 * @deprecated replaced by {@link #getHousekeepingIntervalMs()}, will be removed in a future release
-	 */
-	@Deprecated
 	public default long getHouseKeepingInterval()
 	{
 		return this.getHousekeepingIntervalMs();
 	}
 
-	/**
-	 * Interval in milliseconds for the houskeeping. This is work like garbage
-	 * collection or cache checking.
-	 *
-	 * @see #getHousekeepingTimeBudgetNs()
-	 */
 	public long getHousekeepingIntervalMs();
 
-	/**
-	 * @deprecated replaced by {@link #setHousekeepingTimeBudgetNs(long)}, will be removed in a future release
-	 */
-	@Deprecated
 	public default Configuration setHouseKeepingNanoTimeBudget(final long houseKeepingNanoTimeBudget)
 	{
 		return this.setHousekeepingTimeBudgetNs(houseKeepingNanoTimeBudget);
 	}
 
-	/**
-	 * Number of nanoseconds used for each housekeeping cycle. However, no
-	 * matter how low the number is, one item of work will always be completed.
-	 * But if there is nothing to clean up, no processor time will be wasted.
-	 * Default is <code>10000000</code> (10 million nanoseconds = 10
-	 * milliseconds = 0.01 seconds).
-	 *
-	 * @param housekeepingTimeBudgetNs
-	 *            the new time budget
-	 *
-	 * @see #setHousekeepingIntervalMs(long)
-	 */
 	public Configuration setHousekeepingTimeBudgetNs(long housekeepingTimeBudgetNs);
 
-	/**
-	 * @deprecated replaced by {@link #getHousekeepingTimeBudgetNs()}, will be removed in a future release
-	 */
-	@Deprecated
 	public default long getHouseKeepingNanoTimeBudget()
 	{
 		return this.getHousekeepingTimeBudgetNs();
 	}
 
-	/**
-	 * Number of nanoseconds used for each housekeeping cycle. However, no
-	 * matter how low the number is, one item of work will always be completed.
-	 * But if there is nothing to clean up, no processor time will be wasted.
-	 *
-	 * @see #getHousekeepingIntervalMs()
-	 */
 	public long getHousekeepingTimeBudgetNs();
 
-	/**
-	 * Abstract threshold value for the lifetime of entities in the cache. See
-	 * {@link StorageEntityCacheEvaluator}. Default is <code>1000000000</code>.
-	 *
-	 * @param entityCacheThreshold
-	 *            the new threshold
-	 */
 	public Configuration setEntityCacheThreshold(long entityCacheThreshold);
 
-	/**
-	 * Abstract threshold value for the lifetime of entities in the cache. See
-	 * {@link StorageEntityCacheEvaluator}.
-	 */
 	public long getEntityCacheThreshold();
 
-	/**
-	 * @deprecated replaced by {@link #setEntityCacheTimeoutMs(long)}, will be removed in a future release
-	 */
 	@Deprecated
 	public default Configuration setEntityCacheTimeout(final long entityCacheTimeout)
 	{
 		return this.setEntityCacheTimeoutMs(entityCacheTimeout);
 	}
 
-	/**
-	 * Timeout in milliseconds for the entity cache evaluator. If an entity
-	 * wasn't accessed in this timespan it will be removed from the cache.
-	 * Default is <code>86400000</code> (1 day).
-	 *
-	 * @param entityCacheTimeoutMs
-	 *
-	 * @see Duration
-	 */
 	public Configuration setEntityCacheTimeoutMs(long entityCacheTimeoutMs);
 
-	/**
-	 * @deprecated replaced by {@link #getEntityCacheTimeoutMs()}, will be removed in a future release
-	 */
 	@Deprecated
 	public default long getEntityCacheTimeout()
 	{
 		return this.getEntityCacheTimeoutMs();
 	}
 
-	/**
-	 * Timeout in milliseconds for the entity cache evaluator. If an entity
-	 * wasn't accessed in this timespan it will be removed from the cache.
-	 */
 	public long getEntityCacheTimeoutMs();
 
-	/**
-	 * @deprecated replaced by {@link #setDataFileMinimumSize(int)}, will be removed in a future release
-	 */
 	@Deprecated
 	public default Configuration setDataFileMinSize(final int dataFileMinSize)
 	{
 		return this.setDataFileMinimumSize(dataFileMinSize);
 	}
 
-	/**
-	 * Minimum file size for a data file to avoid cleaning it up. Default is
-	 * 1024^2 = 1 MiB.
-	 *
-	 * @param dataFileMinimumSize
-	 *            the new minimum file size
-	 *
-	 * @see #setDataFileMinimumUseRatio(double)
-	 */
 	public Configuration setDataFileMinimumSize(int dataFileMinimumSize);
 
-	/**
-	 * @deprecated replaced by {@link #getDataFileMinimumSize()}, will be removed in a future release
-	 */
 	@Deprecated
 	public default int getDataFileMinSize()
 	{
 		return this.getDataFileMinimumSize();
 	}
 
-	/**
-	 * Minimum file size for a data file to avoid cleaning it up.
-	 *
-	 * @see #getDataFileMinimumUseRatio()
-	 */
 	public int getDataFileMinimumSize();
 
-	/**
-	 * @deprecated replaced by {@link #setDataFileMaximumSize(int)}, will be removed in a future release
-	 */
 	@Deprecated
 	public default Configuration setDataFileMaxSize(final int dataFileMaxSize)
 	{
 		return this.setDataFileMaximumSize(dataFileMaxSize);
 	}
 
-	/**
-	 * Maximum file size for a data file to avoid cleaning it up. Default is
-	 * 1024^2*8 = 8 MiB.
-	 *
-	 * @param dataFileMaximumSize
-	 *            the new maximum file size
-	 *
-	 * @see #setDataFileMinimumUseRatio(double)
-	 */
 	public Configuration setDataFileMaximumSize(int dataFileMaximumSize);
 
-	/**
-	 * @deprecated replaced by {@link #getDataFileMaximumSize()}, will be removed in a future release
-	 */
 	@Deprecated
 	public default int getDataFileMaxSize()
 	{
 		return this.getDataFileMaximumSize();
 	}
 
-	/**
-	 * Maximum file size for a data file to avoid cleaning it up.
-	 *
-	 * @see #getDataFileMinimumUseRatio()
-	 */
 	public int getDataFileMaximumSize();
 
-	/**
-	 * @deprecated replaced by {@link #setDataFileMinimumUseRatio(double)}, will be removed in a future release
-	 */
 	@Deprecated
 	public default Configuration setDataFileDissolveRatio(final double dataFileDissolveRatio)
 	{
 		return this.setDataFileMinimumUseRatio(dataFileDissolveRatio);
 	}
 
-	/**
-	 * The ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
-	 * the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
-	 * inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
-	 * as a negative value length header).<br>
-	 * The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
-	 * file dissolving (data transfers to new files) is required and vice versa.
-	 *
-	 * @param dataFileMinimumUseRatio
-	 *            the new minimum use ratio
-	 */
 	public Configuration setDataFileMinimumUseRatio(double dataFileMinimumUseRatio);
 
-	/**
-	 * @deprecated replaced by {@link #getDataFileMinimumUseRatio()}, will be removed in a future release
-	 */
 	@Deprecated
 	public default double getDataFileDissolveRatio()
 	{
 		return this.getDataFileMinimumUseRatio();
 	}
 
-	/**
-	 * The ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
-	 * the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
-	 * inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
-	 * as a negative value length header).<br>
-	 * The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
-	 * file dissolving (data transfers to new files) is required and vice versa.
-	 */
 	public double getDataFileMinimumUseRatio();
 
-	/**
-	 * A flag defining wether the current head file (the only file actively written to)
-	 * shall be subjected to file cleanups as well.
-	 *
-	 * @param dataFileCleanupHeadFile
-	 */
 	public Configuration setDataFileCleanupHeadFile(boolean dataFileCleanupHeadFile);
 
-	/**
-	 * A flag defining wether the current head file (the only file actively written to)
-	 * shall be subjected to file cleanups as well.
-	 */
 	public boolean getDataFileCleanupHeadFile();
 
 
@@ -1299,7 +1055,6 @@ public interface Configuration
 	 *
 	 * @return a new {@link Configuration}
 	 *
-	 * @see StorageFileProvider.Defaults
 	 * @see StorageChannelCountProvider.Defaults
 	 * @see StorageHousekeepingController.Defaults
 	 * @see StorageEntityCacheEvaluator.Defaults

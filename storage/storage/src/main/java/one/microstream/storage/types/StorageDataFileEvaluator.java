@@ -1,5 +1,25 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import one.microstream.chars.VarString;
 
 
@@ -33,7 +53,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
 	 *
-	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
+	 * @return a new {@link StorageDataFileEvaluator} instance.
 	 *
 	 * @see StorageDataFileEvaluator#New(int, int)
 	 * @see StorageDataFileEvaluator#New(double)
@@ -60,9 +80,14 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
 	 *
-	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
+	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
+	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
+	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        as a negative value length header).<br>
+	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
+	 *        file dissolving (data transfers to new files) is required and vice versa.
 	 *
-	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
+	 * @return a new {@link StorageDataFileEvaluator} instance.
 	 *
 	 * @see StorageDataFileEvaluator#New()
 	 * @see StorageDataFileEvaluator#New(int, int)
@@ -85,10 +110,16 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.<p>
 	 *
-	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
-	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved.
 	 *
-	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that already exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of, for example, 30 MB.
+	 *
+	 * @return a new {@link StorageDataFileEvaluator} instance.
 	 *
 	 * @see StorageDataFileEvaluator#New()
 	 * @see StorageDataFileEvaluator#New(double)
@@ -248,13 +279,26 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.
 	 *
-	 * @param fileMinimumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
-	 * @param fileMaximumSize {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
-	 * @param minimumUseRatio {@linkDoc StorageDataFileEvaluator#New(int, int, double):}
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved.
+	 *
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that already exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of, for example, 30 MB.
+	 *
+	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
+	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
+	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        as a negative value length header).<br>
+	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
+	 *        file dissolving (data transfers to new files) is required and vice versa.
+	 * 
 	 * @param cleanUpHeadFile a flag defining wether the current head file (the only file actively written to)
 	 *        shall be subjected to file cleanups as well.
 	 *
-	 * @return {@linkDoc StorageDataFileEvaluator#New(int, int, double)@return}
+	 * @return a new {@link StorageDataFileEvaluator} instance.
 	 *
 	 * @see StorageDataFileEvaluator#New()
 	 * @see StorageDataFileEvaluator#New(double)

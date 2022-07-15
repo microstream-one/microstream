@@ -1,5 +1,25 @@
 package one.microstream.chars;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static java.lang.Character.isLowerCase;
 import static java.lang.Character.isUpperCase;
 import static java.lang.Character.toUpperCase;
@@ -85,8 +105,8 @@ public final class XChars
 	// CHECKSTYLE.ON: ConstantName
 
 	static final transient char
-	    DIGIT_LOWER_INDEX = '0'    , // for using " >= " and "<"
-	    DIGIT_UPPER_BOUND = '9' + 1  // for using " >= " and "<"
+		DIGIT_LOWER_INDEX = '0'    , // for using " >= " and "<"
+		DIGIT_UPPER_BOUND = '9' + 1  // for using " >= " and "<"
 	;
 
 	private static final char LOWEST_NON_WHITESPACE = ' ' + 1; // < and >= are faster than <= and >
@@ -204,7 +224,7 @@ public final class XChars
 	 * Arbitrary threshold of 1000 to discrimate "short" strings from "long" strings.<br>
 	 * The rationale behind that is that "short" strings usually allow for simpler and faster algorithms,
 	 * which become inefficient on larger strings. For example a two-pass processing of a splitting algorithm.
-	 * @return
+	 * @return 1000
 	 */
 	public static final int shortStringLength()
 	{
@@ -233,8 +253,8 @@ public final class XChars
 
 	/**
 	 * Alias for {@link Charset#defaultCharset()}, which returns sometimes the one thing and sometimes another.
-	 * It is strongly advised to use a reliable {@link Charset} querying method, like {@link utf8}, which also
-	 * is the only reasonable choice for the {@link standardCharset}.
+	 * It is strongly advised to use a reliable {@link Charset} querying method, like UTF-8, which also
+	 * is the only reasonable choice for the standard charset.
 	 * 
 	 * @return {@link Charset#defaultCharset()}
 	 */
@@ -1046,8 +1066,8 @@ public final class XChars
 	/**
 	 * Returns {@code true} if the two given character arrays have at least one character in common.
 	 *
-	 * @param chars1
-	 * @param chars2
+	 * @param chars1 first char array
+	 * @param chars2 second char array
 	 * @return {@code true} if the two given character arrays intersect each other.
 	 */
 	public static final boolean intersects(final char[] chars1, final char[] chars2)
@@ -1482,7 +1502,8 @@ public final class XChars
 	 * Parses the char escape sequence Strings "\n" etc. (wihtout the "") to the singel char value represented by
 	 * those strings.
 	 *
-	 * @param s
+	 * @param s the char escape sequence
+	 * @return the resulting char
 	 */
 	public static final char parseChar(final String s)
 	{
@@ -2004,8 +2025,7 @@ public final class XChars
 
 
 	/**
-	 * This method rebuilds the {@link String} hashing algorithm as the JDK guys forgot as usual to make their
-	 * stuff professionally modular.
+	 * This method rebuilds the {@link String} hashing algorithm.
 	 * <p>
 	 * Returns a hash code for the passed character range. The hash code is computed as
 	 * <blockquote><pre>
@@ -2018,6 +2038,9 @@ public final class XChars
 	 *
 	 * @see String#hashCode()
 	 *
+	 * @param chars the character array
+	 * @param offset the start offset
+	 * @param length the length
 	 * @return a hash code value for this object.
 	 */
 	public static final int hashCode(final char[] chars, final int offset, final int length)
@@ -2050,10 +2073,13 @@ public final class XChars
 	 * High-performance implementation of the very common case to split a string by a single character
 	 * and trim all elements.
 	 *
-	 * @param input
-	 * @param separator
-	 *
 	 * @see #trimToString(char[], int, int)
+	 *
+	 * @param input the String to split
+	 * @param separator the separator char to split on
+	 * @param collector the result collector
+	 * @param <C> the collector type
+	 * @return the collector
 	 */
 	public static final <C extends Consumer<String>> C splitAndTrimToStrings(
 		final String input    ,
@@ -2068,10 +2094,13 @@ public final class XChars
 	 * High-performance implementation of the very common case to split a character sequence by a single character
 	 * and trim all elements.
 	 *
-	 * @param input
-	 * @param separator
-	 *
 	 * @see #trimToString(char[], int, int)
+	 *
+	 * @param input the char array to split
+	 * @param separator the separator char to split on
+	 * @param collector the result collector
+	 * @param <C> the collector type
+	 * @return the collector
 	 */
 	public static final <C extends Consumer<String>> C splitAndTrimToStrings(
 		final char[] input    ,
@@ -2169,9 +2198,10 @@ public final class XChars
 	 * Creates a {@link String} instance with trimmed content directly from a character sequence without
 	 * unnecessary intermediate instances.
 	 *
-	 * @param input
-	 * @param lowerOffset
-	 * @param length
+	 * @param input the source char array to trim
+	 * @param lowerOffset the start offset
+	 * @param length the length
+	 * @return the trimmed String
 	 */
 	public static final String trimToString(final char[] input, final int lowerOffset, final int length)
 	{
@@ -2247,7 +2277,7 @@ public final class XChars
 		final Integer[] ints = new Integer[intStrings.length];
 		for(int i = 0; i < intStrings.length; i++)
 		{
-			ints[i] = new Integer(intStrings[i]);
+			ints[i] = Integer.parseInt(intStrings[i]);
 		}
 
 		return ints;
@@ -2497,9 +2527,10 @@ public final class XChars
 	 * that this algorithms is more than twice as fast as the one used in JDK
 	 * (average of ~33µs vs ~75µs for long literals on same machine with measuring overhead of ~1.5µs)
 	 *
-	 * @param input
-	 * @param offset
-	 * @param length
+	 * @param input the source char array
+	 * @param offset the start offset
+	 * @param length the length
+	 * @return the parsed long value
 	 */
 	public static final long internalParse_longLiteral(final char[] input, final int offset, final int length)
 	{
@@ -2545,11 +2576,6 @@ public final class XChars
 	 * numbers, this algorithm terminates very quickly in the common case. The worst case (equal value literals) is
 	 * a usual full equality check to the last digit.
 	 *
-	 * @param chars1
-	 * @param offset1
-	 * @param chars2
-	 * @param offset2
-	 * @param length
 	 */
 	static final boolean isNumericalLessThan(
 		final char[] chars1 ,
@@ -2941,6 +2967,24 @@ public final class XChars
 		return "]" + lowerBound + "; " + upperBound + "[";
 	}
 		
+	
+	public static String decapitalize(final String name)
+	{
+        if(name == null || name.length() == 0)
+        {
+            return name;
+        }
+        if(name.length() > 1
+        && Character.isUpperCase(name.charAt(1))
+        && Character.isUpperCase(name.charAt(0))
+        )
+        {
+            return name;
+        }
+        final char chars[] = name.toCharArray();
+        chars[0] = Character.toLowerCase(chars[0]);
+        return new String(chars);
+    }
 
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -2950,7 +2994,7 @@ public final class XChars
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XChars()
 	{

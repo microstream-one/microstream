@@ -1,16 +1,243 @@
 = Changelog
 
-== 5.0
+== 7.0
 
 === *Features*
 
-* -
+* xref:misc:integrations/cdi.adoc[CDI Extension]
+* xref:misc:logging/index.adoc[Logging]
+* xref:serializer:index.adoc[Serializer API]
+* https://github.com/microstream-one/microstream/pull/325[Android Type Handlers]
 
 === *Bugfixes*
 
-* -
+* Stop LazyrefenceManager automatically https://github.com/microstream-one/microstream/pull/343[[343]]
+* Check for cache clear after loading storage entities https://github.com/microstream-one/microstream/pull/326[[326]]
+* Reduce memory usage https://github.com/microstream-one/microstream/pull/323[[323]]
+* Fixed storage stalls in case of errors during the housekeeping phase https://github.com/microstream-one/microstream/pull/303[[303]]
+* Eliminate null in StorageConfiguration.toString() https://github.com/microstream-one/microstream/issues/205[[205]]
+* Fixed exclusive file access conflicts when restarting storage https://github.com/microstream-one/microstream/issues/282[[282]]
 
 === *Migration guide*
+
+From version 6 no actions are necessary, for older versions see xref:#5_0_migration-guide[below].
+
+== 6.1
+
+Bugfix release.
+
+=== *Bugfixes*
+
+* Fixed various bugs in backup https://github.com/microstream-one/microstream/issues/194[[194]]https://github.com/microstream-one/microstream/pull/272[[272]]https://github.com/microstream-one/microstream/pull/273[[273]]https://github.com/microstream-one/microstream/pull/278[[278]]https://github.com/microstream-one/microstream/pull/280[[280]]
+* Fixed storage restart error with same configuration instance https://github.com/microstream-one/microstream/issues/279[[279]]
+* Fixed Javadoc warnings https://github.com/microstream-one/microstream/pull/281[[281]]
+
+
+== 6.0
+
+=== *Features*
+
+* xref:misc:integrations/spring-boot.adoc[Spring Boot Integration]
+* xref:storage:addendum/specialized-type-handlers.adoc#jdk17[Specialized type handlers for Java 17 collection]
+* xref:storage:storing-data/deep-copy.adoc[Deep-copy utility]
+* Examples included in reactor build
+
+=== *Bugfixes*
+
+* Fixed swallowed exceptions in storage channels https://github.com/microstream-one/microstream/issues/265[[265]]
+* Fixed failing import with multiple channels https://github.com/microstream-one/microstream/issues/254[[254]]
+* Fixed zero byte blocks in storage https://github.com/microstream-one/microstream/pull/255[[255]]
+* Fixed faulty loading behaviour in persisted cache https://github.com/microstream-one/microstream/issues/226[[226]]
+* Fixed possible deadlock in persistence manager https://github.com/microstream-one/microstream/pull/240[[240]]
+* Fixed bug in type handler for PriorityQueue https://github.com/microstream-one/microstream/pull/234[[234]]
+
+=== *Migration guide*
+
+From version 5 no actions are necessary, for older versions see xref:#5_0_migration-guide[below].
+
+== 5.0.2
+
+Bugfix release.
+
+=== *Bugfixes*
+
+* Fixed buffer flush regression https://github.com/microstream-one/microstream/issues/225[[225]]
+
+== 5.0.1
+
+Bugfix release.
+
+=== *Bugfixes*
+
+* Fixed broken build for microstream-storage-restclient-app
+
+== 5.0
+
+This release introduces some breaking changes. To fully support the Java Module System (Jigsaw) and to meet Maven's naming standards, we had to rename some packages and our artifact's IDs.
+But don't worry. Just change the dependency configuration and organize some imports, and you are good to go. Existing storages are not affected and are fully compatible with this version.
+For detailed information, see the migration guide below.
+
+=== *Features*
+
+* General purpose configuration layer on which the storage and cache configuration are now based on, with following key features:
+** Tree like structure to support sub-configurations
+** Input from various sources (ini, xml, yaml, ...)
+** Typed getters for properties
+** Extendable: custom property parsers and configuration loaders
+** Adaptable: easy adaption to other framework's configurations, like e.g. Spring Boot
+* Storage configuration now supports different file systems for live storage and backup
+* GraalVM support: MicroStream's optimized memory adapter is now used automatically when running on GraalVM
+* Restructured MicroStream's module and package structure to fully support the Java Module System and adopt Maven naming standards, see Migration Guide
+
+=== *Bugfixes*
+
+* Fixed sporadic index out of bounds exception when storage and backup had different storage targets with a channel count greater than one
+
+[#5_0_migration-guide]
+=== *Migration guide*
+
+In order to fully support the Java Module System and adopt Maven naming standards we had to introduce some changes: 
+
+==== Artifacts and Packages
+
+These are the changed *artifacts* and their _packages_.
+
+[options="header",cols="1,1"]
+|===
+|Old (< 5)   | New (>= 5)   
+//-------------
+|*base*   |*microstream-base*
+2+|AFS and AFS/NIO were extracted from base module:
+|*base*   |*microstream-afs*
+|_one.microstream.afs_   |_one.microstream.afs.types_, _one.microstream.afs.exceptions_
+|*base*   |*microstream-afs-nio*
+|_one.microstream.afs.nio_   |_one.microstream.afs.nio.types_
+|*cache*   |*microstream-cache*
+|_one.microstream.cache_   |_one.microstream.cache.types_, _one.microstream.cache.exceptions_
+|*cache.hibernate*   |*microstream-cache-hibernate*
+|_one.microstream.cache.hibernate_   |_one.microstream.cache.hibernate.types_
+|*communication*   |*microstream-communication*
+|_one.microstream.com_   |_one.microstream.communication.types_
+|*communication.binary*   |*microstream-communication-binary*
+|_one.microstream.com.binary_   |_one.microstream.communication.binary.types_
+2+|AWS was split into AWS-DynamoDB and AWS-S3:
+|*filesystem.aws*   |*microstream-enterprise-afs-aws-dynamodb*
+|_one.microstream.afs.aws.dynamodb_   |_one.microstream.enterprise.afs.aws.dynamodb.types_
+|*filesystem.aws*   |*microstream-enterprise-afs-aws-s3*
+|_one.microstream.afs.aws.s3_   |_one.microstream.enterprise.afs.aws.s3.types_
+|*filesystem.azure*   |*microstream-enterprise-afs-azure-storage*
+|_one.microstream.afs.azure.storage_   |_one.microstream.enterprise.afs.azure.storage.types_
+|*filesystem.blobstore*   |*microstream-enterprise-afs-blobstore*
+|_one.microstream.afs.blobstore_   |_one.microstream.enterprise.afs.blobstore.types_
+|*filesystem.coherence*   |*microstream-enterprise-afs-oracle-coherence*
+|_one.microstream.afs.coherence_   |_one.microstream.enterprise.afs.oracle.coherence.types_
+|*filesystem.hazelcast*   |*microstream-enterprise-afs-hazelcast*
+|_one.microstream.afs.hazelcast_   |_one.microstream.enterprise.afs.hazelcast.types_
+|*filesystem.jpa.hibernate*   |*microstream-enterprise-afs-hibernate*
+|_one.microstream.afs.jpa.hibernate_   |_one.microstream.afs.hibernate.types_
+|*filesystem.kafka*   |*microstream-enterprise-afs-kafka*
+|_one.microstream.afs.kafka_   |_one.microstream.enterprise.afs.kafka.types_
+|*filesystem.mongodb*   |*microstream-enterprise-afs-mongodb*
+|_one.microstream.afs.mongodb_   |_one.microstream.enterprise.afs.mongodb.types_
+|*filesystem.oraclecloud*   |*microstream-enterprise-afs-oraclecloud-objectstorage*
+|_one.microstream.afs.oracle.cloud.objectstorage_   |_one.microstream.enterprise.afs.oraclecloud.objectstorage.types_
+|*filesystem.oraclenosql*   |*microstream-enterprise-afs-oracle-nosql*
+|_one.microstream.afs.oracle.nosql_   |_one.microstream.enterprise.afs.oracle.nosql.types_
+|*filesystem.redis*   |*microstream-enterprise-afs-redis*
+|_one.microstream.afs.redis_   |_one.microstream.enterprise.afs.redis.types_
+2+|SQL was split into SQL and Enterprise-SQL:
+|*filesystem.sql*   |*microstream-afs-sql*
+|_on.microstream.afs.sql_   |_one.microstream.afs.sql.types_
+|*filesystem.sql*   |*microstream-enterprise-afs-sql*
+|_on.microstream.afs.sql_   |_one.microstream.enterprise.afs.sql.types_
+|*persistence*   |*microstream-persistence*
+|*persistence.binary*   |*microstream-persistence-binary*
+|_one.microstream.collections_   |_one.microstream.persistence.binary.one.microstream.collections_
+|_one.microstream.entity_   |_one.microstream.persistence.binary.one.microstream.entity_
+|_one.microstream.persistence.types_   |_one.microstream.persistence.binary.one.microstream.persistence.types_
+|_one.microstream.reference_   |_one.microstream.persistence.binary.one.microstream.reference_
+|_one.microstream.util_   |_one.microstream.persistence.binary.one.microstream.util_
+|_one.microstream.java.*_   |_one.microstream.persistence.binary.java.*_
+|*persistence.binary.jdk8*   |*microstream-persistence-binary-jdk8*
+|_one.microstream.jdk8.java.util_   |_one.microstream.persistence.binary.jdk8.java.util_
+|_one.microstream.memory.sun_   |_one.microstream.persistence.binary.jdk8.types_
+|*storage*   |*microstream-storage*
+|*storage.embedded*   |*microstream-storage-embedded*
+|_one.microstream.storage.types_   |_one.microstream.storage.embedded.types_
+|*storage.embedded.configuration*   |*microstream-storage-embedded-configuration*
+|_one.microstream.storage.configuration_   |_one.microstream.storage.embedded.configuration.types_
+|*storage.restadapter*   |*microstream-storage-restadapter*
+|_one.microstream.storage.restadapter_   |_one.microstream.storage.restadapter.types_, _one.microstream.storage.restadapter.exceptions_
+|*storage.restclient*   |*microstream-storage-restclient*
+|_one.microstream.storage.restclient_   |_one.microstream.storage.restclient.types_, _one.microstream.storage.restclient.exceptions_
+|*storage.restclient.app*   |*microstream-storage-restclient-app*
+|_one.microstream.storage.restclient.app_   |_one.microstream.storage.restclient.app.types_
+|*storage.restclient.jersey*   |*microstream-storage-restclient-jersey*
+|_one.microstream.storage.restclient.jersey_   |_one.microstream.storage.restclient.jersey.types_
+|*storage.restservice*   |*microstream-storage-restservice*
+|_one.microstream.storage.restservice_   |_one.microstream.storage.restservice.types_, _one.microstream.storage.restservice.exceptions_
+|*storage.restservice.sparkjava*   |*microstream-storage-restservice-sparkjava*
+|_one.microstream.storage.restservice.sparkjava_   |_one.microstream.storage.restservice.sparkjava.types_, _one.microstream.storage.restservice.sparkjava.exceptions_
+|===
+
+==== Configuration
+
+The storage and cache configuration layers are now utilizing the newly introduced general purpose configuration layer.
+
+===== Cache
+
+The configuration property names have changed from camelCase to the dash-notation.
+
+[options="header",cols="1,1"]
+|===
+|Old (< 5)   | New (>= 5)   
+//-------------
+|keyType   |key-type
+|valueType   |value-type
+|storageConfigurationResourceName   |storage-configuration-resource-name
+|cacheLoaderFactory   |cache-loader-factory
+|cacheWriterFactory   |cache-writer-factory
+|expiryPolicyFactory   |expiry-policy-factory
+|evictionManagerFactory   |eviction-manager-factory
+|readThrough   |read-through
+|writeThrough   |write-through
+|storeByValue   |store-by-value
+|statisticsEnabled   |statistics-enabled
+|managementEnabled   |management-enabled
+|===
+
+===== Storage
+
+The old storage configuration API is deprecated and should be migrated to the xref:storage:configuration/index.adoc[new one].
+
+The configuration property names have changed from camelCase to the dash-notation.
+
+[options="header",cols="1,1"]
+|===
+|Old (< 5)   | New (>= 5)   
+//-------------
+|baseDirectory   |storage-directory
+|deletionDirectory   |deletion-directory
+|truncationDirectory   |truncation-directory
+|backupDirectory   |backup-directory
+|channelCount   |channel-count
+|channelDirectoryPrefix   |channel-directory-prefix
+|dataFilePrefix   |data-file-prefix
+|dataFileSuffix   |data-file-suffix
+|transactionFilePrefix   |transaction-file-prefix
+|transactionFileSuffix   |transaction-file-suffix
+|typeDictionaryFilename   |type-dictionary-file-name
+|rescuedFileSuffix   |rescued-file-suffix
+|lockFileName   |lock-file-name
+|houseKeepingIntervalMs   |housekeeping-interval
+|housekeepingTimeBudgetNs   |housekeeping-time-budget
+|entityCacheThreshold   |entity-cache-threshold
+|entityCacheTimeoutMs   |entity-cache-timeout
+|dataFileMinimumSize   |data-file-minimum-size
+|dataFileMaximumSize   |data-file-maximum-size
+|dataFileMinimumUseRatio   |data-file-minimum-use-ratio
+|dataFileCleanupHeadFile   |data-file-cleanup-head-file
+|===
 
 == 4.1
 
@@ -34,9 +261,10 @@ in-memory file systems for unit testing
 * Fixed type handler incompatibilities with JDK 11
 * Removed wrongfully initial values in configuration for deletion and truncation directories
 
+[#4_1_migration-guide]
 === *Migration guide*
 
-From 4.1 no actions are necessary, for older versions see below.
+From 4.1 no actions are necessary, for older versions see xref:#4_0_migration-guide[below].
 
 == 4.0
 
@@ -50,6 +278,7 @@ From 4.1 no actions are necessary, for older versions see below.
 * Better error handling in housekeeping, to avoid storage channel thread interruptions.
 * Fixed XML loading bug under Android.
 
+[#4_0_migration-guide]
 === *Migration guide*
 
 All configuration code, which includes file paths, may be rewritten to use the new Abstract File System. +
@@ -91,9 +320,10 @@ legacy type mapping)
 * Fixed a bug that caused loading of zero-length arrays to throw an exception despite everything being fine.
 * Various smaller bugfixes for unnecessary exceptions in special cases and state robustness after exceptions.
 
+[#3_0_migration-guide]
 === *Migration guide*
 
-From 2.2 no actions are necessary, for older versions see below.
+From 2.2 no actions are necessary, for older versions see xref:#2_2_migration-guide[below].
 
 == 2.2
 

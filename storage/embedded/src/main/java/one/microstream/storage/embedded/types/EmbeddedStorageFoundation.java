@@ -1,12 +1,33 @@
 package one.microstream.storage.embedded.types;
 
+/*-
+ * #%L
+ * microstream-storage-embedded
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import org.slf4j.Logger;
 
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
-import one.microstream.persistence.types.PersistenceFoundation;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceRefactoringMappingProvider;
 import one.microstream.persistence.types.PersistenceRootResolverProvider;
@@ -34,6 +55,7 @@ import one.microstream.storage.types.StorageTaskBroker;
 import one.microstream.storage.types.StorageTimestampProvider;
 import one.microstream.storage.types.StorageTypeDictionary;
 import one.microstream.storage.types.StorageWriteController;
+import one.microstream.util.logging.Logging;
 import one.microstream.util.InstanceDispatcher;
 
 
@@ -55,7 +77,8 @@ import one.microstream.util.InstanceDispatcher;
  *
  * @param <F> the "self-type" of the  {@link EmbeddedStorageManager} implementation.
  */
-public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>> extends StorageFoundation<F>, InstanceDispatcher
+public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?>>
+extends StorageFoundation<F>,InstanceDispatcher, PersistenceTypeHandlerRegistration.Executor<Binary>
 {
 	public static interface Creator
 	{
@@ -144,7 +167,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * <p>
 	 * The returned {@link EmbeddedStorageManager} instance will NOT yet be started.
 	 *
-	 * @return {@linkDoc EmbeddedStorageFoundation#createEmbeddedStorageManager(Object)@return}
+	 * @return a new {@link EmbeddedStorageManager} instance.
 	 *
 	 * @see #createEmbeddedStorageManager(Object)
 	 * @see #start()
@@ -179,7 +202,7 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * Convenience method to create, start and return an {@link EmbeddedStorageManager} instance using a default
 	 * root instance.
 	 *
-	 * @return {@linkDoc EmbeddedStorageFoundation#createEmbeddedStorageManager(Object)@return}
+	 * @return a new {@link EmbeddedStorageManager} instance.
 	 *
 	 * @see #start(Object)
 	 * @see #createEmbeddedStorageManager()
@@ -191,13 +214,13 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	}
 
 	/*
-	 * Funny how they can't create a properly functioning way to write multi-lined code in a JavaDoc.
+	 * Funny how it's still very hard to write multi-lined code in a JavaDoc.
 	 * See https://reflectoring.io/howto-format-code-snippets-in-javadoc/ for a well-written overview
 	 * over <pre>, <code> and {@code}.
 	 * In addition to that, the <pre>{@code} combination causes weird things with spaces at the beginning
 	 * of lines. At least in the eclipse JavaDoc view, but that is almost as important as the HTML views.
-	 * In short: all variants are inadequat. The best solution is to write every line in its own @code tag.
-	 * A real shame. As usual in the JDK.
+	 * In short: all variants are inadequate. The best solution is to write every line in its own @code tag.
+	 * A real shame.
 	 */
 	/**
 	 * Convenience method to create, start and return an {@link EmbeddedStorageManager} instance using the
@@ -208,9 +231,9 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 * {@code esm.start();}<br>
 	 * {@code return esm;}
 	 *
-	 * @param explicitRoot {@linkDoc EmbeddedStorageFoundation#createEmbeddedStorageManager(Object):}
+	 * @param explicitRoot the instance to be used as the persistent entity graph's root instance.
 	 *
-	 * @return {@linkDoc EmbeddedStorageFoundation#createEmbeddedStorageManager(Object)@return}
+	 * @return a new {@link EmbeddedStorageManager} instance.
 	 *
 	 * @see #start()
 	 * @see #createEmbeddedStorageManager()
@@ -342,17 +365,6 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	 */
 	public F setRefactoringMappingProvider(PersistenceRefactoringMappingProvider refactoringMappingProvider);
 
-	/**
-	 * Convenience method for {@code this.getConnectionFoundation().executeTypeHandlerRegistration(typeHandlerRegistration)}.
-	 * <p>
-	 * See {@link PersistenceFoundation#executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration)} for details.
-	 *
-	 * @param typeHandlerRegistration the {@link PersistenceTypeHandlerRegistration} to be executed.
-	 *
-	 * @return {@literal this} to allow method chaining.
-	 */
-	public F executeTypeHandlerRegistration(PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration);
-
 	public F registerTypeHandler(PersistenceTypeHandler<Binary, ?> typeHandler);
 
 	public F registerTypeHandlers(Iterable<? extends PersistenceTypeHandler<Binary, ?>> typeHandlers);
@@ -374,6 +386,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 	extends StorageFoundation.Default<F>
 	implements EmbeddedStorageFoundation<F>
 	{
+		private final static Logger logger = Logging.getLogger(EmbeddedStorageFoundation.Default.class);
+
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -717,10 +731,9 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		}
 
 		@Override
-		public F executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration)
+		public void executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration)
 		{
 			this.getConnectionFoundation().executeTypeHandlerRegistration(typeHandlerRegistration);
-			return this.$();
 		}
 
 		@Override
@@ -754,6 +767,8 @@ public interface EmbeddedStorageFoundation<F extends EmbeddedStorageFoundation<?
 		@Override
 		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object root)
 		{
+			logger.info("Creating embedded storage manager");
+
 			final Database database = this.ensureDatabase();
 
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();

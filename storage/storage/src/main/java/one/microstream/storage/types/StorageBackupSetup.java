@@ -1,8 +1,29 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
 import one.microstream.afs.types.ADirectory;
+
 
 public interface StorageBackupSetup
 {
@@ -13,9 +34,10 @@ public interface StorageBackupSetup
 	);
 	
 	public StorageBackupHandler setupHandler(
-		StorageOperationController operationController,
-		StorageWriteController     writeController    ,
-		StorageDataFileValidator   validator
+		StorageOperationController       operationController           ,
+		StorageWriteController           writeController               ,
+		StorageDataFileValidator.Creator backupDataFileValidatorCreator,
+		StorageTypeDictionary            storageTypeDictionary
 	);
 	
 
@@ -24,13 +46,13 @@ public interface StorageBackupSetup
 	 * Pseudo-constructor method to create a new {@link StorageBackupSetup} instance
 	 * using the passed directory as the backup location.
 	 * <p>
-	 * For explanations and customizing values, see {@link StorageBackupSetup#New(StorageLiveFileProvider)}.
+	 * For explanations and customizing values, see {@link StorageBackupSetup#New(StorageBackupFileProvider)}.
 	 * 
 	 * @param backupDirectory the directory where the backup shall be located.
 	 * 
-	 * @return {@linkDoc StorageBackupSetup#New(StorageBackupFileProvider)@return}
+	 * @return a new {@link StorageBackupSetup} instance.
 	 * 
-	 * @see StorageBackupSetup#New(StorageLiveFileProvider)
+	 * @see StorageBackupSetup#New(StorageBackupFileProvider)
 	 * @see StorageBackupHandler
 	 */
 	
@@ -113,9 +135,10 @@ public interface StorageBackupSetup
 		
 		@Override
 		public StorageBackupHandler setupHandler(
-			final StorageOperationController operationController,
-			final StorageWriteController     writeController    ,
-			final StorageDataFileValidator   validator
+			final StorageOperationController       operationController,
+			final StorageWriteController           writeController    ,
+			final StorageDataFileValidator.Creator validatorCreator   ,
+			final StorageTypeDictionary            typeDictionary
 		)
 		{
 			final int channelCount = operationController.channelCountProvider().getChannelCount();
@@ -125,7 +148,8 @@ public interface StorageBackupSetup
 				this.itemQueue     ,
 				operationController,
 				writeController    ,
-				validator
+				validatorCreator   ,
+				typeDictionary
 			);
 		}
 		

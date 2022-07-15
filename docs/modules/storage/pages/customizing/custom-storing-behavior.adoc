@@ -39,3 +39,5 @@ EmbeddedStorageManager storage    = EmbeddedStorage
 	.start(ROOT)
 ;
 ----
+
+TIP: The full code for the example is on https://github.com/microstream-one/microstream/tree/master/examples/eager-storing[GitHub].

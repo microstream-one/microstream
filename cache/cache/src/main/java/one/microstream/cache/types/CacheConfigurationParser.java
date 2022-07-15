@@ -1,5 +1,25 @@
 package one.microstream.cache.types;
 
+/*-
+ * #%L
+ * microstream-cache
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
 import java.util.HashMap;
@@ -10,7 +30,7 @@ import one.microstream.chars.XChars;
 
 /**
  * 
- * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationParser}, will be removed in a future release
+ * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationParser}, will be removed in version 8
  */
 @Deprecated
 public interface CacheConfigurationParser
@@ -28,10 +48,12 @@ public interface CacheConfigurationParser
 
 	/**
 	 * Parses the configuration from the given input.
-	 *
+	 * 
+	 * @param <K> the key type
+	 * @param <V> the value type
 	 * @param data the input to parse
-	 * @param keyType the key type
-	 * @param valueType the value type
+	 * @param keyType the class for the key type
+	 * @param valueType the class for value type
 	 * @return the parsed configuration
 	 * @throws CacheConfigurationException if an error occurs while parsing
 	 */
@@ -41,19 +63,11 @@ public interface CacheConfigurationParser
 		Class<V> valueType
 	);
 
-	/**
-	 * Creates a new {@link CacheConfigurationParser}.
-	 */
 	public static CacheConfigurationParser New()
 	{
 		return New(CacheConfigurationPropertyParser.New());
 	}
 
-	/**
-	 * Creates a new {@link CacheConfigurationParser}.
-	 *
-	 * @param propertyParser a custom property parser
-	 */
 	public static CacheConfigurationParser New(
 		final CacheConfigurationPropertyParser propertyParser
 	)

@@ -1,5 +1,25 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
@@ -30,7 +50,7 @@ public interface StorageConfiguration
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageConfiguration.Builder}.
 	 * 
-	 * @return {@linkDoc StorageConfiguration#New(StorageLiveFileProvider)@return}
+	 * @return a new {@link StorageConfiguration} instance.
 	 * 
 	 * @see StorageConfiguration#New(StorageLiveFileProvider)
 	 * @see StorageConfiguration.Builder
@@ -174,7 +194,7 @@ public interface StorageConfiguration
 				.add(this.housekeepingController).lf()
 				.add(this.entityCacheEvaluator  ).lf()
 				.add(this.dataFileEvaluator     ).lf()
-				.add(this.backupSetup           ).lf()
+				.add(this.backupSetup == null ? StorageBackupSetup.class.getName() + ": null": this.backupSetup).lf()
 				.toString()
 			;
 		}

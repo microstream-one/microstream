@@ -9,17 +9,20 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-storage-rest-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-storage-restservice</artifactId>
+	
+	<name>MicroStream Storage REST Service</name>
+	<description>Abstract REST Service Interface</description>
 
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage-restadapter</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

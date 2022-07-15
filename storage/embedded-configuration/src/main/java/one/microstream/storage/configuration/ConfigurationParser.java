@@ -1,6 +1,26 @@
 
 package one.microstream.storage.configuration;
 
+/*-
+ * #%L
+ * microstream-storage-embedded-configuration
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.notEmpty;
 
@@ -21,7 +41,7 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationParser}, will be removed in a future release
+ * @deprecated replaced by generic {@link one.microstream.configuration.types.ConfigurationParser}, will be removed in version 8
  * @see one.microstream.storage.configuration
  */
 @Deprecated
@@ -57,6 +77,7 @@ public interface ConfigurationParser
 
 	/**
 	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Ini()
 	{
@@ -68,6 +89,7 @@ public interface ConfigurationParser
 	 * Creates a new {@link ConfigurationParser} which reads ini, or property files.
 	 *
 	 * @param propertyParser a custom property parser
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Ini(
 		final ConfigurationPropertyParser propertyParser
@@ -78,6 +100,7 @@ public interface ConfigurationParser
 
 	/**
 	 * Creates a new {@link ConfigurationParser} which reads xml files.
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Xml()
 	{
@@ -88,6 +111,7 @@ public interface ConfigurationParser
 	 * Creates a new {@link ConfigurationParser} which reads xml files.
 	 *
 	 * @param propertyParser a custom property parser
+	 * @return the newly created {@link ConfigurationParser}
 	 */
 	public static ConfigurationParser Xml(
 		final ConfigurationPropertyParser propertyParser

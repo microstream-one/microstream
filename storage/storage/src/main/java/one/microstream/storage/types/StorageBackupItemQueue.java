@@ -1,11 +1,31 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, StorageFileUser
 {
 	public boolean processNextItem(StorageBackupHandler handler, long timeoutMs) throws InterruptedException;
-
 	
-	
+	public boolean isEmpty();
+		
 	public static StorageBackupItemQueue New()
 	{
 		return new StorageBackupItemQueue.Default();
@@ -37,6 +57,12 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 		// methods //
 		////////////
 
+		@Override
+		public final boolean isEmpty()
+		{
+			return this.head.next == null;
+		}
+		
 		@Override
 		public final void enqueueCopyingItem(
 			final StorageLiveChannelFile<?> sourceFile    ,
@@ -96,6 +122,11 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			{
 				while(this.head.next == null)
 				{
+					if(!handler.isRunning())
+					{
+						return true;
+					}
+					
 					if(System.currentTimeMillis() >= timeBudgetBound)
 					{
 						return false;

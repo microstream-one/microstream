@@ -24,12 +24,12 @@ EmbeddedStorage.start(fileSystem.ensureDirectoryPath("path", "to", "storage"));
 The file system API is the same for all connectors, like for MySQL. +
 This is part of another module.
 
-[source,xml]
+[source, xml, subs=attributes+]
 ----
 <!-- sql file system -->
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>microstream-filesystem-sql</artifactId>
+	<artifactId>microstream-enterprise-filesystem-sql</artifactId>
 	<version>{maven-version}</version>
 </dependency>
 <!-- driver of your choice -->

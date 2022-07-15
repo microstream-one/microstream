@@ -7,17 +7,20 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-afs-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-afs</artifactId>
 	
+	<name>MicroStream Abstract File System</name>
+	<description>Abstract File System Implementation</description>
+	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-base</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	

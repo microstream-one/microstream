@@ -1,5 +1,25 @@
 package one.microstream.collections;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.ArrayOfSameType;
 import static one.microstream.X.notNull;
 
@@ -147,7 +167,8 @@ public final class XArrays
 	/**
 	 * Returns if the passed array is either null or has the length 0.
 	 *
-	 * @param array
+	 * @param array the array to check
+	 * @return <code>true</code> if the passed array has no content
 	 */
 	public static boolean hasNoContent(final Object[] array)
 	{
@@ -318,8 +339,9 @@ public final class XArrays
 	 * Note that specific equality of each element is situational and thus cannot be a concern
 	 * of a generic array comparison, just as it cannot be the concern of the element's class directly.
 	 *
-	 * @param array1
-	 * @param array2
+	 * @param array1 the first array
+	 * @param array2 the second array
+	 * @return <code>true</code> if both arrays are equal
 	 */
 	public static boolean equals(final Object[] array1, final Object[] array2)
 	{
@@ -413,12 +435,14 @@ public final class XArrays
 	}
 
 	/**
-	 * adds all elements of the first array and all elements of the second array into one result array.
+	 * Adds all elements of the first array and all elements of the second array into one result array.
 	 * Handles null-arrays correctly.
 	 * Always creates a new array instance.
-	 *
-	 * @param a1
-	 * @param a2
+	 * 
+	 * @param <T> the type of the array elements
+	 * @param a1 the first array
+	 * @param a2 the second array
+	 * @return a new array with the concatenated elements
 	 */
 	@SafeVarargs
 	public static final <T> T[] add(final T[] a1, final T... a2)
@@ -547,9 +571,10 @@ public final class XArrays
 	 * Merges the both passed arrays by taking all elements from {@code a1} (even duplicates) and adds all
 	 * elements of {@code a2} (also duplicates as well) that are not already contained in {@code a1}.
 	 *
-	 * @param <T>
-	 * @param a1
-	 * @param a2
+	 * @param <T> the type of the array elements
+	 * @param a1 the first array
+	 * @param a2 the second array
+	 * @return a new array with the merged elements
 	 */
 	@SafeVarargs
 	public static final <T> T[] merge(final T[] a1, final T... a2)
@@ -636,7 +661,7 @@ public final class XArrays
 	 * @param <E> any type
 	 * @param array the array to be searched in
 	 * @param element the element to be searched (by identity)
-	 * @return {@code true} if {@code array} contains {@code element} by object identity, else <tt>false</tt>
+	 * @return <code>true</code> if {@code array} contains {@code element} by object identity, else <code>false</code>
 	 */
 	public static final <E> boolean contains(final E[] array, final E element)
 	{
@@ -742,7 +767,8 @@ public final class XArrays
 
 	/**
 	 * Removed all occurances of {@code e} from array {@code array}.
-	 * <p>
+	 * 
+	 * @param <E> the element type
 	 * @param array the array containing all elements.
 	 * @param start the starting offset (inclusive lower bound)
 	 * @param bound the bounding offset (exclusive upper bound)
@@ -1043,6 +1069,12 @@ public final class XArrays
 	 * At least for Java 1.8, the types seem to not be checked.
 	 * Passing a collection of Strings and a Number[] (meaning String extends Number) is not a compiler error.
 	 * Bug / generics loophole.
+	 * 
+	 * @param <E> the source element type
+	 * @param <T> the target element type
+	 * @param source the source collection
+	 * @param target the target array
+	 * @return the target array
 	 */
 	public static final <T, E extends T> T[] copyTo(
 		final XGettingCollection<E> source,
@@ -1053,6 +1085,18 @@ public final class XArrays
 		return copyTo(source, target, 0);
 	}
 
+	/**
+	 * At least for Java 1.8, the types seem to not be checked.
+	 * Passing a collection of Strings and a Number[] (meaning String extends Number) is not a compiler error.
+	 * Bug / generics loophole.
+	 * 
+	 * @param <E> the source element type
+	 * @param <T> the target element type
+	 * @param source the source collection
+	 * @param target the target array
+	 * @param targetOffset the target start offset
+	 * @return the target array
+	 */
 	public static final <T, E extends T> T[] copyTo(
 		final XGettingCollection<E> source      ,
 		final T[]                   target      ,
@@ -1089,6 +1133,13 @@ public final class XArrays
 		return target;
 	}
 
+	/**
+	 * Moves the contents of the given array in a random order.
+	 * 
+	 * @param <T> the element type
+	 * @param data the array to shuffle
+	 * @return the array
+	 */
 	@SafeVarargs
 	public static final <T> T[] shuffle(final T... data)
 	{
@@ -1102,6 +1153,15 @@ public final class XArrays
 		return data;
 	}
 
+	/**
+	 * Moves the contents of the given array in a random order.
+	 * 
+	 * @param <E> the element type
+	 * @param array the array to shuffle
+	 * @param startIndex the start index of the shuffle range
+	 * @param endIndex the end index of the shuffle range
+	 * @return the array
+	 */
 	public static final <E> E[] shuffle(final E[] array, final int startIndex, final int endIndex)
 	{
 		if(startIndex < 0 || endIndex >= array.length || startIndex > endIndex)
@@ -1158,18 +1218,19 @@ public final class XArrays
 	 * use {@link System#arraycopy(Object, int, Object, int, int)} directly. Otherwise, this method is a convenient
 	 * alternative to handle more flexible bi-directional array copying.
 	 *
-	 * @param <T>
-	 * @param <U>
-	 * @param src
-	 * @param srcPos
-	 * @param dest
-	 * @param destPos
-	 * @param length
+	 * @param <D> the destination element type
+	 * @param <S> the source element type
+	 * @param src the source array
+	 * @param srcPos the source array position
+	 * @param dest the destination array
+	 * @param destPos the destination array position
+	 * @param length the length of the range to copy
+	 * @return the destination array
 	 */
-	public static <T, U extends T> T[] arraycopy(
-		final U[] src,
+	public static <D, S extends D> D[] arraycopy(
+		final S[] src,
 		final int srcPos,
-		final T[] dest,
+		final D[] dest,
 		final int destPos,
 		final int length
 		)
@@ -1382,15 +1443,19 @@ public final class XArrays
 	/**
 	 * Orders the passed elements by the passed indices.
 	 *
+	 * @param <T> the target element type
+	 * @param <S> the source element type
 	 * @param elements the elements to be sorted according to the passed indices.
 	 * @param indices the indices defining the order in which the passed elements shall be rearranged.
+	 * @param indicesOffset the start offset of the indices
 	 * @param target the target array to receive the sorted elements.
+	 * @return the target array
 	 */
-	public static <S, T extends S> S[] orderByIndices(
-		final T[] elements,
+	public static <T, S extends T> T[] orderByIndices(
+		final S[] elements,
 		final int[] indices,
 		final int indicesOffset,
-		final S[] target
+		final T[] target
 		)
 			throws IllegalArgumentException
 	{
@@ -1515,22 +1580,25 @@ public final class XArrays
 	 * Copies source elements from {@code src}, starting at {@code srcPos} in negative direction ({@code -length}
 	 * and copies them one by one to {@code dest}, starting at {@code destPos} in positive direction ({@code +length},
 	 * thus effectively copying the elements in reverse order.
-	 *
+	 * 
+	 * @param <S> the source element type
+	 * @param <D> the destination element type
 	 * @param src      the source array.
 	 * @param srcPos   starting position in the source array (the <i>highest</i> index for reverse iteration).
 	 * @param dest     the destination array.
 	 * @param destPos  starting position in the destination data (the <i>lowest</i> index in the target array).
 	 * @param length   the number of array elements to be copied in reverse order.
+	 * @return the destination array
 	 *
 	 * @exception ArrayIndexOutOfBoundsException if copying would cause access of data outside array bounds.
 	 * @exception ArrayStoreException if an element in the {@code src} array could not be stored into the
 	 *            {@code dest} array because of a type mismatch.
 	 * @exception NullPointerException if either {@code src} or  {@code dest} is {@code null}.
 	 */
-	public static <T, U extends T> T[] reverseArraycopy(
-		final U[] src    ,
+	public static <D, S extends D> D[] reverseArraycopy(
+		final S[] src    ,
 		final int srcPos ,
-		final T[] dest   ,
+		final D[] dest   ,
 		final int destPos,
 		final int length
 		)
@@ -2093,7 +2161,7 @@ public final class XArrays
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XArrays()
 	{

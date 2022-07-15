@@ -9,22 +9,25 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-cache-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-cache</artifactId>
+	
+	<name>MicroStream Cache</name>
+	<description>JSR-107 (JCache) Implementation</description>
 
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage-embedded</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage-embedded-configuration</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.cache</groupId>

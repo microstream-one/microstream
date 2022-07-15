@@ -4,9 +4,11 @@
 
 A collection of examples with different topics:
 
-https://github.com/microstream-one/examples
+https://github.com/microstream-one/microstream/tree/master/examples
 
 == BookStore Demo
+
+image::https://github.com/microstream-one/bookstore-demo-performance/raw/master/docs/images/bookstoredemo.svg?raw=true[]
 
 The _BookStore Demo_ is a fully fledged sample application.
 It shows how to design an application with MicroStream from the ground up.
@@ -19,6 +21,8 @@ https://github.com/microstream-one/bookstore-demo-performance
 
 == Spring Crud
 
+image::https://repository-images.githubusercontent.com/227127040/51521700-946a-11ea-991a-396e744e4b1d[]
+
 Combination of two great frameworks.
 
 https://github.com/microstream-one/example-spring-crud
@@ -28,6 +32,8 @@ Further reading:
 https://medium.com/@microstream/microstream-with-spring-8265525fb3fc
 
 == Android RecyclerView
+
+image::https://repository-images.githubusercontent.com/225838936/ec4af100-946a-11ea-863e-e8a31106bec1[]
 
 This example shows how to effectively use MicroStream storage with Android RecyclerView.
 

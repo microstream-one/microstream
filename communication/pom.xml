@@ -9,12 +9,15 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-communication-parent</artifactId>
 	<packaging>pom</packaging>
+	
+	<name>MicroStream Communication</name>
+	<description>MicroStream Communication Project</description>
 
 	<modules>
 		<module>communication</module>

@@ -1,17 +1,30 @@
-/**
- *
- */
 package one.microstream.math;
+
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 
-/**
- * 
- *
- */
 public class Matrix<T>
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -26,10 +39,11 @@ public class Matrix<T>
 	 * - No nested array may be null.<br>
 	 * - All nested arrays have the same size.<br>
 	 *
-	 * @param <T>
-	 * @param array
-	 * @throws MatrixException
-	 * @throws NullPointerException
+	 * @param <T> the element type
+	 * @param array the array to validate
+	 * @throws MatrixException if array is an invalid matrix
+	 * @return the given array
+	 * @throws NullPointerException if array or a member of it is <code>null</code>
 	 */
 	public static <T> T[][] validateArray(final T[][] array) throws MatrixException, NullPointerException
 	{
@@ -189,8 +203,9 @@ public class Matrix<T>
 
 	/**
 	 *
-	 * @param rowIndex
-	 * @param colIndex
+	 * @param rowIndex the row index
+	 * @param colIndex the column index
+	 * @return the element at position (rowIndex, colIndex)
 	 */
 	public T getElementAt(final int rowIndex, final int colIndex)
 	{
@@ -198,9 +213,9 @@ public class Matrix<T>
 	}
 	/**
 	 *
-	 * @param rowIndex
-	 * @param colIndex
-	 * @param newElement
+	 * @param rowIndex the row index
+	 * @param colIndex the column index
+	 * @param newElement the element to set
 	 * @return the old element at position (rowIndex, colIndex)
 	 */
 	public T setElementAt(final int rowIndex, final int colIndex, final T newElement)
@@ -212,13 +227,7 @@ public class Matrix<T>
 			return oldElement;
 		}
 	}
-	/**
-	 *
-	 * @param rowIndex1
-	 * @param colIndex1
-	 * @param rowIndex2
-	 * @param colIndex2
-	 */
+
 	public void swapElements(final int rowIndex1, final int colIndex1, final int rowIndex2, final int colIndex2)
 	{
 		synchronized(this.data)
@@ -229,35 +238,24 @@ public class Matrix<T>
 		}
 	}
 
-	/**
-	 *
-	 */
 	public Iterable<T> iterate()
 	{
 		return new MatrixIterable();
 	}
 
 
-
 	protected Iterable<T> iterate(
 		final int firstRow, final int firstColumn, final int lastRow, final int lastColumn, final Double range
 	)
 		throws IllegalArgumentException
-		{
+	{
 		validateRowIndex(firstRow, this.data, "firstRow");
 		validateRowIndex(lastRow, this.data, "lastRow");
 		validateColumnIndex(firstColumn, this.data[firstRow], "firstColumn");
 		validateColumnIndex(lastColumn, this.data[firstRow], "lastColumn");
 		return new MatrixIterable(firstRow, lastRow, firstColumn, lastColumn, range);
-		}
-	/**
-	 *
-	 * @param firstRow
-	 * @param firstColumn
-	 * @param lastRow
-	 * @param lastColumn
-	 * @throws IllegalArgumentException
-	 */
+	}
+
 	public Iterable<T> iterate(final int firstRow, final int firstColumn, final int lastRow, final int lastColumn)
 		throws IllegalArgumentException
 	{
@@ -290,11 +288,6 @@ public class Matrix<T>
 	}
 
 
-	/**
-	 *
-	 * 
-	 *
-	 */
 	private final class MatrixIterable implements Iterable<T>
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -347,12 +340,6 @@ public class Matrix<T>
 		}
 
 
-
-		/**
-		 *
-		 * 
-		 *
-		 */
 		private class MatrixIterator implements Iterator<T>
 		{
 			///////////////////////////////////////////////////////////////////////////
@@ -367,8 +354,8 @@ public class Matrix<T>
 
 			private final int
 				centerRowIndex = (MatrixIterable.this.lastRow    + MatrixIterable.this.firstRow   ) / 2,
-			    centerColIndex = (MatrixIterable.this.lastColumn + MatrixIterable.this.firstColumn) / 2
-			  ;
+				centerColIndex = (MatrixIterable.this.lastColumn + MatrixIterable.this.firstColumn) / 2
+			;
 
 			{
 				this.nextRow();
@@ -382,9 +369,6 @@ public class Matrix<T>
 			}
 
 
-			/**
-			 * @param hasNextChecker
-			 */
 			MatrixIterator(final Double range)
 			{
 				super();

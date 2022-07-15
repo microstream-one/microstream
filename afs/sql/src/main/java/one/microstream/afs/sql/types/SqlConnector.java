@@ -1,5 +1,25 @@
 package one.microstream.afs.sql.types;
 
+/*-
+ * #%L
+ * microstream-afs-sql
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.notNull;
 
@@ -19,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.LongFunction;
 
+import one.microstream.chars.XChars;
 import one.microstream.io.ByteBufferInputStream;
 import one.microstream.io.LimitedInputStream;
 import one.microstream.reference.Reference;
@@ -53,10 +74,14 @@ public interface SqlConnector
 
 	public void truncateFile(SqlPath file, long newLength);
 
+	public boolean isEmpty(SqlPath directory);
+	
 
 	/**
 	 * Creates a new {@link SqlConnector} which doesn't use caching.
 	 * 
+	 * @param provider the sql provider for the connector, not null
+	 * @return the newly created connector
 	 * @see #Caching(SqlProvider)
 	 */
 	public static SqlConnector New(
@@ -72,6 +97,8 @@ public interface SqlConnector
 	/**
 	 * Creates a new {@link SqlConnector} which uses caching.
 	 * 
+	 * @param provider the sql provider for the connector, not null
+	 * @return the newly created connector
 	 * @see #New(SqlProvider)
 	 */
 	public static SqlConnector Caching(
@@ -154,7 +181,7 @@ public interface SqlConnector
 		)
 		throws SQLException
 		{
-			final String       directoryPrefix = directory.fullQualifiedName() + SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR;
+			final String       directoryPrefix = directory.fullQualifiedName() + SqlPath.getSeparatorString();
 			final List<String> directories     = new ArrayList<>();
 
 			if(this.useCache)
@@ -177,11 +204,16 @@ public interface SqlConnector
 					)
 				);
 			}
-
+		
 			directories.stream()
 				.filter(name -> name.startsWith(directoryPrefix)
 					&& name.length() > directoryPrefix.length()
-					&& name.indexOf(SqlPath.DIRECTORY_TABLE_NAME_SEPARATOR, directoryPrefix.length()) == -1
+				)
+				.map( name ->
+					name.replace(directoryPrefix, "")
+				)
+				.map( name ->
+						XChars.splitSimple(name, SqlPath.getSeparatorString())[0]
 				)
 				.forEach(visitor::visitItem);
 		}
@@ -208,6 +240,27 @@ public interface SqlConnector
 			}
 
 			fileNames.forEach(visitor::visitItem);
+		}
+		
+		private boolean internalIsEmpty(
+			final SqlPath    directory ,
+			final Connection connection
+		)
+		throws SQLException
+		{
+			final String sql = this.provider.countFilesQuery(directory.fullQualifiedName());
+			try(final Statement statement = connection.createStatement())
+			{
+				try(final ResultSet result = statement.executeQuery(sql))
+				{
+					if(result.next())
+					{
+						return result.getInt(1) <= 0;
+					}
+				}
+			}
+			
+			return false;
 		}
 
 		private void queryCreateDirectory(
@@ -686,6 +739,14 @@ public interface SqlConnector
 
 				return null;
 			});
+		}
+		
+		@Override
+		public boolean isEmpty(final SqlPath directory)
+		{
+			return this.provider.execute(connection ->
+				this.internalIsEmpty(directory, connection)
+			);
 		}
 
 		@Override

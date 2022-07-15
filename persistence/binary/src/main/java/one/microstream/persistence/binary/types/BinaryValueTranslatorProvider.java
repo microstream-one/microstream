@@ -1,5 +1,25 @@
 package one.microstream.persistence.binary.types;
 
+/*-
+ * #%L
+ * microstream-persistence-binary
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
@@ -19,8 +39,11 @@ public interface BinaryValueTranslatorProvider
 	/**
 	 * Normal translator to translate a value from binary form to a target instance.
 	 * 
-	 * @param sourceMember
-	 * @param targetMember
+	 * @param sourceLegacyType the source legacy type
+	 * @param sourceMember the source member
+	 * @param targetCurrentType the target current type
+	 * @param targetMember the target member
+	 * @return the provided value setter
 	 */
 	public BinaryValueSetter provideTargetValueTranslator(
 		PersistenceTypeDefinition         sourceLegacyType ,
@@ -32,8 +55,11 @@ public interface BinaryValueTranslatorProvider
 	/**
 	 * Special translator to translate a value from binary form to an intermediate binary form.
 	 * 
-	 * @param sourceMember
-	 * @param targetMember
+	 * @param sourceLegacyType the source legacy type
+	 * @param sourceMember the source member
+	 * @param targetCurrentType the target current type
+	 * @param targetMember the target member
+	 * @return the provided value setter
 	 */
 	public BinaryValueSetter provideBinaryValueTranslator(
 		PersistenceTypeDefinition         sourceLegacyType ,

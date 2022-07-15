@@ -1,5 +1,25 @@
 package one.microstream.persistence.types;
 
+/*-
+ * #%L
+ * microstream-persistence
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
@@ -30,6 +50,7 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 * The name of the corresponding runtime type.
 	 * If not implemented otherwise (e.g. to cache the name), this method simply calls {@link Class#getName()} of
 	 * a non-null {@link #type()} reference.
+	 * @return the name of the corresponding runtime type
 	 */
 	public default String runtimeTypeName()
 	{
@@ -87,7 +108,8 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 * <li>{@code java.util.Date}</li>
 	 * <li>typical entity types (without unshared inlined variable length component instances)</li>
 	 * </ul>
-	 *
+	 * 
+	 * @return if two instances of the handled type can have different length in persisted form
 	 */
 	public default boolean hasPersistedVariableLength()
 	{
@@ -110,7 +132,8 @@ public interface PersistenceTypeDefinition extends PersistenceTypeDescription, P
 	 * <li>all immutable type instances (like {@code java.lang.String} )</li>
 	 * <li>all fixed length types (see {@link #hasVaryingPersistedLengthInstances()}</li>
 	 * </ul>
-	 *
+	 * 
+	 * @return if one particular instance can have variing binary length from one store to another
 	 */
 	public boolean hasVaryingPersistedLengthInstances();
 	

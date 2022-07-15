@@ -10,7 +10,7 @@ With  `microstream-storage-embedded-configuration` API:
 
 [source,java,title="Java"]
 ----
-EmbeddedStorageManager storageManager = Configuration.Default()
+EmbeddedStorageManager storageManager = EmbeddedStorageConfigurationBuilder.New()
 	.setBackupDirectory("A safe place")
 	.createEmbeddedStorageFoundation()
 	.createEmbeddedStorageManager();
@@ -19,7 +19,7 @@ EmbeddedStorageManager storageManager = Configuration.Default()
 [source,xml,title="XML"]
 ----
 <properties>
-	<property name="backupDirectory" value ="/save/backup" />
+	<property name="backup-directory" value ="/save/backup" />
 	...
 </properties>
 ----

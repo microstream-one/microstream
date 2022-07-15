@@ -7,22 +7,25 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-communication-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-communication-binary</artifactId>
 	
+	<name>MicroStream Communication Binary</name>
+	<description>MicroStream Object Graph Communication Binary Implementation</description>
+	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-communication</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-persistence-binary</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	

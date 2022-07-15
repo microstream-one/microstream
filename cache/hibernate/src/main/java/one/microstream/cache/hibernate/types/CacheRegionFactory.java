@@ -1,9 +1,32 @@
 package one.microstream.cache.hibernate.types;
 
+/*-
+ * #%L
+ * microstream-cache-hibernate
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
@@ -35,10 +58,10 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 {
 	private final    CacheKeysFactory                   cacheKeysFactory;
 	private volatile CacheManager                       cacheManager;
-	private volatile boolean                            isExplicitCacheManager;
+	private final AtomicBoolean                         isExplicitCacheManager = new AtomicBoolean();
 	private volatile CacheConfiguration<Object, Object> cacheConfiguration;
 	private volatile MissingCacheStrategy               missingCacheStrategy;
-	private volatile long                               cacheLockTimeout;
+	private final AtomicLong                            cacheLockTimeout = new AtomicLong();
 
 	public CacheRegionFactory()
 	{
@@ -62,6 +85,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	@Override
 	protected void prepareForUse(
 		final SessionFactoryOptions settings,
+		@SuppressWarnings("rawtypes") // superclass uses raw type
 		final Map properties
 	)
 	{
@@ -88,7 +112,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 				? Integer.decode((String)cacheLockTimeoutConfigValue)
 				: ((Number)cacheLockTimeoutConfigValue).intValue()
 			;
-			this.cacheLockTimeout = SimpleTimestamper.ONE_MS * lockTimeoutInMillis;
+			this.cacheLockTimeout.set(SimpleTimestamper.ONE_MS * lockTimeoutInMillis);
 		}
 	}
 
@@ -99,8 +123,8 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	)
 	{
 		final Object explicitCacheManager = properties.get(ConfigurationPropertyNames.CACHE_MANAGER);
-		this.isExplicitCacheManager = explicitCacheManager != null;
-		return this.isExplicitCacheManager
+		this.isExplicitCacheManager.set(explicitCacheManager != null);
+		return this.isExplicitCacheManager.get()
 			? this.useExplicitCacheManager(settings, explicitCacheManager)
 			: this.createCacheManager     (settings, properties)
 		;
@@ -123,9 +147,9 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 				? (Class<? extends CacheManager>)setting
 				: this.loadClass(setting.toString(), settings)
 			;
-			return cacheManagerClass.newInstance();
+			return cacheManagerClass.getDeclaredConstructor().newInstance();
 		}
-		catch(ClassNotFoundException | InstantiationException | IllegalAccessException e)
+		catch(ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
 		{
 			throw new CacheException("Could not use explicit CacheManager : " + setting, e);
 		}
@@ -270,7 +294,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 	@Override
 	public long getTimeout()
 	{
-		return this.cacheLockTimeout;
+		return this.cacheLockTimeout.get();
 	}
 
 	@Override
@@ -423,7 +447,7 @@ public class CacheRegionFactory extends RegionFactoryTemplate
 		{
 			try
 			{
-				if(!this.isExplicitCacheManager)
+				if(!this.isExplicitCacheManager.get())
 				{
 					this.cacheManager.close();
 				}

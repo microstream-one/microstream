@@ -1,5 +1,25 @@
 package one.microstream.configuration.types;
 
+/*-
+ * #%L
+ * microstream-configuration
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
 import java.util.List;
@@ -9,13 +29,14 @@ import java.util.stream.StreamSupport;
 
 public interface ConfigurationBasedCreator<T>
 {
-	public Class<?> resultType();
+	public Class<T> resultType();
 	
 	public T create(Configuration configuration);
 	
 	
-	public static <T> List<ConfigurationBasedCreator<T>> registeredCreators(
-		final Class<T> resultType
+	@SuppressWarnings("rawtypes")
+	public static List<ConfigurationBasedCreator> registeredCreators(
+		final Class<?> resultType
 	)
 	{
 		return StreamSupport.stream(
@@ -23,8 +44,7 @@ public interface ConfigurationBasedCreator<T>
 			false
 		)
 		.filter(creator -> resultType.isAssignableFrom(creator.resultType()))
-		.collect(Collectors.toList())
-		;
+		.collect(Collectors.toList());
 	}
 	
 	
@@ -41,7 +61,7 @@ public interface ConfigurationBasedCreator<T>
 		}
 		
 		@Override
-		public Class<?> resultType()
+		public Class<T> resultType()
 		{
 			return this.resultType;
 		}

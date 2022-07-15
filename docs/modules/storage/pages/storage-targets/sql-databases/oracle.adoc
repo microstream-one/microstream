@@ -1,10 +1,12 @@
 = Oracle
 
+include::commons:partial$ee-feature-hint.adoc[]
+
 [source, xml, subs=attributes+]
 ----
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>microstream-afs-sql</artifactId>
+	<artifactId>microstream-enterprise-afs-sql</artifactId>
 	<version>{maven-version}</version>
 </dependency>
 <dependency>
@@ -40,18 +42,24 @@ Please note that you have to define a data source provider.
 storage-filesystem.sql.oracle.data-source-provider=com.sample.MyDataSourceProvider
 storage-filesystem.sql.oracle.catalog=mycatalog
 storage-filesystem.sql.oracle.schema=myschema
+storage-filesystem.sql.oracle.url=jdbc:oracle:thin:@localhost:1521/db
+storage-filesystem.sql.oracle.user=username
+storage-filesystem.sql.oracle.password=secret
 ----
 
 [source, java, title="MyDataSourceProvider.java"]
 ----
 package com.sample;
 
-import one.microstream.afs.sql.SqlDataSourceProvider
+import one.microstream.afs.sql.types.SqlDataSourceProvider
 
 public class MyDataSourceProvider implements SqlDataSourceProvider
 {
-	public DataSource provideDataSource()
+	public DataSource provideDataSource(Configuration configuration)
 	{
+		String url      = configuration.get("url");
+		String user     = configuration.get("user");
+		String password = configuration.get("password");
 		// TODO: return data source of your choice, e.g. from a connection pool
 	}
 }

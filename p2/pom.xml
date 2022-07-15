@@ -9,13 +9,15 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-p2</artifactId>
-	<name>MicroStream P2 Repository</name>
 	<packaging>pom</packaging>
+	
+	<name>MicroStream P2 Repository</name>
+	<description>MicroStream P2 Repository</description>
 
 	<properties>
 		<osgi.version>${pv.majorVersion}.${pv.minorVersion}.${pv.incrementalVersion}.qualifier</osgi.version>
@@ -60,6 +62,7 @@
 									<generateSourceFeature>false</generateSourceFeature>
 									<artifacts>
 										<artifact><id>one.microstream:microstream-persistence-binary-jdk8:${project.version}</id></artifact>
+										<artifact><id>one.microstream:microstream-persistence-binary-jdk17:${project.version}</id></artifact>
 										<artifact><id>one.microstream:microstream-storage-embedded-configuration:${project.version}</id></artifact>
 									</artifacts>
 								</feature>

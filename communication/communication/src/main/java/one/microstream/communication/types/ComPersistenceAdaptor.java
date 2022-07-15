@@ -1,5 +1,25 @@
 package one.microstream.communication.types;
 
+/*-
+ * #%L
+ * microstream-communication
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.nio.ByteOrder;
 import java.util.function.Consumer;
 
@@ -16,7 +36,10 @@ import one.microstream.persistence.types.PersistenceTypeDictionaryViewProvider;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceWriteController;
 
-
+/**
+ * 
+ * @param <C> the communication layer type
+ */
 public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewProvider
 {
 	@Override
@@ -70,7 +93,8 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	 * every call. Depends on the use-case.<br>
 	 * The persistence medium type used by the persistence manager is irrelevant on the com-level, hence the "?".
 	 * 
-	 * @param connection
+	 * @param connection connection to lookup the host persistence manager for
+	 * @return the persistence manager for the given connection
 	 */
 	public default PersistenceManager<?> provideHostPersistenceManager(
 		final C connection
@@ -98,7 +122,8 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 	 * See {@link #provideHostPersistenceManager} with a passed non-null connection instance.<br>
 	 * See {@link #provideTypeDictionaryCompiler} with a passed null connection instance.
 	 * 
-	 * @param connection
+	 * @param connection connection to lookup the host persistence foundation for
+	 * @return the persistence foundation for the given connection
 	 * 
 	 * @see #provideHostPersistenceManager
 	 * @see #provideTypeDictionaryCompiler()

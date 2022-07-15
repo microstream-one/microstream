@@ -1,5 +1,25 @@
 package one.microstream.chars;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.util.function.Consumer;
 
 import one.microstream.exceptions.ParsingException;
@@ -35,9 +55,10 @@ public final class XParsing
 	 * Skips to the position beyond the second occurance of the current character (input[iStart]).
 	 * This simple logic does NOT support escaping.
 	 * 
-	 * @param input
-	 * @param iStart
-	 * @param iBound
+	 * @param input the input character array
+	 * @param iStart the search start
+	 * @param iBound the exclusive bound
+	 * @return the calculated position
 	 */
 	public static final int skipSimpleQuote(final char[] input, final int iStart, final int iBound)
 	{
@@ -211,7 +232,7 @@ public final class XParsing
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XParsing()
 	{

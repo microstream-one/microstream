@@ -1,0 +1,80 @@
+= Serializer
+
+MicroStream's serialization engine, which is used by the storage and the cache, can be used standalone as well.
+It is usable as a replacement for the default Java serialization to convert objects to a binary format and vice versa. This API is part of the persistence-binary module:
+
+== Prerequisites
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-persistence-binary</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+== Usage
+
+You can use any medium type, but for most purposes the byte array version should be sufficient, to transfer the serialized form over the transport layer of your choice.
+Simply create a serializer instance, optionally based on a foundation, and call the `serialize` and `deserialize` methods.
+
+[source, java]
+----
+final SerializerFoundation<?> foundation = SerializerFoundation.New()
+	.registerEntityTypes(Customer.class);
+final Serializer<byte[]> serializer = Serializer.Bytes(foundation);
+byte[] data = serializer.serialize(customer);
+Customer restored = serializer.deserialize(data);
+----
+
+== Type handling
+The serializer uses the MicroStream type handling system. This includes registration of new types on demand during serialization and xref:storage:legacy-type-mapping/index.adoc[legacy type mapping] when deserializing.
+The `SerializerFoundation` provides an API like the MicroStream storage to configure the type handling behavior.
+
+[IMPORTANT]
+The default Serializer implementation does not include type information in the serialized output!
+If you want to deserialize that with another serializer instance you must register all classes using the `SerializerFoundation` before you create the serializer or use a `TypedSerializer`!
+
+== TypedSerializer
+The `TypedSerializer` implementation includes type information into the serialized output.
+By default the complete set of type information is included in all serialized output.
+
+[source, java]
+----
+final Serializer<byte[]> serializer = TypedSerializer.Bytes(foundation);
+byte[] data = serializer.serialize(customer);
+Customer restored = serializer.deserialize(data);
+----
+
+=== Configuring the included type information
+To reduce the serialized data it is possible to configure the included type information by suppling a `SerializerTypeInfoStrategyCreator` to the `SerializerFoundation`.
+[source, java]
+----
+final SerializerFoundation<?> foundation = SerializerFoundation.New()
+	.setSerializerTypeInfoStrategyCreator(
+		new SerializerTypeInfoStrategyCreator.IncrementalDiff(false));
+return TypedSerializer.Bytes(foundation);
+----
+
+==== Available options are:
+
+[options="header",cols="1,2"]
+|===
+|Property   
+|Description
+//-------------  
+|TypeDictionary
+|Includes type information for all types currently known to the serializer including those registered during the setup.
+|Diff
+|Includes type information for all types currently known to the serializer including those registered during the setup.
+|IncrementalDiff
+|Includes only type information for types added to the serializers type registry in the current serialization. Types that are registered during the serializers setup are never included.
+|===
+
+==== The `includeTypeInfoOnce` parameter:
+All three serializer type handling strategies allow to specify that the type information gets included only once if it has not changed by setting the parameter `includeTypeInfoOnce = true`.
+If so, the type information is only included if there where new types registered during the current serialization.
+

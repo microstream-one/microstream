@@ -38,18 +38,20 @@ Please note that you have to define a data source provider.
 storage-filesystem.sql.sqlite.data-source-provider=com.sample.MyDataSourceProvider
 storage-filesystem.sql.sqlite.catalog=mycatalog
 storage-filesystem.sql.sqlite.schema=myschema
+storage-filesystem.sql.sqlite.url=jdbc:sqlite:microstreamdb
 ----
 
 [source, java, title="MyDataSourceProvider.java"]
 ----
 package com.sample;
 
-import one.microstream.afs.sql.SqlDataSourceProvider
+import one.microstream.afs.sql.types.SqlDataSourceProvider
 
 public class MyDataSourceProvider implements SqlDataSourceProvider
 {
-	public DataSource provideDataSource()
+	public DataSource provideDataSource(Configuration configuration)
 	{
+		String url = configuration.get("url");
 		// TODO: return data source of your choice, e.g. from a connection pool
 	}
 }

@@ -1,5 +1,25 @@
 package one.microstream.afs.types;
 
+/*-
+ * #%L
+ * microstream-afs
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
@@ -136,7 +156,7 @@ public interface ADirectory extends AItem, AResolving
 	
 	/**
 	 * Removes all child items ({@link ADirectory} or {@link AFile}) that have no physical equivalent.
-	 * @return
+	 * @return the amount of removed items
 	 */
 	public int consolidate();
 	
@@ -155,6 +175,12 @@ public interface ADirectory extends AItem, AResolving
 	 * Downgraded to T0D0 since MicroStream does not require directory mutations (for now...).
 	 */
 	
+	/**
+	 * Returns true if the directory does not contain any other file or directories
+	 * 
+	 * @return true if this directory is empty
+	 */
+	public boolean isEmpty();
 	
 	public abstract class Abstract
 	extends AItem.Abstract
@@ -210,6 +236,15 @@ public interface ADirectory extends AItem, AResolving
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
+			
+		@Override
+		public final boolean isEmpty() 
+		{
+			synchronized(this.mutex())
+			{
+				return this.fileSystem().ioHandler().isEmpty(this);
+			}
+		}
 		
 		@Override
 		public final AItem getItem(final String identifier)

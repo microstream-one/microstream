@@ -1,5 +1,25 @@
 package one.microstream.storage.embedded.types;
 
+/*-
+ * #%L
+ * microstream-storage-embedded
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.io.File;
 import java.nio.file.Path;
 
@@ -47,9 +67,9 @@ public final class EmbeddedStorage
 	 * <p>
 	 * For explanations and customizing values, see {@link #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)}.
 	 *
-	 * @param typeDictionaryIoHandler {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator):}
+	 * @param typeDictionaryIoHandler a logic instance to handle a type dictionary's IO operations.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)@return}
+	 * @return a new {@link EmbeddedStorageConnectionFoundation} instance.
 	 *
 	 * @see #ConnectionFoundation(ADirectory)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)
@@ -91,7 +111,7 @@ public final class EmbeddedStorage
 	 *
 	 * @param directory the directory where the {@link PersistenceTypeDictionary} information will be stored.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#ConnectionFoundation(PersistenceTypeDictionaryIoHandler)@return}
+	 * @return a new {@link EmbeddedStorageConnectionFoundation} instance.
 	 *
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler)
 	 * @see #ConnectionFoundation(PersistenceTypeDictionaryIoHandler, PersistenceTypeEvaluator)
@@ -134,10 +154,10 @@ public final class EmbeddedStorage
 
 	/**
 	 * Pseudo-constructor method to create a new {@link EmbeddedStorageFoundation} instance
-	 * using {@link #defaultStorageDirectory()} as its storage directory and default values for
+	 * using {@link Storage#defaultStorageDirectory()} as its storage directory and default values for
 	 * its {@link StorageConfiguration}.
 	 * <p>
-	 * Calls {@link #ConnectionFoundation(ADirectory)} with {@link #defaultStorageDirectory()}.
+	 * Calls {@link #ConnectionFoundation(ADirectory)} with {@link Storage#defaultStorageDirectory()}.
 	 *
 	 * @return a new all-default {@link EmbeddedStorageFoundation} instance.
 	 *
@@ -152,7 +172,10 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @deprecated replaced by {@link #Foundation(Path)}
+	 * @param directory the storage directory
+	 * @return a new storage foundation
+	 * 
+	 * @deprecated replaced by {@link #Foundation(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final EmbeddedStorageFoundation<?> Foundation(
@@ -182,7 +205,7 @@ public final class EmbeddedStorage
 	 * Calls {@link #Foundation(StorageConfiguration)} with a newly created
 	 * {@link StorageConfiguration} using the passed directory as its storage location.
 	 *
-	 * @param directory {@linkDoc EmbeddedStorage#start(Path):}
+	 * @param directory the directory where the storage will be located.
 	 *
 	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed storage directory.
 	 *
@@ -231,7 +254,7 @@ public final class EmbeddedStorage
 	 * using the passed {@link StorageConfiguration.Builder} to build its {@link StorageConfiguration}.
 	 * <p>
 	 * This is merely a convenience alias for {@code Foundation(configuration.createConfiguration());}
-	 *
+	 * 
 	 * @param configuration the {@link StorageConfiguration.Builder} to be used.
 	 *
 	 * @return a new {@link EmbeddedStorageFoundation} instance using the passed directory and configuration.
@@ -298,7 +321,11 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @deprecated replaced by {@link #start(Path)}
+	 * @param directory the directory where the storage will be located.
+	 *
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
+	 * 
+	 * @deprecated replaced by {@link #start(Path)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final EmbeddedStorageManager start(
@@ -316,7 +343,7 @@ public final class EmbeddedStorage
 	 *
 	 * @param directory the directory where the storage will be located.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
 	 * @see #start()
 	 * @see #start(StorageConfiguration)
@@ -338,7 +365,7 @@ public final class EmbeddedStorage
 	 *
 	 * @param directory the directory where the storage will be located.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
 	 * @see #start()
 	 * @see #start(StorageConfiguration)
@@ -360,7 +387,7 @@ public final class EmbeddedStorage
 	 *
 	 * @param configuration the {@link StorageConfiguration} to be used.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
 	 * @see #start()
 	 * @see #start(ADirectory)
@@ -382,7 +409,7 @@ public final class EmbeddedStorage
 	 *
 	 * @param configuration the {@link StorageConfiguration.Builder} to be used.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
 	 * @see #start()
 	 * @see #start(ADirectory)
@@ -407,7 +434,7 @@ public final class EmbeddedStorage
 	 * @param connectionFoundation the {@link EmbeddedStorageConnectionFoundation} to be used instead of a
 	 *        generically created one.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
 	 * @see #start()
 	 * @see #start(ADirectory)
@@ -433,7 +460,7 @@ public final class EmbeddedStorage
 	 *
 	 * @param root the explicitely defined root instance of the persistent entity graph.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
 	 * @see #start(Object, ADirectory)
 	 * @see #start(Object, StorageConfiguration)
@@ -451,7 +478,13 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @deprecated replaced by {@link #start(Object, Path)} and {@link #start(Object, ADirectory)}
+	 * @param root      root the explicitely defined root instance of the persistent entity graph.
+	 *
+	 * @param directory the directory where the storage will be located.
+	 *
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
+	 * 
+	 * @deprecated replaced by {@link #start(Object, Path)} and {@link #start(Object, ADirectory)}, will be removed in version 8
 	 */
 	@Deprecated
 	public static final EmbeddedStorageManager start(
@@ -469,11 +502,11 @@ public final class EmbeddedStorage
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root      {@linkDoc EmbeddedStorage#start(Object):}
+	 * @param root      root the explicitely defined root instance of the persistent entity graph.
 	 *
-	 * @param directory {@linkDoc EmbeddedStorage#start(Path):}
+	 * @param directory the directory where the storage will be located.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
 	 * @see #start(Object)
 	 * @see #start(Object, StorageConfiguration)
@@ -498,11 +531,11 @@ public final class EmbeddedStorage
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root      {@linkDoc EmbeddedStorage#start(Object):}
+	 * @param root      root the explicitely defined root instance of the persistent entity graph.
 	 *
-	 * @param directory {@linkDoc EmbeddedStorage#start(Path):}
+	 * @param directory the directory where the storage will be located.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
 	 * @see #start(Object)
 	 * @see #start(Object, StorageConfiguration)
@@ -527,11 +560,11 @@ public final class EmbeddedStorage
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root          {@linkDoc EmbeddedStorage#start(Object):}
+	 * @param root          root the explicitely defined root instance of the persistent entity graph.
 	 *
-	 * @param configuration {@linkDoc EmbeddedStorage#start(StorageConfiguration):}
+	 * @param configuration the {@link StorageConfiguration} to be used.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
 	 * @see #start(Object)
 	 * @see #start(Object, ADirectory)
@@ -556,11 +589,11 @@ public final class EmbeddedStorage
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root          {@linkDoc EmbeddedStorage#start(Object):}
+	 * @param root          root the explicitely defined root instance of the persistent entity graph.
 	 *
-	 * @param configuration {@linkDoc EmbeddedStorage#start(StorageConfiguration.Builder):}
+	 * @param configuration the {@link StorageConfiguration.Builder} to be used.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
 	 * @see #start(Object)
 	 * @see #start(Object, ADirectory)
@@ -585,13 +618,14 @@ public final class EmbeddedStorage
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root                 {@linkDoc EmbeddedStorage#start(Object):}
+	 * @param root                 root the explicitely defined root instance of the persistent entity graph.
 	 *
-	 * @param configuration        {@linkDoc EmbeddedStorage#start(StorageConfiguration, EmbeddedStorageConnectionFoundation):}
+	 * @param configuration        the {@link StorageConfiguration} to be used.
 	 *
-	 * @param connectionFoundation {@linkDoc EmbeddedStorage#start(StorageConfiguration, EmbeddedStorageConnectionFoundation):}
+	 * @param connectionFoundation the {@link EmbeddedStorageConnectionFoundation} to be used instead of a
+	 *        generically created one.
 	 *
-	 * @return {@linkDoc EmbeddedStorage#start()@return}
+	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
 	 * @see #start(Object)
 	 * @see #start(Object, ADirectory)
@@ -641,7 +675,7 @@ public final class EmbeddedStorage
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private EmbeddedStorage()
 	{

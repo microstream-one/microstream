@@ -95,7 +95,7 @@ Most collections above are handled in a generic way.
 If you want a more optimized version of JDK collection handlers, you can utilize the provided module `microstream-persistence-binary-jdk8`.
 ====
 
-[source, xml, subs=attributes+]
+[source, xml, title="pom.xml", subs=attributes+]
 ----
 <dependencies>
 	<dependency>
@@ -110,4 +110,24 @@ If you want a more optimized version of JDK collection handlers, you can utilize
 ----
 final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation();
 foundation.onConnectionFoundation(BinaryHandlersJDK8::registerJDK8TypeHandlers);
+----
+
+[#jdk17]
+== Java 17 Immutable Set and List
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-persistence-binary-jdk17</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+[source, java]
+----
+final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation();
+foundation.onConnectionFoundation(BinaryHandlersJDK17::registerJDK17TypeHandlers);
 ----

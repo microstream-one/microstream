@@ -148,7 +148,7 @@ For Lazy Loading, simply wrap `Lazy<>` around the actual field and then call `.g
 
 It's as simple as that.
 
-TIP: The full example can be found on https://github.com/microstream-one/examples/tree/master/lazyLoading[GitHub].
+TIP: The full example can be found on https://github.com/microstream-one/microstream/tree/master/examples/lazy-loading[GitHub].
 
 == Side Note
 

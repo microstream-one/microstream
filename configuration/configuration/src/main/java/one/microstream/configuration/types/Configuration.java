@@ -1,5 +1,25 @@
 package one.microstream.configuration.types;
 
+/*-
+ * #%L
+ * microstream-configuration
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.notEmpty;
 
@@ -128,6 +148,7 @@ public interface Configuration
 		 * Maps values and child-configurations from the specified source into this builder.
 		 * This can be used to get values from one or more external resources.
 		 * 
+		 * @param <S> the source type
 		 * @param mapper the mapper for the source
 		 * @param source the input source
 		 * @return this builder
@@ -448,7 +469,7 @@ public interface Configuration
 	 * Gets the assigned value of the specified key as {@link Integer},
 	 * or <code>null</code> if the configuration doesn't contain the key.
 	 * <p>
-	 * The String value is parsed according to {@link Integer#parseInteger(String)}.
+	 * The String value is parsed according to {@link Integer#parseInt(String)}.
 	 * 
 	 * @param key the key to look up
 	 * @return the assigned value, or <code>null</code>
@@ -506,6 +527,7 @@ public interface Configuration
 	 * <p>
 	 * The String value is parsed by the registered {@link ConfigurationValueMapper} for the specified type.
 	 * 
+	 * @param <T> the value type
 	 * @param key the key to look up
 	 * @param type the type to map to
 	 * @return the assigned value, or <code>null</code>
@@ -621,6 +643,7 @@ public interface Configuration
 	 * Gets the assigned value of the specified key as {@link Optional},
 	 * which is empty if the configuration doesn't contain the key.
 	 * 
+	 * @param <T> the value type
 	 * @param key the key to look up
 	 * @param type the type to map to
 	 * @return a filled or empty {@link Optional}

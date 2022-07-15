@@ -1,6 +1,26 @@
 
 package one.microstream.storage.embedded.configuration.types;
 
+/*-
+ * #%L
+ * microstream-storage-embedded-configuration
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 /**
  * All supported properties for external configuration files.
  *
@@ -93,22 +113,22 @@ public interface EmbeddedStorageConfigurationPropertyNames
 	public final static String ENTITY_CACHE_THRESHOLD        = "entity-cache-threshold";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setEntityCacheTimeout(long)
+	 * @see EmbeddedStorageConfigurationBuilder#setEntityCacheTimeout(java.time.Duration)
 	 */
 	public final static String ENTITY_CACHE_TIMEOUT          = "entity-cache-timeout";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMinimumSize(int)
+	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMinimumSize(one.microstream.configuration.types.ByteSize)
 	 */
 	public final static String DATA_FILE_MINIMUM_SIZE        = "data-file-minimum-size";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMaximumSize(int)
+	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMaximumSize(one.microstream.configuration.types.ByteSize)
 	 */
 	public final static String DATA_FILE_MAXIMUM_SIZE        = "data-file-maximum-size";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setDataFileDissolveRatio(double)
+	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMinimumUseRatio(double)
 	 */
 	public final static String DATA_FILE_MINIMUM_USE_RATIO   = "data-file-minimum-use-ratio";
 

@@ -1,5 +1,25 @@
 package one.microstream.afs.types;
 
+/*-
+ * #%L
+ * microstream-afs
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.coalesce;
 import static one.microstream.X.notNull;
 
@@ -9,6 +29,8 @@ public interface ARoot extends ADirectory
 	 * E.g.
 	 * https://
 	 * file://
+	 * 
+	 * @return the protocol
 	 */
 	public String protocol();
 	
@@ -36,12 +58,13 @@ public interface ARoot extends ADirectory
 	
 	
 	/**
+	 * Creates a new root directory
 	 * Note: {@code identifier} can be {@literal ""} since local file paths might start with a "/".
-	 * @param fileSystem
-	 * @param protocol
-	 * @param identifier
+	 * @param fileSystem the root's file system
+	 * @param protocol the used protocol
+	 * @param identifier the identifier of the root directory
+	 * @return the newly created root directory
 	 * 
-	 * @return
 	 */
 	public static ARoot New(
 		final AFileSystem fileSystem,

@@ -1,5 +1,25 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 import static one.microstream.math.XMath.positive;
 
@@ -133,7 +153,7 @@ public interface StorageLockFileSetup
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLockFileSetup#Provider(Charset, long)}.
 	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
+	 * @return a new {@link Provider} instance.
 	 *
 	 * @see StorageLockFileSetup
 	 */
@@ -151,9 +171,9 @@ public interface StorageLockFileSetup
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLockFileSetup#Provider(Charset, long)}.
 	 *
-	 * @param charset {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
+	 * @param charset the {@link Charset} to be used for the lock file content.
 	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
+	 * @return a new {@link Provider} instance.
 	 *
 	 * @see StorageLockFileSetup
 	 */
@@ -173,9 +193,9 @@ public interface StorageLockFileSetup
 	 * <p>
 	 * For explanations and customizing values, see {@link StorageLockFileSetup#Provider(Charset, long)}.
 	 *
-	 * @param updateInterval {@linkDoc StorageLockFileSetup#Provider(Charset, long):}
+	 * @param updateInterval the update interval in ms.
 	 *
-	 * @return {@linkDoc StorageLockFileSetup#Provider(Charset, long)@return}
+	 * @return a new {@link Provider} instance.
 	 *
 	 * @see StorageLockFileSetup
 	 */

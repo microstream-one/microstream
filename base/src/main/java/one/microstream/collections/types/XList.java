@@ -1,5 +1,25 @@
 package one.microstream.collections.types;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.util.Comparator;
 import java.util.RandomAccess;
 import java.util.function.Consumer;
@@ -7,13 +27,14 @@ import java.util.function.Consumer;
 import one.microstream.functional.Aggregator;
 
 /**
- * Extended List interface with a ton of badly needed list procedures like distinction between identity and equality
+ * Extended List interface with additional list procedures like distinction between identity and equality
  * element comparison, procedure range specification, higher order (functional) procedures, proper toArray() methods,
  * etc.<br>
  * <br>
  * All {@link XList} implementations have to have {@link RandomAccess} behavior.<br>
  * Intelligent implementations make non-random-access implementations like simple linked lists obsolete.
  *
+ * @param <E> type of contained elements
  * 
  *
  */

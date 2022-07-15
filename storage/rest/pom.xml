@@ -9,12 +9,15 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-storage-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-storage-rest-parent</artifactId>
 	<packaging>pom</packaging>
+	
+	<name>MicroStream Storage REST</name>
+	<description>MicroStream Storage REST Project</description>
 
 	<modules>
 		<module>adapter</module>

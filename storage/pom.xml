@@ -9,18 +9,22 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-storage-parent</artifactId>
 	<packaging>pom</packaging>
+	
+	<name>MicroStream Storage</name>
+	<description>MicroStream Storage Project</description>
 
 	<modules>
 		<module>storage</module>
 		<module>embedded</module>
 		<module>embedded-configuration</module>
 		<module>rest</module>
+		<module>embedded-tools</module>
 	</modules>
 
 </project>

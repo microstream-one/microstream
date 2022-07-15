@@ -1,5 +1,25 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.nio.ByteOrder;
 
 import one.microstream.exceptions.MissingFoundationPartException;
@@ -30,7 +50,7 @@ import one.microstream.util.ProcessIdentityProvider;
  *
  * @param <F> the "self-type" of the  {@link StorageFoundation} implementation.
  */
-public interface StorageFoundation<F extends StorageFoundation<?>>
+public interface StorageFoundation<F extends StorageFoundation<?>> extends InstanceDispatcher
 {
 	/* (11.06.2019 TM)NOTE:
 	 * JavaDoc-Note: all setters and getters use the same text with only the type name inserted.
@@ -68,9 +88,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageOperationController.Creator getOperationControllerCreator();
 	
@@ -82,9 +102,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageInitialDataFileNumberProvider getInitialDataFileNumberProvider();
 	
@@ -96,9 +116,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageRequestAcceptor.Creator getRequestAcceptorCreator();
 	
@@ -110,9 +130,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageTaskBroker.Creator getTaskBrokerCreator();
 	
@@ -124,9 +144,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageDataChunkValidator.Provider getDataChunkValidatorProvider();
 	
@@ -138,9 +158,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageDataChunkValidator.Provider2 getDataChunkValidatorProvider2();
 	
@@ -152,9 +172,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageChannelsCreator getChannelCreator();
 
@@ -166,9 +186,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageThreadNameProvider getThreadNameProvider();
 	
@@ -180,9 +200,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageChannelThreadProvider getChannelThreadProvider();
 		
@@ -194,9 +214,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageBackupThreadProvider getBackupThreadProvider();
 	
@@ -208,9 +228,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageLockFileManagerThreadProvider getLockFileManagerThreadProvider();
 	
@@ -222,9 +242,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageThreadProvider getThreadProvider();
 	
@@ -236,9 +256,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageRequestTaskCreator getRequestTaskCreator();
 	
@@ -250,9 +270,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageTypeDictionary getTypeDictionary();
 	
@@ -264,9 +284,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageRootTypeIdProvider getRootTypeIdProvider();
 	
@@ -278,9 +298,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageTimestampProvider getTimestampProvider();
 	
@@ -292,9 +312,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageObjectIdRangeEvaluator getObjectIdRangeEvaluator();
 		
@@ -306,9 +326,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageFileWriter.Provider getWriterProvider();
 	
@@ -320,9 +340,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageGCZombieOidHandler getGCZombieOidHandler();
 	
@@ -334,9 +354,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageRootOidSelector.Provider getRootOidSelectorProvider();
 	
@@ -348,9 +368,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageObjectIdMarkQueue.Creator getOidMarkQueueCreator();
 	
@@ -362,9 +382,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageEntityMarkMonitor.Creator getEntityMarkMonitorCreator();
 	
@@ -376,9 +396,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageDataFileValidator.Creator getDataFileValidatorCreator();
 	
@@ -390,9 +410,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public BinaryEntityRawDataIterator.Provider getEntityDataIteratorProvider();
 	
@@ -404,9 +424,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageEntityDataValidator.Creator getEntityDataValidatorCreator();
 	
@@ -418,9 +438,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public ProcessIdentityProvider getProcessIdentityProvider();
 	
@@ -432,9 +452,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageLockFileSetup getLockFileSetup();
 	
@@ -446,9 +466,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageLockFileSetup.Provider getLockFileSetupProvider();
 	
@@ -460,9 +480,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageLockFileManager.Creator getLockFileManagerCreator();
 	
@@ -474,9 +494,9 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 * 
-	 * @return {@linkDoc StorageFoundation#getConfiguration()@return}
+	 * @return the currently set instance, potentially created on-demand if required.
 	 * 
-	 * @throws {@linkDoc StorageFoundation#getConfiguration()@throws}
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
 	 */
 	public StorageExceptionHandler getExceptionHandler();
 	
@@ -490,7 +510,19 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	
 	public StorageHousekeepingBroker getHousekeepingBroker();
 
-	
+	/**
+	 * Returns the currently set {@link StorageStructureValidator} instance.
+	 * <p>
+	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
+	 * execution of {@link #createStorageSystem()}, a suitable instance is created via an internal default
+	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
+	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
+	 * 
+	 * @return the currently set instance, potentially created on-demand if required.
+	 * 
+	 * @throws MissingFoundationPartException if a returnable instance is required but cannot be created by default.
+	 */
+	public StorageStructureValidator getStorageStructureValidator();
 	
 	/**
 	 * Sets the {@link StorageConfiguration} instance to be used for the assembly.
@@ -506,7 +538,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param operationControllerCreator the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setOperationControllerCreator(StorageOperationController.Creator operationControllerCreator);
 	
@@ -515,7 +547,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param initDataFileNumberProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setInitialDataFileNumberProvider(StorageInitialDataFileNumberProvider initDataFileNumberProvider);
 	
@@ -524,7 +556,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param requestAcceptorCreator the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setRequestAcceptorCreator(StorageRequestAcceptor.Creator requestAcceptorCreator);
 	
@@ -533,7 +565,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param taskBrokerCreator the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setTaskBrokerCreator(StorageTaskBroker.Creator taskBrokerCreator);
 	
@@ -542,7 +574,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param dataChunkValidatorProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setDataChunkValidatorProvider(StorageDataChunkValidator.Provider dataChunkValidatorProvider);
 	
@@ -551,7 +583,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param dataChunkValidatorProvider2 the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setDataChunkValidatorProvider2(StorageDataChunkValidator.Provider2 dataChunkValidatorProvider2);
 	
@@ -560,7 +592,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param channelCreator the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setChannelCreator(StorageChannelsCreator channelCreator);
 	
@@ -569,7 +601,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param threadNameProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setThreadNameProvider(StorageThreadNameProvider threadNameProvider);
 	
@@ -578,7 +610,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param channelThreadProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setChannelThreadProvider(StorageChannelThreadProvider channelThreadProvider);
 	
@@ -587,7 +619,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param backupThreadProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setBackupThreadProvider(StorageBackupThreadProvider backupThreadProvider);
 	
@@ -596,7 +628,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param lockFileManagerThreadProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setLockFileManagerThreadProvider(StorageLockFileManagerThreadProvider lockFileManagerThreadProvider);
 	
@@ -605,7 +637,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param threadProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setThreadProvider(StorageThreadProvider threadProvider);
 	
@@ -614,7 +646,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param taskCreator the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setTaskCreator(StorageRequestTaskCreator taskCreator);
 	
@@ -623,7 +655,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param typeDictionary the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setTypeDictionary(StorageTypeDictionary typeDictionary);
 	
@@ -632,7 +664,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param rootTypeIdProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setRootTypeIdProvider(StorageRootTypeIdProvider rootTypeIdProvider);
 	
@@ -641,7 +673,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param timestampProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setTimestampProvider(StorageTimestampProvider timestampProvider);
 	
@@ -650,7 +682,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param objectIdRangeEvaluator the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setObjectIdRangeEvaluator(StorageObjectIdRangeEvaluator objectIdRangeEvaluator);
 		
@@ -659,7 +691,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param writerProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setWriterProvider(StorageFileWriter.Provider writerProvider);
 	
@@ -668,7 +700,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param gCZombieOidHandler the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setGCZombieOidHandler(StorageGCZombieOidHandler gCZombieOidHandler);
 	
@@ -677,7 +709,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param rootOidSelectorProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setRootOidSelectorProvider(StorageRootOidSelector.Provider rootOidSelectorProvider);
 	
@@ -686,7 +718,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param oidMarkQueueCreator the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setOidMarkQueueCreator(StorageObjectIdMarkQueue.Creator oidMarkQueueCreator);
 	
@@ -695,7 +727,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param entityMarkMonitorCreator the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setEntityMarkMonitorCreator(StorageEntityMarkMonitor.Creator entityMarkMonitorCreator);
 	
@@ -704,7 +736,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param dataFileValidatorCreator the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setDataFileValidatorCreator(StorageDataFileValidator.Creator dataFileValidatorCreator);
 	
@@ -713,7 +745,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param entityRawDataIteratorProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setEntityDataIteratorProvider(BinaryEntityRawDataIterator.Provider entityRawDataIteratorProvider);
 	
@@ -722,7 +754,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param entityDataValidatorCreator the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setEntityDataValidatorCreator(StorageEntityDataValidator.Creator entityDataValidatorCreator);
 	
@@ -731,7 +763,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param processIdentityProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setProcessIdentityProvider(ProcessIdentityProvider processIdentityProvider);
 	
@@ -740,7 +772,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param lockFileSetup the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setLockFileSetup(StorageLockFileSetup lockFileSetup);
 	
@@ -749,7 +781,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param lockFileSetupProvider the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setLockFileSetupProvider(StorageLockFileSetup.Provider lockFileSetupProvider);
 	
@@ -758,7 +790,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param lockFileManagerCreator the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setLockFileManagerCreator(StorageLockFileManager.Creator lockFileManagerCreator);
 	
@@ -767,7 +799,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 	 * 
 	 * @param exceptionHandler the instance to be used.
 	 * 
-	 * @return {@linkDoc StorageFoundation#setConfiguration(StorageConfiguration)@return}
+	 * @return {@literal this} to allow method chaining.
 	 */
 	public F setExceptionHandler(StorageExceptionHandler exceptionHandler);
 	
@@ -779,6 +811,14 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 
 	public F setHousekeepingBroker(StorageHousekeepingBroker housekeepingBroker);
 	
+	/**
+	 * Sets the {@link StorageStructureValidator} instance to be used for the assembly.
+	 * 
+	 * @param storageStructureValidator the instance to be used.
+	 * 
+	 * @return {@literal this} to allow method chaining.
+	 */
+	public F setStorageStructureValidator(final StorageStructureValidator storageStructureValidator);
 	
 	/**
 	 * Creates and returns a new {@link StorageSystem} instance by using the current state of all registered
@@ -841,6 +881,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		private StorageEventLogger                    eventLogger                  ;
 		private StorageWriteController                writeController              ;
 		private StorageHousekeepingBroker             housekeepingBroker           ;
+		private StorageStructureValidator             storageStructureValidator    ;
 
 		
 		
@@ -1010,7 +1051,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		{
 			return StorageDataFileValidator.Creator(
 				this.getEntityDataIteratorProvider(),
-				this.getEntityDataValidatorCreator()
+				this.getEntityDataValidatorCreator(),
+				this.getTypeDictionary()
 			);
 		}
 		
@@ -1035,7 +1077,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 		
 		protected StorageEventLogger ensureEventLogger()
 		{
-			return StorageEventLogger.NoOp();
+			return StorageEventLogger.Default();
 		}
 		
 		// provide instead of ensure because the instance may be null (meaning no lock file)
@@ -1071,6 +1113,14 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return StorageHousekeepingBroker.New();
 		}
 				
+		
+		protected StorageStructureValidator ensureStorageStructureValidator()
+		{
+			return StorageStructureValidator.New(
+				this.getConfiguration().fileProvider(),
+				this.getConfiguration().channelCountProvider()
+			);
+		}
 		
 
 		@Override
@@ -1423,6 +1473,15 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return this.housekeepingBroker;
 		}
 
+		@Override
+		public StorageStructureValidator getStorageStructureValidator()
+		{
+			if(this.storageStructureValidator == null)
+			{
+				this.storageStructureValidator = this.dispatch(this.ensureStorageStructureValidator());
+			}
+			return this.storageStructureValidator;
+		}
 		
 		
 		@Override
@@ -1698,6 +1757,13 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 			return this.$();
 		}
 		
+		@Override
+		public F setStorageStructureValidator(final StorageStructureValidator storageStructureValidator)
+		{
+			this.storageStructureValidator = storageStructureValidator;
+			return this.$();
+		}
+		
 		public final boolean isByteOrderMismatch()
 		{
 			/* (11.02.2019 TM)NOTE: On byte order switching:
@@ -1746,7 +1812,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>>
 				this.getLockFileSetup()                ,
 				this.getLockFileManagerCreator()       ,
 				this.getExceptionHandler()             ,
-				this.getEventLogger()
+				this.getEventLogger()                  ,
+				this.getStorageStructureValidator()
 			);
 		}
 

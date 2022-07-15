@@ -7,17 +7,20 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-persistence-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-persistence-binary</artifactId>
 	
+	<name>MicroStream Persistence Binary</name>
+	<description>MicroStream Persistence Binary Data Extension</description>
+	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-persistence</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	

@@ -1,6 +1,26 @@
 
 package one.microstream.configuration.types;
 
+/*-
+ * #%L
+ * microstream-configuration
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -79,6 +99,10 @@ public enum ByteUnit
 	 * </code>
 	 * </p>
 	 * 
+	 * @param sourceValue the source value to convert
+	 * @param sourceUnit the source unit to convert
+	 * @return the conversion for method chaining
+	 * 
 	 * @see Conversion
 	 */
 	public static Conversion convert(
@@ -104,10 +128,10 @@ public enum ByteUnit
 	}
 	
 	/**
-	 * Returns the number of bytes, which this unit multiplied by <code>value</code> yield
+	 * Returns the number of bytes, which this unit multiplied by <code>value</code> yields.
 	 * 
-	 * @param value
-	 * @return
+	 * @param value the value to convert
+	 * @return the value converted to bytes
 	 */
 	public long toBytes(
 		final double value

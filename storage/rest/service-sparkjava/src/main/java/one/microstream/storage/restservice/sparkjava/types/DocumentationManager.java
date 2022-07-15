@@ -1,5 +1,25 @@
 package one.microstream.storage.restservice.sparkjava.types;
 
+/*-
+ * #%L
+ * microstream-storage-restservice-sparkjava
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
@@ -45,8 +65,12 @@ public class DocumentationManager extends RouteManager
 	////////////
 
 	/**
-	 * Register a route / httpMethod and automatically create and register an options route
+	 * Registers a route / httpMethod and automatically creates and registers an options route
 	 * to get help on this route
+	 * 
+	 * @param httpMethod the http method
+	 * @param uri the uri
+	 * @param route the route
 	 */
 	@Override
 	public void registerRoute(final HttpMethod httpMethod, final String uri, final RouteBase<?> route)
@@ -61,7 +85,7 @@ public class DocumentationManager extends RouteManager
 	/**
 	 * get a Json Array containing all registered roots and there httpMethods
 	 *
-	 * @param host: the host url and context path
+	 * @param host the host url and context path
 	 *
 	 * @return JsonArray
 	 */
@@ -90,8 +114,8 @@ public class DocumentationManager extends RouteManager
 	/**
 	 * Get the documentation snippet for a http method for a registered uri
 	 *
-	 * @param uri
-	 * @param httpMethod
+	 * @param uri the uri
+	 * @param httpMethod the http method
 	 * @return JsonObject
 	 */
 	public Object getDocumentation(final String uri, final String httpMethod)
@@ -109,7 +133,7 @@ public class DocumentationManager extends RouteManager
 	/**
 	 * Get the documentation snippet of all http methods for a registered uri
 	 *
-	 * @param uri
+	 * @param uri the uri
 	 * @return JsonObject
 	 */
 	public Object getDocumentation(final String uri)
@@ -131,7 +155,8 @@ public class DocumentationManager extends RouteManager
 
 	/**
 	 * Build the documentation from an provided embedded json resource file
-	 *
+	 * 
+	 * @param filePath the file path
 	 */
 	private void buildLiveDocumentation(final String filePath)
 	{

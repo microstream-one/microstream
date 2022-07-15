@@ -1,13 +1,35 @@
 package one.microstream.reference;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+
 import one.microstream.memory.MemoryStatistics;
-import one.microstream.meta.XDebug;
 import one.microstream.reference.Lazy.Check;
 import one.microstream.reference.Lazy.Checker;
 import one.microstream.time.XTime;
+import one.microstream.util.logging.Logging;
 
 public interface LazyReferenceManager
 {
@@ -87,7 +109,7 @@ public interface LazyReferenceManager
 		/**
 		 * Dummy constructor to prevent instantiation of this static-only utility class.
 		 * 
-		 * @throws UnsupportedOperationException
+		 * @throws UnsupportedOperationException when called
 		 */
 		private Static()
 		{
@@ -157,6 +179,8 @@ public interface LazyReferenceManager
 		// constants //
 		//////////////
 
+		final static Logger logger = Logging.getLogger(Default.class);
+		
 		private static final Clearer CLEARER = new Clearer();
 
 		// defaults mean to check every second with a budget of 1 MS (0.1% thread activity)
@@ -175,11 +199,11 @@ public interface LazyReferenceManager
 		private final    Entry          head   = new Entry(null)      ;
 		private          Entry          tail   = this.head            ;
 		private          Entry          cursor = this.head            ; // current "last" entry for checking
-
-        private boolean         running        ;
+		
+		private boolean         running        ;
 		private ControllerEntry headController ;
 		private long            controllerCount;
-
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -296,24 +320,22 @@ public interface LazyReferenceManager
 		// methods //
 		////////////
 		
-		public void DEBUG_printLoadCount(final String label)
-		{
-			final int count = this.iterate(new Consumer<Lazy<?>>()
-			{
-				int count;
-
-				@Override
-				public void accept(final Lazy<?> t)
-				{
-					if(t.peek() != null)
-					{
-						this.count++;
-					}
-				}
-			}).count;
-			
-			XDebug.println('\n' + label + " Lazy loaded count = " + count);
-		}
+//		private int countReferences()
+//		{
+//			return this.iterate(new Consumer<Lazy<?>>()
+//			{
+//				int count;
+//
+//				@Override
+//				public void accept(final Lazy<?> t)
+//				{
+//					if(t.peek() != null)
+//					{
+//						this.count++;
+//					}
+//				}
+//			}).count;
+//		}
 
 		final void internalCleanUp(final long nanoTimeBudget, final Checker checker)
 		{
@@ -364,8 +386,7 @@ public interface LazyReferenceManager
 			{
 				return;
 			}
-
-//			this.DEBUG_printLoadCount("Before cycle:");
+		
 			checker.beginCheckCycle();
 
 			cleanUp:
@@ -407,7 +428,6 @@ public interface LazyReferenceManager
 			// remember last checked entry for next cleanup run. Cursor field is strictly only used by one thread.
 			this.cursor = last;
 
-//			this.DEBUG_printLoadCount("After cycle:");
 			checker.endCheckCycle();
 		}
 
@@ -551,6 +571,7 @@ public interface LazyReferenceManager
 				// adding logic ensures there can be at the most one entry, so one match suffices to end the loop.
 				this.headController = this.headController.next;
 				this.controllerCount--;
+				this.stopIfNoControllers();
 				return true;
 			}
 			
@@ -572,6 +593,7 @@ public interface LazyReferenceManager
 					this.controllerCount--;
 					
 					// adding logic ensures there can be at the most one entry, so one match suffices to end the loop.
+					this.stopIfNoControllers();
 					return true;
 				}
 			}
@@ -579,7 +601,19 @@ public interface LazyReferenceManager
 			// passed controller not found
 			return false;
 		}
-		
+
+		/**
+		 * When there are no controllers attached to this object, stop the LazyReferenceManager so that no
+		 * daemon threads running anymore and program can exit normally.
+		 */
+		private void stopIfNoControllers()
+		{
+			if (this.controllerCount == 0)
+			{
+				this.stop();
+			}
+		}
+
 		@Override
 		public <P extends Consumer<? super LazyReferenceManager.Controller>> P iterateControllers(
 			final P iterator
@@ -631,6 +665,8 @@ public interface LazyReferenceManager
 			@Override
 			public void run()
 			{
+				logger.debug("LazyReferenceManager started");
+				
 				LazyReferenceManager.Default parent;
 				while((parent = this.parent.get()) != null)
 				{
@@ -669,6 +705,7 @@ public interface LazyReferenceManager
 				}
 				
 				// either parent has been garbage collected or stopped, so terminate.
+				logger.debug("LazyReferenceManager stopped");
 //				XDebug.println(Thread.currentThread().getName() + " terminating.");
 			}
 		}

@@ -1,25 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>one.microstream</groupId>
-		<artifactId>microstream-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+    <parent>
+        <groupId>one.microstream</groupId>
+        <artifactId>microstream-parent</artifactId>
+        <version>08.00.00-MS-GA-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-	<artifactId>microstream-persistence-parent</artifactId>
-	<packaging>pom</packaging>
+    <artifactId>microstream-persistence-parent</artifactId>
+    <packaging>pom</packaging>
 
-	<modules>
-		<module>persistence</module>
-		<module>binary</module>
-		<module>binary-jdk8</module>
-	</modules>
+    <name>MicroStream Persistence</name>
+    <description>MicroStream Persistence Project</description>
 
+    <modules>
+        <module>persistence</module>
+        <module>binary</module>
+        <module>binary-jdk8</module>
+        <module>binary-android</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>from_java_17</id>
+            <activation>
+                <jdk>[17,)</jdk>
+            </activation>
+            <modules>
+                <module>binary-jdk17</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

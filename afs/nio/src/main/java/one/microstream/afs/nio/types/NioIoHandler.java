@@ -1,5 +1,25 @@
 package one.microstream.afs.nio.types;
 
+/*-
+ * #%L
+ * microstream-afs-nio
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
 import java.io.IOException;
@@ -259,6 +279,12 @@ public interface NioIoHandler extends AIoHandler
 				throw new IORuntimeException(e);
 			}
 		}
+		
+		@Override
+		protected boolean specificIsEmpty(final ADirectory directory) 
+		{		
+			return XIO.unchecked.hasNoFiles(this.toSubjectDirectory(directory));			
+		}
 
 		@Override
 		protected boolean specificOpenReading(final NioReadableFile file)
@@ -306,11 +332,17 @@ public interface NioIoHandler extends AIoHandler
 		}
 		
 		@Override
-		protected void specificTruncateFile(final NioWritableFile file, final long newSize)
+		protected void specificTruncateFile(
+			final NioWritableFile targetFile,
+			final long            newSize
+		)
 		{
+			// ensure file is opened for writing
+			this.openWriting(targetFile);
+
 			try
 			{
-				XIO.truncate(file.path(), newSize);
+				XIO.truncate(targetFile.fileChannel(), newSize);
 			}
 			catch (final IOException e)
 			{

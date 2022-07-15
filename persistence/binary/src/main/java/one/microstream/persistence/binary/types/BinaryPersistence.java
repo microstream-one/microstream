@@ -1,5 +1,25 @@
 package one.microstream.persistence.binary.types;
 
+/*-
+ * #%L
+ * microstream-persistence-binary
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,6 +75,7 @@ import one.microstream.persistence.binary.java.time.BinaryHandlerZoneOffset;
 import one.microstream.persistence.binary.java.util.BinaryHandlerArrayDeque;
 import one.microstream.persistence.binary.java.util.BinaryHandlerArrayList;
 import one.microstream.persistence.binary.java.util.BinaryHandlerCopyOnWriteArrayList;
+import one.microstream.persistence.binary.java.util.BinaryHandlerCopyOnWriteArraySet;
 import one.microstream.persistence.binary.java.util.BinaryHandlerCurrency;
 import one.microstream.persistence.binary.java.util.BinaryHandlerDate;
 import one.microstream.persistence.binary.java.util.BinaryHandlerHashMap;
@@ -306,6 +327,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerConcurrentHashMap.New()    ,
 			BinaryHandlerConcurrentLinkedQueue.New(),
 			BinaryHandlerCopyOnWriteArrayList.New() ,
+			BinaryHandlerCopyOnWriteArraySet.New()  ,
 
 			// remaining JDK collections (wrappers and the like) are handled dynamically
 
@@ -444,7 +466,7 @@ public final class BinaryPersistence extends Persistence
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private BinaryPersistence()
 	{

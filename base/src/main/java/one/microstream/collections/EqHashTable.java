@@ -1,5 +1,25 @@
 package one.microstream.collections;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 
 import static one.microstream.X.notNull;
 
@@ -44,6 +64,25 @@ import one.microstream.typing.XTypes;
 
 /* (12.07.2012 TM)FIXME: complete EqHashTable implementation
  * See all not implemented errors in method stubs
+ */
+/**
+ * Collection of key-value-pairs that is ordered and does not allow duplicate keys.
+ * Aims to be more efficient, logically structured
+ * and with more built in features than {@link java.util.Map}.
+ * <p>
+ * Additionally to the {@link HashTable}, this implementation needs an {@link HashEqualator}
+ * to first define equality between elements and second define the hash method to use.
+ * <p>
+ * This implementation is <b>not</b> synchronized and thus should only be used by a
+ * single thread or in a thread-safe manner (i.e. read-only as soon as multiple threads access it).<br>
+ * See {@link SynchSet} wrapper class to use a list in a synchronized manner.
+ * <p>
+ * Also note that by being an extended collection, this implementation offers various functional and batch procedures
+ * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * {@link Iterator} paradigm.
+ * 
+ * @param <K> type of contained keys
+ * @param <V> type of contained values
  */
 public final class EqHashTable<K, V>
 extends AbstractChainKeyValueCollection<K, V, ChainMapEntryLinkedHashedStrongStrong<K, V>>
@@ -1696,6 +1735,12 @@ implements XTable<K, V>, HashCollection<K>, Composition
 		EqHashTable.this.put(entry.key(), entry.value());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * In this implementation it overwrites the equal, already contained entry.
+	 * A return value indicates a new entry.
+	 */
 	@Override
 	public final boolean put(final KeyValue<K, V> entry)
 	{

@@ -1,5 +1,25 @@
 package one.microstream.persistence.types;
 
+/*-
+ * #%L
+ * microstream-persistence
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
@@ -131,8 +151,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 		 * bytes) is handled by different locks since the iteration is the concurrent-
 		 * critical part but committing takes the vast majority of time (costly I/O).
 		 */
-		private final Object storeMutexIteration  = new Object();
-		private final Object storeMutexCommitting = new Object();
+		private final Object storeMutex = new Object();
 
 
 
@@ -269,15 +288,12 @@ ByteOrderTargeting<PersistenceManager<D>>
 			final long objectId;
 			final PersistenceStorer persister = this.createStorer();
 			
-			synchronized(this.storeMutexIteration)
+			synchronized(this.storeMutex)
 			{
 				objectId = persister.store(object);
-			}
-			synchronized(this.storeMutexCommitting)
-			{
 				persister.commit();
 			}
-			
+
 			return objectId;
 		}
 		
@@ -287,15 +303,12 @@ ByteOrderTargeting<PersistenceManager<D>>
 			final long[] objectIds;
 			final PersistenceStorer persister = this.createStorer();
 			
-			synchronized(this.storeMutexIteration)
+			synchronized(this.storeMutex)
 			{
 				objectIds = persister.storeAll(instances);
-			}
-			synchronized(this.storeMutexCommitting)
-			{
 				persister.commit();
 			}
-			
+
 			return objectIds;
 		}
 		
@@ -304,12 +317,9 @@ ByteOrderTargeting<PersistenceManager<D>>
 		{
 			final PersistenceStorer persister = this.createStorer();
 			
-			synchronized(this.storeMutexIteration)
+			synchronized(this.storeMutex)
 			{
 				persister.storeAll(instances);
-			}
-			synchronized(this.storeMutexCommitting)
-			{
 				persister.commit();
 			}
 		}

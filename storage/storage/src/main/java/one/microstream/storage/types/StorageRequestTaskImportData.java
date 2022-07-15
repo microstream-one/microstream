@@ -1,5 +1,26 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import one.microstream.X;
@@ -45,8 +66,8 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		// starting point for the channels to process
 		private final SourceFileSlice[] sourceFileTails;
 
-		private volatile boolean complete   ;
-		private volatile long    maxObjectId;
+		private final AtomicBoolean    complete  = new AtomicBoolean();
+		private volatile long    maxObjectId; //TODO Check, why it is not assigned?
 		private          Thread  readThread ;
 
 
@@ -59,11 +80,12 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			final long                          timestamp             ,
 			final int                           channelCount          ,
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
-			final XGettingEnum<AFile>           importFiles
+			final XGettingEnum<AFile>           importFiles,
+			final StorageOperationController    controller
 		)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.importFiles            = importFiles;
 			this.objectIdRangeEvaluator = objectIdRangeEvaluator;
 			this.entityCaches           = new StorageEntityCache.Default[channelCount];
@@ -106,7 +128,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			{
 				return;
 			}
-			this.readThread = XThreads.start(this::readFiles);
+			this.readThread = XThreads.start((Runnable)this::readFiles);
 		}
 
 		final void readFiles()
@@ -133,7 +155,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 				}
 			}
 //			DEBUGStorage.println("* completed reading source files");
-			this.complete = true;
+			this.complete.set(true);
 		}
 
 		
@@ -343,7 +365,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 						// wait for the next batch to import (successor of the current batch)
 						while(currentSourceFile.next == null)
 						{
-							if(this.complete)
+							if(this.complete.get())
 							{
 //								DEBUGStorage.println(channel.channelIndex() + " done importing.");
 								// there will be no more next source file, so abort (task is complete)
@@ -444,9 +466,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		final ImportBatch  headBatch  = new ImportBatch();
 		      ImportBatch  tailBatch ;
 		      ImportEntity tailEntity;
-		      
-		      
-		      
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
@@ -471,9 +493,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		
 		final ImportBatch     headBatch   ;
 		      SourceFileSlice next        ;
-		      
-		      
-		      
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////
@@ -524,7 +546,7 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		////////////////////
 		
 		long        batchOffset;
-	    long        batchLength;
+		long        batchLength;
 		ImportBatch batchNext  ;
 		
 		
@@ -601,9 +623,9 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 		final long                      objectId;
 		final StorageEntityType.Default type    ;
 		      ImportEntity              next    ;
-		      
-		      
-		      
+		
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
 		/////////////////

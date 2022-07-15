@@ -1,5 +1,25 @@
 package one.microstream.collections.old;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,7 +56,7 @@ public final class OldCollections
 				c.add(t);
 			}
 		}
-	    return c;
+		return c;
 	}
 
 	@SafeVarargs
@@ -49,7 +69,7 @@ public final class OldCollections
 				collection.add(element);
 			}
 		}
-	    return collection;
+		return collection;
 	}
 
 	@SafeVarargs
@@ -266,8 +286,9 @@ public final class OldCollections
 	/**
 	 * Reduces {@code collection} by all elements that meet {@code reductionPredicate}.<br>
 	 * Note that NO new collection instance is created but the collection itself is reduced.
-	 *
-	 * @param <T>
+	 * 
+	 * @param <C> the collection type
+	 * @param <T> the type of the collection's elements
 	 * @param collection the collection to be reduced
 	 * @param reductionPredicate the predicate determining which elements shall be removed
 	 * @return {@code collection} itself
@@ -431,7 +452,7 @@ public final class OldCollections
 	 * @param <T> the element type parameter of the list
 	 * @param collection the collection whose elements shall be copied to an array
 	 * @param elementType the type of the elements contained in {@code collection}.
-	 * @return a new array object of type <T> containing all elements of {@code collection}.
+	 * @return a new array object of type &lt;T&gt; containing all elements of {@code collection}.
 	 */
 	public static final <T> T[] toArray(final Collection<? extends T> collection, final Class<T> elementType)
 	{
@@ -574,7 +595,7 @@ public final class OldCollections
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private OldCollections()
 	{

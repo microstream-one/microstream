@@ -57,6 +57,28 @@ storageManager.setRoot("Hello World");
 storageManager.storeRoot();
 ----
 
+=== Shared Mutable Data
+If you are working with Microstream technology in a multi-threaded environment, there are a few things you need to pay extra attention to.
+
+==== Synchronize access to shared mutable data
+When using standard frameworks, you often work in a multi-threaded environment. If you are using the older JDBC approach, you create a copy of your data that you work with within a single thread, modify the data, and then save it back in a database trace. Microstream works with data directly, allowing it to achieve significantly better performance parameters. However, for developers, this means that any reading and writing to this shared object graph must be synchronized.
+
+To make it easier to use within your application, we have prepared a simple way for you to do so.
+[source, java]
+----
+XThreads.executeSynchronized(() -> {
+    root.changeData();
+    storageManager.store(root);
+});
+----
+
+This approach will immediately provide you with several benefits:
+
+. Any changes to your object graph will be synchronized, every other thread will see the current value.
+. Avoid Deadlocks
+. In principle, you prevent the object graph from being modified at the same time it is saved.
+
+
 == Custom Root Instances
 
 The simple default approach has its limits when the application defines an explicit root instance that must be updated/filled from the database directly during database initialization.

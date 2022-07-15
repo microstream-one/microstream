@@ -7,17 +7,20 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-persistence-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-persistence-binary-jdk8</artifactId>
 	
+	<name>MicroStream Persistence JDK8</name>
+	<description>MicroStream Persistence Specialized Type Handlers</description>
+	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-persistence-binary</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	

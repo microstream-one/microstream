@@ -2,39 +2,39 @@
 
 == REST Service
 
-First of all we have to connect a storage to a REST service.
+An application that will expose the REST endpoints needs one of the provided implementations by MicroStream or you need to implement the provided interfaces. In this example, we will use the https://sparkjava.com/[Spark] implementation that MicroStream provides.
 
-Just add the REST service implementation to your dependencies, the logger is optional.
+Just add the dependency to your project, the logger is optional.
 
-[source, xml, title="pom.xml"]
+[source, xml, title="pom.xml", subs=attributes+]
 ----
 <dependencies>
-	<dependency>
-		<groupId>one.microstream</groupId>
-		<artifactId>microstream-storage-restservice-sparkjava</artifactId>
-		<version>{maven-version}</version>
-	</dependency>
-	<dependency>
-		<groupId>org.slf4j</groupId>
-		<artifactId>slf4j-simple</artifactId>
-		<version>1.7.30</version>
-	</dependency>
+   <dependency>
+      <groupId>one.microstream</groupId>
+      <artifactId>microstream-storage-restservice-sparkjava</artifactId>
+      <version>{maven-version}</version>
+   </dependency>
+   <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.32</version>
+   </dependency>
 </dependencies>
 ----
 
-Now use the resolver to connect the service to a storage, start it, and you're good to go.
+Now use the resolver to connect the REST service to the storage, start it, and you're good to go.
 
 [source, java]
 ----
 EmbeddedStorageManager storage = EmbeddedStorage.start();
-if(storage.root() == null)
+if (storage.root() == null)
 {
-	storage.setRoot(new Object[] {
-		LocalDate.now(),
-		X.List("a", "b", "c"),
-		1337
-	});
-	storage.storeRoot();
+   storage.setRoot(new Object[] {
+      LocalDate.now(),
+      X.List("a", "b", "c"),
+      1337
+   });
+   storage.storeRoot();
 }
 
 // create the REST service
@@ -44,28 +44,21 @@ StorageRestService service = StorageRestServiceResolver.resolve(storage);
 service.start();
 ----
 
-That's all you have to do to open the REST endpoints to access the storage data.
+That's all you have to do to open the REST endpoints to access the stored data.
 
-The base URL of the opened endpoints is per default: http://localhost:4567/microstream/
-
-[NOTE]
-====
-Internally, there is a REST adapter which opens access to the low-level storage data.
-This is used by the REST service layer, which is an abstract service interface.
-The default implementation of it, which uses http://sparkjava.com/[Sparkjava], is used to open the REST endpoints.
-We just have to use this one to get started.
-====
+The base URL of the provided endpoints is per default: http://localhost:4567/microstream/ and you can find out all available endpoints on the root http://localhost:4567
 
 == Configuration
 
-If you want to change the default port (4567) or instance name (microstream) it can be done by using the rest service implementation directly.
-The spark service can then be customized by your liking.
+If you want to change the default port (4567) or instance name (_microstream_) it can be done by using the rest service implementation directly, and not go through the _Resolver` as in the previous snippet.
+
+The Spark service can then be customized to your liking.
 
 [source, java]
 ----
 StorageRestServiceSparkJava service = StorageRestServiceSparkJava.New(storage);
 service.setSparkService(
-	Service.ignite().port(80)
+   Service.ignite().port(8888)
 );
 service.setInstanceName("my-name");
 ----

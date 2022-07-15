@@ -1,5 +1,25 @@
 package one.microstream.afs.sql.types;
 
+/*-
+ * #%L
+ * microstream-afs-sql
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.checkArrayRange;
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
@@ -57,6 +77,9 @@ public interface SqlProvider
 	 * from [tableName]
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String fileSizeQuery(String tableName);
 
@@ -65,8 +88,19 @@ public interface SqlProvider
 	 * select distinct 'identifier'
 	 * from [tableName]
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String listFilesQuery(String tableName);
+
+	/**
+	 * <pre>
+	 * select count(*)
+	 * from [tableName]
+	 * </pre>
+	 */
+	public String countFilesQuery(String tableName);
 
 	/**
 	 * <pre>
@@ -74,6 +108,9 @@ public interface SqlProvider
 	 * from [tableName]
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readMetadataQuery(String tableName);
 
@@ -82,8 +119,11 @@ public interface SqlProvider
 	 * select 'start', 'end'
 	 * from [tableName]
 	 * where 'identifier' = ?
-	 * and start <= ? and end >= ?
+	 * and start &lt;= ? and end &gt;= ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readMetadataQuerySingleSegment(String tableName);
 
@@ -94,6 +134,9 @@ public interface SqlProvider
 	 * where 'identifier' = ?
 	 * order by 'end' desc
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readDataQuery(String tableName);
 
@@ -102,9 +145,12 @@ public interface SqlProvider
 	 * select *
 	 * from [tableName]
 	 * where 'identifier' = ?
-	 * and 'start' < ?
+	 * and 'start' &lt; ?
 	 * order by 'end' desc
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readDataQueryWithLength(String tableName);
 
@@ -113,9 +159,12 @@ public interface SqlProvider
 	 * select *
 	 * from [tableName]
 	 * where 'identifier' = ?
-	 * and 'end' >= ?
+	 * and 'end' &gt;= ?
 	 * order by 'end' desc
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readDataQueryWithOffset(String tableName);
 
@@ -124,10 +173,13 @@ public interface SqlProvider
 	 * select *
 	 * from [tableName]
 	 * where 'identifier' = ?
-	 * and 'end' >= ?
-	 * and 'start' <= ?
+	 * and 'end' &gt;= ?
+	 * and 'start' &lt;= ?
 	 * order by 'end' desc
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String readDataQueryWithRange(String tableName);
 
@@ -137,6 +189,9 @@ public interface SqlProvider
 	 * from [tableName]
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String fileExistsQuery(String tableName);
 
@@ -150,6 +205,9 @@ public interface SqlProvider
 	 * primary key ('identifier', 'start')
 	 * )
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public Iterable<String> createDirectoryQueries(String tableName);
 
@@ -158,6 +216,9 @@ public interface SqlProvider
 	 * delete from [tableName]
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String deleteFileQuery(String tableName);
 
@@ -165,8 +226,11 @@ public interface SqlProvider
 	 * <pre>
 	 * delete from [tableName]
 	 * where 'identifier' = ?
-	 * and 'start' >= ?
+	 * and 'start' &gt;= ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String deleteFileQueryFromStart(String tableName);
 
@@ -174,8 +238,11 @@ public interface SqlProvider
 	 * <pre>
 	 * delete from [tableName]
 	 * where 'identifier' = ?
-	 * and 'end' >= ?
+	 * and 'end' &gt;= ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String deleteFileQueryFromEnd(String tableName);
 
@@ -185,6 +252,9 @@ public interface SqlProvider
 	 * ('identifier', 'start', 'end', 'data')
 	 * values (?, ?, ?, ?)
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String writeDataQuery(String tableName);
 
@@ -194,6 +264,9 @@ public interface SqlProvider
 	 * set 'identifier' = ?
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String moveFileQuerySameParent(String tableName);
 
@@ -205,6 +278,10 @@ public interface SqlProvider
 	 * from [sourceTableName]
 	 * where 'identifier' = ?
 	 * </pre>
+	 * 
+	 * @param sourceTableName the source table name to query
+	 * @param targetTableName the target table name to query
+	 * @return the native query string
 	 */
 	public String copyFileQuery(String sourceTableName, String targetTableName);
 
@@ -434,6 +511,19 @@ public interface SqlProvider
 			vs.add("select distinct ");
 			this.addSqlColumnName(vs, IDENTIFIER_COLUMN_NAME);
 			vs.add(" from ");
+			this.addSqlTableName(vs, tableName);
+
+			return vs.toString();
+		}
+		
+		@Override
+		public String countFilesQuery(
+			final String tableName
+		)
+		{
+			final VarString vs = VarString.New();
+
+			vs.add("select count(*) from ");
 			this.addSqlTableName(vs, tableName);
 
 			return vs.toString();

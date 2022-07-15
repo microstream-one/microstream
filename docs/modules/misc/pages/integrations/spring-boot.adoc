@@ -1,0 +1,21 @@
+= Spring Boot Integration
+
+image::https://upload.wikimedia.org/wikipedia/commons/4/44/Spring_Framework_Logo_2018.svg[]
+
+MicroStream comes with a Spring Boot integration.
+It is available within this artifact:
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-integrations-spring-boot</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+For more information consult the https://github.com/microstream-one/microstream/tree/master/integrations/spring-boot[readme] file.
+
+Official Spring Boot site: https://spring.io/projects/spring-boot[]

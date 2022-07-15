@@ -1,0 +1,51 @@
+= Use Data Copy
+
+If the application works in MVC frameworks, the work is often done by getting some data from a data source, modifying it,
+and then store it back in a data store. This style of work application always works with a copy of the data.
+Which allows it to use mutable data only within a single thread. The developer doesn't have to worry about data
+synchronization and then store this data in a database transaction.
+This way of working is very practical, it does not require developers to have knowledge of multi-threaded
+programming and thanks to this it is very widespread.
+
+Can similar technical work be used when working with MicroStream?
+
+Of course, elegantly, very simply and safely we can use the ObjectCopier utility to create a deep copy of our data,
+change it, and save it back.
+
+== Deep Copy vs Shallow Copy
+Very simple idea, just create a purchase of actual data to work within the application and at the end
+save that data back. Unfortunately, it's not that simple. If the standard copy function is called over an object in Java,
+it creates a copy of that object, but the other object's references remain the same. This doesn't help so much.
+Because usually, an application contains a more complex data structure than a single object. This approach is called shallow copy.
+More here: https://en.wikipedia.org/wiki/Object_copying
+
+What is actually needed at this point is a deep copy. You need to create a complete copy of the complete subgraph from this object.
+
+== Deep Copy Utility (ObjectCopier)
+MicroStream provides full support for a deep copy. It can be relatively easily called and a deep copy of the data will be created.
+
+[source, java]
+----
+        ObjectCopier objectCopier = ObjectCopier.New();
+
+        Customer customer = root.getCustomer(id);
+
+        Customer customerCopy = objectCopier.copy(customer);
+        customerCopy.addPurchase(purchase);
+
+        XThreads.executeSynchronized(() -> {
+            root.setCustomer(id, customerCopy);
+            storage.store(root.getcusomers());
+        }
+----
+
+What are the parts of this code?
+
+. Just create an instance of ObjectCopier class with factory method `New()`;
+. Get the customer
+. Make a deep copy of the customer object
+. Modify this object graph
+. In synchronized mode save this customer instead of the original customer and store it into a datastore
+
+This simple example written in pseudocode aims to demonstrate one of the many ways to solve
+working over a shared object graph in a multi-threaded environment. Make sure you close the _copier_ after you have used it to clean up all the resources.

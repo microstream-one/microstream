@@ -1,0 +1,183 @@
+= Communication
+
+Since version 7 Microstream provides a module for simple object based network communication over TCP connections.
+
+This module utilizes the Microstream engine to serialize and deserialize java objects and provides additional APIs to setup the required TCP connections.
+
+== Getting Started
+
+== Prerequisites
+If using Maven just add module *microstream-communication-binary* into your pom.xml dependencies.
+
+[source, xml, subs=attributes+, title="pom.xml"]
+----
+<dependencies>
+	<dependency>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-communication-binary</artifactId>
+		<version>{maven-version}</version>
+	</dependency>
+</dependencies>
+----
+
+== Hello World
+The Hello World example consists out of two applications. The Host and the Client application.
+The Host will open a network port and listen for incoming connections of the client.
+If a client connects successfully it awaits data from the client that will be send back to the client.  
+The basic example won't do any configuration so the connection is not secured and the client and host use
+the local system address at port 1099.
+
+=== Host
+[source, java, EchoServer]
+----
+public class EchoServer
+{
+	public static void main(final String[] args)
+	{
+		final ComHost<?> host = ComBinaryDynamic.Foundation()
+			.setHostChannelAcceptor(channel ->
+			{
+				final Object received = channel.receive();
+				System.out.println("received: " + received);
+				channel.send(received);
+			})
+			.createHost();
+
+		// run the host, making it constantly listen for new connections and relaying them to the logic
+		host.run();
+	}
+}
+----
+
+=== Client
+[source, java, EchoClient]
+----
+public class EchoClient
+{
+	public static void main(final String[] args)
+	{
+		//create the client
+		final ComClient<?> client = ComBinaryDynamic.Foundation()
+			.createClient();
+		
+		//connect to the host and communicate
+		try(final ComChannel channel = client.connect())
+		{
+			channel.send("Hello Host");
+			final Object received = channel.receive();
+			System.out.println("received: " + received);
+		}
+	}
+}
+----
+
+== Configuration
+Configuration of host and client is done using the `ComFoundation.Default` implementation of the `ComFoundation` interface.
+To get a preconfigured foundation instance the classes `ComBinaryDynamic` and `ComBinary` provide the convenient method `Foundation()`.
+
+=== ComBinaryDynamic and ComBinary
+The Object communication of Microstream is available in two flavors:
+*Dynamic and non dynamic*.
+
+They differ in the way classes that should be serialized and transfered are handled: +
+The non dynamic version requires all classes that should be transfered to be registered at initialization time.
+This can be done with the `registerEntityType` methods of the `ComFoundation`.
+If a transfered object graph references any unregistered class an exception will occur!
+
+The dynamic implementation automatically registers all classes that are part of the communication at runtime.
+It will also do a type-mapping if classes with the same name have different implementations on client and host.
+
+=== Common configuration values
+
+[cols="1"]
+|=== 
+| *host binding address* +
+The host's IP address is configured with
+`ComFoundation.setHostBindingAddress(InetSocketAddress)`.
+
+| *client target address* +
+The address the client connects to is configured by 
+`ComFoundation.setClientTargetAddress(InetSocketAddress)`.
+
+| *port only* +
+If no host or client target address is configured it is possible to use 
+`ComFoundation.setPort(int)`
+to set a port that is used together with the default ip addresses for host and client.
+
+| *registering entity types* + 
+to register entity types at startup use
+`ComFoundation.registerEntityTypes(Class<?>...)`
+for example.
+|===
+
+=== TLS
+In order to use TLS encrypted communication you need to setup a `ComTLSConnectionHandler` and supply it  
+using `ComFoundation.setConnectionHandler(ComConnectionHandler<C>)`.
+The default implementation of the ComTLSConnectionHandler uses the java https://docs.oracle.com/javase/8/docs/api/javax/net/ssl/SSLEngine.html[SSLEngine] .
+The required configuration elements have to be provided using either the provided implementations of the
+`TLSKeyManagerProvider` ,
+`TLSTrustManagerProvider` ,
+`TLSParametersProvider` and
+`SecureRandomProvider`
+interfaces or by custom implementations.
+
+[source, java, TLS setup]
+----
+public class EchoServerTLS
+{
+	public static void main(final String[] args)
+	{
+		Path serverKeyStore = Paths.get(args[0]);
+		Path serverTrustStore = Paths.get(args[1]);
+		char[] serverKeyStorePassword = args[2].toCharArray();
+		char[] serverTrustStorePassword = args[2].toCharArray();
+		
+		final ComHost<?> host = ComBinaryDynamic.Foundation()
+			.setConnectionHandler(ComTLSConnectionHandler.New(
+					new TLSKeyManagerProvider.PKCS12(
+						serverKeyStore,
+						serverKeyStorePassword),
+					new TLSTrustManagerProvider.PKCS12(
+						serverTrustStore,
+						serverTrustStorePassword),
+					new TLSParametersProvider.Default(),
+					new SecureRandomProvider.Default()
+				))
+			.setHostChannelAcceptor(channel ->
+			{
+				final Object received = channel.receive();
+				System.out.println("received: " + received);
+				channel.send(received);
+			})
+			.createHost();
+		
+		// run the host, making it constantly listen for new connections and relaying them to the logic
+		host.run();
+	}
+}
+----
+
+The provided implementations are:
+
+[cols="1"]
+|=== 
+| *one.microstream.communication.tls.TLSKeyManagerProvider.Default* +
+provides no https://docs.oracle.com/javase/8/docs/api/javax/net/ssl/KeyManager.html[javax.net.ssl.KeyManagers], so the SSLEngine uses the systems's default KeyManager.
+
+| *one.microstream.communication.tls.TLSKeyManagerProvider.PKCS12* +
+Creates a SunX509 https://docs.oracle.com/javase/8/docs/api/javax/net/ssl/KeyManager.html[javax.net.ssl.KeyManagers] by loading a PKCS12 key store from the file system.
+
+| *one.microstream.communication.tls.TLSTrustManagerProvider.Default* + 
+provides no https://docs.oracle.com/javase/8/docs/api/javax/net/ssl/TrustManager.html[javax.net.ssl.TrustManager], so the SSLEngine uses the systems's default TrustManager.
+
+| *one.microstream.communication.tls.TLSTrustManagerProvider.PKCS12* +
+Creates a SunX509 https://docs.oracle.com/javase/8/docs/api/javax/net/ssl/TrustManager.html[javax.net.ssl.TrustManager] by loading a PKCS12 key store from the file system.
+
+| *one.microstream.communication.tls.TLSParametersProvider.Default* + 
+- provides https://docs.oracle.com/javase/8/docs/api/javax/net/ssl/SSLParameters.html[javax.net.ssl.SSLParameters] with client authentication enabled +
+- protocol string is TLSv1.2 + 
+- timeout of 1000ms for the TLS handshake
+
+| *one.microstream.communication.tls.SecureRandomProvider.Default* +
+provides a null https://docs.oracle.com/javase/8/docs/api/index.html?java/security/SecureRandom.html[java.security.SecureRandom] to let the SLLengine use the system default SecureRandom
+|===

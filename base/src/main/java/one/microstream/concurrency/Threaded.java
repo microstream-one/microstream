@@ -1,9 +1,30 @@
 package one.microstream.concurrency;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static java.lang.System.identityHashCode;
 import static java.lang.Thread.currentThread;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -131,7 +152,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	////////////////////
 
 	private volatile Entry<E>[] slots;
-	private volatile int size;
+	private final AtomicInteger size = new AtomicInteger();
 	private volatile Consumer<E> cleanUpOperation;
 
 
@@ -150,7 +171,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	{
 		super();
 		this.slots = new Entry[1]; // in this case small memory need is preferable to good low-grow performance
-		this.size = 0;
+		this.size.set(0);
 		this.cleanUpOperation = null;
 	}
 
@@ -174,7 +195,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	{
 		super();
 		this.slots = Threaded.<E>createSlots(initialCapacity);
-		this.size = 0;
+		this.size.set(0);
 		this.cleanUpOperation = null;
 	}
 
@@ -304,7 +325,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	 * By default, this method simply returns {@code null}, indicating that no associated instance could have been
 	 * found.<br>
 	 * Subclasses can override this method to provide an actual fallback instance in case of a lookup miss.<br>
-	 * In combination with {@link #addForCurrentThread(E)}, this method can be used to automatically associate the
+	 * In combination with {@link #addForCurrentThread(Object)}, this method can be used to automatically associate the
 	 * fallback instance with the current {@link Thread} in case it has no instance associated, yet.
 	 * <p>
 	 * See {@link ThreadedInstantiating} for an example using an {@link Instantiator} to automatically create
@@ -312,7 +333,6 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	 *
 	 * @return {@code null}.
 	 * @see #get()
-	 * @see #addForCurrentThread(Object)
 	 */
 	protected E lookupMissFallbackElement()
 	{
@@ -343,7 +363,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 		(slots = this.slots)[threadIdHashCode & slots.length - 1] = entry.next(slots[threadIdHashCode & slots.length - 1]);
 
 		// increase size and rebuild slots array if necessary
-		if(this.size++ == slots.length)
+		if(this.size.getAndIncrement() == slots.length)
 		{
 			this.internalOptimize();
 		}
@@ -386,7 +406,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	@SuppressWarnings("unchecked")
 	private int internalOptimize()
 	{
-		final Entry<E>[] slots, buffer = new Entry[this.size];
+		final Entry<E>[] slots, buffer = new Entry[this.size.get()];
 		final int slotsLength = (slots = this.slots).length;
 		final Consumer<E> cleanUpOp = this.cleanUpOperation;
 		int count = 0;
@@ -445,7 +465,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 			newSlots[index = identityHashCode(thread) & modulo] = new Entry<>(thread, buffer[i].value, newSlots[index]);
 		}
 
-		this.size = count;
+		this.size.set(count);
 		this.slots = newSlots;
 		return newSlots.length - count;
 
@@ -514,14 +534,14 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	@Override
 	public synchronized long consolidate()
 	{
-		final int oldSize = this.size;
+		final int oldSize = this.size.get();
 		this.internalOptimize();
-		return oldSize - this.size;
+		return oldSize - this.size.get();
 	}
 
 	/**
 	 * Returns {@code true} if this {@link Threaded} instance contains no entries for associating instances
-	 * of type E, otherwise <tt>false</tt>.
+	 * of type E, otherwise <code>false</code>.
 	 * <p>
 	 * Note that empty entries (entries that no longer reference an existing thread) do still count as contained
 	 * entries. As a consequence, in order to determine if {@link Threaded} instance is actually empty regarding
@@ -534,7 +554,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	@Override
 	public boolean isEmpty()
 	{
-		return this.size == 0;
+		return this.size.get() == 0;
 	}
 
 	/**
@@ -551,7 +571,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	@Override
 	public long size()
 	{
-		return this.size;
+		return this.size.get();
 	}
 
 	public synchronized boolean containsSearched(final Predicate<? super E> predicate)

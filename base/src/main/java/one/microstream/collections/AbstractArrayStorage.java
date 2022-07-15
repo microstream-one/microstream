@@ -1,5 +1,25 @@
 package one.microstream.collections;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.collections.XArrays.removeAllFromArray;
 
 import java.util.Collection;
@@ -661,6 +681,17 @@ public abstract class AbstractArrayStorage
 		}
 	}
 
+	/**
+	 * Iterates over all elements of data which index is lower than the given size.
+	 * Calls the joiner with each element and the aggregate.
+	 * 
+	 * @param data which is iterated and given to the joiner
+	 * @param size of the given data array. The actual size of the data array may be greater, but not smaller.
+	 * @param joiner is the actual function to do the joining
+	 * @param aggregate where to join into
+	 * @param <E> type of data
+	 * @param <A> type of aggregate
+	 */
 	public static final <E, A> void join(
 		final E[]                              data     ,
 		final int                              size     ,
@@ -3280,9 +3311,7 @@ public abstract class AbstractArrayStorage
 			final int endIndex = offset + length - d;
 			for(int i = offset - d; i != endIndex;)
 			{
-				if(equalator.equal(
-					data[i += d],
-					sample))
+				if(equalator.equal(data[i += d], sample))
 				{
 					data[i] = newElement;
 					return i;
@@ -3416,9 +3445,7 @@ public abstract class AbstractArrayStorage
 		{
 			for(int i = 0; i < size; i++)
 			{
-				if(equalator.equal(
-					data[i],
-					sample))
+				if(equalator.equal(data[i], sample))
 				{
 					data[i] = newElement;
 					replaceCount++;
@@ -4152,7 +4179,8 @@ public abstract class AbstractArrayStorage
 		final int offset,
 		final int length,
 		final VarString vc,
-		final char separator)
+		final char separator
+	)
 	{
 		final int d; // bi-directional index movement
 		if((d = checkIterationDirection(size, offset, length)) == 0)

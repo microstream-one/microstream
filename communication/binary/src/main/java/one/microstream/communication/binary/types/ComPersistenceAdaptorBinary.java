@@ -1,12 +1,32 @@
 package one.microstream.communication.binary.types;
 
+/*-
+ * #%L
+ * microstream-communication-binary
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.nio.ByteOrder;
-import java.nio.channels.SocketChannel;
 
 import one.microstream.collections.types.XGettingEnum;
+import one.microstream.communication.types.ComConnection;
 import one.microstream.communication.types.ComPersistenceAdaptor;
 import one.microstream.communication.types.ComPersistenceAdaptorCreator;
 import one.microstream.communication.types.ComProtocol;
@@ -111,7 +131,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		
 	}
 
-	public final class Default extends ComPersistenceAdaptorBinary.Abstract<SocketChannel>
+	public final class Default extends ComPersistenceAdaptorBinary.Abstract<ComConnection>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -137,7 +157,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		
 		@Override
 		public PersistenceFoundation<?, ?> provideHostPersistenceFoundation(
-			final SocketChannel connection
+			final ComConnection connection
 		)
 		{
 			this.initializeHostPersistenceFoundation();
@@ -160,7 +180,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		
 		@Override
 		public BinaryPersistenceFoundation<?> provideClientPersistenceFoundation(
-			final SocketChannel connection,
+			final ComConnection connection,
 			final ComProtocol   protocol
 		)
 		{
@@ -200,6 +220,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 	 * {@link ComPersistenceAdaptorBinary#Creator(BinaryPersistenceFoundation)} directly to pass an externally defined
 	 * {@link BinaryPersistenceFoundation} instance.
 	 * 
+	 * @return a new creator
 	 */
 	public static ComPersistenceAdaptorBinary.Creator.Default Creator()
 	{
@@ -287,7 +308,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		}
 		
 		
-		public final class Default extends ComPersistenceAdaptorBinary.Creator.Abstract<SocketChannel>
+		public final class Default extends ComPersistenceAdaptorBinary.Creator.Abstract<ComConnection>
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
@@ -308,7 +329,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 			////////////
 
 			@Override
-			public ComPersistenceAdaptor<SocketChannel> createPersistenceAdaptor(
+			public ComPersistenceAdaptor<ComConnection> createPersistenceAdaptor(
 				final PersistenceIdStrategy  hostIdStrategyInitialization,
 				final XGettingEnum<Class<?>> entityTypes                 ,
 				final ByteOrder              hostByteOrder               ,

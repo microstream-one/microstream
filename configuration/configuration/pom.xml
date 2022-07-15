@@ -7,17 +7,20 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-configuration-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-configuration</artifactId>
+	
+	<name>MicroStream Configuration</name>
+	<description>MicroStream General Purpose Configuration</description>
 
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-base</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	

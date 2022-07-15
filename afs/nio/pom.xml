@@ -7,17 +7,20 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-afs-parent</artifactId>
-		<version>04.02.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-afs-nio</artifactId>
-	
+
+	<name>MicroStream Abstract File System - Java NIO</name>
+	<description>Java NIO Adapter for the MicroStream Abstract File System</description>
+		
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-afs</artifactId>
-			<version>04.02.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	

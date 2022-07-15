@@ -1,0 +1,5 @@
+
+<properties>
+    <property name="storage-directory" value ="target/xml" />
+    <property name="channel-count" value ="4" />
+</properties>

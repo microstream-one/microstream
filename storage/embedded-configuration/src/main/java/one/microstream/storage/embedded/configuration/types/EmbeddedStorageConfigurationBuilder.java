@@ -1,5 +1,25 @@
 package one.microstream.storage.embedded.configuration.types;
 
+/*-
+ * #%L
+ * microstream-storage-embedded-configuration
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
 import java.io.File;
@@ -42,14 +62,16 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 {
 	/**
 	 * The base directory of the storage in the file system.
+	 * @param storageDirectory the storage directory
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setStorageDirectory(String storageDirectory);
 
 	/**
 	 * The base directory of the storage in the file system.
 	 *
-	 *            relative location in the user home directory
-	 * @param storageDirectoryInUserHome
+	 * @param storageDirectoryInUserHome relative location in the user home directory
+	 * @return this
 	 */
 	public default EmbeddedStorageConfigurationBuilder setStorageDirectoryInUserHome(
 		final String storageDirectoryInUserHome
@@ -62,24 +84,30 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 
 	/**
 	 * The deletion directory.
+	 * @param deletionDirectory the deletion directory
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setDeletionDirectory(String deletionDirectory);
 
 	/**
 	 * The truncation directory.
+	 * @param truncationDirectory the trunctation directory
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setTruncationDirectory(String truncationDirectory);
 
 	/**
 	 * The backup directory.
+	 * @param backupDirectory the backup directory
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setBackupDirectory(String backupDirectory);
 
 	/**
 	 * The backup directory.
 	 *
-	 * @param backupDirectoryInUserHome
-	 *            relative location in the user home directory
+	 * @param backupDirectoryInUserHome relative location in the user home directory
+	 * @return this
 	 */
 	public default EmbeddedStorageConfigurationBuilder setBackupDirectoryInUserHome(
 		final String backupDirectoryInUserHome
@@ -95,8 +123,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * engine. Every thread has exclusive access to its directory. Default is
 	 * <code>1</code>.
 	 *
-	 * @param channelCount
-	 *            the new channel count, must be a power of 2
+	 * @param channelCount the new channel count, must be a power of 2
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setChannelCount(int channelCount);
 
@@ -104,40 +132,40 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * Name prefix of the subdirectories used by the channel threads. Default is
 	 * <code>"channel_"</code>.
 	 *
-	 * @param channelDirectoryPrefix
-	 *            new prefix
+	 * @param channelDirectoryPrefix new prefix
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setChannelDirectoryPrefix(String channelDirectoryPrefix);
 
 	/**
 	 * Name prefix of the storage files. Default is <code>"channel_"</code>.
 	 *
-	 * @param dataFilePrefix
-	 *            new prefix
+	 * @param dataFilePrefix new prefix
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setDataFilePrefix(String dataFilePrefix);
 
 	/**
 	 * Name suffix of the storage files. Default is <code>".dat"</code>.
 	 *
-	 * @param dataFileSuffix
-	 *            new suffix
+	 * @param dataFileSuffix new suffix
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setDataFileSuffix(String dataFileSuffix);
 
 	/**
 	 * Name prefix of the storage transaction file. Default is <code>"transactions_"</code>.
 	 *
-	 * @param transactionFilePrefix
-	 *            new prefix
+	 * @param transactionFilePrefix new prefix
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setTransactionFilePrefix(String transactionFilePrefix);
 
 	/**
 	 * Name suffix of the storage transaction file. Default is <code>".sft"</code>.
 	 *
-	 * @param transactionFileSuffix
-	 *            new suffix
+	 * @param transactionFileSuffix new suffix
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setTransactionFileSuffix(String transactionFileSuffix);
 
@@ -145,8 +173,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * The name of the dictionary file. Default is
 	 * <code>"PersistenceTypeDictionary.ptd"</code>.
 	 *
-	 * @param typeDictionaryFileName
-	 *            new name
+	 * @param typeDictionaryFileName new name
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setTypeDictionaryFileName(String typeDictionaryFileName);
 
@@ -160,8 +188,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * {@link #setHousekeepingTimeBudget(Duration)} the maximum processor
 	 * time for housekeeping work can be set. Default is one second.
 	 *
-	 * @param houseKeepingInterval
-	 *            the new interval
+	 * @param housekeepingInterval the new interval
+	 * @return this
 	 *
 	 * @see #setHousekeepingTimeBudget(Duration)
 	 */
@@ -173,8 +201,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * But if there is nothing to clean up, no processor time will be wasted.
 	 * Default is 10 milliseconds = 0.01 seconds.
 	 *
-	 * @param housekeepingTimeBudget
-	 *            the new time budget
+	 * @param housekeepingTimeBudget the new time budget
+	 * @return this
 	 *
 	 * @see #setHousekeepingInterval(Duration)
 	 */
@@ -185,8 +213,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * Abstract threshold value for the lifetime of entities in the cache. See
 	 * {@link StorageEntityCacheEvaluator#New(long, long)}. Default is <code>1.000.000.000</code>.
 	 *
-	 * @param entityCacheThreshold
-	 *            the new threshold
+	 * @param entityCacheThreshold the new threshold
+	 * @return this
 	 *
 	 * @see #setEntityCacheTimeout(Duration)
 	 */
@@ -198,8 +226,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * Default is one day.
 	 * See {@link StorageEntityCacheEvaluator#New(long, long)}.
 	 *
-	 * @param entityCacheTimeout
-	 *            the new timeout
+	 * @param entityCacheTimeout the new timeout
+	 * @return this
 	 *
 	 * @see Duration
 	 * @see #setEntityCacheThreshold(long)
@@ -209,8 +237,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	/**
 	 * Minimum file size for a data file to avoid cleaning it up. Default is 1 MiB.
 	 *
-	 * @param dataFileMinimumSize
-	 *            the new minimum file size
+	 * @param dataFileMinimumSize the new minimum file size
+	 * @return this
 	 *
 	 * @see #setDataFileMinimumUseRatio(double)
 	 */
@@ -219,8 +247,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	/**
 	 * Maximum file size for a data file to avoid cleaning it up. Default is 8 MiB.
 	 *
-	 * @param dataFileMaximumSize
-	 *            the new maximum file size
+	 * @param dataFileMaximumSize the new maximum file size
+	 * @return this
 	 *
 	 * @see #setDataFileMinimumUseRatio(double)
 	 */
@@ -234,8 +262,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
 	 * file dissolving (data transfers to new files) is required and vice versa.
 	 *
-	 * @param dataFileMinimumUseRatio
-	 *            the new minimum use ratio
+	 * @param dataFileMinimumUseRatio the new minimum use ratio
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setDataFileMinimumUseRatio(double dataFileMinimumUseRatio);
 
@@ -243,7 +271,8 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 * A flag defining wether the current head file (the only file actively written to)
 	 * shall be subjected to file cleanups as well.
 	 *
-	 * @param dataFileCleanupHeadFile
+	 * @param dataFileCleanupHeadFile the new clean head file
+	 * @return this
 	 */
 	public EmbeddedStorageConfigurationBuilder setDataFileCleanupHeadFile(boolean dataFileCleanupHeadFile);
 

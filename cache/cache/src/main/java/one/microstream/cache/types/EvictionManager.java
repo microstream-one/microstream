@@ -1,9 +1,30 @@
 
 package one.microstream.cache.types;
 
+/*-
+ * #%L
+ * microstream-cache
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.cache.configuration.CacheEntryListenerConfiguration;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
@@ -115,7 +136,7 @@ public interface EvictionManager<K, V>
 		private final    _longReference milliTimeIntervalProvider;
 		private Cache<K, V>             cache;
 		private CacheTable              cacheTable;
-		private volatile boolean        running;
+		private AtomicBoolean           running = new AtomicBoolean();
 
 		Interval(
 			final EvictionPolicy evictionPolicy,
@@ -133,9 +154,9 @@ public interface EvictionManager<K, V>
 			this.cache      = cache;
 			this.cacheTable = cacheTable;
 			
-			if(!this.running)
+			if(!this.running.get())
 			{
-				this.running = true;
+				this.running.set(true);
 				new IntervalThread(new WeakReference<>(this), this.milliTimeIntervalProvider).start();
 			}
 		}
@@ -143,7 +164,7 @@ public interface EvictionManager<K, V>
 		@Override
 		public void uninstall(final Cache<K, V> cache, final CacheTable cacheTable)
 		{
-			this.running    = false;
+			this.running.set(false);
 			this.cache      = null;
 			this.cacheTable = null;
 		}
@@ -181,7 +202,7 @@ public interface EvictionManager<K, V>
 					try
 					{
 						// check for running state. Must be the first action in case of swallowed exception
-						if(!parent.running)
+						if(!parent.running.get())
 						{
 							break;
 						}

@@ -1,5 +1,25 @@
 package one.microstream.util.iterables;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.util.Iterator;
 
 import one.microstream.math.XMath;
@@ -70,9 +90,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 	// getters //
 	////////////
 
-	/**
-	 *
-	 */
 	public int getCount()
 	{
 		return this.count;
@@ -84,9 +101,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 	// setters //
 	////////////
 
-	/**
-	 * @param count the count to set
-	 */
 	public RandomArrayIterator<E> setCount(final int count)
 	{
 		this.count = count;
@@ -99,20 +113,12 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 	// declared methods //
 	/////////////////////
 
-	/**
-	 *
-	 * @param amount
-	 */
 	public RandomArrayIterator<E> incrementCount(final int amount)
 	{
 		this.count += amount;
 		return this;
 	}
 
-	/**
-	 *
-	 * @param amount
-	 */
 	public RandomArrayIterator<E> decrementCount(final int amount)
 	{
 		this.count -= amount;
@@ -173,7 +179,7 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 	/**
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException because this operation is not supported
 	 * @see java.util.Iterator#remove()
 	 */
 	@Override
@@ -211,9 +217,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 		// getters //
 		////////////
 
-		/**
-		 *
-		 */
 		public int getCount()
 		{
 			return this.count;
@@ -225,9 +228,6 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 		// setters //
 		////////////
 
-		/**
-		 * @param count the count to set
-		 */
 		public Factory<E> setCount(final int count)
 		{
 			this.count = count;
@@ -240,20 +240,12 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 		// declared methods //
 		/////////////////////
 
-		/**
-		 *
-		 * @param amount
-		 */
 		public Factory<E> incrementCount(final int amount)
 		{
 			this.count += amount;
 			return this;
 		}
 
-		/**
-		 *
-		 * @param amount
-		 */
 		public Factory<E> decrementCount(final int amount)
 		{
 			this.count -= amount;

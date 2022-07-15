@@ -45,7 +45,7 @@ The artifact `microstream-storage-embedded-configuration` provides a convenience
 <dependencies>
 	<dependency>
 		<groupId>one.microstream</groupId>
-		<artifactId>storage.embedded.configuration</artifactId>
+		<artifactId>microstream-storage-embedded-configuration</artifactId>
 		<version>{maven-version}</version>
 	</dependency>
 </dependencies>
@@ -102,7 +102,7 @@ channel-count = 4
 
 If you just use `EmbeddedStorageConfiguration.load()` the default configuration file is used, which is either a file in the classpath root named `microstream-storage.properties`, or the path configured via the system property `microstream.storage.configuration.path`.
 
-TIP: The full example can be found on https://github.com/microstream-one/examples/tree/master/helloworld-ini[GitHub].
+TIP: The full example can be found on https://github.com/microstream-one/microstream/tree/master/examples/helloworld-ini[GitHub].
 
 === Additional Formats
 
@@ -114,10 +114,10 @@ Other formats are available in different artifacts.
 |===
 | Artifact | Formats
 
-| configuration.hocon
+| microstream-configuration-hocon
 | hocon, json
 
-| configuration.yaml
+| microstream-configuration-yaml
 | yaml
 |===
 

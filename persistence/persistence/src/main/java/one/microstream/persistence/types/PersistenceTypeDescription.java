@@ -1,5 +1,25 @@
 package one.microstream.persistence.types;
 
+/*-
+ * #%L
+ * microstream-persistence
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import one.microstream.X;
 import one.microstream.chars.VarString;
 import one.microstream.collections.HashEnum;
@@ -73,12 +93,13 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	{
 		return buildTypeIdentifier(this);
 	}
- 	
+	
 	/**
 	 * Equal content description, without TypeId comparison
 	 * 
-	 * @param td1
-	 * @param td2
+	 * @param td1 the first description
+	 * @param td2 the second description
+	 * @return if both descriptions are equal
 	 */
 	public static boolean equalDescription(
 		final PersistenceTypeDescription td1,
@@ -94,8 +115,9 @@ public interface PersistenceTypeDescription extends PersistenceTypeIdentity
 	/**
 	 * Equal structure, regardless of the member's definition type (reflective or custom-defined)
 	 * 
-	 * @param td1
-	 * @param td2
+	 * @param td1 the first description
+	 * @param td2 the second description
+	 * @return if both descriptions' structures are equal
 	 */
 	public static boolean equalStructure(
 		final PersistenceTypeDescription td1,

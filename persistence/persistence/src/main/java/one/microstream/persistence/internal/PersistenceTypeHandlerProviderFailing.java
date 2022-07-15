@@ -1,5 +1,27 @@
 package one.microstream.persistence.internal;
 
+import java.util.function.BiConsumer;
+
+/*-
+ * #%L
+ * microstream-persistence
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.util.function.Consumer;
 
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistency;
@@ -19,7 +41,7 @@ import one.microstream.persistence.types.PersistenceTypeLink;
  *
  * 
  *
- * @param <D>
+ * @param <D> the data type
  */
 public class PersistenceTypeHandlerProviderFailing<D>
 extends PersistenceDataTypeHolder.Default<D>
@@ -164,6 +186,16 @@ implements PersistenceTypeHandlerProvider<D>
 	PersistenceTypeHandlerProviderFailing(final Class<D> dataType)
 	{
 		super(dataType);
+	}
+
+	@Override
+	public void iteratePerIds(final BiConsumer<Long, ? super Class<?>> consumer)
+	{
+		/*
+		 * This is not an API OOP misdesign abuse of this exception (like in the JDK), but
+		 * rather this implementation actually does not support that operation.
+		 */
+		throw new UnsupportedOperationException();
 	}
 
 }

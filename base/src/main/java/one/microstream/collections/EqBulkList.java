@@ -1,5 +1,25 @@
 package one.microstream.collections;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.collections.XArrays.removeAllFromArray;
 
 import java.util.Comparator;
@@ -31,6 +51,9 @@ import one.microstream.util.iterables.GenericListIterator;
 /**
  * Full scale general purpose implementation of extended collection type {@link XList}.
  * <p>
+ * Additionally to the {@link BulkList}, this implementation needs an {@link Equalator}
+ * to define equality between elements.
+ * <p>
  * This array-backed implementation is optimal for all needs of a list that do not require frequent structural
  * modification (insert or remove) of single elements before the end of the list.<br>
  * It is recommended to use this implementation as default list type until concrete performance deficiencies are
@@ -38,28 +61,24 @@ import one.microstream.util.iterables.GenericListIterator;
  * {@link #inputAll(long, Object...)}, {@link #removeRange(long, long)}, etc.), this implementation has equal or
  * massively superior performance to linked-list implementation is most cases.
  * <p>
- * This implementation is NOT synchronized and thus should only be used by a
+ * This implementation is <b>not</b> synchronized and thus should only be used by a
  * single thread or in a thread-safe manner (i.e. read-only as soon as multiple threads access it).<br>
  * See {@link SynchList} wrapper class to use a list in a synchronized manner.
  * <p>
- * Note that this List implementation does NOT keep track of modification count as JDK's collection implementations do
+ * Note that this List implementation does <b>not</b> keep track of modification count as JDK's collection implementations do
  * (and thus never throws a {@link ConcurrentModificationException}), for two reasons:<br>
  * 1.) It is already explicitly declared thread-unsafe and for single-thread (or thread-safe)
  * use only.<br>
- * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
+ * 2.) The common modCount-concurrency exception behavior ("failfast") has inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
- * and removing more than one element of it without using the iterator's method.<br>
- * <br>
- * Current conclusion is that the JDK's failfast implementations buy unneeded (and even unreliable as stated by
- * official guides) concurrency modification recognition at the cost of performance loss and even a bug when already
- * used in a thread-safe manner.
+ * and removing more than one element of it without using the iterator's method.
  * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
  * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
  * {@link Iterator} paradigm.
  *
+ * @param <E> type of contained elements
  * 
- * @version 0.9, 2011-02-06
  */
 public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implements XList<E>, Composition
 {
@@ -90,6 +109,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 	/**
 	 * Default constructor instantiating an empty instance with default (minimum) capacity.
+	 * 
+	 * @param equalator the equality logic
 	 */
 	public EqBulkList(final Equalator<? super E> equalator)
 	{
@@ -108,7 +129,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	 * <li>The lowest power of two value that is equal to or greater than the given initial capacity.</li>
 	 * <li>The default (minimum) capacity.</li>
 	 * </ul>
-	 *
+	 * 
+	 * @param equalator the equality logic
 	 * @param initialCapacity the desired custom initial capacity.
 	 */
 	public EqBulkList(final Equalator<? super E> equalator, final int initialCapacity)
@@ -143,7 +165,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	 * Note that providing no element at all in the VarArgs parameter will automatically cause the
 	 * default constructor {@link #EqBulkList(Equalator)} to be used instead. Explicitely providing an {@code null} array
 	 * reference will cause a {@link NullPointerException}.
-	 *
+	 * 
+	 * @param equalator the equality logic
 	 * @param elements the initial elements for the new instance.
 	 * @throws NullPointerException if an explicit {@code null} array reference was passed.
 	 *
@@ -170,7 +193,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	 * and {@code srcLength} as described in {@link #EqBulkList(Equalator, int)}.
 	 * <p>
 	 * The specified initial elements array range is copied via {@link System#arraycopy(Object, int, Object, int, int)}.
-	 *
+	 * 
+	 * @param equalator the equality logic
 	 * @param initialCapacity the desired initial capacity for the new instance.
 	 * @param src the source array containg the desired range of initial elements.
 	 * @param srcStart the start index of the desired range of initial elements in the source array.
@@ -197,7 +221,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	 * Calling this constructor without complying to these rules will result in a broken instance.
 	 * <p>
 	 * It is recommended to NOT use this constructor outside collections-framework-internal implementations.
-	 *
+	 * 
+	 * @param equalator the equality logic
 	 * @param storageArray the array to be used as the storage for the new instance.
 	 * @param size the element size of the new instance.
 	 */
@@ -606,6 +631,11 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		return procedure;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see AbstractArrayStorage#join(Object[], int, BiConsumer, Object)
+	 */
 	@Override
 	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
@@ -1128,6 +1158,11 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 
 	// replacing - single //
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * If the element is equal is defined by the specified {@link Equalator}.
+	 */
 	@Override
 	public boolean replaceOne(final E element, final E replacement)
 	{
@@ -1310,6 +1345,10 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		this.internalAdd(element); // gets inlined, tests showed no performance difference.
 	}
 
+	/**
+	 * Adds the passed element.
+	 * Return value indicates new entry and is always true.
+	 */
 	@Override
 	public boolean add(final E element)
 	{
@@ -1392,6 +1431,11 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		return this.nullAdd();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * In this implementation it is identical to {@link EqBulkList#add(Object)}.
+	 */
 	@Override
 	public boolean put(final E element)
 	{

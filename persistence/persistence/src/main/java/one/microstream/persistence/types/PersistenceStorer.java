@@ -1,5 +1,25 @@
 package one.microstream.persistence.types;
 
+/*-
+ * #%L
+ * microstream-persistence
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import one.microstream.reference.ObjectSwizzling;
 import one.microstream.util.BufferSizeProviderIncremental;
 
@@ -43,11 +63,12 @@ public interface PersistenceStorer extends Storer
 		 * of being "required" depends on the implementation. An example for being "required" is not having an
 		 * instance registered in the global object registry and associated an biunique OID.
 		 * 
-		 * @param objectManager
-		 * @param objectRetriever
-		 * @param typeManager
-		 * @param target
-		 * @param bufferSizeProvider
+		 * @param typeManager the provided type manager
+		 * @param objectManager the provided object manager
+		 * @param objectRetriever the provided object retriever
+		 * @param target the provided persistence target
+		 * @param bufferSizeProvider the provided buffer size provider
+		 * @return a new lazy storer
 		 */
 		public PersistenceStorer createLazyStorer(
 			PersistenceTypeHandlerManager<D> typeManager       ,
@@ -61,11 +82,12 @@ public interface PersistenceStorer extends Storer
 		 * Creates a storer with a default or "natural" storing logic. The default for this method
 		 * (the "default default" in a way) is to delegate the call to {@link #createLazyStorer}.
 		 * 
-		 * @param objectManager
-		 * @param objectRetriever
-		 * @param typeManager
-		 * @param target
-		 * @param bufferSizeProvider
+		 *@param typeManager the provided type manager
+		 * @param objectManager the provided object manager
+		 * @param objectRetriever the provided object retriever
+		 * @param target the provided persistence target
+		 * @param bufferSizeProvider the provided buffer size provider
+		 * @return a new storer
 		 */
 		public default PersistenceStorer createStorer(
 			final PersistenceTypeHandlerManager<D> typeManager       ,
@@ -88,11 +110,12 @@ public interface PersistenceStorer extends Storer
 		 * a storer with this logic should only be used for a confined entity sub-graph that has no reference "escaping"
 		 * to the remaning entities.
 		 * 
-		 * @param objectManager
-		 * @param objectRetriever
-		 * @param typeManager
-		 * @param target
-		 * @param bufferSizeProvider
+		 * @param typeManager the provided type manager
+		 * @param objectManager the provided object manager
+		 * @param objectRetriever the provided object retriever
+		 * @param target the provided persistence target
+		 * @param bufferSizeProvider the provided buffer size provider
+		 * @return a new eager storer
 		 */
 		public PersistenceStorer createEagerStorer(
 			PersistenceTypeHandlerManager<D> typeManager       ,

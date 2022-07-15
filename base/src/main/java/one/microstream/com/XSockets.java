@@ -1,5 +1,25 @@
 package one.microstream.com;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
 import java.io.IOException;
@@ -12,23 +32,29 @@ import java.nio.channels.NetworkChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import org.slf4j.Logger;
+
 import one.microstream.memory.XMemory;
+import one.microstream.util.logging.Logging;
 
 public final class XSockets
 {
+	private final static Logger logger = Logging.getLogger(XSockets.class);
+	
 	public static ByteOrder byteOrder()
 	{
 		return ByteOrder.nativeOrder();
 	}
-	
 	
 	public static final ServerSocketChannel openServerSocketChannel(final InetSocketAddress address)
 		throws ComException
 	{
 		try
 		{
+			logger.debug("creating server socket with adresss {}", address);
 			final ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
 			serverSocketChannel.socket().bind(address);
+			logger.debug("bound ServerSocketChannel to {}", serverSocketChannel);
 			return serverSocketChannel;
 		}
 		catch(final IOException e)
@@ -88,7 +114,7 @@ public final class XSockets
 	 * Creates a new {@link InetSocketAddress} instance with {@link #localHostAddress()} and port 0 (ephemeral port).
 	 * 
 	 * @return a localhost {@link InetSocketAddress}.
-	 * @throws ComException
+	 * @throws ComException if a communication error occurs
 	 * 
 	 * @see InetSocketAddress#InetSocketAddress(InetAddress, int)
 	 */
@@ -102,7 +128,7 @@ public final class XSockets
 	 * 
 	 * @param port the port to be used.
 	 * @return a localhost {@link InetSocketAddress} with the passed port value.
-	 * @throws ComException
+	 * @throws ComException if a communication error occurs
 	 * 
 	 * @see InetSocketAddress#InetSocketAddress(InetAddress, int)
 	 */
@@ -141,10 +167,10 @@ public final class XSockets
 	 * This method either writes all of the passed {@link ByteBuffer}'s bytes from position to limit
 	 * or it throws an exception to indicate failure.
 	 * 
-	 * @param socketChannel
-	 * @param byteBuffer
-	 * 
+	 * @param socketChannel the target channel
+	 * @param byteBuffer the source buffer
 	 * @return the passed {@link ByteBuffer} instance.
+	 * @throws ComException if a communication error occurs
 	 */
 	public static ByteBuffer writeCompletely(final SocketChannel socketChannel, final ByteBuffer byteBuffer)
 		throws ComException
@@ -173,10 +199,10 @@ public final class XSockets
 	 * This method either read to completely fill the passed {@link ByteBuffer} from position to limit
 	 * or it throws an exception to indicate failure.
 	 * 
-	 * @param socketChannel
-	 * @param byteBuffer
-	 * 
+	 * @param socketChannel the source channel
+	 * @param byteBuffer the target buffer
 	 * @return the passed {@link ByteBuffer} instance.
+	 * @throws ComException if a communication error occurs
 	 */
 	public static ByteBuffer readCompletely(final SocketChannel socketChannel, final ByteBuffer byteBuffer)
 		throws ComException
@@ -229,16 +255,60 @@ public final class XSockets
 		public void execute(SocketChannel channel, ByteBuffer buffer) throws ComException; // funny "public"
 	}
 	
-	public static void read(final SocketChannel channel, final ByteBuffer buffer) throws ComException
+	public static int read(final SocketChannel channel, final ByteBuffer buffer) throws ComException
 	{
+		final int numBytesRead;
 		try
 		{
-			channel.read(buffer);
+			numBytesRead = channel.read(buffer);
 		}
 		catch(final IOException e)
 		{
-			throw new ComException(e);
+			throw new ComException("channel read failed", e);
 		}
+		
+		if(numBytesRead < 0 )
+		{
+			throw new ComException("channel reached end of stream");
+		}
+		
+		return numBytesRead;
+	}
+	
+	public static ByteBuffer read(final SocketChannel channel, final ByteBuffer buffer, final int length)
+	{
+		final ByteBuffer checkedBuffer;
+
+		if(length > buffer.capacity())
+		{
+			checkedBuffer = XMemory.allocateDirectNative(length);
+		}
+		else
+		{
+			(checkedBuffer = buffer).clear().limit(length);
+		}
+				
+		do
+		{
+			read(channel, checkedBuffer);
+			
+			if(checkedBuffer.hasRemaining())
+			{
+				try
+				{
+					Thread.sleep(IO_LOOP_SLEEP_TIME);
+				}
+				catch(final InterruptedException e)
+				{
+					throw new ComException(e);
+				}
+			}
+		}
+		while(checkedBuffer.hasRemaining());
+		
+		read(channel, checkedBuffer);
+		
+		return checkedBuffer;
 	}
 	
 	public static void write(final SocketChannel channel, final ByteBuffer buffer) throws ComException
@@ -311,7 +381,7 @@ public final class XSockets
 		}
 	}
 	
-	
+
 	
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -320,11 +390,12 @@ public final class XSockets
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 * 
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XSockets()
 	{
 		// static only
 		throw new UnsupportedOperationException();
 	}
+
 }

@@ -120,43 +120,43 @@ These are the different modules that make up MicroStream.
 |microstream-afs
 |Abstract file system (AFS) layer.
 
-|microstream-afs-aws-dynamodb
+|microstream-enterprise-afs-aws-dynamodb
 |File system implementations for AWS DynamoDB.
 
-|microstream-afs-aws-s3
+|microstream-enterprise-afs-aws-s3
 |File system implementations for AWS S3.
 
-|microstream-afs-azure-storage
+|microstream-enterprise-afs-azure-storage
 |File system implementations for Azure Cloud (Azure Storage).
 
-|microstream-afs-blobstore
+|microstream-enterprise-afs-blobstore
 |Base for all blob store file system implementations.
 
-|microstream-afs-hazelcast
+|microstream-enterprise-afs-hazelcast
 |File system implementation for Hazelcast.
 
-|microstream-afs-hibernate
+|microstream-enterprise-afs-hibernate
 |Generic file system implementation for JPA / Hibernate.
 
-|microstream-afs-kafka
+|microstream-enterprise-afs-kafka
 |File system implementation for Apache Kafka.
 
-|microstream-afs-mongodb
+|microstream-enterprise-afs-mongodb
 |File system implementation for MongoDB.
 
 |microstream-afs-nio
 |File system implementation for the non-blocking IO implementation (java.nio.file) of the JDK.
 
-|microstream-afs-oraclecloud-objectstorage
+|microstream-enterprise-afs-oraclecloud-objectstorage
 |File system implementation for Oracle Cloud Services (Object Storage).
 
-|microstream-afs-oracle-coherence
+|microstream-enterprise-afs-oracle-coherence
 |File system implementation for Oracle Coherence.
 
-|microstream-afs-oracle-nosql
+|microstream-enterprise-afs-oracle-nosql
 |File system implementation for Oracle NoSQL.
 
-|microstream-afs-redis
+|microstream-enterprise-afs-redis
 |File system implementation for Redis.
 
 |microstream-afs-sql
@@ -171,6 +171,9 @@ From a technical point of view, storage as well as serialization is a process th
 
 |microstream-persistence-binary-jdk8
 |xref:storage:addendum/specialized-type-handlers.adoc[Specialized type handlers] for JDK 8 collection types.
+
+|microstream-persistence-binary-jdk17
+|xref:storage:addendum/specialized-type-handlers.adoc#jdk17[Specialized type handlers] for immutable JDK 17 collection types.
 
 |microstream-storage
 |Basic framework to manage a graph of Java data persisted as binary data as a database. Can be used both to implement an embedded database solution (in the same process as the Java application) and a standalone or server-mode database solution (in a separate process). Other forms of persistence than binary data are deliberately not supported because they would not bring any noteworthy advantages but many disadvantages for the task.
@@ -198,9 +201,11 @@ From a technical point of view, storage as well as serialization is a process th
 
 |microstream-storage-restservice-sparkjava
 |REST service implementation which utilizes SparkJava and provides REST endpoints.
+
+|microstream-integrations-cdi
+|xref:misc:integrations/cdi.adoc[CDI Extension]
+
+|microstream-integrations-spring-boot
+|xref:misc:integrations/spring-boot.adoc[Spring Boot Integration]
 |===
 
-
-=== Dependency Graph
-
-link:{imagesdir}/dependency-graph.svg[image:dependency-graph.svg[]]

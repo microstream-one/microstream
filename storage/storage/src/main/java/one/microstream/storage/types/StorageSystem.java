@@ -1,7 +1,32 @@
 package one.microstream.storage.types;
 
+/*-
+ * #%L
+ * microstream-storage
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
 
 import one.microstream.afs.types.AFileSystem;
 import one.microstream.meta.XDebug;
@@ -10,6 +35,7 @@ import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageExceptionInitialization;
 import one.microstream.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import one.microstream.storage.exceptions.StorageExceptionNotRunning;
+import one.microstream.util.logging.Logging;
 
 // (21.03.2016 TM)TODO: what is the difference between ~Manager and ~Controller here? Merge into Controller or comment.
 public interface StorageSystem extends StorageController
@@ -48,6 +74,9 @@ public interface StorageSystem extends StorageController
 
 	public final class Default implements StorageSystem, Unpersistable, StorageKillable
 	{
+		private final static Logger logger = Logging.getLogger(Default.class);
+		
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -84,13 +113,14 @@ public interface StorageSystem extends StorageController
 		private final StorageLockFileManager.Creator       lockFileManagerCreator        ;
 		private final StorageEventLogger                   eventLogger                   ;
 		private final boolean                              switchByteOrder               ;
-
+		private final StorageStructureValidator            storageStructureValidator     ;
+		
 		// state flags //
-		private volatile boolean isStartingUp      ;
-		private volatile boolean isShuttingDown    ;
+		private final AtomicBoolean    isStartingUp       = new AtomicBoolean();
+		private final AtomicBoolean    isShuttingDown     = new AtomicBoolean();
 		private final    Object  stateLock          = new Object();
-		private volatile long    initializationTime;
-		private volatile long    operationModeTime ;
+		private final AtomicLong       initializationTime = new AtomicLong();
+		private final AtomicLong       operationModeTime  = new AtomicLong();
 
 		// running state members //
 		private volatile StorageTaskBroker    taskbroker    ;
@@ -135,7 +165,8 @@ public interface StorageSystem extends StorageController
 			final StorageLockFileSetup                 lockFileSetup                 ,
 			final StorageLockFileManager.Creator       lockFileManagerCreator        ,
 			final StorageExceptionHandler              exceptionHandler              ,
-			final StorageEventLogger                   eventLogger
+			final StorageEventLogger                   eventLogger                   ,
+			final StorageStructureValidator            storageStructureValidator
 		)
 		{
 			super();
@@ -178,6 +209,7 @@ public interface StorageSystem extends StorageController
 			this.backupDataFileValidatorCreator = notNull(backupDataFileValidatorCreator)      ;
 			this.eventLogger                    = notNull(eventLogger)                         ;
 			this.switchByteOrder                =         switchByteOrder                      ;
+			this.storageStructureValidator      = notNull(storageStructureValidator)           ;
 		}
 
 
@@ -252,25 +284,25 @@ public interface StorageSystem extends StorageController
 		@Override
 		public final boolean isStartingUp()
 		{
-			return this.isStartingUp;
+			return this.isStartingUp.get();
 		}
 
 		@Override
 		public final boolean isShuttingDown()
 		{
-			return this.isShuttingDown;
+			return this.isShuttingDown.get();
 		}
 		
 		@Override
 		public final long initializationTime()
 		{
-			return this.initializationTime;
+			return this.initializationTime.get();
 		}
 		
 		@Override
 		public final long operationModeTime()
 		{
-			return this.operationModeTime;
+			return this.operationModeTime.get();
 		}
 
 		private void ensureRunning()
@@ -302,14 +334,15 @@ public interface StorageSystem extends StorageController
 		{
 			if(this.backupHandler == null && this.backupSetup != null)
 			{
-				final StorageDataFileValidator validator = this.backupDataFileValidatorCreator
-					.createDataFileValidator(this.typeDictionary)
-				;
+//				final StorageDataFileValidator validator = this.backupDataFileValidatorCreator
+//					.createDataFileValidator(this.typeDictionary)
+//				;
 				
 				this.backupHandler = this.backupSetup.setupHandler(
 					this.operationController,
 					this.writeController,
-					validator
+					this.backupDataFileValidatorCreator,
+					this.typeDictionary()
 				);
 			}
 			
@@ -460,6 +493,8 @@ public interface StorageSystem extends StorageController
 			// first of all, the lock file needs to be obtained before any writing action may occur.
 			this.initializeLockFileManager();
 			
+			this.storageStructureValidator.validate();
+									
 			// thread safety and state consistency ensured prior to calling
 
 			// create channels, setup task processing and start threads
@@ -495,7 +530,9 @@ public interface StorageSystem extends StorageController
 				return;
 			}
 			
-//			DEBUGStorage.println("shutting down ...");
+			
+			
+			
 			final StorageChannelTaskShutdown task = this.taskbroker.issueChannelShutdown(this.operationController);
 			
 			synchronized(task)
@@ -504,6 +541,10 @@ public interface StorageSystem extends StorageController
 				task.waitOnCompletion();
 			}
 			this.taskbroker = null;
+			
+			this.shutdownBackup();
+			
+			this.operationController.deactivate();
 
 			/* (07.03.2019 TM)FIXME: Shutdown must wait for ongoing activities.
 			 * Such as a StorageBackupHandler thread with a non-empty item queue.
@@ -542,13 +583,15 @@ public interface StorageSystem extends StorageController
 					throw new StorageExceptionInitialization("already starting");
 				}
 				
-				this.isStartingUp = true;
+				logger.info("Starting storage system");
+				
+				this.isStartingUp.set(true);
 				try
 				{
-					this.initializationTime = System.currentTimeMillis();
+					this.initializationTime.set(System.currentTimeMillis());
 					// causes the internal state to switch to running
 					this.internalStartUp();
-					this.operationModeTime = System.currentTimeMillis();
+					this.operationModeTime.set(System.currentTimeMillis());
 				}
 				catch(final InterruptedException e)
 				{
@@ -562,7 +605,7 @@ public interface StorageSystem extends StorageController
 				}
 				finally
 				{
-					this.isStartingUp = false;
+					this.isStartingUp.set(false);
 				}
 			}
 			
@@ -578,11 +621,16 @@ public interface StorageSystem extends StorageController
 		@Override
 		public final boolean shutdown()
 		{
+			logger.info("Stopping storage system");
+			
 			synchronized(this.stateLock)
 			{
 				try
 				{
 					this.internalShutdown();
+					
+					logger.info("Storage system stopped");
+					
 					return true;
 				}
 				catch(final InterruptedException e)
@@ -662,6 +710,17 @@ public interface StorageSystem extends StorageController
 				this.backupHandler.setRunning(false);
 			}
 		}
+		
+		
+		private void shutdownBackup() throws InterruptedException
+		{
+			if(this.backupHandler != null)
+			{
+				this.backupHandler.stop();
+				this.backupThread.join();
+			}
+		}
+
 
 	}
 

@@ -1,12 +1,33 @@
 
 package one.microstream.cache.types;
 
+/*-
+ * #%L
+ * microstream-cache
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 import static one.microstream.chars.XChars.notEmpty;
 
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.cache.CacheException;
 import javax.cache.configuration.CompleteConfiguration;
@@ -64,7 +85,7 @@ public interface CacheManager extends javax.cache.CacheManager
 		private final WeakReference<ClassLoader>       classLoaderReference;
 		private final Properties                       properties;
 		private final EqHashTable<String, Cache<?, ?>> caches   = EqHashTable.New();
-		private volatile boolean                       isClosed = false;
+		private final AtomicBoolean                    isClosed = new AtomicBoolean(false);
 
 		Default(
 			final CachingProvider cachingProvider,
@@ -93,7 +114,7 @@ public interface CacheManager extends javax.cache.CacheManager
 		@Override
 		public boolean isClosed()
 		{
-			return this.isClosed;
+			return this.isClosed.get();
 		}
 
 		@Override
@@ -256,13 +277,13 @@ public interface CacheManager extends javax.cache.CacheManager
 		@Override
 		public synchronized void close()
 		{
-			if(this.isClosed)
+			if(this.isClosed.get())
 			{
 				// no-op, according to spec
 				return;
 			}
 
-			this.isClosed = true;
+			this.isClosed.set(true);
 
 			this.cachingProvider.remove(
 				this.getURI(),
@@ -291,7 +312,7 @@ public interface CacheManager extends javax.cache.CacheManager
 
 		private void ensureOpen()
 		{
-			if(this.isClosed)
+			if(this.isClosed.get())
 			{
 				throw new IllegalStateException("CacheManager is closed");
 			}

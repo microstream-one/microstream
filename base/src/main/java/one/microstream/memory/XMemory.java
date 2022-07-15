@@ -1,5 +1,25 @@
 package one.microstream.memory;
 
+/*-
+ * #%L
+ * microstream-base
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import static one.microstream.X.notNull;
 
 import java.lang.reflect.Field;
@@ -1047,9 +1067,9 @@ public final class XMemory
 	 *
 	 * @return a newly created direct byte buffer with the specified capacity and the platform's native byte order.
 	 *
-     * @throws IllegalArgumentException
-     *         If the {@code capacity} is a negative integer.
-     *
+	 * @throws IllegalArgumentException
+	 *         If the {@code capacity} is a negative integer.
+	 *
 	 * @see ByteBuffer#allocateDirect(int)
 	 * @see ByteBuffer#order(ByteOrder)
 	 */
@@ -1100,6 +1120,29 @@ public final class XMemory
 
 		return bytes;
 	}
+	
+	public static final byte[] toArray(final ByteBuffer[] sources)
+	{
+		int overallLength = 0;
+		for(final ByteBuffer source : sources)
+		{
+			overallLength += source.remaining();
+		}
+		final byte[] bytes = new byte[overallLength];
+		int pos = 0;
+		for(final ByteBuffer source : sources)
+		{
+			final int length                = source.remaining();
+			final int currentSourcePosition = source.position();
+			
+			source.get(bytes, pos, length);
+			pos += length;
+			
+			// why would a querying methode intrinsically increase the position? WHY?
+			source.position(currentSourcePosition);
+		}
+		return bytes;
+	}
 
 	public static final long getPositionLimit(final ByteBuffer buffer)
 	{
@@ -1147,7 +1190,7 @@ public final class XMemory
 	/**
 	 * Dummy constructor to prevent instantiation of this static-only utility class.
 	 *
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	private XMemory()
 	{
