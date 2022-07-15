@@ -31,10 +31,9 @@ public class StorerModeController
 	////////////////////
 	
 	private XList<WeakReference<PersistenceStorerDeactivateAble>> registry;
-	private boolean                                       enabledWrites = true;
-	
-	private CleaningThread                                cleaningThread;
-	private boolean                                       active;
+	private boolean                                               enabledWrites = true;
+	private CleaningThread                                        cleaningThread;
+	private boolean                                               active;
 
 	/**
 	 * A helper thread that iterates all registered storers and removes them if
@@ -62,8 +61,8 @@ public class StorerModeController
 				}
 				catch (final InterruptedException e)
 				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//no need to end thread.
+					logger.debug("Ignored an InterruptedException while sleeping!");
 				}
 				this.controller.clean();
 			}
