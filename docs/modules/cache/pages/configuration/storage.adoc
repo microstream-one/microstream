@@ -48,6 +48,18 @@ storage.storage-directory = ~/cache-data
 storage.channel-count = 4
 ----
 
+== Cache expiry and StorageManager
+
+Since the validity of a Cache entry is only determined when the value is retrieved, the expiry durations are not always respected when using the `StorageManager` when the application is restarted. An example makes this clear.
+
+Suppose we have defined a cache where the https://github.com/jsr107/jsr107spec/blob/master/src/main/java/javax/cache/expiry/ExpiryPolicy.java[ExpiryPolicy] is set to 1 Minute.
+
+When we create an entry in this cache and we did not request the cache entry after the 1-minute expiry before we do shut down the application.
+
+When we start up the application again, When we request the cache entry, it is loaded from the MicroStream Storage Manager and 'created' with a new expiry of 1 minute.
+
+This means that even if the entry was already created more than 1 minute ago (even when we only take into consideration the application uptime), the entry is still returned to the calling code.
+
 == Spring example
 
 [source, text, title="application.properties"]
