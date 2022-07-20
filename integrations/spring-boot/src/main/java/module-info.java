@@ -30,11 +30,16 @@ module microstream.integrations.spring.boot
 	exports one.microstream.integrations.spring.boot.types.azure;
 	exports one.microstream.integrations.spring.boot.types.oracle.nosql;
 	exports one.microstream.integrations.spring.boot.types.oraclecloud;
-	
+	exports one.microstream.integrations.spring.boot.types.config;
+	exports one.microstream.integrations.spring.boot.types.storage;
+
 	requires transitive microstream.storage.embedded.configuration;
 	requires transitive spring.beans;
 	requires transitive spring.boot;
 	requires transitive spring.boot.autoconfigure;
 	requires transitive spring.context;
 	requires transitive spring.core;
+    requires transitive org.aspectj.weaver;
+	requires transitive spring.web;
+	requires transitive java.annotation;
 }
