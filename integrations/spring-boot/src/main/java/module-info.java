@@ -40,6 +40,5 @@ module microstream.integrations.spring.boot
 	requires transitive spring.context;
 	requires transitive spring.core;
     requires transitive org.aspectj.weaver;
-	requires transitive spring.web;
 	requires transitive java.annotation;
 }
