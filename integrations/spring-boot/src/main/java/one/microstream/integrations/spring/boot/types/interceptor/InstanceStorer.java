@@ -68,9 +68,10 @@ public class InstanceStorer
         this.initializePump();  // Start thread
     }
 
-    @PreDestroy  // FIXME This doesn't seems to be working! It is never called By Spring
+    @PreDestroy  // You cannot verify if this method is called through the debugger (since application is in shutdown mode)
     public void stopPump()
     {
+        LOGGER.info("Stopping the pump that stores dirty instances");
         this.signalledToStop = true;  // Flags the thread to stop its while loop
         boolean pumpStopped = false;
         try
