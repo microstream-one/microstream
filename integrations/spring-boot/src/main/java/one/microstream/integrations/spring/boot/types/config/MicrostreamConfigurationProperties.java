@@ -1,4 +1,4 @@
-package one.microstream.integrations.spring.boot.types;
+package one.microstream.integrations.spring.boot.types.config;
 
 /*-
  * #%L
@@ -20,6 +20,7 @@ package one.microstream.integrations.spring.boot.types;
  * #L%
  */
 
+import one.microstream.integrations.spring.boot.types.StorageFilesystem;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
@@ -144,12 +145,20 @@ public class MicrostreamConfigurationProperties
     private String dataFileCleanupHeadFile;
 
     /**
-     * Allows you to force use for Microstream Context Class Loader. Useful when Spring is supplemented with another class loader.
-     * Occasionally there is a problem, for example an attempt to use the hot replace feature for development, that the Microstream is subsequently used from a different ClassLoader than the one that loaded the original objects.
+     * Allows you to force use for MicroStream Context Class Loader. Useful when Spring is supplemented with another class loader.
+     * Occasionally there is a problem, for example an attempt to use the hot replace feature for development, that the MicroStream is subsequently used from a different ClassLoader than the one that loaded the original objects.
      * This causes subsequent problems and an exception: one.microstream.exceptions.TypeCastException
-     * Setting this value to true will force the standard class loader for Microstream and Objects will be loaded by only one ClassLoader.
+     * Setting this value to true will force the standard class loader for MicroStream and Objects will be loaded by only one ClassLoader.
      */
     private Boolean useCurrentThreadClassLoader = false;
+
+    /**
+     * Is the {@code StorageManager} started when the CDI bean for the instance is created or not.
+     * Be aware that when you don't rely on the autostart of the StorageManager, you are responsible for starting it
+     * and might result in Exceptions when code is executed that relies on a started StorageManager.
+     * Default value is true.
+     */
+    private Boolean autoStart = true;
 
 
     public String getStorageDirectory()
@@ -380,5 +389,15 @@ public class MicrostreamConfigurationProperties
     public void setUseCurrentThreadClassLoader(Boolean useCurrentThreadClassLoader)
     {
         this.useCurrentThreadClassLoader = useCurrentThreadClassLoader;
+    }
+
+    public Boolean getAutoStart()
+    {
+        return autoStart;
+    }
+
+    public void setAutoStart(final Boolean autoStart)
+    {
+        this.autoStart = autoStart;
     }
 }

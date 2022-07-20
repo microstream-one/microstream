@@ -1,2 +1,3 @@
+# required to indicate the @EnableConfigurationProperties annotated classes and pick up config about additional packages to scan.
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-one.microstream.integrations.spring.boot.types.MicrostreamConfiguration
+one.microstream.integrations.spring.boot.types.MicroStreamConfiguration

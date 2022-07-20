@@ -58,7 +58,6 @@ public class ApplicationTest
     {
         //When I use the Microstream Spring Configuration to save data
         MyDataSourceProvider provider = new MyDataSourceProvider();
-        storage.start();
 
         Root root = new Root();
         root.setValue(TEXT);
