@@ -25,14 +25,14 @@ import one.microstream.integrations.spring.boot.types.Storage;
 import one.microstream.integrations.spring.boot.types.config.StorageManagerInitializer;
 import one.microstream.reflect.XReflect;
 import one.microstream.storage.types.StorageManager;
-import org.aspectj.lang.reflect.Advice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
@@ -43,11 +43,10 @@ import java.util.Objects;
 import java.util.Set;
 
 @Component
-@ConditionalOnClass(Advice.class)
 public class StorageBeanFactory implements ApplicationContextAware, BeanDefinitionRegistryPostProcessor
 {
 
-    //public static final String BEAN_NAME = "microStream.storageBeanFactory";
+    private static final Logger LOGGER = LoggerFactory.getLogger(StorageBeanFactory.class);
 
     private ApplicationContext applicationContext;
 
@@ -55,6 +54,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
 
     public Object createRootObject()
     {
+        LOGGER.debug("Creating Spring bean for @Storage annotated class");
         final StorageManager storageManager = this.applicationContext.getBean(StorageManager.class);
         Object root = storageManager.root();
 
@@ -62,6 +62,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
         {
             root = XReflect.defaultInstantiate(storageClasses.iterator()
                                                        .next());
+            LOGGER.debug(String.format("Created Root object from class %s", root.getClass().getName()));
             storageManager.setRoot(root);
             storageManager.storeRoot();
         }
