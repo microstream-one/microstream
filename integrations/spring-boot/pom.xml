@@ -12,6 +12,7 @@
     </parent>
 
     <properties>
+        <!-- minimal version is 2.1.0.RELEASE -->
         <org.springframework.boot.version>2.6.7</org.springframework.boot.version>
     </properties>
 
