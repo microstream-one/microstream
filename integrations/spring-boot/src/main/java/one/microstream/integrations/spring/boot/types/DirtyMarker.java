@@ -39,7 +39,8 @@ package one.microstream.integrations.spring.boot.types;
  * }
  * </pre>
  */
-public interface DirtyMarker {
+public interface DirtyMarker
+{
 
     <T> T mark(T instance);
 }

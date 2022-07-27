@@ -115,7 +115,7 @@ public class StorageManagerFactory
 
         }
 
-        this.logger.debug("Microstream configuration items: ");
+        this.logger.debug("MicroStream configuration items: ");
         values.forEach((key, value) ->
                        {
                            if (value != null)

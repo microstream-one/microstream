@@ -59,6 +59,7 @@ public class StoreInterceptor
             final MethodSignature signature = (MethodSignature) pjp.getSignature();
             final Method method = signature.getMethod();
 
+            // Only on method, Around Advice not picked on all methods when putting on class.
             final Store store = method.getAnnotation(Store.class);
             this.processDirtyInstances(store);
         } finally
