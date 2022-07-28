@@ -21,8 +21,8 @@ package test.microstream.integrations.spring.boot.database;
  */
 
 
-import one.microstream.integrations.spring.boot.types.DirtyMarker;
 import one.microstream.integrations.spring.boot.types.Storage;
+import one.microstream.storage.types.StorageManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import test.microstream.integrations.spring.boot.model.User;
 
@@ -33,7 +33,7 @@ import java.util.List;
 public class Root {
 
     @Autowired
-    private transient DirtyMarker dirtyMarker;
+    private transient StorageManager storageManager;
 
     private final List<User> users = new ArrayList<>();
 
@@ -42,7 +42,8 @@ public class Root {
     }
 
     public User addUser(User user) {
-        this.dirtyMarker.mark(users).add(user);
+        users.add(user);
+        storageManager.store(users);
         return user;
     }
 
@@ -53,11 +54,12 @@ public class Root {
      * @param user
      */
     public void updateUser(User user) {
-        this.dirtyMarker.mark(user);
+        storageManager.store(user);
     }
 
     public void removeUser(User user) {
-        this.dirtyMarker.mark(users).remove(user);
+        users.remove(user);
+        storageManager.store(users);
     }
 
 }

@@ -20,7 +20,6 @@ package test.microstream.integrations.spring.boot.database;
  * #L%
  */
 
-import one.microstream.integrations.spring.boot.types.Store;
 import org.springframework.stereotype.Component;
 import test.microstream.integrations.spring.boot.dto.CreateUser;
 import test.microstream.integrations.spring.boot.exception.UserAlreadyExistsException;
@@ -57,7 +56,6 @@ public class UserRepository {
                 .findAny();
     }
 
-    @Store
     public User add(CreateUser user) {
         User result;
         synchronized (USER_LOCK) {
@@ -70,7 +68,6 @@ public class UserRepository {
         return result;
     }
 
-    @Store
     public User updateEmail(String id, String email) {
         Optional<User> byId = getById(id);
         if (byId.isEmpty()) {
