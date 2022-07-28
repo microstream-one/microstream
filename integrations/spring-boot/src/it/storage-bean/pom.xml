@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>test.microstream</groupId>
-    <artifactId>microstream-integrations-spring-boot-storage-interceptor</artifactId>
+    <artifactId>microstream-integrations-spring-boot-storage-bean</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <parent>
@@ -22,10 +22,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web-services</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

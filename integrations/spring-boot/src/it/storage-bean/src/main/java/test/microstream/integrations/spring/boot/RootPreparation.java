@@ -20,7 +20,6 @@ package test.microstream.integrations.spring.boot;
  * #L%
  */
 
-import one.microstream.integrations.spring.boot.types.DirtyMarker;
 import one.microstream.integrations.spring.boot.types.config.StorageManagerInitializer;
 import one.microstream.storage.types.StorageManager;
 import org.slf4j.Logger;
@@ -33,13 +32,6 @@ import test.microstream.integrations.spring.boot.model.User;
 public class RootPreparation implements StorageManagerInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RootPreparation.class);
-
-
-    private final DirtyMarker dirtyMarker;
-
-    public RootPreparation(DirtyMarker dirtyMarker) {
-        this.dirtyMarker = dirtyMarker;
-    }
 
     @Override
     public void initialize(StorageManager storageManager) {

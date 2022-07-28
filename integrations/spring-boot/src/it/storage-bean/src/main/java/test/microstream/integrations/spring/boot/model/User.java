@@ -20,12 +20,8 @@ package test.microstream.integrations.spring.boot.model;
  * #L%
  */
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import one.microstream.integrations.spring.boot.types.DirtyMarker;
 import test.microstream.integrations.spring.boot.dto.CreateUser;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class User extends CreateUser {
