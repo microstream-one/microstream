@@ -21,14 +21,12 @@ package one.microstream.examples.helidonmp;
  * #L%
  */
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import one.microstream.integrations.cdi.types.Store;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 
 @ApplicationScoped
@@ -46,7 +44,6 @@ public class ProductRepositoryStorage implements ProductRepository
 	}
 	
 	@Override
-	@Store
 	public Product save(final Product item)
 	{
 		this.inventory.add(item);
@@ -61,7 +58,6 @@ public class ProductRepositoryStorage implements ProductRepository
 	}
 	
 	@Override
-	@Store
 	public void deleteById(final long id)
 	{
 		this.inventory.deleteById(id);

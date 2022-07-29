@@ -22,23 +22,19 @@ package one.microstream.examples.cdi.javase;
  */
 
 import one.microstream.storage.types.StorageManager;
-import org.jboss.weld.context.RequestContext;
-import org.jboss.weld.context.unbound.UnboundLiteral;
 
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
 
-
+/**
+ * Testing the StorageManager integration.
+ */
 public class App
 {
 	public static void main(final String[] args)
 	{
 		try(SeContainer container = SeContainerInitializer.newInstance().initialize())
 		{
-			// Activate RequestScope
-			RequestContext requestContext = container.select(RequestContext.class, UnboundLiteral.INSTANCE)
-					.get();
-			requestContext.activate();
 
 			final StorageManager manager = container.select(StorageManager.class)
 					.get();

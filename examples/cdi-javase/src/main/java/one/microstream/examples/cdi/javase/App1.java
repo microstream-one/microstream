@@ -21,25 +21,19 @@ package one.microstream.examples.cdi.javase;
  * #L%
  */
 
-import org.jboss.weld.context.RequestContext;
-import org.jboss.weld.context.unbound.UnboundLiteral;
-
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
 import java.util.concurrent.ThreadLocalRandom;
 
-
+/**
+ * Testing the Cache integration.
+ */
 public class App1
 {
 	public static void main(final String[] args)
 	{
 		try(SeContainer container = SeContainerInitializer.newInstance().initialize())
 		{
-			// Activate RequestScope
-			RequestContext requestContext = container.select(RequestContext.class, UnboundLiteral.INSTANCE)
-					.get();
-			requestContext.activate();
-
 			final String      sebastian = "Sebastian";
 			final String      otavio    = "Otavio";
 			final NameCounter counter   = container.select(NameCounter.class).get();
@@ -52,12 +46,12 @@ public class App1
 				"The counters: Sebastian %d and Otavio %d %n",
 				sebastianCounter,
 				otavioCounter);
-			
-			for(int index = 0; index < sebastianCounter; index++)
+
+			for (int index = 0; index < sebastianCounter; index++)
 			{
 				counter.count(sebastian);
 			}
-			for(int index = 0; index < otavioCounter; index++)
+			for (int index = 0; index < otavioCounter; index++)
 			{
 				counter.count(otavio);
 			}
