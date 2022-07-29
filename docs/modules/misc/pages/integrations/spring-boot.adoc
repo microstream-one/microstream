@@ -34,7 +34,7 @@ one.microstream.storage-directory=/opt/data/microstream
 one.microstream.channel-count=2
 ----
 
-The list of all MicroStream configuration properties and their meaning are listed on our https://docs.microstream.one/manual/storage/configuration/properties.html[documentation page].
+The list of all MicroStream configuration properties and their meaning are listed on our xref:storage:configuration/properties.adoc[documentation page].
 
 The configuration values are handled using the https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties[typesafe configuration] approach, and you can read these values by accessing the `MicrostreamConfigurationProperties` Spring bean.
 

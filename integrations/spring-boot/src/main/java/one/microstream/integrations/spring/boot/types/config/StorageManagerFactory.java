@@ -36,7 +36,11 @@ import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -45,7 +49,7 @@ public class StorageManagerFactory
 {
 
     private static final String PREFIX = "one.microstream.";
-    Logger logger = Logging.getLogger(StorageManagerFactory.class);
+    private final static Logger logger = Logging.getLogger(StorageManagerFactory.class);
 
     private final List<EmbeddedStorageFoundationCustomizer> customizers;
     private final List<StorageManagerInitializer> initializers;
@@ -101,24 +105,24 @@ public class StorageManagerFactory
         {
             if (Objects.equals(values.get("use-current-thread-class-loader"), "true"))
             {
-                this.logger.debug("using current thread class loader");
+                logger.debug("using current thread class loader");
             }
             values.remove("use-current-thread-class-loader");
 
         }
 
-        this.logger.debug("MicroStream configuration items: ");
+        logger.debug("MicroStream configuration items: ");
         values.forEach((key, value) ->
                        {
                            if (value != null)
                            {
                                if (key.contains("password"))
                                {
-                                   this.logger.debug(key + " : xxxxxx");
+                                   logger.debug(key + " : xxxxxx");
                                }
                                else
                                {
-                                   this.logger.debug(key + " : " + value);
+                                   logger.debug(key + " : " + value);
                                }
                                builder.set(key, value);
                            }
