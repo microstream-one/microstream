@@ -21,17 +21,15 @@ package one.microstream.examples.cdi.javase;
  * #L%
  */
 
-import static java.util.Optional.ofNullable;
-
-import java.util.HashMap;
-import java.util.Map;
+import one.microstream.integrations.cdi.types.cache.StorageCache;
 
 import javax.cache.Cache;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 
-import one.microstream.integrations.cdi.types.Store;
-import one.microstream.integrations.cdi.types.cache.StorageCache;
+import static java.util.Optional.ofNullable;
 
 
 @ApplicationScoped
@@ -40,8 +38,7 @@ public class NameCounter
 	@Inject
 	@StorageCache
 	private Cache<String, Integer> counter;
-	
-	@Store
+
 	public synchronized int count(final String name)
 	{
 		int counter = this.show(name);

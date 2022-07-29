@@ -21,17 +21,15 @@ package one.microstream.examples.cdi.javase;
  * #L%
  */
 
+import one.microstream.integrations.cdi.types.Storage;
+import one.microstream.persistence.types.Persister;
+
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
-
-import one.microstream.integrations.cdi.types.DirtyMarker;
-import one.microstream.integrations.cdi.types.Storage;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 
 @Storage
@@ -39,13 +37,13 @@ public class Names implements Supplier<Set<String>>
 {
 
 	@Inject
-	private DirtyMarker dirtyMarker;
+	private transient Persister persister;
 
 	private final Set<String> names = new HashSet<>();
 	
-	public void add(final String name)
-	{
-		this.dirtyMarker.mark(this.names).add(Objects.requireNonNull(name, "name is required"));
+	public void add(final String name) {
+		this.names.add(Objects.requireNonNull(name, "name is required"));
+		this.persister.store(this.names);
 	}
 	
 	@Override

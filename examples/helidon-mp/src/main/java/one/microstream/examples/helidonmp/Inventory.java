@@ -28,8 +28,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import one.microstream.integrations.cdi.types.DirtyMarker;
 import one.microstream.integrations.cdi.types.Storage;
+import one.microstream.persistence.types.Persister;
 
 import javax.inject.Inject;
 
@@ -37,15 +37,17 @@ import javax.inject.Inject;
 @Storage
 public class Inventory
 {
+	// Methods lack proper locking to access this shared data structure safely in multi-threaded environment.
 	@Inject
-	private DirtyMarker dirtyMarker;
+	private transient Persister persister;
 
 	private final Set<Product> products = new HashSet<>();
 	
 	public void add(final Product product)
 	{
 		Objects.requireNonNull(product, "product is required");
-		this.dirtyMarker.mark(this.products).add(product);
+		this.products.add(product);
+		this.persister.store((this.products));
 	}
 	
 	public Set<Product> getProducts()
@@ -60,7 +62,8 @@ public class Inventory
 	
 	public void deleteById(final long id)
 	{
-		this.dirtyMarker.mark(this.products).removeIf(this.isIdEquals(id));
+		this.products.removeIf(this.isIdEquals(id));
+		this.persister.store((this.products));
 		
 	}
 	
