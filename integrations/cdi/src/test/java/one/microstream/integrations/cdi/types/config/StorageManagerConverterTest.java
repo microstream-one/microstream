@@ -24,7 +24,6 @@ package one.microstream.integrations.cdi.types.config;
 import io.smallrye.config.inject.ConfigExtension;
 import one.microstream.integrations.cdi.types.extension.StorageExtension;
 import one.microstream.storage.types.StorageManager;
-import org.jboss.weld.junit5.auto.ActivateScopes;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
@@ -33,14 +32,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 
 @EnableAutoWeld
 @AddExtensions(ConfigExtension.class)  // SmallRye Config extension to Support MicroProfile Config within this test
-@ActivateScopes(RequestScoped.class)
 @AddExtensions(StorageExtension.class)
 @DisplayName("Check if the Storage Manager will load using the default MicroProfile Properties file")
 public class StorageManagerConverterTest extends AbstractStorageManagerConverterTest

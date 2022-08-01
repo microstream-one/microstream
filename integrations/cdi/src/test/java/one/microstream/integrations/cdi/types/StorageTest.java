@@ -21,11 +21,8 @@ package one.microstream.integrations.cdi.types;
  * #L%
  */
 
-import one.microstream.integrations.cdi.types.dirty.DirtyMarkerImpl;
 import one.microstream.integrations.cdi.types.extension.StorageExtension;
 import one.microstream.storage.types.StorageManager;
-import org.jboss.weld.junit5.auto.ActivateScopes;
-import org.jboss.weld.junit5.auto.AddBeanClasses;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
@@ -34,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
@@ -45,8 +41,6 @@ import java.util.Set;
 
 @EnableAutoWeld
 @AddExtensions(StorageExtension.class)
-@ActivateScopes(RequestScoped.class)
-@AddBeanClasses(DirtyMarkerImpl.class)  // JUnit 5 Weld extension doesn't pick up bean with @Typed
 public class StorageTest
 {
 	// Test if a class annotated with @Storage is converted into an ApplicationScoped bean.
