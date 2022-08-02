@@ -21,7 +21,7 @@ package one.microstream.integrations.cdi.types.cache;
 
 import io.smallrye.config.inject.ConfigExtension;
 import one.microstream.integrations.cdi.types.ConfigurationCoreProperties;
-import one.microstream.integrations.cdi.types.StorageManagerProducer;
+import one.microstream.integrations.cdi.types.config.StorageManagerProducer;
 import one.microstream.integrations.cdi.types.extension.StorageExtension;
 import one.microstream.integrations.cdi.types.logging.TestLogger;
 import org.jboss.weld.junit5.auto.AddBeanClasses;

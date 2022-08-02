@@ -1,4 +1,4 @@
-package one.microstream.integrations.cdi.types;
+package one.microstream.integrations.cdi.types.config;
 
 /*-
  * #%L
@@ -24,36 +24,32 @@ import one.microstream.integrations.cdi.types.extension.StorageExtension;
 import one.microstream.integrations.cdi.types.logging.TestLogger;
 import one.microstream.storage.types.StorageManager;
 import org.eclipse.microprofile.config.Config;
+import org.jboss.weld.junit5.EnableWeld;
+import org.jboss.weld.junit5.WeldInitiator;
+import org.jboss.weld.junit5.WeldSetup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.event.Level;
 import org.slf4j.event.LoggingEvent;
 
-import java.util.Collections;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@ExtendWith(MockitoExtension.class)
-class StorageManagerProducerTest
+@EnableWeld
+class StorageManagerProducerFromConfigPropertyInjectionTest
 {
     // Test the StorageManagerProducer
-    // - Support for creating a StorageManager based on configuration values
     // - Use the StorageManager from MicroProfile Config Converter (which uses external files like ini or xml)
 
-    @Mock
-    private Config configMock;
+    @WeldSetup
+    public WeldInitiator weld = WeldInitiator.of(StorageManagerProducer.class, StorageManagerProducerFromConfigPropertyInjectionTest.class);
 
-    @Mock
-    private StorageExtension storageExtensionMock;
-
-    @InjectMocks
+    @Inject
     private StorageManagerProducer storageManagerProducer;
 
     @BeforeEach
@@ -62,42 +58,34 @@ class StorageManagerProducerTest
         TestLogger.reset();
     }
 
-    @Test
-    void getStoreManager_noConfigPropertyInjection()
+    private static Config configMock;
+
+    @Produces
+    Config produceConfigMock()
     {
-        // This means we have no @Inject @ConfigProperty StorageManager
-        // And thus should create StorageManger using Builder and load all Config Property keys.
-        final Set<String> names = Collections.emptySet();
+        configMock = Mockito.mock(Config.class);
+        return configMock;
+    }
+
+
+    private static StorageExtension storageExtensionMock;
+
+    @Produces
+    StorageExtension produceStorageExtension()
+    {
+        storageExtensionMock = Mockito.mock(StorageExtension.class);
+        // This means we do have a @Inject @ConfigProperty StorageManager construct
+        // And thus should 'take' StorageManger from MicroProfileConfig directly.
+        final Set<String> names = Set.of("one.microstream.ini");
         Mockito.when(storageExtensionMock.getStorageManagerConfigInjectionNames())
                 .thenReturn(names);
 
-        StorageManager storeManager = storageManagerProducer.getStoreManager();
-        Assertions.assertNotNull(storeManager);
-
-        //
-        Mockito.verify(configMock)
-                .getPropertyNames();  // Test if all config property keys are used.
-        Mockito.verifyNoMoreInteractions(configMock);
-
-        // Another test to prove a real StorageManager is created to have a look at the logs
-        List<LoggingEvent> messages = TestLogger.getMessagesOfLevel(Level.INFO);
-        Optional<LoggingEvent> loggingEvent = messages.stream()
-                .filter(le -> le.getMessage()
-                        .equals("Embedded storage manager initialized"))
-                .findAny();
-
-        Assertions.assertTrue(loggingEvent.isPresent());
-
+        return storageExtensionMock;
     }
 
     @Test
     void getStoreManager_fromConfigPropertyInjection()
     {
-        // This means we do have a @Inject @ConfigProperty StorageManager construct
-        // And thus should 'take'' StorageManger from MicroProfileConfig directly.
-        final Set<String> names = Set.of("one.microstream.ini");
-        Mockito.when(storageExtensionMock.getStorageManagerConfigInjectionNames())
-                .thenReturn(names);
 
         StorageManager storeManager = storageManagerProducer.getStoreManager();
         Assertions.assertNull(storeManager);  // Since we did not mock ConfigMock.getValue()

@@ -21,15 +21,19 @@ package one.microstream.integrations.cdi.types.config;
  * #L%
  */
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.eclipse.microprofile.config.spi.Converter;
-
+import one.microstream.integrations.cdi.types.ConfigurationCoreProperties;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
+import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
+import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageManager;
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.config.spi.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.enterprise.inject.spi.CDI;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -38,23 +42,48 @@ import org.slf4j.LoggerFactory;
 public class StorageManagerConverter implements Converter<StorageManager>
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(StorageManagerConverter.class);
-	
-	private static final Map<String, StorageManager> MAP    = new ConcurrentHashMap<>();
-	
+
+	private static final Map<String, StorageManager> MAP = new ConcurrentHashMap<>();
+
 	@Override
 	public StorageManager convert(final String value) throws IllegalArgumentException, NullPointerException
 	{
 		return MAP.computeIfAbsent(value, this::createStorageManager);
 	}
-	
+
 	private StorageManager createStorageManager(final String value)
 	{
 		LOGGER.info("Loading configuration to start the class StorageManager from the key: " + value);
-		return EmbeddedStorageConfiguration.load(value)
-			.createEmbeddedStorageFoundation()
-			.createEmbeddedStorageManager()
-			.start()
-		;
+		EmbeddedStorageFoundation<?> foundation = EmbeddedStorageConfiguration.load(value)
+				.createEmbeddedStorageFoundation();
+
+		CDI.current()
+				.select(EmbeddedStorageFoundationCustomizer.class)
+				.stream()
+				.forEach(customizer -> customizer.customize(foundation));
+
+		EmbeddedStorageManager storageManager = foundation
+				.createEmbeddedStorageManager();
+
+		if (isAutoStart())
+		{
+			storageManager.start();
+		}
+
+		CDI.current()
+				.select(StorageManagerInitializer.class)
+				.stream()
+				.forEach(initializer -> initializer.initialize(storageManager));
+
+
+		return storageManager;
 	}
-	
+
+	private boolean isAutoStart()
+	{
+		return ConfigProvider.getConfig()
+				.getOptionalValue(ConfigurationCoreProperties.Constants.PREFIX + "autoStart", Boolean.class)
+				.orElse(Boolean.TRUE);
+	}
+
 }
