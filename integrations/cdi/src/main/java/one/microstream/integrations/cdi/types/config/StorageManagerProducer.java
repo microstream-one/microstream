@@ -1,5 +1,5 @@
 
-package one.microstream.integrations.cdi.types;
+package one.microstream.integrations.cdi.types.config;
 
 /*-
  * #%L
@@ -21,44 +21,57 @@ package one.microstream.integrations.cdi.types;
  * #L%
  */
 
-import java.util.Map;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Disposes;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-
+import one.microstream.integrations.cdi.types.ConfigurationCoreProperties;
 import one.microstream.integrations.cdi.types.extension.StorageExtension;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.eclipse.microprofile.config.Config;
 
 import one.microstream.reference.LazyReferenceManager;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
+import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
+import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import one.microstream.storage.types.StorageManager;
+import org.eclipse.microprofile.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Disposes;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import java.util.Map;
 
 
 @ApplicationScoped
 public class StorageManagerProducer
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(StorageManagerProducer.class);
-	
+
 	@Inject
 	private Config config;
 
 	@Inject
 	private StorageExtension storageExtension;
 
+	@Inject
+	private Instance<EmbeddedStorageFoundationCustomizer> customizers;
+
+	@Inject
+	private Instance<StorageManagerInitializer> initializers;
+
 	@Produces
 	@ApplicationScoped
 	public StorageManager getStoreManager()
 	{
 
-		if (storageExtension.getStorageManagerConfigInjectionNames().isEmpty())
+		if (this.storageExtension.getStorageManagerConfigInjectionNames()
+				.isEmpty())
 		{
 			return storageManagerFromProperties();
-		} else {
+		}
+		else
+		{
 			// StorageManager through StorageManagerConverter
 			String configName = storageExtension.getStorageManagerConfigInjectionNames()
 					.iterator()
@@ -86,8 +99,34 @@ public class StorageManagerProducer
 		{
 			builder.set(entry.getKey(), entry.getValue());
 		}
-		return builder.createEmbeddedStorageFoundation()
-				.start();
+		EmbeddedStorageFoundation<?> foundation = builder.createEmbeddedStorageFoundation();
+
+		customizers.stream()
+				.forEach(customizer -> customizer.customize(foundation));
+
+		EmbeddedStorageManager storageManager = foundation
+				.createEmbeddedStorageManager();
+
+		if (isAutoStart())
+		{
+			storageManager.start();
+		}
+
+		if (!storageExtension.hasStorageRoot())
+		{
+			// Only execute at this point when no storage root bean has defined with @Storage
+			// Initializers are called from StorageBean.create if user has defined @Storage and root is read.
+			initializers.stream()
+					.forEach(initializer -> initializer.initialize(storageManager));
+		}
+
+		return storageManager;
+	}
+
+	private boolean isAutoStart()
+	{
+		return config.getOptionalValue(ConfigurationCoreProperties.Constants.PREFIX + "autoStart", Boolean.class)
+				.orElse(Boolean.TRUE);
 	}
 
 	public void dispose(@Disposes final StorageManager manager)
