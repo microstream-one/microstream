@@ -31,11 +31,15 @@ import org.slf4j.Logger;
 
 import one.microstream.X;
 import one.microstream.collections.EqHashEnum;
+import one.microstream.collections.Set_long;
 import one.microstream.functional.ThrowingProcedure;
+import one.microstream.functional._longPredicate;
 import one.microstream.math.XMath;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.ChunksBuffer;
+import one.microstream.persistence.types.ObjectIdsProcessor;
+import one.microstream.persistence.types.ObjectIdsSelector;
 import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.storage.exceptions.StorageException;
@@ -126,6 +130,8 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		private final StorageEntityMarkMonitor  markMonitor    ;
 		private final StorageObjectIdMarkQueue  oidMarkQueue   ; // resetting handled by markMonitor
 		private final StorageReferenceMarker    referenceMarker; // resetting must be handled here.
+		
+		private final ObjectIdsSelector liveObjectIdChecker;
 
 		
 		// state 3.0: mutable fields. Must be cleared on reset.
@@ -170,6 +176,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			final long                        rootTypeId         ,
 			final StorageObjectIdMarkQueue    oidMarkQueue       ,
 			final StorageEventLogger          eventLogger        ,
+			final ObjectIdsSelector           liveObjectIdChecker,
 			final long                        markingWaitTimeMs  ,
 			final int                         markingBufferLength
 		)
@@ -199,6 +206,8 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			
 			// create reference marker at the very end to have all state properly initialized beforehand.
 			this.referenceMarker = markMonitor.provideReferenceMarker(this);
+			
+			this.liveObjectIdChecker = notNull(liveObjectIdChecker);
 		}
 
 
@@ -996,7 +1005,15 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			return false;
 		}
 
-		private void sweep()
+		/**
+		 * If an entity (its OID) is still reachable in the application, it may not be deleted.
+		 * Otherwise, data might be lost since the entity still exists for the application and thus
+		 * is only stored by reference but not in full. The passed predicate is a connection to the
+		 * application's object registry to perform the required check.
+		 * 
+		 * @param isReachableInApplication
+		 */
+		final void sweep(final _longPredicate isReachableInApplication)
 		{
 			this.lastSweepStart = System.currentTimeMillis();
 			final StorageEntityType.Default typeHead = this.typeHead;
@@ -1007,7 +1024,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 				for(StorageEntity.Default item, last = sweepType.head; (item = last.typeNext) != null;)
 				{
 					// actual sweep: white entities are deleted, non-white entities are marked white but not deleted
-					if(item.isGcMarked())
+					if(item.isGcMarked() || isReachableInApplication.test(item.objectId))
 					{
 						// reset to white and advance one item
 						(last = item).markWhite();
@@ -1030,6 +1047,51 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			final long channelRootOid = this.queryRootObjectId();
 			this.markMonitor.completeSweep(this, this.rootOidSelector, channelRootOid);
 		}
+		
+		private void sweep()
+		{
+			this.liveObjectIdChecker.processSelected(new ApplicationCallback(this.typeHead));
+		}
+
+		final class ApplicationCallback implements ObjectIdsProcessor
+		{
+			final StorageEntityType.Default typeHead;
+
+			ApplicationCallback(final StorageEntityType.Default typeHead)
+			{
+				super();
+				this.typeHead = typeHead;
+			}
+
+			@Override
+			public void processObjectIdsByFilter(final _longPredicate objectIdsSelector)
+			{
+				Default.this.sweep(objectIdsSelector);
+			}
+
+			@Override
+			public Set_long provideObjectIdsBaseSet()
+			{
+				final Set_long sweepCandicateObjectIds = Set_long.New(1000);
+
+				final StorageEntityType.Default typeHead = this.typeHead;
+				for(StorageEntityType.Default sweepType = typeHead; (sweepType = sweepType.next) != typeHead;)
+				{
+					// get next item and check for end of type (switch to next type required)
+					for(StorageEntity.Default item = sweepType.head; (item = item.typeNext) != null;)
+					{
+						if(!item.isGcMarked())
+						{
+							sweepCandicateObjectIds.add(item.objectId);
+						}
+					}
+				}
+
+				return sweepCandicateObjectIds;
+			}
+
+		}
+		
 
 		private static final long MAX_INT_BOUND = 1L + Integer.MAX_VALUE;
 		

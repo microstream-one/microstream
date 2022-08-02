@@ -1,5 +1,7 @@
 package one.microstream.storage.restadapter.types;
 
+import one.microstream.collections.Set_long;
+
 /*-
  * #%L
  * microstream-storage-restadapter
@@ -22,6 +24,7 @@ package one.microstream.storage.restadapter.types;
 
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.hashing.HashStatistics;
+import one.microstream.persistence.types.ObjectIdsProcessor;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 
@@ -199,6 +202,20 @@ public class ViewerObjectRegistryDisabled implements PersistenceObjectRegistry
 	public void validate(final long objectId, final Object object)
 	{
 		// no-op
+	}
+	
+	@Override
+	public <P extends ObjectIdsProcessor> P processLiveObjectIds(final P processor)
+	{
+		// no-op
+		return processor;
+	}
+
+	@Override
+	public Set_long selectLiveObjectIds(final Set_long objectIdsBaseSet)
+	{
+		// no-op
+		return objectIdsBaseSet;
 	}
 
 }

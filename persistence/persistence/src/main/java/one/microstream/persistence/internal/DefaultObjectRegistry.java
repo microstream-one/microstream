@@ -26,6 +26,7 @@ import java.lang.ref.WeakReference;
 
 import one.microstream.X;
 import one.microstream.collections.EqHashTable;
+import one.microstream.collections.Set_long;
 import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.hashing.HashStatisticsBucketBased;
@@ -37,6 +38,7 @@ import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyObj
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionImproperObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionInvalidObjectRegistryCapacity;
+import one.microstream.persistence.types.ObjectIdsProcessor;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.reference.Swizzling;
@@ -360,6 +362,11 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 
 	@Override
 	public final synchronized boolean containsObjectId(final long objectId)
+	{
+		return this.internalContainsObjectId(objectId);
+	}
+
+	private boolean internalContainsObjectId(final long objectId)
 	{
 		for(Entry e = this.oidHashTable[(int)objectId & this.hashRange]; e != null; e = e.oidNext)
 		{
@@ -970,6 +977,32 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		this.constantsHotRegistry          = null;
 		this.constantsColdStorageObjects   = constantsObjects;
 		this.constantsColdStorageObjectIds = constantsObjectIds;
+	}
+	
+	@Override
+	public synchronized <P extends ObjectIdsProcessor> P processLiveObjectIds(final P processor)
+	{
+		processor.processObjectIdsByFilter(this::isLiveObjectId);
+
+		return processor;
+	}
+
+	@Override
+	public synchronized Set_long selectLiveObjectIds(final Set_long objectIdsBaseSet)
+	{
+		return objectIdsBaseSet.filter(this::isLiveObjectId);
+	}
+
+	final boolean isLiveObjectId(final long objectId)
+	{
+		final boolean result = this.internalContainsObjectId(objectId);
+
+//		XDebug.println("ObjectRegistry checking OID " + objectId + ": " + result);
+
+		return result;
+
+		// debug hook call
+//		return this.internalContainsObjectId(objectId);
 	}
 	
 	// HashStatistics //

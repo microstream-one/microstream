@@ -26,7 +26,9 @@ import org.slf4j.Logger;
 
 import one.microstream.chars.VarString;
 import one.microstream.math.XMath;
+import one.microstream.persistence.types.PersistenceLiveStorerRegistry;
 import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
+import one.microstream.reference.Referencing;
 import one.microstream.reference.Swizzling;
 import one.microstream.storage.exceptions.StorageException;
 import one.microstream.util.logging.Logging;
@@ -99,8 +101,9 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 	public interface Creator
 	{
 		public StorageEntityMarkMonitor createEntityMarkMonitor(
-			StorageObjectIdMarkQueue[] oidMarkQueues,
-			StorageEventLogger         eventLogger
+			StorageObjectIdMarkQueue[]                 oidMarkQueues    ,
+			StorageEventLogger                         eventLogger      ,
+			Referencing<PersistenceLiveStorerRegistry> refStorerRegistry
 		);
 		
 		
@@ -158,13 +161,15 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			
 			@Override
 			public StorageEntityMarkMonitor createEntityMarkMonitor(
-				final StorageObjectIdMarkQueue[] objectIdMarkQueues,
-				final StorageEventLogger         eventLogger
+				final StorageObjectIdMarkQueue[]                 objectIdMarkQueues,
+				final StorageEventLogger                         eventLogger       ,
+				final Referencing<PersistenceLiveStorerRegistry> refStorerRegistry
 			)
 			{
 				return new StorageEntityMarkMonitor.Default(
 					objectIdMarkQueues.clone(),
 					eventLogger,
+					refStorerRegistry,
 					this.referenceCacheLength
 				);
 			}
@@ -184,6 +189,8 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		
 		// state 1.0: immutable or stateless (as far as this implementation is concerned)
 
+		private final Referencing<PersistenceLiveStorerRegistry> refStorerRegistry;
+		
 		private final StorageEventLogger eventLogger         ;
 		private final int                channelCount        ;
 		private final int                channelHash         ;
@@ -240,13 +247,15 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		/////////////////
 
 		Default(
-			final StorageObjectIdMarkQueue[] oidMarkQueues       ,
-			final StorageEventLogger         eventLogger         ,
-			final int                        referenceCacheLength
+			final StorageObjectIdMarkQueue[]                 oidMarkQueues       ,
+			final StorageEventLogger                         eventLogger         ,
+			final Referencing<PersistenceLiveStorerRegistry> refStorerRegistry   ,
+			final int                                        referenceCacheLength
 		)
 		{
 			super();
 			this.eventLogger          = eventLogger                   ;
+			this.refStorerRegistry    = refStorerRegistry             ;
 			this.oidMarkQueues        = oidMarkQueues                 ;
 			this.referenceCacheLength = referenceCacheLength          ;
 			this.channelCount         = oidMarkQueues.length          ;
@@ -541,10 +550,22 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			if(--this.sweepingChannelCount == 0)
 			{
 				this.lastSweepEnd = System.currentTimeMillis();
-				this.sweepGeneration++;
+				this.incrementSweepGeneration();
 				this.advanceGcCompletion();
 				this.determineAndEnqueueRootOid(rootOidSelector);
 			}
+		}
+		
+		private void incrementSweepGeneration()
+		{
+			final PersistenceLiveStorerRegistry storerRegistry = this.refStorerRegistry.get();
+			if(storerRegistry != null)
+			{
+				// storerRegistry might be null if there is no connected application, yet.
+				storerRegistry.clearGroupAndAdvance(this.sweepGeneration, this.sweepGeneration + 1);
+			}
+
+			this.sweepGeneration++;
 		}
 
 		final synchronized void resetChannelRootIds()

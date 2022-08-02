@@ -30,8 +30,11 @@ import org.slf4j.Logger;
 
 import one.microstream.afs.types.AFileSystem;
 import one.microstream.meta.XDebug;
+import one.microstream.persistence.types.ObjectIdsSelector;
 import one.microstream.persistence.types.Persistence;
+import one.microstream.persistence.types.PersistenceLiveStorerRegistry;
 import one.microstream.persistence.types.Unpersistable;
+import one.microstream.reference.Referencing;
 import one.microstream.storage.exceptions.StorageExceptionInitialization;
 import one.microstream.storage.exceptions.StorageExceptionNotAcceptingTasks;
 import one.microstream.storage.exceptions.StorageExceptionNotRunning;
@@ -82,45 +85,47 @@ public interface StorageSystem extends StorageController
 		////////////////////
 
 		// composite members //
-		private final StorageConfiguration                 configuration                 ;
-		private final StorageInitialDataFileNumberProvider initialDataFileNumberProvider ;
-		private final StorageDataFileEvaluator             fileDissolver                 ;
-		private final StorageLiveFileProvider              fileProvider                  ;
-		private final StorageWriteController               writeController               ;
-		private final StorageFileWriter.Provider           writerProvider                ;
-		private final StorageRequestAcceptor.Creator       requestAcceptorCreator        ;
-		private final StorageTaskBroker.Creator            taskBrokerCreator             ;
-		private final StorageDataChunkValidator.Provider   dataChunkValidatorProvider    ;
-		private final StorageChannelsCreator               channelCreator                ;
-		private final StorageThreadProvider                threadProvider                ;
-		private final StorageEntityCacheEvaluator          entityCacheEvaluator          ;
-		private final StorageRequestTaskCreator            requestTaskCreator            ;
-		private final StorageTypeDictionary                typeDictionary                ;
-		private final StorageOperationController           operationController           ;
-		private final StorageRootTypeIdProvider            rootTypeIdProvider            ;
-		private final StorageExceptionHandler              exceptionHandler              ;
-		private final StorageHousekeepingController        housekeepingController        ;
-		private final StorageHousekeepingBroker            housekeepingBroker            ;
-		private final StorageTimestampProvider             timestampProvider             ;
-		private final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator        ;
-		private final StorageGCZombieOidHandler            zombieOidHandler              ;
-		private final StorageRootOidSelector.Provider      rootOidSelectorProvider       ;
-		private final StorageObjectIdMarkQueue.Creator     oidMarkQueueCreator           ;
-		private final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ;
-		private final StorageDataFileValidator.Creator     backupDataFileValidatorCreator;
-		private final StorageBackupSetup                   backupSetup                   ;
-		private final StorageLockFileSetup                 lockFileSetup                 ;
-		private final StorageLockFileManager.Creator       lockFileManagerCreator        ;
-		private final StorageEventLogger                   eventLogger                   ;
-		private final boolean                              switchByteOrder               ;
-		private final StorageStructureValidator            storageStructureValidator     ;
+		private final StorageConfiguration                       configuration                 ;
+		private final StorageInitialDataFileNumberProvider       initialDataFileNumberProvider ;
+		private final StorageDataFileEvaluator                   fileDissolver                 ;
+		private final StorageLiveFileProvider                    fileProvider                  ;
+		private final StorageWriteController                     writeController               ;
+		private final StorageFileWriter.Provider                 writerProvider                ;
+		private final StorageRequestAcceptor.Creator             requestAcceptorCreator        ;
+		private final StorageTaskBroker.Creator                  taskBrokerCreator             ;
+		private final StorageDataChunkValidator.Provider         dataChunkValidatorProvider    ;
+		private final StorageChannelsCreator                     channelCreator                ;
+		private final StorageThreadProvider                      threadProvider                ;
+		private final StorageEntityCacheEvaluator                entityCacheEvaluator          ;
+		private final StorageRequestTaskCreator                  requestTaskCreator            ;
+		private final StorageTypeDictionary                      typeDictionary                ;
+		private final StorageOperationController                 operationController           ;
+		private final StorageRootTypeIdProvider                  rootTypeIdProvider            ;
+		private final StorageExceptionHandler                    exceptionHandler              ;
+		private final StorageHousekeepingController              housekeepingController        ;
+		private final StorageHousekeepingBroker                  housekeepingBroker            ;
+		private final StorageTimestampProvider                   timestampProvider             ;
+		private final StorageObjectIdRangeEvaluator              objectIdRangeEvaluator        ;
+		private final StorageGCZombieOidHandler                  zombieOidHandler              ;
+		private final StorageRootOidSelector.Provider            rootOidSelectorProvider       ;
+		private final StorageObjectIdMarkQueue.Creator           oidMarkQueueCreator           ;
+		private final StorageEntityMarkMonitor.Creator           entityMarkMonitorCreator      ;
+		private final StorageDataFileValidator.Creator           backupDataFileValidatorCreator;
+		private final StorageBackupSetup                         backupSetup                   ;
+		private final StorageLockFileSetup                       lockFileSetup                 ;
+		private final StorageLockFileManager.Creator             lockFileManagerCreator        ;
+		private final StorageEventLogger                         eventLogger                   ;
+		private final ObjectIdsSelector                          liveObjectIdChecker           ;
+		private final Referencing<PersistenceLiveStorerRegistry> refStorerRegistry             ;
+		private final boolean                                    switchByteOrder               ;
+		private final StorageStructureValidator                  storageStructureValidator     ;
 		
 		// state flags //
 		private final AtomicBoolean    isStartingUp       = new AtomicBoolean();
 		private final AtomicBoolean    isShuttingDown     = new AtomicBoolean();
-		private final    Object  stateLock          = new Object();
-		private final AtomicLong       initializationTime = new AtomicLong();
-		private final AtomicLong       operationModeTime  = new AtomicLong();
+		private final Object           stateLock          = new Object()       ;
+		private final AtomicLong       initializationTime = new AtomicLong()   ;
+		private final AtomicLong       operationModeTime  = new AtomicLong()   ;
 
 		// running state members //
 		private volatile StorageTaskBroker    taskbroker    ;
@@ -140,33 +145,35 @@ public interface StorageSystem extends StorageController
 		/////////////////
 
 		public Default(
-			final StorageConfiguration                 storageConfiguration          ,
-			final StorageOperationController.Creator   ocCreator                     ,
-			final StorageDataFileValidator.Creator     backupDataFileValidatorCreator,
-			final StorageWriteController               writeController               ,
-			final StorageHousekeepingBroker            housekeepingBroker            ,
-			final StorageFileWriter.Provider           writerProvider                ,
-			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider ,
-			final StorageRequestAcceptor.Creator       requestAcceptorCreator        ,
-			final StorageTaskBroker.Creator            taskBrokerCreator             ,
-			final StorageDataChunkValidator.Provider   dataChunkValidatorProvider    ,
-			final StorageChannelsCreator               channelCreator                ,
-			final StorageThreadProvider                threadProvider                ,
-			final StorageRequestTaskCreator            requestTaskCreator            ,
-			final StorageTypeDictionary                typeDictionary                ,
-			final StorageRootTypeIdProvider            rootTypeIdProvider            ,
-			final StorageTimestampProvider             timestampProvider             ,
-			final StorageObjectIdRangeEvaluator        objectIdRangeEvaluator        ,
-			final StorageGCZombieOidHandler            zombieOidHandler              ,
-			final StorageRootOidSelector.Provider      rootOidSelectorProvider       ,
-			final StorageObjectIdMarkQueue.Creator     oidMarkQueueCreator           ,
-			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator      ,
-			final boolean                              switchByteOrder               ,
-			final StorageLockFileSetup                 lockFileSetup                 ,
-			final StorageLockFileManager.Creator       lockFileManagerCreator        ,
-			final StorageExceptionHandler              exceptionHandler              ,
-			final StorageEventLogger                   eventLogger                   ,
-			final StorageStructureValidator            storageStructureValidator
+			final StorageConfiguration                       storageConfiguration          ,
+			final StorageOperationController.Creator         ocCreator                     ,
+			final StorageDataFileValidator.Creator           backupDataFileValidatorCreator,
+			final StorageWriteController                     writeController               ,
+			final StorageHousekeepingBroker                  housekeepingBroker            ,
+			final StorageFileWriter.Provider                 writerProvider                ,
+			final StorageInitialDataFileNumberProvider       initialDataFileNumberProvider ,
+			final StorageRequestAcceptor.Creator             requestAcceptorCreator        ,
+			final StorageTaskBroker.Creator                  taskBrokerCreator             ,
+			final StorageDataChunkValidator.Provider         dataChunkValidatorProvider    ,
+			final StorageChannelsCreator                     channelCreator                ,
+			final StorageThreadProvider                      threadProvider                ,
+			final StorageRequestTaskCreator                  requestTaskCreator            ,
+			final StorageTypeDictionary                      typeDictionary                ,
+			final StorageRootTypeIdProvider                  rootTypeIdProvider            ,
+			final StorageTimestampProvider                   timestampProvider             ,
+			final StorageObjectIdRangeEvaluator              objectIdRangeEvaluator        ,
+			final StorageGCZombieOidHandler                  zombieOidHandler              ,
+			final StorageRootOidSelector.Provider            rootOidSelectorProvider       ,
+			final StorageObjectIdMarkQueue.Creator           oidMarkQueueCreator           ,
+			final StorageEntityMarkMonitor.Creator           entityMarkMonitorCreator      ,
+			final boolean                                    switchByteOrder               ,
+			final StorageLockFileSetup                       lockFileSetup                 ,
+			final StorageLockFileManager.Creator             lockFileManagerCreator        ,
+			final StorageExceptionHandler                    exceptionHandler              ,
+			final StorageEventLogger                         eventLogger                   ,
+			final ObjectIdsSelector                          liveObjectIdChecker           ,
+			final Referencing<PersistenceLiveStorerRegistry> refStorerRegistry             ,
+			final StorageStructureValidator                  storageStructureValidator
 		)
 		{
 			super();
@@ -208,6 +215,8 @@ public interface StorageSystem extends StorageController
 			this.backupSetup                    = mayNull(storageConfiguration.backupSetup())  ;
 			this.backupDataFileValidatorCreator = notNull(backupDataFileValidatorCreator)      ;
 			this.eventLogger                    = notNull(eventLogger)                         ;
+			this.liveObjectIdChecker            = notNull(liveObjectIdChecker)                 ;
+			this.refStorerRegistry              = notNull(refStorerRegistry)                   ;
 			this.switchByteOrder                =         switchByteOrder                      ;
 			this.storageStructureValidator      = notNull(storageStructureValidator)           ;
 		}
@@ -461,6 +470,8 @@ public interface StorageSystem extends StorageController
 				this.entityMarkMonitorCreator              ,
 				this.provideBackupHandler()                ,
 				this.eventLogger                           ,
+				this.liveObjectIdChecker                   ,
+				this.refStorerRegistry                     ,
 				this.switchByteOrder                       ,
 				this.rootTypeIdProvider.provideRootTypeId()
 			);
