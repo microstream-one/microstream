@@ -36,6 +36,8 @@ It read all configuration keys starting with the prefix `one.microstream` and co
 
 Not only the filesystem is supported as a target but also the other targets like databases and only the dependency needs to be added to your project.
 
+
+
 ### Storage
 
 The `@Storage` annotation defines the root object for the _StorageManager_.
