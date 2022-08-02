@@ -100,13 +100,14 @@ MicroStream Spring module supports standard Spring logging, so you can add this 
 `logging.level.one.microstream=debug`
 to obtain all MicroStream configuration keys:
 
-```
+[source]
+----
 2021-08-23 15:16:02.979 DEBUG 18469 --- [           main] o.m.spring.MicrostreamConfiguration      : Microstream configuration items:
 2021-08-23 15:16:02.979 DEBUG 18469 --- [           main] o.m.spring.MicrostreamConfiguration      : storage-filesystem.sql.postgres.password : xxxxx
 2021-08-23 15:16:02.994 DEBUG 18469 --- [           main] o.m.spring.MicrostreamConfiguration      : storage-filesystem.sql.postgres.data-source-provider : one.microstream.test.spring.MyDataSourceProvider
 2021-08-23 15:16:02.994 DEBUG 18469 --- [           main] o.m.spring.MicrostreamConfiguration      : storage-directory : microstream_storage
 2021-08-23 15:16:02.994 DEBUG 18469 --- [           main] o.m.spring.MicrostreamConfiguration      : storage-filesystem.sql.postgres.user : postgres
-```
+----
 
 Key values containing "password" are replaced by "xxxxx".
 
