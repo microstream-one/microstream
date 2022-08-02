@@ -107,7 +107,7 @@ public class StorageManagerProducer
 		EmbeddedStorageManager storageManager = foundation
 				.createEmbeddedStorageManager();
 
-		if (isAutoStart())
+		if (isAutoStart(properties))
 		{
 			storageManager.start();
 		}
@@ -123,10 +123,10 @@ public class StorageManagerProducer
 		return storageManager;
 	}
 
-	private boolean isAutoStart()
+	private boolean isAutoStart(Map<String, String> properties)
 	{
-		return config.getOptionalValue(ConfigurationCoreProperties.Constants.PREFIX + "autoStart", Boolean.class)
-				.orElse(Boolean.TRUE);
+		return Boolean.parseBoolean(properties.getOrDefault("autoStart", "true"));
+
 	}
 
 	public void dispose(@Disposes final StorageManager manager)
