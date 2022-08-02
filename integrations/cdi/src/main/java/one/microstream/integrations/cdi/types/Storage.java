@@ -21,13 +21,12 @@ package one.microstream.integrations.cdi.types;
  * #L%
  */
 
+import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.Stereotype;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import javax.enterprise.inject.Alternative;
-import javax.enterprise.inject.Stereotype;
 
 
 /**
@@ -37,13 +36,13 @@ import javax.enterprise.inject.Stereotype;
  * References between objects are mapped with unique numbers, called ObjectId, or short OID. + With both combined,
  * byte streams and OIDs, an object graph can be stored in a simple and quick way,
  * as well as loaded, as a whole or partially.
- * Ref: https://docs.microstream.one/manual/storage/root-instances.html
- *
+ * Ref: <a href="https://docs.microstream.one/manual/storage/root-instances.html">Root instances</a>
+ * <p>
  * Each application must have a unique class with this annotation.
  * Note: To increase performance use immutable sub-graphs as often as possible.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.FIELD})
+@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Stereotype
 @Alternative
 public @interface Storage
