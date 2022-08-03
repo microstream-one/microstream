@@ -24,16 +24,21 @@ import one.microstream.integrations.cdi.types.ConfigurationCoreProperties;
 import one.microstream.integrations.cdi.types.config.StorageManagerProducer;
 import one.microstream.integrations.cdi.types.extension.StorageExtension;
 import one.microstream.integrations.cdi.types.logging.TestLogger;
+import one.microstream.storage.types.Database;
+import one.microstream.storage.types.Databases;
+import one.microstream.storage.types.StorageManager;
 import org.jboss.weld.junit5.auto.AddBeanClasses;
 import org.jboss.weld.junit5.auto.AddExtensions;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.cache.Cache;
 import javax.inject.Inject;
+import java.util.Optional;
 
 @EnableAutoWeld  // So that Weld container is started
 @AddBeanClasses({StorageCacheProducer.class, StorageManagerProducer.class})  // For @StorageCache
@@ -59,6 +64,15 @@ public class StorageCacheTest
     {
         System.clearProperty(CacheProperties.STORAGE.get());
         System.clearProperty(ConfigurationCoreProperties.STORAGE_DIRECTORY.getMicroProfile());
+    }
+
+    @AfterEach
+    public void cleanup() {
+        // The @Disposes (calling StorageManager.shutdown) is not picked up by Weld-Unit,
+        // Need to shut down it here.
+        Databases databases = Databases.get();
+        Database generic = databases.get("Generic");
+        Optional.ofNullable(generic.storage()).ifPresent(StorageManager::shutdown);
     }
 
     @Test

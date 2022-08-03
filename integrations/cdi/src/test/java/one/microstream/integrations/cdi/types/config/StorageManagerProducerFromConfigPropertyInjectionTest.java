@@ -87,8 +87,8 @@ class StorageManagerProducerFromConfigPropertyInjectionTest
     void getStoreManager_fromConfigPropertyInjection()
     {
 
-        StorageManager storeManager = storageManagerProducer.getStoreManager();
-        Assertions.assertNull(storeManager);  // Since we did not mock ConfigMock.getValue()
+        StorageManager storageManager = storageManagerProducer.getStorageManager();
+        Assertions.assertNull(storageManager);  // Since we did not mock ConfigMock.getValue()
 
         //
         Mockito.verify(configMock)

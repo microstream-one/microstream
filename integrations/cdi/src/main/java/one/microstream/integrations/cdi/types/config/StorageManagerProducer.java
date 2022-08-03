@@ -62,7 +62,7 @@ public class StorageManagerProducer
 
 	@Produces
 	@ApplicationScoped
-	public StorageManager getStoreManager()
+	public StorageManager getStorageManager()
 	{
 
 		if (this.storageExtension.getStorageManagerConfigInjectionNames()
@@ -100,6 +100,7 @@ public class StorageManagerProducer
 			builder.set(entry.getKey(), entry.getValue());
 		}
 		EmbeddedStorageFoundation<?> foundation = builder.createEmbeddedStorageFoundation();
+		foundation.setDataBaseName("Generic");
 
 		customizers.stream()
 				.forEach(customizer -> customizer.customize(foundation));

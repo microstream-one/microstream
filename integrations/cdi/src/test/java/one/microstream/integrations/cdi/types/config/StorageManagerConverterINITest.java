@@ -60,11 +60,18 @@ public class StorageManagerConverterINITest extends AbstractStorageManagerConver
 	public void shouldLoadFromIni()
 	{
 		Assertions.assertNotNull(this.manager);
+		Assertions.assertTrue(this.manager instanceof StorageManagerProxy);
+		final boolean active = this.manager.isActive();// We have the proxy, need to start it to see the log messages.
+		// Don't use this.manager.isActive() as it is started already by the proxy.
+		Assertions.assertTrue(active);
+
 		final List<LoggingEvent> messages = TestLogger.getMessagesOfLevel(Level.INFO);
 
 		hasMessage(messages, "Loading configuration to start the class StorageManager from the key: storage.ini");
 		hasMessage(messages, "Embedded storage manager initialized");
 
 		this.directoryHasChannels(new File("target/ini"), 1);
+
+		Assertions.assertEquals("ini-based", this.manager.databaseName());
 	}
 }
