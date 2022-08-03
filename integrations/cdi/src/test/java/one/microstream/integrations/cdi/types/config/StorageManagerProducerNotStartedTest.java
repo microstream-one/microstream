@@ -23,11 +23,14 @@ package one.microstream.integrations.cdi.types.config;
 import one.microstream.integrations.cdi.types.config.test.SomeStorageManagerInitializer;
 import one.microstream.integrations.cdi.types.extension.StorageExtension;
 import one.microstream.integrations.cdi.types.logging.TestLogger;
+import one.microstream.storage.types.Database;
+import one.microstream.storage.types.Databases;
 import one.microstream.storage.types.StorageManager;
 import org.eclipse.microprofile.config.Config;
 import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldSetup;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,6 +72,17 @@ class StorageManagerProducerNotStartedTest
         TestLogger.reset();
     }
 
+    @AfterEach
+    public void cleanup()
+    {
+        // The @Disposes (calling StorageManager.shutdown) is not picked up by Weld-Unit,
+        // Need to shut down it here.
+        Databases databases = Databases.get();
+        Database generic = databases.get("Generic");
+        Optional.ofNullable(generic.storage())
+                .ifPresent(StorageManager::shutdown);
+    }
+
     private static Config configMock;
 
     @Produces
@@ -104,8 +118,8 @@ class StorageManagerProducerNotStartedTest
     void getStoreManager_noAutoStart()
     {
 
-        StorageManager storeManager = storageManagerProducer.getStoreManager();
-        Assertions.assertNotNull(storeManager);
+        StorageManager storageManager = storageManagerProducer.getStorageManager();
+        Assertions.assertNotNull(storageManager);
 
         Mockito.verify(configMock)
                 .getPropertyNames();  // Test if all config property keys are used.

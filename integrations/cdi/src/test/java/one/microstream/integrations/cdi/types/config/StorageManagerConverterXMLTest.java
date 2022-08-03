@@ -53,6 +53,10 @@ public class StorageManagerConverterXMLTest extends AbstractStorageManagerConver
 	public void shouldLoadFromXML()
 	{
 		Assertions.assertNotNull(this.manager);
+		Assertions.assertTrue(this.manager instanceof StorageManagerProxy);
+		final boolean active = this.manager.isActive();// We have the proxy, need to start it to see the log messages.
+		// Don't use this.manager.isActive() as it is started already by the proxy.
+		Assertions.assertTrue(active);
 
 		final List<LoggingEvent> messages = TestLogger.getMessagesOfLevel(Level.INFO);
 

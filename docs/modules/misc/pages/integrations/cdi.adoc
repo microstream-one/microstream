@@ -59,7 +59,7 @@ You have the opportunity to perform actions on the _StorageManager_ or root obje
 - The _StorageManager_ is already started unless you specified the configuration value `one.microstream.autoStart=false`.
 - If you have used the `@Storage` annotation on a class, the _StorageManager_ is already associated with an instance of that class as the Root object.
 
-There is a second option to configure and retrieve the _StorageManager_, and it makes use of the MicroStream functionality to read the configuration from any file.
+There is a **second option** to configure and retrieve the _StorageManager_, and it makes use of the MicroStream functionality to read the configuration from any file.
 
 [source, java]
 ----
@@ -76,9 +76,32 @@ If you define it multiple times, within different beans for example, you always 
 
 This way, you can define and use multiple _StorageManager_s within your application.
 
+The _customizer_ and _initializer_ features described earlier as CDI beans implementing a specific interface,are also available when you use the MicroProfile Config annotation (`@ConfigProperty`).  Since you can define multiple _StorageManager_s this way, you can distinguish between them based on the _database name_.
+
+The database name can be set by using the following property within the configuration file (example makes use of the properties format, but it is also supported in the other formats)
+
+[source]
+----
+database-name=theName
+----
+
+If this property is not specified, the value of the MicroProfile config key (used within the name member of `@ConfigProperty`) is used.
+
+Within the _customizer_ and _initializer_ you can use this to perform the required actions based on the instance you receive.
+
+[source, java]
+----
+EmbeddedStorageFoundation.getDataBaseName();
+
+StorageManager.databaseName();
+----
+
+
 == Root object
 
 The root object can be indicated by using the `@Storage` annotation on the class.  This annotation converts the POJO into a CDI bean (there is no need to use any scope-defining annotation) with Application Scope.
+
+WARNING: This is only supported when you inject the _StorageManager_ without making use of the MicroProfile Config `@ConfigProperty` annotation.
 
 Besides converting it into a CDI bean, any field injection within this class is also resolved.
 
@@ -86,5 +109,5 @@ The integration also defines the instance of the class that is created as the ro
 
 The POJO must have a (default) no-argument constructor so that the integration can create an instance of it.
 
-You can only annotate 1 class with the `@Storage`  annotation, if you have marked multiple, the deployment of your application will fail at the CDI validation phase.  You cannot use the `@Storage`  functionality when you have defined multiple _StorageManager_'s through the MicroProfile Config Converter option (See option 2 in the Configuration section above)
+You can only annotate 1 class with the `@Storage`  annotation, if you have marked multiple, the deployment of your application will fail at the CDI validation phase.
 
