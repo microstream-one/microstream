@@ -79,27 +79,12 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 	{
 		private final static Logger logger = Logging.getLogger(Default.class);
 		
-		// (24.11.2017 TM)TODO: there seems to still be a GC race condition bug, albeit only very rarely.
-		private static boolean experimentalGcEnabled = false;
 		
-		/**
-		 * <b><u>/!\ EXPERIMENTAL /!\</u></b> Storage-level garbage collection is an unfinished feature with a still tiny race condition problem
-		 * that can cause the database to be ruined occasionally.
-		 * <p>
-		 * <b>Enable at your own risk!</b>
-		 * <p>
-		 * Also note that this method is a temporary experimental function for debugging purposes
-		 * and can disappear at any release.<br>
-		 * <b>Do not use this is production mode.</b>
-		 * 
-		 * @param enabled <code>true</code> if the gc should be enabled, <code>false</code> otherwise
-		 * 
-		 * @deprecated experimental
-		 */
-		@Deprecated
+		private static boolean gcEnabled = true;
+				
 		public static void setGarbageCollectionEnabled(final boolean enabled)
 		{
-			experimentalGcEnabled = enabled;
+			gcEnabled = enabled;
 		}
 		
 		
@@ -1428,7 +1413,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			final StorageChannel channel
 		)
 		{
-			if(!experimentalGcEnabled)
+			if(!gcEnabled)
 			{
 				return true;
 			}
@@ -1513,7 +1498,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			final StorageChannel channel
 		)
 		{
-			if(!experimentalGcEnabled)
+			if(!gcEnabled)
 			{
 				return true;
 			}
@@ -1583,10 +1568,12 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 				 */
 
 				// work ran out
+				System.out.println("Mark finished");
 				return true;
 			}
 
 			// time ran out
+			System.out.println("Mark unfinished");
 			return false;
 		}
 
