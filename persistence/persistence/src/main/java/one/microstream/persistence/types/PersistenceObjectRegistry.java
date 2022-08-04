@@ -158,10 +158,19 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 	
 	public XGettingTable<String, ? extends HashStatistics> createHashStatistics();
 	
-	// one-by-one processing of objectIds. Efficient for embedded mode, horribly inefficient for server mode.
-	public <P extends ObjectIdsProcessor> P processLiveObjectIds(P processor);
+	/**
+	 * 
+	 * @param processor
+	 * @return <code>true</code> on success, <code>false</code> if lock rejected.
+	 */
+	public boolean processLiveObjectIds(ObjectIdsProcessor processor);
 
 	// for bulk processing of objectIds. Most efficient way for server mode, inefficient for embedded mode.
+	/**
+	 * 
+	 * @param objectIdsBaseSet
+	 * @return null if lock rejected
+	 */
 	public Set_long selectLiveObjectIds(Set_long objectIdsBaseSet);
 	
 	

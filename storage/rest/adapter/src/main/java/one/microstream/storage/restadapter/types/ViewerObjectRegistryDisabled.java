@@ -205,10 +205,10 @@ public class ViewerObjectRegistryDisabled implements PersistenceObjectRegistry
 	}
 	
 	@Override
-	public <P extends ObjectIdsProcessor> P processLiveObjectIds(final P processor)
+	public synchronized boolean processLiveObjectIds(final ObjectIdsProcessor processor)
 	{
 		// no-op
-		return processor;
+		return true;
 	}
 
 	@Override

@@ -58,17 +58,17 @@ public interface EmbeddedStorageObjectRegistryCallback extends ObjectIdsSelector
 		}
 
 		@Override
-		public synchronized void processSelected(final ObjectIdsProcessor processor)
+		public synchronized boolean processSelected(final ObjectIdsProcessor processor)
 		{
 			if(this.objectRegistry == null)
 			{
 				// object registry not yet initialized (i.e. no application-side storage connection yet)
 				processor.processObjectIdsByFilter(objectId -> false);
-				return;
+				return true;
 			}
 
 			// efficient for embedded mode, but servermode should use #selectLiveObjectIds instead.
-			this.objectRegistry.processLiveObjectIds(processor);
+			return this.objectRegistry.processLiveObjectIds(processor);
 		}
 
 	}

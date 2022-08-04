@@ -1048,9 +1048,9 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			this.markMonitor.completeSweep(this, this.rootOidSelector, channelRootOid);
 		}
 		
-		private void sweep()
+		private boolean sweep()
 		{
-			this.liveObjectIdChecker.processSelected(new ApplicationCallback(this.typeHead));
+			return this.liveObjectIdChecker.processSelected(new ApplicationCallback(this.typeHead));
 		}
 
 		final class ApplicationCallback implements ObjectIdsProcessor
@@ -1555,7 +1555,11 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			// check if there is sweeping to be done
 			if(this.markMonitor.needsSweep(this))
 			{
-				this.sweep();
+				if(!this.sweep())
+				{
+					// sweep aborted due to locked object registry. Retry on next attempt.
+					return false;
+				}
 
 				// must check for completion again, otherwise a channel might restart marking beyond a completed gc.
 				if(this.checkForGcCompletion())
