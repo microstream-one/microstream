@@ -1568,12 +1568,10 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 				 */
 
 				// work ran out
-				System.out.println("Mark finished");
 				return true;
 			}
 
 			// time ran out
-			System.out.println("Mark unfinished");
 			return false;
 		}
 
