@@ -1,9 +1,8 @@
-
-package one.microstream.examples.cdi.javase;
+package one.microstream.integrations.cdi.types.config.test;
 
 /*-
  * #%L
- * microstream-examples-cdi-javase
+ * MicroStream Integrations CDI
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -21,25 +20,24 @@ package one.microstream.examples.cdi.javase;
  * #L%
  */
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Set;
+import one.microstream.integrations.cdi.types.config.EmbeddedStorageFoundationCustomizer;
+import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
 
+import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class NamesService
+public class SomeEmbeddedStorageFoundationCustomizer implements EmbeddedStorageFoundationCustomizer
 {
-	@Inject
-	private Names names;
+    private boolean customizeCalled;
 
-	public void add(final String name)
-	{
-		this.names.add(name);
-	}
-	
-	public Set<String> getNames()
-	{
-		return this.names.get();
-	}
-	
+    @Override
+    public void customize(final EmbeddedStorageFoundation<?> embeddedStorageFoundation)
+    {
+        this.customizeCalled = true;
+    }
+
+    public boolean isCustomizeCalled()
+    {
+        return customizeCalled;
+    }
 }

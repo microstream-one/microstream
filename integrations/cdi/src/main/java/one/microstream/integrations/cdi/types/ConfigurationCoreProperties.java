@@ -24,7 +24,11 @@ package one.microstream.integrations.cdi.types;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationPropertyNames;
 import org.eclipse.microprofile.config.Config;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 
@@ -296,8 +300,8 @@ public enum ConfigurationCoreProperties
 		;
 	}
 
-	static class Constants
+	public static class Constants
 	{
-		static final String PREFIX = "one.microstream.";
+		public static final String PREFIX = "one.microstream.";
 	}
 }

@@ -27,9 +27,20 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.*;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.AnnotatedType;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.Extension;
+import javax.enterprise.inject.spi.InjectionPoint;
+import javax.enterprise.inject.spi.ProcessAnnotatedType;
+import javax.enterprise.inject.spi.ProcessInjectionPoint;
+import javax.enterprise.inject.spi.WithAnnotations;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 
@@ -133,14 +144,19 @@ public class StorageExtension implements Extension
 		return this.storageManagerConfigInjectionNames;
 	}
 
+	public boolean hasStorageRoot()
+	{
+		return !storageRoot.isEmpty();
+	}
+
 	@Override
 	public String toString()
 	{
 		return "StorageExtension{"
-			+
-			"storageRoot="
-			+ this.storageRoot
-			+
-			'}';
+				+
+				"storageRoot="
+				+ this.storageRoot
+				+
+				'}';
 	}
 }

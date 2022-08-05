@@ -23,7 +23,12 @@ package one.microstream.integrations.cdi.types.extension;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.spi.*;
+import javax.enterprise.inject.spi.AnnotatedType;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.CDI;
+import javax.enterprise.inject.spi.InjectionPoint;
+import javax.enterprise.inject.spi.PassivationCapable;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Set;
@@ -36,7 +41,7 @@ import java.util.Set;
  */
 public abstract class AbstractBean<T> implements Bean<T>, PassivationCapable
 {
-	private final BeanManager beanManager;
+	protected final BeanManager beanManager;
 	private final Set<InjectionPoint> injectionPoints;
 
 	protected AbstractBean(final BeanManager beanManager, final Set<InjectionPoint> injectionPoints)

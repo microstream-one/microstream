@@ -21,20 +21,24 @@ package one.microstream.integrations.cdi.types.extension;
  * #L%
  */
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.*;
+import one.microstream.integrations.cdi.exceptions.CDIExceptionStorage;
+import one.microstream.integrations.cdi.types.Storage;
+import one.microstream.integrations.cdi.types.config.StorageManagerInitializer;
+import one.microstream.reflect.XReflect;
+import one.microstream.storage.types.StorageManager;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Default;
+import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.InjectionPoint;
-
-import one.microstream.integrations.cdi.exceptions.CDIExceptionStorage;
-import one.microstream.integrations.cdi.types.Storage;
-import one.microstream.reflect.XReflect;
-import one.microstream.storage.types.StorageManager;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -81,9 +85,9 @@ class StorageBean<T> extends AbstractBean<T>
 		}
 		else
 		{
-			if(this.type.isInstance(root))
+			if (this.type.isInstance(root))
 			{
-				entity = (T)root;
+				entity = (T) root;
 			}
 			else
 			{
@@ -91,6 +95,16 @@ class StorageBean<T> extends AbstractBean<T>
 			}
 		}
 		this.injectDependencies(entity);
+
+		final Set<Bean<?>> initializerBeans = this.beanManager.getBeans(StorageManagerInitializer.class);
+		for (final Bean<?> initializerBean : initializerBeans)
+		{
+			StorageManagerInitializer initializer = (StorageManagerInitializer) beanManager.getReference(initializerBean
+					, initializerBean.getBeanClass()
+					, this.beanManager.createCreationalContext(initializerBean));
+
+			initializer.initialize(manager);
+		}
 		return entity;
 	}
 

@@ -51,11 +51,19 @@ public class StorageManagerConverterPropertiesTest extends AbstractStorageManage
 	public void shouldLoadFromProperties()
 	{
 		Assertions.assertNotNull(this.manager);
+		Assertions.assertTrue(this.manager instanceof StorageManagerProxy);
+		final boolean active = this.manager.isActive();// We have the proxy, need to start it to see the log messages.
+		// Don't use this.manager.isActive() as it is started already by the proxy.
+		Assertions.assertTrue(active);
+
 		final List<LoggingEvent> messages = TestLogger.getMessagesOfLevel(Level.INFO);
 
 		hasMessage(messages, "Loading configuration to start the class StorageManager from the key: storage.properties");
 		hasMessage(messages, "Embedded storage manager initialized");
 
 		this.directoryHasChannels(new File("target/prop"), 2);
+
+		// No database-name defined in file so it takes the filename (value of "one.microstream.properties" MP key)
+		Assertions.assertEquals("storage.properties", this.manager.databaseName());
 	}
 }
