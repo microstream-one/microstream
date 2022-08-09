@@ -24,8 +24,11 @@ import java.nio.ByteOrder;
 
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.BinaryEntityRawDataIterator;
+import one.microstream.persistence.types.ObjectIdsSelector;
 import one.microstream.persistence.types.Persistence;
+import one.microstream.persistence.types.PersistenceLiveStorerRegistry;
 import one.microstream.persistence.types.Unpersistable;
+import one.microstream.reference.Reference;
 import one.microstream.storage.types.StorageDataChunkValidator.Provider2;
 import one.microstream.storage.types.StorageFileWriter.Provider;
 import one.microstream.util.InstanceDispatcher;
@@ -509,6 +512,10 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 	public StorageHousekeepingBroker housekeepingBroker();
 	
 	public StorageHousekeepingBroker getHousekeepingBroker();
+	
+	public ObjectIdsSelector getLiveObjectIdChecker();
+
+	public Reference<PersistenceLiveStorerRegistry> getLiveStorerRegistryReference();
 
 	/**
 	 * Returns the currently set {@link StorageStructureValidator} instance.
@@ -811,6 +818,10 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 
 	public F setHousekeepingBroker(StorageHousekeepingBroker housekeepingBroker);
 	
+	public F setLiveObjectIdChecker(ObjectIdsSelector liveObjectIdChecker);
+
+	public F setLiveStorerRegistryReference(Reference<PersistenceLiveStorerRegistry> LiveStorerRegistryReference);
+	
 	/**
 	 * Sets the {@link StorageStructureValidator} instance to be used for the assembly.
 	 * 
@@ -847,41 +858,43 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 		 * - StorageThreadNameProvider
 		 */
 
-		private StorageConfiguration                  configuration                ;
-		private StorageOperationController.Creator    operationControllerCreator   ;
-		private StorageInitialDataFileNumberProvider  initialDataFileNumberProvider;
-		private StorageRequestAcceptor.Creator        requestAcceptorCreator       ;
-		private StorageTaskBroker.Creator             taskBrokerCreator            ;
-		private StorageDataChunkValidator.Provider    dataChunkValidatorProvider   ;
-		private StorageDataChunkValidator.Provider2   dataChunkValidatorProvider2  ;
-		private StorageChannelsCreator                channelCreator               ;
-		private StorageThreadNameProvider             threadNameProvider           ;
-		private StorageChannelThreadProvider          channelThreadProvider        ;
-		private StorageBackupThreadProvider           backupThreadProvider         ;
-		private ProcessIdentityProvider               processIdentityProvider      ;
-		private StorageLockFileManagerThreadProvider  lockFileManagerThreadProvider;
-		private StorageThreadProvider                 threadProvider               ;
-		private StorageRequestTaskCreator             requestTaskCreator           ;
-		private StorageTypeDictionary                 typeDictionary               ;
-		private StorageRootTypeIdProvider             rootTypeIdProvider           ;
-		private StorageTimestampProvider              timestampProvider            ;
-		private StorageObjectIdRangeEvaluator         objectIdRangeEvaluator       ;
-		private StorageFileWriter.Provider            writerProvider               ;
-		private StorageGCZombieOidHandler             gCZombieOidHandler           ;
-		private StorageRootOidSelector.Provider       rootOidSelectorProvider      ;
-		private StorageObjectIdMarkQueue.Creator      oidMarkQueueCreator          ;
-		private StorageEntityMarkMonitor.Creator      entityMarkMonitorCreator     ;
-		private StorageDataFileValidator.Creator      dataFileValidatorCreator     ;
-		private BinaryEntityRawDataIterator.Provider  entityDataIteratorProvider   ;
-		private StorageEntityDataValidator.Creator    entityDataValidatorCreator   ;
-		private StorageLockFileSetup                  lockFileSetup                ;
-		private StorageLockFileSetup.Provider         lockFileSetupProvider        ;
-		private StorageLockFileManager.Creator        lockFileManagerCreator       ;
-		private StorageExceptionHandler               exceptionHandler             ;
-		private StorageEventLogger                    eventLogger                  ;
-		private StorageWriteController                writeController              ;
-		private StorageHousekeepingBroker             housekeepingBroker           ;
-		private StorageStructureValidator             storageStructureValidator    ;
+		private StorageConfiguration                     configuration                ;
+		private StorageOperationController.Creator       operationControllerCreator   ;
+		private StorageInitialDataFileNumberProvider     initialDataFileNumberProvider;
+		private StorageRequestAcceptor.Creator           requestAcceptorCreator       ;
+		private StorageTaskBroker.Creator                taskBrokerCreator            ;
+		private StorageDataChunkValidator.Provider       dataChunkValidatorProvider   ;
+		private StorageDataChunkValidator.Provider2      dataChunkValidatorProvider2  ;
+		private StorageChannelsCreator                   channelCreator               ;
+		private StorageThreadNameProvider                threadNameProvider           ;
+		private StorageChannelThreadProvider             channelThreadProvider        ;
+		private StorageBackupThreadProvider              backupThreadProvider         ;
+		private ProcessIdentityProvider                  processIdentityProvider      ;
+		private StorageLockFileManagerThreadProvider     lockFileManagerThreadProvider;
+		private StorageThreadProvider                    threadProvider               ;
+		private StorageRequestTaskCreator                requestTaskCreator           ;
+		private StorageTypeDictionary                    typeDictionary               ;
+		private StorageRootTypeIdProvider                rootTypeIdProvider           ;
+		private StorageTimestampProvider                 timestampProvider            ;
+		private StorageObjectIdRangeEvaluator            objectIdRangeEvaluator       ;
+		private StorageFileWriter.Provider               writerProvider               ;
+		private StorageGCZombieOidHandler                gCZombieOidHandler           ;
+		private StorageRootOidSelector.Provider          rootOidSelectorProvider      ;
+		private StorageObjectIdMarkQueue.Creator         oidMarkQueueCreator          ;
+		private StorageEntityMarkMonitor.Creator         entityMarkMonitorCreator     ;
+		private StorageDataFileValidator.Creator         dataFileValidatorCreator     ;
+		private BinaryEntityRawDataIterator.Provider     entityDataIteratorProvider   ;
+		private StorageEntityDataValidator.Creator       entityDataValidatorCreator   ;
+		private StorageLockFileSetup                     lockFileSetup                ;
+		private StorageLockFileSetup.Provider            lockFileSetupProvider        ;
+		private StorageLockFileManager.Creator           lockFileManagerCreator       ;
+		private StorageExceptionHandler                  exceptionHandler             ;
+		private StorageEventLogger                       eventLogger                  ;
+		private StorageWriteController                   writeController              ;
+		private StorageHousekeepingBroker                housekeepingBroker           ;
+		private ObjectIdsSelector                        liveObjectIdChecker          ;
+		private Reference<PersistenceLiveStorerRegistry> storerRegistryReference      ;
+		private StorageStructureValidator                storageStructureValidator    ;
 
 		
 		
@@ -1112,7 +1125,16 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 		{
 			return StorageHousekeepingBroker.New();
 		}
-				
+		
+		protected ObjectIdsSelector ensureObjectIdsSelector()
+		{
+			throw new MissingFoundationPartException(ObjectIdsSelector.class);
+		}
+
+		protected Reference<PersistenceLiveStorerRegistry> ensureLiveStorerRegistryReference()
+		{
+			throw new MissingFoundationPartException(Reference.class, "to " + PersistenceLiveStorerRegistry.class.getSimpleName());
+		}
 		
 		protected StorageStructureValidator ensureStorageStructureValidator()
 		{
@@ -1472,6 +1494,26 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 			}
 			return this.housekeepingBroker;
 		}
+		
+		@Override
+		public final ObjectIdsSelector getLiveObjectIdChecker()
+		{
+			if(this.liveObjectIdChecker == null)
+			{
+				this.liveObjectIdChecker = this.dispatch(this.ensureObjectIdsSelector());
+			}
+			return this.liveObjectIdChecker;
+		}
+
+		@Override
+		public final Reference<PersistenceLiveStorerRegistry> getLiveStorerRegistryReference()
+		{
+			if(this.storerRegistryReference == null)
+			{
+				this.storerRegistryReference = this.dispatch(this.ensureLiveStorerRegistryReference());
+			}
+			return this.storerRegistryReference;
+		}
 
 		@Override
 		public StorageStructureValidator getStorageStructureValidator()
@@ -1758,6 +1800,20 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 		}
 		
 		@Override
+		public F setLiveObjectIdChecker(final ObjectIdsSelector liveObjectIdChecker)
+		{
+			this.liveObjectIdChecker = liveObjectIdChecker;
+			return this.$();
+		}
+
+		@Override
+		public final F setLiveStorerRegistryReference(final Reference<PersistenceLiveStorerRegistry> refLiveStorerRegistry)
+		{
+			this.storerRegistryReference = refLiveStorerRegistry;
+			return this.$();
+		}
+		
+		@Override
 		public F setStorageStructureValidator(final StorageStructureValidator storageStructureValidator)
 		{
 			this.storageStructureValidator = storageStructureValidator;
@@ -1813,6 +1869,8 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 				this.getLockFileManagerCreator()       ,
 				this.getExceptionHandler()             ,
 				this.getEventLogger()                  ,
+				this.getLiveObjectIdChecker()          ,
+				this.getLiveStorerRegistryReference()  ,
 				this.getStorageStructureValidator()
 			);
 		}

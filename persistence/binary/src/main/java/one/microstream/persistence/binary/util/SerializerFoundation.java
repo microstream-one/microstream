@@ -2256,6 +2256,7 @@ extends ByteOrderTargeting.Mutable<F>,
 				this.getPersister(),
 				target,
 				source,
+				PersistenceStorer.CreationObserver::noOp, // only relevant for storage
 				this.getBufferSizeProvider(),
 				this.getTargetByteOrder()
 			);

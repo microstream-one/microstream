@@ -24,8 +24,11 @@ import static one.microstream.X.KeyValue;
 
 import java.lang.ref.WeakReference;
 
+import org.slf4j.Logger;
+
 import one.microstream.X;
 import one.microstream.collections.EqHashTable;
+import one.microstream.collections.Set_long;
 import one.microstream.collections.XSort;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.hashing.HashStatisticsBucketBased;
@@ -37,10 +40,12 @@ import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyObj
 import one.microstream.persistence.exceptions.PersistenceExceptionConsistencyObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionImproperObjectId;
 import one.microstream.persistence.exceptions.PersistenceExceptionInvalidObjectRegistryCapacity;
+import one.microstream.persistence.types.ObjectIdsProcessor;
 import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.reference.Swizzling;
 import one.microstream.typing.KeyValue;
+import one.microstream.util.logging.Logging;
 
 public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 {
@@ -116,7 +121,15 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		return System.identityHashCode(object);
 	}
 	
-	
+	private static Entry[] createHashTable(final int hashLength)
+	{
+		return new Entry[hashLength];
+	}
+
+	private static int calculateRequiredHashLength(final long minimumCapacity, final float hashDensity)
+	{
+		return XHashing.padHashLength((long)(minimumCapacity / hashDensity));
+	}
 	
 	///////////////////////////////////////////////////////////////////////////
 	// static constructors //
@@ -148,19 +161,34 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	)
 	{
 		return new DefaultObjectRegistry()
-			.internalSetConfiguration(
+			.synchSetConfiguration(
 				validateHashDensity(hashDensity),
 				validateCapacity(minimumCapacity)
 			)
-			.internalReset()
+			.synchReset()
 		;
 	}
 	
-	
+
+	private final static Logger logger = Logging.getLogger(DefaultObjectRegistry.class);
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
 	////////////////////
+	
+	/*
+	 * Note:
+	 * This does NOT replace locking the whole registry over a not to be "disrupted" process like loading
+	 * (See BinaryLoader#get).
+	 * This is just an internal lock to keep things consistent on a technical level.
+	 * Locking the registry itself continuously across a whole process keeps things consistent
+	 * on a business-logical level.
+	 * Also note:
+	 * The methode #processLiveObjectIds and #selectLiveObjectIds do not and MAY NOT lock the whole registry
+	 * instance or it will create a deadlock with a loading process locking the registry and waiting for the
+	 * load task to complete.
+	 */
+	private final Object mutex = new Object();
 	
 	private Entry[] oidHashTable;
 	private Entry[] refHashTable;
@@ -192,174 +220,218 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	// methods //
 	////////////
 
-	private int internalHashLength()
+	/* note on naming:
+	 * 
+	 * All instance methods not starting with "synch~" must protected their logic
+	 * by using a synchronized block synchronizing on the mutex instance.
+	 * 
+	 * AND
+	 * 
+	 * All instance methods starting with "synch~" must be called
+	 * either
+	 * 1.) inside a synchronized block
+	 * OR
+	 * 2.) by another method prefixed "synch~".
+	 * 
+	 * With this simple naming convention, it can be very easily checked if there
+	 * are no loopholes in the concurrency handling architecture of this class.
+	 */
+
+	private int synchHashLength()
 	{
 		return this.hashRange + 1;
 	}
 	
-	private void internalSetHashDensity(final float validHashDensity)
+	private void synchSetHashDensity(final float validHashDensity)
 	{
 		this.hashDensity = validHashDensity;
 	}
 	
-	private void internalSetMinimumCapacity(final long validMinimumCapacity)
+	private void synchSetMinimumCapacity(final long validMinimumCapacity)
 	{
 		this.minCapacity = validMinimumCapacity;
 	}
 	
-	final DefaultObjectRegistry internalSetConfiguration(
+	final DefaultObjectRegistry synchSetConfiguration(
 		final float hashDensity    ,
 		final long  minimumCapacity
 	)
 	{
-		this.internalSetHashDensity(hashDensity);
-		this.internalSetMinimumCapacity(minimumCapacity);
+		this.synchSetHashDensity(hashDensity);
+		this.synchSetMinimumCapacity(minimumCapacity);
 		
 		return this;
 	}
 	
-	final DefaultObjectRegistry internalReset()
+	final DefaultObjectRegistry synchReset()
 	{
-		return this.internalReset(this.minCapacity);
+		return this.synchReset(this.minCapacity);
 	}
 	
-	final DefaultObjectRegistry internalReset(final long minimumCapacity)
+	final DefaultObjectRegistry synchReset(final long minimumCapacity)
 	{
 		this.size = 0;
-		final int hashLength = this.calculateRequiredHashLength(minimumCapacity);
-		this.setHashTables(
-			this.createHashTable(hashLength),
-			this.createHashTable(hashLength)
+		final int hashLength = calculateRequiredHashLength(minimumCapacity, this.hashDensity);
+		this.synchSetHashTables(
+			createHashTable(hashLength),
+			createHashTable(hashLength)
 		);
 				
 		return this;
 	}
-	
-	private int calculateRequiredHashLength(final long minimumCapacity)
-	{
-		return XHashing.padHashLength((long)(minimumCapacity / this.hashDensity));
-	}
 		
-	private void setHashTables(final Entry[] oidHashTable, final Entry[] refHashTable)
+	private void synchSetHashTables(final Entry[] oidHashTable, final Entry[] refHashTable)
 	{
 		this.oidHashTable = oidHashTable;
 		this.refHashTable = refHashTable;
 		this.hashRange    = oidHashTable.length - 1;
-		this.internalUpdateCapacity();
-	}
-		
-	private Entry[] createHashTable(final int hashLength)
-	{
-		return new Entry[hashLength];
+		this.synchUpdateCapacity();
 	}
 	
-	private void internalUpdateCapacity()
+	private void synchUpdateCapacity()
 	{
-		this.capacity = this.internalHashLength() >= XMath.highestPowerOf2_int()
+		this.capacity = this.synchHashLength() >= XMath.highestPowerOf2_int()
 			? Long.MAX_VALUE
-			: (long)(this.internalHashLength() * this.hashDensity)
+			: (long)(this.synchHashLength() * this.hashDensity)
 		;
 	}
 		
 	@Override
-	public final synchronized DefaultObjectRegistry Clone()
+	public final DefaultObjectRegistry Clone()
 	{
-		return DefaultObjectRegistry.New(this.hashDensity, this.minCapacity);
+		synchronized(this.mutex)
+		{
+			return DefaultObjectRegistry.New(this.hashDensity, this.minCapacity);
+		}
 	}
 
 	@Override
-	public final synchronized int hashRange()
+	public final int hashRange()
 	{
-		return this.oidHashTable.length;
+		synchronized(this.mutex)
+		{
+			return this.oidHashTable.length;
+		}
 	}
 
 	@Override
-	public final synchronized float hashDensity()
+	public final float hashDensity()
 	{
-		return this.hashDensity;
+		synchronized(this.mutex)
+		{
+			return this.hashDensity;
+		}
 	}
 	
 	@Override
-	public final synchronized long minimumCapacity()
+	public final long minimumCapacity()
 	{
-		return this.minCapacity;
+		synchronized(this.mutex)
+		{
+			return this.minCapacity;
+		}
 	}
 
 	@Override
-	public final synchronized long capacity()
+	public final long capacity()
 	{
-		return this.capacity;
+		synchronized(this.mutex)
+		{
+			return this.capacity;
+		}
 	}
 
 	@Override
-	public final synchronized long size()
+	public final long size()
 	{
-		return this.size;
+		synchronized(this.mutex)
+		{
+			return this.size;
+		}
 	}
 
 	@Override
-	public final synchronized boolean isEmpty()
+	public final boolean isEmpty()
 	{
-		return this.size == 0;
+		synchronized(this.mutex)
+		{
+			return this.size == 0;
+		}
+	}
+
+	@Override
+	public final boolean setHashDensity(final float hashDensity)
+	{
+		synchronized(this.mutex)
+		{
+			this.synchSetHashDensity(validateHashDensity(hashDensity));
+			this.synchUpdateCapacity();
+			return this.ensureCapacity(this.minCapacity);
+		}
 	}
 	
 	@Override
-	public final synchronized boolean setHashDensity(final float hashDensity)
-	{
-		this.internalSetHashDensity(validateHashDensity(hashDensity));
-		
-		this.internalUpdateCapacity();
-		return this.ensureCapacity(this.minCapacity);
-	}
-	
-	@Override
-	public final synchronized boolean setConfiguration(
+	public final boolean setConfiguration(
 		final float hashDensity    ,
 		final long  minimumCapacity
 	)
 	{
-		// both values are checked before modifying any state
-		validateHashDensity(hashDensity);
-		validateCapacity(minimumCapacity);
-		
-		this.internalSetHashDensity(hashDensity);
-		this.internalSetMinimumCapacity(minimumCapacity);
-		
-		this.internalUpdateCapacity();
-		return this.ensureCapacity(minimumCapacity);
-	}
-	
-	@Override
-	public final synchronized boolean setMinimumCapacity(final long minimumCapacity)
-	{
-		this.internalSetMinimumCapacity(validateCapacity(minimumCapacity));
-		
-		this.internalUpdateCapacity();
-		return this.ensureCapacity(minimumCapacity);
-	}
-	
-	@Override
-	public final synchronized boolean ensureCapacity(final long desiredCapacity)
-	{
-		/*
-		 * Cannot use capacityHigh here, as this method is called after changing capacity-defining values.
-		 * Instead, the actual hash length is checked to determine if the tables really are too small.
-		 */
-		
-		validateCapacity(desiredCapacity);
-		final int requiredHashLength = this.calculateRequiredHashLength(desiredCapacity);
-		if(requiredHashLength > this.internalHashLength())
+		synchronized(this.mutex)
 		{
-			this.internalRebuild(requiredHashLength);
-			
-			return true;
+			// both values are checked before modifying any state
+			validateHashDensity(hashDensity);
+			validateCapacity(minimumCapacity);
+
+			this.synchSetHashDensity(hashDensity);
+			this.synchSetMinimumCapacity(minimumCapacity);
+
+			this.synchUpdateCapacity();
+			return this.ensureCapacity(minimumCapacity);
 		}
-		
-		return false;
+	}
+	
+	@Override
+	public final boolean setMinimumCapacity(final long minimumCapacity)
+	{
+		synchronized(this.mutex)
+		{
+			this.synchSetMinimumCapacity(validateCapacity(minimumCapacity));
+			this.synchUpdateCapacity();
+			return this.ensureCapacity(minimumCapacity);
+		}
+	}
+	
+	@Override
+	public final boolean ensureCapacity(final long desiredCapacity)
+	{
+		synchronized(this.mutex)
+		{
+			/*
+			 * Cannot use capacityHigh here, as this method is called after changing capacity-defining values.
+			 * Instead, the actual hash length is checked to determine if the tables really are too small.
+			 */
+			validateCapacity(desiredCapacity);
+			final int requiredHashLength = calculateRequiredHashLength(desiredCapacity, this.hashDensity);
+			if(requiredHashLength > this.synchHashLength())
+			{
+				this.synchRebuild(requiredHashLength);
+				return true;
+			}
+
+			return false;
+		}
 	}
 
 	@Override
-	public final synchronized boolean containsObjectId(final long objectId)
+	public final boolean containsObjectId(final long objectId)
+	{
+		synchronized(this.mutex)
+		{
+			return this.synchContainsObjectId(objectId);
+		}
+	}
+
+	private boolean synchContainsObjectId(final long objectId)
 	{
 		for(Entry e = this.oidHashTable[(int)objectId & this.hashRange]; e != null; e = e.oidNext)
 		{
@@ -373,19 +445,20 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 	
 	@Override
-	public final synchronized long lookupObjectId(final Object object)
+	public final long lookupObjectId(final Object object)
 	{
-		if(object == null)
+		synchronized(this.mutex)
 		{
-			throw new NullPointerException();
+			if(object == null)
+			{
+				throw new NullPointerException();
+			}
+			return this.synchLookupObjectId(object);
 		}
-		
-		return this.internalLookupObjectId(object);
 	}
 	
-	private long internalLookupObjectId(final Object object)
+	private long synchLookupObjectId(final Object object)
 	{
-
 		for(Entry e = this.refHashTable[hash(object) & this.hashRange]; e != null; e = e.refNext)
 		{
 			if(e.get() == object)
@@ -398,12 +471,15 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 
 	@Override
-	public final synchronized Object lookupObject(final long objectId)
+	public final Object lookupObject(final long objectId)
 	{
-		return this.internalLookupObject(objectId);
+		synchronized(this.mutex)
+		{
+			return this.synchLookupObject(objectId);
+		}
 	}
 	
-	private Object internalLookupObject(final long objectId)
+	private Object synchLookupObject(final long objectId)
 	{
 		for(Entry e = this.oidHashTable[(int)objectId & this.hashRange]; e != null; e = e.oidNext)
 		{
@@ -419,15 +495,21 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	@Override
 	public final boolean isValid(final long objectId, final Object object)
 	{
-		// hacky flag, but no idea how to better prevent the code redundancy except with abstraction overkill.
-		return this.synchInternalValidate(objectId, object, false);
+		synchronized(this.mutex)
+		{
+			// hacky flag, but no idea how to better prevent the code redundancy except with abstraction overkill.
+			return this.synchInternalValidate(objectId, object, false);
+		}
 	}
 	
 	@Override
-	public final synchronized void validate(final long objectId, final Object object)
+	public final void validate(final long objectId, final Object object)
 	{
-		// hacky flag, but no idea how to better prevent the code redundancy except with abstraction overkill.
-		this.synchInternalValidate(objectId, object, true);
+		synchronized(this.mutex)
+		{
+			// hacky flag, but no idea how to better prevent the code redundancy except with abstraction overkill.
+			this.synchInternalValidate(objectId, object, true);
+		}
 	}
 	
 	private boolean synchInternalValidate(final long objectId, final Object object, final boolean throwException)
@@ -437,7 +519,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			throw new NullPointerException();
 		}
 		
-		final long registeredObjectId = this.internalLookupObjectId(object);
+		final long registeredObjectId = this.synchLookupObjectId(object);
 		if(registeredObjectId == objectId)
 		{
 			// already registered entry
@@ -446,7 +528,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		
 		if(Swizzling.isNotFoundId(registeredObjectId))
 		{
-			final Object registeredObject = this.internalLookupObject(objectId);
+			final Object registeredObject = this.synchLookupObject(objectId);
 			if(registeredObject == null)
 			{
 				// consistently not registered object
@@ -472,7 +554,15 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 	
 	@Override
-	public final synchronized boolean registerObject(final long objectId, final Object object)
+	public final boolean registerObject(final long objectId, final Object object)
+	{
+		synchronized(this.mutex)
+		{
+			return this.synchRegisterObject(objectId, object);
+		}
+	}
+
+	private boolean synchRegisterObject(final long objectId, final Object object)
 	{
 		if(object == null)
 		{
@@ -482,57 +572,63 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			throw new PersistenceExceptionImproperObjectId();
 		}
-
-		return this.internalAdd(objectId, object);
+		return this.synchAdd(objectId, object);
 	}
 
 	@Override
-	public final synchronized Object optionalRegisterObject(final long objectId, final Object object)
+	public final Object optionalRegisterObject(final long objectId, final Object object)
 	{
-		if(object == null)
+		synchronized(this.mutex)
 		{
-			throw new NullPointerException();
+			if(object == null)
+			{
+				throw new NullPointerException();
+			}
+			if(Swizzling.isNotProperId(objectId))
+			{
+				throw new PersistenceExceptionImproperObjectId();
+			}
+			return this.synchAddGet(objectId, object);
 		}
-		if(Swizzling.isNotProperId(objectId))
-		{
-			throw new PersistenceExceptionImproperObjectId();
-		}
-		
-		return this.internalAddGet(objectId, object);
 	}
 	
 	@Override
-	public final synchronized boolean registerConstant(final long objectId, final Object constant)
+	public final boolean registerConstant(final long objectId, final Object constant)
 	{
-		if(!this.registerObject(objectId, constant))
+		synchronized(this.mutex)
 		{
-			return false;
+			if(!this.synchRegisterObject(objectId, constant))
+			{
+				return false;
+			}
+			this.synchEnsureConstantsHotRegistry().add(objectId, constant);
+
+			return true;
 		}
-		
-		this.ensureConstantsHotRegistry().add(objectId, constant);
-		
-		return true;
 	}
 
 	@Override
-	public final synchronized <A extends PersistenceAcceptor> A iterateEntries(final A acceptor)
+	public final <A extends PersistenceAcceptor> A iterateEntries(final A acceptor)
 	{
-		iterateEntries(this.oidHashTable, acceptor);
-		return acceptor;
+		synchronized(this.mutex)
+		{
+			iterateEntries(this.oidHashTable, acceptor);
+			return acceptor;
+		}
 	}
 		
-	private boolean internalAdd(final long objectId, final Object object)
+	private boolean synchAdd(final long objectId, final Object object)
 	{
-		if(this.internalAddCheck(objectId, object))
+		if(this.synchAddCheck(objectId, object))
 		{
 			return false;
 		}
 
-		this.internalPutNewEntry(objectId, object);
+		this.synchPutNewEntry(objectId, object);
 		return true;
 	}
 		
-	private void internalPutNewEntry(final long objectId, final Object object)
+	private void synchPutNewEntry(final long objectId, final Object object)
 	{
 		this.oidHashTable[(int)objectId & this.hashRange] =
 		this.refHashTable[ hash(object) & this.hashRange] =
@@ -543,28 +639,28 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				this.refHashTable[ hash(object) & this.hashRange]
 			)
 		;
-		
+
 		if(++this.size > this.capacity)
 		{
-			this.internalIncreaseStorage();
+			this.synchIncreaseStorage();
 		}
 	}
 	
-	private boolean internalAddCheck(final long objectId, final Object object)
+	private boolean synchAddCheck(final long objectId, final Object object)
 	{
 		for(Entry e = this.oidHashTable[(int)objectId & this.hashRange]; e != null; e = e.oidNext)
 		{
 			if(e.objectId == objectId)
 			{
-				return this.internalHandleExisting(object, e);
+				return this.synchHandleExisting(object, e);
 			}
 		}
 
-		this.internalValidateObjectNotYetRegistered(objectId, object);
+		this.synchValidateObjectNotYetRegistered(objectId, object);
 		return false;
 	}
 	
-	private Object internalAddGetCheck(final long objectId, final Object object)
+	private Object synchAddGetCheck(final long objectId, final Object object)
 	{
 		for(Entry e = this.oidHashTable[(int)objectId & this.hashRange]; e != null; e = e.oidNext)
 		{
@@ -577,18 +673,18 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				}
 
 				// orphan entry removal is always right, even in case of an error.
-				this.internalRemoveEntry(e);
+				this.synchRemoveEntry(e);
 				break;
 			}
 		}
 
 		// either no hash chain yet or no (live) entry for that objectId. Validate and signal need for registration.
-		this.internalValidateObjectNotYetRegistered(objectId, object);
-		
+		this.synchValidateObjectNotYetRegistered(objectId, object);
+
 		return null;
 	}
 	
-	private boolean internalHandleExisting(final Object object, final Entry entry)
+	private boolean synchHandleExisting(final Object object, final Entry entry)
 	{
 		if(entry.get() == object)
 		{
@@ -599,14 +695,14 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		{
 			throw new PersistenceExceptionConsistencyObject(entry.objectId, entry.get(), object);
 		}
-		
-		this.internalValidateObjectNotYetRegistered(entry.objectId, object);
-		this.internalRemoveEntry(entry);
-		
+
+		this.synchValidateObjectNotYetRegistered(entry.objectId, object);
+		this.synchRemoveEntry(entry);
+
 		return false;
 	}
 	
-	private void internalRemoveEntry(final Entry entry)
+	private void synchRemoveEntry(final Entry entry)
 	{
 		removeFromOidTable(this.oidHashTable, (int)entry.objectId & this.hashRange, entry);
 		removeFromRefTable(this.refHashTable,      entry.refHash  & this.hashRange, entry);
@@ -649,7 +745,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		}
 	}
 		
-	private void internalValidateObjectNotYetRegistered(final long objectId, final Object object)
+	private void synchValidateObjectNotYetRegistered(final long objectId, final Object object)
 	{
 		final int refHash = hash(object);
 		for(Entry e = this.refHashTable[refHash & this.hashRange]; e != null; e = e.refNext)
@@ -662,22 +758,30 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		}
 	}
 
-	private Object internalAddGet(final long objectId, final Object object)
+	private Object synchAddGet(final long objectId, final Object object)
 	{
 		final Object alreadyRegistered;
-		if((alreadyRegistered = this.internalAddGetCheck(objectId, object)) != null)
+		if((alreadyRegistered = this.synchAddGetCheck(objectId, object)) != null)
 		{
 			return alreadyRegistered;
 		}
 
-		this.internalPutNewEntry(objectId, object);
+		this.synchPutNewEntry(objectId, object);
 		return object;
 	}
 	
 	// rebuilding and consolidation //
 	
 	@Override
-	public final synchronized boolean consolidate()
+	public final boolean consolidate()
+	{
+		synchronized(this.mutex)
+		{
+			return this.synchConsolidate();
+		}
+	}
+
+	private boolean synchConsolidate()
 	{
 		// both tables always have the same length
 		final Entry[] oidHashTable = this.oidHashTable;
@@ -750,43 +854,42 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		
 	private boolean checkForDecrease()
 	{
-		final int requiredHashLength = this.calculateRequiredHashLength(this.size);
-		if(requiredHashLength != this.internalHashLength())
+		final int requiredHashLength = calculateRequiredHashLength(this.size, this.hashDensity);
+		if(requiredHashLength != this.synchHashLength())
 		{
-			this.internalRebuild(requiredHashLength);
-			
+			this.synchRebuild(requiredHashLength);
 			return true;
 		}
-		
+
 		return false;
 	}
 	
-	private void internalIncreaseStorage()
+	private void synchIncreaseStorage()
 	{
 		// capacityHighBound checks prevent unnecessary / dangerous calls of this method
-		this.internalRebuild(this.oidHashTable.length << 1);
+		this.synchRebuild(this.oidHashTable.length << 1);
 	}
 	
-	private void internalRebuild(final int hashLength)
+	private void synchRebuild(final int hashLength)
 	{
-		final Entry[] newOidHashTable = this.createHashTable(hashLength);
-		final Entry[] newRefHashTable = this.createHashTable(hashLength);
+		final Entry[] newOidHashTable = createHashTable(hashLength);
+		final Entry[] newRefHashTable = createHashTable(hashLength);
 
 		// orphaned entries are discarded and their total count is returned to be subtracted here.
 		this.size -= rebuildTables(this.oidHashTable, newOidHashTable, newRefHashTable);
-		
+
 		// the new hash tables are set as the instance's storage structure.
-		this.setHashTables(newOidHashTable, newRefHashTable);
-		
+		this.synchSetHashTables(newOidHashTable, newRefHashTable);
+
 		/*
 		 * Since rebuilding discards orphaned entries and reduces the size, it could be possible that
 		 * a rebuild to increase the storage determines that it could actually shrink.
 		 * The doubled performance cost in such cases should be well worth the automatic memory saving.
 		 */
 		this.checkForDecrease();
-		
+
 		// at some point, constant registration is completed, so an efficient storage form is preferable.
-		this.internalEnsureConstantsColdStorage();
+		this.synchEnsureConstantsColdStorage();
 	}
 
 	private static long rebuildTables(
@@ -854,20 +957,26 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	// clearing //
 	
 	@Override
-	public final synchronized void clear()
+	public final void clear()
 	{
-		this.internalEnsureConstantsColdStorage();
-		this.internalClear();
-		this.internalReregisterConstants();
+		synchronized(this.mutex)
+		{
+			this.synchEnsureConstantsColdStorage();
+			this.synchClear();
+			this.synchReregisterConstants();
+		}
 	}
 	
 	@Override
-	public final synchronized void clearAll()
+	public final void clearAll()
 	{
-		this.internalClear();
+		synchronized(this.mutex)
+		{
+			this.synchClear();
+		}
 	}
-	
-	private void internalClear()
+
+	private void synchClear()
 	{
 		final Entry[] oidBuckets = this.oidHashTable;
 		final Entry[] refBuckets = this.refHashTable;
@@ -881,48 +990,55 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	}
 
 	@Override
-	public final synchronized void truncate()
+	public final void truncate()
 	{
-		// reinitialize storage strucuture with at least enough capacity for the incoming constants.
-		this.internalEnsureConstantsColdStorage();
-		
-		this.internalReset(Math.max(this.constantsColdStorageObjects.length, this.minCapacity));
-		
-		this.internalReregisterConstants();
+		synchronized(this.mutex)
+		{
+			// reinitialize storage strucuture with at least enough capacity for the incoming constants.
+			this.synchEnsureConstantsColdStorage();
+			this.synchReset(Math.max(this.constantsColdStorageObjects.length, this.minCapacity));
+			this.synchReregisterConstants();
+		}
 	}
 	
 	@Override
-	public final synchronized void truncateAll()
+	public final void truncateAll()
 	{
-		// hash table reset, no constants reregistering.
-		this.internalReset();
+		synchronized(this.mutex)
+		{
+			// hash table reset, no constants reregistering.
+			this.synchReset();
+		}
 	}
 	
 	// Constants handling //
 	
-	private void internalReregisterConstants()
+	private void synchReregisterConstants()
 	{
-		final Object[] constantsObjects = this.constantsColdStorageObjects;
-		final long[] constantsObjectIds = this.constantsColdStorageObjectIds;
-		
-		for(int i = 0; i < constantsObjects.length; i++)
+		synchronized(this.mutex)
 		{
-			// NOT registerConstant() at this point!
-			this.registerObject(constantsObjectIds[i], constantsObjects[i]);
+			final Object[] constantsObjects = this.constantsColdStorageObjects;
+			final long[] constantsObjectIds = this.constantsColdStorageObjectIds;
+
+			for(int i = 0; i < constantsObjects.length; i++)
+			{
+				// NOT registerConstant() at this point!
+				this.synchRegisterObject(constantsObjectIds[i], constantsObjects[i]);
+			}
 		}
 	}
 	
-	private EqHashTable<Long, Object> ensureConstantsHotRegistry()
+	private EqHashTable<Long, Object> synchEnsureConstantsHotRegistry()
 	{
 		if(this.constantsHotRegistry == null)
 		{
-			this.internalBuildConstantsHotRegistry();
+			this.synchBuildConstantsHotRegistry();
 		}
-		
+
 		return this.constantsHotRegistry;
 	}
 	
-	private void internalBuildConstantsHotRegistry()
+	private void synchBuildConstantsHotRegistry()
 	{
 		final EqHashTable<Long, Object> constantsHotRegistry = EqHashTable.New();
 		
@@ -940,17 +1056,17 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		this.constantsColdStorageObjectIds = null;
 	}
 	
-	private void internalEnsureConstantsColdStorage()
+	private void synchEnsureConstantsColdStorage()
 	{
 		if(this.constantsColdStorageObjects != null)
 		{
 			return;
 		}
-		
-		this.internalBuildConstantsColdStorage();
+
+		this.synchBuildConstantsColdStorage();
 	}
-	
-	private void internalBuildConstantsColdStorage()
+
+	private void synchBuildConstantsColdStorage()
 	{
 		
 		final EqHashTable<Long, Object> constantsHotRegistry = this.constantsHotRegistry;
@@ -972,18 +1088,49 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		this.constantsColdStorageObjectIds = constantsObjectIds;
 	}
 	
+	@Override
+	public boolean processLiveObjectIds(final ObjectIdsProcessor processor)
+	{
+		synchronized(this.mutex)
+		{
+			processor.processObjectIdsByFilter(this::synchIsLiveObjectId);
+			return true;
+		}
+	}
+
+	final boolean synchIsLiveObjectId(final long objectId)
+	{
+		final boolean result = this.synchContainsObjectId(objectId);
+		
+		logger.debug("ObjectRegistry checking OID " + objectId + ": " + result);
+
+		return result;
+	}
+
+	@Override
+	public Set_long selectLiveObjectIds(final Set_long objectIdsBaseSet)
+	{
+		synchronized(this.mutex)
+		{
+			return objectIdsBaseSet.filter(this::synchIsLiveObjectId);
+		}
+	}
+	
 	// HashStatistics //
 	
 	@Override
-	public final synchronized XGettingTable<String, HashStatisticsBucketBased> createHashStatistics()
+	public final XGettingTable<String, HashStatisticsBucketBased> createHashStatistics()
 	{
-		return EqHashTable.New(
-			KeyValue("PerObjectIds", this.internalCreateHashStatisticsOids()),
-			KeyValue("PerObjects", this.internalCreateHashStatisticsRefs())
-		);
+		synchronized(this.mutex)
+		{
+			return EqHashTable.New(
+				KeyValue("PerObjectIds", this.synchCreateHashStatisticsOids()),
+				KeyValue("PerObjects"  , this.synchCreateHashStatisticsRefs())
+			);
+		}
 	}
 	
-	private HashStatisticsBucketBased internalCreateHashStatisticsOids()
+	private HashStatisticsBucketBased synchCreateHashStatisticsOids()
 	{
 		final EqHashTable<Long, Long> distributionTable = EqHashTable.New();
 		
@@ -1004,7 +1151,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		);
 	}
 
-	private HashStatisticsBucketBased internalCreateHashStatisticsRefs()
+	private HashStatisticsBucketBased synchCreateHashStatisticsRefs()
 	{
 		final EqHashTable<Long, Long> distributionTable = EqHashTable.New();
 
