@@ -21,34 +21,39 @@ package one.microstream.storage.types;
  */
 
 import one.microstream.memory.XMemory;
+import one.microstream.persistence.types.ObjectIdsSelector;
+import one.microstream.persistence.types.PersistenceLiveStorerRegistry;
+import one.microstream.reference.Referencing;
 import one.microstream.util.BufferSizeProvider;
 import one.microstream.util.BufferSizeProviderIncremental;
 
 public interface StorageChannelsCreator
 {
 	public StorageChannel[] createChannels(
-		int                                  channelCount                 ,
-		StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
-		StorageExceptionHandler              exceptionHandler             ,
-		StorageDataFileEvaluator             fileDissolver                ,
-		StorageLiveFileProvider              liveFileProvider             ,
-		StorageEntityCacheEvaluator          entityCacheEvaluator         ,
-		StorageTypeDictionary                typeDictionary               ,
-		StorageTaskBroker                    taskBroker                   ,
-		StorageOperationController           operationController          ,
-		StorageHousekeepingBroker            housekeepingBroker           ,
-		StorageHousekeepingController        housekeepingController       ,
-		StorageTimestampProvider             timestampProvider            ,
-		StorageWriteController               writeController              ,
-		StorageFileWriter.Provider           writerProvider               ,
-		StorageGCZombieOidHandler            zombieOidHandler             ,
-		StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
-		StorageObjectIdMarkQueue.Creator     oidMarkQueueCreator          ,
-		StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
-		StorageBackupHandler                 backupHandler                ,
-		StorageEventLogger                   eventLogger                  ,
-		boolean                              switchByteOrder              ,
-		long                                 rootTypeId
+		int                                        channelCount                 ,
+		StorageInitialDataFileNumberProvider       initialDataFileNumberProvider,
+		StorageExceptionHandler                    exceptionHandler             ,
+		StorageDataFileEvaluator                   fileDissolver                ,
+		StorageLiveFileProvider                    liveFileProvider             ,
+		StorageEntityCacheEvaluator                entityCacheEvaluator         ,
+		StorageTypeDictionary                      typeDictionary               ,
+		StorageTaskBroker                          taskBroker                   ,
+		StorageOperationController                 operationController          ,
+		StorageHousekeepingBroker                  housekeepingBroker           ,
+		StorageHousekeepingController              housekeepingController       ,
+		StorageTimestampProvider                   timestampProvider            ,
+		StorageWriteController                     writeController              ,
+		StorageFileWriter.Provider                 writerProvider               ,
+		StorageGCZombieOidHandler                  zombieOidHandler             ,
+		StorageRootOidSelector.Provider            rootOidSelectorProvider      ,
+		StorageObjectIdMarkQueue.Creator           oidMarkQueueCreator          ,
+		StorageEntityMarkMonitor.Creator           entityMarkMonitorCreator     ,
+		StorageBackupHandler                       backupHandler                ,
+		StorageEventLogger                         eventLogger                  ,
+		ObjectIdsSelector                          liveObjectIdChecker          ,
+		Referencing<PersistenceLiveStorerRegistry> refStorerRegistry            ,
+		boolean                                    switchByteOrder              ,
+		long                                       rootTypeId
 	);
 
 
@@ -61,28 +66,30 @@ public interface StorageChannelsCreator
 
 		@Override
 		public final StorageChannel.Default[] createChannels(
-			final int                                  channelCount                 ,
-			final StorageInitialDataFileNumberProvider initialDataFileNumberProvider,
-			final StorageExceptionHandler              exceptionHandler             ,
-			final StorageDataFileEvaluator             dataFileEvaluator            ,
-			final StorageLiveFileProvider              liveFileProvider             ,
-			final StorageEntityCacheEvaluator          entityCacheEvaluator         ,
-			final StorageTypeDictionary                typeDictionary               ,
-			final StorageTaskBroker                    taskBroker                   ,
-			final StorageOperationController           operationController          ,
-			final StorageHousekeepingBroker            housekeepingBroker           ,
-			final StorageHousekeepingController        housekeepingController       ,
-			final StorageTimestampProvider             timestampProvider            ,
-			final StorageWriteController               writeController              ,
-			final StorageFileWriter.Provider           writerProvider               ,
-			final StorageGCZombieOidHandler            zombieOidHandler             ,
-			final StorageRootOidSelector.Provider      rootOidSelectorProvider      ,
-			final StorageObjectIdMarkQueue.Creator     oidMarkQueueCreator          ,
-			final StorageEntityMarkMonitor.Creator     entityMarkMonitorCreator     ,
-			final StorageBackupHandler                 backupHandler                ,
-			final StorageEventLogger                   eventLogger                  ,
-			final boolean                              switchByteOrder              ,
-			final long                                 rootTypeId
+			final int                                        channelCount                 ,
+			final StorageInitialDataFileNumberProvider       initialDataFileNumberProvider,
+			final StorageExceptionHandler                    exceptionHandler             ,
+			final StorageDataFileEvaluator                   dataFileEvaluator            ,
+			final StorageLiveFileProvider                    liveFileProvider             ,
+			final StorageEntityCacheEvaluator                entityCacheEvaluator         ,
+			final StorageTypeDictionary                      typeDictionary               ,
+			final StorageTaskBroker                          taskBroker                   ,
+			final StorageOperationController                 operationController          ,
+			final StorageHousekeepingBroker                  housekeepingBroker           ,
+			final StorageHousekeepingController              housekeepingController       ,
+			final StorageTimestampProvider                   timestampProvider            ,
+			final StorageWriteController                     writeController              ,
+			final StorageFileWriter.Provider                 writerProvider               ,
+			final StorageGCZombieOidHandler                  zombieOidHandler             ,
+			final StorageRootOidSelector.Provider            rootOidSelectorProvider      ,
+			final StorageObjectIdMarkQueue.Creator           oidMarkQueueCreator          ,
+			final StorageEntityMarkMonitor.Creator           entityMarkMonitorCreator     ,
+			final StorageBackupHandler                       backupHandler                ,
+			final StorageEventLogger                         eventLogger                  ,
+			final ObjectIdsSelector                          liveObjectIdChecker          ,
+			final Referencing<PersistenceLiveStorerRegistry> refStorerRegistry            ,
+			final boolean                                    switchByteOrder              ,
+			final long                                       rootTypeId
 		)
 		{
 			// (14.07.2016 TM)TODO: make configuration dynamic
@@ -100,7 +107,8 @@ public interface StorageChannelsCreator
 			}
 			final StorageEntityMarkMonitor markMonitor = entityMarkMonitorCreator.createEntityMarkMonitor(
 				markQueues,
-				eventLogger
+				eventLogger,
+				refStorerRegistry
 			);
 			
 			final BufferSizeProviderIncremental loadingBufferSizeProvider = BufferSizeProviderIncremental.New(loadingBufferSize);
@@ -120,6 +128,7 @@ public interface StorageChannelsCreator
 					rootTypeId                                       ,
 					markQueues[i]                                    ,
 					eventLogger                                      ,
+					liveObjectIdChecker                              ,
 					markingWaitTimeMs                                ,
 					markBufferLength
 				);

@@ -25,9 +25,14 @@ import static one.microstream.X.notNull;
 import java.util.function.Supplier;
 
 import one.microstream.exceptions.MissingFoundationPartException;
+import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.BinaryLoader;
 import one.microstream.persistence.binary.types.BinaryPersistenceFoundation;
 import one.microstream.persistence.binary.types.BinaryStorer;
+import one.microstream.persistence.types.PersistenceLiveStorerRegistry;
+import one.microstream.persistence.types.PersistenceManager;
+import one.microstream.persistence.types.PersistenceStorer;
+import one.microstream.reference.Reference;
 import one.microstream.storage.types.StorageConnection;
 import one.microstream.storage.types.StorageRequestAcceptor;
 import one.microstream.storage.types.StorageSystem;
@@ -44,12 +49,24 @@ extends BinaryPersistenceFoundation<F>
 	public StorageWriteController writeController();
 	
 	public StorageWriteController getWriteController();
+	
+	public EmbeddedStorageObjectRegistryCallback getObjectRegistryCallback();
+
+	public Reference<PersistenceLiveStorerRegistry> getLiveStorerRegistryReference();
+
+	public PersistenceLiveStorerRegistry getLiveStorerRegistry();
 
 	public F setStorageSystem(StorageSystem storageSystem);
 	
 	public F setStorageSystemSupplier(Supplier<? extends StorageSystem> storageSystemSupplier);
 	
 	public F setWriteController(StorageWriteController writeController);
+	
+	public F setObjectRegistryCallback(EmbeddedStorageObjectRegistryCallback objectRegistryCallback);
+
+	public F setLiveStorerRegistryReference(Reference<PersistenceLiveStorerRegistry> storerRegistryReference);
+
+	public F setLiveStorerRegistry(PersistenceLiveStorerRegistry liveLiveStorerRegistry);
 	
 	public StorageConnection createStorageConnection();
 
@@ -68,10 +85,13 @@ extends BinaryPersistenceFoundation<F>
 		// instance fields //
 		////////////////////
 
-		private StorageSystem                     storageSystem         ;
-		private Supplier<? extends StorageSystem> storageSystemSupplier ;
-		private StorageWriteController            writeController       ;
-		private transient StorageRequestAcceptor  storageRequestAcceptor;
+		private StorageSystem                            storageSystem          ;
+		private Supplier<? extends StorageSystem>        storageSystemSupplier  ;
+		private StorageWriteController                   writeController        ;
+		private transient StorageRequestAcceptor         storageRequestAcceptor ;
+		private EmbeddedStorageObjectRegistryCallback    objectRegistryCallback ;
+		private Reference<PersistenceLiveStorerRegistry> storerRegistryReference;
+		private PersistenceLiveStorerRegistry            liveLiveStorerRegistry ;
 		
 		
 		
@@ -122,7 +142,36 @@ extends BinaryPersistenceFoundation<F>
 			return this.storageSystem;
 		}
 
+		@Override
+		public final EmbeddedStorageObjectRegistryCallback getObjectRegistryCallback()
+		{
+			if(this.objectRegistryCallback == null)
+			{
+				this.objectRegistryCallback = this.dispatch(this.ensureObjectRegistryCallback());
+			}
+			return this.objectRegistryCallback;
+		}
 
+		@Override
+		public final Reference<PersistenceLiveStorerRegistry> getLiveStorerRegistryReference()
+		{
+			if(this.storerRegistryReference == null)
+			{
+				this.storerRegistryReference = this.dispatch(this.ensureLiveStorerRegistryReference());
+			}
+			return this.storerRegistryReference;
+		}
+
+		@Override
+		public final PersistenceLiveStorerRegistry getLiveStorerRegistry()
+		{
+			if(this.liveLiveStorerRegistry == null)
+			{
+				this.liveLiveStorerRegistry = this.dispatch(this.ensureLiveStorerRegistry());
+			}
+			return this.liveLiveStorerRegistry;
+		}
+		
 
 		///////////////////////////////////////////////////////////////////////////
 		// setters //
@@ -152,6 +201,27 @@ extends BinaryPersistenceFoundation<F>
 			return this.$();
 		}
 		
+		@Override
+		public F setObjectRegistryCallback(final EmbeddedStorageObjectRegistryCallback objectRegistryCallback)
+		{
+			this.objectRegistryCallback = objectRegistryCallback;
+			return this.$();
+		}
+
+		@Override
+		public final F setLiveStorerRegistryReference(final Reference<PersistenceLiveStorerRegistry> storerRegistryReference)
+		{
+			this.storerRegistryReference = storerRegistryReference;
+			return this.$();
+		}
+
+		@Override
+		public final F setLiveStorerRegistry(final PersistenceLiveStorerRegistry liveLiveStorerRegistry)
+		{
+			this.liveLiveStorerRegistry = liveLiveStorerRegistry;
+			return this.$();
+		}
+		
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -171,6 +241,17 @@ extends BinaryPersistenceFoundation<F>
 			}
 			
 			throw new MissingFoundationPartException(StorageSystem.class);
+		}
+		
+		protected EmbeddedStorageObjectRegistryCallback ensureObjectRegistryCallback()
+		{
+			// initially empty, gets initialized upon storage connection creation
+			return EmbeddedStorageObjectRegistryCallback.New();
+		}
+
+		protected Reference<PersistenceLiveStorerRegistry> ensureLiveStorerRegistryReference()
+		{
+			throw new MissingFoundationPartException(Reference.class, "to " + PersistenceLiveStorerRegistry.class.getSimpleName());
 		}
 		
 		protected StorageWriteController ensureWriteController()
@@ -221,6 +302,40 @@ extends BinaryPersistenceFoundation<F>
 			}
 			return this.storageRequestAcceptor;
 		}
+		
+		protected PersistenceLiveStorerRegistry ensureLiveStorerRegistry()
+		{
+			// embedded storage must create a functional storer registry for use with the storage layer (GC sweep).
+			return PersistenceLiveStorerRegistry.New();
+		}
+
+		@Override
+		public PersistenceManager<Binary> createPersistenceManager()
+		{
+			final PersistenceLiveStorerRegistry storerRegistry = this.getLiveStorerRegistry();
+			final PersistenceStorer.CreationObserver observer = this.getStorerCreationObserver();
+			if(observer == null)
+			{
+				// registry can simply be set as the (sole) observer
+				this.setStorerCreationObserver(storerRegistry);
+			}
+			else
+			{
+				// conserve existing observer
+				this.setStorerCreationObserver(
+					PersistenceStorer.CreationObserver.Chain(observer, storerRegistry)
+				);
+			}
+			this.getLiveStorerRegistryReference().set(storerRegistry);
+
+			final PersistenceManager<Binary> pm = super.createPersistenceManager();
+
+			// reference explicitely the PM's object registry, just to be safe
+			this.getObjectRegistryCallback().initializeObjectRegistry(pm.objectRegistry());
+			// note: using more than 1 connection might cause consistency problems for the Storage GC using the callback
+
+			return pm;
+		}
 
 		@Override
 		public synchronized StorageConnection createStorageConnection()
@@ -239,11 +354,11 @@ extends BinaryPersistenceFoundation<F>
 			 */
 			this.internalGetStorageRequestAcceptor();
 
+			// using this. instead of super. is important here!
+			final PersistenceManager<Binary> pm = this.createPersistenceManager();
+
 			// persistence manager is "connected" to the storage's request acceptor (= the storage threads)
-			return StorageConnection.New(
-				super.createPersistenceManager(),
-				this.storageRequestAcceptor
-			);
+			return StorageConnection.New(pm, this.storageRequestAcceptor);
 		}
 
 	}

@@ -85,18 +85,19 @@ ByteOrderTargeting<PersistenceManager<D>>
 
 	
 	public static <D> PersistenceManager<D> New(
-		final PersistenceObjectRegistry        objectRegistering ,
-		final PersistenceObjectManager<D>      objectManager     ,
-		final PersistenceTypeHandlerManager<D> typeHandlerManager,
-		final PersistenceContextDispatcher<D>  contextDispatcher ,
-		final PersistenceStorer.Creator<D>     storerCreator     ,
-		final PersistenceLoader.Creator<D>     loaderCreator     ,
-		final PersistenceRegisterer.Creator    registererCreator ,
-		final Persister                        persister         ,
-		final PersistenceTarget<D>             target            ,
-		final PersistenceSource<D>             source            ,
-		final BufferSizeProviderIncremental    bufferSizeProvider,
-		final ByteOrder                        targetByteOrder
+		final PersistenceObjectRegistry          objectRegistering ,
+		final PersistenceObjectManager<D>        objectManager     ,
+		final PersistenceTypeHandlerManager<D>   typeHandlerManager,
+		final PersistenceContextDispatcher<D>    contextDispatcher ,
+		final PersistenceStorer.Creator<D>       storerCreator     ,
+		final PersistenceLoader.Creator<D>       loaderCreator     ,
+		final PersistenceRegisterer.Creator      registererCreator ,
+		final Persister                          persister         ,
+		final PersistenceTarget<D>               target            ,
+		final PersistenceSource<D>               source            ,
+		final PersistenceStorer.CreationObserver storerObserver ,
+		final BufferSizeProviderIncremental      bufferSizeProvider,
+		final ByteOrder                          targetByteOrder
 	)
 	{
 		return new PersistenceManager.Default<>(
@@ -110,6 +111,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 			mayNull(persister)         , // non-null reference ensured by getEffectivePersister
 			notNull(target)            ,
 			notNull(source)            ,
+			notNull(storerObserver)    ,
 			notNull(bufferSizeProvider),
 			notNull(targetByteOrder)
 		);
@@ -127,11 +129,12 @@ ByteOrderTargeting<PersistenceManager<D>>
 		private final PersistenceRegisterer.Creator registererCreator;
 
 		// instance handling components //
-		private final PersistenceTypeHandlerManager<D> typeHandlerManager;
-		private final PersistenceContextDispatcher<D>  contextDispatcher ;
-		private final PersistenceStorer.Creator<D>     storerCreator     ;
-		private final PersistenceLoader.Creator<D>     loaderCreator     ;
-		private final BufferSizeProviderIncremental    bufferSizeProvider;
+		private final PersistenceTypeHandlerManager<D>   typeHandlerManager;
+		private final PersistenceContextDispatcher<D>    contextDispatcher ;
+		private final PersistenceStorer.Creator<D>       storerCreator     ;
+		private final PersistenceLoader.Creator<D>       loaderCreator     ;
+		private final PersistenceStorer.CreationObserver storerObserver    ;
+		private final BufferSizeProviderIncremental      bufferSizeProvider;
 		
 		// callback linking components //
 		private final Persister persister;
@@ -160,18 +163,19 @@ ByteOrderTargeting<PersistenceManager<D>>
 		/////////////////
 
 		Default(
-			final PersistenceObjectRegistry        objectRegistering ,
-			final PersistenceObjectManager<D>      objectManager     ,
-			final PersistenceTypeHandlerManager<D> typeHandlerManager,
-			final PersistenceContextDispatcher<D>  contextDispatcher ,
-			final PersistenceStorer.Creator<D>     storerCreator     ,
-			final PersistenceLoader.Creator<D>     loaderCreator     ,
-			final PersistenceRegisterer.Creator    registererCreator ,
-			final Persister                        persister         ,
-			final PersistenceTarget<D>             target            ,
-			final PersistenceSource<D>             source            ,
-			final BufferSizeProviderIncremental    bufferSizeProvider,
-			final ByteOrder                        targetByteOrder
+			final PersistenceObjectRegistry          objectRegistering ,
+			final PersistenceObjectManager<D>        objectManager     ,
+			final PersistenceTypeHandlerManager<D>   typeHandlerManager,
+			final PersistenceContextDispatcher<D>    contextDispatcher ,
+			final PersistenceStorer.Creator<D>       storerCreator     ,
+			final PersistenceLoader.Creator<D>       loaderCreator     ,
+			final PersistenceRegisterer.Creator      registererCreator ,
+			final Persister                          persister         ,
+			final PersistenceTarget<D>               target            ,
+			final PersistenceSource<D>               source            ,
+			final PersistenceStorer.CreationObserver storerObserver    ,
+			final BufferSizeProviderIncremental      bufferSizeProvider,
+			final ByteOrder                          targetByteOrder
 		)
 		{
 			super();
@@ -185,6 +189,7 @@ ByteOrderTargeting<PersistenceManager<D>>
 			this.persister          = persister         ;
 			this.target             = target            ;
 			this.source             = source            ;
+			this.storerObserver     = storerObserver    ;
 			this.bufferSizeProvider = bufferSizeProvider;
 			this.targetByteOrder    = targetByteOrder   ;
 		}
@@ -223,53 +228,59 @@ ByteOrderTargeting<PersistenceManager<D>>
 		{
 			return X.coalesce(this.persister, this);
 		}
+		
+		private <S extends PersistenceStorer> S registerStorer(final S storer)
+		{
+			this.storerObserver.observeCreatedStorer(storer);
+			return storer;
+		}
 				
 		@Override
 		public final PersistenceStorer createLazyStorer()
 		{
-			return this.storerCreator.createLazyStorer(
+			return this.registerStorer(this.storerCreator.createLazyStorer(
 				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
 				this.getEffectivePersister(),
 				this.target,
 				this.bufferSizeProvider
-			);
+			));
 		}
 		
 		@Override
 		public final PersistenceStorer createStorer()
 		{
-			return this.storerCreator.createStorer(
+			return this.registerStorer(this.storerCreator.createStorer(
 				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
 				this.getEffectivePersister(),
 				this.target,
 				this.bufferSizeProvider
-			);
+			));
 		}
 
 		@Override
 		public final PersistenceStorer createEagerStorer()
 		{
-			return this.storerCreator.createEagerStorer(
+			return this.registerStorer(this.storerCreator.createEagerStorer(
 				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
 				this.getEffectivePersister(),
 				this.target,
 				this.bufferSizeProvider
-			);
+			));
 		}
 		
 		@Override
 		public final PersistenceStorer createStorer(final PersistenceStorer.Creator<D> storerCreator)
 		{
-			return storerCreator.createStorer(
+			return this.registerStorer(storerCreator.createStorer(
 				this.contextDispatcher.dispatchTypeHandlerManager(this.typeHandlerManager),
 				this.contextDispatcher.dispatchObjectManager(this.objectManager),
 				this.getEffectivePersister(),
 				this.target,
 				this.bufferSizeProvider
-			);
+			));
 		}
 
 		@Override

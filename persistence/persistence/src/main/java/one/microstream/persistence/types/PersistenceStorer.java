@@ -1,5 +1,7 @@
 package one.microstream.persistence.types;
 
+import static one.microstream.X.notNull;
+
 /*-
  * #%L
  * microstream-persistence
@@ -124,6 +126,67 @@ public interface PersistenceStorer extends Storer
 			PersistenceTarget<D>             target            ,
 			BufferSizeProviderIncremental    bufferSizeProvider
 		);
+	}
+	
+	
+	
+	@FunctionalInterface
+	public interface CreationObserver
+	{
+		public static void noOp(final PersistenceStorer storer)
+		{
+			// no-op
+		}
+
+		public void observeCreatedStorer(PersistenceStorer storer);
+
+
+		public static PersistenceStorer.CreationObserver Chain(
+			final CreationObserver first ,
+			final CreationObserver second
+		)
+		{
+			return new PersistenceStorer.CreationObserver.Chaining(
+				notNull(first) ,
+				notNull(second)
+			);
+		}
+
+		public final class Chaining implements PersistenceStorer.CreationObserver
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+
+			private final PersistenceStorer.CreationObserver first, second;
+
+
+
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+
+			Chaining(final CreationObserver first, final CreationObserver second)
+			{
+				super();
+				this.first = first;
+				this.second = second;
+			}
+
+
+
+			///////////////////////////////////////////////////////////////////////////
+			// methods //
+			////////////
+
+			@Override
+			public void observeCreatedStorer(final PersistenceStorer storer)
+			{
+				this.first.observeCreatedStorer(storer);
+				this.second.observeCreatedStorer(storer);
+			}
+
+		}
 	}
 
 }

@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import one.microstream.exceptions.MissingFoundationPartException;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.Persistence;
+import one.microstream.persistence.types.PersistenceLiveStorerRegistry;
 import one.microstream.persistence.types.PersistenceObjectIdProvider;
 import one.microstream.persistence.types.PersistenceRefactoringMappingProvider;
 import one.microstream.persistence.types.PersistenceRootResolverProvider;
@@ -38,6 +39,7 @@ import one.microstream.persistence.types.PersistenceTypeHandler;
 import one.microstream.persistence.types.PersistenceTypeHandlerManager;
 import one.microstream.persistence.types.PersistenceTypeHandlerRegistration;
 import one.microstream.persistence.types.PersistenceTypeManager;
+import one.microstream.reference.Reference;
 import one.microstream.storage.types.Database;
 import one.microstream.storage.types.Databases;
 import one.microstream.storage.types.StorageChannelsCreator;
@@ -728,6 +730,12 @@ extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary
 				}
 			};
 		}
+		
+		@Override
+		protected EmbeddedStorageObjectRegistryCallback ensureObjectIdsSelector()
+		{
+			return this.getConnectionFoundation().getObjectRegistryCallback();
+		}
 
 		@Override
 		public void executeTypeHandlerRegistration(final PersistenceTypeHandlerRegistration<Binary> typeHandlerRegistration)
@@ -764,6 +772,19 @@ extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary
 		}
 
 		@Override
+		protected Reference<PersistenceLiveStorerRegistry> ensureLiveStorerRegistryReference()
+		{
+			// actual registry reference will get filled in by storage connection creation once that happens
+			return Reference.New(null);
+		}
+
+		@Override
+		public StorageSystem createStorageSystem()
+		{
+			return super.createStorageSystem();
+		}
+		
+		@Override
 		public synchronized EmbeddedStorageManager createEmbeddedStorageManager(final Object root)
 		{
 			logger.info("Creating embedded storage manager");
@@ -771,6 +792,7 @@ extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary
 			final Database database = this.ensureDatabase();
 
 			final EmbeddedStorageConnectionFoundation<?> ecf = this.getConnectionFoundation();
+			ecf.setLiveStorerRegistryReference(this.getLiveStorerRegistryReference());
 
 			// explicit root must be registered at the rootResolverProvider.
 			if(root != null)
@@ -789,6 +811,9 @@ extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary
 			final StorageSystem stm = ecf.getStorageSystem();
 
 			initializeTypeDictionary(stm, ecf);
+			
+			// setup callback link from storage to object registry for the GC to check for unexpected live objectIds.
+			this.setLiveObjectIdChecker(ecf.getObjectRegistryCallback());
 
 			// resolve root types to root type ids after types have been initialized
 			this.initializeEmbeddedStorageRootTypeIdProvider(this.getRootTypeIdProvider(), thm);
