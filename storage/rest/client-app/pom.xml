@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-storage-rest-parent</artifactId>
-		<version>07.00.01-MS-GA-SNAPSHOT</version>
+		<version>07.01.00-MS-beta1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage-restclient-jersey</artifactId>
-			<version>07.00.01-MS-GA-SNAPSHOT</version>
+			<version>07.01.00-MS-beta1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
