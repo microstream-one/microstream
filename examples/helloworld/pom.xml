@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-examples-parent</artifactId>
-		<version>07.01.00-MS-beta1</version>
+		<version>07.01.01-MS-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage-embedded</artifactId>
-			<version>07.01.00-MS-beta1</version>
+			<version>07.01.01-MS-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
