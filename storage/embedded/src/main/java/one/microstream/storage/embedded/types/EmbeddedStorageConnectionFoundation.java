@@ -316,7 +316,7 @@ extends BinaryPersistenceFoundation<F>
 			final PersistenceStorer.CreationObserver observer = this.getStorerCreationObserver();
 			if(observer == null)
 			{
-				// registry can simply be set as the (sole) obserber
+				// registry can simply be set as the (sole) observer
 				this.setStorerCreationObserver(storerRegistry);
 			}
 			else

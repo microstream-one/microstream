@@ -1,5 +1,9 @@
 package one.microstream.persistence.types;
 
+import org.slf4j.Logger;
+
+import one.microstream.chars.XChars;
+
 /*-
  * #%L
  * MicroStream Persistence
@@ -22,6 +26,7 @@ package one.microstream.persistence.types;
 
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.HashEnum;
+import one.microstream.util.logging.Logging;
 
 public interface PersistenceLiveStorerRegistry extends PersistenceStorer.CreationObserver
 {
@@ -44,6 +49,8 @@ public interface PersistenceLiveStorerRegistry extends PersistenceStorer.Creatio
 
 	public final class Default implements PersistenceLiveStorerRegistry
 	{
+		private final static Logger logger = Logging.getLogger(PersistenceLiveStorerRegistry.class);
+		
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
@@ -77,7 +84,8 @@ public interface PersistenceLiveStorerRegistry extends PersistenceStorer.Creatio
 				this.storerGroups.add(this.currentGroupId, storerGroup = HashEnum.New());
 			}
 
-//			XDebug.print("Registering storer " + XChars.systemString(storer) + " to id Group " + this.currentGroupId);
+			logger.debug("Registering storer " + XChars.systemString(storer) + " to id Group " + this.currentGroupId);
+			
 			storerGroup.add(storer);
 		}
 
@@ -86,7 +94,7 @@ public interface PersistenceLiveStorerRegistry extends PersistenceStorer.Creatio
 		{
 			final long removeCount = this.storerGroups.removeBy(e -> e.key() <= oldGroupId);
 
-//			XDebug.println(Thread.currentThread() + " removed " + removeCount + " idGroups with id <= " + oldGroupId + ".");
+			logger.debug(Thread.currentThread() + " removed " + removeCount + " idGroups with id <= " + oldGroupId + ".");
 
 			this.currentGroupId = newGroupId;
 

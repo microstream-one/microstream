@@ -24,6 +24,8 @@ import static one.microstream.X.KeyValue;
 
 import java.lang.ref.WeakReference;
 
+import org.slf4j.Logger;
+
 import one.microstream.X;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.Set_long;
@@ -43,6 +45,7 @@ import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.reference.Swizzling;
 import one.microstream.typing.KeyValue;
+import one.microstream.util.logging.Logging;
 
 public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 {
@@ -166,7 +169,8 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		;
 	}
 	
-	
+
+	private final static Logger logger = Logging.getLogger(DefaultObjectRegistry.class);
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -177,7 +181,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	 * This does NOT replace locking the whole registry over a not to be "disrupted" process like loading
 	 * (See BinaryLoader#get).
 	 * This is just an internal lock to keep things consistent on a technical level.
-	 * Locking the registry itself continously accross a whole process keeps things consistent
+	 * Locking the registry itself continuously across a whole process keeps things consistent
 	 * on a business-logical level.
 	 * Also note:
 	 * The methode #processLiveObjectIds and #selectLiveObjectIds do not and MAY NOT lock the whole registry
@@ -1097,7 +1101,8 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	final boolean synchIsLiveObjectId(final long objectId)
 	{
 		final boolean result = this.synchContainsObjectId(objectId);
-//		XDebug.println("ObjectRegistry checking OID " + objectId + ": " + result);
+		
+		logger.debug("ObjectRegistry checking OID " + objectId + ": " + result);
 
 		return result;
 	}

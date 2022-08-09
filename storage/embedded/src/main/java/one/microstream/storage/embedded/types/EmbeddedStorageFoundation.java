@@ -735,7 +735,6 @@ extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary
 		protected EmbeddedStorageObjectRegistryCallback ensureObjectIdsSelector()
 		{
 			return this.getConnectionFoundation().getObjectRegistryCallback();
-//			return EmbeddedStorageObjectRegistryCallback.New();
 		}
 
 		@Override
