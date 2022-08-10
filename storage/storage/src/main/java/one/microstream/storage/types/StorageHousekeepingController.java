@@ -20,7 +20,13 @@ package one.microstream.storage.types;
  * #L%
  */
 
+import static one.microstream.X.notNull;
+import static one.microstream.math.XMath.positive;
+
+import org.slf4j.Logger;
+
 import one.microstream.chars.VarString;
+import one.microstream.util.logging.Logging;
 
 public interface StorageHousekeepingController
 {
@@ -242,6 +248,260 @@ public interface StorageHousekeepingController
 			;
 		}
 
+	}
+
+	
+	
+	public static StorageHousekeepingController Adaptive(
+		final long                          increaseThresholdMs,
+		final double                        increaseFactor     ,
+		final double                        maxIncreaseFactor  ,
+		final StorageFoundation<?>          foundation
+	)
+	{
+		return Adaptive(
+			StorageHousekeepingController.New(),
+			increaseThresholdMs                ,
+			increaseFactor                     ,
+			maxIncreaseFactor                  ,
+			foundation
+		);
+	}
+	
+	public static StorageHousekeepingController Adaptive(
+		final StorageHousekeepingController delegate           ,
+		final long                          increaseThresholdMs,
+		final double                        increaseFactor     ,
+		final double                        maxIncreaseFactor  ,
+		final StorageFoundation<?>          foundation
+	)
+	{
+		if(increaseFactor <= 1.0)
+		{
+			throw new IllegalArgumentException("increaseFactor must be greater than 1.0");
+		}
+		if(maxIncreaseFactor >= increaseFactor)
+		{
+			throw new IllegalArgumentException("maxIncreaseFactor must be greater than increaseFactor");
+		}
+		
+		final StorageHousekeepingController.Adaptive controller = new StorageHousekeepingController.Adaptive(
+			notNull (delegate           ),
+			positive(increaseThresholdMs),
+			         increaseFactor      ,
+			positive(maxIncreaseFactor  )
+		);
+		foundation.addEventLogger(controller);
+		return controller;
+	}
+	
+	
+	public static AdaptiveBuilder AdaptiveBuilder()
+	{
+		return AdaptiveBuilder(StorageHousekeepingController.New());
+	}
+	
+	
+	public static AdaptiveBuilder AdaptiveBuilder(final StorageHousekeepingController delegate)
+	{
+		return new AdaptiveBuilder.Default(
+			notNull(delegate)
+		);
+	}
+	
+	
+	public interface AdaptiveBuilder
+	{
+		public AdaptiveBuilder increaseThresholdMs(long increaseThresholdMs);
+		
+		public AdaptiveBuilder increaseFactor(double increaseFactor);
+		
+		public AdaptiveBuilder maxIncreaseFactor(double maxIncreaseFactor);
+		
+		public StorageHousekeepingController buildFor(final StorageFoundation<?> foundation);
+		
+		
+		public static class Default implements AdaptiveBuilder
+		{
+			private final StorageHousekeepingController delegate            ;
+			private long                                increaseThresholdMs = Adaptive.Defaults.increaseThresholdMs();
+			private double                              increaseFactor      = Adaptive.Defaults.increaseFactor     ();
+			private double                              maxIncreaseFactor   = Adaptive.Defaults.maxIncreaseFactor  ();
+			
+			Default(final StorageHousekeepingController delegate)
+			{
+				super();
+				this.delegate = delegate;
+			}
+		
+			@Override
+			public AdaptiveBuilder increaseThresholdMs(final long increaseThresholdMs)
+			{
+				this.increaseThresholdMs = increaseThresholdMs;
+				return this;
+			}
+			
+			@Override
+			public AdaptiveBuilder increaseFactor(final double increaseFactor)
+			{
+				this.increaseFactor = increaseFactor;
+				return this;
+			}
+			
+			@Override
+			public AdaptiveBuilder maxIncreaseFactor(final double maxIncreaseFactor)
+			{
+				this.maxIncreaseFactor = maxIncreaseFactor;
+				return this;
+			}
+			
+			@Override
+			public StorageHousekeepingController buildFor(final StorageFoundation<?> foundation)
+			{
+				final StorageHousekeepingController.Adaptive controller = new StorageHousekeepingController.Adaptive(
+					this.delegate           ,
+					this.increaseThresholdMs,
+					this.increaseFactor     ,
+					this.maxIncreaseFactor
+				);
+				foundation.addEventLogger(controller);
+				return controller;
+			}
+			
+		}
+		
+	}
+	
+	
+	public final class Adaptive implements StorageHousekeepingController, StorageEventLogger
+	{
+		public interface Defaults
+		{
+			public static long increaseThresholdMs()
+			{
+				return 5000; // ms
+			}
+			
+			public static double increaseFactor()
+			{
+				return 1.5;
+			}
+			
+			public static double maxIncreaseFactor()
+			{
+				return 100.0;
+			}
+		}
+		
+
+		private final static Logger logger = Logging.getLogger(Adaptive.class);
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final StorageHousekeepingController delegate           ;
+		private final long                          increaseThresholdMs;
+		private final double                        increaseFactor     ;
+		private final double                        maxIncreaseFactor  ;
+				
+		// mutable adaptive state
+		
+		private long                                lastFinishedGCCycle = 0;
+		private long                                lastIncrease        = 0;
+		private double                              currentFactor       = 1;
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		Adaptive(
+			final StorageHousekeepingController delegate           ,
+			final long                          increaseThresholdMs,
+			final double                        increaseFactor     ,
+			final double                        maxIncreaseFactor
+		)
+		{
+			super();
+			this.delegate            = delegate           ;
+			this.increaseThresholdMs = increaseThresholdMs;
+			this.increaseFactor      = increaseFactor     ;
+			this.maxIncreaseFactor   = maxIncreaseFactor  ;
+		}
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		private synchronized void reset()
+		{
+			this.lastFinishedGCCycle = this.lastIncrease = System.currentTimeMillis();
+			this.currentFactor = 1;
+			System.out.println("New factor = " + this.currentFactor);
+		}
+		
+		private synchronized double factor()
+		{
+			final long now = System.currentTimeMillis();
+			if( now - this.increaseThresholdMs > this.lastFinishedGCCycle
+			&& (this.lastIncrease <= 0 || now - this.lastIncrease > this.increaseThresholdMs)
+			)
+			{
+				this.currentFactor = this.currentFactor <= 1
+					? this.increaseFactor
+					: this.currentFactor * Math.min(this.increaseFactor, this.maxIncreaseFactor)
+				;
+				this.lastIncrease = now;
+				logger.debug("New adaptive housekeeping factor: {}", this.currentFactor);
+			}
+			return this.currentFactor;
+		}
+
+		@Override
+		public long housekeepingIntervalMs()
+		{
+			return this.delegate.housekeepingIntervalMs();
+		}
+
+		@Override
+		public long housekeepingTimeBudgetNs()
+		{
+			return (long)(this.delegate.housekeepingTimeBudgetNs() * this.factor());
+		}
+
+		@Override
+		public long garbageCollectionTimeBudgetNs()
+		{
+			return (long)(this.delegate.garbageCollectionTimeBudgetNs() * this.factor());
+		}
+
+		@Override
+		public long liveCheckTimeBudgetNs()
+		{
+			return (long)(this.delegate.liveCheckTimeBudgetNs() * this.factor());
+		}
+
+		@Override
+		public long fileCheckTimeBudgetNs()
+		{
+			return (long)(this.delegate.fileCheckTimeBudgetNs() * this.factor());
+		}
+		
+		@Override
+		public void logGarbageCollectorNotNeeded()
+		{
+			this.reset();
+		}
+		
+		@Override
+		public void logGarbageCollectorSweepingComplete(final StorageEntityCache<?> entityCache)
+		{
+			this.reset();
+		}
+		
 	}
 
 }

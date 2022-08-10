@@ -1,4 +1,7 @@
+
 package one.microstream.storage.types;
+
+import static one.microstream.X.notNull;
 
 /*-
  * #%L
@@ -810,8 +813,18 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 	 */
 	public F setExceptionHandler(StorageExceptionHandler exceptionHandler);
 	
+	/**
+	 * Use {@link #addEventLogger(StorageEventLogger)} instead, multiple event loggers are supported now
+	 * 
+	 * @deprecated replaced by {@link #addEventLogger(StorageEventLogger)}
+	 */
+	@Deprecated
+	public default F setEventLogger(final StorageEventLogger eventLogger)
+	{
+		return this.addEventLogger(eventLogger);
+	}
 	
-	public F setEventLogger(StorageEventLogger eventLogger);
+	public F addEventLogger(StorageEventLogger eventLogger);
 	
 
 	public F setWriteController(StorageWriteController writeController);
@@ -1777,9 +1790,15 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 		}
 		
 		@Override
-		public F setEventLogger(final StorageEventLogger eventLogger)
+		public F addEventLogger(final StorageEventLogger eventLogger)
 		{
 			this.eventLogger = eventLogger;
+			notNull(eventLogger);
+			
+			this.eventLogger = this.eventLogger != null
+				? StorageEventLogger.Chain(this.eventLogger, eventLogger)
+				: eventLogger
+			;
 			return this.$();
 		}
 		
