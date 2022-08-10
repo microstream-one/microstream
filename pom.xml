@@ -57,7 +57,7 @@
 		<module>storage</module>
 		<module>integrations</module>
 		<module>examples</module>
-	</modules>s
+	</modules>
 
 	<distributionManagement>
 		<repository>

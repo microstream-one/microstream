@@ -20,12 +20,6 @@ package one.microstream.integrations.spring.boot.types.config;
  * #L%
  */
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 import one.microstream.integrations.spring.boot.types.storage.StorageMetaData;
 import one.microstream.reflect.ClassLoaderProvider;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
@@ -164,8 +158,7 @@ public class StorageManagerFactory
         }
 
 
-        if (storageMetaData.isEmpty())
-        {
+        if (!storageMetaData.isPresent()) {
             // No @Storage,so we need to execute initializers now.
             // Otherwise the StorageBeanFactory.createRootObject is responsible for calling the
             initializers.forEach(i -> i.initialize(storageManager));

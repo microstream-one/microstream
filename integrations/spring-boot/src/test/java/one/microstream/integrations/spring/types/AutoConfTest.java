@@ -20,7 +20,7 @@ package one.microstream.integrations.spring.types;
  * #L%
  */
 
-import one.microstream.integrations.spring.boot.types.MicrostreamConfiguration;
+import one.microstream.integrations.spring.boot.types.MicroStreamConfiguration;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -38,12 +38,12 @@ public class AutoConfTest {
     Path tempDir;
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(MicrostreamConfiguration.class));
+            .withConfiguration(AutoConfigurations.of(MicroStreamConfiguration.class));
 
     @Test
     public void defaultServiceBacksOff() {
         String path = tempDir.toAbsolutePath().toString();
-        this.contextRunner.withUserConfiguration(MicrostreamConfiguration.class)
+        this.contextRunner.withUserConfiguration(MicroStreamConfiguration.class)
                 .withPropertyValues("one.microstream.storage-directory=" + path)
                 .run((context) ->
                 {

@@ -66,7 +66,7 @@ public class ApplicationTest
         Assertions.assertEquals(3, users.size());
 
         Optional<User> byEmail = repository.findByEmail(EMAIL);
-        if (byEmail.isEmpty())
+        if (!byEmail.isPresent())
         {
             Assertions.fail("Unable to find added user by email");
         }
@@ -89,7 +89,7 @@ public class ApplicationTest
                     .filter(u -> EMAIL_UPDATE.equals(u.getEmail()))
                     .findAny();
 
-            if (user.isEmpty()) {
+            if (!user.isPresent()) {
                 Assertions.fail("User with updated mail not found");
             }
         }
