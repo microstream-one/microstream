@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-communication-parent</artifactId>
-		<version>07.01.01-MS-SNAPSHOT</version>
+		<version>07.01.01-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -20,12 +20,12 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-communication</artifactId>
-			<version>07.01.01-MS-SNAPSHOT</version>
+			<version>07.01.01-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-persistence-binary</artifactId>
-			<version>07.01.01-MS-SNAPSHOT</version>
+			<version>07.01.01-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	

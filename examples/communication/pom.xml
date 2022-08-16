@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-examples-parent</artifactId>
-		<version>07.01.01-MS-SNAPSHOT</version>
+		<version>07.01.01-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -16,7 +16,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-communication-binary</artifactId>
-			<version>07.01.01-MS-SNAPSHOT</version>
+			<version>07.01.01-MS-GA-SNAPSHOT</version>
 		</dependency>		
 		<dependency>
 		    <groupId>ch.qos.logback</groupId>

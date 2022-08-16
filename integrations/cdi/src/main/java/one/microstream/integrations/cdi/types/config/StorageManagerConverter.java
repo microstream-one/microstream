@@ -21,14 +21,13 @@ package one.microstream.integrations.cdi.types.config;
  * #L%
  */
 
+import one.microstream.storage.types.StorageManager;
+import org.eclipse.microprofile.config.spi.Converter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
-
-import org.eclipse.microprofile.config.spi.Converter;
-
-import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
-import one.microstream.storage.types.StorageManager;
 
 
 /**
@@ -36,24 +35,21 @@ import one.microstream.storage.types.StorageManager;
  */
 public class StorageManagerConverter implements Converter<StorageManager>
 {
-	private static final Logger                      LOGGER = Logger.getLogger(StorageManagerConverter.class.getName());
-	
-	private static final Map<String, StorageManager> MAP    = new ConcurrentHashMap<>();
-	
+	private static final Logger LOGGER = LoggerFactory.getLogger(StorageManagerConverter.class);
+
+	private static final Map<String, StorageManager> MAP = new ConcurrentHashMap<>();
+
 	@Override
 	public StorageManager convert(final String value) throws IllegalArgumentException, NullPointerException
 	{
 		return MAP.computeIfAbsent(value, this::createStorageManager);
 	}
-	
+
 	private StorageManager createStorageManager(final String value)
 	{
 		LOGGER.info("Loading configuration to start the class StorageManager from the key: " + value);
-		return EmbeddedStorageConfiguration.load(value)
-			.createEmbeddedStorageFoundation()
-			.createEmbeddedStorageManager()
-			.start()
-		;
+		return new StorageManagerProxy(value);
 	}
-	
+
+
 }

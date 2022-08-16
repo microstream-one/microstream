@@ -21,9 +21,9 @@ package one.microstream.integrations.cdi.types.extension;
  * #L%
  */
 
-class Tiger
+public class Tiger
 {
-	Tiger()
+	public Tiger()
 	{
 	}
 }

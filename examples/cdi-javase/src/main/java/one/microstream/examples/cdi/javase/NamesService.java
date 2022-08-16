@@ -1,13 +1,11 @@
 
 package one.microstream.examples.cdi.javase;
 
-import java.util.Set;
-
 /*-
  * #%L
  * microstream-examples-cdi-javase
  * %%
- * Copyright (C) 2019 - 2021 MicroStream Software
+ * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -25,8 +23,7 @@ import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import one.microstream.integrations.cdi.types.Store;
+import java.util.Set;
 
 
 @ApplicationScoped
@@ -34,8 +31,7 @@ public class NamesService
 {
 	@Inject
 	private Names names;
-	
-	@Store
+
 	public void add(final String name)
 	{
 		this.names.add(name);

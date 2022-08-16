@@ -7,12 +7,13 @@
     <parent>
         <groupId>one.microstream</groupId>
         <artifactId>microstream-integrations-parent</artifactId>
-        <version>07.01.01-MS-SNAPSHOT</version>
+        <version>07.01.01-MS-GA-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <properties>
-        <org.springframework.boot.version>2.6.2</org.springframework.boot.version>
+        <!-- minimal version is 2.1.0.RELEASE -->
+        <org.springframework.boot.version>2.6.7</org.springframework.boot.version>
     </properties>
 
 
@@ -23,6 +24,7 @@
             <version>${org.springframework.boot.version}</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
@@ -52,12 +54,12 @@
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded</artifactId>
-            <version>07.01.01-MS-SNAPSHOT</version>
+            <version>07.01.01-MS-GA-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded-configuration</artifactId>
-            <version>07.01.01-MS-SNAPSHOT</version>
+            <version>07.01.01-MS-GA-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

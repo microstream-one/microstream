@@ -21,6 +21,10 @@ package one.microstream.examples.openliberty;
  * #L%
  */
 
+import one.microstream.integrations.cdi.types.Storage;
+import one.microstream.persistence.types.Persister;
+
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -28,18 +32,20 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import one.microstream.integrations.cdi.types.Storage;
-
 
 @Storage
 public class Inventory
 {
+	// Methods lack proper locking to access this shared data structure safely in multi-threaded environment.
+	@Inject
+	private transient Persister persister;
+
 	private final Set<Product> products = new HashSet<>();
 	
-	public void add(final Product product)
-	{
+	public void add(final Product product) {
 		Objects.requireNonNull(product, "product is required");
 		this.products.add(product);
+		this.persister.store(this.products);
 	}
 	
 	public Set<Product> getProducts()
@@ -52,10 +58,10 @@ public class Inventory
 		return this.products.stream().filter(this.isIdEquals(id)).limit(1).findFirst();
 	}
 	
-	public void deleteById(final long id)
-	{
+	public void deleteById(final long id) {
 		this.products.removeIf(this.isIdEquals(id));
-		
+		this.persister.store(this.products);
+
 	}
 	
 	private Predicate<Product> isIdEquals(final long id)

@@ -21,9 +21,14 @@ package one.microstream.integrations.cdi.types.cache;
  * #L%
  */
 
-import one.microstream.integrations.cdi.types.test.CDIExtension;
 
+import io.smallrye.config.inject.ConfigExtension;
+import one.microstream.integrations.cdi.types.config.StorageManagerProducer;
+import one.microstream.integrations.cdi.types.extension.StorageExtension;
 import org.eclipse.microprofile.config.Config;
+import org.jboss.weld.junit5.auto.AddBeanClasses;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +40,10 @@ import javax.cache.integration.CacheWriter;
 import javax.inject.Inject;
 
 
-@CDIExtension
+@EnableAutoWeld
+@AddBeanClasses({StorageCacheProducer.class, StorageManagerProducer.class})  // For @StorageCache
+@AddExtensions({StorageExtension.class, ConfigExtension.class})
+// SmallRye Config extension And MicroStream extension for StorageManager
 class CachePropertiesTest
 {
 	@Inject

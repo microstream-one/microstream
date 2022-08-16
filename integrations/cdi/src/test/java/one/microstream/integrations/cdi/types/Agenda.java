@@ -30,31 +30,32 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Storage
 public class Agenda
 {
+
 	private final Set<String> names;
-	
+
 	public Agenda()
 	{
 		this.names = new ConcurrentSkipListSet<>();
 	}
-	
+
 	public void add(final String name)
 	{
 		this.names.add(name);
 	}
-	
+
 	public Set<String> getNames()
 	{
 		return Collections.unmodifiableSet(this.names);
 	}
-	
+
 	@Override
 	public boolean equals(final Object o)
 	{
-		if(this == o)
+		if (this == o)
 		{
 			return true;
 		}
-		if(o == null || this.getClass() != o.getClass())
+		if (o == null || this.getClass() != o.getClass())
 		{
 			return false;
 		}
