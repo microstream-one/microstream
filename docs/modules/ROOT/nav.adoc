@@ -20,7 +20,7 @@
 **** xref:storage:storage-targets/sql-databases/mariadb.adoc[MariaDB]
 **** xref:storage:storage-targets/sql-databases/mysql.adoc[MySQL]
 **** xref:storage:storage-targets/sql-databases/oracle.adoc[Oracle]
-**** xref:storage:storage-targets/sql-databases/postresql.adoc[Postgres]
+**** xref:storage:storage-targets/sql-databases/postgresql.adoc[Postgres]
 **** xref:storage:storage-targets/sql-databases/sqlite.adoc[Sqlite]
 *** Blob Stores
 **** AWS
