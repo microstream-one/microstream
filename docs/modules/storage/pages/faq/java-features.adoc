@@ -11,5 +11,5 @@ Yes, but due to reflection restrictions of records introduced in Java 15 an expo
 
 [source, text]
 ----
---add-exports java.base/jdk.internal.misc=ALL_UNNAMED
+--add-exports java.base/jdk.internal.misc=ALL-UNNAMED
 ----
