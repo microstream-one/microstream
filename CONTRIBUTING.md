@@ -22,6 +22,8 @@ Pull requests are the best way to propose changes to the codebase. We actively w
 4. Ensure the test suite passes.
 5. Issue that pull request!
 
+All commits must be [signed](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits). 
+
 ## Any contributions you make will be under the Eclipse Public License
 
 In short, when you submit code changes, your submissions are understood to be under the same [EPL-2.0 License](https://github.com/microstream-one/microstream/blob/master/LICENSE) that covers the project. Feel free to contact the maintainers if that's a concern.
