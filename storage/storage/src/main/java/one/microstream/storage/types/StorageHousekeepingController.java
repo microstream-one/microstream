@@ -440,7 +440,7 @@ public interface StorageHousekeepingController
 		{
 			this.lastFinishedGCCycle = this.lastIncrease = System.currentTimeMillis();
 			this.currentFactor = 1;
-			System.out.println("New factor = " + this.currentFactor);
+			logger.debug("New adaptive housekeeping factor: {}", this.currentFactor);
 		}
 		
 		private synchronized double factor()
