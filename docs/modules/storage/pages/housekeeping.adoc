@@ -64,8 +64,6 @@ Every instance that is not marked as reachable by then must be unreachable garba
 
 Similar to the JVM's garbage collection to optimize its memory consumption, MicroStream has a garbage collection of its own, but for the level of persistent storage space instead of memory space.
 
-However, MicroStreams multi-threaded garbage collector is currently still in development and not activated, yet.
-
 == Explicit Housekeeping
 
 Housekeeping can also be triggered manually from the `StorageConnection` . Related methods are:
