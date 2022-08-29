@@ -10,11 +10,6 @@
 		<artifactId>microstream-storage-embedded</artifactId>
 		<version>{maven-version}</version>
 	</dependency>
-	<dependency>
-		<groupId>one.microstream</groupId>
-		<artifactId>microstream-storage-embedded-configuration</artifactId>
-		<version>{maven-version}</version>
-	</dependency>
 </dependencies>
 ----
 
