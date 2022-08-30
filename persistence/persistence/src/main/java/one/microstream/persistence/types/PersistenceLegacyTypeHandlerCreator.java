@@ -87,6 +87,7 @@ public interface PersistenceLegacyTypeHandlerCreator<D>
 						
 					if(targetOrdinal >= 0)
 					{
+						//allow ordinal changes only by explicit manual mappings
 						if(targetOrdinal != ordinal)
 						{
 							if(match.similarity() != PersistenceLegacyTypeMapper.Defaults.defaultExplicitMappingSimilarity())
