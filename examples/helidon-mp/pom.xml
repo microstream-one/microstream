@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-examples-parent</artifactId>
-		<version>07.01.00-MS-beta2</version>
+		<version>07.01.02-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -47,7 +47,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-integrations-cdi</artifactId>
-			<version>07.01.00-MS-beta2</version>
+			<version>07.01.02-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
