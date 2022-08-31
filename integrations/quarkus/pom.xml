@@ -1,0 +1,100 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- when using this, the extension itself (deployment part) does not work anymore (The extension processor is not called anymore, BuildItems are not available and executed)
+      Due to differences in compiler ?? -->
+    <!--parent>
+        <groupId>one.microstream</groupId>
+        <artifactId>microstream-integrations-parent</artifactId>
+        <version>08.00.00-MS-GA-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent-->
+
+    <groupId>one.microstream</groupId>
+    <artifactId>microstream-extension-parent</artifactId>
+    <version>08.00.00-MS-GA-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>MicroStream Integrations Quarkus</name>
+    <description>MicroStream Quarkus Extension</description>
+
+    <modules>
+        <module>deployment</module>
+        <module>runtime</module>
+    </modules>
+    <properties>
+        <maven.compiler.release>11</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <quarkus.version>2.11.3.Final</quarkus.version>
+
+        <compiler-plugin.version>3.8.1</compiler-plugin.version>
+        <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
+        <failsafe-plugin.version>${surefire-plugin.version}</failsafe-plugin.version>
+
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-bom</artifactId>
+                <version>${quarkus.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <!-- TODO : define module-info.java -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-maven-plugin</artifactId>
+                    <version>${quarkus.version}</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${surefire-plugin.version}</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                            <maven.home>${maven.home}</maven.home>
+                            <maven.repo>${settings.localRepository}</maven.repo>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${failsafe-plugin.version}</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                            <maven.home>${maven.home}</maven.home>
+                            <maven.repo>${settings.localRepository}</maven.repo>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${compiler-plugin.version}</version>
+                    <configuration>
+                        <compilerArgs>
+                            <arg>-parameters</arg>
+                        </compilerArgs>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
+</project>
