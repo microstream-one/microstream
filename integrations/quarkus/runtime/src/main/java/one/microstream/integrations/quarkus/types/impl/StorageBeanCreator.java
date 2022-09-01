@@ -31,9 +31,9 @@ public class StorageBeanCreator implements BeanCreator<Object>
     @Override
     public Object create(CreationalContext creationalContext, Map map)
     {
-
         StorageClassInfo storageClassInfo = new StorageClassInfo((Class) map.get(BeanCreatorParameterNames.CLASS_NAME)
                 , (String) map.get(BeanCreatorParameterNames.FIELDS));
+
         return new StorageBean(storageClassInfo);
 
     }

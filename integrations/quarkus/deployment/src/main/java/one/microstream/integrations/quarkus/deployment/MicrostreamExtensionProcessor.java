@@ -96,31 +96,35 @@ class MicrostreamExtensionProcessor
                     .scope(Singleton.class)
                     .creator(RootCreator.class)
                     .done();
+
         }
         else
         {
             // Quarkus is fine with returning null for a BuildItem instance.
             return null;
-        }
-    }
 
+        }
+
+    }
 
     @BuildStep
     SyntheticBeanBuildItem storageBean(final StorageBeanBuildItem storageBeanBuildItem)
     {
 
-
         final Optional<Class> rootClass = storageBeanBuildItem.getRootClass();
 
-        String fields = String.join(",", storageBeanBuildItem.getFieldsToInject());
+        final String fields = String.join(",", storageBeanBuildItem.getFieldsToInject());
+
+        // .orElse is needed due to https://github.com/quarkusio/quarkus/issues/27664
         return SyntheticBeanBuildItem.configure(StorageBean.class)
                 .scope(Singleton.class)
                 .creator(StorageBeanCreator.class)
-                .param(BeanCreatorParameterNames.CLASS_NAME, rootClass.orElse(null))
+                .param(BeanCreatorParameterNames.CLASS_NAME, rootClass.orElse(Object.class))
                 .param(BeanCreatorParameterNames.FIELDS, fields)
                 .done();
 
     }
+
 
 
     private Set<StorageClassInfo> findAnnotatedClasses(final BeanArchiveIndexBuildItem beanArchiveIndex)

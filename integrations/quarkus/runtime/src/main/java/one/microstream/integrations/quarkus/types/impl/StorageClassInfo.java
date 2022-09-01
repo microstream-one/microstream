@@ -22,8 +22,14 @@ public class StorageClassInfo
 
     public StorageClassInfo(final Class classReference, final String fieldsToInject)
     {
-
-        this.classReference = classReference;
+        if (classReference != Object.class)
+        {
+            this.classReference = classReference;
+        } else {
+            // Object.class past since .map entries on BeanCreator blow up when null is specified in value.
+            // see https://github.com/quarkusio/quarkus/issues/27664
+            this.classReference = null;
+        }
         this.fieldsToInject = Arrays.asList(fieldsToInject.split(","));
     }
 

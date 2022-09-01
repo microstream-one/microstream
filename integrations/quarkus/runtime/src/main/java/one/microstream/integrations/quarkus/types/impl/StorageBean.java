@@ -29,7 +29,7 @@ public class StorageBean
     }
 
     public boolean isDefined() {
-        return this.info != null;
+        return this.info.getClassReference() != null;
     }
 
     public StorageClassInfo getInfo()
