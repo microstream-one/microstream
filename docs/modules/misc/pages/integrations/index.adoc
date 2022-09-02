@@ -6,6 +6,7 @@ Integrations created by MicroStream are
 
 - xref:misc:integrations/spring-boot.adoc[Spring Boot]
 - xref:misc:integrations/cdi.adoc[Jakarta EE CDI]
+- xref:misc:integrations/quarkus.adoc[Quarkus]
 
 And MicroStream is also integrated by the following vendors
 

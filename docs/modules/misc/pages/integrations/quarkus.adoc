@@ -1,0 +1,68 @@
+= Quarkus Extension
+
+MicroStream comes with a Quarkus extension which allows accessing the functionality of MicroStream through the usage of a few annotations.
+
+MicroStream extension is not available on the Quarkus multiverse nor on the Quarkus code generator.
+
+It is available after adding the MicroStream Quarkus extension to your application. You can use the following Maven command for example:
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+mvn quarkus:add-extension -Dextensions="one.microstream:microstream-extension:08.00.00-MS-GA"
+----
+
+== Configuration
+
+The configuration of the _StorageManager_ can be done using key/value pairs that are provided by Quarkus configuration.  The configuration keys must be prefixed by `one.microstream`
+
+[source]
+----
+one.microstream.storage-directory=/opt/data/microstream
+one.microstream.channel-count=2
+----
+
+Since the `-` character is not supported in some sources (like the environment variables), you can also define the configuration keys using the `.` character.
+
+[source]
+----
+one.microstream.storage.directory=/opt/data/microstream
+one.microstream.channel.count=2
+----
+
+The configured and started _StorageManager_ is a CDI bean and thus can be injected or retrieved programmatically.
+
+[source, java]
+----
+@Inject
+private StorageManager storageManager;
+
+public void someMethod() {
+    StorageManager storageManager = CDI.current().select(StorageManager.class).get();
+}
+
+public void someMethodWithArc() {
+    StorageManager storageManager = Arc.container().select(StorageManager.class).get();
+}
+----
+
+The _StorageManager_ configuration can be customized by CDI beans that implement the interface `one.microstream.integrations.quarkus.types.config.EmbeddedStorageFoundationCustomizer`.
+The `customize` method is called with an `EmbeddedStorageFoundation` which allows you to fully customize the _StorageManager_ that will be created. You can for example, add the specific Type Handlers for JDK 8 as described on the https://docs.microstream.one/manual/storage/addendum/specialized-type-handlers.html[documentation].
+
+After the _StorageManager_ is created, the CDI beans that implement `one.microstream.integrations.quarkus.types.config.StorageManagerInitializer` are called.
+You have the opportunity to perform actions on the _StorageManager_ or root object.  Following rules apply to the _StorageManager_ that is passed to the `initialize` method of the interface.
+
+- The _StorageManager_ is already started unless you specified the configuration value `one.microstream.autoStart=false`.
+- If you have used the `@Storage` annotation on a class, the _StorageManager_ is already associated with an instance of that class as the Root object.
+
+== Root object
+
+The root object can be indicated by using the `@Storage` annotation on the class.  This annotation converts the POJO into a CDI bean (there is no need to use any scope-defining annotation) with Application Scope.
+
+Besides converting it into a CDI bean, any field injection within this class is also resolved.
+
+The integration also defines the instance of the class that is created as the root object (`StorageManager.setRoot()`) and stores the initial value (`StorageManager.storeRoot()`) when storageManager does not have a root object assigned yet (this happens only the very first time when you start up your application and the storage doesn't contain any data yet)
+
+The POJO must have a (default) no-argument constructor so that the integration can create an instance of it.
+
+You can only annotate 1 class with the `@Storage`  annotation, if you have marked multiple, the start of your application will fail with an Exception.
+

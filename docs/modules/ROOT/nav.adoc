@@ -87,6 +87,7 @@
 *** xref:misc:integrations/helidon.adoc[Helidon]
 *** xref:misc:integrations/spring-boot.adoc[Spring-Boot]
 *** xref:misc:integrations/cdi.adoc[CDI]
+*** xref:misc:integrations/quarkus.adoc[Quarkus]
 ** xref:misc:layered-entities/index.adoc[Layered Entities]
 *** xref:misc:layered-entities/configuration.adoc[Configuration]
 *** xref:misc:layered-entities/defining-entities.adoc[Defining Entities]
