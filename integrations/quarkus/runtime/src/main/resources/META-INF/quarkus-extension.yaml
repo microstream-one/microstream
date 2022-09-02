@@ -1,9 +1,9 @@
-name: Microstream Extension
-#description: Do something useful.
+name: MicroStream Extension
+description: Integrate MicroStream within your application.
 metadata:
-#  keywords:
-#    - microstream-extension
-#  guide: ...
-#  categories:
-#    - "miscellaneous"
+  keywords:
+    - MicroStream
+  guide: https://docs.microstream.one/manual/misc/integrations/quarkus.html
+  categories:
+    - "integration"
 #  status: "preview"
