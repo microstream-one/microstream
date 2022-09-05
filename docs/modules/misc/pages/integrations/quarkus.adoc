@@ -11,6 +11,8 @@ It is available after adding the MicroStream Quarkus extension to your applicati
 mvn quarkus:add-extension -Dextensions="one.microstream:microstream-extension:08.00.00-MS-GA"
 ----
 
+The extension requires Quarkus 2.11.1 as a minimal version.
+
 == Configuration
 
 The configuration of the _StorageManager_ can be done using key/value pairs that are provided by Quarkus configuration.  The configuration keys must be prefixed by `one.microstream`
@@ -66,3 +68,23 @@ The POJO must have a (default) no-argument constructor so that the integration c
 
 You can only annotate 1 class with the `@Storage`  annotation, if you have marked multiple, the start of your application will fail with an Exception.
 
+== Debug logging
+
+You can activate debug logging to analyse the behaviour of the MicroStream core or the extension.
+
+Add the following entry to _application.properties_ file:
+
+[source]
+----
+quarkus.log.category."one.microstream".level=DEBUG
+----
+
+This will set the debug level of all loggers related to MicroStream to the Debug level.
+
+
+[source]
+----
+quarkus.log.category."one.microstream.integrations.quarkus".level=DEBUG
+----
+
+The above setting only activate the debug level for the extension code.

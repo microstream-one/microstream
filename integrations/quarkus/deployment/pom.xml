@@ -6,13 +6,13 @@
 
   <parent>
         <groupId>one.microstream</groupId>
-      <artifactId>microstream-integration-quarkus-parent</artifactId>
+        <artifactId>microstream-integration-quarkus-parent</artifactId>
         <version>08.00.00-MS-GA-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>microstream-extension-deployment</artifactId>
-    <name>Microstream Extension - Deployment</name>
+    <name>MicroStream Extension - Deployment</name>
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-extension</artifactId>
-            <version>${project.version}</version>
+            <version>08.00.00-MS-GA-SNAPSHOT</version>
         </dependency>
 
         <!-- test dependencies -->
