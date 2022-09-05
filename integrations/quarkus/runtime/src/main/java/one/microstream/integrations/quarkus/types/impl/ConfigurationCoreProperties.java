@@ -185,7 +185,7 @@ public enum ConfigurationCoreProperties
 	),
 	
 	/**
-	 * Timeout in milliseconds for the entity cache evaluator. If an entity wasn’t
+	 * Timeout in milliseconds for the entity cache evaluator. If an entity wasn't
 	 * accessed in this timespan it will be removed from the cache. Default is 1 day.
 	 */
 	ENTITY_CACHE_TIMEOUT(
