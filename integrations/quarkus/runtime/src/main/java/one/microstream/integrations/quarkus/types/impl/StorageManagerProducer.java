@@ -71,8 +71,10 @@ public class StorageManagerProducer {
         for (final Map.Entry<String, String> entry : properties.entrySet()) {
             builder.set(entry.getKey(), entry.getValue());
         }
-        EmbeddedStorageFoundation<?> foundation = builder.createEmbeddedStorageFoundation();
+        final EmbeddedStorageFoundation<?> foundation = builder.createEmbeddedStorageFoundation();
         foundation.setDataBaseName("Generic");
+
+        LOGGER.debug("Executing EmbeddedStorageFoundationCustomizer beans");
 
         this.customizers.stream()
                 .forEach(customizer -> customizer.customize(foundation));
@@ -83,14 +85,16 @@ public class StorageManagerProducer {
                         .getContextClassLoader())));
 
 
-        EmbeddedStorageManager storageManager = foundation
+        final EmbeddedStorageManager storageManager = foundation
                 .createEmbeddedStorageManager();
 
         if (this.isAutoStart(properties)) {
+            LOGGER.debug("Start StorageManager");
             storageManager.start();
         }
 
         if (!this.storageBean.isDefined()) {
+            LOGGER.debug("Executing StorageManagerInitializer beans");
             // Only execute at this point when no storage root bean has defined with @Storage
             // Initializers are called from StorageBeanCreator.create if user has defined @Storage.
             this.initializers.stream()

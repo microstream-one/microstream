@@ -41,18 +41,19 @@ public class RootCreator implements BeanCreator<Object>
     private static final Logger LOGGER = LoggerFactory.getLogger(RootCreator.class);
 
     @Override
-    public Object create(CreationalContext creationalContext, Map map)
+    public Object create(final CreationalContext creationalContext, final Map map)
     {
+        LOGGER.debug("Create Bean: Creating bean for MicroStream Root (@Storage annotated class)");
 
-        ArcContainer container = Arc.container();
+        final ArcContainer container = Arc.container();
 
-        StorageBean storageBean = container.instance(StorageBean.class)
+        final StorageBean storageBean = container.instance(StorageBean.class)
                 .get();
 
         LOGGER.info(String.format("Creation of the Root Bean from %s", storageBean.getInfo()
                 .getClassReference()));
 
-        StorageManager storageManager = container
+        final StorageManager storageManager = container
                 .instance(StorageManager.class)
                 .get();
         Object root = storageManager.root();
@@ -68,12 +69,13 @@ public class RootCreator implements BeanCreator<Object>
 
         injectDependencies(root, storageBean);
 
+        LOGGER.debug("Executing StorageManagerInitializer beans");
 
-        List<StorageManagerInitializer> initializers = container
+        final List<StorageManagerInitializer> initializers = container
                 .select(StorageManagerInitializer.class)
                 .stream()
                 .collect(Collectors.toList());
-        for (StorageManagerInitializer initializer : initializers)
+        for (final StorageManagerInitializer initializer : initializers)
         {
             initializer.initialize(storageManager);
         }
@@ -82,20 +84,22 @@ public class RootCreator implements BeanCreator<Object>
 
     }
 
-    private void injectDependencies(Object root, StorageBean storageBean)
+    private void injectDependencies(final Object root, final StorageBean storageBean)
     {
-        List<String> fieldNamesToInject = storageBean.getInfo()
+        LOGGER.debug("Injecting instances in @Storage annotated instance");
+
+        final List<String> fieldNamesToInject = storageBean.getInfo()
                 .getFieldsToInject();
 
-        List<Field> fields = ReflectionUtils.findFields(root.getClass(), f -> fieldNamesToInject.contains(f.getName()));
-        ArcContainer container = Arc.container();
-        for (Field field : fields)
+        final List<Field> fields = ReflectionUtils.findFields(root.getClass(), f -> fieldNamesToInject.contains(f.getName()));
+        final ArcContainer container = Arc.container();
+        for (final Field field : fields)
         {
-            Object injectable = container.select(field.getType())
+            final Object injectable = container.select(field.getType())
                     .get();
             try
             {
-                field.setAccessible(true);  // package scope also must be made accessible. TODO Research if Quarkus has something better
+                field.setAccessible(true);  // package scope also must be made accessible.
                 field.set(root, injectable);
             } catch (IllegalAccessException e)
             {

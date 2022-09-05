@@ -33,7 +33,7 @@ public final class ReflectionUtils
     {
     }
 
-    public static List<Field> findFields(Class<?> clazz, Predicate<Field> predicate)
+    public static List<Field> findFields(final Class<?> clazz, final Predicate<Field> predicate)
     {
 
         return findAllFields(clazz).stream()
@@ -41,7 +41,7 @@ public final class ReflectionUtils
                 .collect(Collectors.toList());
     }
 
-    public static List<Field> findAllFields(Class<?> clazz)
+    public static List<Field> findAllFields(final Class<?> clazz)
     {
         return Arrays.stream(clazz.getDeclaredFields())
                 .filter(field -> !field.isSynthetic())

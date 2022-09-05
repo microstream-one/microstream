@@ -70,7 +70,7 @@ class MicrostreamExtensionProcessor
     @BuildStep
     StorageBeanBuildItem findStorageRoot(final BeanArchiveIndexBuildItem beanArchiveIndex)
     {
-
+        LOGGER.debug("BuildStep for MicroStream: Find any class that is annotated with @Storage");
         final Set<StorageClassInfo> rootClasses = findAnnotatedClasses(beanArchiveIndex);
         if (rootClasses.size() > 1)
         {
@@ -91,7 +91,8 @@ class MicrostreamExtensionProcessor
 
         if (rootClass.isPresent())
         {
-            LOGGER.info(String.format("Processing Extension:  @Storage found at %s", rootClass));
+            LOGGER.debug("BuildStep for MicroStream: Configure a SyntheticBeanBuildItem for the @Storage bean");
+            LOGGER.info(String.format("Processing Extension: @Storage found at %s", rootClass));
             return SyntheticBeanBuildItem.configure(rootClass.get())
                     .scope(Singleton.class)
                     .creator(RootCreator.class)
@@ -110,6 +111,7 @@ class MicrostreamExtensionProcessor
     @BuildStep
     SyntheticBeanBuildItem storageBean(final StorageBeanBuildItem storageBeanBuildItem)
     {
+        LOGGER.debug("BuildStep for MicroStream: Configure a SyntheticBeanBuildItem for the bean keeping info about @Storage class");
 
         final Optional<Class> rootClass = storageBeanBuildItem.getRootClass();
 

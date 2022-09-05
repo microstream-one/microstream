@@ -34,6 +34,6 @@ public class StorageBean
 
     public StorageClassInfo getInfo()
     {
-        return info;
+        return this.info;
     }
 }

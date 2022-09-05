@@ -21,17 +21,22 @@ package one.microstream.integrations.quarkus.types.impl;
  */
 
 import io.quarkus.arc.BeanCreator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.spi.CreationalContext;
 import java.util.Map;
 
 public class StorageBeanCreator implements BeanCreator<Object>
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StorageBeanCreator.class);
 
     @Override
-    public Object create(CreationalContext creationalContext, Map map)
+    public Object create(final CreationalContext creationalContext, final Map map)
     {
-        StorageClassInfo storageClassInfo = new StorageClassInfo((Class) map.get(BeanCreatorParameterNames.CLASS_NAME)
+        LOGGER.debug("Create Bean: Creating bean with info about @Storage annotated class");
+
+        final StorageClassInfo storageClassInfo = new StorageClassInfo((Class) map.get(BeanCreatorParameterNames.CLASS_NAME)
                 , (String) map.get(BeanCreatorParameterNames.FIELDS));
 
         return new StorageBean(storageClassInfo);
