@@ -94,7 +94,7 @@
                         <configuration>
                             <rules>
                                 <requireFilesExist>
-                                    <message>The module-info is not present</message>
+                                    <message>File: '/target/classes/META-INF/spring-configuration-metadata.json' is not present</message>
                                     <files>
                                         <file>
                                             ${project.basedir}/target/classes/META-INF/spring-configuration-metadata.json
