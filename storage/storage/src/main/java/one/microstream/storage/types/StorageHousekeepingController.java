@@ -253,17 +253,17 @@ public interface StorageHousekeepingController
 	
 	
 	public static StorageHousekeepingController Adaptive(
-		final long                          increaseThresholdMs,
-		final double                        increaseFactor     ,
-		final double                        maxIncreaseFactor  ,
-		final StorageFoundation<?>          foundation
+		final long                 increaseThresholdMs,
+		final long                 increaseAmountNs   ,
+		final long                 maximumNs          ,
+		final StorageFoundation<?> foundation
 	)
 	{
 		return Adaptive(
 			StorageHousekeepingController.New(),
 			increaseThresholdMs                ,
-			increaseFactor                     ,
-			maxIncreaseFactor                  ,
+			increaseAmountNs                   ,
+			maximumNs                          ,
 			foundation
 		);
 	}
@@ -271,25 +271,16 @@ public interface StorageHousekeepingController
 	public static StorageHousekeepingController Adaptive(
 		final StorageHousekeepingController delegate           ,
 		final long                          increaseThresholdMs,
-		final double                        increaseFactor     ,
-		final double                        maxIncreaseFactor  ,
+		final long                          increaseAmountNs   ,
+		final long                          maximumNs          ,
 		final StorageFoundation<?>          foundation
 	)
 	{
-		if(increaseFactor <= 1.0)
-		{
-			throw new IllegalArgumentException("increaseFactor must be greater than 1.0");
-		}
-		if(maxIncreaseFactor >= increaseFactor)
-		{
-			throw new IllegalArgumentException("maxIncreaseFactor must be greater than increaseFactor");
-		}
-		
 		final StorageHousekeepingController.Adaptive controller = new StorageHousekeepingController.Adaptive(
 			notNull (delegate           ),
 			positive(increaseThresholdMs),
-			         increaseFactor      ,
-			positive(maxIncreaseFactor  )
+			positive(increaseAmountNs   ),
+			positive(maximumNs          )
 		);
 		foundation.addEventLogger(controller);
 		return controller;
@@ -314,9 +305,9 @@ public interface StorageHousekeepingController
 	{
 		public AdaptiveBuilder increaseThresholdMs(long increaseThresholdMs);
 		
-		public AdaptiveBuilder increaseFactor(double increaseFactor);
+		public AdaptiveBuilder increaseAmountNs(long increaseAmountNs);
 		
-		public AdaptiveBuilder maxIncreaseFactor(double maxIncreaseFactor);
+		public AdaptiveBuilder maximumNs(long maximumNs);
 		
 		public StorageHousekeepingController buildFor(final StorageFoundation<?> foundation);
 		
@@ -325,8 +316,8 @@ public interface StorageHousekeepingController
 		{
 			private final StorageHousekeepingController delegate            ;
 			private long                                increaseThresholdMs = Adaptive.Defaults.increaseThresholdMs();
-			private double                              increaseFactor      = Adaptive.Defaults.increaseFactor     ();
-			private double                              maxIncreaseFactor   = Adaptive.Defaults.maxIncreaseFactor  ();
+			private long                                increaseAmountNs    = Adaptive.Defaults.increaseAmountNs   ();
+			private long                                maximumNs           = Adaptive.Defaults.maximumNs          ();
 			
 			Default(final StorageHousekeepingController delegate)
 			{
@@ -342,16 +333,16 @@ public interface StorageHousekeepingController
 			}
 			
 			@Override
-			public AdaptiveBuilder increaseFactor(final double increaseFactor)
+			public AdaptiveBuilder increaseAmountNs(final long increaseAmountNs)
 			{
-				this.increaseFactor = increaseFactor;
+				this.increaseAmountNs = increaseAmountNs;
 				return this;
 			}
 			
 			@Override
-			public AdaptiveBuilder maxIncreaseFactor(final double maxIncreaseFactor)
+			public AdaptiveBuilder maximumNs(final long maximumNs)
 			{
-				this.maxIncreaseFactor = maxIncreaseFactor;
+				this.maximumNs = maximumNs;
 				return this;
 			}
 			
@@ -361,8 +352,8 @@ public interface StorageHousekeepingController
 				final StorageHousekeepingController.Adaptive controller = new StorageHousekeepingController.Adaptive(
 					this.delegate           ,
 					this.increaseThresholdMs,
-					this.increaseFactor     ,
-					this.maxIncreaseFactor
+					this.increaseAmountNs   ,
+					this.maximumNs
 				);
 				foundation.addEventLogger(controller);
 				return controller;
@@ -379,17 +370,17 @@ public interface StorageHousekeepingController
 		{
 			public static long increaseThresholdMs()
 			{
-				return 5000; // ms
+				return 5000; // 5 seconds
 			}
 			
-			public static double increaseFactor()
+			public static long increaseAmountNs()
 			{
-				return 1.5;
+				return 50_000_000; // 50 ms
 			}
 			
-			public static double maxIncreaseFactor()
+			public static long maximumNs()
 			{
-				return 100.0;
+				return 500_000_000; // half second
 			}
 		}
 		
@@ -403,15 +394,14 @@ public interface StorageHousekeepingController
 		
 		private final StorageHousekeepingController delegate           ;
 		private final long                          increaseThresholdMs;
-		private final double                        increaseFactor     ;
-		private final double                        maxIncreaseFactor  ;
+		private final long                          increaseAmountNs   ;
+		private final long                          maximumNs          ;
 				
 		// mutable adaptive state
 		
 		private long                                lastFinishedGCCycle = 0;
 		private long                                lastIncrease        = 0;
-		private double                              currentFactor       = 1;
-		
+		private long                                currentIncreaseNs   = 0;
 		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -420,15 +410,15 @@ public interface StorageHousekeepingController
 		Adaptive(
 			final StorageHousekeepingController delegate           ,
 			final long                          increaseThresholdMs,
-			final double                        increaseFactor     ,
-			final double                        maxIncreaseFactor
+			final long                          increaseAmountNs   ,
+			final long                          maximumNs
 		)
 		{
 			super();
 			this.delegate            = delegate           ;
 			this.increaseThresholdMs = increaseThresholdMs;
-			this.increaseFactor      = increaseFactor     ;
-			this.maxIncreaseFactor   = maxIncreaseFactor  ;
+			this.increaseAmountNs    = increaseAmountNs   ;
+			this.maximumNs           = maximumNs          ;
 		}
 		
 		
@@ -439,25 +429,29 @@ public interface StorageHousekeepingController
 		private synchronized void reset()
 		{
 			this.lastFinishedGCCycle = this.lastIncrease = System.currentTimeMillis();
-			this.currentFactor = 1;
-			logger.debug("New adaptive housekeeping factor: {}", this.currentFactor);
+			this.internalSetIncrease(0);
 		}
 		
-		private synchronized double factor()
+		private synchronized long increaseNs()
 		{
 			final long now = System.currentTimeMillis();
 			if( now - this.increaseThresholdMs > this.lastFinishedGCCycle
 			&& (this.lastIncrease <= 0 || now - this.lastIncrease > this.increaseThresholdMs)
 			)
 			{
-				this.currentFactor = this.currentFactor <= 1
-					? this.increaseFactor
-					: this.currentFactor * Math.min(this.increaseFactor, this.maxIncreaseFactor)
-				;
 				this.lastIncrease = now;
-				logger.debug("New adaptive housekeeping factor: {}", this.currentFactor);
+				this.internalSetIncrease(this.currentIncreaseNs + this.increaseAmountNs);
 			}
-			return this.currentFactor;
+			return this.currentIncreaseNs;
+		}
+		
+		private void internalSetIncrease(final long increaseNs)
+		{
+			this.currentIncreaseNs = Math.min(
+				this.maximumNs,
+				increaseNs
+			);
+			logger.debug("New adaptive housekeeping increase: {} ns", this.currentIncreaseNs);
 		}
 
 		@Override
@@ -469,25 +463,37 @@ public interface StorageHousekeepingController
 		@Override
 		public long housekeepingTimeBudgetNs()
 		{
-			return (long)(this.delegate.housekeepingTimeBudgetNs() * this.factor());
+			return Math.min(
+				this.maximumNs,
+				this.delegate.housekeepingTimeBudgetNs() + this.increaseNs()
+			);
 		}
 
 		@Override
 		public long garbageCollectionTimeBudgetNs()
 		{
-			return (long)(this.delegate.garbageCollectionTimeBudgetNs() * this.factor());
+			return Math.min(
+				this.maximumNs,
+				this.delegate.garbageCollectionTimeBudgetNs() + this.increaseNs()
+			);
 		}
 
 		@Override
 		public long liveCheckTimeBudgetNs()
 		{
-			return (long)(this.delegate.liveCheckTimeBudgetNs() * this.factor());
+			return Math.min(
+				this.maximumNs,
+				this.delegate.liveCheckTimeBudgetNs() + this.increaseNs()
+			);
 		}
 
 		@Override
 		public long fileCheckTimeBudgetNs()
 		{
-			return (long)(this.delegate.fileCheckTimeBudgetNs() * this.factor());
+			return Math.min(
+				this.maximumNs,
+				this.delegate.fileCheckTimeBudgetNs() + this.increaseNs()
+			);
 		}
 		
 		@Override
