@@ -2,29 +2,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- when using the parent, the extension itself (deployment part) does not work anymore (The extension processor is not called anymore, BuildItems are not available and executed)
-      Due to differences in compiler - not found the root cause yet -->
+    <parent>
+        <groupId>one.microstream</groupId>
+        <artifactId>microstream-integrations-parent</artifactId>
+        <version>08.00.00-MS-GA-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-    <groupId>one.microstream</groupId>
     <artifactId>microstream-integration-quarkus-parent</artifactId>
     <version>08.00.00-MS-GA-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>MicroStream Integrations Quarkus</name>
     <description>MicroStream Quarkus Extension</description>
-
-    <!-- copied from parent -->
-    <licenses>
-        <license>
-            <name>Eclipse Public License - v 2.0</name>
-            <url>https://www.eclipse.org/legal/epl-2.0/</url>
-        </license>
-    </licenses>
-
-    <organization>
-        <name>MicroStream Software</name>
-        <url>https://microstream.one</url>
-    </organization>
 
     <modules>
         <module>deployment</module>
@@ -41,11 +31,8 @@
         <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
         <failsafe-plugin.version>${surefire-plugin.version}</failsafe-plugin.version>
 
-        <license.inceptionYear>2019</license.inceptionYear>
-        <license.licenseName>epl_v2</license.licenseName>
-        <license.licenceFile>${basedir}/LICENSE</license.licenceFile>
-
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -100,54 +87,12 @@
         </pluginManagement>
 
         <plugins>
-            <!-- copied from parent that can't be used -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>2.0.0</version>
-                <configuration>
-                    <overrideFile>false</overrideFile>
-                    <includes>
-                        <include>**/*.java</include>
-                    </includes>
-                    <ignoreNoFileToScan>true</ignoreNoFileToScan>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>add-licence</id>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>update-file-header</goal>
-                            <goal>update-project-license</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>maven-enforcer-plugin</artifactId>
                 <configuration>
-                    <!-- Prevent gpg from using pinentry programs -->
-                    <gpgArguments>
-                        <arg>--pinentry-mode</arg>
-                        <arg>loopback</arg>
-                    </gpgArguments>
+                    <skip>true</skip>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
             </plugin>
         </plugins>
     </build>
