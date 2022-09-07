@@ -1792,7 +1792,6 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 		@Override
 		public F addEventLogger(final StorageEventLogger eventLogger)
 		{
-			this.eventLogger = eventLogger;
 			notNull(eventLogger);
 			
 			this.eventLogger = this.eventLogger != null
