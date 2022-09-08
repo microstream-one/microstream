@@ -262,14 +262,14 @@ public interface StorageHousekeepingController
 	 * 
 	 * @param increaseThresholdMs the threshold in milliseconds of the adaption cycle to calculate new budgets for the housekeeping process
 	 * @param increaseAmountNs the amount in nanoseconds the budgets will be increased each cycle
-	 * @param maximumNs the upper limit of the time budgets in nanoseconds
+	 * @param maximumTimeBudgetNs the upper limit of the time budgets in nanoseconds
 	 * @param foundation the {@link StorageFoundation} the controller is created for
 	 * @return a new {@link StorageHousekeepingController} instance.
 	 */
 	public static StorageHousekeepingController Adaptive(
 		final long                 increaseThresholdMs,
 		final long                 increaseAmountNs   ,
-		final long                 maximumNs          ,
+		final long                 maximumTimeBudgetNs,
 		final StorageFoundation<?> foundation
 	)
 	{
@@ -277,7 +277,7 @@ public interface StorageHousekeepingController
 			StorageHousekeepingController.New(),
 			increaseThresholdMs                ,
 			increaseAmountNs                   ,
-			maximumNs                          ,
+			maximumTimeBudgetNs                ,
 			foundation
 		);
 	}
@@ -294,7 +294,7 @@ public interface StorageHousekeepingController
 	 * @param delegate the wrapped controller delivering the original budget values
 	 * @param increaseThresholdMs the threshold in milliseconds of the adaption cycle to calculate new budgets for the housekeeping process
 	 * @param increaseAmountNs the amount in nanoseconds the budgets will be increased each cycle
-	 * @param maximumNs the upper limit of the time budgets in nanoseconds
+	 * @param maximumTimeBudgetNs the upper limit of the time budgets in nanoseconds
 	 * @param foundation the {@link StorageFoundation} the controller is created for
 	 * @return a new {@link StorageHousekeepingController} instance.
 	 */
@@ -302,7 +302,7 @@ public interface StorageHousekeepingController
 		final StorageHousekeepingController delegate           ,
 		final long                          increaseThresholdMs,
 		final long                          increaseAmountNs   ,
-		final long                          maximumNs          ,
+		final long                          maximumTimeBudgetNs,
 		final StorageFoundation<?>          foundation
 	)
 	{
@@ -310,7 +310,7 @@ public interface StorageHousekeepingController
 			notNull (delegate           ),
 			positive(increaseThresholdMs),
 			positive(increaseAmountNs   ),
-			positive(maximumNs          )
+			positive(maximumTimeBudgetNs)
 		);
 		foundation.addEventLogger(controller);
 		return controller;
@@ -362,10 +362,10 @@ public interface StorageHousekeepingController
 		
 		/**
 		 * 
-		 * @param maximumNs the upper limit of the time budgets in nanoseconds
+		 * @param maximumTimeBudgetNs the upper limit of the time budgets in nanoseconds
 		 * @return this builder instance
 		 */
-		public AdaptiveBuilder maximumNs(long maximumNs);
+		public AdaptiveBuilder maximumTimeBudgetNs(long maximumTimeBudgetNs);
 		
 		/**
 		 * Builds the {@link StorageHousekeepingController} instance given the provided values.
@@ -379,9 +379,9 @@ public interface StorageHousekeepingController
 		public static class Default implements AdaptiveBuilder
 		{
 			private final StorageHousekeepingController delegate            ;
-			private long                                increaseThresholdMs = Adaptive.Defaults.increaseThresholdMs();
-			private long                                increaseAmountNs    = Adaptive.Defaults.increaseAmountNs   ();
-			private long                                maximumNs           = Adaptive.Defaults.maximumNs          ();
+			private long                                increaseThresholdMs = Adaptive.Defaults.defaultAdaptiveHousekeepingIncreaseThresholdMs();
+			private long                                increaseAmountNs    = Adaptive.Defaults.defaultAdaptiveHousekeepingIncreaseAmountNs   ();
+			private long                                maximumTimeBudgetNs = Adaptive.Defaults.defaultAdaptiveHousekeepingMaximumTimeBudgetNs();
 			
 			Default(final StorageHousekeepingController delegate)
 			{
@@ -404,9 +404,9 @@ public interface StorageHousekeepingController
 			}
 			
 			@Override
-			public AdaptiveBuilder maximumNs(final long maximumNs)
+			public AdaptiveBuilder maximumTimeBudgetNs(final long maximumTimeBudgetNs)
 			{
-				this.maximumNs = maximumNs;
+				this.maximumTimeBudgetNs = maximumTimeBudgetNs;
 				return this;
 			}
 			
@@ -417,7 +417,7 @@ public interface StorageHousekeepingController
 					this.delegate           ,
 					this.increaseThresholdMs,
 					this.increaseAmountNs   ,
-					this.maximumNs
+					this.maximumTimeBudgetNs
 				);
 				foundation.addEventLogger(controller);
 				return controller;
@@ -432,17 +432,17 @@ public interface StorageHousekeepingController
 	{
 		public interface Defaults
 		{
-			public static long increaseThresholdMs()
+			public static long defaultAdaptiveHousekeepingIncreaseThresholdMs()
 			{
 				return 5000; // 5 seconds
 			}
 			
-			public static long increaseAmountNs()
+			public static long defaultAdaptiveHousekeepingIncreaseAmountNs()
 			{
 				return 50_000_000; // 50 ms
 			}
 			
-			public static long maximumNs()
+			public static long defaultAdaptiveHousekeepingMaximumTimeBudgetNs()
 			{
 				return 500_000_000; // half second
 			}
@@ -459,7 +459,7 @@ public interface StorageHousekeepingController
 		private final StorageHousekeepingController delegate           ;
 		private final long                          increaseThresholdMs;
 		private final long                          increaseAmountNs   ;
-		private final long                          maximumNs          ;
+		private final long                          maximumTimeBudgetNs;
 				
 		// mutable adaptive state
 		
@@ -475,14 +475,14 @@ public interface StorageHousekeepingController
 			final StorageHousekeepingController delegate           ,
 			final long                          increaseThresholdMs,
 			final long                          increaseAmountNs   ,
-			final long                          maximumNs
+			final long                          maximumNsTimeBudget
 		)
 		{
 			super();
 			this.delegate            = delegate           ;
 			this.increaseThresholdMs = increaseThresholdMs;
 			this.increaseAmountNs    = increaseAmountNs   ;
-			this.maximumNs           = maximumNs          ;
+			this.maximumTimeBudgetNs = maximumNsTimeBudget;
 		}
 		
 		
@@ -512,7 +512,7 @@ public interface StorageHousekeepingController
 		private void internalSetIncrease(final long increaseNs)
 		{
 			this.currentIncreaseNs = Math.min(
-				this.maximumNs,
+				this.maximumTimeBudgetNs,
 				increaseNs
 			);
 			logger.debug("New adaptive housekeeping increase: {} ns", String.format("%,d", this.currentIncreaseNs));
@@ -528,7 +528,7 @@ public interface StorageHousekeepingController
 		public long housekeepingTimeBudgetNs()
 		{
 			return Math.min(
-				this.maximumNs,
+				this.maximumTimeBudgetNs,
 				this.delegate.housekeepingTimeBudgetNs() + this.increaseNs()
 			);
 		}
@@ -537,7 +537,7 @@ public interface StorageHousekeepingController
 		public long garbageCollectionTimeBudgetNs()
 		{
 			return Math.min(
-				this.maximumNs,
+				this.maximumTimeBudgetNs,
 				this.delegate.garbageCollectionTimeBudgetNs() + this.increaseNs()
 			);
 		}
@@ -546,7 +546,7 @@ public interface StorageHousekeepingController
 		public long liveCheckTimeBudgetNs()
 		{
 			return Math.min(
-				this.maximumNs,
+				this.maximumTimeBudgetNs,
 				this.delegate.liveCheckTimeBudgetNs() + this.increaseNs()
 			);
 		}
@@ -555,7 +555,7 @@ public interface StorageHousekeepingController
 		public long fileCheckTimeBudgetNs()
 		{
 			return Math.min(
-				this.maximumNs,
+				this.maximumTimeBudgetNs,
 				this.delegate.fileCheckTimeBudgetNs() + this.increaseNs()
 			);
 		}
