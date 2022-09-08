@@ -515,7 +515,7 @@ public interface StorageHousekeepingController
 				this.maximumTimeBudgetNs,
 				increaseNs
 			);
-			logger.debug("New adaptive housekeeping increase: {} ns", String.format("%,d", this.currentIncreaseNs));
+			logger.debug("Housekeeping time budgets increased by {} ns", String.format("%,d", this.currentIncreaseNs));
 		}
 
 		@Override
