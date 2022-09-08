@@ -451,7 +451,7 @@ public interface StorageHousekeepingController
 				this.maximumNs,
 				increaseNs
 			);
-			logger.debug("New adaptive housekeeping increase: {} ns", this.currentIncreaseNs);
+			logger.debug("New adaptive housekeeping increase: {} ns", String.format("%,d", this.currentIncreaseNs));
 		}
 
 		@Override
