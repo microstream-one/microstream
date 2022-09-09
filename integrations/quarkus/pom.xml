@@ -64,17 +64,6 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>${failsafe-plugin.version}</version>
-                    <configuration>
-                        <systemPropertyVariables>
-                            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                            <maven.home>${maven.home}</maven.home>
-                            <maven.repo>${settings.localRepository}</maven.repo>
-                        </systemPropertyVariables>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${compiler-plugin.version}</version>
                     <configuration>
