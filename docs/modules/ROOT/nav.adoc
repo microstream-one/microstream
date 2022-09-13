@@ -18,7 +18,6 @@
 *** xref:storage:storage-targets/local-file-system.adoc[Local File System]
 *** SQL Databases
 **** xref:storage:storage-targets/sql-databases/mariadb.adoc[MariaDB]
-**** xref:storage:storage-targets/sql-databases/mysql.adoc[MySQL]
 **** xref:storage:storage-targets/sql-databases/oracle.adoc[Oracle]
 **** xref:storage:storage-targets/sql-databases/postgresql.adoc[Postgres]
 **** xref:storage:storage-targets/sql-databases/sqlite.adoc[Sqlite]
@@ -29,10 +28,8 @@
 **** xref:storage:storage-targets/blob-stores/azure-storage.adoc[Azure Storage]
 **** xref:storage:storage-targets/blob-stores/hazelcast.adoc[Hazelcast]
 **** xref:storage:storage-targets/blob-stores/kafka.adoc[Kafka]
-**** xref:storage:storage-targets/blob-stores/mongodb.adoc[MongoDB]
 **** xref:storage:storage-targets/blob-stores/oracle-cloud-object-storage.adoc[Oracle Cloud Object Storage]
 **** xref:storage:storage-targets/blob-stores/oracle-coherence.adoc[Oracle Coherence]
-**** xref:storage:storage-targets/blob-stores/oracle-nosql.adoc[Oracle NoSQL]
 **** xref:storage:storage-targets/blob-stores/redis.adoc[Redis]
 ** xref:storage:storing-data/index.adoc[Storing Data]
 *** xref:storage:storing-data/transactions.adoc[Convenience Methods and Explicit Storing (Transactions)]

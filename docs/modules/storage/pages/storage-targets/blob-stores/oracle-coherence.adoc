@@ -1,12 +1,10 @@
 = Oracle Coherence
 
-include::commons:partial$ee-feature-hint.adoc[]
-
 [source, xml, subs=attributes+]
 ----
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>microstream-enterprise-afs-oracle-coherence</artifactId>
+	<artifactId>microstream-afs-oracle-coherence</artifactId>
 	<version>{maven-version}</version>
 </dependency>
 ----

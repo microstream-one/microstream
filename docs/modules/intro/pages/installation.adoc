@@ -120,43 +120,43 @@ These are the different modules that make up MicroStream.
 |microstream-afs
 |Abstract file system (AFS) layer.
 
-|microstream-enterprise-afs-aws-dynamodb
+|microstream-afs-aws-dynamodb
 |File system implementations for AWS DynamoDB.
 
-|microstream-enterprise-afs-aws-s3
+|microstream-afs-aws-s3
 |File system implementations for AWS S3.
 
-|microstream-enterprise-afs-azure-storage
+|microstream-afs-azure-storage
 |File system implementations for Azure Cloud (Azure Storage).
 
-|microstream-enterprise-afs-blobstore
+|microstream-afs-blobstore
 |Base for all blob store file system implementations.
 
-|microstream-enterprise-afs-hazelcast
+|microstream-afs-hazelcast
 |File system implementation for Hazelcast.
 
-|microstream-enterprise-afs-hibernate
+|microstream-afs-hibernate
 |Generic file system implementation for JPA / Hibernate.
 
-|microstream-enterprise-afs-kafka
+|microstream-afs-kafka
 |File system implementation for Apache Kafka.
 
-|microstream-enterprise-afs-mongodb
+|microstream-afs-mongodb
 |File system implementation for MongoDB.
 
 |microstream-afs-nio
 |File system implementation for the non-blocking IO implementation (java.nio.file) of the JDK.
 
-|microstream-enterprise-afs-oraclecloud-objectstorage
+|microstream-afs-oraclecloud-objectstorage
 |File system implementation for Oracle Cloud Services (Object Storage).
 
-|microstream-enterprise-afs-oracle-coherence
+|microstream-afs-oracle-coherence
 |File system implementation for Oracle Coherence.
 
-|microstream-enterprise-afs-oracle-nosql
+|microstream-afs-oracle-nosql
 |File system implementation for Oracle NoSQL.
 
-|microstream-enterprise-afs-redis
+|microstream-afs-redis
 |File system implementation for Redis.
 
 |microstream-afs-sql
