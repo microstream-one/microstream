@@ -21,6 +21,26 @@ import one.microstream.util.logging.Logging;
  * termination. Otherwise the internal thread will run until all registered stores
  * are disposed by the JVMs garbage collector.
  * </br>
+ * <br>
+ * 
+ * Usage:
+ * <pre>{@code
+final StorerModeController storerModeController = new StorerModeController();
+final EmbeddedStorageManager storage = EmbeddedStorage
+	.Foundation()
+	.onConnectionFoundation(connectionFoundation ->
+		connectionFoundation.setStorerCreator(
+			PersistenceStorerCreatorDeactivateAble.New(
+				connectionFoundation,
+				storerModeController)))
+	.start();
+
+storerModeController.disableWriting();
+
+assertThrows(PersistenceExceptionStorerDeactivated.class,
+	() -> storage.store("Hello World"));
+ * }</pre>
+ * 
  */
 public class StorerModeController
 {
