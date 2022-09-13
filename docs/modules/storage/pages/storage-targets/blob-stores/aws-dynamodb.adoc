@@ -1,12 +1,10 @@
 = AWS DynamoDB
 
-include::commons:partial$ee-feature-hint.adoc[]
-
 [source, xml, subs=attributes+]
 ----
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>microstream-enterprise-afs-aws-dynamodb</artifactId>
+	<artifactId>microstream-afs-aws-dynamodb</artifactId>
 	<version>{maven-version}</version>
 </dependency>
 ----

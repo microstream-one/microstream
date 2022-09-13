@@ -21,8 +21,15 @@ module microstream.afs.sql
 {
 	exports one.microstream.afs.sql.types;
 	
-	requires java.sql;
-	requires microstream.afs;
-	requires microstream.base;
-	requires microstream.configuration;
+	provides one.microstream.configuration.types.ConfigurationBasedCreator
+    	with one.microstream.afs.sql.types.SqlFileSystemCreatorHana,
+	         one.microstream.afs.sql.types.SqlFileSystemCreatorMariaDb,
+	         one.microstream.afs.sql.types.SqlFileSystemCreatorOracle,
+	         one.microstream.afs.sql.types.SqlFileSystemCreatorPostgres,
+	         one.microstream.afs.sql.types.SqlFileSystemCreatorSqlite
+	;
+	
+	requires transitive microstream.afs;
+	requires transitive microstream.configuration;
+	requires transitive java.sql;
 }
