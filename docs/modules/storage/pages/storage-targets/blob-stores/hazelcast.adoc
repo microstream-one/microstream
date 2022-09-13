@@ -1,12 +1,10 @@
 = Hazelcast
 
-include::commons:partial$ee-feature-hint.adoc[]
-
 [source, xml, subs=attributes+]
 ----
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>microstream-enterprise-afs-hazelcast</artifactId>
+	<artifactId>microstream-afs-hazelcast</artifactId>
 	<version>{maven-version}</version>
 </dependency>
 ----
