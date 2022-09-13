@@ -23,7 +23,7 @@ package one.microstream.persistence.types;
 import static one.microstream.X.notNull;
 
 import one.microstream.afs.types.WriteController;
-import one.microstream.persistence.exceptions.PersistenceException;
+import one.microstream.persistence.exceptions.PersistenceExceptionStoringDisabled;
 
 
 @FunctionalInterface
@@ -36,7 +36,7 @@ public interface PersistenceWriteController extends WriteController
 			return;
 		}
 
-		throw new PersistenceException("Storing is not enabled.");
+		throw new PersistenceExceptionStoringDisabled();
 	}
 
 	public default boolean isStoringEnabled()
