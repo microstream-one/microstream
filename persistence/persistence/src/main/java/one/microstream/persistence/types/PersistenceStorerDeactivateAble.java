@@ -57,7 +57,7 @@ public class PersistenceStorerDeactivateAble implements PersistenceStorer {
 	/**
 	 * Enable or disable writing support.
 	 * 
-	 * @param enabledWritese true to enable writing, false to disable.
+	 * @param enabledWrites true to enable writing, false to disable.
 	 */
 	public void enableWrites(final boolean enabledWrites)
 	{
