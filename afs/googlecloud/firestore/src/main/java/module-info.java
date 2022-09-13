@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-afs-sql
+ * microstream-afs-googlecloud-firestore
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,19 +17,21 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.afs.sql
+module microstream.afs.googlecloud.firestore
 {
-	exports one.microstream.afs.sql.types;
+	exports one.microstream.afs.googlecloud.firestore.types;
 	
 	provides one.microstream.configuration.types.ConfigurationBasedCreator
-    	with one.microstream.afs.sql.types.SqlFileSystemCreatorHana,
-	         one.microstream.afs.sql.types.SqlFileSystemCreatorMariaDb,
-	         one.microstream.afs.sql.types.SqlFileSystemCreatorOracle,
-	         one.microstream.afs.sql.types.SqlFileSystemCreatorPostgres,
-	         one.microstream.afs.sql.types.SqlFileSystemCreatorSqlite
+	    with one.microstream.afs.googlecloud.firestore.types.GoogleCloudFirestoreFileSystemCreator
 	;
 	
-	requires transitive microstream.afs;
 	requires transitive microstream.configuration;
-	requires transitive java.sql;
+	requires transitive microstream.afs.blobstore;
+	requires transitive com.google.api.apicommon;
+	requires transitive com.google.auth;
+	requires transitive com.google.auth.oauth2;
+	requires transitive com.google.protobuf;
+	requires transitive gax;
+	requires transitive google.cloud.core;
+	requires transitive google.cloud.firestore;
 }

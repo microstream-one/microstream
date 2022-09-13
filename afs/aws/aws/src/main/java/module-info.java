@@ -1,6 +1,6 @@
 /*-
  * #%L
- * microstream-afs-sql
+ * microstream-afs-aws
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -17,19 +17,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.afs.sql
+module microstream.afs.aws
 {
-	exports one.microstream.afs.sql.types;
-	
-	provides one.microstream.configuration.types.ConfigurationBasedCreator
-    	with one.microstream.afs.sql.types.SqlFileSystemCreatorHana,
-	         one.microstream.afs.sql.types.SqlFileSystemCreatorMariaDb,
-	         one.microstream.afs.sql.types.SqlFileSystemCreatorOracle,
-	         one.microstream.afs.sql.types.SqlFileSystemCreatorPostgres,
-	         one.microstream.afs.sql.types.SqlFileSystemCreatorSqlite
-	;
+	exports one.microstream.afs.aws.types;
 	
 	requires transitive microstream.afs;
 	requires transitive microstream.configuration;
-	requires transitive java.sql;
+	requires transitive software.amazon.awssdk.auth;
+	requires transitive software.amazon.awssdk.awscore;
+	requires transitive software.amazon.awssdk.core;
+	requires transitive software.amazon.awssdk.regions;
+	requires transitive software.amazon.awssdk.utils;
 }
