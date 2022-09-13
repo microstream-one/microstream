@@ -8,30 +8,30 @@
 
 	<parent>
 		<groupId>one.microstream</groupId>
-		<artifactId>microstream-parent</artifactId>
+		<artifactId>microstream-afs-parent</artifactId>
 		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>microstream-afs-parent</artifactId>
+	<artifactId>microstream-afs-aws-parent</artifactId>
 	<packaging>pom</packaging>
-	
-	<name>MicroStream Abstract File System</name>
-	<description>File System Abstraction Project</description>
 
 	<modules>
-		<module>afs</module>
 		<module>aws</module>
-		<module>azure</module>
-		<module>blobstore</module>
-		<module>googlecloud</module>
-		<module>hazelcast</module>
-		<module>kafka</module>
-		<module>nio</module>
-		<module>oracle</module>
-		<module>oraclecloud</module>
-		<module>redis</module>
-		<module>sql</module>
+		<module>dynamodb</module>
+		<module>s3</module>
 	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>2.17.272</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 </project>
