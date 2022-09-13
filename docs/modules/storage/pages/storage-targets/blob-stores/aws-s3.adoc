@@ -1,12 +1,10 @@
 = AWS S3
 
-include::commons:partial$ee-feature-hint.adoc[]
-
 [source, xml, subs=attributes+]
 ----
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>microstream-enterprise-afs-aws-s3</artifactId>
+	<artifactId>microstream-afs-aws-s3</artifactId>
 	<version>{maven-version}</version>
 </dependency>
 ----
