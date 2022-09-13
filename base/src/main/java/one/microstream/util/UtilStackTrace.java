@@ -66,7 +66,7 @@ public class UtilStackTrace
 	/**
 	 * Get the method name of the first method of the stack trace of the supplied throwable.
 	 * 
-	 * @param <T>
+	 * @param <T> type parameter.
 	 * @param throwable that supplies the stack trace.
 	 * @return The Method name as String.
 	 */
