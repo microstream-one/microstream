@@ -1,12 +1,8 @@
 package one.microstream.persistence.types;
 
-import org.slf4j.Logger;
-
-import one.microstream.chars.XChars;
-
 /*-
  * #%L
- * microstream-persistence
+ * MicroStream Persistence
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -24,6 +20,9 @@ import one.microstream.chars.XChars;
  * #L%
  */
 
+import org.slf4j.Logger;
+
+import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.persistence.exceptions.PersistenceException;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyEnum;
