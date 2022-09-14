@@ -9,4 +9,4 @@ asciidoc:
   attributes:
     display-version: '7.0'
     api-version: '7.0'
-    maven-version: '07.00.00-MS-GA'
+    maven-version: '07.01.00-MS-GA'
