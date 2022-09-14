@@ -20,7 +20,7 @@
 * Clarification around cache expiry when using StorageManager https://github.com/microstream-one/microstream/pull/387[[387]]
 * Store reference inside Lazy when Lazy is marked (CDI integration) https://github.com/microstream-one/microstream/pull/386[[386]]
 * Enable microstream cache https://github.com/microstream-one/microstream/pull/351[[351]]
-*  Validate Channel Folders to Channel Count https://github.com/microstream-one/microstream/issues/192[[192]]
+* Validate Channel Folders to Channel Count https://github.com/microstream-one/microstream/issues/192[[192]]
 
 === *Bugfixes*
 
