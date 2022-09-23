@@ -43,5 +43,5 @@ BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
 	// use caching connector
 	S3Connector.Caching(client)
 );
-EmbeddedStorage.start(fileSystem.ensureDirectoryPath("path", "to", "storage");
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("path", "to", "storage"));
 ----
