@@ -266,15 +266,12 @@ public final class BinaryPersistence extends Persistence
 
 			/* (12.11.2019 TM)NOTE:
 			 * One might think that "empty" implementations of a collection interface would have no fields, anyway.
-			 * But no-ho-ho, not when the JDK geniuses are involved.
-			 * The horrible, unexplicably stupidly written code for those classes brainlessly and uselessly
-			 * extends 5 other classes, some of which bring along several times redundant delegate fields.
+			 * But no, those classes uselessly extends 5 other classes, some of which bring along several times
+			 * redundant delegate fields.
 			 * Those fields cause access warnings (and access exceptions in the future) when trying to set them
 			 * accessible in the generic handler implementation.
-			 * To avoid all that hassle and compensate their intern-like design skills when it comes to interfaces
-			 * (and Java in general), it is necessary to explicitly define stateless handlers for those
+			 * To avoid all that hassle , it is necessary to explicitly define stateless handlers for those
 			 * pseudo-stateless empty types with useless fields.
-			 * Rant over. Yes, I feel much better now.
 			 *
 			 * Also, to avoid an erroneous instance creation that BinaryHandlerStateless might perform
 			 * (e.g. when using a dummy object registry as tools might do), the constant instance itself

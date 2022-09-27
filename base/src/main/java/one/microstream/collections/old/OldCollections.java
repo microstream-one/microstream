@@ -40,8 +40,8 @@ import one.microstream.typing.KeyValue;
 import one.microstream.typing.XTypes;
 
 /**
- * Some utility functionality for the old, misdesigned, bugged JDK collections that is so obvious but still
- * missing in the JDK that even got implemented here despite having a vastly superior collections framework.
+ * Some utility functionality for the JDK collections that is so obvious but still
+ * missing in the JDK that got implemented here.
  * 
  * 
  */
