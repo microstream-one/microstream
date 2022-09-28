@@ -60,7 +60,7 @@ public interface Lazy<T> extends Referencing<T>
 	/**
 	 * Returns the original subject referenced by this reference instance.
 	 * If the subject has (lazily) not been loaded, an attempt to do so now is made.
-	 * Any exception occuring during the loading attempt will be passed along without currupting this
+	 * Any exception occurring during the loading attempt will be passed along without corrupting this
 	 * reference instance's internal state.
 	 *
 	 * @return the originally referenced subject, either already-known or lazy-loaded.
@@ -258,7 +258,7 @@ public interface Lazy<T> extends Referencing<T>
 	}
 
 	/**
-	 * Registeres the given lazy reference with the current {@link LazyReferenceManager}.
+	 * Registers the given lazy reference with the current {@link LazyReferenceManager}.
 	 * 
 	 * @param <T> the type of the lazily referenced element
 	 * @param <L> the lazy type
