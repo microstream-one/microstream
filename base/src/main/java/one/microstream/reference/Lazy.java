@@ -132,7 +132,7 @@ public interface Lazy<T> extends Referencing<T>
 	 * 
 	 * @param <T> the type of the lazily referenced element
 	 * @param reference the lazy reference to call the get method on
-	 * @return <code>null</code> or the original return value
+	 * @return null or the original return value
 	 * 
 	 * @see Lazy#get()
 	 */
@@ -170,11 +170,9 @@ public interface Lazy<T> extends Referencing<T>
 	/**
 	 * Static helper method to call the {@link Lazy#clear()} method of the given <code>reference</code> containing a null-check.
 	 * <p>
-	 * If <code>reference</code> is <code>null</code>, <code>null</code> is returned, otherwise the value of <code>reference.clear()</code>.
+	 * If <code>reference</code> is <code>null</code>, it's a no-op, otherwise <code>reference.clear()</code> is called.
 	 * 
-	 * @param <T> the type of the lazily referenced element
 	 * @param reference the lazy reference to call the clear method on
-	 * @return <code>null</code> or the original return value
 	 * 
 	 * @see Lazy#clear()
 	 */
@@ -191,11 +189,10 @@ public interface Lazy<T> extends Referencing<T>
 	/**
 	 * Static helper method to call the {@link Lazy#isStored()} method of the given <code>reference</code> containing a null-check.
 	 * <p>
-	 * If <code>reference</code> is <code>null</code>, <code>null</code> is returned, otherwise the value of <code>reference.isStored()</code>.
+	 * If <code>reference</code> is <code>null</code>, <code>false</code> is returned, otherwise the value of <code>reference.isStored()</code>.
 	 * 
-	 * @param <T> the type of the lazily referenced element
 	 * @param reference the lazy reference to call the isStored method on
-	 * @return <code>null</code> or the original return value
+	 * @return <code>false</code> or the original return value
 	 * 
 	 * @see Lazy#isStored()
 	 */
@@ -212,11 +209,10 @@ public interface Lazy<T> extends Referencing<T>
 	/**
 	 * Static helper method to call the {@link Lazy#isLoaded()} method of the given <code>reference</code> containing a null-check.
 	 * <p>
-	 * If <code>reference</code> is <code>null</code>, <code>null</code> is returned, otherwise the value of <code>reference.isLoaded()</code>.
+	 * If <code>reference</code> is <code>null</code>, <code>false</code> is returned, otherwise the value of <code>reference.isLoaded()</code>.
 	 * 
-	 * @param <T> the type of the lazily referenced element
 	 * @param reference the lazy reference to call the isLoaded method on
-	 * @return <code>null</code> or the original return value
+	 * @return <code>false</code> or the original return value
 	 * 
 	 * @see Lazy#get()
 	 */
