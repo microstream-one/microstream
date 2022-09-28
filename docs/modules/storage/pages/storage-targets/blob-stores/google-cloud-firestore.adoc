@@ -39,7 +39,7 @@ storage-filesystem.googlecloud.firestore.project-id=my-project-id
 |The database ID to use with this Firestore client.
 
 |emulator-host
-|Tets the emulator host to use with this Firestore client.
+|The emulator host to use with this Firestore client.
 
 |host
 |The service host.
@@ -48,7 +48,7 @@ storage-filesystem.googlecloud.firestore.project-id=my-project-id
 |The project ID. If no project ID is set, the project ID from the environment will be used.
 
 |quota-project-id
-|The quotaProjectId that specifies the project used for quota and billing purposes.
+|The project ID that specifies the project used for quota and billing purposes.
 
 |credentials.type
 |The type of the credentials provider. Supported values are:
