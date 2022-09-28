@@ -1,0 +1,66 @@
+= Hana
+
+[source, xml, subs=attributes+]
+----
+<dependency>
+	<groupId>one.microstream</groupId>
+	<artifactId>microstream-afs-sql</artifactId>
+	<version>{maven-version}</version>
+</dependency>
+<dependency>
+	<groupId>com.sap.cloud.db.jdbc</groupId>
+	<artifactId>ngdbc</artifactId>
+	<version>2.14.7</version>
+</dependency>
+----
+
+[source, java]
+----
+HanaDataSource dataSource = new HanaDataSource();
+dataSource.setURL("jdbc:sap://dummy_host:0/?KEY=USER1UserKey&encrypt=true&validateCertificate=false");
+dataSource.setUser("user");
+dataSource.setPassword("secret");
+
+SqlFileSystem fileSystem = SqlFileSystem.New(
+	SqlConnector.Caching(
+		SqlProviderHana.New(dataSource)
+	)
+);
+
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("microstream_storage"));
+----
+
+== Configuration
+
+When using xref:configuration/index.adoc#external-configuration[external configuration] Hana can be set as follows.
+Please note that you have to define a data source provider.
+
+[source, text, title="microstream-storage.properties"]
+----
+storage-filesystem.sql.hana.data-source-provider=com.sample.MyDataSourceProvider
+storage-filesystem.sql.hana.store-type=row|column
+storage-filesystem.sql.hana.catalog=mycatalog
+storage-filesystem.sql.hana.schema=myschema
+storage-filesystem.sql.hana.url=jdbc:sap://dummy_host:0/?KEY=USER1UserKey&encrypt=true&validateCertificate=false
+storage-filesystem.sql.hana.user=username
+storage-filesystem.sql.hana.password=secret
+----
+
+[source, java, title="MyDataSourceProvider.java"]
+----
+package com.sample;
+
+import one.microstream.afs.sql.types.SqlDataSourceProvider
+
+public class MyDataSourceProvider implements SqlDataSourceProvider
+{
+	public DataSource provideDataSource(Configuration configuration)
+	{
+		String url      = configuration.get("url");
+		String user     = configuration.get("user");
+		String password = configuration.get("password");
+		// TODO: return data source of your choice, e.g. from a connection pool
+	}
+}
+----
+
