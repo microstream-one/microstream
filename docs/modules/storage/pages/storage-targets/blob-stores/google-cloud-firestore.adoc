@@ -1,0 +1,70 @@
+= Google Cloud Firestore
+
+[source, xml, subs=attributes+]
+----
+<dependency>
+	<groupId>one.microstream</groupId>
+	<artifactId>microstream-afs-googlecloud-firestore</artifactId>
+	<version>{maven-version}</version>
+</dependency>
+----
+
+[source, java]
+----
+Firestore firestore = ...
+BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
+	GoogleCloudFirestoreConnector.Caching(client)
+);
+EmbeddedStorage.start(fileSystem.ensureDirectoryPath("microstream_storage"));
+----
+
+== Configuration
+
+When using xref:configuration/index.adoc#external-configuration[external configuration] Google Cloud Firestore can be set as follows.
+
+[source, text, title="microstream-storage.properties"]
+----
+storage-filesystem.googlecloud.firestore.credentials.type=default
+storage-filesystem.googlecloud.firestore.database-id=my-database-id
+storage-filesystem.googlecloud.firestore.project-id=my-project-id
+----
+
+== Supported properties
+[options="header", cols="1,2a"]
+|===
+|Property   
+|Description   
+//-------------
+|database-id
+|The database ID to use with this Firestore client.
+
+|emulator-host
+|The emulator host to use with this Firestore client.
+
+|host
+|The service host.
+
+|project-id
+|The project ID. If no project ID is set, the project ID from the environment will be used.
+
+|quota-project-id
+|The project ID that specifies the project used for quota and billing purposes.
+
+|credentials.type
+|The type of the credentials provider. Supported values are:
+
+* "none" +
+No credentials are used.
+* "input-stream" +
+Path of a JSON file stream. The stream can contain a Service Account key file in JSON format from the Google DevelopersConsole or a stored user credential using the format supported by the Cloud SDK.
+* "default" +
+Returns the Application Default Credentials which are used to identify and authorize thewhole application.  The following are searched (in order) to find the Application DefaultCredentials: 
+. Credentials file pointed to by the GOOGLE_APPLICATION_CREDENTIALS environment variable 
+. Credentials provided by the Google Cloud SDK.
+.. gcloud auth application-default login for user account credentials. 
+.. gcloud auth application-default login --impersonate-service-account forimpersonated service account credentials. 
+. Google App Engine built-in credentials 
+. Google Cloud Shell built-in credentials 
+. Google Compute Engine built-in credentials 
+
+|===

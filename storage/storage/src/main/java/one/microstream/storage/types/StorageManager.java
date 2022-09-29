@@ -118,7 +118,9 @@ public interface StorageManager extends StorageController, StorageConnection, Da
 	 * For example for the default behavior (as implemented in {@link #createLazyStorer()}, all recursively referenced
 	 * instances that are not yet known to the persistent context (i.e. have an associated objectId registered in the
 	 * context's {@link PersistenceObjectRegistry}) are stored as well.
-	 * 
+	 * If the default storing logic is "lazy" and the current root object has been persisted already,
+	 * this call may not update the whole graph!
+	 *
 	 * @return the root instance's objectId.
 	 */
 	public long storeRoot();
