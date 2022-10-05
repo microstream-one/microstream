@@ -38,7 +38,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
-		<maven.compiler.compilerId>eclipse</maven.compiler.compilerId>
+		<maven.compiler.compilerId>javac</maven.compiler.compilerId>
+		<maven.version.minimum>3.8.1</maven.version.minimum>
+		<maven.java.version.minimum>11</maven.java.version.minimum>
 		<org.owasp.depencency.check.version>6.1.6</org.owasp.depencency.check.version>
 		<org.eclipse.jdt.ecj.version>3.29.0</org.eclipse.jdt.ecj.version>
 		<license.inceptionYear>2019</license.inceptionYear>
@@ -131,6 +133,29 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>enforce-env</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>${maven.version.minimum}</version>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>${maven.java.version.minimum}</version>
+								</requireJavaVersion>
+							</rules>
+							<fail>true</fail>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -138,26 +163,6 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.10.1</version>
-					<executions>
-						<execution>
-							<id>default-compile</id>
-							<configuration>
-								<compilerArgument>-proc:none</compilerArgument>
-							</configuration>
-						</execution>
-					</executions>
-					<dependencies>
-						<dependency>
-							<groupId>org.codehaus.plexus</groupId>
-							<artifactId>plexus-compiler-eclipse</artifactId>
-							<version>2.11.1</version>
-						</dependency>
-						<dependency>
-							<groupId>org.eclipse.jdt</groupId>
-							<artifactId>ecj</artifactId>
-							<version>${org.eclipse.jdt.ecj.version}</version>
-						</dependency>
-					</dependencies>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.felix</groupId>
@@ -293,26 +298,33 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>3.0.0</version>
-					<executions>
-						<execution>
-							<id>enforce-files-exist</id>
-							<goals>
-								<goal>enforce</goal>
-							</goals>
-							<configuration>
-								<rules>
-									<requireFilesExist>
-										<message>The module-info is not present</message>
-										<files>
-											<file>${project.basedir}/src/main/java/module-info.java</file>
-										</files>
-									</requireFilesExist>
-								</rules>
-								<fail>true</fail>
-							</configuration>
-						</execution>
-					</executions>
+					<version>3.0.0</version>	
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.5.2</version>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>3.0.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.6</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.22.2</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -384,7 +396,26 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-enforcer-plugin</artifactId>
-					</plugin>
+						<executions>
+							<execution>
+								<id>enforce-files-exist</id>
+								<goals>
+									<goal>enforce</goal>
+								</goals>
+								<configuration>
+									<rules>
+										<requireFilesExist>
+											<message>The module-info is not present</message>
+											<files>
+												<file>${project.basedir}/src/main/java/module-info.java</file>
+											</files>
+										</requireFilesExist>
+									</rules>
+									<fail>true</fail>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin> 
 				</plugins>
 			</build>
 		</profile>

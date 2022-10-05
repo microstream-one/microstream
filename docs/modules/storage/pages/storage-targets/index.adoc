@@ -21,40 +21,27 @@ NioFileSystem fileSystem = NioFileSystem.New();
 EmbeddedStorage.start(fileSystem.ensureDirectoryPath("path", "to", "storage"));
 ----
 
-The file system API is the same for all connectors, like for MySQL. +
+The file system API is the same for all connectors, like for S3. +
 This is part of another module.
 
 [source, xml, subs=attributes+]
 ----
-<!-- sql file system -->
+<!-- S3 file system -->
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>microstream-enterprise-filesystem-sql</artifactId>
+	<artifactId>microstream-afs-aws-s3</artifactId>
 	<version>{maven-version}</version>
-</dependency>
-<!-- driver of your choice -->
-<dependency>
-	<groupId>mysql</groupId>
-	<artifactId>mysql-connector-java</artifactId>
-	<version>8.0.21</version>
 </dependency>
 ----
 
 [source, java]
 ----
-// create JDBC data source
-MysqlDataSource dataSource = new MysqlDataSource();
-dataSource.setUrl("jdbc:mysql://host:3306/mydb");
-dataSource.setUser("user");
-dataSource.setPassword("secret");
+// create S3 client
+S3Client client = ...;
 
-// create sql file system
-SqlFileSystem fileSystem = SqlFileSystem.New(
+BlobStoreFileSystem fileSystem = BlobStoreFileSystem.New(
 	// use caching connector
-	SqlConnector.Caching(
-		SqlProviderMySql.New(dataSource)
-	)
+	S3Connector.Caching(client)
 );
-
 EmbeddedStorage.start(fileSystem.ensureDirectoryPath("path", "to", "storage"));
 ----

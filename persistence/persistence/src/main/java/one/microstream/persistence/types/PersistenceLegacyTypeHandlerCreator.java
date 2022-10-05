@@ -1,12 +1,8 @@
 package one.microstream.persistence.types;
 
-import org.slf4j.Logger;
-
-import one.microstream.chars.XChars;
-
 /*-
  * #%L
- * microstream-persistence
+ * MicroStream Persistence
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -24,8 +20,12 @@ import one.microstream.chars.XChars;
  * #L%
  */
 
+import org.slf4j.Logger;
+
+import one.microstream.chars.XChars;
 import one.microstream.collections.BulkList;
 import one.microstream.persistence.exceptions.PersistenceException;
+import one.microstream.persistence.exceptions.PersistenceExceptionTypeConsistencyEnum;
 import one.microstream.reflect.XReflect;
 import one.microstream.util.logging.Logging;
 import one.microstream.util.similarity.Similarity;
@@ -83,8 +83,23 @@ public interface PersistenceLegacyTypeHandlerCreator<D>
 				{
 					final PersistenceTypeDefinitionMember targetCurrentConstant = match.targetElement();
 					final long targetOrdinal = currentConstantMembers.indexOf(targetCurrentConstant);
+						
 					if(targetOrdinal >= 0)
 					{
+						//allow ordinal changes only by explicit manual mappings
+						if(targetOrdinal != ordinal)
+						{
+							if(match.similarity() != PersistenceLegacyTypeMapper.Defaults.defaultExplicitMappingSimilarity())
+							{
+								throw new PersistenceExceptionTypeConsistencyEnum(
+									targetCurrentConstant.identifier(),
+									result.currentTypeHandler().typeName(),
+									ordinal,
+									targetOrdinal
+								);
+							}
+						}
+								
 						ordinalMap[ordinal] = Integer.valueOf((int)targetOrdinal);
 					}
 					else

@@ -126,3 +126,8 @@ Since neither of those three methods can know the concrete type of the root inst
 So, to avoid annoying and dangerous casts, it is best to keep a direct reference to a custom root instance as shown in the code snippet above.
 
 Likewise, `storageManager.storeRoot();` works for both variants, so there is no need to worry about how to store which one.
+
+[IMPORTANT]
+====
+Subsequent calls to `storageManager.storeRoot()` may not update the whole object graph! `storageManager.storeRoot()` uses the default xref:storing-data/lazy-eager-full.adoc[lazy] storing behavior.
+====

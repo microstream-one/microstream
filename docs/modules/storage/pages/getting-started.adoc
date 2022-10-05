@@ -10,11 +10,6 @@
 		<artifactId>microstream-storage-embedded</artifactId>
 		<version>{maven-version}</version>
 	</dependency>
-	<dependency>
-		<groupId>one.microstream</groupId>
-		<artifactId>microstream-storage-embedded-configuration</artifactId>
-		<version>{maven-version}</version>
-	</dependency>
 </dependencies>
 ----
 
@@ -114,6 +109,17 @@ storageManager.storeRoot();
 
 This call is all that is necessary to store data in the simplest case.
 
+[TIP]
+====
+`storageManager.storeRoot()` is a special case method that always stores the root object.
+If you want to store any other object than the root itself, just call `storageManager.store(modifiedObject)`
+====
+
+[IMPORTANT]
+====
+Subsequent calls to `storageManager.storeRoot()` may not update the whole object graph! `storageManager.storeRoot()` uses the default xref:storing-data/lazy-eager-full.adoc[lazy] storing behavior.
+====
+
 == Stopping a Live Database
 
 Best practice is to safely shutdown the storage manager by simply calling:
@@ -122,12 +128,6 @@ Best practice is to safely shutdown the storage manager by simply calling:
 ----
 storageManager.shutdown();
 ----
-
-[TIP]
-====
-`storageManager.storeRoot()` is a special case method that always stores the root object.
-If you want to store any other object than the root itself, just call `storageManager.store(modifiedObject)`
-====
 
 [TIP]
 ====

@@ -1,5 +1,33 @@
 = Changelog
 
+== 7.1
+
+=== *Features*
+
+* New public AFS connectors
+** AWS S3 and DynamoDB
+** Azure Storage
+** Google Cloud Firestore
+** Hazelcast
+** Kafka
+** Oracle Coherence, DB and Cloud Object Store
+** Redis
+** Hana DB
+* Finalized storage garbage collector, activated by default https://github.com/microstream-one/microstream/pull/402[[402]]
+* Improve CDI integration https://github.com/microstream-one/microstream/issues/377[[377]]
+* CDI Integration: Allow customization of the EmbeddedStorageFoundation before StorageManager is created https://github.com/microstream-one/microstream/issues/388[[388]]https://github.com/microstream-one/microstream/pull/398[[398]]
+* Spring Boot integration: Add interceptor logic to store marked objects at end of method https://github.com/microstream-one/microstream/issues/384[[384]]
+* Clarification around cache expiry when using StorageManager https://github.com/microstream-one/microstream/pull/387[[387]]
+* Store reference inside Lazy when Lazy is marked (CDI integration) https://github.com/microstream-one/microstream/pull/386[[386]]
+* Enable microstream cache https://github.com/microstream-one/microstream/pull/351[[351]]
+* Validate Channel Folders to Channel Count https://github.com/microstream-one/microstream/issues/192[[192]]
+
+=== *Bugfixes*
+
+* Remove @Store from CDI integration https://github.com/microstream-one/microstream/pull/397[[397]]https://github.com/microstream-one/microstream/issues/394[[394]]
+* Fix CDI integration cache configuration keys https://github.com/microstream-one/microstream/pull/395[[395]]
+* Active the test in the CDI extension https://github.com/microstream-one/microstream/pull/354[[354]]
+
 == 7.0
 
 === *Features*
