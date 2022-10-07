@@ -72,8 +72,12 @@ public class UtilStackTrace
 	 */
 	public static <T extends Throwable> String getThrowingMethodName(final T throwable)
 	{
-		return throwable.getStackTrace()[0]
-			.getMethodName();
+		final StackTraceElement[] stackTrace = throwable.getStackTrace();
+		if(stackTrace.length > 0)
+		{
+			return stackTrace[0].getMethodName();
+		}
+		return "unkown method name";
 	}
 
 }
