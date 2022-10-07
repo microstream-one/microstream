@@ -27,7 +27,7 @@ package one.microstream.persistence.types;
  * instance.
  *
  */
-public class PersistenceStorerDeactivateAble implements PersistenceStorer {
+public class PersistenceStorerDeactivatable implements PersistenceStorer {
 
 	///////////////////////////////////////////////////////////////////////////
 	// instance fields //
@@ -42,7 +42,7 @@ public class PersistenceStorerDeactivateAble implements PersistenceStorer {
 	// constructors //
 	/////////////////
 	
-	public PersistenceStorerDeactivateAble(final PersistenceStorer persistenceStorer)
+	public PersistenceStorerDeactivatable(final PersistenceStorer persistenceStorer)
 	{
 		this.fullFeaturedStorer = persistenceStorer;
 		this.noOpStorer = new PersistenceStorerDeactivated();

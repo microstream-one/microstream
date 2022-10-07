@@ -32,7 +32,7 @@ import one.microstream.util.logging.Logging;
  * The StorerModeController provides API to control the write mode of
  * registered PersistenceStorer implementations from a central instance.
  * <br>
- * Storers are register with {@link #register(PersistenceStorerDeactivateAble)}.
+ * Storers are register with {@link #register(PersistenceStorerDeactivatable)}.
  * They will be registers using {@code WeakReferences}. That will be checked and
  * cleaned up periodically.
  * <br>
@@ -49,7 +49,7 @@ final EmbeddedStorageManager storage = EmbeddedStorage
 	.Foundation()
 	.onConnectionFoundation(connectionFoundation ->
 		connectionFoundation.setStorerCreator(
-			PersistenceStorerCreatorDeactivateAble.New(
+			PersistenceStorerCreatorDeactivatable.New(
 				connectionFoundation,
 				storerModeController)))
 	.start();
@@ -69,7 +69,7 @@ public class StorerModeController
 	// instance fields //
 	////////////////////
 	
-	private XList<WeakReference<PersistenceStorerDeactivateAble>> registry;
+	private XList<WeakReference<PersistenceStorerDeactivatable>> registry;
 	private boolean                                               enabledWrites = true;
 	private CleaningThread                                        cleaningThread;
 	private boolean                                               active;
@@ -144,12 +144,12 @@ public class StorerModeController
 	}
 	
 	/**
-	 * Register a PersistenceStorerDeactivateAble instance to the StorerModeController.
+	 * Register a PersistenceStorerDeactivatable instance to the StorerModeController.
 	 * 
-	 * @param storer the PersistenceStorerDeactivateAble to be registered.
+	 * @param storer the PersistenceStorerDeactivatable to be registered.
 	 * @return the registered instance.
 	 */
-	public synchronized PersistenceStorerDeactivateAble register(final PersistenceStorerDeactivateAble storer)
+	public synchronized PersistenceStorerDeactivatable register(final PersistenceStorerDeactivatable storer)
 	{
 		this.registry.add(new WeakReference<>(storer));
 		storer.enableWrites(this.enabledWrites);
@@ -158,7 +158,7 @@ public class StorerModeController
 	}
 	
 	/**
-	 * Returns true if there are any registered PersistenceStorerDeactivateAble instances.
+	 * Returns true if there are any registered PersistenceStorerDeactivatable instances.
 	 * 
 	 * @return true or false.
 	 */
@@ -172,7 +172,7 @@ public class StorerModeController
 	 */
 	public synchronized void clean()
 	{
-		final XList<WeakReference<PersistenceStorerDeactivateAble>> newRegistry = BulkList.New();
+		final XList<WeakReference<PersistenceStorerDeactivatable>> newRegistry = BulkList.New();
 		
 		this.registry.forEach( e ->
 		{
@@ -242,7 +242,7 @@ public class StorerModeController
 	{
 		this.registry.forEach( r ->
 		{
-			final PersistenceStorerDeactivateAble storer = r.get();
+			final PersistenceStorerDeactivatable storer = r.get();
 			if(storer != null) {
 				storer.enableWrites();
 			}
@@ -256,7 +256,7 @@ public class StorerModeController
 	{
 		this.registry.forEach( r ->
 		{
-			final PersistenceStorerDeactivateAble storer = r.get();
+			final PersistenceStorerDeactivatable storer = r.get();
 			if(storer != null) {
 				storer.disableWrites();
 			}

@@ -27,20 +27,20 @@ import one.microstream.util.BufferSizeProviderIncremental;
 import one.microstream.util.logging.Logging;
 
 /**
- * PeristenceStorer creator that creates {@link one.microstream.persistence.types.PersistenceStorerDeactivateAble#PersistenceStorerDeactivateAble PersistenceStorerDeactivateAble}
+ * PeristenceStorer creator that creates {@link one.microstream.persistence.types.PersistenceStorerDeactivatable#PersistenceStorerDeactivatable PersistenceStorerDeactivatable}
  * instances.
  * 
  */
-public class PersistenceStorerCreatorDeactivateAble<D> implements PersistenceStorer.Creator<D>
+public class PersistenceStorerCreatorDeactivatable<D> implements PersistenceStorer.Creator<D>
 {
-	private final static Logger logger = Logging.getLogger(PersistenceStorerCreatorDeactivateAble.class);
+	private final static Logger logger = Logging.getLogger(PersistenceStorerCreatorDeactivatable.class);
 	
-	public static <D> PersistenceStorerCreatorDeactivateAble<D> New(
+	public static <D> PersistenceStorerCreatorDeactivatable<D> New(
 		final PersistenceFoundation<D,?> connectionFoundation,
 		final StorerModeController       storerModeController
 	)
 	{
-		return new PersistenceStorerCreatorDeactivateAble<>(
+		return new PersistenceStorerCreatorDeactivatable<>(
 			connectionFoundation.getStorerCreator(),
 			storerModeController
 		);
@@ -59,7 +59,7 @@ public class PersistenceStorerCreatorDeactivateAble<D> implements PersistenceSto
 	// constructors //
 	/////////////////
 
-	public PersistenceStorerCreatorDeactivateAble(
+	public PersistenceStorerCreatorDeactivatable(
 		final PersistenceStorer.Creator<D> creator,
 		final StorerModeController         storerModeController
 	)
@@ -86,7 +86,7 @@ public class PersistenceStorerCreatorDeactivateAble<D> implements PersistenceSto
 		logger.debug("Creating lazy storer");
 		
 		return this.storerModeController.register(
-			new PersistenceStorerDeactivateAble(
+			new PersistenceStorerDeactivatable(
 				this.creator.createLazyStorer(
 					typeManager,
 					objectManager,
@@ -107,7 +107,7 @@ public class PersistenceStorerCreatorDeactivateAble<D> implements PersistenceSto
 		logger.debug("Creating eager storer");
 		
 		return this.storerModeController.register(
-			new PersistenceStorerDeactivateAble(
+			new PersistenceStorerDeactivatable(
 				this.creator.createEagerStorer(
 					typeManager,
 					objectManager,
