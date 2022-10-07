@@ -36,13 +36,13 @@ public class PersistenceStorerCreatorDeactivatable<D> implements PersistenceStor
 	private final static Logger logger = Logging.getLogger(PersistenceStorerCreatorDeactivatable.class);
 	
 	public static <D> PersistenceStorerCreatorDeactivatable<D> New(
-		final PersistenceFoundation<D,?> connectionFoundation,
-		final StorerModeController       storerModeController
+		final PersistenceFoundation<D,?>             connectionFoundation,
+		final PersistenceStorerDeactivatableRegistry storerRegistry
 	)
 	{
 		return new PersistenceStorerCreatorDeactivatable<>(
 			connectionFoundation.getStorerCreator(),
-			storerModeController
+			storerRegistry
 		);
 	}
 
@@ -51,8 +51,8 @@ public class PersistenceStorerCreatorDeactivatable<D> implements PersistenceStor
 	// instance fields //
 	////////////////////
 
-	private final PersistenceStorer.Creator<D> creator;
-	private final StorerModeController         storerModeController;
+	private final PersistenceStorer.Creator<D>           creator;
+	private final PersistenceStorerDeactivatableRegistry storerRegistry;
 
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -60,13 +60,13 @@ public class PersistenceStorerCreatorDeactivatable<D> implements PersistenceStor
 	/////////////////
 
 	public PersistenceStorerCreatorDeactivatable(
-		final PersistenceStorer.Creator<D> creator,
-		final StorerModeController         storerModeController
+		final PersistenceStorer.Creator<D>           creator,
+		final PersistenceStorerDeactivatableRegistry storerModeController
 	)
 	{
 		super();
-		this.creator              = creator;
-		this.storerModeController = storerModeController;
+		this.creator        = creator;
+		this.storerRegistry = storerModeController;
 	}
 	
 	
@@ -85,7 +85,7 @@ public class PersistenceStorerCreatorDeactivatable<D> implements PersistenceStor
 	{
 		logger.debug("Creating lazy storer");
 		
-		return this.storerModeController.register(
+		return this.storerRegistry.register(
 			new PersistenceStorerDeactivatable(
 				this.creator.createLazyStorer(
 					typeManager,
@@ -106,7 +106,7 @@ public class PersistenceStorerCreatorDeactivatable<D> implements PersistenceStor
 	{
 		logger.debug("Creating eager storer");
 		
-		return this.storerModeController.register(
+		return this.storerRegistry.register(
 			new PersistenceStorerDeactivatable(
 				this.creator.createEagerStorer(
 					typeManager,

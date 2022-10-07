@@ -37,7 +37,7 @@ import one.microstream.util.logging.Logging;
  * cleaned up periodically.
  * <br>
  * <br>
- * As this class starts in internal thread use the {@link #shutdown()} call to speed up
+ * As this class starts an internal thread use the {@link #shutdown()} call to speed up
  * termination. Otherwise the internal thread will run until all registered stores
  * are disposed by the JVMs garbage collector.
  * <br>
@@ -61,7 +61,7 @@ assertThrows(PersistenceExceptionStorerDeactivated.class,
  * }</pre>
  * 
  */
-public class StorerModeController
+public class StorerModeController implements PersistenceStorerDeactivatableRegistry
 {
 	private final static Logger logger = Logging.getLogger(StorerModeController.class);
 	
@@ -70,9 +70,9 @@ public class StorerModeController
 	////////////////////
 	
 	private XList<WeakReference<PersistenceStorerDeactivatable>> registry;
-	private boolean                                               enabledWrites = true;
-	private CleaningThread                                        cleaningThread;
-	private boolean                                               active;
+	private boolean                                              enabledWrites = true;
+	private CleaningThread                                       cleaningThread;
+	private boolean                                              active;
 
 	/**
 	 * A helper thread that iterates all registered storers and removes them if
@@ -143,33 +143,22 @@ public class StorerModeController
 		this.active = false;
 	}
 	
-	/**
-	 * Register a PersistenceStorerDeactivatable instance to the StorerModeController.
-	 * 
-	 * @param storer the PersistenceStorerDeactivatable to be registered.
-	 * @return the registered instance.
-	 */
-	public synchronized PersistenceStorerDeactivatable register(final PersistenceStorerDeactivatable storer)
+	@Override
+	public synchronized PersistenceStorerDeactivatable register(final PersistenceStorerDeactivatable deactivatableStorer)
 	{
-		this.registry.add(new WeakReference<>(storer));
-		storer.setWriteEnabled(this.enabledWrites);
+		this.registry.add(new WeakReference<>(deactivatableStorer));
+		deactivatableStorer.setWriteEnabled(this.enabledWrites);
 		this.startCleaningTask();
-		return storer;
+		return deactivatableStorer;
 	}
 	
-	/**
-	 * Returns true if there are any registered PersistenceStorerDeactivatable instances.
-	 * 
-	 * @return true or false.
-	 */
+	@Override
 	public synchronized boolean hasRegisteredStorers()
 	{
 		return this.registry.size() > 0;
 	}
 		
-	/**
-	 * Cleanup all no more valid (garbage collected) Storer instances.
-	 */
+	@Override
 	public synchronized void clean()
 	{
 		final XList<WeakReference<PersistenceStorerDeactivatable>> newRegistry = BulkList.New();
