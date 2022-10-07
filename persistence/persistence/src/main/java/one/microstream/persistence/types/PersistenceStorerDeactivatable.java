@@ -57,11 +57,11 @@ public class PersistenceStorerDeactivatable implements PersistenceStorer {
 	/**
 	 * Enable or disable writing support.
 	 * 
-	 * @param enabledWrites true to enable writing, false to disable.
+	 * @param enableWrites true to enable writing, false to disable.
 	 */
-	public void enableWrites(final boolean enabledWrites)
+	public void setWriteEnabled(final boolean enableWrites)
 	{
-		if(enabledWrites)
+		if(enableWrites)
 		{
 			this.actual = this.fullFeaturedStorer;
 		}
@@ -69,6 +69,16 @@ public class PersistenceStorerDeactivatable implements PersistenceStorer {
 		{
 			this.actual = this.noOpStorer;
 		}
+	}
+	
+	/**
+	 * Check if writing support is enabled.
+	 * 
+	 * @return true if writes are enabled
+	 */
+	public boolean isWriteEnabled()
+	{
+		return this.actual == this.fullFeaturedStorer;
 	}
 	
 	/**
