@@ -143,6 +143,53 @@ public class StorerModeController implements PersistenceStorerDeactivatableRegis
 		this.active = false;
 	}
 	
+	/**
+	 * Enable or disable writing support for all registered storers.
+	 * 
+	 * @param enableWrites true to enable writing, false to disable.
+	 */
+	public void setWriteEnabled(final boolean enableWrites)
+	{
+		if(enableWrites)
+		{
+			this.enableWrites();
+		}
+		else
+		{
+			this.disableWrites();
+		}
+	}
+	
+	/**
+	 * Gets the current state if writing is allowed or not.
+	 * 
+	 * @return true if writing is allowed, otherwise false.
+	 */
+	public synchronized boolean isWriteEnabled()
+	{
+		return this.enabledWrites;
+	}
+	
+	/**
+	 * Switch all registered storers to the writing mode.
+	 * 
+	 */
+	public synchronized void enableWrites()
+	{
+		this.enabledWrites  = true;
+		this.enableAll();
+	}
+	
+	/**
+	 * Switch all registered storers to the read only mode.
+	 * 
+	 */
+	public synchronized void disableWrites()
+	{
+		this.enabledWrites = false;
+		this.disableAll();
+	}
+		
 	@Override
 	public synchronized PersistenceStorerDeactivatable register(final PersistenceStorerDeactivatable deactivatableStorer)
 	{
@@ -175,41 +222,7 @@ public class StorerModeController implements PersistenceStorerDeactivatableRegis
 		this.registry = newRegistry;
 		logger.trace("Active storers after cleanup: {}", this.registry.size());
 	}
-	
-	/**
-	 * Switch all registered storers to the writing mode.
-	 * 
-	 * @return true if writing is enabled, otherwise false.
-	 */
-	public synchronized boolean enableWriting()
-	{
-		this.enabledWrites  = true;
-		this.enableAll();
-		return this.enabledWrites;
-	}
-	
-	/**
-	 * Switch all registered storers to the read only mode.
-	 * 
-	 * @return true if writing is disabled, otherwise false.
-	 */
-	public synchronized boolean disableWriting()
-	{
-		this.enabledWrites = false;
-		this.disableAll();
-		return !this.enabledWrites;
-	}
-	
-	/**
-	 * Gets the current state if writing is allowed or not.
-	 * 
-	 * @return true if writing is allowed, otherwise false.
-	 */
-	public synchronized boolean enabled()
-	{
-		return this.enabledWrites;
-	}
-		
+				
 	/**
 	 * Start the internal thread that periodically checks for deceased
 	 * storers.
