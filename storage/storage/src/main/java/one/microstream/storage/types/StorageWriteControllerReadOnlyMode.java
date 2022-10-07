@@ -79,7 +79,7 @@ public class StorageWriteControllerReadOnlyMode implements StorageWriteControlle
 		this.readOnlyController = WriteController.Disabled();
 		this.writeController = this.readOnlyController;
 		
-		logger.info("Created SwitchableStorageWriteController with Storage read-only mode enabled: {}!",
+		logger.info("Created StorageWriteControllerReadOnlyMode with Storage read-only mode enabled: {}!",
 			this.writeController == this.readOnlyController
 		);
 	}
@@ -89,9 +89,9 @@ public class StorageWriteControllerReadOnlyMode implements StorageWriteControlle
 	// methods //
 	////////////
 	
-	public void enableReadOnly(final boolean enableReadOnly)
+	public void setReadOnly(final boolean readOnly)
 	{
-		if(enableReadOnly)
+		if(readOnly)
 		{
 			this.writeController = this.readOnlyController;
 		}
@@ -103,7 +103,7 @@ public class StorageWriteControllerReadOnlyMode implements StorageWriteControlle
 		logger.info("Read-only mode enabled: {}", this.writeController == this.readOnlyController);
 	}
 	
-	public boolean readOnlyEnabled()
+	public boolean isReadOnly()
 	{
 		return this.writeController == this.readOnlyController;
 	}
