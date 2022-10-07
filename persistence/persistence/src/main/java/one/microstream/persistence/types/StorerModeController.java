@@ -152,7 +152,7 @@ public class StorerModeController
 	public synchronized PersistenceStorerDeactivatable register(final PersistenceStorerDeactivatable storer)
 	{
 		this.registry.add(new WeakReference<>(storer));
-		storer.enableWrites(this.enabledWrites);
+		storer.setWriteEnabled(this.enabledWrites);
 		this.startCleaningTask();
 		return storer;
 	}
