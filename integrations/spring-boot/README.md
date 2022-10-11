@@ -27,7 +27,7 @@ MicroStream framework needs regardless of what the Spring configuration framewor
 Spring Boot class loader. If you use another class loader, such as hot replace, you may get an exception:
 `one.microstream.exceptions.TypeCastException`<br>
 In this case it is possible to force the use of the current thread's class loader for MicroStream.<br>
-`one.microstream.use-current-thread-class-loader=false` <br>
+`one.microstream.use-current-thread-class-loader=true` <br>
 This value is not passed to the MicroStream framework but is set directly in this module.
 
 ## Debug
