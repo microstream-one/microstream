@@ -204,7 +204,7 @@ public interface StorageLiveFile<S extends StorageLiveFile<S>> extends StorageCl
 				}
 			}
 			
-			return false;
+			throw new StorageException(StorageFileUser.class.getSimpleName() + " not found " + fileUser);
 		}
 				
 		@Override

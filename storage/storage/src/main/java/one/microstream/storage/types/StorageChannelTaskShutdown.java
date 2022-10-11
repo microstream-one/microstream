@@ -74,6 +74,9 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 			 * so that the issuing shutdown method waits for the shutdown to actually complete.
 			 */
 
+			// may not be done before to give every channel a safe way to notice the processing progress
+			this.operationController.deactivate();
+
 			// can / may never throw an exception
 			channel.reset();
 		}
