@@ -40,7 +40,7 @@ public interface StorageRequestTaskLoadByOids extends StorageRequestTaskLoad
 		// constructors //
 		/////////////////
 
-		Default(final long timestamp, final PersistenceIdSet[] oidList)
+		Default(final long timestamp, final PersistenceIdSet[] oidList, final StorageOperationController controller)
 		{
 			/* (16.01.2014 TM)NOTE:
 			 * using calculateRequiredProgress() here is a clear bug as a lower progress count (e.g. 1)
@@ -48,7 +48,7 @@ public interface StorageRequestTaskLoadByOids extends StorageRequestTaskLoad
 			 * Absolutely astonishing that this worked correctly thousands of times in the last year and causes
 			 * a problem just now.
 			 */
-			super(timestamp, oidList.length);
+			super(timestamp, oidList.length, controller);
 //			super(calculateRequiredProgress(oidList));
 			this.oidList = oidList;
 		}

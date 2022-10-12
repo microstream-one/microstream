@@ -47,13 +47,14 @@ public interface StorageRequestTaskGarbageCollection extends StorageRequestTask
 		/////////////////
 
 		Default(
-			final long        timestamp     ,
-			final int         channelCount  ,
-			final long        nanoTimeBudget,
-			final StorageTask actualTask
+			final long                       timestamp     ,
+			final int                        channelCount  ,
+			final long                       nanoTimeBudget,
+			final StorageTask                actualTask    ,
+			final StorageOperationController controller
 		)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.actualTask     = actualTask    ;
 			this.nanoTimeBudget = nanoTimeBudget;
 		}

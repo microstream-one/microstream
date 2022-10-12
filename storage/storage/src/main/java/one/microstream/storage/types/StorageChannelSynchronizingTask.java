@@ -40,11 +40,14 @@ public interface StorageChannelSynchronizingTask extends StorageChannelTask
 		// constructors //
 		/////////////////
 
-		public AbstractCompletingTask(final long timestamp, final int channelCount)
+		public AbstractCompletingTask(
+			final long                       timestamp   ,
+			final int                        channelCount, 
+			final StorageOperationController controller
+		)
 		{
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 		}
-
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -140,9 +143,9 @@ public interface StorageChannelSynchronizingTask extends StorageChannelTask
 		public static final class Dummy extends AbstractCompletingTask<Void> implements StorageRequestTask
 		{
 
-			public Dummy(final int channelCount)
+			public Dummy(final int channelCount, StorageOperationController controller)
 			{
-				super(0, channelCount);
+				super(0, channelCount, controller);
 			}
 
 		}

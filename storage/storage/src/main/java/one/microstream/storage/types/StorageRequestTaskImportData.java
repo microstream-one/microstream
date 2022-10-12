@@ -80,11 +80,12 @@ public interface StorageRequestTaskImportData extends StorageRequestTask
 			final long                          timestamp             ,
 			final int                           channelCount          ,
 			final StorageObjectIdRangeEvaluator objectIdRangeEvaluator,
-			final XGettingEnum<AFile>           importFiles
+			final XGettingEnum<AFile>           importFiles, 
+			final StorageOperationController    controller
 		)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.importFiles            = importFiles;
 			this.objectIdRangeEvaluator = objectIdRangeEvaluator;
 			this.entityCaches           = new StorageEntityCache.Default[channelCount];

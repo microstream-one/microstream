@@ -870,6 +870,9 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 
 			// 5.) mark entity as deleted
 			entity.setDeleted();
+						
+			// decrement size, otherwise the the cache can't shrink
+			this.oidSize--;
 		}
 
 		private void checkForCacheClear(final StorageEntity.Default entry, final long evalTime)

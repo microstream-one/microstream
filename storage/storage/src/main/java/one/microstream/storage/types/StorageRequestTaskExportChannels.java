@@ -40,13 +40,14 @@ public interface StorageRequestTaskExportChannels extends StorageRequestTask
 		/////////////////
 
 		Default(
-			final long                timestamp   ,
-			final int                 channelCount,
-			final StorageLiveFileProvider fileProvider
+			final long                       timestamp   ,
+			final int                        channelCount,
+			final StorageLiveFileProvider    fileProvider, 
+			final StorageOperationController controller
 		)
 		{
 			// every channel has to store at least a chunk header, so progress count is always equal to channel count
-			super(timestamp, channelCount);
+			super(timestamp, channelCount, controller);
 			this.fileProvider = fileProvider;
 		}
 
