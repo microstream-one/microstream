@@ -8,7 +8,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream-parent</artifactId>
-	<version>06.01.01-MS-GA-SNAPSHOT</version>
+	<version>06.02.01-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -60,9 +60,9 @@
 
 	<distributionManagement>
 		<repository>
-			<id>ossrh</id>
-			<name>Sonytype Nexus Releases</name>
-			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+			<id>ms-ee</id>
+			<name>Microstream Enterprise Releases</name>
+			<url>https://repo.microstream.one/repository/ms-ee/</url>
 		</repository>
 		<snapshotRepository>
 			<id>microstream-repo</id>
