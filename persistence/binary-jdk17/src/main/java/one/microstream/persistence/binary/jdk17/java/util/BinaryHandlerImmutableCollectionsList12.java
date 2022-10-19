@@ -39,7 +39,7 @@ public class BinaryHandlerImmutableCollectionsList12<T> extends AbstractBinaryHa
 
 	public static BinaryHandlerImmutableCollectionsList12<?> New()
 	{
-		return new BinaryHandlerImmutableCollectionsList12<>(List.of(1).getClass());
+		return new BinaryHandlerImmutableCollectionsList12<>(List.of(new Object()).getClass());
 	}
 
 
@@ -56,25 +56,12 @@ public class BinaryHandlerImmutableCollectionsList12<T> extends AbstractBinaryHa
 	///////////////////////////////////////////////////////////////////////////
 	// methods //
 	////////////
-
+		
 	@SuppressWarnings("unchecked")
 	@Override
-	protected T createInstance(final Object e0, final Object e1)
+	protected T createInstance()
 	{
-		if(e0 != null && e1 != null)
-		{
-			return (T) List.of(e0, e1);
-		}
-		if(e0 != null && e1 == null)
-		{
-			return (T) List.of(e0);
-		}
-		if(e0 == null && e1 != null)
-		{
-			return (T) List.of(e1);
-		}
-
-		return (T) List.of();
+		return (T) List.of(new Object());
 	}
 
 }
