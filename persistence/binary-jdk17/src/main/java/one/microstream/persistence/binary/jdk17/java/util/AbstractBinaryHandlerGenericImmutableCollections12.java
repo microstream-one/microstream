@@ -37,6 +37,7 @@ import one.microstream.reference.Swizzling;
  *
  * The handler takes the internal constant java.util.ImmutableCollections.EMPTY
  * into account which must not be persisted.
+ * @param <T> the handled type.
  */
 public abstract class AbstractBinaryHandlerGenericImmutableCollections12<T> extends AbstractBinaryHandlerCustom<T>
 {
@@ -91,24 +92,21 @@ public abstract class AbstractBinaryHandlerGenericImmutableCollections12<T> exte
 		return this.createInstance();
 	}
 
-
 	@Override
 	public void store(final Binary data, final T instance, final long objectId, final PersistenceStoreHandler<Binary> handler)
 	{
 		final Collection<?> items = (Collection<?>)instance;
-		final int size = items.size();
 		final Object[] arr = items.toArray();
 
 		data.storeEntityHeader(BINARY_LENGTH, this.typeId(), objectId);
-
-		if(size == 1)
+		data.store_long(BINARY_OFFSET_E0, handler.apply(arr[0]));
+		
+		if(arr.length == 1)
 		{
-			data.store_long(BINARY_OFFSET_E0, handler.apply(arr[0]));
 			data.store_long(BINARY_OFFSET_E1, handler.apply(null));
 		}
-		if(size == 2)
+		else if(arr.length == 2)
 		{
-			data.store_long(BINARY_OFFSET_E0, handler.apply(arr[0]));
 			data.store_long(BINARY_OFFSET_E1, handler.apply(arr[1]));
 		}
 	}
@@ -116,13 +114,7 @@ public abstract class AbstractBinaryHandlerGenericImmutableCollections12<T> exte
 	@Override
 	public void updateState(final Binary data, final T instance, final PersistenceLoadHandler handler)
 	{
-		final long objectE0Id = data.read_long(BINARY_OFFSET_E0);
-		if(Swizzling.isNotProperId(objectE0Id))
-		{
-			return;
-		}
-						
-		final Object e0 = handler.lookupObject(objectE0Id);
+		final Object e0 = handler.lookupObject(data.read_long(BINARY_OFFSET_E0));
 		XMemory.setObject(instance, this.memoryOffset_e0, e0);
 		
 		final long objectE1Id = data.read_long(BINARY_OFFSET_E1);
@@ -133,8 +125,6 @@ public abstract class AbstractBinaryHandlerGenericImmutableCollections12<T> exte
 				
 		final Object e1 = handler.lookupObject(objectE1Id);
 		XMemory.setObject(instance, this.memoryOffset_e1, e1);
-		
-		System.out.println("e0: " + e0 + " e1: "+ e1);
 	}
 
 	@Override

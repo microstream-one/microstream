@@ -30,6 +30,7 @@ import java.util.List;
  *
  * The handler takes the internal constant java.util.ImmutableCollections.EMPTY
  * into account which must not be persisted.
+ * @param <T> the handled type.
  */
 public class BinaryHandlerImmutableCollectionsList12<T> extends AbstractBinaryHandlerGenericImmutableCollections12<T>
 {

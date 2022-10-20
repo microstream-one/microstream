@@ -30,6 +30,7 @@ import java.util.Set;
  *
  * The handler takes the internal constant java.util.ImmutableCollections.EMPTY
  * into account which must not be persisted.
+ * @param <T> the handled type.
  */
 public class BinaryHandlerImmutableCollectionsSet12<T> extends AbstractBinaryHandlerGenericImmutableCollections12<T>
 {
@@ -39,7 +40,7 @@ public class BinaryHandlerImmutableCollectionsSet12<T> extends AbstractBinaryHan
 
 	public static BinaryHandlerImmutableCollectionsSet12<?> New()
 	{
-		return new BinaryHandlerImmutableCollectionsSet12<>(Set.of(1).getClass());
+		return new BinaryHandlerImmutableCollectionsSet12<>(Set.of(new Object()).getClass());
 	}
 
 
