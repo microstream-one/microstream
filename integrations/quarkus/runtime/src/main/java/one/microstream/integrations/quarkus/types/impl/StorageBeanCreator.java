@@ -2,7 +2,7 @@ package one.microstream.integrations.quarkus.types.impl;
 
 /*-
  * #%L
- * MicroStream Extension - Runtime
+ * MicroStream Quarkus Extension - Runtime
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -36,7 +36,7 @@ public class StorageBeanCreator implements BeanCreator<Object>
     {
         LOGGER.debug("Create Bean: Creating bean with info about @Storage annotated class");
 
-        final StorageClassInfo storageClassInfo = new StorageClassInfo((Class) map.get(BeanCreatorParameterNames.CLASS_NAME)
+        final StorageClassInfo storageClassInfo = new StorageClassInfo((Class<?>) map.get(BeanCreatorParameterNames.CLASS_NAME)
                 , (String) map.get(BeanCreatorParameterNames.FIELDS));
 
         return new StorageBean(storageClassInfo);

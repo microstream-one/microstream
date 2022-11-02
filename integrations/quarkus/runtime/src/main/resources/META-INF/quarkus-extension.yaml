@@ -1,4 +1,4 @@
-name: MicroStream Extension
+name: MicroStream Quarkus Extension
 description: Integrate MicroStream within your application.
 metadata:
   keywords:

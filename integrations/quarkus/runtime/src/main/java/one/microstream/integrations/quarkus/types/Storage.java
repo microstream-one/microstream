@@ -3,7 +3,7 @@ package one.microstream.integrations.quarkus.types;
 
 /*-
  * #%L
- * MicroStream Extension - Runtime
+ * MicroStream Quarkus Extension - Runtime
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%

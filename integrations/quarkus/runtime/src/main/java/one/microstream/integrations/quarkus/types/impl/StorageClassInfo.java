@@ -2,7 +2,7 @@ package one.microstream.integrations.quarkus.types.impl;
 
 /*-
  * #%L
- * MicroStream Extension - Runtime
+ * MicroStream Quarkus Extension - Runtime
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -29,18 +29,18 @@ import java.util.List;
 public class StorageClassInfo
 {
 
-    private final Class classReference;
+    private final Class<?> classReference;
 
     private final List<String> fieldsToInject;
 
-    public StorageClassInfo(final Class classReference, final List<String> fieldsToInject)
+    public StorageClassInfo(final Class<?> classReference, final List<String> fieldsToInject)
     {
 
         this.classReference = classReference;
         this.fieldsToInject = fieldsToInject;
     }
 
-    public StorageClassInfo(final Class classReference, final String fieldsToInject)
+    public StorageClassInfo(final Class<?> classReference, final String fieldsToInject)
     {
         if (classReference != Object.class)
         {
@@ -53,7 +53,7 @@ public class StorageClassInfo
         this.fieldsToInject = Arrays.asList(fieldsToInject.split(","));
     }
 
-    public Class getClassReference()
+    public Class<?> getClassReference()
     {
         return classReference;
     }

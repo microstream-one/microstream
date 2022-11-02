@@ -6,13 +6,13 @@
 
   <parent>
         <groupId>one.microstream</groupId>
-      <artifactId>microstream-integration-quarkus-parent</artifactId>
+      <artifactId>microstream-integrations-quarkus-parent</artifactId>
         <version>08.00.00-MS-GA-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>microstream-extension</artifactId>
-    <name>MicroStream Extension - Runtime</name>
+    <artifactId>microstream-quarkus-extension</artifactId>
+    <name>MicroStream Quarkus Extension - Runtime</name>
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>

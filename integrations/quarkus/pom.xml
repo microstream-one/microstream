@@ -9,7 +9,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>microstream-integration-quarkus-parent</artifactId>
+    <artifactId>microstream-integrations-quarkus-parent</artifactId>
     <version>08.00.00-MS-GA-SNAPSHOT</version>
     <packaging>pom</packaging>
 

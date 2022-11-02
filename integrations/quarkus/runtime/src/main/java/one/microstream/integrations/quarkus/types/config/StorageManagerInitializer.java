@@ -2,7 +2,7 @@ package one.microstream.integrations.quarkus.types.config;
 
 /*-
  * #%L
- * MicroStream Integrations CDI
+ * MicroStream Quarkus Extension - Runtime
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%

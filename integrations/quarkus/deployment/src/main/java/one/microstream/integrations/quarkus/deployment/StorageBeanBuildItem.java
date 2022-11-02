@@ -2,7 +2,7 @@ package one.microstream.integrations.quarkus.deployment;
 
 /*-
  * #%L
- * Microstream Extension - Deployment
+ * MicroStream Quarkus Extension - Deployment
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
@@ -19,6 +19,8 @@ package one.microstream.integrations.quarkus.deployment;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+
+
 
 import io.quarkus.builder.item.SimpleBuildItem;
 import one.microstream.integrations.quarkus.types.impl.StorageClassInfo;
@@ -46,7 +48,7 @@ public final class StorageBeanBuildItem extends SimpleBuildItem
      * not defined by user.
      * @return Class with @Storage or empty.
      */
-    public Optional<Class> getRootClass()
+    public Optional<Class<?>> getRootClass()
     {
         return Optional.ofNullable(this.rootClassInfo).map(StorageClassInfo::getClassReference);
     }

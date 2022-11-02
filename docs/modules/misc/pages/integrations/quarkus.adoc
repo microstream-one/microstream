@@ -6,9 +6,9 @@ MicroStream extension is not available on the Quarkus multiverse nor on the Quar
 
 It is available after adding the MicroStream Quarkus extension to your application. You can use the following Maven command for example:
 
-[source, xml, title="pom.xml", subs=attributes+]
+[source, shell, title="Add Quarkus extension", subs=attributes+]
 ----
-mvn quarkus:add-extension -Dextensions="one.microstream:microstream-extension:08.00.00-MS-GA"
+mvn quarkus:add-extension -Dextensions="one.microstream:microstream-quarkus-extension:08.00.00-MS-GA"
 ----
 
 The extension requires Quarkus 2.11.1 as a minimal version.
