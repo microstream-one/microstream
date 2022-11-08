@@ -118,7 +118,7 @@ public interface EmbeddedStorageConfigurationPropertyNames
 	public final static String HOUSEKEEPING_INCREASE_THRESHOLD  = "housekeeping-increase-threshold";
 
 	/**
-	 * @see EmbeddedStorageConfigurationBuilder#setHousekeepingIncreaseAmound(java.time.Duration)
+	 * @see EmbeddedStorageConfigurationBuilder#setHousekeepingIncreaseAmount(java.time.Duration)
 	 */
 	public final static String HOUSEKEEPING_INCREASE_AMOUNT     = "housekeeping-increase-amount";
 
