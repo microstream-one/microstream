@@ -107,16 +107,6 @@
 						</configuration>
 					</plugin>
 					<plugin>
-						<groupId>io.helidon.build-tools</groupId>
-						<artifactId>helidon-maven-plugin</artifactId>
-						<version>${helidon.version}</version>
-					</plugin>
-					<plugin>
-						<groupId>io.helidon.build-tools</groupId>
-						<artifactId>helidon-cli-maven-plugin</artifactId>
-						<version>${helidon.version}</version>
-					</plugin>
-					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-dependency-plugin</artifactId>
 						<executions>
