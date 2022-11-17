@@ -2,7 +2,7 @@ package one.microstream.integrations.quarkus.deployment.test;
 
 /*-
  * #%L
- * Microstream Extension - Deployment
+ * MicroStream Quarkus Extension - Deployment
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
