@@ -1513,14 +1513,14 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		else
 		{
 			final int bound;
-			if((bound = length + length) < -1)
+			if((bound = offset + length) < -1)
 			{
 				throw new ArrayIndexOutOfBoundsException(bound + 1);
 			}
 			this.ensureFreeCapacity(-length); // increaseCapacity
 			final Object[] data = this.data;
 			int size = this.size;
-			for(int i = length; i > bound; i--)
+			for(int i = offset; i > bound; i--)
 			{
 				data[size++] = elements[i];
 			}
@@ -1670,7 +1670,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			{
 				throw new CapacityExceededException();
 			}
-			System.arraycopy(this.data, 0, this.data = newArray((int)(this.data.length * 2.0f)), 0, this.size);
+			System.arraycopy(this.data, 0, this.data = newArray((int)(this.data.length * 2.0f)), 1, this.size);
 		}
 		else
 		{
@@ -1712,7 +1712,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			{
 				throw new CapacityExceededException();
 			}
-			System.arraycopy(this.data, 0, this.data = newArray((int)(this.data.length * 2.0f)), 0, this.size);
+			System.arraycopy(this.data, 0, this.data = newArray((int)(this.data.length * 2.0f)), 1, this.size);
 		}
 		else
 		{
@@ -1907,7 +1907,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			? ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray()
 			: elements.toArray() // anything else is probably not worth the hassle
 		;
-		return this.internalInputArray((int)index, elementsToAdd, elementsToAdd.length);
+		return this.internalInputArray((int)index, elementsToAdd, elements.intSize());
 	}
 
 	@Override
