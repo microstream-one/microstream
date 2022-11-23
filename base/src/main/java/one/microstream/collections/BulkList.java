@@ -481,7 +481,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		 */
 		final E[] data;
 		System.arraycopy(this.data,     0, data = newArray(newCapacity), 0, index);
-		System.arraycopy(this.data, index, data, index + elementsSize, this.data.length-index);
+		System.arraycopy(this.data, index, data, index + elementsSize, this.data.length - index);
 		System.arraycopy(elements ,     0, this.data = data,    index, elementsSize);
 		this.size = newSize;
 		return elementsSize;
@@ -1808,9 +1808,12 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			throw new IndexExceededException(this.size, index);
 		}
 
-		final Object[] elementsToAdd = elements.toArray();
+		@SuppressWarnings("unchecked")
+		final Object[] elementsToAdd = elements instanceof AbstractSimpleArrayCollection
+				? ((AbstractSimpleArrayCollection<? extends E>)elements).internalGetStorageArray()
+				: elements.toArray(); // anything else is probably not worth the hassle
 
-		return this.internalInputArray((int)index, elementsToAdd, elementsToAdd.length);
+		return this.internalInputArray((int)index, elementsToAdd, elements.intSize());
 	}
 
 	@Override
