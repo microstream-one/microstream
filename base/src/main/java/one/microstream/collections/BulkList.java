@@ -1813,6 +1813,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			? ((AbstractSimpleArrayCollection<? extends E>)elements).internalGetStorageArray()
 			: elements.toArray() // anything else is probably not worth the hassle
 		;
+
 		return this.internalInputArray((int)index, elementsToAdd, elements.intSize());
 	}
 
