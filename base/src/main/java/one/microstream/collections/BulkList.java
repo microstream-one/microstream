@@ -1283,7 +1283,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	public final BulkList<E> setAll(final long offset, final E... elements)
 	{
 		validateIndex(this.size, offset);
-		validateIndex(this.size, offset + elements.length);
+		validateIndex(this.size, offset + elements.length - 1);
 		System.arraycopy(elements, 0, this.data, X.checkArrayRange(offset), elements.length);
 
 		return this;
