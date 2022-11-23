@@ -1810,9 +1810,9 @@ implements XList<E>, Composition, IdentityEqualityLogic
 
 		@SuppressWarnings("unchecked")
 		final Object[] elementsToAdd = elements instanceof AbstractSimpleArrayCollection
-				? ((AbstractSimpleArrayCollection<? extends E>)elements).internalGetStorageArray()
-				: elements.toArray(); // anything else is probably not worth the hassle
-
+			? ((AbstractSimpleArrayCollection<? extends E>)elements).internalGetStorageArray()
+			: elements.toArray() // anything else is probably not worth the hassle
+		;
 		return this.internalInputArray((int)index, elementsToAdd, elements.intSize());
 	}
 
