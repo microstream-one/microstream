@@ -437,7 +437,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		if(this.data.length - this.size >= elementsSize)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + elementsSize, elementsSize);
+			System.arraycopy(this.data, index, this.data, index + elementsSize, this.size - index);
 			System.arraycopy(elements ,     0, this.data, index               , elementsSize);
 			this.size += elementsSize;
 			return elementsSize;
@@ -481,7 +481,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		 */
 		final E[] data;
 		System.arraycopy(this.data,     0, data = newArray(newCapacity), 0, index);
-		System.arraycopy(this.data, index, data, index + elementsSize, this.data.length - index);
+		System.arraycopy(this.data, index, data, index + elementsSize, this.size - index);
 		System.arraycopy(elements ,     0, this.data = data,    index, elementsSize);
 		this.size = newSize;
 		return elementsSize;
@@ -498,7 +498,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		if(this.data.length - this.size >= length)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + length, length);
+			System.arraycopy(this.data, index, this.data, index + length, this.size - index);
 			System.arraycopy(elements, offset, this.data, index         , length);
 			this.size += length;
 			return length;
@@ -542,7 +542,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		 */
 		final E[] data;
 		System.arraycopy(this.data,     0, data = newArray(newCapacity), 0, index);
-		System.arraycopy(this.data, index, data, index + length, this.data.length - index);
+		System.arraycopy(this.data, index, data, index + length, this.size - index);
 		System.arraycopy(elements, offset, this.data = data,    index, length);
 		this.size = newSize;
 		return length;
@@ -554,7 +554,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		if(this.data.length - this.size >= length)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + length, length);
+			System.arraycopy(this.data, index, this.data, index + length, this.size - index);
 			XArrays.reverseArraycopy(elements, offset, this.data, index, length);
 			this.size += length;
 			return length;
@@ -598,8 +598,8 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		 */
 		final E[] data;
 		System.arraycopy(this.data,     0, data = newArray(newCapacity), 0, index);
-		System.arraycopy(this.data, index, data, index + length, length);
-		XArrays.reverseArraycopy(elements, 0, this.data, index, -length);
+		System.arraycopy(this.data, index, data, index + length, this.size - index);
+		XArrays.reverseArraycopy(elements, offset, this.data = data, index, length);
 		this.size = newSize;
 		return length;
 	}
