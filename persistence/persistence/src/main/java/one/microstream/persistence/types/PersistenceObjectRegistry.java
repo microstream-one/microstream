@@ -1,5 +1,7 @@
 package one.microstream.persistence.types;
 
+import one.microstream.collections.Set_long;
+
 /*-
  * #%L
  * microstream-persistence
@@ -155,6 +157,21 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 	// removing logic is not viable except for testing purposes, which can be done implementation-specific.
 	
 	public XGettingTable<String, ? extends HashStatistics> createHashStatistics();
+	
+	/**
+	 * 
+	 * @param processor
+	 * @return <code>true</code> on success, <code>false</code> if lock rejected.
+	 */
+	public boolean processLiveObjectIds(ObjectIdsProcessor processor);
+
+	// for bulk processing of objectIds. Most efficient way for server mode, inefficient for embedded mode.
+	/**
+	 * 
+	 * @param objectIdsBaseSet
+	 * @return null if lock rejected
+	 */
+	public Set_long selectLiveObjectIds(Set_long objectIdsBaseSet);
 	
 	
 	

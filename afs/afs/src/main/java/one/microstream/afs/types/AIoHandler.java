@@ -167,7 +167,7 @@ public interface AIoHandler extends WriteController
 	
 	public XGettingEnum<String> listFiles(ADirectory parent);
 		
-	public boolean isEmpty(ADirectory directory);	
+	public boolean isEmpty(ADirectory directory);
 	
 	
 	public abstract class Abstract<
@@ -613,7 +613,7 @@ public interface AIoHandler extends WriteController
 		}
 		
 		@Override
-		public boolean isEmpty(final ADirectory directory) 
+		public boolean isEmpty(final ADirectory directory)
 		{
 			this.validateHandledDirectory(directory);
 			
@@ -1253,6 +1253,10 @@ public interface AIoHandler extends WriteController
 					);
 					
 					result = this.specificDeleteFile(this.typeWritableFile.cast(file));
+					if(result)
+					{
+						file.close();
+					}
 			
 					file.iterateObservers(o ->
 						o.onAfterFileDelete(file, result)

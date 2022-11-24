@@ -19,45 +19,67 @@ package one.microstream.integrations.cdi.types.cache;
  * #L%
  */
 
+import io.smallrye.config.inject.ConfigExtension;
 import one.microstream.integrations.cdi.types.ConfigurationCoreProperties;
-import one.microstream.integrations.cdi.types.test.CDIExtension;
+import one.microstream.integrations.cdi.types.config.StorageManagerProducer;
+import one.microstream.integrations.cdi.types.extension.StorageExtension;
+import one.microstream.integrations.cdi.types.logging.TestLogger;
+import one.microstream.storage.types.Database;
+import one.microstream.storage.types.Databases;
+import one.microstream.storage.types.StorageManager;
+import org.jboss.weld.junit5.auto.AddBeanClasses;
+import org.jboss.weld.junit5.auto.AddExtensions;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.cache.Cache;
 import javax.inject.Inject;
+import java.util.Optional;
 
-import static one.microstream.integrations.cdi.types.ConfigurationCoreProperties.STORAGE_DIRECTORY;
-
-@CDIExtension
-public class StorageCacheTest {
+@EnableAutoWeld  // So that Weld container is started
+@AddBeanClasses({StorageCacheProducer.class, StorageManagerProducer.class})  // For @StorageCache
+@AddExtensions({StorageExtension.class, ConfigExtension.class})
+// SmallRye Config extension And MicroStream extension for StorageManager
+public class StorageCacheTest
+{
 
     @Inject
     @StorageCache("storage")
     private Cache<Integer, String> cache;
 
     @BeforeAll
-    public static void beforeAll() {
+    public static void beforeAll()
+    {
         System.setProperty(CacheProperties.STORAGE.get(), Boolean.TRUE.toString());
-        System.setProperty(STORAGE_DIRECTORY.getMicroprofile(), "target/cache");
+        System.setProperty(ConfigurationCoreProperties.STORAGE_DIRECTORY.getMicroProfile(), "target/cache");
+        TestLogger.reset();
     }
 
     @AfterAll
-    public static void afterAll() {
+    public static void afterAll()
+    {
         System.clearProperty(CacheProperties.STORAGE.get());
-        System.clearProperty(STORAGE_DIRECTORY.getMicroprofile());
+        System.clearProperty(ConfigurationCoreProperties.STORAGE_DIRECTORY.getMicroProfile());
+    }
+
+    @AfterEach
+    public void cleanup() {
+        // The @Disposes (calling StorageManager.shutdown) is not picked up by Weld-Unit,
+        // Need to shut down it here.
+        Databases databases = Databases.get();
+        Database generic = databases.get("Generic");
+        Optional.ofNullable(generic.storage()).ifPresent(StorageManager::shutdown);
     }
 
     @Test
-    public void shouldCreateStorableInstance(){
+    public void shouldCacheValues()
+    {
         Assertions.assertNotNull(cache);
-    }
-
-    @Test
-    public void shouldCreateValues() {
-        cache.put(1, "one");
+        this.cache.put(1, "one");
         Assertions.assertNotNull(cache.get(1));
     }
 

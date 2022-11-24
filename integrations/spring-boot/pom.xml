@@ -12,7 +12,8 @@
     </parent>
 
     <properties>
-        <org.springframework.boot.version>2.6.7</org.springframework.boot.version>
+        <!-- minimal version is 2.1.0.RELEASE -->
+        <org.springframework.boot.version>2.7.3</org.springframework.boot.version>
     </properties>
 
 
@@ -23,6 +24,7 @@
             <version>${org.springframework.boot.version}</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
@@ -82,9 +84,28 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>enforce-files-exist</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <rules>
+                                <requireFilesExist>
+                                    <message>File: '/target/classes/META-INF/spring-configuration-metadata.json' is not present</message>
+                                    <files>
+                                        <file>
+                                            ${project.basedir}/target/classes/META-INF/spring-configuration-metadata.json
+                                        </file>
+                                    </files>
+                                </requireFilesExist>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

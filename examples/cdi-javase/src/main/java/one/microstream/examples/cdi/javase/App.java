@@ -26,18 +26,23 @@ import one.microstream.storage.types.StorageManager;
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
 
-
+/**
+ * Testing the StorageManager integration.
+ */
 public class App
 {
 	public static void main(final String[] args)
 	{
 		try(SeContainer container = SeContainerInitializer.newInstance().initialize())
 		{
-			final StorageManager manager = container.select(StorageManager.class).get();
+
+			final StorageManager manager = container.select(StorageManager.class)
+					.get();
 			final Object root = manager.root();
 			System.out.println("The root value: " + root);
-			final NamesService service = container.select(NamesService.class).get();
-			
+			final NamesService service = container.select(NamesService.class)
+					.get();
+
 			System.out.println("The names: " + service.getNames());
 			service.add("Sebastian");
 			service.add("Otavio");

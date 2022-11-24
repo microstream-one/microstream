@@ -21,8 +21,8 @@ class MyEntity
 	String name ;
 	int    value;
 	
-	transient EmbeddedStorageManager storage;
+	transient Persister persister;
 }
 ----
 
-Upon loading an instance of class `MyEntity`, a reference to the `EmbeddedStorageManager` used to load it is set to its field `storage`.
+Upon loading an instance of class `MyEntity`, a reference to the `Persister` used to load it is set to its field `persister`.

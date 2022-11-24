@@ -25,7 +25,9 @@ import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
 import java.util.concurrent.ThreadLocalRandom;
 
-
+/**
+ * Testing the Cache integration.
+ */
 public class App1
 {
 	public static void main(final String[] args)
@@ -44,12 +46,12 @@ public class App1
 				"The counters: Sebastian %d and Otavio %d %n",
 				sebastianCounter,
 				otavioCounter);
-			
-			for(int index = 0; index < sebastianCounter; index++)
+
+			for (int index = 0; index < sebastianCounter; index++)
 			{
 				counter.count(sebastian);
 			}
-			for(int index = 0; index < otavioCounter; index++)
+			for (int index = 0; index < otavioCounter; index++)
 			{
 				counter.count(otavio);
 			}

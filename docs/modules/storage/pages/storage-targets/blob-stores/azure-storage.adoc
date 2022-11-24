@@ -1,12 +1,10 @@
 = Azure Storage
 
-include::commons:partial$ee-feature-hint.adoc[]
-
 [source, xml, subs=attributes+]
 ----
 <dependency>
 	<groupId>one.microstream</groupId>
-	<artifactId>microstream-enterprise-afs-azure-storage</artifactId>
+	<artifactId>microstream-afs-azure-storage</artifactId>
 	<version>{maven-version}</version>
 </dependency>
 ----

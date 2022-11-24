@@ -62,5 +62,22 @@ public class UtilStackTrace
 		arraycopy(stacktrace, n, st2 = new StackTraceElement[stacktrace.length - n], 0, stacktrace.length - n);
 		return st2;
 	}
+	
+	/**
+	 * Get the method name of the first method of the stack trace of the supplied throwable.
+	 * 
+	 * @param <T> type parameter.
+	 * @param throwable that supplies the stack trace.
+	 * @return The Method name as String.
+	 */
+	public static <T extends Throwable> String getThrowingMethodName(final T throwable)
+	{
+		final StackTraceElement[] stackTrace = throwable.getStackTrace();
+		if(stackTrace.length > 0)
+		{
+			return stackTrace[0].getMethodName();
+		}
+		return "unkown method name";
+	}
 
 }

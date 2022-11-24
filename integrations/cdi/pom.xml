@@ -10,10 +10,14 @@
         <version>08.00.00-MS-GA-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-	
-	<name>MicroStream Integrations CDI</name>
-	<description>MicroStream CDI Extension</description>
-    
+
+    <name>MicroStream Integrations CDI</name>
+    <description>MicroStream CDI Extension</description>
+
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>jakarta.enterprise</groupId>
@@ -33,7 +37,7 @@
             <version>2.0</version>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded</artifactId>
@@ -56,12 +60,6 @@
         </dependency>
 
         <!--Test-->
-        <dependency>
-            <groupId>org.jboss.weld.se</groupId>
-            <artifactId>weld-se-shaded</artifactId>
-            <version>3.1.8.Final</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>io.smallrye.config</groupId>
             <artifactId>smallrye-config</artifactId>
@@ -88,18 +86,47 @@
             <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-junit5</artifactId>
+            <version>2.0.2.Final</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-    
+
     <build>
-    	<plugins>
-    		<plugin>
+        <plugins>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
             </plugin>
-    	</plugins>
+        </plugins>
     </build>
-    
+
+    <profiles>
+        <profile>
+            <id>run-its</id>
+            <properties>
+                <maven.test.skip>false</maven.test.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <!-- For JUnit 5 -->
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.22.1</version>
+                        <configuration>
+                            <!-- testing is using some level stuff and mainly needed to pass on JDK 17 -->
+                            <argLine>--illegal-access=permit</argLine>
+                            <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

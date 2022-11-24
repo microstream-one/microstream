@@ -1289,7 +1289,7 @@ public final class X
 		return throwable;
 	}
 	
-	public RuntimeException asUnchecked(final Exception e)
+	public static RuntimeException asUnchecked(final Exception e)
 	{
 		return e instanceof RuntimeException
 			? (RuntimeException)e

@@ -21,19 +21,20 @@ package one.microstream.integrations.cdi.types;
  * #L%
  */
 
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationPropertyNames;
+import org.eclipse.microprofile.config.Config;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
-
-import org.eclipse.microprofile.config.Config;
-
-import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationPropertyNames;
 
 
 /**
  * The relation with the properties from MicroStream docs:
- * https://docs.microstream.one/manual/storage/configuration/properties.html
+ * <a href="https://docs.microstream.one/manual/storage/configuration/properties.html">Configuration properties</a>
  */
 public enum ConfigurationCoreProperties
 {
@@ -223,93 +224,84 @@ public enum ConfigurationCoreProperties
 	 */
 	DATA_FILE_CLEANUP_HEAD_FILE(
 			Constants.PREFIX + "data.file.cleanup.head.file",
-		EmbeddedStorageConfigurationPropertyNames.DATA_FILE_CLEANUP_HEAD_FILE
-	),
-	
-	/**
-	 * Allow custom properties in through Microprofile, using this prefix. E.g.:
-	 * If you want to include the "custom.test" property, you will set it as "one.microstream.property.custom.test"
-	 */
-	CUSTOM(
-			Constants.PREFIX + "property",
-		""
+			EmbeddedStorageConfigurationPropertyNames.DATA_FILE_CLEANUP_HEAD_FILE
 	);
 
-	private final String microprofile;
-	private final String microstream ;
-	
-	ConfigurationCoreProperties(final String microprofile, final String microstream)
+	private final String microProfile;
+	private final String microStream;
+
+	ConfigurationCoreProperties(final String microProfile, final String microStream)
 	{
-		this.microprofile = microprofile;
-		this.microstream  = microstream ;
+		this.microProfile = microProfile;
+		this.microStream = microStream;
 	}
-	
-	public String getMicroprofile()
+
+	public String getMicroProfile()
 	{
-		return this.microprofile;
+		return this.microProfile;
 	}
-	
-	public String getMicrostream()
-	{
-		return this.microstream;
-	}
-	
+
 	/**
-	 * Check if there is a relation between the Microstream and Microstream properties.
-	 * If not, it is because it is a custom property.
-	 *
-	 * @return true if miscrostream is {@link String#isBlank()}
+	 * Returns the corresponding MicroStream version of the config key.  It replaces the MicroProfile part
+	 * with the MicroStream part. So the keys can be 'longer' as the value defined in the enum. A typical
+	 * example is the 'storage filesystem' element.
+	 * @param key The Key as defined in MicroProfile config
+	 * @return The corresponding MicroStream version of this key.
 	 */
-	public boolean isCustom()
+	public String getMicroStream(final String key)
 	{
-		return this.microstream.isBlank();
+		return key.replaceAll(this.microProfile, this.microStream);
 	}
-	
+
 	/**
-	 * Return true if there is a relation between the Microstream and Microstream properties.
+	 * Returns the {@code ConfigurationCoreProperties} enum entry that corresponds with the
+	 * MicroProfile config key value. Optional.empty() when no matching entry is found.
 	 *
-	 * @return the positive of {@link ConfigurationCoreProperties#isCustom()}
+	 * @param value The MicroProfile config key value to look for.
+	 * @return The enum entry if there is a matching entry or {@code Optional.empty()}
 	 */
-	boolean isMapped()
+	public static Optional<ConfigurationCoreProperties> get(final String value)
 	{
-		return !this.isCustom();
+		Objects.requireNonNull(value);
+		return Arrays.stream(ConfigurationCoreProperties.values())
+				.filter(ccp -> value.startsWith(ccp.getMicroProfile()))
+				.findAny();
 	}
-	
+
 	public static Map<String, String> getProperties(final Config config)
 	{
 		final Map<String, String> properties = new HashMap<>();
-		
-		Arrays.stream(ConfigurationCoreProperties.values())
-			.filter(ConfigurationCoreProperties::isMapped)
-			.forEach(p -> addProperty(config, properties, p))
-		;
-		
-		StreamSupport.stream(config.getPropertyNames().spliterator(), false)
-			.filter(k -> k.contains(CUSTOM.getMicroprofile()))
-			.forEach(k ->
-			{
-				final String key   = k.split(CUSTOM.getMicroprofile() + ".")[1];
-				final String value = config.getValue(k, String.class);
-				properties.put(key, value);
-			})
-		;
-		
+
+		StreamSupport.stream(config.getPropertyNames()
+									 .spliterator(), false)
+				.filter(n -> n.startsWith(Constants.PREFIX))
+				.forEach(p -> addProperty(config, properties, p));
+
 		return properties;
 	}
-	
+
+	private static String asMicroStreamConfigName(final String name)
+	{
+		final Optional<ConfigurationCoreProperties> coreProperty = ConfigurationCoreProperties.get(name);
+		return coreProperty.isEmpty()
+				? name.substring(Constants.PREFIX.length())
+				: coreProperty.get()
+					.getMicroStream(name);
+	}
+
 	private static void addProperty(
-		final Config                      config    ,
-		final Map<String, String>         properties,
-		final ConfigurationCoreProperties property
+			final Config config,
+			final Map<String, String> properties,
+			final String configName
 	)
 	{
-		config.getOptionalValue(property.getMicroprofile(), String.class)
-			.ifPresent(v -> properties.put(property.getMicrostream(), v))
+		config.getOptionalValue(configName, String.class)
+				.ifPresent(v -> properties.put(ConfigurationCoreProperties.asMicroStreamConfigName(configName), v))
 		;
 	}
 
-	private static class Constants
+	public static class Constants
 	{
-		static final String PREFIX = "one.microstream.";
+		public static final String PREFIX = "one.microstream.";
 	}
 }

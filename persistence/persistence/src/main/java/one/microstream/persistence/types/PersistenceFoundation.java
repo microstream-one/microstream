@@ -226,7 +226,7 @@ extends Cloneable<PersistenceFoundation<D, F>>,
 	
 	public PersistenceTypeInstantiatorProvider<D> getInstantiatorProvider();
 	
-	
+	public PersistenceStorer.CreationObserver getStorerCreationObserver();
 	
 	public F setObjectRegistry(PersistenceObjectRegistry objectRegistry);
 	
@@ -402,6 +402,8 @@ extends Cloneable<PersistenceFoundation<D, F>>,
 	public F setInstantiator(PersistenceInstantiator<D> instantiator);
 	
 	public F setInstantiatorProvider(PersistenceTypeInstantiatorProvider<D> instantiatorProvider);
+	
+	public F setStorerCreationObserver(PersistenceStorer.CreationObserver liveStorerRegistry);
 		
 	public F setCustomTypeHandlerRegistryEnsurer(
 		PersistenceCustomTypeHandlerRegistryEnsurer<D> customTypeHandlerRegistryEnsurer
@@ -490,6 +492,7 @@ extends Cloneable<PersistenceFoundation<D, F>>,
 		private PersistenceSizedArrayLengthController          sizedArrayLengthController      ;
 		private PersistenceInstantiator<D>                     instantiator                    ;
 		private PersistenceTypeInstantiatorProvider<D>         instantiatorProvider            ;
+		private PersistenceStorer.CreationObserver             liveStorerRegistry              ;
 		private PersistenceCustomTypeHandlerRegistry<D>        customTypeHandlerRegistry       ;
 		private PersistenceCustomTypeHandlerRegistryEnsurer<D> customTypeHandlerRegistryEnsurer;
 		private BufferSizeProviderIncremental                  bufferSizeProvider              ;
@@ -1368,6 +1371,17 @@ extends Cloneable<PersistenceFoundation<D, F>>,
 		}
 		
 		@Override
+		public final PersistenceStorer.CreationObserver getStorerCreationObserver()
+		{
+			if(this.liveStorerRegistry == null)
+			{
+				this.liveStorerRegistry = this.dispatch(this.ensureStorerCreationObserver());
+			}
+
+			return this.liveStorerRegistry;
+		}
+		
+		@Override
 		public ByteOrder getTargetByteOrder()
 		{
 			if(this.targetByteOrder == null)
@@ -1978,12 +1992,19 @@ extends Cloneable<PersistenceFoundation<D, F>>,
 		}
 		
 		@Override
+		public final F setStorerCreationObserver(final PersistenceStorer.CreationObserver liveStorerRegistry)
+		{
+			this.liveStorerRegistry = liveStorerRegistry;
+			return this.$();
+		}
+		
+		@Override
 		public F setTargetByteOrder(final ByteOrder targetByteOrder)
 		{
 			this.targetByteOrder = targetByteOrder;
 			return this.$();
 		}
-		
+				
 		@Override
 		public F setCustomTypeHandlerRegistryEnsurer(
 			final PersistenceCustomTypeHandlerRegistryEnsurer<D> customTypeHandlerRegistryEnsurer
@@ -2475,6 +2496,12 @@ extends Cloneable<PersistenceFoundation<D, F>>,
 			);
 		}
 		
+		protected PersistenceStorer.CreationObserver ensureStorerCreationObserver()
+		{
+			// may NOT register storers without storage layer since they would never get cleared!
+			return PersistenceStorer.CreationObserver::noOp;
+		}
+		
 		protected LambdaTypeRecognizer ensureLambdaTypeRecognizer()
 		{
 			return LambdaTypeRecognizer.New();
@@ -2535,6 +2562,7 @@ extends Cloneable<PersistenceFoundation<D, F>>,
 				this.getPersister(),
 				this.getPersistenceTarget(),
 				this.getPersistenceSource(),
+				this.ensureStorerCreationObserver(),
 				this.getBufferSizeProvider(),
 				this.getTargetByteOrder()
 			);

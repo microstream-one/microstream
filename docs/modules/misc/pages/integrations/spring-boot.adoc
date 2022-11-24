@@ -8,14 +8,115 @@ It is available within this artifact:
 [source, xml, title="pom.xml", subs=attributes+]
 ----
 <dependencies>
-	<dependency>
-		<groupId>one.microstream</groupId>
-		<artifactId>microstream-integrations-spring-boot</artifactId>
-		<version>{maven-version}</version>
-	</dependency>
+   <dependency>
+      <groupId>one.microstream</groupId>
+      <artifactId>microstream-integrations-spring-boot</artifactId>
+      <version>{maven-version}</version>
+   </dependency>
 </dependencies>
 ----
 
-For more information consult the https://github.com/microstream-one/microstream/tree/master/integrations/spring-boot[readme] file.
-
 Official Spring Boot site: https://spring.io/projects/spring-boot[]
+
+The integration requires Spring Boot 2.x (with version 2.1.0.RELEASE being the minimal supported one).
+
+== Breaking changes
+
+Since version 8.0.0, the _StorageManager_ that is instantiated by the integration is also started where the previous version of the integration did not start the manager.  You can have the old behaviour of a _StorageManager_ that is not started by specifying the config value `one.microstream.auto-start=false`.
+
+== Configuration
+
+The configuration of the _StorageManager_ can be done using key/value pairs that are provided by Spring Boot external Configuration.  The configuration keys must be prefixed by `one.microstream`
+
+[source]
+----
+one.microstream.storage-directory=/opt/data/microstream
+one.microstream.channel-count=2
+----
+
+The list of all MicroStream configuration properties and their meaning are listed on our xref:storage:configuration/properties.adoc[documentation page].
+
+The configuration values are handled using the https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties[typesafe configuration] approach, and you can read these values by accessing the `MicrostreamConfigurationProperties` Spring bean.
+
+You can either create a _StorageManager_ yourself from an `EmbeddedStorageFoundation` Spring bean or access a fully configured one through the `StorageManager` Spring bean.  Be aware that since both share the same configuration values, if you create and start a _StorageManager_ from `EmbeddedStorageFoundation`, it will conflict with the one from the `StorageManager` Spring bean. When you use the `EmbeddedStorageFoundation` Spring bean, don't access the `StorageManager` bean.
+
+The `EmbeddedStorageFoundation` one is ideal if your Spring application is performing one-of tasks like for example Batch processing.  The other one is suited in most cases and the _StorageManager_ can be customized and initialized before it is actually used.  Also, note that when using the feature of having the Root object as Spring Bean already creates and initializes the _StorageManager_.
+
+The _StorageManager_ configuration can be customized by Spring beans that implement the interface `one.microstream.integrations.spring.boot.types.config.EmbeddedStorageFoundationCustomizer`.
+The `customize` method is called with an `EmbeddedStorageFoundation` which allows you to fully customize the _StorageManager_ that will be created. You can for example, add the specific Type Handlers for JDK 8 as described on the https://docs.microstream.one/manual/storage/addendum/specialized-type-handlers.html[documentation].
+
+After the _StorageManager_ is created, the Spring beans that implement `one.microstream.integrations.spring.boot.types.config.StorageManagerInitializer` are called.
+You have the opportunity to perform actions on the _StorageManager_ or root object.  Following rules apply to the _StorageManager_ that is passed to the `initialize` method of the interface.
+
+- The _StorageManager_ is already started unless you specified the configuration value `one.microstream.auto-start=false`.
+- If you have used the `@Storage` annotation on a class, the _StorageManager_ is already associated with an instance of that class as the Root object.
+
+== Root object
+
+The root object can be indicated by using the `@Storage` annotation on the class. This annotation converts the POJO into a Spring bean (The annotation is a Spring Qualifier that makes the class also a _Component_).
+
+Besides converting it into a Spring bean, any field or setter injection within this class is also resolved. Please note that constructor injection is not supported and will result in an error indicating that the class has not a no-argument constructor.
+
+The integration also defines the instance of the class that is created as the root object (`StorageManager.setRoot()`) and stores the initial value (`StorageManager.storeRoot()`) when storageManager does not have a root object assigned yet (this happens only the very first time when you start up your application and the storage doesn't contain any data yet)
+
+You can only annotate 1 class with the `@Storage`  annotation, if you have marked multiple, the creation of the Storage Spring bean will fail with a _BeansException_.
+
+When using the `@Storage` functionality, you as a developer should not change the root object of the _StorageManager_ yourself anymore as that will lead to conflicts and mismatches between the Spring bean created for the Root object and your newly set instance on the _StorageManager_.
+
+== Late initialization
+
+By default, Spring creates all singleton beans at the start of the application. The Spring beans defined by the MicroStream integration, like _StorageManager_ and _Storage_ root bean, are singletons. So they are created at startup which means that for example when you are using a database as a storage target, the database must be available and accessible when the application starts up.
+
+When this is not desired, because the database might be only available when the user request arrives and not at application startup, you can use the `Provider` option.
+
+Add the Jakarta Inject dependency to your project
+
+[source,xml]
+----
+    <dependency>
+        <groupId>jakarta.inject</groupId>
+        <artifactId>jakarta.inject-api</artifactId>
+        <version>1.0</version>
+    </dependency>
+----
+
+And use injection based on the _Provider_ and not the actual class itself.
+
+[source,java]
+----
+    private final Provider<StorageManager> storageManagerProvider;
+
+    public UserRepository(Provider<StorageManager> storageManagerProvider) {
+
+        this.storageManagerProvider = storageManagerProvider;
+    }
+----
+
+When you need to access the _StorageManager_ Spring bean, you perform  `storageManagerProvider.get()` statement, and only at that point the _StorageManager_ is created as a Spring bean. This allows you to delay the creation until the first user request.
+
+== Logging
+
+MicroStream Spring module supports standard Spring logging, so you can add this into your config:<br>
+`logging.level.one.microstream=debug`
+to obtain all MicroStream configuration keys:
+
+[source]
+----
+2021-08-23 15:16:02.979 DEBUG 18469 --- [           main] o.m.spring.MicrostreamConfiguration      : Microstream configuration items:
+2021-08-23 15:16:02.979 DEBUG 18469 --- [           main] o.m.spring.MicrostreamConfiguration      : storage-filesystem.sql.postgres.password : xxxxx
+2021-08-23 15:16:02.994 DEBUG 18469 --- [           main] o.m.spring.MicrostreamConfiguration      : storage-filesystem.sql.postgres.data-source-provider : one.microstream.test.spring.MyDataSourceProvider
+2021-08-23 15:16:02.994 DEBUG 18469 --- [           main] o.m.spring.MicrostreamConfiguration      : storage-directory : microstream_storage
+2021-08-23 15:16:02.994 DEBUG 18469 --- [           main] o.m.spring.MicrostreamConfiguration      : storage-filesystem.sql.postgres.user : postgres
+----
+
+Key values containing "password" are replaced by "xxxxx".
+
+== Classloader configuration
+
+If you use another class loader, such as hot replace, you may get an exception:
+`one.microstream.exceptions.TypeCastException`<br>
+In this case, it is possible to force the use of the current thread's class loader for MicroStream.<br>
+`one.microstream.use-current-thread-class-loader=false` <br>
+This value is not passed to the MicroStream framework but is set directly in this module.
+
+This configuration is only applied to the _StorageManager_ Spring bean and not to the _EmbeddedStorageFoundation_ Spring bean.

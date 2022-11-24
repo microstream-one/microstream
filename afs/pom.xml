@@ -21,7 +21,16 @@
 
 	<modules>
 		<module>afs</module>
+		<module>aws</module>
+		<module>azure</module>
+		<module>blobstore</module>
+		<module>googlecloud</module>
+		<module>hazelcast</module>
+		<module>kafka</module>
 		<module>nio</module>
+		<module>oracle</module>
+		<module>oraclecloud</module>
+		<module>redis</module>
 		<module>sql</module>
 	</modules>
 
