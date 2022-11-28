@@ -622,7 +622,7 @@ public final class _intList implements _intCollecting, Composition
 
 	public boolean nullAllowed()
 	{
-		return true;
+		return false;
 	}
 
 	public boolean isSorted(final boolean ascending)
