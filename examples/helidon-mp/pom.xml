@@ -123,7 +123,7 @@
 									<overWriteIfNewer>true</overWriteIfNewer>
 									<overWriteIfNewer>true</overWriteIfNewer>
 									<includeScope>runtime</includeScope>
-									<excludeScope>test</excludeScope>
+									<excludeScope>compile</excludeScope>
 								</configuration>
 							</execution>
 						</executions>
