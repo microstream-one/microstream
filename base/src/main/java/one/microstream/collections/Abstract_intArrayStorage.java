@@ -710,38 +710,33 @@ public abstract class Abstract_intArrayStorage
 		final int targetOffset
 	)
 	{
-		final int endIndex;
 		if(length >= 0)
 		{
 			if(length == 0)
 			{
 				return target;
 			}
-			System.arraycopy(data, offset, target, offset, length);
+			System.arraycopy(data, offset, target, targetOffset, length);
 			return target;
-		}
-		else if(length < 0)
-		{
-			if((endIndex = offset + length + 1) < 0 || offset >= size)
-			{
-				throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
-			}
-		}
-		else if(offset < 0 || offset >= size)
-		{
-			throw new IndexOutOfBoundsException(exceptionIndexOutOfBounds(size, offset));
 		}
 		else
 		{
-			// handle length 0 special case not as escape condition but as last case to ensure index checking
+			final int endIndex= offset + length + 1;
+			if(endIndex  < 0)
+			{
+				throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
+			}
+			else if(offset < 0 || offset >= size)
+			{
+				throw new IndexOutOfBoundsException(exceptionIndexOutOfBounds(size, offset));
+			}
+
+			for(int i = offset, t = targetOffset; i >= endIndex; i--)
+			{
+				target[t++] = data[i];
+			}
 			return target;
 		}
-
-		for(int i = offset, t = targetOffset; i >= endIndex; i--)
-		{
-			target[t++] = data[i];
-		}
-		return target;
 	}
 
 	public static final <C extends _intCollecting> C copySelection(
