@@ -122,7 +122,7 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 			{
 				return;
 			}
-			this.readThread = XThreads.start(this::readSources);
+			this.readThread = XThreads.start((Runnable)this::readSources);
 		}
 
 		final void readSources()
