@@ -1012,14 +1012,14 @@ public final class _intList implements _intCollecting, Composition
 		else
 		{
 			final int bound;
-			if((bound = length + length) < -1)
+			if((bound = offset + length) < -1)
 			{
 				throw new ArrayIndexOutOfBoundsException(bound + 1);
 			}
 			this.ensureFreeCapacity(-length); // increaseCapacity
 			final int[] data = this.data;
 			int size = this.size;
-			for(int i = length; i > bound; i--)
+			for(int i = offset; i > bound; i--)
 			{
 				data[size++] = elements[i];
 			}
