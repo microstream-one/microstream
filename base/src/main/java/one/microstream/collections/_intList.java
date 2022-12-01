@@ -1043,7 +1043,8 @@ public final class _intList implements _intCollecting, Composition
 			}
 			System.arraycopy(this.data, 0, this.data = new int[(int)(this.data.length * 2.0f)], 0, this.size);
 		}
-		this.size++; // as overhang array elements are guaranteed to be null, the array setting can be spared
+		this.data[size] = 0;  // It has to be here. For example, operation 'remove' changes the removed value to Integer.MIN_VALUE.
+		this.size++;
 		return true;
 	}
 
