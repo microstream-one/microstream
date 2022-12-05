@@ -227,7 +227,7 @@ public final class _intList implements _intCollecting, Composition
 		if(this.data.length - this.size >= elementsSize)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + elementsSize, elementsSize);
+			System.arraycopy(this.data, index, this.data, index + elementsSize, this.size - index);
 			System.arraycopy(elements ,     0, this.data, index               , elementsSize);
 			this.size += elementsSize;
 			return elementsSize;
@@ -271,7 +271,7 @@ public final class _intList implements _intCollecting, Composition
 		 */
 		final int[] data;
 		System.arraycopy(this.data,     0, data = new int[newCapacity], 0, index);
-		System.arraycopy(this.data, index, data, index + elementsSize, elementsSize);
+		System.arraycopy(this.data, index, data, index + elementsSize, this.size - index);
 		System.arraycopy(elements ,     0, this.data = data,    index, elementsSize);
 		this.size = newSize;
 		return elementsSize;
@@ -1012,14 +1012,14 @@ public final class _intList implements _intCollecting, Composition
 		else
 		{
 			final int bound;
-			if((bound = length + length) < -1)
+			if((bound = offset + length) < -1)
 			{
 				throw new ArrayIndexOutOfBoundsException(bound + 1);
 			}
 			this.ensureFreeCapacity(-length); // increaseCapacity
 			final int[] data = this.data;
 			int size = this.size;
-			for(int i = length; i > bound; i--)
+			for(int i = offset; i > bound; i--)
 			{
 				data[size++] = elements[i];
 			}
@@ -1043,7 +1043,8 @@ public final class _intList implements _intCollecting, Composition
 			}
 			System.arraycopy(this.data, 0, this.data = new int[(int)(this.data.length * 2.0f)], 0, this.size);
 		}
-		this.size++; // as overhang array elements are guaranteed to be null, the array setting can be spared
+		this.data[size] = 0;  // It has to be here. For example, operation 'remove' changes the removed value to Integer.MIN_VALUE.
+		this.size++;
 		return true;
 	}
 
