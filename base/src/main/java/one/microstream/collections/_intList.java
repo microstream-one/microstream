@@ -227,7 +227,7 @@ public final class _intList implements _intCollecting, Composition
 		if(this.data.length - this.size >= elementsSize)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + elementsSize, elementsSize);
+			System.arraycopy(this.data, index, this.data, index + elementsSize, this.size - index);
 			System.arraycopy(elements ,     0, this.data, index               , elementsSize);
 			this.size += elementsSize;
 			return elementsSize;
@@ -271,7 +271,7 @@ public final class _intList implements _intCollecting, Composition
 		 */
 		final int[] data;
 		System.arraycopy(this.data,     0, data = new int[newCapacity], 0, index);
-		System.arraycopy(this.data, index, data, index + elementsSize, elementsSize);
+		System.arraycopy(this.data, index, data, index + elementsSize, this.size - index);
 		System.arraycopy(elements ,     0, this.data = data,    index, elementsSize);
 		this.size = newSize;
 		return elementsSize;
