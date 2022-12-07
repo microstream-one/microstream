@@ -1,5 +1,25 @@
 package one.microstream.integrations.lucene.types;
 
+/*-
+ * #%L
+ * microstream-integrations-lucene
+ * %%
+ * Copyright (C) 2019 - 2022 MicroStream Software
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -29,6 +49,15 @@ public interface EntityMapper<E>
 	public Document toDocument(E entity);
 	
 	public E toEntity(Document document);
+	
+	
+	public static <E> EntityMapper<E> AnnotationBased(
+		final Class<E>                    type          ,
+		final Function<IndexableField, E> entityResolver
+	)
+	{
+		return new EntityMapper.AnnotationBased<>(type, entityResolver);
+	}
 	
 	
 	public static class AnnotationBased<E> implements EntityMapper<E>
@@ -203,9 +232,10 @@ public interface EntityMapper<E>
 			}
 			else
 			{
+				final String stringValue = value.toString();
 				document.add(info.tokenize
-					? new TextField(info.name, value.toString(), info.store)
-					: new StringField(info.name, value.toString(), info.store)
+					? new TextField  (info.name, stringValue, info.store)
+					: new StringField(info.name, stringValue, info.store)
 				);
 			}
 		}
