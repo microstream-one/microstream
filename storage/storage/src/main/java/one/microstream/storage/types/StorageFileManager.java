@@ -1654,10 +1654,10 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			}
 		}
 
-		public void copyData(final StorageImportSourceFile importFile)
+		public void copyData(final StorageImportSource importSource)
 		{
 //			DEBUGStorage.println(this.channelIndex + " processing import source file " + importFile);
-			importFile.iterateBatches(this.importHelper.setFile(importFile));
+			importSource.iterateBatches(this.importHelper.setSource(importSource));
 		}
 
 		public void commitImport(final long taskTimestamp)
@@ -1697,7 +1697,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			this.importHelper = null;
 		}
 
-		final void importBatch(final StorageFile file, final long position, final long length)
+		final void importBatch(final StorageImportSource source, final long position, final long length)
 		{
 			// ignore dummy batches (e.g. transfer file continuation head dummy) and no-op batches in general
 			if(length == 0)
@@ -1707,7 +1707,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 
 			this.checkForNewFile();
 //			DEBUGStorage.println(this.channelIndex + " importing batch from source @" + position + "[" + length + "] to file #" + this.headFile.number());
-			this.writer.writeImport(file, position, length, this.headFile);
+			this.writer.writeImport(source, position, length, this.headFile);
 		}
 
 		final void rollbackImport()
@@ -1755,7 +1755,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 		{
 			final StorageLiveDataFile.Default         preImportHeadFile;
 			final BulkList<StorageChannelImportBatch> importBatches     = BulkList.New(1000);
-			StorageFile                               file             ;
+			      StorageImportSource                 source           ;
 
 
 			ImportHelper(final StorageLiveDataFile.Default preImportHeadFile)
@@ -1768,12 +1768,12 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			public void accept(final StorageChannelImportBatch batch)
 			{
 				this.importBatches.add(batch);
-				StorageFileManager.Default.this.importBatch(this.file, batch.fileOffset(), batch.fileLength());
+				StorageFileManager.Default.this.importBatch(this.source, batch.batchOffset(), batch.batchLength());
 			}
 
-			final ImportHelper setFile(final StorageFile file)
+			final ImportHelper setSource(final StorageImportSource source)
 			{
-				this.file = file;
+				this.source = source;
 				return this;
 			}
 

@@ -170,5 +170,27 @@ public class ChunksWrapper extends Binary
 	{
 		throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	public void mark()
+	{
+		final ByteBuffer[] buffers = this.buffers;
+		
+		for(int i = 0; i < buffers.length; i++)
+		{
+			buffers[i].mark();
+		}
+	}
+	
+	@Override
+	public void reset()
+	{
+		final ByteBuffer[] buffers = this.buffers;
+		
+		for(int i = 0; i < buffers.length; i++)
+		{
+			buffers[i].reset();
+		}
+	}
 			
 }

@@ -1,5 +1,13 @@
 package one.microstream.integrations.cdi.types.config;
 
+import java.nio.ByteBuffer;
+import java.util.Optional;
+import java.util.function.Predicate;
+
+import javax.enterprise.inject.spi.CDI;
+
+import org.eclipse.microprofile.config.ConfigProvider;
+
 /*-
  * #%L
  * MicroStream Integrations CDI
@@ -44,11 +52,6 @@ import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.storage.types.StorageManager;
 import one.microstream.storage.types.StorageRawFileStatistics;
 import one.microstream.storage.types.StorageTypeDictionary;
-import org.eclipse.microprofile.config.ConfigProvider;
-
-import javax.enterprise.inject.spi.CDI;
-import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * For MicroProfile Config, at deployment time, we need to validate if @ConfigProperty is valid by
@@ -72,7 +75,7 @@ public class StorageManagerProxy implements StorageManager
         // location.
         final EmbeddedStorageConfigurationBuilder configurationBuilder = EmbeddedStorageConfiguration.load(value);
 
-        Configuration configuration = configurationBuilder.buildConfiguration();
+        final Configuration configuration = configurationBuilder.buildConfiguration();
         final String name = Optional.ofNullable(configuration.get("database-name")).orElse(value);
 
         this.foundation = configurationBuilder
@@ -273,6 +276,12 @@ public class StorageManagerProxy implements StorageManager
     public void importFiles(final XGettingEnum<AFile> importFiles)
     {
         this.getStorageManager().importFiles(importFiles);
+    }
+    
+    @Override
+    public void importData(final XGettingEnum<ByteBuffer> importData)
+    {
+    	this.getStorageManager().importData(importData);
     }
 
     @Override

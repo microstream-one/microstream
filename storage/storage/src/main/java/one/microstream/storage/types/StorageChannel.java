@@ -79,7 +79,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 	// (19.07.2014 TM)TODO: refactor storage typing to avoid classes in public API
 	public StorageEntityCache.Default prepareImportData();
 
-	public void importData(StorageImportSourceFile importFile);
+	public void importData(StorageImportSource importSource);
 
 	public void rollbackImportData(Throwable cause);
 
@@ -659,9 +659,9 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		}
 
 		@Override
-		public void importData(final StorageImportSourceFile importFile)
+		public void importData(final StorageImportSource importSource)
 		{
-			this.fileManager.copyData(importFile);
+			this.fileManager.copyData(importSource);
 		}
 
 		@Override

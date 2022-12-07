@@ -1679,6 +1679,10 @@ public abstract class Binary implements Chunk
 		BinaryReferenceTraverser[]  traversers,
 		PersistenceObjectIdAcceptor acceptor
 	);
+	
+	public abstract void mark();
+	
+	public abstract void reset();
 
 	public final long storeCharsAsList(
 		final long   memoryOffset,

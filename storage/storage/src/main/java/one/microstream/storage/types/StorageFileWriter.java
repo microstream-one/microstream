@@ -66,20 +66,20 @@ public interface StorageFileWriter
 	/**
 	 * Logically the same as a store, but technically the same as a transfer with an external source file.
 	 * 
-	 * @param sourceFile the source file
+	 * @param source the import source
 	 * @param sourceOffset the source offset
 	 * @param copyLength the copy length
 	 * @param targetFile the target file
 	 * @return the amount of bytes written
 	 */
 	public default long writeImport(
-		final StorageFile         sourceFile  ,
+		final StorageImportSource source      ,
 		final long                sourceOffset,
 		final long                copyLength  ,
 		final StorageLiveDataFile targetFile
 	)
 	{
-		return sourceFile.copyTo(targetFile, sourceOffset, copyLength);
+		return source.copyTo(targetFile, sourceOffset, copyLength);
 	}
 	
 	public default long writeTransfer(

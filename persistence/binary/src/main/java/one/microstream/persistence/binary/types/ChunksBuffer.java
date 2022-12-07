@@ -343,5 +343,23 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 	{
 		throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	public void mark()
+	{
+		for(int i = 0; i <= this.currentBuffersIndex; i++)
+		{
+			this.buffers[i].mark();
+		}
+	}
+	
+	@Override
+	public void reset()
+	{
+		for(int i = 0; i <= this.currentBuffersIndex; i++)
+		{
+			this.buffers[i].reset();
+		}
+	}
 				
 }

@@ -22,6 +22,7 @@ package one.microstream.storage.embedded.types;
 
 import static one.microstream.X.notNull;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
@@ -555,7 +556,12 @@ public interface EmbeddedStorageManager extends StorageManager
 			this.singletonConnection().importFiles(importFiles);
 		}
 		
-
+		@Override
+		public void importData(final XGettingEnum<ByteBuffer> importData)
+		{
+			this.singletonConnection().importData(importData);
+		}
+		
 		/**
 		 * @deprecated will be removed in version 8
 		 */
