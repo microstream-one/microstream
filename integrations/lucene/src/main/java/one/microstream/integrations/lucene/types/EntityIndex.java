@@ -24,6 +24,7 @@ import static one.microstream.X.notNull;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +43,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.util.QueryBuilder;
 
 import one.microstream.exceptions.IORuntimeException;
@@ -65,6 +67,24 @@ public interface EntityIndex<E> extends Closeable
 		
 	public int size();
 	
+	
+	public static <E> EntityIndex<E> New(
+		final EntityMapper<E> mapper   ,
+		final Path            directory
+	)
+	{
+		try
+		{
+			return new EntityIndex.Default<>(
+				notNull(mapper)             ,
+				new MMapDirectory(directory)
+			);
+		}
+		catch(final IOException e)
+		{
+			throw new IORuntimeException(e);
+		}
+	}
 	
 	
 	public static <E> EntityIndex<E> New(
