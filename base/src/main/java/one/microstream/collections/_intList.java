@@ -166,7 +166,7 @@ public final class _intList implements _intCollecting, Composition
 	 * Internal constructor to directly supply the storage array instance and size.
 	 * <p>
 	 * The passed storage array must comply to the power of two aligned size rules as specified in
-	 * {@link #BulkList(int)} and the size must be consistent to the storage array.<br>
+	 * {@link #_intList(int)} and the size must be consistent to the storage array.<br>
 	 * Calling this constructor without complying to these rules will result in a broken instance.
 	 * <p>
 	 * It is recommended to NOT use this constructor outside collections-framework-internal implementations.
