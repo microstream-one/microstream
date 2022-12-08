@@ -1314,7 +1314,7 @@ public final class _intList implements _intCollecting, Composition
 	public int retrieve(final int element)
 	{
 		final int removedElement;
-		if((removedElement = Abstract_intArrayStorage.retrieve(this.data, this.size, element, Integer.MIN_VALUE)) != 0)
+		if((removedElement = Abstract_intArrayStorage.retrieve(this.data, this.size, element, Integer.MIN_VALUE)) != Integer.MIN_VALUE)
 		{
 			this.size--;
 			return removedElement;
@@ -1325,7 +1325,7 @@ public final class _intList implements _intCollecting, Composition
 	public int retrieve(final _intPredicate predicate)
 	{
 		final int e;
-		if((e = Abstract_intArrayStorage.retrieve(this.data, this.size, predicate, Integer.MIN_VALUE)) != 0)
+		if((e = Abstract_intArrayStorage.retrieve(this.data, this.size, predicate, Integer.MIN_VALUE)) != Integer.MIN_VALUE)
 		{
 			this.size--;
 			return e;
