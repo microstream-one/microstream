@@ -1,5 +1,7 @@
 package one.microstream.integrations.lucene.types;
 
+import java.util.ArrayList;
+
 /*-
  * #%L
  * microstream-integrations-lucene
@@ -29,6 +31,20 @@ public interface EntitySearchResult<E>
 	public List<E> entities();
 	
 	public EntitySearchResult<E> next();
+	
+	public default List<E> fetchAll()
+	{
+		final List<E> all = new ArrayList<>();
+		
+		EntitySearchResult<E> result = this;
+		while(result != null)
+		{
+			all.addAll(result.entities());
+			result = result.next();
+		}
+		
+		return all;
+	}
 	
 	
 	public static class Default<E> implements EntitySearchResult<E>
