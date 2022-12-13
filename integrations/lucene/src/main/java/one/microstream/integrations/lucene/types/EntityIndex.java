@@ -67,6 +67,9 @@ public interface EntityIndex<E> extends Closeable
 		
 	public int size();
 	
+	@Override
+	public void close();
+	
 	
 	public static <E> EntityIndex<E> New(
 		final EntityMapper<E> mapper   ,
@@ -311,17 +314,26 @@ public interface EntityIndex<E> extends Closeable
 		}
 
 		@Override
-		public synchronized void close() throws IOException
+		public synchronized void close()
 		{
 			if(this.writer != null)
 			{
-				this.writer.close();
-				this.reader.close();
-				this.directory.close();
-
-				this.writer    = null;
-				this.reader    = null;
-				this.searcher  = null;
+				try
+				{
+					this.writer.close();
+					this.reader.close();
+					this.directory.close();
+				}
+				catch(final IOException e)
+				{
+					throw new IORuntimeException(e);
+				}
+				finally
+				{
+					this.writer    = null;
+					this.reader    = null;
+					this.searcher  = null;
+				}
 			}
 		}
 		
