@@ -20,6 +20,6 @@
 	<modules>
 		<module>cdi</module>
 		<module>spring-boot</module>
-		<module>quarkus</module>
+<!--		<module>quarkus</module>-->
 	</modules>
 </project>
