@@ -25,6 +25,7 @@ module microstream.integrations.lucene
 	
 	requires transitive java.compiler;
 	requires transitive java.desktop;
+	requires transitive java.sql;
 	requires transitive microstream.base;
 	requires transitive org.apache.lucene.core;
 }
