@@ -166,7 +166,7 @@ public final class _intList implements _intCollecting, Composition
 	 * Internal constructor to directly supply the storage array instance and size.
 	 * <p>
 	 * The passed storage array must comply to the power of two aligned size rules as specified in
-	 * {@link #BulkList(int)} and the size must be consistent to the storage array.<br>
+	 * {@link #_intList(int)} and the size must be consistent to the storage array.<br>
 	 * Calling this constructor without complying to these rules will result in a broken instance.
 	 * <p>
 	 * It is recommended to NOT use this constructor outside collections-framework-internal implementations.
@@ -288,7 +288,7 @@ public final class _intList implements _intCollecting, Composition
 		if(this.data.length - this.size >= length)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + length, length);
+			System.arraycopy(this.data, index, this.data, index + length, this.size - index);
 			System.arraycopy(elements, offset, this.data, index         , length);
 			this.size += length;
 			return length;
@@ -332,7 +332,7 @@ public final class _intList implements _intCollecting, Composition
 		 */
 		final int[] data;
 		System.arraycopy(this.data,     0, data = new int[newCapacity], 0, index);
-		System.arraycopy(this.data, index, data, index + length, length);
+		System.arraycopy(this.data, index, data, index + length, this.size - index);
 		System.arraycopy(elements, offset, this.data = data,    index, length);
 		this.size = newSize;
 		return length;
@@ -344,7 +344,7 @@ public final class _intList implements _intCollecting, Composition
 		if(this.data.length - this.size >= length)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + length, length);
+			System.arraycopy(this.data, index, this.data, index + length, this.size - index);
 			XArrays.reverseArraycopy(elements, offset, this.data, index, length);
 			this.size += length;
 			return length;
@@ -388,8 +388,8 @@ public final class _intList implements _intCollecting, Composition
 		 */
 		final int[] data;
 		System.arraycopy(this.data,     0, data = new int[newCapacity], 0, index);
-		System.arraycopy(this.data, index, data, index + length, length);
-		XArrays.reverseArraycopy(elements, 0, this.data, index, -length);
+		System.arraycopy(this.data, index, data, index + length, this.size - index);
+		XArrays.reverseArraycopy(elements, offset, this.data = data, index, length);
 		this.size = newSize;
 		return length;
 	}
@@ -1137,7 +1137,7 @@ public final class _intList implements _intCollecting, Composition
 			{
 				throw new IndexOutOfBoundsException();
 			}
-			System.arraycopy(this.data, 0, this.data = new int[(int)(this.data.length * 2.0f)], 0, this.size);
+			System.arraycopy(this.data, 0, this.data = new int[(int)(this.data.length * 2.0f)], 1, this.size);
 		}
 		else
 		{
@@ -1263,84 +1263,22 @@ public final class _intList implements _intCollecting, Composition
 
 	public boolean input(final int index, final int element)
 	{
-		if(this.size >= Integer.MAX_VALUE)
-		{
-			throw new ArrayCapacityException();
-		}
-		if(index >= this.size || index < 0)
-		{
-			if(index == this.size)
-			{
-				if(this.size >= this.data.length)
-				{
-					if(this.size >= Integer.MAX_VALUE)
-					{
-						throw new IndexOutOfBoundsException();
-					}
-					System.arraycopy(this.data, 0, this.data = new int[(int)(this.data.length * 2.0f)], 0, this.size);
-				}
-				this.data[this.size++] = element;
-				return true;
-			}
-			throw new IndexBoundsException(this.size, index);
-		}
-
-		if(this.size >= this.data.length)
-		{
-			if(this.size >= Integer.MAX_VALUE)
-			{
-				throw new IndexOutOfBoundsException();
-			}
-			final int[] oldData = this.data;
-			System.arraycopy(this.data, 0, this.data = new int[(int)(this.data.length * 2.0f)], 0, index);
-			System.arraycopy(oldData, index, this.data, index + 1, this.size - index);
-		}
-		else
-		{
-			System.arraycopy(this.data, index, this.data, index + 1, this.size - index);
-		}
-		this.data[index] = element;
-		this.size++;
-		return true;
+		return insert(index, element);
 	}
 
 	public int input(final int index, final int... elements) throws IndexOutOfBoundsException
 	{
-		if(index >= this.size || index < 0)
-		{
-			if(index == this.size)
-			{
-				return this.internalCountingPutAll(elements);
-			}
-			throw new IndexBoundsException(this.size, index);
-		}
-		return this.internalInputArray(index, elements, elements.length);
+		return insert(index, elements);
 	}
 
 	public int inputAll(final int index, final int[] elements, final int offset, final int length)
 	{
-		if(index >= this.size || index < 0)
-		{
-			if(index == this.size)
-			{
-				return this.internalCountingPutAll(elements, offset, length);
-			}
-			throw new IndexBoundsException(this.size, index);
-		}
-		return this.internalInputArray(index, elements, offset, length);
+		return insertAll(index, elements, offset, length);
 	}
 
 	public int inputAll(final int index, final _intList elements)
 	{
-		if(index >= this.size || index < 0)
-		{
-			if(index == this.size)
-			{
-				return this.internalCountingPutAll(elements);
-			}
-			throw new IndexBoundsException(this.size, index);
-		}
-		return this.internalInputArray(index, elements.data, elements.size);
+		return insertAll(index, elements);
 	}
 
 
@@ -1376,7 +1314,7 @@ public final class _intList implements _intCollecting, Composition
 	public int retrieve(final int element)
 	{
 		final int removedElement;
-		if((removedElement = Abstract_intArrayStorage.retrieve(this.data, this.size, element, Integer.MIN_VALUE)) != 0)
+		if((removedElement = Abstract_intArrayStorage.retrieve(this.data, this.size, element, Integer.MIN_VALUE)) != Integer.MIN_VALUE)
 		{
 			this.size--;
 			return removedElement;
@@ -1387,7 +1325,7 @@ public final class _intList implements _intCollecting, Composition
 	public int retrieve(final _intPredicate predicate)
 	{
 		final int e;
-		if((e = Abstract_intArrayStorage.retrieve(this.data, this.size, predicate, Integer.MIN_VALUE)) != 0)
+		if((e = Abstract_intArrayStorage.retrieve(this.data, this.size, predicate, Integer.MIN_VALUE)) != Integer.MIN_VALUE)
 		{
 			this.size--;
 			return e;
