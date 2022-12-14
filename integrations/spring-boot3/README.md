@@ -1,10 +1,10 @@
 # MicroStream Spring Boot Integration
 
-Allows integration of MicroStream with Spring Boot 2.x.
+Allows integration of MicroStream with Spring Boot 3.x.
 
 ## How to use
 
-The `src/it` folder contains examples of MicroStream integration with Spring Boot.
+The `src/it` folder contains examples of MicroStream integration with Spring Boot 3.
 
 ## General
 
@@ -48,6 +48,6 @@ Key values containing "password" are replaced by "xxxxx".
 
 ## Build
 
-Maven build, to build just run `mvn clean install`<br>
-to run integration tests run `mvn -Prun-its clean install`. Integration tests require Docker to run.
+Maven build, to build just run `mvn -Pfrom_java_17 clean install`<br>
+to run integration tests run `mvn -Prun-its -Pfrom_java_17 clean install`. Integration tests require Docker to run.
 
