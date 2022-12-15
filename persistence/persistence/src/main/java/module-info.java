@@ -22,6 +22,7 @@ module microstream.persistence
 	exports one.microstream.persistence.exceptions;
 	exports one.microstream.persistence.types;
 	exports one.microstream.persistence.internal;
+	exports one.microstream.persistence.util;
 	
 	requires transitive microstream.afs;
 }
