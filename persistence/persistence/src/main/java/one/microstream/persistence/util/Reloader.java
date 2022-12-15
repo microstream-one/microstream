@@ -50,7 +50,7 @@ public interface Reloader
 	 * 
 	 * @param <T> type of the instance
 	 * @param instance the object to reload
-	 * @return the reloaded object
+	 * @return the reloaded object, or <code>null</code> if it was not found in the storage
 	 */
 	public <T> T reloadFlat(T instance);
 	
@@ -59,7 +59,7 @@ public interface Reloader
 	 * 
 	 * @param <T> type of the instance
 	 * @param instance the object to reload
-	 * @return the reloaded object
+	 * @return the reloaded object, or <code>null</code> if it was not found in the storage
 	 */
 	public <T> T reloadDeep(T instance);
 	
