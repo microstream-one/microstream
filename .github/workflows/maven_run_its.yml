@@ -27,5 +27,4 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Run Integration Tests
-      run: mvn -Prun-its -B package --file pom.xml
-
+      run: mvn -Prun-its -B verify --file pom.xml
