@@ -1,4 +1,4 @@
-package one.microstream.integrations.spring.boot.types.storage;
+package test.microstream.integrations.spring.boot.database;
 
 /*-
  * #%L
@@ -20,23 +20,18 @@ package one.microstream.integrations.spring.boot.types.storage;
  * #L%
  */
 
-import java.util.List;
+public enum DatabaseColor {
 
-/**
- * We need to keep track if there is a @Storage annotated class to know when the StorageManagerInitializer needs to be called.
- * This class will be turned into a bean and placed into the Context if there is such a bean.
- */
-public class StorageMetaData
-{
-    private final List<StorageClassData> storageClassData;
+    RED("red"), GREEN("green");
 
-    public StorageMetaData(final List<StorageClassData> storageClassData)
-    {
-        this.storageClassData = storageClassData;
+    private final String name;
+
+    DatabaseColor(final String name) {
+
+        this.name = name;
     }
 
-    public List<StorageClassData> getStorageClassData()
-    {
-        return this.storageClassData;
+    public String getName() {
+        return this.name;
     }
 }
