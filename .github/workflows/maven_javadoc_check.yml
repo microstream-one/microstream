@@ -18,7 +18,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '14'
-        distribution: 'temurin'
+        distribution: 'adopt'
         cache: 'maven'
     - name: Check Javadoc
       run: mvn -B -Pjavadoc-aggregate clean package -Djavadoc.failed.on.error=true
