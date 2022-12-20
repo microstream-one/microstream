@@ -23,3 +23,5 @@ jobs:
         cache: 'maven'
     - name: Run Integration Tests
       run: mvn -Prun-its -B verify --file pom.xml
+    - name: write logs into console
+      run: cat microstream/integrations/spring-boot/target/it/postgres-config/build.log
