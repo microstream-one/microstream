@@ -22,4 +22,4 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
     - name: Run Integration Tests
-      run: mvn -Prun-its -B verify --file pom.xml
+      run: mvn -Prun-its -B install --file pom.xml
