@@ -130,6 +130,7 @@
                             <settingsFile>src/it/settings.xml</settingsFile>
                             <addTestClassPath>true</addTestClassPath>
                             <parallelThreads>5</parallelThreads>
+                            <streamLogsOnFailures>true</streamLogsOnFailures>
                         </configuration>
                         <executions>
                             <execution>
