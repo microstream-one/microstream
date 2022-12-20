@@ -168,7 +168,7 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 	// for bulk processing of objectIds. Most efficient way for server mode, inefficient for embedded mode.
 	/**
 	 * 
-	 * @param objectIdsBaseSet
+	 * @param objectIdsBaseSet the ids to select
 	 * @return null if lock rejected
 	 */
 	public Set_long selectLiveObjectIds(Set_long objectIdsBaseSet);
