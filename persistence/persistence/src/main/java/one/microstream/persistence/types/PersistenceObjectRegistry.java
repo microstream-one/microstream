@@ -160,7 +160,7 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 	
 	/**
 	 * 
-	 * @param processor
+	 * @param processor the object id processor
 	 * @return <code>true</code> on success, <code>false</code> if lock rejected.
 	 */
 	public boolean processLiveObjectIds(ObjectIdsProcessor processor);
