@@ -19,7 +19,7 @@ the spring configuration will look like this:<br>
 
 ### Multiple StorageManagers
 
-As of version 8.0, you can define multiple StorageManagers, and make use of the `@Storage` annotation and `StorageManagerInitializer`and `EmbeddedStorageFoundationCustomizer` concepts.
+As of version 8.0, you can define multiple StorageManagers, and make use of the `@Storage` annotation and `StorageManagerInitializer` and `EmbeddedStorageFoundationCustomizer` concepts.
 
 Since we cannot know which qualifier (label) you want to use for your different _StorageManager_s, the Spring Boot integration cannot create the beans without a little help/configuration from the developer.
 
@@ -47,7 +47,7 @@ public class DefineStorageManagers {
     }
 }
 ```
-The `StorageManagerProvider` is a helper bean fro mthe Spring Boot integration that can fully initialise the _StorageManager_ and the root by providing a qualifier label.
+The `StorageManagerProvider` is a helper bean from the Spring Boot integration that can fully initialise the _StorageManager_ and the root by providing a qualifier label.
 
 The qualifier label is used as prefix to look for the appropriate configuration values.
 
@@ -72,9 +72,13 @@ A `StorageManagerInitializer`and `EmbeddedStorageFoundationCustomizer` implement
     }
 ```
 
+Instead of 2 _named_ `StorageManager`s through a Qualifier, you can also use one _default_ (since we define a `@Primary` annotated _StorageManager_ within the integration) and one that you define yourself as we have done above.
+
+In that case, the configuration keys that you need to use are `one.microstream.` and `one.microstream.<name>` and the database name for the default one is `Primary`. 
+
 ### Important
 
-This framework forwards all configuration keys to the MicroStream. It is important to follow the format that the
+This framework forwards all configuration keys to MicroStream. It is important to follow the format that the
 MicroStream framework needs regardless of what the Spring configuration framework allows.
 
 ### Class Loader
