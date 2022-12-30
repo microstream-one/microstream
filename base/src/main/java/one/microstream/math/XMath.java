@@ -1239,7 +1239,7 @@ public final class XMath
 	 */
 	public static final BigInteger factorial(final BigInteger n) throws IllegalArgumentException
 	{
-		//recursive algorithms are nonsense here as the doy method call and range checking overhead in every step!
+		// recursive algorithms are nonsense here as they do method call and range checking overhead in every step!
 		final long nValue = n.longValue();
 		if(nValue < 0)
 		{
@@ -1253,7 +1253,7 @@ public final class XMath
 		BigInteger result = BigInteger.valueOf(factorial(20L));
 		BigInteger value  = n;
 
-		while(n.longValue() > 20)
+		while(value.longValue() > 20)
 		{
 			result = result.multiply(value);
 			value = value.subtract(BigInteger.ONE);
