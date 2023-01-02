@@ -37,8 +37,6 @@ import java.util.function.Function;
  * If you need {@link InputStream#mark(int)} and {@link InputStream#reset()} to work,
  * simply wrap this one in a {@link BufferedInputStream}.
  *
- * 
- *
  */
 public final class ByteBufferInputStream extends InputStream
 {

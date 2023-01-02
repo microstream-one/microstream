@@ -285,14 +285,14 @@ public interface ObjectGraphTraverser
 		
 		/**
 		 * Must be a multiple of 2.
-		 *
+		 * <p/>
 		 * Surprisingly, the exact value here doesn't matter much.
 		 * The initial idea was to replace hundreds of Entry instances with one array of about one cache page size
 		 * (~500 references assuming 4096 page size and no coops minus object header etc.).
 		 * However, tests with graphs from 1000 to ~30 million handled instances showed:
-		 * - the segment structure is only measurably faster for really big graphs (8 digit instance count)
+		 * - the segment structure is only measurably faster for massive graphs (8 digit instance count)
 		 * - a segment count of 100 is equally fast as 10000. Only unreasonably tiny sizes like <= 8 are slower.
-		 *
+		 * <p/>
 		 * However, a slight performance gain is still better than none. Plus there is much less memory used
 		 * for object header and chain-reference overhead.
 		 */

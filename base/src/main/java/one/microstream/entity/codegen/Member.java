@@ -27,10 +27,6 @@ import javax.lang.model.type.TypeMirror;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 
-/**
- * 
- * 
- */
 class Member
 {
 	final ExecutableElement element;

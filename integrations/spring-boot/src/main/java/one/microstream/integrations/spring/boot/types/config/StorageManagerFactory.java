@@ -159,7 +159,7 @@ public class StorageManagerFactory
         if (storageMetaData.isEmpty())
         {
             // No @Storage,so we need to execute initializers now.
-            // Otherwise the StorageBeanFactory.createRootObject is responsible for calling the
+            // Otherwise, the StorageBeanFactory.createRootObject is responsible for calling the
             initializers.forEach(i -> i.initialize(storageManager));
         }
 

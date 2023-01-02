@@ -40,7 +40,7 @@ import one.microstream.storage.types.StorageManager;
 
 
 /**
- * Create a Parser to explore the benefits of Eclipse MicroProfile Configuration
+ * Create a Parser to explore the benefits of Eclipse MicroProfile Configuration.
  *
  * @param <K>
  *            the key type in the cache

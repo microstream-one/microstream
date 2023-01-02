@@ -42,7 +42,7 @@ import one.microstream.typing.XTypes;
 public class MappedList<E, S> implements XGettingList<E>
 {
 	/* (12.07.2012 TM)FIXME: complete MappedList implementation
-	 * See all "FIX-ME"s
+	 * See all "FIXME"s
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
@@ -218,7 +218,7 @@ public class MappedList<E, S> implements XGettingList<E>
 		final Function<S, E>  mapper  = this.mapper;
 		for(int i = 0; i < length; i++)
 		{
-			// (19.11.2011)NOTE: single element access can get pretty inefficent, but well...
+			// (19.11.2011)NOTE: single element access can get pretty inefficient.
 			target.accept(mapper.apply(subject.at(indices[i])));
 		}
 
@@ -228,7 +228,7 @@ public class MappedList<E, S> implements XGettingList<E>
 	@Override
 	public Iterator<E> iterator()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#iterator
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#iterator
 	}
 
 	@Override
@@ -252,31 +252,31 @@ public class MappedList<E, S> implements XGettingList<E>
 	@Override
 	public Equalator<? super E> equality()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#equality
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#equality
 	}
 
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#toArray
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#toArray
 	}
 
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#equals
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#equals
 	}
 
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#equalsContent
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#equalsContent
 	}
 
 	@Override
 	public boolean nullContained()
 	{
-		// (19.11.2011)NOTE: would actually have to iterative over every element and see if function returns null o_0
+		// (19.11.2011)NOTE: would actually have to iterative over every element and see if function returns null
 		return this.subject.nullContained();
 	}
 
@@ -308,7 +308,7 @@ public class MappedList<E, S> implements XGettingList<E>
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#containsAll
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#containsAll
 	}
 
 	@Override
@@ -332,49 +332,49 @@ public class MappedList<E, S> implements XGettingList<E>
 	@Override
 	public E search(final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#search
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#search
 	}
 
 	@Override
 	public E seek(final E sample)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#seek
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#seek
 	}
 
 	@Override
 	public E max(final Comparator<? super E> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#max
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#max
 	}
 
 	@Override
 	public E min(final Comparator<? super E> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#min
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#min
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T distinct(final T target)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#distinct
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#distinct
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T distinct(final T target, final Equalator<? super E> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#distinct
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#distinct
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T copyTo(final T target)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#copyTo
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#copyTo
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T filterTo(final T target, final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#copyTo
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#copyTo
 	}
 
 	@Override
@@ -384,7 +384,7 @@ public class MappedList<E, S> implements XGettingList<E>
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#union
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#union
 	}
 
 	@Override
@@ -394,7 +394,7 @@ public class MappedList<E, S> implements XGettingList<E>
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#intersect
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#intersect
 	}
 
 	@Override
@@ -404,103 +404,103 @@ public class MappedList<E, S> implements XGettingList<E>
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#except
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#except
 	}
 
 	@Override
 	public boolean nullAllowed()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME ExtendedCollection<E>#nullAllowed
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ExtendedCollection<E>#nullAllowed
 	}
 
 	@Override
 	public long maximumCapacity()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME CapacityCarrying#maximumCapacity
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME CapacityCarrying#maximumCapacity
 	}
 
 	@Override
 	public long remainingCapacity()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME CapacityCarrying#freeCapacity
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME CapacityCarrying#freeCapacity
 	}
 
 	@Override
 	public boolean isFull()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME CapacityCarrying#isFull
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME CapacityCarrying#isFull
 	}
 
 	@Override
 	public XImmutableList<E> immure()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#immure
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#immure
 	}
 
 	@Override
 	public ListIterator<E> listIterator()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#listIterator
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#listIterator
 	}
 
 	@Override
 	public ListIterator<E> listIterator(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#listIterator
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#listIterator
 	}
 
 	@Override
 	public OldList<E> old()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#old
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#old
 	}
 
 	@Override
 	public XGettingList<E> copy()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#copy
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#copy
 	}
 
 	@Override
 	public XGettingList<E> toReversed()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#toReversed
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#toReversed
 	}
 
 	@Override
 	public final <P extends Consumer<? super E>> P iterate(final P procedure)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#iterate
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#iterate
 	}
 
 	@Override
 	public final <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#join
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#join
 	}
 
 	@Override
 	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#iterate
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#iterate
 	}
 
 	@Override
 	public XGettingList<E> view()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#view
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#view
 	}
 
 	@Override
 	public XGettingList<E> view(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#view
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#view
 	}
 
 	@Override
 	public XGettingList<E> range(final long fromIndex, final long toIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#range
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#range
 	}
 
 }

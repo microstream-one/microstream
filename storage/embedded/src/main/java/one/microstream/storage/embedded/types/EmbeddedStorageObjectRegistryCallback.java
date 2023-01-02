@@ -87,7 +87,7 @@ public interface EmbeddedStorageObjectRegistryCallback extends ObjectIdsSelector
 				return true;
 			}
 
-			// efficient for embedded mode, but servermode should use #selectLiveObjectIds instead.
+			// efficient for embedded mode, but server mode should use #selectLiveObjectIds instead.
 			return this.objectRegistry.processLiveObjectIds(processor);
 		}
 

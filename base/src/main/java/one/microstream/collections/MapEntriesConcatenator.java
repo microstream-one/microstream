@@ -31,7 +31,6 @@ import one.microstream.typing.KeyValue;
 /**
  * Configurable {@link KeyValue} to-String concatenator.
  *
- * 
  * @param <K> the key type
  * @param <V> the value type
  *

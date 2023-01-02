@@ -37,9 +37,6 @@ public interface LoadItemsChain
 
 	public void clear();
 
-//	public void transferLoadEntries(BuildItemsHolder<I> builder);
-
-
 	final class Entry
 	{
 		///////////////////////////////////////////////////////////////////////////
@@ -123,7 +120,6 @@ public interface LoadItemsChain
 
 		private void internalPutNewLoadItem(final long objectId)
 		{
-//			XDebug.debugln("load " + objectId);
 
 			this.hashSlots[(int)(objectId & this.hashRange)] =
 				this.enqueueEntry(objectId, this.hashSlots[(int)(objectId & this.hashRange)])
@@ -165,15 +161,6 @@ public interface LoadItemsChain
 			}
 			return false;
 		}
-
-//		@Override
-//		public final void transferLoadEntries(final BuildItemsHolder<Entry> builder)
-//		{
-//			builder.addBuildItemChain(this.transferChainFirstEntry());
-//
-//			// reset loadItems structure for next loading step
-//			this.clearLoadItems();
-//		}
 
 		@Override
 		public final boolean isEmpty()
@@ -233,23 +220,6 @@ public interface LoadItemsChain
 			}
 		}
 
-//		@Override
-//		public long[] toArray()
-//		{
-//			final long[] oids;
-//			this.toArray(oids = new long[this.size()], 0);
-//			return oids;
-//		}
-
-//		@Override
-//		public void toArray(final long[] target, final int offset)
-//		{
-//			int i = offset;
-//			for(Entry entry = this.chainHead.next; entry != null; entry = entry.next)
-//			{
-//				target[i++] = entry.oid;
-//			}
-//		}
 
 	}
 
@@ -320,7 +290,6 @@ public interface LoadItemsChain
 			////////////////////
 
 			private final Entry first;
-//			private final int   size ;
 
 
 
@@ -333,38 +302,24 @@ public interface LoadItemsChain
 				super();
 				this.first = first;
 
-//				/* (10.09.2015 TM)NOTE: size calculation is very inefficient.
-//				 * As size is not needed at all, it is removed experimentally.
-//				 * If size is required in the future, it should be passed with the first entry,
-//				 * calculated by the calling context via some simple (currentSize - previousSize)
-//				 * or something like that.
-//				 */
-//				int size = 0;
-//				for(Entry e = first; e != null; e = e.next)
-//				{
-//					size++;
-//				}
-//				this.size = size;
 			}
 
 			@Override
 			public boolean isEmpty()
 			{
 				return this.first == null;
-//				return this.size == 0;
 			}
 
 			@Override
 			public long size()
 			{
-				// (10.09.2015 TM)NOTE: VERY inefficient (currently never called). See constructor.
+				// (10.09.2015 TM)NOTE: VERY inefficient (currently never called).
 				int size = 0;
 				for(Entry e = this.first; e != null; e = e.next)
 				{
 					size++;
 				}
 				return size;
-//				return this.size;
 			}
 
 			@Override

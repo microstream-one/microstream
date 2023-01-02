@@ -318,22 +318,6 @@ public interface LazyReferenceManager
 		// methods //
 		////////////
 		
-//		private int countReferences()
-//		{
-//			return this.iterate(new Consumer<Lazy<?>>()
-//			{
-//				int count;
-//
-//				@Override
-//				public void accept(final Lazy<?> t)
-//				{
-//					if(t.peek() != null)
-//					{
-//						this.count++;
-//					}
-//				}
-//			}).count;
-//		}
 
 		final void internalCleanUp(final long nanoTimeBudget, final Checker checker)
 		{
@@ -356,7 +340,7 @@ public interface LazyReferenceManager
 			 * This local synchronized block is crucial to prevent deadlocks!
 			 * The reference manager thread may never keep a lock on the manager instance and then require
 			 * a lock on a lazy reference in order to complete its cleanup cycle.
-			 * Consider the following szenario:
+			 * Consider the following scenario:
 			 * - application thread locks lazy instance #1 to load its content.
 			 * - manager thread locks the manager instance for the whole check cycle, starts checking.
 			 * - loading of the LI#1 content causes LI#2 to be created and registered at the manager
@@ -368,7 +352,7 @@ public interface LazyReferenceManager
 			 * internally to leave the lock again, only to consistently query the current tail entry.
 			 * The rest of the algorithm does not interfere with any other thread, so it can be done without lock.
 			 *
-			 * Of course it is important that no other method calling this method keeps the mgr.lock for the whole
+			 * Of course, it is important that no other method calling this method keeps the mgr.lock for the whole
 			 * check cycle, otherwise the deadlock can still occur (i.e. no synchronized method!).
 			 * Happened in productive use after fixing this method :(.
 			 */
@@ -412,7 +396,7 @@ public interface LazyReferenceManager
 					 * if the iteration reached the current tail entry, the cursor gets reset (outside the loop)
 					 * and the iteration gets aborted. Rationale behind that:
 					 * It might be that there have been added new entry to the chain while the iteration was
-					 * executed. However these entries are newly created, hence will hardly timeout right away.
+					 * executed. However, these entries are newly created, hence will hardly timeout right away.
 					 * The oldest entries near the head are much more likely for that, so it is efficient to restart.
 					 */
 					last = this.head;
@@ -446,7 +430,6 @@ public interface LazyReferenceManager
 		@Override
 		public synchronized void register(final Lazy<?> lazyReference)
 		{
-//			XDebug.debugln(this + " registering " + lazyReference.peek());
 			// uniqueness of references is guaranteed by calling this method only exactely once per reference instance
 			this.tail = this.tail.nextLazyManagerEntry = new Entry(lazyReference);
 		}
@@ -698,7 +681,6 @@ public interface LazyReferenceManager
 				
 				// either parent has been garbage collected or stopped, so terminate.
 				logger.debug("LazyReferenceManager stopped");
-//				XDebug.println(Thread.currentThread().getName() + " terminating.");
 			}
 		}
 

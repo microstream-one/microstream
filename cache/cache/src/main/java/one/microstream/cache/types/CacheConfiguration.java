@@ -64,7 +64,6 @@ import one.microstream.storage.embedded.types.EmbeddedStorageManager;
  * </p>
  * <p>
  * Can be adapted to MicroStream's generic {@link Configuration} layer.
- * 
  *
  * @param <K> the key type
  * @param <V> the value type

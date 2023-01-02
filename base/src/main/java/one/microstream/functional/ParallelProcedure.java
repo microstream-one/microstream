@@ -90,14 +90,14 @@ public interface ParallelProcedure<E> extends Consumer<E>
 
 
 	/**
-	 * Type providing the actual logic {@link Consumer} to be applied to the elements enountered by a
+	 * Type providing the actual logic {@link Consumer} to be applied to the elements encountered by a
 	 * {@link ParallelProcedure}. Providing can mean anything from creating a new lightweight instance on each call
 	 * of {@link #provideLogic()} to lazy creation caching or pooling heavyweight instances.
 	 */
 	public interface LogicProvider<S, P extends Consumer<? super S>>
 	{
 		/**
-		 * Provides the actual logic {@link Consumer} to be applied to the elements enountered by a
+		 * Provides the actual logic {@link Consumer} to be applied to the elements encountered by a
 		 * {@link ParallelProcedure}.
 		 * <p>
 		 * This method always gets called by the actual worker thread that will
@@ -118,7 +118,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 		 * <p>
 		 * An implementation of this method can be anything from a no-op to complex resource clean up.
 		 *
-		 * @param logic the not longer used logic that shall be disposed.
+		 * @param logic the no longer used logic that shall be disposed.
 		 * @param cause the cause for the disposal.
 		 */
 		public void disposeLogic(P logic, Throwable cause);
@@ -159,7 +159,7 @@ public interface ParallelProcedure<E> extends Consumer<E>
 	 * <p>
 	 * Worker threads will be created or abolished in line with the number of elements to be handled, the specified
 	 * maximum thread count and the specified thread timeout.<br>
-	 * Thread abolishment is controled via calls of {@link Thread#interrupt()} from the thread management logic.
+	 * Thread abolishment is controlled via calls of {@link Thread#interrupt()} from the thread management logic.
 	 * Also, any other {@link Throwable} thrown by the logic {@link Consumer} will cause the throwing worker thread
 	 * to be abolished as well and the logic instance to be disposed.
 	 * <p>
@@ -240,9 +240,9 @@ public interface ParallelProcedure<E> extends Consumer<E>
 		}
 
 		/**
-		 * Validetes the passed parameters but does neither create threads nor call any of the logic provider's methods.
+		 * Validates the passed parameters but does neither create threads nor call any of the logic provider's methods.
 		 * <p>
-		 * Valied arguments are:
+		 * Valid arguments are:
 		 * <ul>
 		 * <li>non-null logic provider instance</li>
 		 * <li>positive max thread count (greater than 0)</li>
@@ -392,7 +392,6 @@ public interface ParallelProcedure<E> extends Consumer<E>
 			);
 		}
 
-		// all that clutter just because there is no <S super E> typing for instance methods
 		static <S, E extends S, P extends Consumer<? super S>> void delegateRun(
 			final Default<E>              instance,
 			final Default<E>.WorkerThread thread  ,

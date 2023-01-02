@@ -24,7 +24,9 @@ public class Redis
 {
 
     /**
-     * The RedisURI contains the host/port and can carry authentication/database details. On a successful connect you get authenticated, and the database is selected afterward. This applies also after re-establishing a connection after a connection loss.
+     * The RedisURI contains the host/port and can carry authentication/database details. On a successful connect
+     * you get authenticated, and the database is selected afterward. This applies also after re-establishing a connection
+     * after a connection loss.
      */
     private String uri;
 

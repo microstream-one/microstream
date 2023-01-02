@@ -29,10 +29,6 @@ import javax.lang.model.element.TypeParameterElement;
 import one.microstream.entity.EntityData;
 
 
-/**
- * 
- * 
- */
 class TypeGeneratorDataType extends TypeGenerator
 {
 	final static String SUFFIX = "Data";

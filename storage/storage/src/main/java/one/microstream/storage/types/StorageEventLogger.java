@@ -97,7 +97,7 @@ public interface StorageEventLogger
 	
 	/**
 	 * NoOp StorageEventLogger
-	 * 
+	 * <p/>
 	 * Doesn't log any storage events
 	 *
 	 */
@@ -135,7 +135,7 @@ public interface StorageEventLogger
 	
 	/**
 	 * Default implementation of StorageEventLogger
-	 * 
+	 * <p/>
 	 * This implementation doesn't log behavior but logs exceptions
 	 *
 	 */
@@ -212,7 +212,7 @@ public interface StorageEventLogger
 	
 	
 	/**
-	 * Creates a Debug StorageEventLogger thats prints to the console.
+	 * Creates a Debug StorageEventLogger that prints to the console.
 	 * 
 	 * @return a StorageEventLogger.Debug instance
 	 */
@@ -236,7 +236,7 @@ public interface StorageEventLogger
 	
 	/**
 	 * Debug implementation of StorageEventLogger
-	 * 
+	 * <p/>
 	 * This implementation logs behavior and exceptions
 	 *
 	 */

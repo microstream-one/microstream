@@ -24,9 +24,6 @@ package one.microstream.chars;
  * Function type that calculates the distance or difference or cost between two given characters.
  * <p>
  * This is useful mostly for string procedure algorithms (e.g. Levenshtein distance).
- *
- * 
- *
  */
 @FunctionalInterface
 public interface _charDistance

@@ -28,8 +28,6 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 
 /**
  * Handler for types that are mutable but have no references. E.g. {@link java.util.Date}.
- * 
- * 
  *
  * @param <T> the handled type
  */

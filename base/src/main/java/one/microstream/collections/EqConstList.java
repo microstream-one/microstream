@@ -53,10 +53,9 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
  * As instances of this class are completely immutable after creation, this list is automatically thread-safe.
  * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
- * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * to maximize internal iteration potential, eliminating the need to use the external iteration
  * {@link Iterator} paradigm.
  *
- * 
  * @version 0.91, 2011-02-28
  */
 public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> implements XImmutableList<E>, Composition
@@ -383,18 +382,6 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 		return AbstractArrayStorage.isSorted(this.data, this.data.length, comparator);
 	}
 
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.data.length, this.equalator);
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.data.length, equalator);
-//	}
-
 	// boolean querying - applies //
 
 	@Override
@@ -601,7 +588,7 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 	@Override
 	public EqConstList<E> view(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -610,7 +597,6 @@ public final class EqConstList<E> extends AbstractSimpleArrayCollection<E> imple
 		// range check is done in constructor
 		// (14.06.2011 TM)FIXME: SubConstList
 		throw new UnsupportedOperationException();
-//		return new SubListView<>(this, fromIndex, toIndex);
 	}
 
 	@Override

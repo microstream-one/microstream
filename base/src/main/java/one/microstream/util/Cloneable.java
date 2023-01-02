@@ -35,8 +35,7 @@ public interface Cloneable<S>
 	 * to eliminate the need to redundantly pass a second instance or constructor if a clone of an instance is needed.
 	 * <p>
 	 * To indicate the constructor-like character of this method, the pattern of starting the name with a capital letter
-	 * is applied to this method (and to workaround the botch-job protected method the JDK developers hardcoded
-	 * in Object.)
+	 * is applied to this method
 	 * 
 	 * @return a clone of this instance.
 	 */

@@ -45,12 +45,9 @@ import one.microstream.math.XMath;
  * <p>
  * See {@link ChainStorage} and for example {@link ChainStorageStrong} as a comparable actual logic implementation without
  * delegate-pseudo-character.
- *
- * 
  */
 public abstract class Abstract_intArrayStorage
 {
-	// CHECKSTYLE.OFF: FinalParameter: A LOT of methods use that pattern in this class
 	
 	static final String exceptionSkipNegative(final int skip)
 	{
@@ -595,8 +592,6 @@ public abstract class Abstract_intArrayStorage
 		{
 			// (30.03.2012 TM)FIXME: fix
 			throw new one.microstream.meta.NotImplementedYetError(); // FIXME _intArrayStorage#rngCopyTo()
-//			XUtilsCollection.addAll((_intList)target, data, offset, length, predicate);
-//			return target;
 		}
 
 		for(int i = offset - d; i != endIndex;)
@@ -1372,7 +1367,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			//even if predicate throws an execption, the remove markers have to be cleared
+			//even if predicate throws an exception, the remove markers have to be cleared
 			removeCount = XArrays.removeAllFromArray(data, 0, i, removeMarker);
 		}
 		return removeCount;
@@ -1645,7 +1640,7 @@ public abstract class Abstract_intArrayStorage
 				procedure.accept(data[i]);
 				data[i] = removeMarker; // only needed in case of exception
 			}
-			// no exception occured, so completely clear array right away
+			// no exception occurred, so completely clear array right away
 			while(i-- > 0)
 			{
 				data[i] = 0;
@@ -3780,7 +3775,5 @@ public abstract class Abstract_intArrayStorage
 		}
 		return hashCode;
 	}
-
-	// CHECKSTYLE.ON: FinalParameter
 
 }

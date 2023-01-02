@@ -56,7 +56,7 @@ public interface AIoHandler extends WriteController
 	 * This matches the microstream strategy, but in general, it must be possible to write to a
 	 * specified position in the target file.
 	 * Simple example: a utility that replaces found byte ranges with a new value (search & replace).
-	 * Currently, such a tricial functionality is not possible with AFS.
+	 * Currently, such a trivial functionality is not possible with AFS.
 	 */
 	
 	public boolean isHandledItem(AItem item);
@@ -133,25 +133,12 @@ public interface AIoHandler extends WriteController
 	public long copyTo(AReadableFile sourceSubject, long sourcePosition, AWritableFile target);
 	
 	public long copyTo(AReadableFile sourceSubject, long sourcePosition, long length, AWritableFile target);
-	
-//	public long copyTo(AReadableFile sourceSubject, AWritableFile target, long targetPosition);
-//
-//	public long copyTo(AReadableFile sourceSubject, AWritableFile target, long targetPosition, long length);
-//
-//	public long copyTo(AReadableFile sourceSubject, long srcPos, AWritableFile target, long trgPos, long length);
-	
+
 	public long copyFrom(AReadableFile source, AWritableFile targetSubject);
 	
 	public long copyFrom(AReadableFile source, long sourcePosition, AWritableFile targetSubject);
 	
 	public long copyFrom(AReadableFile source, long sourcePosition, long length, AWritableFile targetSubject);
-	
-//	public long copyFrom(AReadableFile source, AWritableFile targetSubject, long targetPosition);
-//
-//	public long copyFrom(AReadableFile source, AWritableFile targetSubject, long targetPosition, long length);
-//
-//	public long copyFrom(AReadableFile source, long srcPos, AWritableFile targetSubject, long trgPos, long length);
-		
 	
 	public long writeBytes(AWritableFile targetFile, Iterable<? extends ByteBuffer> sourceBuffers);
 
@@ -290,25 +277,11 @@ public interface AIoHandler extends WriteController
 		
 		protected abstract long specificCopyTo(R sourceSubject, long sourcePosition, long length, AWritableFile target);
 		
-//		protected abstract long specificCopyTo(R sourceSubject, AWritableFile target, long targetPosition);
-//
-//		protected abstract long specificCopyTo(R sourceSubject, AWritableFile target, long targetPosition, long length);
-//
-//		protected abstract long specificCopyTo(R sourceSubject, long srcPos, AWritableFile target, long trgPos, long length);
-		
-		
 		protected abstract long specificCopyFrom(AReadableFile source, W targetSubject);
 		
 		protected abstract long specificCopyFrom(AReadableFile source, long sourcePosition, W targetSubject);
 		
 		protected abstract long specificCopyFrom(AReadableFile source, long sourcePosition, long length, W targetSubject);
-		
-//		protected abstract long specificCopyFrom(AReadableFile source, W targetSubject, long targetPosition);
-//
-//		protected abstract long specificCopyFrom(AReadableFile source, W targetSubject, long targetPosition, long length);
-//
-//		protected abstract long specificCopyFrom(AReadableFile source, long srcPos, W targetSubject, long trgPos, long length);
-		
 		
 		protected abstract long specificWriteBytes(W targetFile, Iterable<? extends ByteBuffer> sourceBuffers);
 
@@ -567,7 +540,7 @@ public interface AIoHandler extends WriteController
 		{
 			if(directory.parent() == null && directory.identifier().isEmpty())
 			{
-				// an empty-named root directory (= leading separator) is assumed implicitely and cannot be queried.
+				// an empty-named root directory (= leading separator) is assumed implicitly and cannot be queried.
 				return true;
 			}
 			
@@ -694,7 +667,9 @@ public interface AIoHandler extends WriteController
 			final ADirectory parent = ADirectory.actual(file.parent());
 			
 			this.ensureExists(parent);
-			
+
+			// Synchronized on local variable. The idea is to avoid creation
+			// of files (potentially the same file) in the same directory by different threads.
 			synchronized(parent)
 			{
 				this.validateIsWritable();
@@ -876,7 +851,7 @@ public interface AIoHandler extends WriteController
 			
 			this.validateHandledReadableFile(sourceSubject);
 
-			// it is by far the most common and intuitive case for copy to ensure existence implicitely
+			// it is by far the most common and intuitive case for copy to ensure existence implicitly
 			target.ensureExists();
 			
 			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target);
@@ -945,58 +920,6 @@ public interface AIoHandler extends WriteController
 			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, length, target);
 		}
 
-//		@Override
-//		public long copyTo(
-//			final AReadableFile sourceSubject ,
-//			final AWritableFile target        ,
-//			final long          targetPosition
-//		)
-//		{
-//			this.validateHandledReadableFile(sourceSubject);
-//
-//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
-//			target.ensureExists();
-//
-//			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target, targetPosition);
-//		}
-//
-//		@Override
-//		public long copyTo(
-//			final AReadableFile sourceSubject ,
-//			final AWritableFile target        ,
-//			final long          targetPosition,
-//			final long          length
-//		)
-//		{
-//			this.validateHandledReadableFile(sourceSubject);
-//
-//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
-//			target.ensureExists();
-//
-//			this.validateIsWritable();
-//
-//			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), target, targetPosition, length);
-//		}
-//
-//		@Override
-//		public long copyTo(
-//			final AReadableFile sourceSubject ,
-//			final long          sourcePosition,
-//			final AWritableFile target        ,
-//			final long          targetPosition,
-//			final long          length
-//		)
-//		{
-//			this.validateHandledReadableFile(sourceSubject);
-//
-//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
-//			target.ensureExists();
-//
-//			this.validateIsWritable();
-//
-//			return this.specificCopyTo(this.typeReadableFile.cast(sourceSubject), sourcePosition, target, targetPosition, length);
-//		}
-		
 		@Override
 		public long copyFrom(
 			final AReadableFile source       ,
@@ -1086,60 +1009,6 @@ public interface AIoHandler extends WriteController
 			
 			return this.specificCopyFrom(source, sourcePosition, length, this.typeWritableFile.cast(targetSubject));
 		}
-
-//		@Override
-//		public long copyFrom(
-//			final AReadableFile source        ,
-//			final AWritableFile targetSubject ,
-//			final long          targetPosition
-//		)
-//		{
-//			this.validateHandledWritableFile(targetSubject);
-//
-//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
-//			targetSubject.ensureExists();
-//
-//			this.validateIsWritable();
-//
-//			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition);
-//		}
-//
-//		@Override
-//		public long copyFrom(
-//			final AReadableFile source        ,
-//			final AWritableFile targetSubject ,
-//			final long          targetPosition,
-//			final long          length
-//		)
-//		{
-//			this.validateHandledWritableFile(targetSubject);
-//
-//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
-//			targetSubject.ensureExists();
-//
-//			this.validateIsWritable();
-//
-//			return this.specificCopyFrom(source, this.typeWritableFile.cast(targetSubject), targetPosition, length);
-//		}
-//
-//		@Override
-//		public long copyFrom(
-//			final AReadableFile source        ,
-//			final long          sourcePosition,
-//			final AWritableFile targetSubject ,
-//			final long          targetPosition,
-//			final long          length
-//		)
-//		{
-//			this.validateHandledWritableFile(targetSubject);
-//
-//			// it is by far the most common and intuitive case for copy to ensure existence implicitely
-//			targetSubject.ensureExists();
-//
-//			this.validateIsWritable();
-//
-//			return this.specificCopyFrom(source, sourcePosition, this.typeWritableFile.cast(targetSubject), targetPosition, length);
-//		}
 
 		@Override
 		public long writeBytes(
@@ -1236,6 +1105,8 @@ public interface AIoHandler extends WriteController
 			final ADirectory parent = ADirectory.actual(file.parent());
 
 			final boolean result;
+			// Synchronized on local variable. Avoids deleting the same file by
+			// different threads.
 			synchronized(parent)
 			{
 				this.validateIsWritable();

@@ -179,7 +179,6 @@ public interface MultiMatch<E>
 			this.singletonPrecedenceBonus = matcher.singletonPrecedenceBonus();
 			this.similarityThreshold = matcher.similarityThreshold();
 			this.noiseFactor = matcher.noiseFactor();
-//			this.suspicousMatchThreshold = quantifier(matcher.getSuspiciousMatchThreshold());
 
 			this.source = (this.inputSource = source).clone();
 			this.target = (this.inputTarget = target).clone();
@@ -313,10 +312,6 @@ public interface MultiMatch<E>
 				return;
 			}
 
-//			final String debug_Title = "Linked " + s + "/" + t + ": "
-//				+ XMath.round2(similarity(this.quantifiers[s][t]))
-//				+ " " + this.source[s] + " <-> " + this.target[t]
-//			;
 
 			this.link(s, t);
 			this.linkedSourceSimilarities[s] = this.matrix[s][t];
@@ -340,7 +335,6 @@ public interface MultiMatch<E>
 				this.matrix[i][t] = 0.0;
 			}
 
-//			this.debug_printState(debug_Title);
 		}
 
 		protected void linkAllEquals(final Equalator<? super E> equalator)

@@ -62,7 +62,7 @@ Copyable
 	public Iterator<E> iterator();
 
 	/**
-	 * Returns an array containing all of the elements in this collection.
+	 * Returns an array containing all the elements in this collection.
 	 *
 	 * <p>The returned array will be "safe" in that no references to it are
 	 * maintained by this list.  (In other words, this method must allocate
@@ -71,7 +71,7 @@ Copyable
 	 * <p>This method acts as bridge between MicroStream-based collections
 	 * and Java-native-based APIs.
 	 *
-	 * @return an array containing all of the elements in this collection
+	 * @return an array containing all the elements in this collection.
 	 */
 	public default Object[] toArray()
 	{
@@ -79,7 +79,7 @@ Copyable
 	}
 
 	/**
-	 * Returns a <b>typed</b> array containing all of the elements in this collection.
+	 * Returns a <b>typed</b> array containing all the elements in this collection.
 	 *
 	 * <p>The returned array will be "safe" in that no references to it are
 	 * maintained by this list.  (In other words, this method must allocate
@@ -89,19 +89,12 @@ Copyable
 	 * and Java-native-based APIs.
 	 *
 	 * @param type the {@link Class} representing type {@code E} at runtime.
-	 * @return a typed array containing all of the elements in this collection
+	 * @return a typed array containing all the elements in this collection.
 	 */
 	public default E[] toArray(final Class<E> type)
 	{
 		return this.iterate(new ToArrayAggregator<>(X.Array(type, X.checkArrayRange(this.size())))).yield();
 	}
-	
-	// stolen from Streams API. However. A) ambiguous for compiler and B) inferior to just keeping and passing a type.
-//	public default E[] toArray(final IntFunction<E[]> arrayConstructor)
-//	{
-//		final E[] array = arrayConstructor.apply(X.checkArrayRange(this.size()));
-//		return this.iterate(new ToArrayAggregator<>(array)).yield();
-//	}
 
 	public OldCollection<E> old();
 
@@ -366,7 +359,7 @@ Copyable
 	/**
 	 * Tests equality between each element of the two lists and calls {@link Consumer#accept(Object)} on the target {@link Consumer} for the
 	 * equal elements.<br>
-	 * Therefore it effectively creates a mathematical intersection between the two collections.
+	 * Therefore, it effectively creates a mathematical intersection between the two collections.
 	 * <p>
 	 * Since all MicroStream Collections implement the {@link Consumer} interface,
 	 * new collections can be used as target.

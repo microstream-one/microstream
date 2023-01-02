@@ -62,7 +62,7 @@ public class ObjectDescription
 
 
 	/**
-	 * Get the microstream object id for this object
+	 * Get the MicroStream object id for this object.
 	 *
 	 * @return object id as long
 	 */
@@ -117,7 +117,7 @@ public class ObjectDescription
 	}
 
 	/**
-	 * Get the assigned primitive value instance or null if it is not available
+	 * Get the assigned primitive value instance or null if it is not available.
 	 *
 	 * @return Object
 	 */
@@ -142,7 +142,7 @@ public class ObjectDescription
 	}
 
 	/**
-	 * Check if an primitive value instance is assigned to this object
+	 * Check if a primitive value instance is assigned to this object.
 	 *
 	 * @return true if the object has a primitive value instance
 	 */

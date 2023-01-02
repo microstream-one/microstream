@@ -64,7 +64,7 @@ ReleasingCollection<E>
 	 * the currently contained elements in terms of the collection's current memory usage configuration
 	 * (e.g. hash density).
 	 * <p>
-	 * If this is not possible or not needed in the concreate implementation, this method does nothing.
+	 * If this is not possible or not needed in the concrete implementation, this method does nothing.
 	 * <p>
 	 * Note that this method can consume a considerable amount of time depending on the implementation and should
 	 * only be called intentionally and accurately when reducing occupied memory is needed.
@@ -76,7 +76,7 @@ ReleasingCollection<E>
 
 	public long nullRemove();
 
-	// (29.09.2012 TM)XXX: rename to removeFirst (first occurance for non-sequence, first in order for sequence)
+	// (29.09.2012 TM)XXX: rename to removeFirst (first occurrence for non-sequence, first in order for sequence)
 	// (29.09.2012 TM)XXX: add removeLast()? Would be more efficient for array storages to scan backwards.
 	public boolean removeOne(E element);
 

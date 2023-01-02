@@ -83,7 +83,7 @@ public interface ComHostExceptionHandler<C>
 			}
 			catch(final Exception e)
 			{
-				logger.error("faild to close connection! ", exception);
+				logger.error("failed to close connection! ", exception);
 			}
 		}
 		

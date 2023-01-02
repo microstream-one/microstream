@@ -32,7 +32,6 @@ import one.microstream.exceptions.NumberRangeException;
  * It is therefore strongly suggested that implementations only use "exception free" logic (like simple arithmetic)
  * or handle any possible exception internally.
  *
- * 
  */
 @FunctionalInterface
 public interface StorageEntityCacheEvaluator
@@ -118,7 +117,7 @@ public interface StorageEntityCacheEvaluator
 	public static StorageEntityCacheEvaluator New()
 	{
 		/*
-		 * Validates its own default value, but the cost is neglible and it is a
+		 * Validates its own default value, but the cost is negligible and it is a
 		 * good defense against accidentally erroneous changes of the default value.
 		 */
 		return New(
@@ -216,9 +215,9 @@ public interface StorageEntityCacheEvaluator
 
 		/**
 		 * Entity age timeout value in milliseconds at which the entity should definitely be cleared from the cache,
-		 * independant of size, type or cache fullness.
+		 * independent of size, type or cache fullness.
 		 * Example: After one day of not being used, an entity can definitely be unloaded from the cache.
-		 *
+		 * <p/>
 		 * Can be set to very low value like 1 hour (3_600_000 ms) for systems with very sporadic activity.
 		 * (e.g. an application that performs big operations only every once in a while and is very dormant in between)
 		 * Can be set to a medium value like 1 day (86_400_000 ms) for typical server systems
@@ -270,7 +269,6 @@ public interface StorageEntityCacheEvaluator
 			final StorageEntity e
 		)
 		{
-//			DEBUGStorage.println("evaluating " + e);
 			/* simple default algorithm to take cache size, entity cached data length, age and reference into account:
 			 *
 			 * - subtract current cache size from threshold, resulting in an abstract value how "free" the cache is.
@@ -281,7 +279,7 @@ public interface StorageEntityCacheEvaluator
 			 *
 			 * "weight" calculation:
 			 * - the entity's memory consumption (cached data length)
-			 * - mutliplied by its "cache age" in ms, divided by 2^16 (roughly equals age in minutes)
+			 * - multiplied by its "cache age" in ms, divided by 2^16 (roughly equals age in minutes)
 			 *   the division is crucial to give newly loaded entities a kind of "grace time" in order to
 			 *   not constantly unload and load entities in filled systems (avoid live lock)
 			 * - multiply weight by 2 if entity has no references.
@@ -302,7 +300,7 @@ public interface StorageEntityCacheEvaluator
 			 * 1st minute: 10bil - 5 bil = 5 bil > 1 bil * 1 * 2
 			 * 2nd minute: 10bil - 5 bil = 5 bil > 1 bil * 2 * 2
 			 * 3rd minute: 10bil - 5 bil = 5 bil < 1 bil * 3 * 2 -> unload
-			 * While smaller entities (typcially ~100 byte), especially ones with reference, can almost always stay
+			 * While smaller entities (typically ~100 byte), especially ones with reference, can almost always stay
 			 * in cache until the timeout hits or the cache gets critically full.
 			 * (10bil - 5 bil = 5 bil < 100 * ~90_YEARS * 1)
 			 * This is a quite reasonable approach given the rather fast execution time of the formula.
@@ -311,7 +309,6 @@ public interface StorageEntityCacheEvaluator
 			 * chasing (e.g. to the entity type) and therefore potential cache miss is needed.
 			 */
 			final long ageInMs = evalTime - e.lastTouched();
-//			DEBUGStorage.println("evaluating with cache size " + cacheSize + " and entity age " + ageInMs + " " + e);
 			/*
 			 * Note on ">>":
 			 * Cannot use ">>>" here, because some entities are touched "in the future", making age negative.

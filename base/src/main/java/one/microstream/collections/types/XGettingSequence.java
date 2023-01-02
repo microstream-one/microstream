@@ -68,18 +68,6 @@ public interface XGettingSequence<E> extends XGettingCollection<E>, ExtendedSequ
 	// declared methods //
 	/////////////////////
 
-	/*
-	 * This method was named "get(int)" for a long time. However, this common name has numerous problems:
-	 * - collides with get(Integer key) of a Map<Integer, ?> type
-	 * - collides with get()
-	 * - "get" for accessing an index is actually quite blurry. Get what and how?
-	 *    The precise name would be "getElementAtIndex(int)". However this is quite verbose, so a shortening compromise
-	 *    has to be made. So the question is, what is the preferable compromise:
-	 *    an ubiquitous "get" because in doubt anything and everything is called "get",
-	 *    or a linguistic reference to the index accessing nature, the "... at ..." relation?
-	 *    Considering the other two problems and considering that "at" is even a little shorter than "get",
-	 *    the best decision for clarity and expressiveness is already made.
-	 */
 	public E at(long index) throws IndexBoundsException; // get element at index or throw IndexOutOfBoundsException
 
 	/**

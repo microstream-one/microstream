@@ -255,7 +255,7 @@ public final class BinaryPersistence extends Persistence
 
 			BinaryHandlerZoneOffset.New(),
 
-			// non-sensical handlers required for confused developers
+			// non-nonsensical handlers required for confused developers
 			BinaryHandlerSqlDate.New()     ,
 			BinaryHandlerSqlTime.New()     ,
 			BinaryHandlerSqlTimestamp.New(),
@@ -266,7 +266,7 @@ public final class BinaryPersistence extends Persistence
 
 			/* (12.11.2019 TM)NOTE:
 			 * One might think that "empty" implementations of a collection interface would have no fields, anyway.
-			 * But no, those classes uselessly extends 5 other classes, some of which bring along several times
+			 * But no, those classes extends 5 other classes, some of which bring along several times
 			 * redundant delegate fields.
 			 * Those fields cause access warnings (and access exceptions in the future) when trying to set them
 			 * accessible in the generic handler implementation.
@@ -275,7 +275,7 @@ public final class BinaryPersistence extends Persistence
 			 *
 			 * Also, to avoid an erroneous instance creation that BinaryHandlerStateless might perform
 			 * (e.g. when using a dummy object registry as tools might do), the constant instance itself
-			 * has to be returned in case the create should ever be invoked.
+			 * has to be returned in case the 'create' should ever be invoked.
 			 */
 			BinaryHandlerStatelessConstant.New(Collections.emptyNavigableSet()),
 			BinaryHandlerStatelessConstant.New(Collections.emptyNavigableMap()),
@@ -299,13 +299,13 @@ public final class BinaryPersistence extends Persistence
 	{
 		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> nativeHandlers = ConstList.New(
 
-			// creepy JDK 1.0 collections
+			// JDK 1.0 collections
 			BinaryHandlerVector.New()               ,
 			BinaryHandlerStack.New()                ,
 			BinaryHandlerHashtable.New()            ,
 			BinaryHandlerProperties.New()           ,
 
-			// still creepy JDK 1.2 collections
+			// JDK 1.2 collections
 			BinaryHandlerArrayList.New(),
 			BinaryHandlerHashSet.New()              ,
 			BinaryHandlerHashMap.New()              ,
@@ -314,12 +314,12 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerTreeMap.New()              ,
 			BinaryHandlerTreeSet.New()              ,
 
-			// still creepy JDK 1.4 collections
+			// JDK 1.4 collections
 			BinaryHandlerIdentityHashMap.New()      ,
 			BinaryHandlerLinkedHashMap.New()        ,
 			BinaryHandlerLinkedHashSet.New()        ,
 
-			// still creepy JDK 1.5 collections
+			// JDK 1.5 collections
 			BinaryHandlerPriorityQueue.New()        ,
 			BinaryHandlerConcurrentHashMap.New()    ,
 			BinaryHandlerConcurrentLinkedQueue.New(),
@@ -328,25 +328,15 @@ public final class BinaryPersistence extends Persistence
 
 			// remaining JDK collections (wrappers and the like) are handled dynamically
 
-			/*
-			 * Would work for these, but Iterators are generally unpersistable for good reason.
-			 * See Persistence#unpersistableTypes
-			 */
-//			BinaryHandlerStateless.New(Collections.emptyEnumeration().getClass()),
-//			BinaryHandlerStateless.New(Collections.emptyIterator().getClass()),
-//			BinaryHandlerStateless.New(Collections.emptyListIterator().getClass()),
-
 			// changed with support of enums. And must change to keep TypeDictionary etc. consistent
 			BinaryHandlerSingletonStatelessEnum.New(Comparator.naturalOrder().getClass()),
-//			typeHandlerCreator.createTypeHandler(Comparator.naturalOrder().getClass()),
-//			BinaryHandlerStateless.New(Comparator.naturalOrder().getClass()),
 
-			// still creepy JDK 1.6 collections
+			// JDK 1.6 collections
 			BinaryHandlerArrayDeque.New()           ,
 			BinaryHandlerConcurrentSkipListMap.New(),
 			BinaryHandlerConcurrentSkipListSet.New(),
 
-			// still creepy JDK 1.7 collections
+			// JDK 1.7 collections
 			BinaryHandlerConcurrentLinkedDeque.New(),
 
 			BinaryHandlerLazyDefault.New(),

@@ -48,7 +48,7 @@ public interface StorageFileEntityDataIterator
 	
 	/* (01.03.2019 TM)NOTE:
 	 * Experimental concept to differentiate a type internally without inflating the external API.
-	 * In order to being able to use wrapping implementations with that, every method of the internal API
+	 * In order to be able to use wrapping implementations with that, every method of the internal API
 	 * must pass the "actual instance" along to switch back to the wrapper instead of staying in the wrapped instance.
 	 */
 	public interface Internal extends StorageFileEntityDataIterator

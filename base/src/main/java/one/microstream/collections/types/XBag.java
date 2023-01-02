@@ -28,10 +28,6 @@ package one.microstream.collections.types;
  * The naming for the type is based on the conception that a bag can contain any elements (including duplicates),
  * but is definitely not ordered.
  * <p>
- * Apologies to the Apache guys (but honestly: why should the conception of a "bag" imply that its contained elements
- * are counted? Apart from that, counting elements is such a specific addon logic, that the proper approach would be
- * to extend an existing type, like CountingList, etc. but surely not "bag", which implies unordered content).
- * <p>
  * This will probably be a rather academic type and has been introduced more for reasons of completeness of the
  * typing architecture, as in practice, list type collections will be preferred to pure bag type collections.
  * <p>

@@ -64,22 +64,13 @@ public interface BinaryStorer extends PersistenceStorer
 	@Override
 	public long maximumCapacity();
 	
-//	@Override
-//	public BinaryStorer initialize();
-//
-//	@Override
-//	public BinaryStorer initialize(long initialCapacity);
-
-
-	
 	/**
 	 * Default implementation that stores referenced instances only if required (i.e. if they have no OID assigned yet,
 	 * therefore have not been stored yet, therefore require to be stored). It can be seen as a "lazy" or "on demand"
 	 * storer as opposed to{@link Eager}.<br>
 	 * For a more differentiated solution between the two simple, but extreme strategies,
 	 * see {@link PersistenceEagerStoringFieldEvaluator}.
-	 * 
-	 * 
+	 *
 	 */
 	public class Default
 	implements BinaryStorer, PersistenceStoreHandler<Binary>, PersistenceLocalObjectIdRegistry<Binary>
@@ -113,7 +104,7 @@ public interface BinaryStorer extends PersistenceStorer
 		private final BufferSizeProviderIncremental bufferSizeProvider;
 		private final int                           chunksHashRange   ;
 		
-		// cannot be final since every commit needs to pass an independant instance.
+		// cannot be final since every commit needs to pass an independent instance.
 		private ChunksBuffer[] chunks;
 		
 		/*
@@ -419,7 +410,7 @@ public interface BinaryStorer extends PersistenceStorer
 			);
 			
 			/* (03.12.2019 TM)NOTE:
-			 * Special case logic to handle explicitely passed instances:
+			 * Special case logic to handle explicitly passed instances:
 			 * - if already handled by this storer, don't handle again.
 			 * Apart from that:
 			 * - register to be handled in any case, even if already registered in the object registry.
@@ -432,13 +423,13 @@ public interface BinaryStorer extends PersistenceStorer
 				return rootOid;
 			}
 			
-			// initial registration. After that, storing adds via recursing the graph and processing items iteratively.
+			// initial registration. After that, storing adds via recursion the graph and processing items iteratively.
 			rootOid = this.registerGuaranteed(notNull(root));
 
 			// process and collect required instances uniquely in item chain (graph recursion transformed to iteration)
 			for(Item item = this.tail; item != null; item = item.next)
 			{
-				// locks internally. May not lock the whole loop or other storers can't lookup concurrently.
+				// locks internally. May not lock the whole loop or other storers can't look up concurrently.
 				this.storeItem(item);
 			}
 
@@ -662,24 +653,6 @@ public interface BinaryStorer extends PersistenceStorer
 		}
 		
 		
-//		protected final long registerLazy(final Object instance)
-//		{
-//			/* Note:
-//			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
-//			 * - lazy, non-eager callback, obviously.
-//			 */
-//			return this.objectManager.ensureObjectId(instance, this, null);
-//		}
-//
-//		protected final long registerEager(final Object instance)
-//		{
-//			/* Note:
-//			 * - ensureObjectId may never be called under a storer lock or a deadlock might happen!
-//			 * - non-lazy, eager callback, obviously.
-//			 */
-//			return this.objectManager.ensureObjectId(instance, null, this);
-//		}
-		
 		@Override
 		public final boolean skipMapped(final Object instance, final long objectId)
 		{
@@ -752,7 +725,7 @@ public interface BinaryStorer extends PersistenceStorer
 
 		public final void synchRebuildStoreItems(final int newLength)
 		{
-			// moreless academic check for more than 1 billion entries
+			// more or less academic check for more than 1 billion entries
 			if(this.hashSlots.length >= XMath.highestPowerOf2_int())
 			{
 				return; // note that aborting rebuild does not ruin anything.

@@ -146,7 +146,7 @@ public final class _intList implements _intCollecting, Composition
 	 * The specified initial elements array range is copied via {@link System#arraycopy}.
 	 *
 	 * @param initialCapacity the desired initial capacity for the new instance.
-	 * @param src the source array containg the desired range of initial elements.
+	 * @param src the source array containing the desired range of initial elements.
 	 * @param srcStart the start index of the desired range of initial elements in the source array.
 	 * @param srcLength the length of the desired range of initial elements in the source array.
 	 */
@@ -190,12 +190,12 @@ public final class _intList implements _intCollecting, Composition
 	/* this method is highly optimized for performance, yielding up to around 300% the speed of
 	 * java.util.ArrayList.add() when adding elements to an already big enough storage.
 	 * Moving the storage increase part to a private increaseStorage() would make it faster when
-	 * regular increasing is needed, but puzzlingly then the alreay-big-enough performance
+	 * regular increasing is needed, but puzzlingly then the already-big-enough performance
 	 * advantage drops to around 110% faster instead of 300% faster (even though the single not called
 	 * increase method should be removed by HotSpot compiling. Seems there is a bug or at least
 	 * some heavy confusion going on there.
 	 * As a consequence, storage increasing has NOT been moved to a private method, thus maintaining
-	 * the huge alreay-big-enough performance advantage, but making it slower in regular-growth-cases
+	 * the huge already-big-enough performance advantage, but making it slower in regular-growth-cases
 	 * (also very strange).
 	 * Maybe one of the two HotSpot compiling problems improves in the future, so that both cases
 	 * of advanced performance are reachable by optimization.
@@ -265,7 +265,7 @@ public final class _intList implements _intCollecting, Composition
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
@@ -326,7 +326,7 @@ public final class _intList implements _intCollecting, Composition
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
@@ -382,7 +382,7 @@ public final class _intList implements _intCollecting, Composition
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
@@ -510,11 +510,6 @@ public final class _intList implements _intCollecting, Composition
 		return new _intList(this);
 	}
 
-	// (30.03.2012 TM)TODO _intConsList
-//	public ConstList immure()
-//	{
-//		return new ConstList(this);
-//	}
 
 	public _intList toReversed()
 	{
@@ -688,16 +683,6 @@ public final class _intList implements _intCollecting, Composition
 	// setting methods //
 	////////////////////
 
-	// (30.03.2012 TM)TODO _intViewList
-//	public ListView view()
-//	{
-//		return new ListView(this);
-//	}
-
-//	public SubListView view(final int fromIndex, final int toIndex)
-//	{
-//		return new SubListView(this, fromIndex, toIndex); // range check is done in constructor
-//	}
 
 	public _intList shiftTo(final int sourceIndex, final int targetIndex)
 	{
@@ -1458,11 +1443,7 @@ public final class _intList implements _intCollecting, Composition
 	public int removeAll(final _intList elements)
 	{
 		throw new one.microstream.meta.NotImplementedYetError(); // FIXME _intList#removeAll()
-//		final int removed;
-//		this.size -= removed = removeAllFromArray(
-//			elements, this.data, 0, this.size, this.data, 0, this.size, false
-//		);
-//		return removed;
+
 	}
 
 	// removing - duplicates //
@@ -1526,15 +1507,6 @@ public final class _intList implements _intCollecting, Composition
 		this.size -= Abstract_intArrayStorage.removeRange(this.data, this.size, startIndex, length);
 		return this;
 	}
-
-	// (30.03.2012 TM)TODO _intSubList
-//	public SubList range(final int fromIndex, final int toIndex)
-//	{
-//		// range check is done in constructor
-//		return new SubList(this, fromIndex, toIndex);
-//	}
-
-
 
 
 	public boolean isEmpty()

@@ -80,9 +80,8 @@ public interface AFile extends AItem
 	 */
 	public default long size()
 	{
-		// exists check is too expensive. Using logic must call it precisely when needed
+		// this.ensureExists() is too expensive. Using logic must call it precisely when needed
 		// (20.09.2020 TM) priv#392
-//		this.ensureExists();
 		
 		return this.fileSystem().ioHandler().size(this);
 	}
@@ -103,6 +102,7 @@ public interface AFile extends AItem
 		return this.fileSystem().accessManager().useReading(this, user);
 	}
 	
+	// implementations also need to cover locking.
 	public default AWritableFile useWriting(final Object user)
 	{
 		return this.fileSystem().accessManager().useWriting(this, user);
@@ -122,7 +122,8 @@ public interface AFile extends AItem
 	{
 		return this.fileSystem().accessManager().tryUseReading(this, user);
 	}
-	
+
+	// Implementation is also responsible for locking
 	public default AWritableFile tryUseWriting(final Object user)
 	{
 		return this.fileSystem().accessManager().tryUseWriting(this, user);
@@ -147,13 +148,9 @@ public interface AFile extends AItem
 	// required to query the file size, for example
 	public default boolean ensureExists()
 	{
-		// exists is very expensive, so double-checking to avoid a lambda instance is a bad idea
+		// if(this.exists()) is very expensive, so double-checking to avoid a lambda instance is a bad idea
 		// (20.09.2020 TM) priv#392
-//		if(this.exists())
-//		{
-//			return false;
-//		}
-		
+
 		return AFS.applyWriting(this, wf -> wf.ensureExists());
 	}
 	

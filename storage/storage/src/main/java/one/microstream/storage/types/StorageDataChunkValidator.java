@@ -240,9 +240,7 @@ public interface StorageDataChunkValidator
 	 * "Provider2" ist not a lazy copy name of "Provider", it's a hereby introduced schema to indicate
 	 * multi-layered provider logic which indicates that this is actually a "ProviderProvider".
 	 * With multiple layers of interface-based architecture, multiple layers of providers are necessary.
-	 * Neither laziness to do so or funny namings can be justifactions to fall back to hardcoding logic.
-	 * 
-	 * 
+	 *
 	 */
 	public interface Provider2
 	{

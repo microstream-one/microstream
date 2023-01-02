@@ -524,7 +524,7 @@ public final class Storage
 	 *
 	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
 	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
-	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        including older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
 	 *        as a negative value length header).<br>
 	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
 	 *        file dissolving (data transfers to new files) is required and vice versa.

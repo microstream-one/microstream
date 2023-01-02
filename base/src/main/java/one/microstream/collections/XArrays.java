@@ -42,13 +42,8 @@ import one.microstream.typing.XTypes;
 import one.microstream.util.UtilStackTrace;
 
 /**
- * Numerous utility methods for working with arrays, all of which are either missing in the JDK or botched up
- * in one way or another. For both writing AND reading code, there must be a LOT of util methods, so that the
- * source code can be as short but comprehensible possible. Keeping the number of util methods at the bare minimum
- * might make things simpler for the JDK provider, but not for the JDK user. There need to be a rich set of proper
- * general purpose tools, not the need to write almost every util method anew in every project.
- * 
- * 
+ * Numerous utility methods for working with arrays, all of which are either missing in the JDK.
+ *
  */
 public final class XArrays
 {
@@ -413,8 +408,6 @@ public final class XArrays
 		
 		return true;
 		
-		// (14.05.2019 TM)NOTE: Java 9 standard solution. Might be intrinsic, so it is preferable.
-//		return Arrays.equals(array1, 0, length, array2, 0, length);
 	}
 	
 	public static <T> T[] add(final T[] array, final T element)
@@ -766,7 +759,7 @@ public final class XArrays
 	}
 
 	/**
-	 * Removed all occurances of {@code e} from array {@code array}.
+	 * Removed all occurrences of {@code e} from array {@code array}.
 	 * 
 	 * @param <E> the element type
 	 * @param array the array containing all elements.
@@ -787,7 +780,7 @@ public final class XArrays
 		{
 			while(i < bound && array[i] == e)
 			{
-				// determine move offset (next occurance of non-e)
+				// determine move offset (next occurrence of non-e)
 				i++;
 			}
 			final int moveOffset = i;
@@ -1068,8 +1061,7 @@ public final class XArrays
 	/**
 	 * At least for Java 1.8, the types seem to not be checked.
 	 * Passing a collection of Strings and a Number[] (meaning String extends Number) is not a compiler error.
-	 * Bug / generics loophole.
-	 * 
+	 *
 	 * @param <E> the source element type
 	 * @param <T> the target element type
 	 * @param source the source collection
@@ -1088,8 +1080,7 @@ public final class XArrays
 	/**
 	 * At least for Java 1.8, the types seem to not be checked.
 	 * Passing a collection of Strings and a Number[] (meaning String extends Number) is not a compiler error.
-	 * Bug / generics loophole.
-	 * 
+	 *
 	 * @param <E> the source element type
 	 * @param <T> the target element type
 	 * @param source the source collection
@@ -1355,7 +1346,6 @@ public final class XArrays
 		final Predicate<? super E> predicate
 		)
 	{
-		// once in a while, omiting the {} in stuff like that is really funny (though not more readable, ofc)
 		for(final E e : elements)
 		{
 			if(predicate.test(e))
@@ -1683,7 +1673,6 @@ public final class XArrays
 	@SuppressWarnings("unchecked")
 	public static <E> Class<E> componentType(final E[] array)
 	{
-		// so much utility functionality missing in JDK. Or is it just me? -.-
 		return (Class<E>)array.getClass().getComponentType();
 	}
 

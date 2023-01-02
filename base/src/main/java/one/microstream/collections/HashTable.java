@@ -65,7 +65,7 @@ import one.microstream.typing.XTypes;
 /**
  * Collection of key-value-pairs that is ordered and does not allow duplicate keys.
  * Aims to be more efficient, logically structured
- * and with more built in features than {@link java.util.Map}.
+ * and with more built-in features than {@link java.util.Map}.
  * <p>
  * In contrast to {@link EqHashTable} this implementation uses the default isSame-Equalator({@link Equalator#identity()}
  * and the Java hashCode implementation {@link System#identityHashCode(Object)}.
@@ -75,7 +75,7 @@ import one.microstream.typing.XTypes;
  * See {@link SynchSet} wrapper class to use a list in a synchronized manner.
  * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
- * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * to maximize internal iteration potential, eliminating the need to use the external iteration
  * {@link Iterator} paradigm.
  * 
  * @param <K> type of contained keys
@@ -536,7 +536,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 
 
 	///////////////////////////////////////////////////////////////////////////
-	// inheriteted ExtendedCollection methods //
+	// inherited ExtendedCollection methods //
 	///////////////////////////////////////////
 
 	@Override
@@ -684,8 +684,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	{
 		/* As the object header's identity hash value of any instance can never change, this method does
 		 * nothing more than optimizing the storage.
-		 * Should this VM implementation detail ever change (which is extremely doubtful as it moreless ruins
-		 * the object identity), feel free to replace this method on the source or bytecode level.
 		 */
 		this.optimize();
 		return XTypes.to_int(this.size());
@@ -1246,13 +1244,13 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	@Override
 	public final XEnum<KeyValue<K, V>> range(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#range()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#range()
 	}
 
 	@Override
 	public final XGettingEnum<KeyValue<K, V>> view(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#view()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#view()
 	}
 
 	@Override
@@ -1308,29 +1306,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	{
 		return HashTable.this.chain.min(comparator);
 	}
-
-//	/**
-//	 * As per definition of a set, this method always returns true.<br>
-//	 * Note that mutated elements whose hashcode has not been immuted by the employed hash logic
-//	 * can be contained multiple times, effectively breaking this method (because of breaking the hashing logic in the
-//	 * first place), so this information only has value if the elements' implementation is immutable or if the
-//	 * hash logic compensated their mutability (e.g. by using the identity hash code or by registering a once created
-//	 * hashcode, effectively "immuting" it).
-//	 *
-//	 * @return
-//	 * @see XGettingCollection#hasDistinctValues()
-//	 */
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		return true;
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super KeyValue<K, V>> equalator)
-//	{
-//		return HashTable.this.chain.hasDistinctValues(equalator);
-//	}
 
 	// boolean querying - applies //
 
@@ -1960,168 +1935,168 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean input(final long index, final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#input()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#input()
 	}
 
 	@SafeVarargs
 	@Override
 	public final long inputAll(final long index, final KeyValue<K, V>... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#input()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#input()
 	}
 
 	@Override
 	public final long inputAll(final long index, final KeyValue<K, V>[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#inputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#inputAll()
 	}
 
 	@Override
 	public final long inputAll(final long index, final XGettingCollection<? extends KeyValue<K, V>> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#inputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#inputAll()
 	}
 
 	@Override
 	public final boolean insert(final long index, final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#insert()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#insert()
 	}
 
 	@SafeVarargs
 	@Override
 	public final long insertAll(final long index, final KeyValue<K, V>... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#insert()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#insert()
 	}
 
 	@Override
 	public final long insertAll(final long index, final KeyValue<K, V>[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#insertAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#insertAll()
 	}
 
 	@Override
 	public final long insertAll(final long index, final XGettingCollection<? extends KeyValue<K, V>> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#insertAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#insertAll()
 	}
 
 	@Override
 	public final boolean prepend(final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#prepend()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#prepend()
 	}
 
 	@Override
 	public final boolean preput(final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#preput()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#preput()
 	}
 
 	@Override
 	public final boolean nullInput(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#nullInput()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#nullInput()
 	}
 
 	@Override
 	public final boolean nullInsert(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#nullInsert()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#nullInsert()
 	}
 
 	@Override
 	public final boolean nullPrepend()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#nullPrepend()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#nullPrepend()
 	}
 
 	@SafeVarargs
 	@Override
 	public final HashTable<K, V> prependAll(final KeyValue<K, V>... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#prepend()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#prepend()
 	}
 
 	@Override
 	public final HashTable<K, V> prependAll(final KeyValue<K, V>[] elements, final int srcStartIndex, final int srcLength)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#prependAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#prependAll()
 	}
 
 	@Override
 	public final HashTable<K, V> prependAll(final XGettingCollection<? extends KeyValue<K, V>> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#prependAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#prependAll()
 	}
 
 	@Override
 	public final boolean nullPreput()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#nullPreput()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#nullPreput()
 	}
 
 	@SafeVarargs
 	@Override
 	public final HashTable<K, V> preputAll(final KeyValue<K, V>... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#preput()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#preput()
 	}
 
 	@Override
 	public final HashTable<K, V> preputAll(final KeyValue<K, V>[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#preputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#preputAll()
 	}
 
 	@Override
 	public final HashTable<K, V> preputAll(final XGettingCollection<? extends KeyValue<K, V>> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#preputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#preputAll()
 	}
 
 	@Override
 	public final boolean set(final long index, final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#set()
 	}
 
 	@Override
 	public final KeyValue<K, V> setGet(final long index, final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#setGet()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#setGet()
 	}
 
 	@Override
 	public final void setFirst(final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#setFirst()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#setFirst()
 	}
 
 	@Override
 	public final void setLast(final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#setLast()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#setLast()
 	}
 
 	@SafeVarargs
 	@Override
 	public final HashTable<K, V> setAll(final long index, final KeyValue<K, V>... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#set()
 	}
 
 	@Override
 	public final HashTable<K, V> set(final long index, final KeyValue<K, V>[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#set()
 	}
 
 	@Override
 	public final HashTable<K, V> set(final long index, final XGettingSequence<? extends KeyValue<K, V>> elements, final long offset, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Entries#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Entries#set()
 	}
 	
 	@Override
@@ -2240,13 +2215,13 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		@Override
 		public final XEnum<K> range(final long lowIndex, final long highIndex)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#range()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#range()
 		}
 
 		@Override
 		public final XGettingEnum<K> view(final long lowIndex, final long highIndex)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#view()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#view()
 		}
 
 		@Override
@@ -2322,33 +2297,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		{
 			return true;
 		}
-
-//		/**
-//		 * As per definition of a set, this method always returns true.<br>
-//		 * Note that mutated elements whose hashcode has not been immuted by the employed hash logic
-//		 * can be contained multiple times, effectively breaking this method (because of breaking the hashing logic in the
-//		 * first place), so this information only has value if the elements' implementation is immutable or if the
-//		 * hash logic compensated their mutability (e.g. by using the identity hash code or by registering a once created
-//		 * hashcode, effectively "immuting" it).
-//		 *
-//		 * @return
-//		 * @see XGettingCollection#hasDistinctValues()
-//		 */
-//		@Override
-//		public final boolean hasDistinctValues()
-//		{
-//			return true;
-//		}
-//
-//		@Override
-//		public final boolean hasDistinctValues(final Equalator<? super K> equalator)
-//		{
-//			if(equalator instanceof IdentityEqualator<?>)
-//			{
-//				return true;
-//			}
-//			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#hasDistinctValues()
-//		}
 
 		// boolean querying - applies //
 
@@ -3117,167 +3065,167 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 		@Override
 		public final boolean input(final long index, final K element)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#input()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#input()
 		}
 
 		@SafeVarargs
 		@Override
 		public final long inputAll(final long index, final K... elements)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#input()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#input()
 		}
 
 		@Override
 		public final long inputAll(final long index, final K[] elements, final int offset, final int length)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#inputAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#inputAll()
 		}
 
 		@Override
 		public final long inputAll(final long index, final XGettingCollection<? extends K> elements)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#inputAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#inputAll()
 		}
 
 		@Override
 		public final boolean insert(final long index, final K element)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#insert()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#insert()
 		}
 
 		@SafeVarargs
 		@Override
 		public final long insertAll(final long index, final K... elements)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#insert()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#insert()
 		}
 
 		@Override
 		public final long insertAll(final long index, final K[] elements, final int offset, final int length)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#insertAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#insertAll()
 		}
 
 		@Override
 		public final long insertAll(final long index, final XGettingCollection<? extends K> elements)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#insertAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#insertAll()
 		}
 
 		@Override
 		public final boolean prepend(final K element)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#prepend()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#prepend()
 		}
 
 		@Override
 		public final boolean preput(final K element)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#preput()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#preput()
 		}
 
 		@Override
 		public final boolean nullInput(final long index)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#nullInput()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#nullInput()
 		}
 
 		@Override
 		public final boolean nullInsert(final long index)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#nullInsert()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#nullInsert()
 		}
 
 		@Override
 		public final boolean nullPrepend()
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#nullPrepend()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#nullPrepend()
 		}
 
 		@Override
 		public final Keys prependAll(@SuppressWarnings("unchecked") final K... elements)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#prepend()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#prepend()
 		}
 
 		@Override
 		public final Keys prependAll(final K[] elements, final int srcStartIndex, final int srcLength)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#prependAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#prependAll()
 		}
 
 		@Override
 		public final Keys prependAll(final XGettingCollection<? extends K> elements)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#prependAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#prependAll()
 		}
 
 		@Override
 		public final boolean nullPreput()
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#nullPreput()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#nullPreput()
 		}
 
 		@SafeVarargs
 		@Override
 		public final Keys preputAll(final K... elements)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#preput()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#preput()
 		}
 
 		@Override
 		public final Keys preputAll(final K[] elements, final int offset, final int length)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#preputAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#preputAll()
 		}
 
 		@Override
 		public final Keys preputAll(final XGettingCollection<? extends K> elements)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#preputAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#preputAll()
 		}
 
 		@Override
 		public final boolean set(final long index, final K element)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#set()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#set()
 		}
 
 		@Override
 		public final K setGet(final long index, final K element)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#setGet()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#setGet()
 		}
 
 		@Override
 		public final void setFirst(final K element)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#setFirst()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#setFirst()
 		}
 
 		@Override
 		public final void setLast(final K element)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#setLast()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#setLast()
 		}
 
 		@SafeVarargs
 		@Override
 		public final Keys setAll(final long index, final K... elements)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#set()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#set()
 		}
 
 		@Override
 		public final Keys set(final long index, final K[] elements, final int offset, final int length)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#set()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#set()
 		}
 
 		@Override
 		public final Keys set(final long index, final XGettingSequence<? extends K> elements, final long offset, final long length)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME HashTable.Keys#set()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Keys#set()
 		}
 
 		@Override
@@ -3431,17 +3379,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 			return target;
 		}
 
-//		@Override
-//		public final boolean hasDistinctValues()
-//		{
-//			return HashTable.this.chain.valuesHasDistinctValues();
-//		}
-//
-//		@Override
-//		public final boolean hasDistinctValues(final Equalator<? super V> equalator)
-//		{
-//			return HashTable.this.chain.valuesHasDistinctValues(equalator);
-//		}
 
 		@Override
 		public final boolean hasVolatileElements()
@@ -3934,18 +3871,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 			// (23.01.2017 TM)NOTE: copyTo() removed. No time for a replacement, atm.
 			throw new one.microstream.meta.NotImplementedYetError(); // FIXME HashTable.Values#set()
 
-//			// (22.05.2011)NOTE: redundant copying due to implemenation laziness, for now
-//			@SuppressWarnings("unchecked")
-//			final V[] copy = (V[])values.copyTo(
-//				new Object[X.checkArrayRange(valuesLength)],
-//				0                                               ,
-//				offset                                          ,
-//				X.checkArrayRange(valuesLength)
-//			);
-//
-//			HashTable.this.chain.valuesSet(valuesOffset, copy);
-//
-//			return this;
 		}
 
 		@Override
@@ -4061,8 +3986,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 			{
 				/* how to safely detect an exception caused by an invalid type of passed object?
 				 * Can't be sure to always be a ClassCastException...
-				 * God damn stupid dilettantish Object type in old Map -.-
-				 * As if they really found "reasonable code that affords Object" back then, nonsense.
 				 */
 				return false;
 			}
@@ -4080,8 +4003,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 			{
 				/* how to safely detect an exception caused by an invalid type of passed object?
 				 * Can't be sure to always be a ClassCastException...
-				 * God damn stupid dilettantish Object type in old Map -.-
-				 * As if they really found "reasonable code that affords Object" back then, nonsense.
 				 */
 				return false;
 			}
@@ -4097,7 +4018,7 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 			 * XCollection-architecture wise, the "old" collections cleanly use KeyValue instead of Entry.
 			 * But java.util.Set<KeyValue<K, V>> cannot be cast to Set<java.util.Map.Entry<K, V>>, generics-wise.
 			 * Nevertheless, the "stuff behind" the typing IS compatible.
-			 * So this typingly dirty but architectural clean workaround is used.
+			 * So this dirty but architectural clean workaround is used.
 			 */
 			return (Set<java.util.Map.Entry<K, V>>)(Set<?>)HashTable.this.old();
 		}
@@ -4114,8 +4035,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 			{
 				/* how to safely detect an exception caused by an invalid type of passed object?
 				 * Can't be sure to always be a ClassCastException...
-				 * God damn stupid dilettantish Object type in old Map -.-
-				 * As if they really found "reasonable code that affords Object" back then, nonsense.
 				 */
 				return null;
 			}
@@ -4168,8 +4087,6 @@ implements XTable<K, V>, HashCollection<K>, Composition, IdentityEqualityLogic
 			{
 				/* how to safely detect an exception caused by an invalid type of passed object?
 				 * Can't be sure to always be a ClassCastException...
-				 * God damn stupid dilettantish Object type in old Map -.-
-				 * As if they really found "reasonable code that affords Object" back then, nonsense.
 				 */
 				return null;
 			}

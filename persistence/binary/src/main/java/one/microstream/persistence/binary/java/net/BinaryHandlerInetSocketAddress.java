@@ -79,7 +79,7 @@ public final class BinaryHandlerInetSocketAddress extends CustomBinaryHandler<In
 	{
 		/*
 		 * Blank instance with dummy values that gets updated later.
-		 * Because that class is badly written that there is no other way of handling it.
+		 * Because the way the class is written, there is no other way of handling it.
 		 */
 		return InetSocketAddress.createUnresolved(uninitializedHostName(), 0);
 	}

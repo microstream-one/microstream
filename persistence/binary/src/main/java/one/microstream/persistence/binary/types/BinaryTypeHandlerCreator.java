@@ -199,7 +199,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			 * java.util.Comparator don't cause the Comparator itself to be analyzed about its persistability.
 			 * 
 			 * Note: it actually is already done, see PersistenceTypeHandlerManager$Default#internalRegisterTypeHandler.
-			 * But that seems to be a rather naive approch, ignoring all considerations about interlinked
+			 * But that seems to be a rather naive approach, ignoring all considerations about interlinked
 			 * persistability problems below.
 			 * 
 			 * A recursive mechanism would be is required to ensure that.
@@ -307,7 +307,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 				cause = e;
 			}
 			
-			// this is as far as generic type analysis gets. Surrender.
+			// this is as far as generic type analysis gets.
 			
 			throw new BinaryPersistenceException(
 				"Collection type cannot be handled generically and requires a custom "
@@ -327,7 +327,7 @@ public interface BinaryTypeHandlerCreator extends PersistenceTypeHandlerCreator<
 			return this.createEnumHandler(type, persistableFields, persisterFields);
 		}
 
-		@SuppressWarnings("unchecked") // required generics crazy sh*t tinkering
+		@SuppressWarnings("unchecked")
 		final <T, E extends Enum<E>> PersistenceTypeHandler<Binary, T> createEnumHandler(
 			final Class<T>            type             ,
 			final XGettingEnum<Field> persistableFields,

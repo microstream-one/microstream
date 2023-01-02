@@ -59,8 +59,6 @@ import one.microstream.util.UtilStackTrace;
 /**
  * Provides additional generic util methods for working with java reflection.
  *
- * 
- *
  */
 public final class XReflect
 {
@@ -74,7 +72,6 @@ public final class XReflect
 		}
 		catch(final NoSuchMethodException e)
 		{
-			// childich checked exceptions ...
 			throw new NoSuchMethodRuntimeException(e);
 		}
 
@@ -98,16 +95,8 @@ public final class XReflect
 		{
 			return setAccessible(field);
 		}
-		// (14.11.2019 TM)NOTE: JDK 9
-//		catch(final InaccessibleObjectException e)
-//		{
-//			// the geniuses struck again: they left out the (String, Throwable) constructor
-////			throw new InaccessibleObjectException(actualClass.toString() + "#" + deriveFieldIdentifier(field), e);
-//			throw new RuntimeException(toFullQualifiedFieldName(actualClass, field), e);
-//		}
 		catch(final SecurityException e)
 		{
-			// oh, wow. Here, they actually managed to provide it.
 			throw new SecurityException(toFullQualifiedFieldName(actualClass, field), e);
 		}
 		catch(final RuntimeException e)
@@ -120,27 +109,27 @@ public final class XReflect
 		}
 	}
 
-	// convenience method to allow simpler functional programming via method reference for that often needed use case.
+	// convenience method to allow simpler functional programming via method reference for that often needed use-case.
 	public static final Field setAccessible(final Field field)
-		throws SecurityException/*, InaccessibleObjectException*/
+		throws SecurityException
 	{
 		field.setAccessible(true);
 
 		return field;
 	}
 	
-	// convenience method to allow simpler functional programming via method reference for that often needed use case.
+	// convenience method to allow simpler functional programming via method reference for that often needed use-case.
 	public static final Method setAccessible(final Method method)
-		throws SecurityException/*, InaccessibleObjectException*/
+		throws SecurityException
 	{
 		method.setAccessible(true);
 
 		return method;
 	}
 	
-	// convenience method to allow simpler functional programming via method reference for that often needed use case.
+	// convenience method to allow simpler functional programming via method reference for that often needed use-case.
 	public static final <T> Constructor<T> setAccessible(final Constructor<T> constructor)
-		throws SecurityException/*, InaccessibleObjectException*/
+		throws SecurityException
 	{
 		constructor.setAccessible(true);
 
@@ -254,11 +243,7 @@ public final class XReflect
 	}
 
 	/*
-	 * Welcome to a method checking if a "Class" is a class. Because they couldn't manage to
-	 * name the type generally representing types "Type" but named it "Class" instead, so that in Java Reflection,
-	 * classes are "Class", interfaces are "Class" and primitives are "Class", too.
-	 * Geniuses.
-	 * Might wanna understand what a type is before designing a type system, but that may just be my arrogance.
+	 * Welcome to a method checking if a "Class" is a class
 	 */
 	public static final boolean isActualClass(final Class<?> type)
 	{
@@ -274,7 +259,7 @@ public final class XReflect
 	 * Utility method fixing the WRONGLY implemented {@link Class#isEnum()}.
 	 * <p>
 	 * Their description is weird (<i>"if this class was declared as an enum in the source code"</i>) and the
-	 * implemented behavior is dangerous and useless to identify all classes of instances that are enums.
+	 * implemented behavior fails to identify all classes of instances that are enums.
 	 * <p>
 	 * For enum anonymous inner class instances (writing { ... } behind an enum constant), {@link Class#isEnum()}
 	 * returns {@literal false} on the generated type. That is a bug since the type is still an enum, a sub class
@@ -287,17 +272,6 @@ public final class XReflect
 	 */
 	public static boolean isEnum(final Class<?> c)
 	{
-		/*
-		 * Slowly feels like EVERYTHING in the JDK has to be replaced by custom code doing the job properly...
-		 * If they really want their weird version, then two cleanly named methods are required:
-		 * #isEnum()
-		 * #isDeclaredEnum()
-		 * The latter ("theirs") is probably useful, too, but the primary meaning of "isEnum" is THIS logic here.
-		 *
-		 * Since they made their ENUM bit mask unusable (as usual in their reflection code), it can't be used here.
-		 * It has to be assumed that only proper enum types extend Enum. If not, blame it on the incompetent
-		 * JDK reflection code lacking proper separation of concerns concepts. Amateurs.
-		 */
 		return java.lang.Enum.class.isAssignableFrom(c);
 	}
 
@@ -486,7 +460,7 @@ public final class XReflect
 		}
 		catch(final NoSuchFieldRuntimeException e)
 		{
-			// (28.10.2013 TM)EXCP: proper exception (OMG).
+			// (28.10.2013 TM)EXCP: proper exception
 			throw new NoSuchFieldRuntimeException(
 				new NoSuchFieldException("No field with name " + name + " found in type " + c)
 			);
@@ -525,7 +499,7 @@ public final class XReflect
 		}
 		catch(final NoSuchFieldRuntimeException e)
 		{
-			// (28.10.2013 TM)EXCP: proper exception (OMG).
+			// (28.10.2013 TM)EXCP: proper exception
 			throw new NoSuchFieldRuntimeException(
 				new NoSuchFieldException(
 					"No instance field of type " + fieldType.getName() + " found in type " + declaringType
@@ -550,7 +524,7 @@ public final class XReflect
 		}
 		catch(final NoSuchFieldRuntimeException e)
 		{
-			// (28.10.2013 TM)EXCP: proper exception (OMG).
+			// (28.10.2013 TM)EXCP: proper exception
 			throw new NoSuchMethodRuntimeException(
 				new NoSuchMethodException("No method with name " + name + " found in type " + c)
 			);
@@ -777,7 +751,7 @@ public final class XReflect
 	 * 2.) The things that are resolved are TYPES
 	 * (classes, interfaces, arrays and in later Java versions enums and annotations), not just classes.
 	 * That the java inventors seemingly didn't understand their own type system and just called everything
-	 * "Class" on the API-level,* even interfaces, is just an error that should be repeated as less as possible.<br>
+	 * "Class" on the API-level,* even interfaces, is just an error that should be repeated as little as possible.<br>
 	 *
 	 * @param typeName the type name to be resolved, primitive name or full qualified type name.
 	 * @param classLoader class loader from which the class must be loaded
@@ -881,13 +855,13 @@ public final class XReflect
 	 * <p>
 	 * <b>Note:</b><br>
 	 * While it is generally a bad idea to just use a trial and error approach until something works,
-	 * a logic like this is required to resolve types whose packages changes accross different versions of a library.
+	 * a logic like this is required to resolve types whose packages changes across different versions of a library.
 	 * If the different full qualified class names are known, they can be used in an iterative attempt to resolve
 	 * the class, hence avoiding hard dependencies to certain library versions in the using code by moving
 	 * type names from imports at compile time to dynamic class resolving at runtime.<br>
 	 * However, this approach has its limits, of course. If too much changes (field names, method names, parameters,
 	 * behavior) the dynamic strategy results in chaos as the compiler gets more and more circumvented and more and
-	 * more source code is transformed into contextless plain strings.<br>
+	 * more source code is transformed into context-less plain strings.<br>
 	 * Therefore, when in doubt, it is preferable to stick to the general notion of this method being a "bad idea"
 	 * and finding a more reliable solution.
 	 *
@@ -1007,7 +981,6 @@ public final class XReflect
 
 	public static final Class<?> tryResolvePrimitiveType(final String className)
 	{
-		// Stupid JDK once again. Unbelievable.
 		switch(className)
 		{
 			case "byte"   : return byte   .class;
@@ -1214,14 +1187,13 @@ public final class XReflect
 	 *
 	 * @param type the type to be checked.
 	 *
-	 * @return whether or not the passed type is a java.util collection "in the broader sense".
+	 * @return whether the passed type is a java.util collection "in the broader sense".
 	 *
 	 * @see Collection
 	 * @see Map
 	 */
 	public static boolean isJavaUtilCollectionType(final Class<?> type)
 	{
-		// because the geniuses failed to make Map a collection. Hilarious.
 		return Collection.class.isAssignableFrom(type)
 			|| Map.class.isAssignableFrom(type)
 		;
@@ -1252,7 +1224,7 @@ public final class XReflect
 	public static boolean isProxyClass(final Class<?> c)
 	{
 		/* (20.08.2019 TM)NOTE:
-		 * I'm willing to concede lack of understanding on the topic, but IMHO, the method
+		 * IMHO, the method
 		 * Proxy#isProxyClass is nonsensical and unusable given its name. Or maybe it's just badly named.
 		 *
 		 * To determine if a class is a Proxy class it MUST ONLY be checked for extending Proxy, but NOT
@@ -1437,7 +1409,6 @@ public final class XReflect
 	{
 		// must circumvent reflection access by low-level access due to warnings about JDK-internal reflection access.
 		final long fieldOffset = XMemory.objectFieldOffset(field);
-//		XReflect.setAccessible(field);
 
 		if(field.getType().isPrimitive())
 		{
@@ -1446,14 +1417,12 @@ public final class XReflect
 		}
 
 		final Object value = XMemory.getObject(source, fieldOffset);
-//		final Object value = field.get(source);
 		if(!copySelector.test(source, target, field, value))
 		{
 			return;
 		}
 
 		XMemory.setObject(target, fieldOffset, value);
-//		field.set(target, value);
 	}
 
 	private static <T, S extends T>void copyPrimitiveFieldValue(
@@ -1475,42 +1444,34 @@ public final class XReflect
 		if(primitiveType == int.class)
 		{
 			XMemory.set_int(target, fieldOffset, XMemory.get_int(source, fieldOffset));
-//			primitiveField.setInt(target, primitiveField.getInt(source));
 		}
 		else if(primitiveType == double.class)
 		{
 			XMemory.set_double(target, fieldOffset, XMemory.get_double(source, fieldOffset));
-//			primitiveField.setDouble(target, primitiveField.getDouble(source));
 		}
 		else if(primitiveType == long.class)
 		{
 			XMemory.set_long(target, fieldOffset, XMemory.get_long(source, fieldOffset));
-//			primitiveField.setLong(target, primitiveField.getLong(source));
 		}
 		else if(primitiveType == boolean.class)
 		{
 			XMemory.set_boolean(target, fieldOffset, XMemory.get_boolean(source, fieldOffset));
-//			primitiveField.setBoolean(target, primitiveField.getBoolean(source));
 		}
 		else if(primitiveType == float.class)
 		{
 			XMemory.set_float(target, fieldOffset, XMemory.get_float(source, fieldOffset));
-//			primitiveField.setFloat(target, primitiveField.getFloat(source));
 		}
 		else if(primitiveType == char.class)
 		{
 			XMemory.set_char(target, fieldOffset, XMemory.get_char(source, fieldOffset));
-//			primitiveField.setChar(target, primitiveField.getChar(source));
 		}
 		else if(primitiveType == short.class)
 		{
 			XMemory.set_short(target, fieldOffset, XMemory.get_short(source, fieldOffset));
-//			primitiveField.setShort(target, primitiveField.getShort(source));
 		}
 		else if(primitiveType == byte.class)
 		{
 			XMemory.set_byte(target, fieldOffset, XMemory.get_byte(source, fieldOffset));
-//			primitiveField.setByte(target, primitiveField.getByte(source));
 		}
 		else
 		{

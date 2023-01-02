@@ -26,10 +26,6 @@ import static one.microstream.chars.XChars.systemString;
 import one.microstream.chars.VarString;
 
 
-/**
- * 
- * 
- */
 public class EntityExceptionMissingDataForVersion extends EntityException
 {
 	private final Entity entity;

@@ -728,24 +728,6 @@ public final class LockedList<E> implements XList<E>, Synchronized
 		}
 	}
 
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		synchronized(this.lock)
-//		{
-//			return this.subject.hasDistinctValues(equalator);
-//		}
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		synchronized(this.lock)
-//		{
-//			return this.subject.hasDistinctValues();
-//		}
-//	}
-
 	@Override
 	public final boolean hasVolatileElements()
 	{

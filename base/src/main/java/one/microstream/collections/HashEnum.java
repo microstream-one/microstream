@@ -48,7 +48,7 @@ import one.microstream.typing.XTypes;
 
 /**
  * Collection that is ordered and does not allow duplicates. Aims to be more efficient, logically structured
- * and with more built in features than {@link java.util.Set}.
+ * and with more built-in features than {@link java.util.Set}.
  * <p>
  * In contrast to {@link EqHashEnum} this implementation uses the default isSame-Equalator({@link Equalator#identity()}
  * and the Java hashCode implementation {@link System#identityHashCode(Object)}.
@@ -58,7 +58,7 @@ import one.microstream.typing.XTypes;
  * See {@link SynchSet} wrapper class to use a list in a synchronized manner.
  * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
- * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * to maximize internal iteration potential, eliminating the need to use the external iteration
  * {@link Iterator} paradigm.
  * 
  * @param <E> type of contained elements
@@ -332,8 +332,6 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	{
 		/* As the object header's identity hash value of any instance can never change, this method does
 		 * nothing more than optimizing the storage.
-		 * Should this VM implementation detail ever change (which is extremely doubtful as it moreless ruins
-		 * the object identity), feel free to replace this method on the source or bytecode level.
 		 */
 		this.optimize();
 		return XTypes.to_int(this.size());
@@ -678,13 +676,13 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final XEnum<E> range(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#range()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#range()
 	}
 
 	@Override
 	public final EnumView<E> view(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#view()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#view()
 	}
 
 	@Override
@@ -740,29 +738,6 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	{
 		return this.chain.min(comparator);
 	}
-
-//	/**
-//	 * As per definition of a set, this method always returns true.<br>
-//	 * Note that mutated elements whose hashcode has not been immuted by the employed hash logic
-//	 * can be contained multiple times, effectively breaking this method (because of breaking the hashing logic in the
-//	 * first place), so this information only has value if the elements' implementation is immutable or if the
-//	 * hash logic compensated their mutability (e.g. by using the identity hash code or by registering a once created
-//	 * hashcode, effectively "immuting" it).
-//	 *
-//	 * @return
-//	 * @see XGettingCollection#hasDistinctValues()
-//	 */
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		return true;
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return this.chain.hasDistinctValues(equalator);
-//	}
 
 	// boolean querying - applies //
 
@@ -1370,51 +1345,51 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean input(final long index, final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#input()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#input()
 	}
 
 	@SafeVarargs
 	@Override
 	public final long inputAll(final long index, final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#input()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#input()
 	}
 
 	@Override
 	public final long inputAll(final long index, final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#inputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#inputAll()
 	}
 
 	@Override
 	public final long inputAll(final long index, final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#inputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#inputAll()
 	}
 
 	@Override
 	public final boolean insert(final long index, final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#insert()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#insert()
 	}
 
 	@SafeVarargs
 	@Override
 	public final long insertAll(final long index, final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#insert()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#insert()
 	}
 
 	@Override
 	public final long insertAll(final long index, final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#insertAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#insertAll()
 	}
 
 	@Override
 	public final long insertAll(final long index, final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#insertAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#insertAll()
 	}
 
 	@Override
@@ -1451,106 +1426,106 @@ implements XEnum<E>, HashCollection<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean nullInput(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#nullInput()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#nullInput()
 	}
 
 	@Override
 	public final boolean nullInsert(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#nullInsert()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#nullInsert()
 	}
 
 	@Override
 	public final boolean nullPrepend()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#nullPrepend()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#nullPrepend()
 	}
 
 	@SafeVarargs
 	@Override
 	public final HashEnum<E> prependAll(final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#prepend()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#prepend()
 	}
 
 	@Override
 	public final HashEnum<E> prependAll(final E[] elements, final int srcStartIndex, final int srcLength)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#prependAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#prependAll()
 	}
 
 	@Override
 	public final HashEnum<E> prependAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#prependAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#prependAll()
 	}
 
 	@Override
 	public final boolean nullPreput()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#nullPreput()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#nullPreput()
 	}
 
 	@SafeVarargs
 	@Override
 	public final HashEnum<E> preputAll(final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#preput()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#preput()
 	}
 
 	@Override
 	public final HashEnum<E> preputAll(final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#preputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#preputAll()
 	}
 
 	@Override
 	public final HashEnum<E> preputAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#preputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#preputAll()
 	}
 
 	@Override
 	public final boolean set(final long index, final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#set()
 	}
 
 	@Override
 	public final E setGet(final long index, final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#setGet()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#setGet()
 	}
 
 	@Override
 	public final void setFirst(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#setFirst()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#setFirst()
 	}
 
 	@Override
 	public final void setLast(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#setLast()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#setLast()
 	}
 
 	@SafeVarargs
 	@Override
 	public final HashEnum<E> setAll(final long index, final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#set()
 	}
 
 	@Override
 	public final HashEnum<E> set(final long index, final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#set()
 	}
 
 	@Override
 	public final HashEnum<E> set(final long index, final XGettingSequence<? extends E> elements, final long offset, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#set()
 	}
 
 

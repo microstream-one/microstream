@@ -24,7 +24,7 @@ public class Credentials
 {
 
     /**
-     * The type of the credentials provider. Supported values are:
+     * The type of the credentials' provider. Supported values are:
      * <ul>
      *
      * <li>"environment-variables" Credentials will be loaded from the AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN environment variables.</li>

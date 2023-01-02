@@ -23,10 +23,6 @@ package one.microstream.functional;
 import one.microstream.collections.types.XGettingCollection;
 
 
-/**
- * 
- *
- */
 public final class AvgIntegerNonNull implements Aggregator<Integer, Integer>
 {
 	private int sum  ;

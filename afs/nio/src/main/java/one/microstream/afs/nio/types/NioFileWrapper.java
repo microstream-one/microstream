@@ -273,13 +273,8 @@ public interface NioFileWrapper extends AFile.Wrapper, NioItemWrapper
 			this.fileChannel = fileChannel;
 			
 			/*
-			 * The channel is set implicitely to the end since append mode is somehow never usable
-			 * Details:
+			 * The channel is set implicitly to the end since append mode is somehow never usable
 			 * When using RandomAccessFile, there is no way to make it create the channel in append mode
-			 * When creating the channel by using the open options, then READ and APPEND have an
-			 * inexplicably stupid conflict that causes an exception.
-			 * So the only viable option to get an always-append file channel is to NOT use append mode,
-			 * set the position to size and never change it again.
 			 */
 			this.ensurePositionAtFileEnd();
 		}

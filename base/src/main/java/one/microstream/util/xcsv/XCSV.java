@@ -39,7 +39,7 @@ import one.microstream.io.XIO;
  * <ul>
  * <li>Allows an arbitrary separator value (interpreting "CSV" as "character separated values" instead of
  * "comma separated values"), with a TAB ascii character as the default separator since that character
- * has been designed exactely for that purpose and is superior to any other character for that task.</li>
+ * has been designed exactly for that purpose and is superior to any other character for that task.</li>
  * <li>Optionally contains a header line defining all control characters</li>
  * <li>Contains an optional second header line defining/hinting the data type of the column</li>
  * <li>Allows single line and multi line comments</li>
@@ -243,11 +243,6 @@ public final class XCSV
 		final XCsvDataType      dataType
 	)
 	{
-		/*
-		 * can't copy around data all the time just because the JDK guys don't know how to write proper APIs
-		 * (e.g. give String an iterate(_charConsumer) method so that logic could be written reusable)
-		 * Or even better: make immutable arrays or optionally read-only accessible. But nooo...
-		 */
 		return parse(_charArrayRange.New(XChars.readChars(rawData)), configuration, dataType);
 	}
 	
@@ -335,8 +330,6 @@ public final class XCSV
 			// column names are mandatory. So no columns means no data, even if there should be rows present.
 			return vs;
 			
-			// (08.05.2017 TM)NOTE: can't just return a random string because it is not recognized by the parser.
-//			return vs.add("[empty table]");
 		}
 		
 		final XCsvConfiguration effConfig      = ensureCsvConfiguration(csvConfiguration);

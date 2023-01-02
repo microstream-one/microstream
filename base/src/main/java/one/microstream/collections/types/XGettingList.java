@@ -25,10 +25,6 @@ import java.util.ListIterator;
 import one.microstream.collections.interfaces.ExtendedList;
 import one.microstream.collections.old.OldList;
 
-/**
- * 
- *
- */
 public interface XGettingList<E> extends XGettingSequence<E>, XGettingBag<E>, ExtendedList<E>
 {
 	public interface Factory<E> extends XGettingCollection.Creator<E>

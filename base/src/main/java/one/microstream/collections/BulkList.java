@@ -53,7 +53,7 @@ import one.microstream.util.iterables.GenericListIterator;
 
 /**
  * Collection that is ordered and allows duplicates. Aims to be more efficient, logically structured
- * and with more built in features than {@link java.util.List}.
+ * and with more built-in features than {@link java.util.List}.
  * Full scale general purpose implementation of extended collection type {@link XList}.
  * <p>
  * In contrast to {@link EqBulkList} this implementation uses the default isSame-Equalator({@link Equalator#identity()}
@@ -78,7 +78,7 @@ import one.microstream.util.iterables.GenericListIterator;
  * and removing more than one element of it without using the iterator's method.
  * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
- * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * to maximize internal iteration potential, eliminating the need to use the external iteration
  * {@link Iterator} paradigm.
  *
  * @param <E> type of contained elements
@@ -392,8 +392,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	{
 		if(this.size >= Integer.MAX_VALUE)
 		{
-			// (26.10.2013 TM)XXX: replace all noobish IndexOutOfBoundsException throughout all projects
-//			throw new IndexOutOfBoundsException();
 			throw new ArrayCapacityException();
 		}
 	}
@@ -401,12 +399,12 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	/* this method is highly optimized for performance, yielding up to around 300% the speed of
 	 * java.util.ArrayList.add() when adding elements to an already big enough storage.
 	 * Moving the storage increase part to a private increaseStorage() would make it faster when
-	 * regular increasing is needed, but puzzlingly then the alreay-big-enough performance
+	 * regular increasing is needed, but puzzlingly then the already-big-enough performance
 	 * advantage drops to around 110% faster instead of 300% faster (even though the single not called
 	 * increase method should be removed by HotSpot compiling. Seems there is a bug or at least
 	 * some heavy confusion going on there.
 	 * As a consequence, storage increasing has NOT been moved to a private method, thus maintaining
-	 * the huge alreay-big-enough performance advantage, but making it slower in regular-growth-cases
+	 * the huge already-big-enough performance advantage, but making it slower in regular-growth-cases
 	 * (also very strange).
 	 * Maybe one of the two HotSpot compiling problems improves in the future, so that both cases
 	 * of advanced performance are reachable by optimization.
@@ -475,7 +473,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
@@ -536,7 +534,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
@@ -592,7 +590,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
@@ -976,18 +974,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	{
 		return AbstractArrayStorage.isSorted(this.data, this.size, comparator);
 	}
-
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
-//	}
 
 	// boolean querying - applies //
 

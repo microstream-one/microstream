@@ -35,7 +35,6 @@ import one.microstream.exceptions.NumberRangeException;
 /**
  * Collection of generic util logic missing or too complicated in JDK API.
  *
- * 
  */
 public final class XTypes
 {
@@ -51,14 +50,10 @@ public final class XTypes
 	 * 1.)
 	 * It is precisely about checking a ByteBuffer instance about being a DirectByteBuffer, the type returned by
 	 * ByteBuffer#allocateDirect.
-	 * Since the JDK geniuses aren't capable of proper public API design ((*cough* interfaces *cough*), a method like
-	 * this is required.
-	 * For the same reason, the dilettantish method Buffer#isDirect is no valid substitute since ANY
-	 * (potential future) subclass of ByteBuffer could simply return true and thus create a wrong program behaviour.
-	 * 
+	 *
 	 * 2.)
-	 * Using this detour/trick produces the correct programm behavior even accross JDK versions with changing classes
-	 * (e.g. from JDK 8 to JDK 9) and evne on other platforms (e.g. android). Whatever class in whatever package
+	 * Using this detour/trick produces the correct program behavior even across JDK versions with changing classes
+	 * (e.g. from JDK 8 to JDK 9) and even on other platforms (e.g. android). Whatever class in whatever package
 	 * is returned by ByteBuffer#allocateDirect, THAT class is the one to be tested for.
 	 * 
 	 * It's a simple and perfectly valid solution to indirectly resolve an internal and name-changing type.
@@ -406,7 +401,6 @@ public final class XTypes
 			Byte.class, Boolean.class, Short.class, Character.class, Integer.class, Float.class, Long.class, Double.class
 		};
 		
-		// always fun to use a class as a database :-D
 		final int[][] primSims =
 		{
 			{100, 50, 80, 70, 60, 30, 40, 30},

@@ -20,10 +20,6 @@ package one.microstream.functional;
  * #L%
  */
 
-/**
- * 
- *
- */
 public interface _intPredicate
 {
 	public boolean test(int i);

@@ -65,7 +65,7 @@ public interface StorageDataFileItemIterator
 	{
 		public default ByteBuffer provideInitialBuffer()
 		{
-			// defaul-(page-ish)-sized direct byte buffer as default
+			// default-(page-ish)-sized direct byte buffer as default
 			return XMemory.allocateDirectNativeDefault();
 		}
 
@@ -78,7 +78,7 @@ public interface StorageDataFileItemIterator
 		 *
 		 * @param byteBuffer the direct byte buffer used so far.
 		 * @param nextEntityLength the length of the next entity to be read to the buffer.
-		 * @return a byte buffer of apriorate size to hold the next entity's data to be processed sufficiently.
+		 * @return a byte buffer of appropriate size to hold the next entity's data to be processed sufficiently.
 		 */
 		public ByteBuffer provideBuffer(ByteBuffer byteBuffer, long nextEntityLength);
 
@@ -109,7 +109,6 @@ public interface StorageDataFileItemIterator
 		 * to be the optimal buffer size (anything large gives no significant advantage, anything lower dramatically
 		 * reduces performance. Both not surprising, given the fundamental meaning of a page size).
 		 *
-		 * 
 		 */
 		public final class ConstantSizedBufferProvider implements BufferProvider
 		{
@@ -133,9 +132,9 @@ public interface StorageDataFileItemIterator
 				// always return standard buffer, logic only reads headers, not content. Clear buffer for next batch.
 				this.buffer.clear();
 
-				/* if only one entity header fits int he buffer, limit the buffer to one header right away
+				/* if only one entity header fits in the buffer, limit the buffer to one header right away
 				 * to avoid filling a giant buffer with an incomplete giant entity and then just read the header.
-				 * This is not noticable in normal situations (tiny to large entities), but allows the initialization
+				 * This is not noticeable in normal situations (tiny to large entities), but allows the initialization
 				 * to skip huge parts of pure content data if the database contains giant entities.
 				 */
 				if(nextEntityLength > this.buffer.capacity())
@@ -212,7 +211,6 @@ public interface StorageDataFileItemIterator
 		)
 			throws IOException
 		{
-//			DEBUGStorage.println("Reading file from " + startPosition + " for length " + length);
 
 			final long actualFileLength    = file.size()           ;
 			final long boundPosition       = startPosition + length;
@@ -301,7 +299,6 @@ public interface StorageDataFileItemIterator
 					throw new StorageExceptionConsistency("Zero length data item.");
 				}
 
-//				DEBUGStorage.println("processing entity at " + (fileChannel.position() + address - bufferBound) + " / " + fileChannel.size());
 
 				// depending on the processor logic, incomplete entity data can still be enough (e.g. only needs header)
 				if(!entityProcessor.accept(address, bufferBound - address))

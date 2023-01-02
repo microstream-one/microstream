@@ -28,7 +28,6 @@ import one.microstream.typing.XTypes;
 /**
  * Utility methods related to hashing.
  *
- * 
  */
 public final class XHashing
 {
@@ -127,11 +126,6 @@ public final class XHashing
 	 * {@link Object#hashCode()} / {@link Object#equals(Object)} equlity (value type equality).
 	 */
 	static final SingletonValueHashEqualator HASH_EQUALITY_VALUE = new SingletonValueHashEqualator();
-
-	// (07.04.2016 TM)NOTE: might be viable as well
-//	static final NonNullSingletonValueHashEqualator NON_NULL_HASH_EQUALITY_VALUE =
-//		new NonNullSingletonValueHashEqualator()
-//	;
 
 	static final SingletonKeyValueIdentityHashEqualator HASH_EQUALITY_IDENTITY_KV =
 		new SingletonKeyValueIdentityHashEqualator()

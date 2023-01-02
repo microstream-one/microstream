@@ -28,7 +28,7 @@ import one.microstream.storage.restservice.exceptions.StorageRestServiceNotFound
 import one.microstream.storage.types.StorageManager;
 
 /**
- * Service loader for {@link StorageRestService}s
+ * Service loader for {@link StorageRestService}s.
  *
  */
 public final class StorageRestServiceResolver
@@ -38,7 +38,7 @@ public final class StorageRestServiceResolver
 	///////////////////
 
 	/**
-	 * Get the first found implementation of the StorageRestService interface
+	 * Get the first found implementation of the StorageRestService interface.
 	 *
 	 * @param storage storage to initialize the service with
 	 * @return StorageRestService instance
@@ -57,7 +57,7 @@ public final class StorageRestServiceResolver
 	}
 
 	/**
-	 * Get the first found implementation of the StorageRestService interface
+	 * Get the first found implementation of the StorageRestService interface.
 	 *
 	 * @param storageRestAdapter rest adapter to initialize the service with
 	 * @return StorageRestService instance

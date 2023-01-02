@@ -30,8 +30,8 @@ import one.microstream.collections.types.XGettingList;
 /**
  * A mutable entity. Mutations of the entity's data only happen by providing another instance of that entity
  * that contains the desired new data.
- * 
- * , FH
+ * <p/>
+ * FH
  */
 public interface Entity
 {
@@ -147,8 +147,7 @@ public interface Entity
 	
 	/**
 	 * Primary means to convenience-hide framework-internal methods from the user entity's public API
-	 * 
-	 * 
+	 *
 	 */
 	public abstract class AbstractAccessible implements Entity
 	{
@@ -164,8 +163,7 @@ public interface Entity
 	/**
 	 * Fallback means to convenience-hide framework-internal methods from the user entity's public API
 	 * for classes that cannot extend {@link AbstractAccessible} for whatever reason
-	 * 
-	 * 
+	 *
 	 */
 	public interface Accessible extends Entity
 	{

@@ -33,7 +33,6 @@ import one.microstream.chars.VarString;
  * It is therefore strongly suggested that implementations only use "exception free" logic (like simple arithmetic)
  * or handle any possible exception internally.
  *
- * 
  */
 public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvaluator
 {
@@ -63,7 +62,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	public static StorageDataFileEvaluator New()
 	{
 		/*
-		 * Validates its own default values, but the cost is neglible and it is a
+		 * Validates its own default values, but the cost is negligible and it is a
 		 * good defense against accidentally erroneous changes of the default values.
 		 */
 		return New(
@@ -82,7 +81,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 *
 	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
 	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
-	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        including older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
 	 *        as a negative value length header).<br>
 	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
 	 *        file dissolving (data transfers to new files) is required and vice versa.
@@ -150,8 +149,8 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 * that occupies storage space unnecessarily. These "gaps" have to be removed in order to only occupy as much
 	 * storage space as required.
 	 * <p>
-	 * The parameters defined here give an opportunity to configure how "aggressive" this clean up shall be performaned.
-	 * The trade-off is between acceptale gap sizes and the required performance and disk-writes to clean them up.<br>
+	 * The parameters defined here give an opportunity to configure how "aggressive" this clean up shall be performed.
+	 * The trade-off is between acceptable gap sizes and the required performance and disk-writes to clean them up.<br>
 	 * Without specifying them, default values will be used, defined in {@link StorageDataFileEvaluator.Defaults}.
 	 *
 	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
@@ -165,7 +164,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 *
 	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
 	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
-	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        including older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
 	 *        as a negative value length header).<br>
 	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
 	 *        file dissolving (data transfers to new files) is required and vice versa.
@@ -290,7 +289,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 *
 	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
 	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
-	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        including older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
 	 *        as a negative value length header).<br>
 	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
 	 *        file dissolving (data transfers to new files) is required and vice versa.
@@ -417,18 +416,17 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		{
 			/*
 			 * Dissolve file if one of three extreme cases (too small, too much gaps/overhead, too big) apply,
-			 * with the oversized case accounting for the special case of one single oversized entity file to prevent
+			 * with the over-sized case accounting for the special case of one single over-sized entity file to prevent
 			 * constant dissolving of such files.
 			 * Also, an undersized head file may never be dissolved as this would just create a new head file
 			 * of the same size that would again be dissolved (looping forever).
 			 *
-			 * This logic means that every oversized file gets dissolved into pieces until only normal case files
-			 * and special case single-oversized-entity files are left.
+			 * This logic means that every over-sized file gets dissolved into pieces until only normal case files
+			 * and special case single-over-sized-entity files are left.
 			 */
-//			DEBUGStorage.println("Checking " + storageFile);
 
 			/*
-			 * Normally never dissovle head file as this might cause infinite head file migration
+			 * Normally never dissolve head file as this might cause infinite head file migration
 			 * However, specialized implementations (e.g. only checking gap space for manual one-shot consolidation)
 			 * might decide to clean up head files as well.
 			 */

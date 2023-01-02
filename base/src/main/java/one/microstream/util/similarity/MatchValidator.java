@@ -21,10 +21,8 @@ package one.microstream.util.similarity;
  */
 
 /**
- * Since matching on similarity is a heuristical method, it can be necessary to have a validation callback logic
+ * Since matching on similarity is a heuristic method, it can be necessary to have a validation callback logic
  * that can ultimately decide on potential matches.
- * 
- * 
  *
  * @param <E> the validated element's type
  */

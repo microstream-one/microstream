@@ -618,7 +618,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 			
 			// everything else is an error
-			throw new StorageException("Invalid hexadeximal character: " + hexDigit);
+			throw new StorageException("Invalid hexadecimal character: " + hexDigit);
 		}
 
 		final int parseArray_byte(
@@ -1577,7 +1577,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 			}
 			finally
 			{
-				// exactely 'limit' bytes are guaranteed to have been written.
+				// exactly 'limit' bytes are guaranteed to have been written.
 				this.targetFileActualLength += this.byteBuffer.limit();
 
 				// reset buffer state.
@@ -1687,12 +1687,7 @@ public interface StorageDataConverterTypeCsvToBinary<S>
 		{
 			// (20.02.2020 TM)NOTE: with the typeId being added to the file name, it must be parsed away, now
 			final long typeId = getTypeIdFromFileName(this.sourceFile);
-			
-			// (20.02.2020 TM)NOTE: previous (now insufficient) version
-//			final String typeName = tableName != null
-//				? tableName
-//				: getSuffixlessFileName(this.sourceFile)
-//			;
+
 			
 			// (20.02.2020 TM)NOTE: lookup by typeId instead of by type name.
 			if((this.currentType = this.typeDictionary.lookupTypeById(typeId)) == null)

@@ -79,12 +79,11 @@ import one.microstream.util.UtilStackTrace;
  * This class uses the following sound extension of the java naming conventions:<br>
  * Static methods that resemble a constructor, begin with an upper case letter. This is consistent with existing naming
  * rules: method names begin with a lower case letter EXCEPT for constructor methods. This extension does nothing
- * more than applying the same exception to constructur-like static methods. Resembling a constructor means:
+ * more than applying the same exception to constructor-like static methods. Resembling a constructor means:
  * 1.) Indicating by name that a new instance is created. 2.) Always returning a new instance, without exception.
  * No caching, no casting. For example: {@link #empty()} or {@link #asX(List)} are NOT constructor-like methods
  * because they do not (always) create new instances.
- * 
- * 
+ *
  */
 public final class X
 {
@@ -136,14 +135,12 @@ public final class X
 	
 	
 	
-	// hopefully, this can be removed at some point in the future ... :(
+	// hopefully, this can be removed at some point in the future ...
 	/**
 	 * Central validation point for Java's current technical limitation of max int as max array capacity.
 	 * Note that because of dependencies of many types to arrays (e.g. toArray() methods, etc.), this limitation
 	 * indirectly affects many other types, for example String, collections, ByteBuffers (which is extremely painful).
-	 *
-	 * It can be read that there are plans to overcome this outdated insufficiency for Java 9 or 10,
-	 * so it's best to have one central point of validation that can later easily be refactored out.
+	 * <p/>
 	 *
 	 * @param capacity the desired (array-dependent) capacity which may effectively be not greater than
 	 * {@link Integer}.MAX_VALUE.
@@ -164,13 +161,7 @@ public final class X
 	 * Transiently ensures the passed object to be not {@code null} by either returning it in case it is
 	 * not {@code null} or throwing a {@link NullPointerException} otherwise.
 	 * <p>
-	 * <i>(Really, no idea why java.util.Objects.notNull got renamed to requireNotNull after some odd objection from
-	 * some guy in the mailing list that the name would be misleading.
-	 * Of course "notNull" means "the thing you pass has to be not null, otherwise you'll get an exception".
-	 * What else could the meaning of a transient method named "notNull" be?
-	 * If "requireNotNull" is needed to express this behavior, than what would "notNull" alone mean?<br>
-	 * In the end, "requireNotNull" is just additional clutter, hence not usable and is replaced by
-	 * this, still properly named "notNull" method.)</i>
+	 * <i>(Really, no idea why java.util.Objects.notNull got renamed to requireNotNull</i>
 	 *
 	 * @param <T> the type of the object to be ensured to be not {@code null}.
 	 * @param object the object to be ensured to be not {@code null}.
@@ -187,11 +178,11 @@ public final class X
 	}
 	
 	/**
-	 * This method is a complete dummy, simply serving as a semantical counterpart to {@link #notNull(Object)}.<br>
+	 * This method is a complete dummy, simply serving as a semantic counterpart to {@link #notNull(Object)}.<br>
 	 * The use is small, but still there:<br>
 	 * - the sourcecode is easier to read if the same structure is used next to a {@link #notNull(Object)} call
 	 *   instead of missing method calls and comments (like "may be null" or "optional").
-	 * - the IDE can search for all occurances of this method, listing all places where something may be null.
+	 * - the IDE can search for all occurrences of this method, listing all places where something may be null.
 	 * 
 	 * @param <T> the object's type
 	 * @param object the passed reference.
@@ -723,7 +714,7 @@ public final class X
 	
 	/**
 	 * Utility method to create a list of integers from 1 to the passed {@code n} value.
-	 * Useful for executing a logic via {@link XList#iterate(Consumer)} exactely {@code n} times.
+	 * Useful for executing a logic via {@link XList#iterate(Consumer)} exactly {@code n} times.
 	 * 
 	 * @param n the amount of integers
 	 * @return a list of integers from 1 to {@code n}
@@ -889,7 +880,6 @@ public final class X
 	@SuppressWarnings("unchecked")
 	public static final <T> T[] ArrayForElementType(final T sampleInstance, final int length)
 	{
-		// fascinating how the JDK massively lacks basic util methods like this
 		return (T[])Array.newInstance(sampleInstance.getClass(), length);
 	}
 	
@@ -952,12 +942,12 @@ public final class X
 	public static <T, E extends T> T[] Array(final Class<T> type, final XGettingCollection<E> collection)
 	{
 		// (02.11.2011 TM)NOTE: pretty hacky typing-wise, but in the end safer regarding concurrency and the like.
-		// nifty abuse of array covariance typing bug for return value ]:->
+		// nifty abuse of array covariance typing bug for return value
 		return collection.toArray((Class<E>)type);
 	}
 	
 	/**
-	 * Instantiaties a new array instance that has a compent type defined by the passed {@link Class}
+	 * Instantiates a new array instance that has a component type defined by the passed {@link Class}
 	 * {@literal componentType},
 	 * a length as defined by the passed {@literal length} value and that is filled in order with elements supplied
 	 * by the passed {@link Supplier} instance.
@@ -1072,7 +1062,6 @@ public final class X
 		else if(oldList instanceof ArrayList<?>)
 		{
 			throw new one.microstream.meta.NotImplementedYetError();
-//			return new XArrayList<>((ArrayList<E>)oldList);
 		}
 
 		throw new UnsupportedOperationException();

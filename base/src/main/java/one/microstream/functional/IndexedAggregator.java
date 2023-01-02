@@ -21,10 +21,6 @@ package one.microstream.functional;
  */
 
 
-/**
- * 
- *
- */
 public interface IndexedAggregator<E, R> extends IndexedAcceptor<E>
 {
 	@Override

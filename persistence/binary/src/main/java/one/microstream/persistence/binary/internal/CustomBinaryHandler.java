@@ -197,50 +197,6 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 	// (22.01.2020 TM)TODO: priv#88: support variable length fields
 	
 
-//	public static BinaryField Complex(
-//		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
-//	)
-//	{
-//		return Complex(Defaults.defaultUninitializedName(), nestedFields);
-//	}
-//
-//	public static BinaryField Complex(
-//		final String                                         name        ,
-//		final PersistenceTypeDefinitionMemberFieldGeneric... nestedFields
-//	)
-//	{
-//		return new BinaryField.Abstract(
-//			AbstractBinaryHandlerCustom.Complex(notNull(name), nestedFields),
-//			Defaults.defaultUninitializedOffset()
-//		);
-//	}
-//
-//	public static BinaryField Bytes()
-//	{
-//		return Chars(Defaults.defaultUninitializedName());
-//	}
-//
-//	public static BinaryField Bytes(final String name)
-//	{
-//		return new BinaryField.Abstract(
-//			AbstractBinaryHandlerCustom.bytes(name),
-//			Defaults.defaultUninitializedOffset()
-//		);
-//	}
-//
-//	public static BinaryField Chars()
-//	{
-//		return Chars(Defaults.defaultUninitializedName());
-//	}
-//
-//	public static BinaryField Chars(final String name)
-//	{
-//		return new BinaryField.Abstract(
-//			AbstractBinaryHandlerCustom.chars(name),
-//			Defaults.defaultUninitializedOffset()
-//		);
-//	}
-	
 	protected EqConstHashTable<String, ? extends BinaryField<? super T>> initializeDefinedFields(
 		final XGettingSequence<? extends BinaryField<? super T>> binaryFields
 	)
@@ -648,7 +604,7 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 	)
 	{
 		/*
-		 * With the class hiararchy collection order guaranteed above, this loop does:
+		 * With the class hierarchy collection order guaranteed above, this loop does:
 		 * - order binaryFields from most to least specific class ("upwards")
 		 * - order binaryFields per class in declaration order
 		 */
@@ -730,7 +686,7 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 	}
 	
 	/**
-	 * Only the last field may have variable length, otherweise simple offsets can't be used.
+	 * Only the last field may have variable length, otherwise simple offsets can't be used.
 	 */
 	private static <F extends BinaryField<?>> F checkVariableLengthLayout(
 		final XTable<String, F> binaryFields
@@ -738,7 +694,7 @@ public class CustomBinaryHandler<T> extends AbstractBinaryHandlerCustom<T>
 	{
 		if(binaryFields.isEmpty())
 		{
-			// empty fields is implicitely valid and, of course, yields null.
+			// empty fields is implicitly valid and, of course, yields null.
 			return null;
 		}
 		

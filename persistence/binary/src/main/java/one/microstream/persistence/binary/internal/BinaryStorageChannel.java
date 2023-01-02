@@ -104,10 +104,4 @@ public final class BinaryStorageChannel implements PersistenceChannel<Binary>
 		return this.target.isStoringEnabled();
 	}
 
-//	@Override
-//	public XGettingCollection<? extends Binary> readByTypeId(final long typeId) throws PersistenceExceptionTransfer
-//	{
-//		return this.source.readByTypeId(typeId);
-//	}
-
 }

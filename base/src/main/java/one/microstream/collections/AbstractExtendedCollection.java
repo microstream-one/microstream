@@ -39,13 +39,11 @@ import one.microstream.exceptions.IndexBoundsException;
  * <p>
  * Note that this technique of using {@link UnsupportedOperationException} is explicitly not comparable to the
  * JDK's approach like in {@link java.util.Collections#unmodifiableCollection(java.util.Collection)} where a
- * general pupose type (java.util.Collection) is implemented intentionally broken to achieve a certain reduced
+ * general purpose type (java.util.Collection) is implemented broken to achieve a certain reduced
  * behavior,
- * while the technique described here is a cleanly encapsuled implementation detail used in combination with proper
+ * while the technique described here is a cleanly encapsulated implementation detail used in combination with proper
  * typing.
  *
- *
- * 
  * @param <E> type of contained elements
  */
 public abstract class AbstractExtendedCollection<E> implements ExtendedCollection<E>

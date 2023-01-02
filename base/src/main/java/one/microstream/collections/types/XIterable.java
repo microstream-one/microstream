@@ -51,7 +51,7 @@ public interface XIterable<E>
 	 * equally executed on single objects (via this wrapper) or multiple objects (via X-collections).
 	 * <p>
 	 * <u>Example</u>:<pre> someRegistryLogic.register(persons);
-	 * someRegistryLogic.register(new Exector&lt;Person&gt;(singlePerson));
+	 * someRegistryLogic.register(new Executor&lt;Person&gt;(singlePerson));
 	 * </pre>
 	 *
 	 * 

@@ -29,8 +29,6 @@ import one.microstream.typing.Composition;
 
 /**
  * Simple primitive int set implementation.
- *
- * 
  */
 public final class _intSet implements Composition
 {
@@ -92,7 +90,7 @@ public final class _intSet implements Composition
 	private int     size, range, capLower, capUpper;
 	private int[][] lines                          ;
 
-	// 0 is treated as "null" in algorithms, so 0 as value has to be specialcased.
+	// 0 is treated as "null" in algorithms, so 0 as value has to be special-cased.
 	private boolean has0                           ;
 
 

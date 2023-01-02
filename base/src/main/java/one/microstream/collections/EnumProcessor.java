@@ -80,12 +80,6 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 		return this.subject.equality();
 	}
 
-//	@Override
-//	public final <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return this.subject.iterate(aggregate);
-//	}
-
 	@Override
 	public final boolean containsSearched(final Predicate<? super E> predicate)
 	{
@@ -103,12 +97,6 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 	{
 		this.subject.clear();
 	}
-
-//	@Override
-//	public final boolean contains(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.contains(sample, equalator);
-//	}
 
 	@Override
 	public final boolean contains(final E element)
@@ -133,12 +121,6 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 	{
 		return this.subject.containsAll(elements);
 	}
-
-//	@Override
-//	public final boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.containsAll(samples, equalator);
-//	}
 
 	@Override
 	public final boolean containsId(final E element)
@@ -287,29 +269,11 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 		return this.subject.hashCode();
 	}
 
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return this.subject.hasDistinctValues(equalator);
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		return this.subject.hasDistinctValues();
-//	}
-
 	@Override
 	public final boolean hasVolatileElements()
 	{
 		return this.subject.hasVolatileElements();
 	}
-
-//	@Override
-//	public final int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.indexOf(sample, equalator);
-//	}
 
 	@Override
 	public final long indexOf(final E element)
@@ -393,12 +357,6 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 	{
 		return this.subject.scan(predicate);
 	}
-
-//	@Override
-//	public final E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.search(sample, equalator);
-//	}
 
 	@Override
 	public final E seek(final E sample)
@@ -519,12 +477,6 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 		return this.subject.removeAt(index);
 	}
 
-//	@Override
-//	public final int removeAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.removeAll(samples, equalator);
-//	}
-
 	@Override
 	public final long removeAll(final XGettingCollection<? extends E> elements)
 	{
@@ -585,12 +537,6 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 		return this.subject.removeOne(element);
 	}
 
-//	@Override
-//	public final boolean removeOne(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.removeOne(sample, equalator);
-//	}
-
 	@Override
 	public final EnumProcessor<E> removeRange(final long startIndex, final long length)
 	{
@@ -610,12 +556,6 @@ public final class EnumProcessor<E> implements XProcessingEnum<E>
 	{
 		return this.subject.removeSelection(indices);
 	}
-
-//	@Override
-//	public final int retainAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.retainAll(samples, equalator);
-//	}
 
 	@Override
 	public final long retainAll(final XGettingCollection<? extends E> elements)

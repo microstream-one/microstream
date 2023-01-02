@@ -478,13 +478,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private boolean writeCsvHeaderColumnNames(final VarString vs, final boolean linePresent)
 		{
-			// column names must always be present. Also, allowing 0 header lines messes up prefixed record linebreaks.
-//			if(X.isFalse(this.csvConfiguration.hasColumnNamesHeader()))
-//			{
-//				// only abort if false (CSV standard as default behavior)
-//				return false;
-//			}
-			
+
 			if(linePresent)
 			{
 				vs.add((char)this.lineSeparator);

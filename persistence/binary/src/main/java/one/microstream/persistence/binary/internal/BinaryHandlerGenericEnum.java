@@ -57,10 +57,6 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 		return member != null
 			&& java.lang.Enum.class.getName().equals(member.runtimeQualifier())
 		;
-//		return member != null
-//			&& member.declaringClass() == java.lang.Enum.class
-//			&& XReflect.isFinal(member.field())
-//		;
 	}
 	
 	public static boolean isJavaLangEnumName(final PersistenceTypeDefinitionMember member)
@@ -138,19 +134,6 @@ public final class BinaryHandlerGenericEnum<T extends Enum<T>> extends AbstractB
 				);
 			}
 		}
-		
-		// (15.11.2019 TM)NOTE: works on oracle JVM, but not on android (and potentially others)
-//		for(final Field field : enumType.getDeclaredFields())
-//		{
-//			if(field.isEnumConstant())
-//			{
-//				enumConstants.add(
-//					PersistenceTypeDefinitionMemberEnumConstant.New(
-//						field.getName()
-//					)
-//				);
-//			}
-//		}
 		
 		return enumConstants.immure();
 	}

@@ -52,8 +52,6 @@ import one.microstream.typing.XTypes;
 
 /**
  * Static util class with character operation algorithms missing in or significantly superior to those in JDK.
- *
- * 
  */
 public final class XChars
 {
@@ -112,18 +110,14 @@ public final class XChars
 	private static final char LOWEST_NON_WHITESPACE = ' ' + 1; // < and >= are faster than <= and >
 
 	/*
-	 * char tables are a caching tradeof to gain significan performance at the cost of minimal memory overhead.
+	 * char tables are a caching trade-off to gain significant performance at the cost of minimal memory overhead.
 	 */
 	static final transient int DECIMAL_CHAR_TABLES_LENGTH = 100;
 
-
-	/*
-	 * Suprise, surprise: The base of the decimal system is ... 10!
-	 */
 	static final transient int DECIMAL_BASE               =  10;
 
 	/*
-	 * Character table containg the ten digit of each number between 00 and 99.
+	 * Character table containing the ten digit of each number between 00 and 99.
 	 * generated procedurally, see below.
 	 * '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
 	 * '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
@@ -139,7 +133,7 @@ public final class XChars
 	static final transient char[] DECIMAL_CHAR_TABLE_10S = new char[DECIMAL_CHAR_TABLES_LENGTH];
 
 	/*
-	 * Character table containg the one digit of each number between 00 and 99.
+	 * Character table containing the one digit of each number between 00 and 99.
 	 * generated procedurally, see below.
 	 * '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 	 * '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -187,7 +181,7 @@ public final class XChars
 
 	public static final int maxCharCount_char()
 	{
-		return 1; // well, one, per definition (method is just for sake of completeness / genericity)
+		return 1; // per definition (method is just for sake of completeness)
 	}
 
 	public static final int maxCharCount_int()
@@ -221,7 +215,7 @@ public final class XChars
 	}
 	
 	/**
-	 * Arbitrary threshold of 1000 to discrimate "short" strings from "long" strings.<br>
+	 * Arbitrary threshold of 1000 to discriminate "short" strings from "long" strings.<br>
 	 * The rationale behind that is that "short" strings usually allow for simpler and faster algorithms,
 	 * which become inefficient on larger strings. For example a two-pass processing of a splitting algorithm.
 	 * @return 1000
@@ -242,7 +236,7 @@ public final class XChars
 	}
 
 	/**
-	 * Returns {@link StandardCharsets#UTF_8}, because any other one out there is nonsense as a standard.
+	 * Returns {@link StandardCharsets#UTF_8}.
 	 * 
 	 * @return {@code java.nio.charset.Charset.forName("UTF-8")}.
 	 */
@@ -621,11 +615,6 @@ public final class XChars
 			return paddedFromIndex;
 		}
 
-		if(targetCount == 0)
-		{
-			return paddedFromIndex;
-		}
-
 		final char first  = target[0];
 		final int max = sourceCount - targetCount;
 
@@ -812,7 +801,6 @@ public final class XChars
 	{
 		/*
 		 * Yields an average 25% better performance compared to plain String.valueOf()
-		 * If this already exists somewhere in JDK, it couldn't be found before implementing this method.
 		 */
 		switch(c)
 		{
@@ -915,11 +903,10 @@ public final class XChars
 			case '|': return "|";
 			case '}': return "}";
 			case '~': return "~";
-			default: return String.valueOf(c); // all other charaters: parse every time (sadly)
+			default: return String.valueOf(c); // all other characters: parse every time (sadly)
 		}
 	}
 
-	// aaand another method missing in the JDK.
 	public static final String asString(final char... chars)
 	{
 		return String.valueOf(chars);
@@ -1041,11 +1028,10 @@ public final class XChars
 		}
 		if(c instanceof StringBuffer)
 		{
-			// I'll never understand why AbstractStringBuilder is not public -.-
 			return toCharArray((StringBuffer)c);
 		}
 
-		// default case: fall back to ugly double instantiation
+		// default case: fall back to double instantiation
 		return c.toString().toCharArray();
 	}
 
@@ -1499,7 +1485,7 @@ public final class XChars
 	}
 
 	/**
-	 * Parses the char escape sequence Strings "\n" etc. (wihtout the "") to the singel char value represented by
+	 * Parses the char escape sequence Strings "\n" etc. (without the "") to the single char value represented by
 	 * those strings.
 	 *
 	 * @param s the char escape sequence
@@ -1676,7 +1662,7 @@ public final class XChars
 			((VarString)chars).iterate(iterator);
 			return;
 		}
-		// could add JDK string builder implementations here, but tbh...
+		// could add JDK string builder implementations here
 
 		// generic default algorithm. However slow that may be for implementation of chars
 		try
@@ -1738,7 +1724,7 @@ public final class XChars
 	{
 		// pure algorithm method intentionally without array bounds check. Use VarString etc. for that.
 
-		// negative values are covered implicitely via >>> operator
+		// negative values are covered implicitly via >>> operator
 		// CHECKSTYLE.OFF: MagicNumber: HexDec arithmetic
 		target[offset    ] = XChars.toHexadecimal(value >>> 4 & 0b1111);
 		target[offset + 1] = XChars.toHexadecimal(value       & 0b1111);
@@ -1781,7 +1767,6 @@ public final class XChars
 	{
 		// pure algorithm method intentionally without array bounds check. Use VarString etc. for that.
 
-		// why is this missing in String class itself? Are they ... or something?
 		s.getChars(0, s.length(), target, offset);
 		return offset + s.length();
 	}
@@ -1790,7 +1775,6 @@ public final class XChars
 	{
 		// pure algorithm method intentionally without array bounds check. Use VarString etc. for that.
 
-		// why is this missing in String class itself? Are they ... or something?
 		System.arraycopy(value, 0, target, offset, value.length);
 		return offset + value.length;
 	}
@@ -1886,12 +1870,6 @@ public final class XChars
 
 	public static final String String(final float value)
 	{
-//		final char[] chars;
-//		return new String(
-//			chars = new char[MAX_CHAR_COUNT_float],
-//			0,
-//			CharConversion_float.put(value, chars, 0)
-//		);
 		return String((double)value);
 	}
 
@@ -2014,11 +1992,8 @@ public final class XChars
 	{
 		/*
 		 * In ages past, this method called low-level mechanisms to access the string's internal char[] array
-		 * in a safe read-only fashion to process the chars efficiently without the need to absurdely and insanely
+		 * in a safe read-only fashion to process the chars efficiently without the need to
 		 * copy the complete string content just to read it.
-		 * However, since the absolute madness that is the messed up internal string data of Java 9, no sane way
-		 * is left to read-only access a string's characters. Thus, this method had to succumb to the insanity that is
-		 * copying immutable data on every read-only access.
 		 */
 		return s.toCharArray();
 	}
@@ -2135,19 +2110,9 @@ public final class XChars
 			return splitSimple(s, separator, BulkList.New()).toArray(String.class);
 		}
 		
-		/*
-		 * A delimiter is not a separator. Delimiter: '"..."'. Separator: '\'.
-		 * And it's oh-so-hard to properly write "delimiter" as the parameter name, isn't it?
-		 * 
-		 * Update
-		 * Turns out: the common definition of "delimiter" is actually to be a separator.
-		 * Wouldn't it be great if we all called the things delimiting something "delimiters"
-		 * and the things separating something "separators"?
-		 * Or is it just me? Am I the crazy one?
-		 */
 		final StringTokenizer pathTokenizer = new StringTokenizer(s, separator);
 
-		// the StringLolenizer discards leading separators. This is the manual workaround
+		// the StringTokenizer discards leading separators. This is the manual workaround
 		final boolean startWithSeparator = s.startsWith(separator);
 		final int     swsValue           = startWithSeparator ? 1 : 0;
 		
@@ -2173,13 +2138,9 @@ public final class XChars
 		final C      collector
 	)
 	{
-		/*
-		 * A delimiter is not a separator. Delimiter: '"..."'. Separator: '\'.
-		 * And it's oh-so-hard to properly write "delimiter" as the parameter name, isn't it?
-		 */
 		final StringTokenizer pathTokenizer = new StringTokenizer(s, separator);
 		
-		// the StringLolenizer discards leading separators. This is the manual workaround
+		// the StringTokenizer discards leading separators. This is the manual workaround
 		if(s.startsWith(separator))
 		{
 			collector.accept("");
@@ -2392,7 +2353,7 @@ public final class XChars
 		}
 		catch(final NumberFormatException e)
 		{
-			// aaand they omitted the exception relaying constructor. Naturally.
+			// Use Exception with indication of initial value that failed parsing
 			throw new NumberFormatException(String.copyValueOf(input, offset, length));
 		}
 	}
@@ -2412,7 +2373,7 @@ public final class XChars
 		}
 		catch(final NumberFormatException e)
 		{
-			// aaand they omitted the exception relaying constructor. Naturally.
+			// Use Exception with indication of initial value that failed parsing
 			throw new NumberFormatException(String.copyValueOf(input, offset, length));
 		}
 	}
@@ -2432,7 +2393,7 @@ public final class XChars
 		}
 		catch(final NumberFormatException e)
 		{
-			// aaand they omitted the exception relaying constructor. Naturally.
+			// Use Exception with indication of initial value that failed parsing
 			throw new NumberFormatException(String.copyValueOf(input, offset, length));
 		}
 	}
@@ -2451,7 +2412,7 @@ public final class XChars
 		}
 		catch(final NumberFormatException e)
 		{
-			// aaand they omitted the exception relaying constructor. Naturally.
+			// Use Exception with indication of initial value that failed parsing
 			throw new NumberFormatException(String.copyValueOf(input, offset, length));
 		}
 	}
@@ -2484,13 +2445,13 @@ public final class XChars
 		// oh those special cases :-[
 		final int len = length - (pos - offset) - (input[pos] == '-' || input[pos] == '+' ? 1 : 0);
 
-		// if there are more actual value digits than the possible maximum, the litaral must be out of range.
+		// if there are more actual value digits than the possible maximum, the literal must be out of range.
 		if(len > signlessMaxCharCount)
 		{
 			throw new NumberRangeException(String.copyValueOf(input, pos, len));
 		}
 
-		// if there are less actual value digits than the possible maximum, the litaral can't be out of range.
+		// if there are less actual value digits than the possible maximum, the literal can't be out of range.
 		if(len < signlessMaxCharCount)
 		{
 			return;
@@ -2520,7 +2481,7 @@ public final class XChars
 	}
 
 	/**
-	 * Specialcase higher performance implementation of decimal integer literal parsing.
+	 * Special case higher performance implementation of decimal integer literal parsing.
 	 * Because as usual, the JDK implementation strategies are not acceptable when dealing with non-trivial
 	 * amounts of data.
 	 * Properly executed performance tests (large loop sizes, averages, nanosecond precision, etc.) showed
@@ -2635,8 +2596,7 @@ public final class XChars
 
 		return false;
 	}
-	
-	// it's hilarious how much basic methods are missing in the JDK
+
 	public static final boolean contains(final String s, final char c)
 	{
 		return s.indexOf(c) >= 0;
@@ -2703,8 +2663,7 @@ public final class XChars
 	}
 
 	/**
-	 * Utility method that replicates the JVM's intrinsic system string as defined in {@link Object#toString()}.
-	 * (It's funny how much functionality is missing in the JDK API).
+	 * Utility method that replicates the JVM's intrinsic system string as defined in {@link Object#toString()}
 	 * 
 	 * @param instance the instance whose system string shall be generated.
 	 * @return the system string for the passed instance.
@@ -2737,9 +2696,7 @@ public final class XChars
 	 * Returns {@code value.toString()} if the passed value is not {@literal null}, otherwise {@literal null}.
 	 * <p>
 	 * Note that this is a different behavior than {@link String#valueOf(Object)} has, as the latter returns
-	 * the string {@code "null"} for a passed {@literal null} reference. The latter is merely an output helper
-	 * method, albeit clumsily named and placed as if it were a general utility method. THIS method here
-	 * is the far more useful general utility method.
+	 * the string {@code "null"} for a passed {@literal null} reference.
 	 * <p>
 	 * The behavior of this method is needed for example for converting values in a generic data structure
 	 * (e.g. a Object[] array) to string values but have the actual values, including {@literal null}

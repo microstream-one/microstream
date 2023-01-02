@@ -26,8 +26,7 @@ import one.microstream.typing.TypeMapping;
 /**
  * Since the value translator lookup might potentially get rather giant in the future, it is wrapped in a trivial
  * on-demand provider to ensure it is really only created (and held in memory forever) if necessary.
- * 
- * 
+ *
  */
 public interface BinaryValueTranslatorMappingProvider extends BinaryValueTranslatorLookupProvider
 {

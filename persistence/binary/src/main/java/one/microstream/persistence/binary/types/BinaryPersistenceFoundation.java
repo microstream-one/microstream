@@ -38,7 +38,6 @@ import one.microstream.persistence.types.PersistenceTypeHandlerCreator;
 /**
  * Factory and master instance type for assembling and binary persistence layer.
  *
- * 
  */
 public interface BinaryPersistenceFoundation<F extends BinaryPersistenceFoundation<?>>
 extends PersistenceFoundation<Binary, F>

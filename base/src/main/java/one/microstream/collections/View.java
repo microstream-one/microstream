@@ -193,18 +193,6 @@ public class View<E> implements XGettingCollection<E>
 		return this.subject.join(joiner, aggregate);
 	}
 
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return this.subject.hasDistinctValues(equalator);
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return this.subject.hasDistinctValues();
-//	}
-
 	@Override
 	public <C extends Consumer<? super E>> C intersect(
 		final XGettingCollection<? extends E> other    ,
@@ -226,12 +214,6 @@ public class View<E> implements XGettingCollection<E>
 	{
 		return this.subject.min(comparator);
 	}
-
-//	@Override
-//	public E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.collection.search(sample, equalator);
-//	}
 
 	@Override
 	public E seek(final E sample)
@@ -332,13 +314,13 @@ public class View<E> implements XGettingCollection<E>
 	@Override
 	public Iterator<E> iterator()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public OldCollection<E> old()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 }

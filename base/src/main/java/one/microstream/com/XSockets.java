@@ -51,7 +51,7 @@ public final class XSockets
 	{
 		try
 		{
-			logger.debug("creating server socket with adresss {}", address);
+			logger.debug("creating server socket with address {}", address);
 			final ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
 			serverSocketChannel.socket().bind(address);
 			logger.debug("bound ServerSocketChannel to {}", serverSocketChannel);
@@ -164,8 +164,8 @@ public final class XSockets
 	}
 	
 	/**
-	 * This method either writes all of the passed {@link ByteBuffer}'s bytes from position to limit
-	 * or it throws an exception to indicate failure.
+	 * This method either writes all the passed {@link ByteBuffer}'s bytes from position to limit
+	 * ,or it throws an exception to indicate failure.
 	 * 
 	 * @param socketChannel the target channel
 	 * @param byteBuffer the source buffer
@@ -197,7 +197,7 @@ public final class XSockets
 	
 	/**
 	 * This method either read to completely fill the passed {@link ByteBuffer} from position to limit
-	 * or it throws an exception to indicate failure.
+	 * ,or it throws an exception to indicate failure.
 	 * 
 	 * @param socketChannel the source channel
 	 * @param byteBuffer the target buffer

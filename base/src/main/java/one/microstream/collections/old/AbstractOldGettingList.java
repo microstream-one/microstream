@@ -198,7 +198,7 @@ public abstract class AbstractOldGettingList<E> implements OldList<E>
 	public AbstractOldGettingList<E> subList(final int fromIndex, final int toIndex)
 	{
 		/* XGettingList implementations always create a SubList instance whose implementation creates an
-		 * OldGettingList bridge instance, so this cast is safe (and inevitable). Savvy :)?
+		 * OldGettingList bridge instance, so this cast is safe (and inevitable).
 		 */
 		return (AbstractOldGettingList<E>)this.subject.range(fromIndex, toIndex).old();
 	}

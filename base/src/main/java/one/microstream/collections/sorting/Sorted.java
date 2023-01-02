@@ -32,8 +32,6 @@ import one.microstream.collections.interfaces.ExtendedSequence;
  * <p>
  * This type is mutually exclusive to {@link Sortable}.
  *
- * 
- *
  * @param <E> the type of the input to the operation
  */
 public interface Sorted<E> extends ExtendedSequence<E>

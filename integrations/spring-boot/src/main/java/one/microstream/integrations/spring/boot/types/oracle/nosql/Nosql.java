@@ -24,12 +24,14 @@ public class Nosql
 {
 
     /**
-     * The name of the KVStore. The store name is used toguard against accidental use of the wrong host or port. The store name must consist entirely of upper or lower-case, letters and digits.
+     * The name of the KVStore. The store name is used to guard against accidental use of the wrong host or port.
+     * The store name must consist entirely of upper or lower-case, letters and digits.
      */
     private String storeName;
 
     /**
-     * Comma separated list containing the host and port of an active node in the KVStore. Each string has the format hostname:port. It is good practice to pass multiple hosts so that if one host is down, the system will attempt to open the next one, and so on.
+     * Comma separated list containing the host and port of an active node in the KVStore. Each string has the format hostname:port.
+     * It is good practice to pass multiple hosts so that if one host is down, the system will attempt to open the next one, and so on.
      */
     private String helperHosts;
 
@@ -49,10 +51,12 @@ public class Nosql
     private String checkInterval;
 
     /**
-     * Configures the default read Consistency to be used when a Consistency is not specified for a particular read operation. Supported values:
+     * Configures the default read Consistency to be used when a Consistency is not specified for a particular read operation.
+     * Supported values:
      * <ul>
      * <li>NONE_REQUIRED</li>
-     * A consistency policy that lets a transaction on a replica using this policy proceed regardless of the state of the Replica relative to the Master.
+     * A consistency policy that lets a transaction on a replica using this policy proceed regardless of the state of the Replica
+     * relative to the Master.
      *
      * <li>ABSOLUTE</li>
      * A consistency policy that requires that a transaction be serviced on the Master so that consistency is absolute.
@@ -61,16 +65,23 @@ public class Nosql
     private String consistency;
 
     /**
-     * Configures the default write Durability to be used when a Durability is not specified for a particular write operation. Supported values:
+     * Configures the default write Durability to be used when a Durability is not specified for a particular write operation.
+     * Supported values:
      * <ul>
      * <li>COMMIT_SYNC</li>
-     * A convenience constant that defines a durability policy with COMMIT_SYNC for Master commit synchronization. The policies default to COMMIT_NO_SYNC for commits of replicated transactions that need acknowledgment and SIMPLE_MAJORITY for the acknowledgment policy.
+     * A convenience constant that defines a durability policy with COMMIT_SYNC for Master commit synchronization.
+     * The policies default to COMMIT_NO_SYNC for commits of replicated transactions that need acknowledgment
+     * and SIMPLE_MAJORITY for the acknowledgment policy.
      *
      * <li>COMMIT_NO_SYNC</li>
-     * A convenience constant that defines a durability policy with COMMIT_NO_SYNC for Master commit synchronization. The policies default to COMMIT_NO_SYNC for commits of replicated transactions that need acknowledgment and SIMPLE_MAJORITY for the acknowledgment policy.
+     * A convenience constant that defines a durability policy with COMMIT_NO_SYNC for Master commit synchronization.
+     * The policies default to COMMIT_NO_SYNC for commits of replicated transactions that need acknowledgment
+     * and SIMPLE_MAJORITY for the acknowledgment policy.
      *
      * <li>COMMIT_WRITE_NO_SYNC</li>
-     * A convenience constant that defines a durability policy with COMMIT_WRITE_NO_SYNC for Master commit synchronization. The policies default to COMMIT_NO_SYNC for commits of replicated transactions that need acknowledgment and SIMPLE_MAJORITY for the acknowledgment policy.
+     * A convenience constant that defines a durability policy with COMMIT_WRITE_NO_SYNC for Master commit synchronization.
+     * The policies default to COMMIT_NO_SYNC for commits of replicated transactions that need acknowledgment
+     * and SIMPLE_MAJORITY for the acknowledgment policy.
      * </ul>
      */
     private String durability;
@@ -91,22 +102,27 @@ public class Nosql
     private String lobTimeout;
 
     /**
-     * Configures the number of trailing bytes of a partial LOB that must be verified against the user supplied LOB stream when resuming a putLOB operation. A value⇐0 disables verification.
+     * Configures the number of trailing bytes of a partial LOB that must be verified against the user supplied LOB stream
+     * when resuming a putLOB operation. A value⇐0 disables verification.
      */
     private String lobVerificationBytes;
 
     /**
-     * Set the number of times the client will attempt to check status for the execution of an asynchronous data definition or administrative statement execution in the face of network connection problems.
+     * Set the number of times the client will attempt to check status for the execution of an asynchronous data
+     * definition or administrative statement execution in the face of network connection problems.
      */
     private String maxCheckRetries;
 
     /**
-     * Configures the amount of time to allow for a single round-trip network communication with the server. This value is added to the request timeout to determine the total amount of time that the client should wait for a request to complete before timing out.o
+     * Configures the amount of time to allow for a single round-trip network communication with the server.
+     * This value is added to the request timeout to determine the total amount of time that the client should wait
+     * for a request to complete before timing out.
      */
     private String networkRoundtripTimeout;
 
     /**
-     * Comma separated lists of zones in which nodes must be located to be used for read operations. If the argument is null, or this method has not been called, then read operations can be performed on nodes in any zone.
+     * Comma separated lists of zones in which nodes must be located to be used for read operations.
+     * If the argument is null, or this method has not been called, then read operations can be performed on nodes in any zone.
      */
     private String readZones;
 
@@ -116,7 +132,9 @@ public class Nosql
     private String registryOpenTimeout;
 
     /**
-     * Configures the read timeout associated with sockets used to make RMI registry requests. Shorter timeouts result in more rapid failure detection and recovery. However, this timeout should be sufficiently long so as to allow for the longest timeout associated with a request.
+     * Configures the read timeout associated with sockets used to make RMI registry requests. Shorter timeouts
+     * result in more rapid failure detection and recovery. However, this timeout should be sufficiently long to allow
+     * for the longest timeout associated with a request.
      */
     private String registryReadTimeout;
 
@@ -131,12 +149,15 @@ public class Nosql
     private String sgAttrsCacheTimeout;
 
     /**
-     * Configures the open timeout used when establishing sockets used to make client requests. Shorter timeouts result in more rapid failure detection and recovery. The default open timeout (3000 milliseconds) should be adequate for most applications.
+     * Configures the open timeout used when establishing sockets used to make client requests. Shorter timeouts result
+     * in more rapid failure detection and recovery. The default open timeout (3000 milliseconds) should be adequate for most applications.
      */
     private String socketOpenTimeout;
 
     /**
-     * Configures the read timeout associated with the underlying sockets used to make client requests. Shorter timeouts result in more rapid failure detection and recovery. However, this timeout should be sufficiently long so as to allow for the longest timeout associated with a request.
+     * Configures the read timeout associated with the underlying sockets used to make client requests.
+     * Shorter timeouts result in more rapid failure detection and recovery. However, this timeout should be sufficiently long
+     * to allow for the longest timeout associated with a request.
      */
     private String socketReadTimeout;
 
@@ -146,7 +167,8 @@ public class Nosql
     private String useAsync;
 
     /**
-     * Configures security properties for the client. The supported properties include both authentication properties and transport properties. See oracle.kv.KVSecurityConstants for details.
+     * Configures security properties for the client. The supported properties include both authentication properties
+     * and transport properties. See oracle.kv.KVSecurityConstants for details.
      */
     private String securityProperties;
 

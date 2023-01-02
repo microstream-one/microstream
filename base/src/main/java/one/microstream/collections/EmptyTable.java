@@ -40,7 +40,7 @@ import one.microstream.equality.Equalator;
 import one.microstream.functional.IndexedAcceptor;
 import one.microstream.typing.KeyValue;
 
-// (17.09.2013 TM)FIXME: EmptyTable: implement all FIX-ME
+// (17.09.2013 TM)FIXME: EmptyTable: implement all FIXME
 public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -155,13 +155,13 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 	@Override
 	public final XImmutableTable.EntriesBridge<K, V> old()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingMap<K, V>#old
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingMap<K, V>#old
 	}
 
 	@Override
 	public XImmutableTable.Bridge<K, V> oldMap()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EmptyTable#oldMap()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EmptyTable#oldMap()
 	}
 
 	@Override
@@ -191,7 +191,6 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 	@Override
 	public Iterator<KeyValue<K, V>> iterator()
 	{
-		// funniest iterator ever
 		return new Iterator<KeyValue<K, V>>()
 		{
 			@Override
@@ -217,157 +216,145 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 	@Override
 	public Object[] toArray()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#toArray()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#toArray()
 	}
 
 	@Override
 	public KeyValue<K, V>[] toArray(final Class<KeyValue<K, V>> type)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#toArray()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#toArray()
 	}
 
 	@Override
 	public Equalator<? super KeyValue<K, V>> equality()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#equality()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#equality()
 	}
 
 	@Override
 	public boolean equals(final XGettingCollection<? extends KeyValue<K, V>> samples, final Equalator<? super KeyValue<K, V>> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#equals()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#equals()
 	}
 
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends KeyValue<K, V>> samples, final Equalator<? super KeyValue<K, V>> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#equalsContent()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#equalsContent()
 	}
 
 	@Override
 	public boolean nullContained()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#nullContained()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#nullContained()
 	}
 
 	@Override
 	public boolean containsId(final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#containsId()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#containsId()
 	}
 
 	@Override
 	public boolean contains(final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#contains()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#contains()
 	}
 
 	@Override
 	public boolean containsSearched(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#contains()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#contains()
 	}
 
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends KeyValue<K, V>> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#containsAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#containsAll()
 	}
 
 	@Override
 	public boolean applies(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#applies()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#applies()
 	}
 
 	@Override
 	public long count(final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#count()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#count()
 	}
 
 	@Override
 	public long countBy(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#count()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#count()
 	}
-
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#hasDistinctValues()
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super KeyValue<K, V>> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#hasDistinctValues()
-//	}
 
 	@Override
 	public KeyValue<K, V> search(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#search()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#search()
 	}
 
 	@Override
 	public KeyValue<K, V> seek(final KeyValue<K, V> sample)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#seek()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#seek()
 	}
 
 	@Override
 	public KeyValue<K, V> max(final Comparator<? super KeyValue<K, V>> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#max()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#max()
 	}
 
 	@Override
 	public KeyValue<K, V> min(final Comparator<? super KeyValue<K, V>> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#min()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#min()
 	}
 
 	@Override
 	public <T extends Consumer<? super KeyValue<K, V>>> T distinct(final T target)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#distinct()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#distinct()
 	}
 
 	@Override
 	public <T extends Consumer<? super KeyValue<K, V>>> T distinct(final T target, final Equalator<? super KeyValue<K, V>> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#distinct()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#distinct()
 	}
 
 	@Override
 	public <T extends Consumer<? super KeyValue<K, V>>> T copyTo(final T target)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#copyTo()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#copyTo()
 	}
 
 	@Override
 	public <T extends Consumer<? super KeyValue<K, V>>> T filterTo(final T target, final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#filterTo()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#filterTo()
 	}
 
 	@Override
 	public <T extends Consumer<? super KeyValue<K, V>>> T union(final XGettingCollection<? extends KeyValue<K, V>> other, final Equalator<? super KeyValue<K, V>> equalator, final T target)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#union()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#union()
 	}
 
 	@Override
 	public <T extends Consumer<? super KeyValue<K, V>>> T intersect(final XGettingCollection<? extends KeyValue<K, V>> other, final Equalator<? super KeyValue<K, V>> equalator, final T target)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#intersect()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#intersect()
 	}
 
 	@Override
 	public <T extends Consumer<? super KeyValue<K, V>>> T except(final XGettingCollection<? extends KeyValue<K, V>> other, final Equalator<? super KeyValue<K, V>> equalator, final T target)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<KeyValue<K, V>>#except()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<KeyValue<K, V>>#except()
 	}
 
 	@Override
@@ -385,97 +372,97 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 	@Override
 	public XGettingEnum<KeyValue<K, V>> view(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingEnum<KeyValue<K, V>>#view()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingEnum<KeyValue<K, V>>#view()
 	}
 
 	@Override
 	public XGettingEnum<KeyValue<K, V>> range(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingEnum<KeyValue<K, V>>#range()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingEnum<KeyValue<K, V>>#range()
 	}
 
 	@Override
 	public KeyValue<K, V> at(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#get()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#get()
 	}
 
 	@Override
 	public KeyValue<K, V> first()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#first()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#first()
 	}
 
 	@Override
 	public KeyValue<K, V> last()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#last()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#last()
 	}
 
 	@Override
 	public KeyValue<K, V> poll()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#poll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#poll()
 	}
 
 	@Override
 	public KeyValue<K, V> peek()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#peek()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#peek()
 	}
 
 	@Override
 	public long maxIndex(final Comparator<? super KeyValue<K, V>> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#maxIndex()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#maxIndex()
 	}
 
 	@Override
 	public long minIndex(final Comparator<? super KeyValue<K, V>> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#minIndex()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#minIndex()
 	}
 
 	@Override
 	public long indexOf(final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#indexOf()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#indexOf()
 	}
 
 	@Override
 	public long indexBy(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#indexOf()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#indexOf()
 	}
 
 	@Override
 	public long lastIndexOf(final KeyValue<K, V> element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#lastIndexOf()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#lastIndexOf()
 	}
 
 	@Override
 	public long lastIndexBy(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#lastIndexOf()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#lastIndexOf()
 	}
 
 	@Override
 	public long scan(final Predicate<? super KeyValue<K, V>> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#scan()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#scan()
 	}
 
 	@Override
 	public boolean isSorted(final Comparator<? super KeyValue<K, V>> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#isSorted()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#isSorted()
 	}
 
 	@Override
 	public <T extends Consumer<? super KeyValue<K, V>>> T copySelection(final T target, final long... indices)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<KeyValue<K, V>>#copySelection()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<KeyValue<K, V>>#copySelection()
 	}
 
 	@Override
@@ -780,18 +767,6 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 			return X.<V>empty().countBy(predicate);
 		}
 
-//		@Override
-//		public final boolean hasDistinctValues()
-//		{
-//			return X.<V>empty().hasDistinctValues();
-//		}
-//
-//		@Override
-//		public final boolean hasDistinctValues(final Equalator<? super V> equalator)
-//		{
-//			return X.<V>empty().hasDistinctValues(equalator);
-//		}
-
 		@Override
 		public final V search(final Predicate<? super V> predicate)
 		{
@@ -861,7 +836,7 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		@Override
 		public final OldList<V> old()
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<V>#old()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<V>#old()
 		}
 
 		@Override
@@ -1155,18 +1130,6 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 			return X.<K>empty().countBy(predicate);
 		}
 
-//		@Override
-//		public final boolean hasDistinctValues()
-//		{
-//			return X.<K>empty().hasDistinctValues();
-//		}
-//
-//		@Override
-//		public final boolean hasDistinctValues(final Equalator<? super K> equalator)
-//		{
-//			return X.<K>empty().hasDistinctValues(equalator);
-//		}
-
 		@Override
 		public final K search(final Predicate<? super K> predicate)
 		{
@@ -1236,7 +1199,7 @@ public final class EmptyTable<K, V> implements XImmutableTable<K, V>
 		@Override
 		public final OldList<K> old()
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<K>#old()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<K>#old()
 		}
 
 		@Override

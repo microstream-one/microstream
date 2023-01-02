@@ -89,7 +89,7 @@ public interface EmbeddedStorageRestAdapter
 
 		/**
 		 *
-		 * Get an object's description by a microstream ObjectId
+		 * Get an object's description by a MicroStream ObjectId.
 		 *
 		 * @param objectId the object id to look up
 		 * @return description of the object
@@ -122,7 +122,7 @@ public interface EmbeddedStorageRestAdapter
 
 		/**
 		 *
-		 * Get java constants values
+		 * Get java constants values.
 		 *
 		 * @param objectId the object id to look up
 		 * @return the constants value as object
@@ -134,7 +134,7 @@ public interface EmbeddedStorageRestAdapter
 		}
 
 		/**
-		 * Get all registered root elements of the current microstream instance
+		 * Get all registered root elements of the current MicroStream instance.
 		 *
 		 * @return List of ViewerRootDescription objects
 		 */
@@ -155,8 +155,8 @@ public interface EmbeddedStorageRestAdapter
 		}
 
 		/**
-		 * Get the current root name and object id
-		 *
+		 * Get the current root name and object id.
+		 * <p/>
 		 * If no default root is registered the returned ViewerRootDescription
 		 * will have a "null" string as name and objectId 0.
 		 *

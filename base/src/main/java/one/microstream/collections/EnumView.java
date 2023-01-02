@@ -52,10 +52,6 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
  * This concept can be very useful if a class wants to provide public read access to an internal enuM without
  * either the danger of the enuM being modified from the outside or the need to copy the whole enuM on every access.
  * <p>
- * This is one of many useful concepts that are missing in the JDK Collections Framework and thus so far lead to
- * either inefficient or unneccessary verbose program code (or both).
- *
- * 
  *
  */
 public class EnumView<E> implements XGettingEnum<E>
@@ -109,12 +105,6 @@ public class EnumView<E> implements XGettingEnum<E>
 		return this.subject.hasVolatileElements();
 	}
 
-//	@Override
-//	public <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return this.subject.iterate(aggregate);
-//	}
-
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{
@@ -127,12 +117,6 @@ public class EnumView<E> implements XGettingEnum<E>
 		return this.subject.applies(predicate);
 	}
 
-//	@Override
-//	public boolean contains(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.contains(sample, equalator);
-//	}
-
 	@Override
 	public boolean nullAllowed()
 	{
@@ -144,12 +128,6 @@ public class EnumView<E> implements XGettingEnum<E>
 	{
 		return this.subject.nullContained();
 	}
-
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.containsAll(samples, equalator);
-//	}
 
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)
@@ -281,24 +259,6 @@ public class EnumView<E> implements XGettingEnum<E>
 		return this.subject.peek();
 	}
 
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return this.subject.hasDistinctValues(equalator);
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return this.subject.hasDistinctValues();
-//	}
-
-//	@Override
-//	public int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.indexOf(sample, equalator);
-//	}
-
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
 	{
@@ -369,12 +329,6 @@ public class EnumView<E> implements XGettingEnum<E>
 		return this.subject.scan(predicate);
 	}
 
-//	@Override
-//	public E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.search(sample, equalator);
-//	}
-
 	@Override
 	public E seek(final E sample)
 	{
@@ -398,7 +352,6 @@ public class EnumView<E> implements XGettingEnum<E>
 	{
 		// (24.08.2011)FIXME: SubEnumView
 		throw new one.microstream.meta.NotImplementedYetError();
-//		return new SubListView<>(this, lowIndex, highIndex);
 	}
 
 	@Override

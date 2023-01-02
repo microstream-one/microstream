@@ -27,7 +27,7 @@ import one.microstream.reference.Reference;
 
 
 /**
- * Central managing type of a native Java database's storage layer.
+ * Central managing type for a native Java database's storage layer.
  * <p>
  * For all intents and purposes, a {@link StorageManager} instance represents the storage of a database in the
  * Java application that uses it. It is used for starting and stopping storage managements threads,
@@ -37,13 +37,11 @@ import one.microstream.reference.Reference;
  * {@link StorageTypeDictionary} that defines the persistent structure of all handled types.
  * <p>
  * For the most cases, only the methods {@link #root()}, {@link #setRoot(Object)}, {@link #start()} and
- * {@link #shutdown()} are important. Everything else is used for moreless advanced purposes and should only be used
+ * {@link #shutdown()} are important. Everything else is used for more or less advanced purposes and should only be used
  * with good knowledge about the effects caused by it.
  * <p>
- * A {@link StorageManager} instance is also implicitely a {@link StorageConnection}, so that developers don't
+ * A {@link StorageManager} instance is also implicitly a {@link StorageConnection}, so that developers don't
  * need to care about connections at all if a single connection suffices.
- * 
- * 
  *
  */
 public interface StorageManager extends StorageController, StorageConnection, DatabasePart
@@ -56,7 +54,7 @@ public interface StorageManager extends StorageController, StorageConnection, Da
 	public StorageConfiguration configuration();
 	
 	/**
-	 * Returns the {@link StorageTypeDictionary} that contains a completely list of types currently known to /
+	 * Returns the {@link StorageTypeDictionary} that contains a complete list of types currently known to /
 	 * handled by the storage represented by this {@link StorageManager} instance. This list grows dynamically
 	 * as so far unknown types are discovered, analyzed, mapped and added on the fly by a store.
 	 * 

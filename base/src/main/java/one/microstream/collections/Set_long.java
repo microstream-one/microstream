@@ -277,7 +277,7 @@ public interface Set_long extends OptimizableCollection, Composition, _longItera
 
 		/**
 		 * Optimizes the internal storage and returns the remaining amount of entries.
-		 * @return the amount of entries after the optimization is been completed.
+		 * @return the amount of entries after the optimization has been completed.
 		 */
 		@Override
 		public long optimize()

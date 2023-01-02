@@ -152,16 +152,6 @@ public final class ChunksWrapperByteReversing extends ChunksWrapper
 		}
 	}
 
-//	@Override
-//	final void update_charsFromAddress(final long address, final char[] target, final int offset, final int length)
-//	{
-//		final int bound = offset + length;
-//		for(int i = offset; i < bound; i++)
-//		{
-//			target[i] = this.get_charFromAddress(address + (i - offset) * Character.BYTES);
-//		}
-//	}
-
 	@Override
 	final void update_intsFromAddress(final long address, final int[] target)
 	{
@@ -215,16 +205,6 @@ public final class ChunksWrapperByteReversing extends ChunksWrapper
 			this.set_charToAddress(address + i * Character.BYTES, values[i]);
 		}
 	}
-	
-//	@Override
-//	final void store_charsToAddress(final long address, final char[] values, final int offset, final int length)
-//	{
-//		final int bound = offset + length;
-//		for(int i = offset; i < bound; i++)
-//		{
-//			this.set_charToAddress(address + (i - offset) * Character.BYTES, values[i]);
-//		}
-//	}
 	
 	@Override
 	final void store_intsToAddress(final long address, final int[] values)

@@ -79,7 +79,7 @@ public interface StorageChannelTask extends StorageTask
 		{
 			super(timestamp);
 			
-			// (20.11.2019 TM)NOTE: inlined assignments caused an "Unsafe" error on an ARM machine. No kidding.
+			// (20.11.2019 TM)NOTE: inlined assignments caused an "Unsafe" error on an ARM machine.
 			this.remainingForProcessing = channelCount               ;
 			this.remainingForCompletion = channelCount               ;
 			this.controller             = notNull(controller)        ;
@@ -133,7 +133,7 @@ public interface StorageChannelTask extends StorageTask
 		}
 
 		/* ultimate completion that has to be done in any case (resource closing etc.),
-		 * no matter what problems occured before.
+		 * no matter what problems occurred before.
 		 */
 		protected void cleanUp(final StorageChannel channel)
 		{
@@ -142,7 +142,7 @@ public interface StorageChannelTask extends StorageTask
 
 		protected final int channelCount()
 		{
-			// a little bit of a hack, but rarely used, so it's better off that way
+			// a bit of a hack, but rarely used, so it's better off that way
 			return this.problems.length;
 		}
 
@@ -155,7 +155,7 @@ public interface StorageChannelTask extends StorageTask
 		public final synchronized void incrementCompletionProgress()
 		{
 			// may never get negative or something is seriously broken
-			this.remainingForCompletion--; // suffices as this method gets called by every manager thread exactely once.
+			this.remainingForCompletion--; // suffices as this method gets called by every manager thread exactly once.
 			this.notifyAll();
 		}
 
@@ -197,7 +197,7 @@ public interface StorageChannelTask extends StorageTask
 		@Override
 		public final void addProblem(final int hashIndex, final Throwable problem)
 		{
-			logger.error("Error occured in storage channel#{}", hashIndex, problem);
+			logger.error("Error occurred in storage channel#{}", hashIndex, problem);
 			
 			if(this.problems[hashIndex] == null)
 			{
@@ -234,7 +234,7 @@ public interface StorageChannelTask extends StorageTask
 			synchronized(this.problems)
 			{
 				// may never get negative or something is seriously broken
-				// suffices as this method gets called by every manager thread exactely once.
+				// suffices as this method gets called by every manager thread exactly once.
 				this.remainingForProcessing--;
 				this.problems.notifyAll();
 			}
@@ -243,7 +243,7 @@ public interface StorageChannelTask extends StorageTask
 		@Override
 		public final void processBy(final StorageChannel storageChannel) throws InterruptedException
 		{
-			// separate outmost try-finally guarantees calling of clean up logic in any case
+			// separate outermost try-finally guarantees calling of clean up logic in any case
 			try
 			{
 				final R result;
@@ -253,7 +253,7 @@ public interface StorageChannelTask extends StorageTask
 				}
 				catch(final Throwable e)
 				{
-					// a problem occuring while processing gets reported and the task gets cleanly aborted.
+					// a problem occurring while processing gets reported and the task gets cleanly aborted.
 					this.addProblem(storageChannel.channelIndex(), e);
 					this.incrementCompletionProgress();
 					return;

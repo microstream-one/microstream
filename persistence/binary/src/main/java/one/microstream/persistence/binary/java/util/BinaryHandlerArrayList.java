@@ -66,13 +66,13 @@ public final class BinaryHandlerArrayList extends AbstractBinaryHandlerList<Arra
 		final long elementCount = getElementCount(data);
 		
 		/*
-		 * InitialCapacity 1 instead of default constructor is a workaround for yet another JDK bug.
+		 * InitialCapacity 1 instead of default constructor is a workaround.
 		 * Using the default constructor causes #ensureCapacity to yield incorrect behavior for values of
 		 * 10 or below, which causes a subsequent array length validation exception.
 		 * Also see https://bugs.openjdk.java.net/browse/JDK-8206945
 		 * 
 		 * However, having an actually zero-size instance should still cause the internal dummy array instance
-		 * to be used instead of a redundant one that unnecessarily occupies memory. Hence the if.
+		 * to be used instead of a redundant one that unnecessarily occupies memory. Hence, the if.
 		 */
 		return elementCount == 0
 			? new ArrayList<>(0)

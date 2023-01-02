@@ -31,7 +31,6 @@ package one.microstream.storage.types;
  * It is therefore strongly suggested that implementations only use "exception free" logic (like simple arithmetic)
  * or handle any possible exception internally.
  *
- * 
  */
 @FunctionalInterface
 public interface StorageDataFileDissolvingEvaluator

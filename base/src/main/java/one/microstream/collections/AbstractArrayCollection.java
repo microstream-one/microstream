@@ -86,9 +86,4 @@ public abstract class AbstractArrayCollection<E> extends AbstractExtendedCollect
 	 */
 	protected abstract E[] internalGetStorageArray();
 
-//	public int scan(final Predicate<? super E> predicate)
-//	{
-//		return AbstractArrayStorage.forwardScan(this.internalGetStorageArray(), this.size(), predicate);
-//	}
-
 }

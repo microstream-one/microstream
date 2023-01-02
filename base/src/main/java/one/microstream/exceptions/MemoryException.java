@@ -22,7 +22,7 @@ package one.microstream.exceptions;
  */
 
 /*
- * XXX check usages of this type, replace by better typed exceptions
+ * TODO check usages of this type, replace by better typed exceptions
  */
 public class MemoryException extends BaseException
 {

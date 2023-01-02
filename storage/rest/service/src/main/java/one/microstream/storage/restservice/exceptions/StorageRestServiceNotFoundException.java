@@ -25,7 +25,7 @@ import one.microstream.exceptions.BaseException;
 
 
 /**
- * Exception thrown by RestServiceResolver
+ * Exception thrown by RestServiceResolver.
  *
  */
 public class StorageRestServiceNotFoundException extends BaseException

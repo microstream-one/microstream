@@ -32,7 +32,7 @@ import one.microstream.collections.types.XSettingList;
 public class SubListAccessor<E> extends SubListView<E> implements XSettingList<E>
 {
 	/* (12.07.2012 TM)FIXME: complete SubListAccessor implementation
-	 * See all "FIX-ME"s
+	 * See all "FIXME"s
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
@@ -53,35 +53,26 @@ public class SubListAccessor<E> extends SubListView<E> implements XSettingList<E
 	@Override
 	public  long replace(final E element, final E replacement)
 	{
-//		return ((XSettingList<E>)this.list).rngReplace(this.startIndex, this.length, oldElement, newElement);
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public  boolean replaceOne(final E element, final E replacement)
 	{
-//		return ((XSettingList<E>)this.list).rngReplaceOne(this.startIndex, this.length, oldElement, newElement);
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public  long substitute(final Function<? super E, ? extends E> mapper)
 	{
-//		return ((XSettingList<E>)this.list).rngReplaceAll(this.startIndex, this.length, replacementMapping);
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public  long substitute(final Predicate<? super E> predicate, final Function<E, E> mapper)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
-
-//	@Override
-//	public  int modify(final CtrlPredicate<? super E> predicate, final Function<E, E> mapper)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
 
 	@Override
 	public  SubListAccessor<E> range(final long fromIndex, final long toIndex)
@@ -105,14 +96,12 @@ public class SubListAccessor<E> extends SubListView<E> implements XSettingList<E
 	@Override
 	public  boolean replaceOne(final Predicate<? super E> predicate, final E substitute)
 	{
-//		return ((XSettingList<E>)this.list).rngReplaceOne(this.startIndex, this.length, predicate, newElement);
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public  SubListAccessor<E> reverse()
 	{
-//		((XSettingList<E>)this.list).rngReverse(this.startIndex, this.length);
 		return this;
 	}
 
@@ -278,22 +267,14 @@ public class SubListAccessor<E> extends SubListView<E> implements XSettingList<E
 	@Override
 	public  long replace(final Predicate<? super E> predicate, final E substitute)
 	{
-//		return ((XSettingList<E>)this.list).rngReplace(this.startIndex, this.length, predicate, newElement);
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
-//	@Override
-//	public  int replace(final CtrlPredicate<? super E> predicate, final E substitute)
-//	{
-////		return ((XSettingList<E>)this.list).rngReplace(this.startIndex, this.length, predicate, newElement);
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
 
 	@Override
 	public  long replaceAll(final XGettingCollection<? extends E> elements, final E replacement)
 	{
-//		return ((XSettingList<E>)this.list).rngReplaceAll(this.startIndex, this.length, oldElements, newElement);
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override

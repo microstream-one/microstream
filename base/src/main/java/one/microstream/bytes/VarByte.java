@@ -108,7 +108,7 @@ public final class VarByte implements Externalizable
 	
 	
 	/**
-	 * Use this constructor only if really a specific size is needed or of the text to be handled is really big.<br>
+	 * Use this constructor only if really a specific size is needed or list of bytes to be handled is huge.<br>
 	 * Otherwise, use the factory methods as they are faster due to skipping capacity checks and bounds adjustment.<br>
 	 * <p>
 	 * Note that the given {@code initialCapacity} will still be adjusted to the next higher 2^n bounding value.
@@ -140,7 +140,7 @@ public final class VarByte implements Externalizable
 	// constructors //
 	/////////////////
 	
-	// to satisfy code analysis tools regarding implementation of Externalizable
+	// to satisfy requirements of Externalizable
 	private VarByte()
 	{
 		this(CAPACITY_MIN);

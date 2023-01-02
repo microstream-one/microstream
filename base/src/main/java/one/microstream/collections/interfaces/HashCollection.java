@@ -27,10 +27,6 @@ import one.microstream.collections.types.XGettingList;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.typing.KeyValue;
 
-/**
- * 
- *
- */
 public interface HashCollection<E> extends Sized
 {
 	public float hashDensity();
@@ -58,7 +54,7 @@ public interface HashCollection<E> extends Sized
 	public long size();
 
 	/**
-	 * Recalculates the hash value of all entries and reorginazes and optimizes the hash storage accordingly.
+	 * Recalculates the hash value of all entries and reorganizes and optimizes the hash storage accordingly.
 	 * This method is meant for cases where a hash collection has to collect its elements before proper hash
 	 * values can be derived for them or where hash mutable elements can change their hash-relevant state after
 	 * having been added (and hashed) in a hash collection.

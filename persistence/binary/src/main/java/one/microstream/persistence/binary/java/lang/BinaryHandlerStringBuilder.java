@@ -74,7 +74,7 @@ public final class BinaryHandlerStringBuilder extends AbstractBinaryHandlerAbstr
 	@Override
 	public void updateState(final Binary data, final StringBuilder instance, final PersistenceLoadHandler handler)
 	{
-		// because implementing a clear() would have been too hard for the JDK Pros.
+		// because clear() does not exists.
 		instance.delete(0, instance.length());
 		
 		instance.ensureCapacity(this.readCapacity(data));

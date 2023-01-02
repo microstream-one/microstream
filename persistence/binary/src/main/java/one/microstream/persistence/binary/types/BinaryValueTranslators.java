@@ -66,8 +66,8 @@ public final class BinaryValueTranslators
 	
 	/**
 	 * The default mapping only covers primitive types, because for arbitrary Object types, it cannot be
-	 * safely assumed that instances of those types are unshared and that implicitely replacing one instance
-	 * with another will never cause erronous behavior (e.g. identity comparisons suddenly yielding different
+	 * safely assumed that instances of those types are unshared and that implicitly replacing one instance
+	 * with another will never cause erroneous behavior (e.g. identity comparisons suddenly yielding different
 	 * results than would be expected based on the stored instances).<p>
 	 * However, arbitrary mappings can be added to suit the needs of specific programs.
 	 * 
@@ -111,7 +111,7 @@ public final class BinaryValueTranslators
 		return mapping;
 	}
 	
-	/* (21.03.2019 TM)TODO: split the numerous value converters into explicitely named separate classes
+	/* (21.03.2019 TM)TODO: split the numerous value converters into explicitly named separate classes
 	 * E.g.
 	 * primitive <-> primitive
 	 * primitive <-> Wrapper
@@ -258,25 +258,21 @@ public final class BinaryValueTranslators
 		 * This makes no sense to do, here.
 		 * Not only is removeLazyReference currently not implementable, but even if it will be in the future,
 		 * the mapping would only cover the target / source types of EXACTLY Object. E.g. not String, Person, etc.
-		 * The two translators can be registered explicitely for a given type (albeit the removing does not work),
+		 * The two translators can be registered explicitly for a given type (albeit the removing does not work),
 		 * but there can be no generic logic doing the mapping.
 		 * A generic logic could do a fallback lookup:
 		 * If no specific "Lazy <-> T" can be found, look again for a "Lazy <-> Object" mapping.
-		 * However, that would introduce ambiguties and unsafe assumptions:
+		 * However, that would introduce ambiguities and unsafe assumptions:
 		 * It would, for example, assume, that a Lazy<String> field was changed to a String field, so that the
 		 * instance referenced by the lazy reference can be directly mapped.
 		 * If, however, the field is changed from Lazy<String> to char[], the setter sets a wrongly typed instance
 		 * to the field's heap address.
-		 * Hm... althouth this applies to an explicit "Lazy <-> T" mapping as well, since the Lazy type does not have
+		 * Hm... although this applies to an explicit "Lazy <-> T" mapping as well, since the Lazy type does not have
 		 * its generic type checked.
 		 * In any case: mapping from or to Lazy references must be done at the user's explicit responsibility,
-		 * not mapped implicitely.
+		 * not mapped implicitly.
 		 * 
 		 */
-//		mapping
-//		.register(Lazy  .class, Object.class, BinaryValueTranslators::removeLazyReference  ) // not implementable!
-//		.register(Object.class, Lazy  .class, BinaryValueTranslators::wrapWithLazyReference)
-//		;
 	}
 	
 	private static int to_int(final boolean value)
@@ -1280,13 +1276,7 @@ public final class BinaryValueTranslators
 		 * for this use case.
 		 * Such a mechanism does not exist, yet and is not easy to implement.
 		 */
-//		final Lazy<?> lazyReference = (Lazy<?>)handler.lookupObject(XMemory.get_long(sourceAddress));
-//		final Object potentiallyNotThereYet = handler.lookupObject(lazyReference.objectId());
-//		final Object notCallableAtThisPoint = Lazy.get(lazyReference);
-//		XMemory.setObject(target, targetOffset, ???);
-		
-//		return sourceAddress + Binary.objectIdByteLength();
-		
+
 		throw new UnsupportedOperationException("Architecture does not support a new loading during loading.");
 	}
 	

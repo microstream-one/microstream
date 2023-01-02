@@ -827,13 +827,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	@Override
 	public final XEnum<KeyValue<K, V>> range(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqConstHashTable.Entries#range()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqConstHashTable.Entries#range()
 	}
 
 	@Override
 	public final XGettingEnum<KeyValue<K, V>> view(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqConstHashTable.Entries#view()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqConstHashTable.Entries#view()
 	}
 
 	@Override
@@ -889,29 +889,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 	{
 		return EqConstHashTable.this.chain.min(comparator);
 	}
-
-//	/**
-//	 * As per definition of a set, this method always returns true.<br>
-//	 * Note that mutated elements whose hashcode has not been immuted by the employed hash logic
-//	 * can be contained multiple times, effectively breaking this method (because of breaking the hashing logic in the
-//	 * first place), so this information only has value if the elements' implementation is immutable or if the
-//	 * hash logic compensated their mutability (e.g. by using the identity hash code or by registering a once created
-//	 * hashcode, effectively "immuting" it).
-//	 *
-//	 * @return
-//	 * @see XGettingCollection#hasDistinctValues()
-//	 */
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		return true;
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super KeyValue<K, V>> equalator)
-//	{
-//		return EqConstHashTable.this.chain.hasDistinctValues(equalator);
-//	}
 
 	// boolean querying - applies //
 
@@ -1283,13 +1260,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		@Override
 		public final XEnum<K> range(final long lowIndex, final long highIndex)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqConstHashTable.Keys#range()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqConstHashTable.Keys#range()
 		}
 
 		@Override
 		public final XGettingEnum<K> view(final long lowIndex, final long highIndex)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqConstHashTable.Keys#view()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqConstHashTable.Keys#view()
 		}
 
 		@Override
@@ -1365,33 +1342,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 		{
 			return true;
 		}
-
-//		/**
-//		 * As per definition of a set, this method always returns true.<br>
-//		 * Note that mutated elements whose hashcode has not been immuted by the employed hash logic
-//		 * can be contained multiple times, effectively breaking this method (because of breaking the hashing logic in the
-//		 * first place), so this information only has value if the elements' implementation is immutable or if the
-//		 * hash logic compensated their mutability (e.g. by using the identity hash code or by registering a once created
-//		 * hashcode, effectively "immuting" it).
-//		 *
-//		 * @return
-//		 * @see XGettingCollection#hasDistinctValues()
-//		 */
-//		@Override
-//		public final boolean hasDistinctValues()
-//		{
-//			return true;
-//		}
-//
-//		@Override
-//		public final boolean hasDistinctValues(final Equalator<? super K> equalator)
-//		{
-//			if(EqConstHashTable.this.hashEqualator == equalator)
-//			{
-//				return true;
-//			}
-//			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqConstHashTable.Keys#hasDistinctValues()
-//		}
 
 		// boolean querying - applies //
 
@@ -1879,18 +1829,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 			return target;
 		}
 
-//		@Override
-//		public final boolean hasDistinctValues()
-//		{
-//			return EqConstHashTable.this.chain.valuesHasDistinctValues();
-//		}
-//
-//		@Override
-//		public final boolean hasDistinctValues(final Equalator<? super V> equalator)
-//		{
-//			return EqConstHashTable.this.chain.valuesHasDistinctValues(equalator);
-//		}
-
 		@Override
 		public final boolean hasVolatileElements()
 		{
@@ -2176,8 +2114,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 			{
 				/* how to safely detect an exception caused by an invalid type of passed object?
 				 * Can't be sure to always be a ClassCastException...
-				 * God damn stupid dilettantish Object type in old Map -.-
-				 * As if they really found "reasonable code that affords Object" back then, nonsense.
 				 */
 				return false;
 			}
@@ -2195,8 +2131,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 			{
 				/* how to safely detect an exception caused by an invalid type of passed object?
 				 * Can't be sure to always be a ClassCastException...
-				 * God damn stupid dilettantish Object type in old Map -.-
-				 * As if they really found "reasonable code that affords Object" back then, nonsense.
 				 */
 				return false;
 			}
@@ -2212,7 +2146,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 			 * XCollection-architecture wise, the "old" collections cleanly use KeyValue instead of Entry.
 			 * But java.util.Set<KeyValue<K, V>> cannot be cast to Set<java.util.Map.Entry<K, V>>, generics-wise.
 			 * Nevertheless, the "stuff behind" the typing IS compatible.
-			 * So this typingly dirty but architectural clean workaround is used.
+			 * So this typing is dirty but architectural clean workaround is used.
 			 */
 			return (Set<java.util.Map.Entry<K, V>>)(Set<?>)EqConstHashTable.this.old();
 		}
@@ -2229,8 +2163,6 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition
 			{
 				/* how to safely detect an exception caused by an invalid type of passed object?
 				 * Can't be sure to always be a ClassCastException...
-				 * God damn stupid dilettantish Object type in old Map -.-
-				 * As if they really found "reasonable code that affords Object" back then, nonsense.
 				 */
 				return null;
 			}

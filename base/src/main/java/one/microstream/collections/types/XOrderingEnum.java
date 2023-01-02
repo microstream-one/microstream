@@ -27,15 +27,6 @@ package one.microstream.collections.types;
  */
 public interface XOrderingEnum<E> extends XOrderingSequence<E>
 {
-	// (06.07.2011 TM)FIXME: XOrderingEnum: elemental shift
-//	public boolean shiftTo(E element, long targetIndex);
-	
-//	public boolean shiftBy(E element, long targetIndex);
-	
-//	public boolean shiftToStart(E element, long targetIndex);
-	
-//	public boolean shiftToEnd(E element, long targetIndex);
-
 
 	@Override
 	public XOrderingEnum<E> shiftTo(long sourceIndex, long targetIndex);
