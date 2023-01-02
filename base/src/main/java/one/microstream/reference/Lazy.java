@@ -305,7 +305,7 @@ public interface Lazy<T> extends Referencing<T>
 		 * The cached object id of the not loaded actual instance to later load it lazily.
 		 * Although this value never changes logically during the lifetime of an instance,
 		 * it might be delayed initialized. See {@link #link(long, ObjectSwizzling)} and its use site(s).
-		 * <p/>
+		 * <p>
 		 * A "not found" id (id < 0) here means not yet persisted (the id assigned via persisting is not yet present).
 		 */
 		// CHECKSTYLE.OFF: VisibilityModifier CheckStyle false positive for same package in another project

@@ -1170,7 +1170,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	/**
 	 * Fills this instance's char storage completely with zeros and sets its size to 0.
-	 * <p/>
+	 * <p>
 	 * Only preferable to {@link #reset()} for in-memory security reasons.
 	 *
 	 * @return this

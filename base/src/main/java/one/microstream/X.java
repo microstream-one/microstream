@@ -140,7 +140,6 @@ public final class X
 	 * Central validation point for Java's current technical limitation of max int as max array capacity.
 	 * Note that because of dependencies of many types to arrays (e.g. toArray() methods, etc.), this limitation
 	 * indirectly affects many other types, for example String, collections, ByteBuffers (which is extremely painful).
-	 * <p/>
 	 *
 	 * @param capacity the desired (array-dependent) capacity which may effectively be not greater than
 	 * {@link Integer}.MAX_VALUE.

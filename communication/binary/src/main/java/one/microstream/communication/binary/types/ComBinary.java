@@ -45,10 +45,10 @@ public class ComBinary
 	 * So far, the header only consists of one field holding the length of the chunk content.
 	 * See {@link Binary#lengthLength()}.
 	 * And a crc32 checksum of the chunk content length
-	 * <p/>
+	 * <p>
 	 * In the future, the header might contain validation values like protocol name, version, byte order, etc.<br>
 	 * Maybe, the consequence will be a dynamically sized header, meaning there
-	 * <p/>
+	 * <p>
 	 * 
 	 * @return The length of the fixed-size chunk header.
 	 */

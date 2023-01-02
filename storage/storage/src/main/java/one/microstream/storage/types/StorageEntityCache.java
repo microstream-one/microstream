@@ -681,7 +681,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		 * See "doomed kept alive" and "slipped through" cases.
 		 * This means an entity with references that is already black (saved from sweep and has its references iterated)
 		 * must be demoted to gray (saved from sweep but references not handled yet) and have its OID enqueued in the gray chain.
-		 * <p/>
+		 * <p>
 		 * If the entity has no reference, it can be marked black right away. This either anticipates/replaces the black marking
 		 * by the GC and should actually not be necessary, however as the effort to do it at this point is rather minimal, it's done
 		 * nonetheless.

@@ -204,7 +204,7 @@ public interface StorageConnection extends Persister
 	 * very long running operation, depending on the storage size.<br>
 	 * Although the full backup may be a valid solution in some circumstances, the incremental backup should
 	 * be preferred, since it is by far more efficient.
-	 * <p/>
+	 * <p>
 	 * if the target is existing and not empty an {@link StorageExceptionBackupFullBackupTargetNotEmpty} exception
 	 * will be thrown
 	 * 

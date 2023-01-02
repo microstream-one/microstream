@@ -49,7 +49,7 @@ import one.microstream.util.logging.Logging;
  * It is based on a {@link SerializerFoundation}, which can be configured to various needs.
  * <p>
  * Per default {@link Binary} and <code>byte[]</code> are supported as medium types.
- * <p/>
+ * <p>
  * The included type information can be configured by supplying a {@link SerializerTypeInfoStrategy}
  * using a {@link SerializerTypeInfoStrategyCreator} to the {@link SerializerFoundation}.
  *

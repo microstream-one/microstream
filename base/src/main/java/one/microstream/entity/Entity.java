@@ -30,7 +30,7 @@ import one.microstream.collections.types.XGettingList;
 /**
  * A mutable entity. Mutations of the entity's data only happen by providing another instance of that entity
  * that contains the desired new data.
- * <p/>
+ * <p>
  * FH
  */
 public interface Entity

@@ -217,7 +217,7 @@ public interface StorageEntityCacheEvaluator
 		 * Entity age timeout value in milliseconds at which the entity should definitely be cleared from the cache,
 		 * independent of size, type or cache fullness.
 		 * Example: After one day of not being used, an entity can definitely be unloaded from the cache.
-		 * <p/>
+		 * <p>
 		 * Can be set to very low value like 1 hour (3_600_000 ms) for systems with very sporadic activity.
 		 * (e.g. an application that performs big operations only every once in a while and is very dormant in between)
 		 * Can be set to a medium value like 1 day (86_400_000 ms) for typical server systems

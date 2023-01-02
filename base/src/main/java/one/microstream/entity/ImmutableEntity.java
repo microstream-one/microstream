@@ -22,7 +22,7 @@ package one.microstream.entity;
 
 /**
  * Immutable entities effectively never change their data as viewed from an outside context.
- * <p/>
+ * <p>
  * FH
  */
 public interface ImmutableEntity extends Entity

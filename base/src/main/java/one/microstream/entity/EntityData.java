@@ -22,7 +22,7 @@ package one.microstream.entity;
 
 /**
  * Immutable entity data layer.
- * <p/>
+ * <p>
  * FH
  */
 public abstract class EntityData extends Entity.AbstractAccessible

@@ -97,7 +97,7 @@ public interface StorageEventLogger
 	
 	/**
 	 * NoOp StorageEventLogger
-	 * <p/>
+	 * <p>
 	 * Doesn't log any storage events
 	 *
 	 */
@@ -135,7 +135,7 @@ public interface StorageEventLogger
 	
 	/**
 	 * Default implementation of StorageEventLogger
-	 * <p/>
+	 * <p>
 	 * This implementation doesn't log behavior but logs exceptions
 	 *
 	 */
@@ -236,7 +236,7 @@ public interface StorageEventLogger
 	
 	/**
 	 * Debug implementation of StorageEventLogger
-	 * <p/>
+	 * <p>
 	 * This implementation logs behavior and exceptions
 	 *
 	 */

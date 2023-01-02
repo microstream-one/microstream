@@ -24,7 +24,7 @@ import static one.microstream.X.mayNull;
 
 /**
  * Abstract base class for chained entity layers.
- *  <p/>
+ *  <p>
  *  FH
  */
 public abstract class EntityLayer extends Entity.AbstractAccessible

@@ -22,7 +22,7 @@ package one.microstream.entity;
 
 /**
  * Entity identity layer. This is the outer shell of a entity layer chain.
- * <p/>
+ * <p>
  * FH
  */
 public abstract class EntityLayerIdentity extends EntityLayer

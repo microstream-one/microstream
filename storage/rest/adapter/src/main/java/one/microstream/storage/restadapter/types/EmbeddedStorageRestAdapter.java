@@ -156,7 +156,7 @@ public interface EmbeddedStorageRestAdapter
 
 		/**
 		 * Get the current root name and object id.
-		 * <p/>
+		 * <p>
 		 * If no default root is registered the returned ViewerRootDescription
 		 * will have a "null" string as name and objectId 0.
 		 *
