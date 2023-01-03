@@ -32,7 +32,7 @@ import javax.inject.Qualifier;
 
 /**
  * Defines a cache managed by MicroStream:
- * <a href="https://docs.microstream.one/manual/cache/getting-started.html">Getting started for Cache/a>
+ * <a href="https://docs.microstream.one/manual/cache/getting-started.html">Getting started for Cache</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
