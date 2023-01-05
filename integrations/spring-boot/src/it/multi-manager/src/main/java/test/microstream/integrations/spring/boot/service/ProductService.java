@@ -1,10 +1,10 @@
-package one.microstream.integrations.spring.boot.types.storage;
+package test.microstream.integrations.spring.boot.service;
 
 /*-
  * #%L
  * microstream-integrations-spring-boot
  * %%
- * Copyright (C) 2019 - 2022 MicroStream Software
+ * Copyright (C) 2019 - 2023 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,23 +20,25 @@ package one.microstream.integrations.spring.boot.types.storage;
  * #L%
  */
 
-import java.util.List;
+import org.springframework.stereotype.Service;
+import test.microstream.integrations.spring.boot.database.Products;
+import test.microstream.integrations.spring.boot.model.Product;
 
-/**
- * We need to keep track if there is a @Storage annotated class to know when the StorageManagerInitializer needs to be called.
- * This class will be turned into a bean and placed into the Context if there is such a bean.
- */
-public class StorageMetaData
-{
-    private final List<StorageClassData> storageClassData;
+import java.util.Collection;
 
-    public StorageMetaData(final List<StorageClassData> storageClassData)
-    {
-        this.storageClassData = storageClassData;
+@Service
+public class ProductService {
+
+
+    private final Products redRoot;
+
+    public ProductService(final Products redRoot) {
+        this.redRoot = redRoot;
     }
 
-    public List<StorageClassData> getStorageClassData()
-    {
-        return this.storageClassData;
+    public Collection<Product> getAll() {
+        return this.redRoot.getProducts();
     }
+
+
 }
