@@ -4,7 +4,7 @@ package one.microstream.integrations.spring.boot.types.storage;
  * #%L
  * microstream-integrations-spring-boot
  * %%
- * Copyright (C) 2019 - 2022 MicroStream Software
+ * Copyright (C) 2019 - 2023 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -24,6 +24,7 @@ import one.microstream.integrations.spring.boot.types.MultipleStorageBeanExcepti
 import one.microstream.integrations.spring.boot.types.Storage;
 import one.microstream.integrations.spring.boot.types.config.StorageManagerInitializer;
 import one.microstream.integrations.spring.boot.types.config.StorageManagerProvider;
+import one.microstream.integrations.spring.boot.types.util.ByQualifier;
 import one.microstream.reflect.XReflect;
 import one.microstream.storage.types.StorageManager;
 import org.slf4j.Logger;
@@ -92,7 +93,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
                 .getAutowireCapableBeanFactory()
                 .autowireBean(root);
 
-        this.processInitializers(storageManager);
+        this.processInitializers(storageManager, qualifier);
 
         return root;
     }
@@ -114,12 +115,13 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
                 );
     }
 
-    private void processInitializers(final StorageManager storageManager)
+    private void processInitializers(final StorageManager storageManager, final String qualifier)
     {
         final String[] namesForType = applicationContext.getBeanNamesForType(StorageManagerInitializer.class);
         Arrays.stream(namesForType)
                 .map(name -> applicationContext.getBean(name))
                 .map(StorageManagerInitializer.class::cast)
+                .filter(it -> ByQualifier.hasQualifierValue(it, qualifier))
                 .forEach(initializer -> initializer.initialize(storageManager));
 
     }

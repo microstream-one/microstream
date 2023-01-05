@@ -4,24 +4,25 @@ package one.microstream.integrations.spring.boot.types.config;
  * #%L
  * microstream-integrations-spring-boot
  * %%
- * Copyright (C) 2019 - 2022 MicroStream Software
+ * Copyright (C) 2019 - 2023 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
- * 
+ *
  * This Source Code may also be made available under the following Secondary
  * Licenses when the conditions for such availability set forth in the Eclipse
  * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
  * with the GNU Classpath Exception which is
  * available at https://www.gnu.org/software/classpath/license.html.
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
 
 import one.microstream.integrations.spring.boot.types.storage.StorageClassData;
 import one.microstream.integrations.spring.boot.types.storage.StorageMetaData;
+import one.microstream.integrations.spring.boot.types.util.ByQualifier;
 import one.microstream.integrations.spring.boot.types.util.EnvironmentFromMap;
 import one.microstream.reflect.ClassLoaderProvider;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
@@ -135,7 +136,8 @@ public class StorageManagerProvider
                             .getContextClassLoader())));
         }
 
-        this.customizers.forEach(c -> c.customize(embeddedStorageFoundation));
+        ByQualifier.filter(this.customizers, qualifier)
+                .forEach(c -> c.customize(embeddedStorageFoundation));
 
         EmbeddedStorageManager storageManager = embeddedStorageFoundation.createEmbeddedStorageManager();
 
@@ -149,7 +151,8 @@ public class StorageManagerProvider
         {
             // No @Storage,so we need to execute initializers now.
             // Otherwise the StorageBeanFactory.createRootObject is responsible for calling the
-            this.initializers.forEach(i -> i.initialize(storageManager));
+            ByQualifier.filter(this.initializers, qualifier)
+                    .forEach(i -> i.initialize(storageManager));
         }
 
         return storageManager;
@@ -157,7 +160,8 @@ public class StorageManagerProvider
 
     private boolean hasRootDefined(final String qualifier)
     {
-        if (storageMetaData.isEmpty()) {
+        if (storageMetaData.isEmpty())
+        {
             // No @Storage at all -> so no root
             return false;
         }
