@@ -28,16 +28,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>one.microstream</groupId>
-            <artifactId>microstream-storage-embedded</artifactId>
-            <version>@project.version@</version>
-        </dependency>
-        <dependency>
-            <groupId>one.microstream</groupId>
-            <artifactId>microstream-storage-embedded-configuration</artifactId>
-            <version>@project.version@</version>
-        </dependency>
 
         <dependency>
             <groupId>@project.groupId@</groupId>

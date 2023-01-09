@@ -48,6 +48,6 @@ Key values containing "password" are replaced by "xxxxx".
 
 ## Build
 
-Maven build, to build just run `mvn -Pfrom_java_17 clean install`<br>
-to run integration tests run `mvn -Prun-its -Pfrom_java_17 clean install`. Integration tests require Docker to run.
+Maven build, to build just run `mvn clean install` (requires JDK 17!)<br>
+to run integration tests run `mvn -Prun-its clean install`. Integration tests require Docker to run.
 

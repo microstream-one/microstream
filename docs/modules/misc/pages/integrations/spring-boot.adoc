@@ -20,9 +20,24 @@ Official Spring Boot site: https://spring.io/projects/spring-boot[]
 
 The integration requires Spring Boot 2.x (with version 2.1.0.RELEASE being the minimal supported one).
 
+If you are running Spring Boot 3, use the following dependency in your project:
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+   <dependency>
+      <groupId>one.microstream</groupId>
+      <artifactId>microstream-integrations-spring-boot3</artifactId>
+      <version>{maven-version}</version>
+   </dependency>
+</dependencies>
+----
+
+The migration from version 2 to 3 doesn't require any code changes related to the MicroStream integration classes. Internally, the integration makes now use of the AutoConfiguration option (where the Spring Boot 2 integration code makes use of the Spring Factories config file)
+
 == Breaking changes
 
-Since version 8.0.0, the _StorageManager_ that is instantiated by the integration is also started where the previous version of the integration did not start the manager.  You can have the old behaviour of a _StorageManager_ that is not started by specifying the config value `one.microstream.auto-start=false`.
+As of version 8.0.0, the _StorageManager_ that is instantiated by the integration is also started where the previous version of the integration did not start the manager.  You can have the old behaviour of a _StorageManager_ that is not started by specifying the config value `one.microstream.auto-start=false`.
 
 == Configuration
 

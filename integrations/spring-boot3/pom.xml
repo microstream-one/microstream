@@ -30,36 +30,13 @@
             <version>${org.springframework.boot.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-            <version>${org.springframework.boot.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <version>${org.springframework.boot.version}</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <version>${org.springframework.boot.version}</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>one.microstream</groupId>
-            <artifactId>microstream-storage-embedded</artifactId>
+            <artifactId>microstream-integrations-spring-boot-common</artifactId>
             <version>08.00.00-MS-GA-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>one.microstream</groupId>
-            <artifactId>microstream-storage-embedded-configuration</artifactId>
-            <version>08.00.00-MS-GA-SNAPSHOT</version>
-        </dependency>
+
 
     </dependencies>
 
@@ -92,32 +69,6 @@
                         <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
                     </statelessTestsetReporter>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>enforce-files-exist</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <rules>
-                                <requireFilesExist>
-                                    <message>File: '/target/classes/META-INF/spring-configuration-metadata.json' is not present</message>
-                                    <files>
-                                        <file>
-                                            ${project.basedir}/target/classes/META-INF/spring-configuration-metadata.json
-                                        </file>
-                                    </files>
-                                </requireFilesExist>
-                            </rules>
-                            <fail>true</fail>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
