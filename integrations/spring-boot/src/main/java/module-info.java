@@ -19,21 +19,8 @@
  */
 module microstream.integrations.spring.boot
 {
-	exports one.microstream.integrations.spring.boot.types.oracle.coherence;
-	exports one.microstream.integrations.spring.boot.types.redis;
-	exports one.microstream.integrations.spring.boot.types.hazelcast;
-	exports one.microstream.integrations.spring.boot.types.mongodb;
-	exports one.microstream.integrations.spring.boot.types.oracle;
-	exports one.microstream.integrations.spring.boot.types.sql;
-	exports one.microstream.integrations.spring.boot.types.aws;
-	exports one.microstream.integrations.spring.boot.types;
-	exports one.microstream.integrations.spring.boot.types.azure;
-	exports one.microstream.integrations.spring.boot.types.oracle.nosql;
-	exports one.microstream.integrations.spring.boot.types.oraclecloud;
-	exports one.microstream.integrations.spring.boot.types.config;
-	exports one.microstream.integrations.spring.boot.types.storage;
-
 	requires transitive microstream.storage.embedded.configuration;
+	requires microstream.integrations.spring.boot.common;
 	requires transitive spring.beans;
 	requires transitive spring.boot;
 	requires transitive spring.boot.autoconfigure;
