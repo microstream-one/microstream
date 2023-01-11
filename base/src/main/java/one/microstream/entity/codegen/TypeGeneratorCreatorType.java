@@ -29,10 +29,6 @@ import javax.lang.model.element.TypeParameterElement;
 import one.microstream.entity.Entity;
 import one.microstream.entity.EntityLayerIdentity;
 
-/**
- * 
- * 
- */
 class TypeGeneratorCreatorType extends TypeGenerator
 {
 	final static String SUFFIX = "Creator";

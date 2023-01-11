@@ -22,10 +22,6 @@ package one.microstream.collections;
 
 
 
-/**
- * 
- *
- */
 public abstract class AbstractChainEntryLinkedHashed<E, K, V, EN extends AbstractChainEntryLinkedHashed<E, K, V, EN>>
 extends AbstractChainEntryLinked<E, K, V, EN>
 {

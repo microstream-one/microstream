@@ -63,7 +63,7 @@ extends AbstractBinaryHandlerCustomValueFixedLength<OptionalDouble, Double>
 		/*
 		 * Note on fields:
 		 * These are not tied to JDK-specific internals. It's merely a sufficient state
-		 * (even properly queryable in the implementation, fancy that) to represent an instance.
+		 * (even properly queryable in the implementation) to represent an instance.
 		 * The identical naming is "by coincidence" and will continue to work even if they change theirs internally.
 		 */
 		super(

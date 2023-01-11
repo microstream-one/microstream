@@ -142,12 +142,10 @@ public interface StorageOperationController
 			// if the database managing instance is no longer reachable (used), there is no point in continue processing
 			if(this.storageSystemReference.get() == null)
 			{
-//				XDebug.println(Thread.currentThread().getName() + " found nulled reference.");
 				this.deactivate();
 			}
 
-//			XDebug.println(Thread.currentThread().getName() + " channelProcessingEnabled = " + this.channelProcessingEnabled);
-			
+
 			return this.channelProcessingEnabled;
 		}
 

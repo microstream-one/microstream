@@ -25,7 +25,7 @@ public interface Disposable
 	/**
 	 * Release resources used by the implementing class
 	 * that should be released before the garbage collector takes care of them.
-	 * 
+	 * <p>
 	 * After calling, the owning object may be in an inoperable state which it can't recover from! 
 	 */
 	public void dispose();

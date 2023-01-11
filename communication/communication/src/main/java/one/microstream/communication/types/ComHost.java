@@ -33,8 +33,7 @@ import one.microstream.util.logging.Logging;
 /**
  * Host type to listen for new connections and relay them to logic for further processing,
  * potentially in another, maybe even dedicated thread.
- * 
- * 
+ *
  * @param <C> the communication layer type
  */
 public interface ComHost<C> extends Runnable
@@ -124,7 +123,7 @@ public interface ComHost<C> extends Runnable
 		@Override
 		public void run()
 		{
-			logger.info("Starting Microstream Communication Server ...");
+			logger.info("Starting MicroStream Communication Server ...");
 			// the whole method may not be synchronized, otherwise a running host could never be stopped
 			synchronized(this)
 			{
@@ -137,7 +136,7 @@ public interface ComHost<C> extends Runnable
 			}
 			if(!this.stopped)
 			{
-				logger.info("Microstream Communication Server started!");
+				logger.info("MicroStream Communication Server started!");
 				this.acceptConnections();
 			}
 		}

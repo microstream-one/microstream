@@ -82,7 +82,7 @@ public class Com
 	 */
 	public static int defaultPort()
 	{
-		// arbitrary, totally random port. Totally random, really.
+		// arbitrary, totally random port.
 		return 1099;
 	}
 	
@@ -129,7 +129,7 @@ public class Com
 			protocolLengthDigitCount
 		);
 		
-		// the ByteBuffer#put(byte[]) is, of course, a catastrophe, as usual in JDK code. Hence the direct way.
+		// the ByteBuffer#put(byte[]) has issues, hence the direct way.
 		final ByteBuffer dbb = XMemory.allocateDirectNative(assembledProtocolBytes.length);
 		final long dbbAddress = XMemory.getDirectByteBufferAddress(dbb);
 		XMemory.copyArrayToAddress(assembledProtocolBytes, dbbAddress);
@@ -208,7 +208,7 @@ public class Com
 	 * 
 	 * You have been warned.
 	 * 
-	 * @param channel A one-shot {@link ComHostChannel} to receive and send exactely one message.
+	 * @param channel A one-shot {@link ComHostChannel} to receive and send exactly one message.
 	 */
 	public static void bounce(final ComHostChannel<ComConnection> channel) throws ComException
 	{

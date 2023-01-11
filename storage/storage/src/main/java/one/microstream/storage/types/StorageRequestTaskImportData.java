@@ -131,7 +131,6 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 
 			for(final S source : this.sources)
 			{
-//				DEBUGStorage.println("Reader reading source " + source);
 				try
 				{
 					itemReader.setSource(source);
@@ -143,7 +142,6 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 					throw new StorageExceptionImportFailed("Exception while reading import source " + source, e);
 				}
 			}
-//			DEBUGStorage.println("* completed reading sources");
 			this.complete.set(true);
 		}
 		
@@ -198,7 +196,6 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 				// check for a gap
 				if(length < 0)
 				{
-//					DEBUGStorage.println("Gap    @" + this.currentSourcePosition + " [" + -length + "]");
 
 					// keep track of current source position to offset the next batch correctly
 					this.currentSourcePosition += X.checkArrayRange(-length);
@@ -236,10 +233,6 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 				}
 				else
 				{
-//					DEBUGStorage.println(
-//						"Reader ADD batch Entity @" + this.currentSourcePosition
-//						+ " [" + length + "] (" + this.currentBatchChannel + ") " + objectId
-//					);
 					this.addToCurrentBatch(intLength, objectId, type);
 				}
 
@@ -262,10 +255,6 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 			{
 				final ChannelItem item = this.channelItems[this.currentBatchChannel];
 
-//				DEBUGStorage.println(
-//					"Reader NEW batch Entity @" + this.currentSourcePosition
-//					+ " [" + length + "] (" + this.currentBatchChannel + ") " + objectId
-//				);
 				item.tailEntity = item.tailBatch = item.tailBatch.batchNext = new StorageChannelImportBatch.Default(
 					this.currentSourcePosition,
 					length,
@@ -361,11 +350,9 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 						{
 							if(this.complete.get())
 							{
-//								DEBUGStorage.println(channel.channelIndex() + " done importing.");
 								// there will be no more next source, so abort (task is complete)
 								break importLoop;
 							}
-//							DEBUGStorage.println(channel.channelIndex() + " waiting for next on " + currentSource);
 							// better check again after some time, indefinite wait caused a deadlock once
 							// (16.04.2016)TODO: isn't the above comment a bug? Test and change or comment better.
 							currentSource.wait(SOURCE_WAIT_TIME_MS);
@@ -375,7 +362,6 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 						currentSource = currentSource.next;
 					}
 
-//					DEBUGStorage.println(channel.channelIndex() + " importData() " + currentSource);
 					// process the batch outside the lock to not block the central reader thread by channel-local work
 					channel.importData(currentSource);
 				}
@@ -432,7 +418,6 @@ public interface StorageRequestTaskImportData<S> extends StorageRequestTask
 				// the first slice is a dummy with no FileChannel instance
 				for(StorageImportSource.Abstract source = tail; (source = source.next) != null;)
 				{
-//					DEBUGStorage.println("Closing: " + file);
 					closer.executeOn(source);
 				}
 			}

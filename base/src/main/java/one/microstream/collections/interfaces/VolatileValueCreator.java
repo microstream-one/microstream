@@ -20,10 +20,6 @@ package one.microstream.collections.interfaces;
  * #L%
  */
 
-/**
- * 
- *
- */
 public interface VolatileValueCreator
 {
 	// marker interface

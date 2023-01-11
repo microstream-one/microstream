@@ -157,7 +157,7 @@ public interface StorageLockFileManager extends Runnable
 			{
 				this.checkInitialized();
 				
-				// wait first after the intial write, then perform the regular update
+				// wait first after the initial write, then perform the regular update
 				while(this.checkIsRunning())
 				{
 					XThreads.sleep(updateInterval);
@@ -237,11 +237,10 @@ public interface StorageLockFileManager extends Runnable
 				return false;
 			}
 			
-			/* data has to be copied 3242 times in JDK to load a single String.
-			 * Note that using a byte[]-wrapping ByteBuffer is not better since the geniuses
-			 * use a TemporaryDirectBuffer internally for non-direct buffers that adds the copying step anyway.
-			 * The only reasonable thing to use with nio is the DirectByteBuffer, despite all the missing API
-			 * and API hiding issues.
+			/* data has to be copied multiple times in JDK to load a single String.
+			 * Note that using a byte[]-wrapping ByteBuffer is not better since
+			 * internally a TemporaryDirectBuffer is used for non-direct buffers that adds the copying step anyway.
+			 * The only reasonable thing to use with nio is the DirectByteBuffer.
 			 */
 			XMemory.deallocateDirectByteBuffer(this.directByteBuffer);
 			this.allocateBuffer(capacity);
@@ -272,7 +271,7 @@ public interface StorageLockFileManager extends Runnable
 		{
 			final String currentFileData = this.readString();
 			
-			// since JDK 9's String change, there's even one more copying required. Endless copying ...
+			// since JDK 9's String change, there's even one more copying required.
 			final char[] chars = currentFileData.toCharArray();
 			
 			final int sep1Index = indexOfFirstNonNumberCharacter(chars, 0);
@@ -380,10 +379,6 @@ public interface StorageLockFileManager extends Runnable
 
 			this.lockFileData = new LockFileData(this.setup.processIdentity(), this.setup.updateInterval());
 			
-//			XDebug.println(
-//				"Initial lock data: " + this.lockFileData.identifier + " update=" + this.lockFileData.updateInterval
-//			);
-			
 			this.writeLockFileData();
 		}
 		
@@ -435,9 +430,6 @@ public interface StorageLockFileManager extends Runnable
 			// performance-optimized JDK method
 			if(XArrays.equals(this.stringReadBuffer, this.stringWriteBuffer, this.stringWriteBuffer.length))
 			{
-//				XDebug.println(
-//					"Current LockFile is valid: " + new String(this.stringReadBuffer, this.setup.charset())
-//				);
 				return;
 			}
 
@@ -459,13 +451,7 @@ public interface StorageLockFileManager extends Runnable
 			
 			this.lockFileData.update();
 			
-//			XDebug.println(
-//				"Writing lock data: "
-//				+ XDebug.formatCommonTime(new Date(this.lockFileData.lastWriteTime)) + ";"
-//				+ XDebug.formatCommonTime(new Date(this.lockFileData.expirationTime)) + ";"
-//				+ this.lockFileData.identifier
-//			);
-			
+
 			final ArrayView<ByteBuffer> bb = this.setToWriteBuffer(this.lockFileData);
 			
 			// no need for the writer detour (for now) since it makes no sense to backup lock files.

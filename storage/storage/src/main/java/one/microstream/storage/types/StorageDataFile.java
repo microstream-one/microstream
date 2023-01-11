@@ -89,18 +89,7 @@ public interface StorageDataFile extends StorageChannelFile, StorageBackupableFi
 			return this.number;
 		}
 		
-//		@Override
-//		public synchronized boolean isOpen()
-//		{
-//			return this.internalIsOpen();
-//		}
-//
-//		@Override
-//		public synchronized boolean close()
-//		{
-//			return this.internalClose();
-//		}
-		
+
 	}
 	
 }

@@ -377,12 +377,6 @@ public interface StorageTransactionsAnalysis
 					throw new StorageException("Zero length transactions entry.");
 				}
 
-//				DEBUGStorage.println(
-//					"processing entity at "
-//					+ (fileChannel.position() + address - bufferBound)
-//					+ " / " + fileChannel.size()
-//				);
-
 				// depending on the processor logic, incomplete entity data can still be enough (e.g. only needs header)
 				if(!entityProcessor.accept(address, bufferBound - address))
 				{
@@ -467,7 +461,6 @@ public interface StorageTransactionsAnalysis
 	{
 		private static String formateTimeStamp(final Date timestamp)
 		{
-			// JDK geniuses can't write a proper immutable util type
 			return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(timestamp);
 		}
 
@@ -589,8 +582,6 @@ public interface StorageTransactionsAnalysis
 			this.addCommonCurrentHeadFile();
 			this.vs.add(this.currentHeadFileNumber = Logic.getFileNumber(address)).lf();
 
-//			System.out.println(this.vs.toString() + "\n");
-
 			return true;
 		}
 
@@ -601,12 +592,6 @@ public interface StorageTransactionsAnalysis
 				return false;
 			}
 			
-			// (26.11.2019 TM)NOTE: ultra makeshift solution to narrow down giant transaction logs
-//			if(Storage.millisecondsToSeconds(Logic.getEntryTimestamp(address)) < 1574031600000L)
-//			{
-//				return true;
-//			}
-			
 			this.vs
 			.add(StorageTransactionsEntryType.DATA_STORE.typeName()).tab();
 			this.addCommonTimestampPart(address);
@@ -615,7 +600,6 @@ public interface StorageTransactionsAnalysis
 			this.vs.deleteLast().lf();
 			// store only consists of type and common part
 
-//			System.out.println(this.vs.toString() + "\n");
 			return true;
 		}
 
@@ -626,12 +610,7 @@ public interface StorageTransactionsAnalysis
 				return false;
 			}
 
-			// (26.11.2019 TM)NOTE: ultra makeshift solution to narrow down giant transaction logs
-//			if(Storage.millisecondsToSeconds(Logic.getEntryTimestamp(address)) < 1574031600000L)
-//			{
-//				return true;
-//			}
-			
+
 			this.vs
 			.add(StorageTransactionsEntryType.DATA_TRANSFER.typeName()).tab();
 			this.addCommonTimestampPart(address);
@@ -641,7 +620,6 @@ public interface StorageTransactionsAnalysis
 			.add(Logic.getFileNumber(address)).tab()
 			.add(Logic.getSpecialOffset(address)).lf()
 			;
-//			System.out.println(this.vs.toString() + "\n");
 			return true;
 		}
 
@@ -660,7 +638,6 @@ public interface StorageTransactionsAnalysis
 			.add(Logic.getFileNumber(address)).tab()
 			.add(Logic.getSpecialOffset(address)).lf()
 			;
-//			System.out.println(this.vs.toString() + "\n");
 			return true;
 		}
 
@@ -670,9 +647,6 @@ public interface StorageTransactionsAnalysis
 			{
 				return false;
 			}
-
-//			final long actualLastLength = this.lastFileLength;
-//			this.lastFileLength = 2 * Logic.getFileLength(address); // a little hack :)
 
 			this.vs
 			.add(StorageTransactionsEntryType.FILE_DELETION.typeName()).tab();
@@ -684,9 +658,6 @@ public interface StorageTransactionsAnalysis
 			this.addCommonCurrentHeadFile();
 			this.vs.add(Logic.getFileNumber(address)).lf();
 
-//			this.lastFileLength = actualLastLength;
-
-//			System.out.println(this.vs.toString() + "\n");
 			return true;
 		}
 
@@ -839,7 +810,7 @@ public interface StorageTransactionsAnalysis
 			}
 
 			/* lastConsistentStoreTimestamp is not updated to associate the new file length with the old timestamp
-			 * i.e. when a inter-channel rollback has to occur, the transfer part is not rolled back, as it is
+			 * i.e. when an inter-channel rollback has to occur, the transfer part is not rolled back, as it is
 			 * channel-local
 			 */
 			this.lastConsistentStoreLength = this.currentStoreLength = fileLength;
@@ -869,7 +840,7 @@ public interface StorageTransactionsAnalysis
 			 * Old length cannot be validated against current length as the entry corresponding to the old length
 			 * (the actual file length at the moment) might be missing, or more precisely will usually be missing.
 			 * That is the reason for the truncate in the first place.
-			 * So old length is nothing more than an additional information for debugging purposes as the system
+			 * So old length is nothing more than additional information for debugging purposes as the system
 			 * can hardly be aware of it (only case is if a truncate has to be done caused by another channel)
 			 */
 
@@ -877,7 +848,7 @@ public interface StorageTransactionsAnalysis
 			if(newLength < 0 || newLength > this.currentStoreLength)
 			{
 				throw new StorageExceptionConsistency(
-					"Inconsistent new length in trunction entry: " + newLength + " vs. "
+					"Inconsistent new length in truncation entry: " + newLength + " vs. "
 					+ this.currentStoreLength + " (file " + this.currentFileNumber + ")"
 				);
 			}

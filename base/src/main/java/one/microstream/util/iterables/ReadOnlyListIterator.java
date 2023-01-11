@@ -32,7 +32,7 @@ import one.microstream.exceptions.IndexBoundsException;
 import one.microstream.typing.XTypes;
 
 /**
- * Generic (and potentially imperformant!) implementation of a {@link ListIterator}.<br>
+ * Generic (and potentially not performant!) implementation of a {@link ListIterator}.<br>
  * Routes all modifying procedures ({@link #add(Object)}, {@link #remove()}, {@link #set(Object)}) to the wrapped
  * {@link List} which may throw an {@link UnsupportedOperationException} if it does not support the procedure.
  * <p>
@@ -42,8 +42,6 @@ import one.microstream.typing.XTypes;
  * <p>
  * Note that while implementing {@link ListIterator}, this iterator can handle any sequence as it is read only,
  * meaning it can be used for iterating e.g. {@link XGettingEnum} collections as well.
- *
- * 
  *
  */
 public class ReadOnlyListIterator<E> implements ListIterator<E>

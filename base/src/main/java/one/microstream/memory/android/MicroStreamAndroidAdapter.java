@@ -28,8 +28,7 @@ import one.microstream.memory.XMemory;
 
 /**
  * Trivial setup wrapping class to simplify and document the different setup possibilities.
- * 
- * 
+ *
  */
 public final class MicroStreamAndroidAdapter
 {

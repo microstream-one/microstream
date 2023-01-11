@@ -23,10 +23,7 @@ package one.microstream.exceptions;
 
 /**
  * Base class for all exceptions that workarounds some design mistakes in JDK exceptions.
- * For example disposing of the impractical, dangerous and clean-code-preventing checked exceptions or a proper
- * distinction between assembling the output string and querying the custom message.
- * 
- * 
+ *
  */
 public class BaseException extends RuntimeException
 {
@@ -43,11 +40,11 @@ public class BaseException extends RuntimeException
 	{
 		/*
 		 * Because the Throwable(cause) constructor with the hardcoded toString() is not only
-		 * inconsistent to all other Throwable constructors, but also highly moronic in itself.
+		 * inconsistent to all other Throwable constructors.
 		 */
 		super();
 		
-		// initialize the cause with a non-moronic workaround via the moronicly-named "initCause".
+		// initialize the cause.
 		this.initCause(cause);
 	}
 
@@ -58,7 +55,6 @@ public class BaseException extends RuntimeException
 
 	public BaseException(final String message, final Throwable cause)
 	{
-		// that constructor is not moronic (albeit inconsistent to Throwable(cause), lol)
 		super(message, cause);
 	}
 
@@ -69,7 +65,6 @@ public class BaseException extends RuntimeException
 		final boolean   writableStackTrace
 	)
 	{
-		// that constructor is not moronic (albeit inconsistent to Throwable(cause), lol)
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 	
@@ -111,7 +106,7 @@ public class BaseException extends RuntimeException
 	/**
 	 * Due to bad class design in the JDK's {@link Throwable}, this getter-named methods actually serves as
 	 * the output string assembly method.<br>
-	 * For the actual message getter, see {@link #message()} (which is a preferable name, anyway).<br>
+	 * For the actual message getter, see {@link #message()}.<br>
 	 * For the actually executed logic, see {@link #assembleOutputString()}, which is called by this method.<br>
 	 *
 	 * @return this exception type's generic output string plus an explicit message if present.

@@ -51,7 +51,7 @@ import one.microstream.util.iterables.GenericListIterator;
 /**
  * Full scale general purpose implementation of extended collection type {@link XList}.
  * <p>
- * Additionally to the {@link BulkList}, this implementation needs an {@link Equalator}
+ * Additional to the {@link BulkList}, this implementation needs an {@link Equalator}
  * to define equality between elements.
  * <p>
  * This array-backed implementation is optimal for all needs of a list that do not require frequent structural
@@ -59,7 +59,7 @@ import one.microstream.util.iterables.GenericListIterator;
  * It is recommended to use this implementation as default list type until concrete performance deficiencies are
  * identified. If used properly (e.g. always ensure enough capacity, make use of batch procedures like
  * {@link #inputAll(long, Object...)}, {@link #removeRange(long, long)}, etc.), this implementation has equal or
- * massively superior performance to linked-list implementation is most cases.
+ * massively superior performance to linked-list implementation in most cases.
  * <p>
  * This implementation is <b>not</b> synchronized and thus should only be used by a
  * single thread or in a thread-safe manner (i.e. read-only as soon as multiple threads access it).<br>
@@ -74,7 +74,7 @@ import one.microstream.util.iterables.GenericListIterator;
  * and removing more than one element of it without using the iterator's method.
  * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
- * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * to maximize internal iteration potential, eliminating the need to use the external iteration
  * {@link Iterator} paradigm.
  *
  * @param <E> type of contained elements
@@ -243,12 +243,12 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	/* this method is highly optimized for performance, yielding up to around 300% the speed of
 	 * java.util.ArrayList.add() when adding elements to an already big enough storage.
 	 * Moving the storage increase part to a private increaseStorage() would make it faster when
-	 * regular increasing is needed, but puzzlingly then the alreay-big-enough performance
+	 * regular increasing is needed, but puzzlingly then the already-big-enough performance
 	 * advantage drops to around 110% faster instead of 300% faster (even though the single not called
 	 * increase method should oblige to HotSpot compiling. Seems there is a bug or at least
 	 * some heavy confusion going on there.
 	 * As a consequence, storage increasing has NOT been moved to a private method, thus maintaining
-	 * the huge alreay-big-enough performance advantage, but making it slower in regular-growth-cases
+	 * the huge already-big-enough performance advantage, but making it slower in regular-growth-cases
 	 * (also very strange).
 	 * Maybe one of the two HotSpot compiling problems improves in the future, so that both cases
 	 * of advanced performance are reachable by optimization.
@@ -318,7 +318,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
@@ -379,7 +379,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
@@ -435,7 +435,7 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
@@ -665,13 +665,6 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		return AbstractArrayStorage.forwardConditionalIndexOf(this.data, 0, this.size, new IsCustomEqual<>(this.equalator, element));
 	}
 
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.forwardIndexOf((E[])this.data, this.size, sample, equalator);
-//	}
-
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
 	{
@@ -784,18 +777,6 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		return AbstractArrayStorage.isSorted(this.data, this.size, comparator);
 	}
 
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
-//	}
-
 	// boolean querying - applies //
 
 	@Override
@@ -835,13 +816,6 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	{
 		return AbstractArrayStorage.containsAll(this.data, this.size, elements, this.equalator);
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> elements, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.containsAll((E[])this.data, this.size, elements, equalator);
-//	}
 
 	// boolean querying - equality //
 
@@ -1169,13 +1143,6 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		return AbstractArrayStorage.replaceOne(this.data, this.size, element, replacement, this.equalator);
 	}
 
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public boolean replaceOne(final E sample, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		return AbstractArrayStorage.replaceOne((E[])this.data, this.size, sample, replacement, equalator);
-//	}
-
 	@Override
 	public boolean replaceOne(final Predicate<? super E> predicate, final E substitute)
 	{
@@ -1189,19 +1156,6 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	{
 		return AbstractArrayStorage.replace(this.data, this.size, element, replacement, this.equalator);
 	}
-
-//	@Override
-//	public int replace(final CtrlPredicate<? super E> predicate, final E substitute)
-//	{
-//		return AbstractArrayStorage.replace(this.data, this.size, predicate, substitute);
-//	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int replace(final E sample, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		return AbstractArrayStorage.replace((E[])this.data, this.size, sample, replacement, equalator);
-//	}
 
 	@Override
 	public long replace(final Predicate<? super E> predicate, final E substitute)
@@ -1217,17 +1171,6 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		return AbstractArrayStorage.replaceAll(this.data, this.size, elements, replacement, this.equalator, AbstractArrayCollection.<E>marker());
 	}
 
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int replaceAll(
-//		final XGettingCollection<? extends E> samples,
-//		final Equalator<? super E> equalator,
-//		final E newElement
-//	)
-//	{
-//		return AbstractArrayStorage.replaceAll((E[])this.data, this.size, samples, newElement, equalator, EqBulkList.<E>marker());
-//	}
-
 	// replacing - mapped //
 
 	@Override
@@ -1241,14 +1184,6 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	{
 		return AbstractArrayStorage.substitute(this.data, this.size, predicate, mapper);
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int modify(final CtrlPredicate<? super E> predicate, final Function<E, E> mapper)
-//	{
-//		return AbstractArrayStorage.modify((E[])this.data, this.size, predicate, mapper);
-//	}
-
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -1841,18 +1776,6 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		return false;
 	}
 
-//	@Override
-//	@SuppressWarnings("unchecked")
-//	public boolean removeOne(final E sample, final Equalator<? super E> equalator)
-//	{
-//		if(AbstractArrayStorage.removeOne((E[])this.data, this.size, sample, equalator))
-//		{
-//			this.size--;
-//			return true;
-//		}
-//		return false;
-//	}
-
 	@Override
 	public E retrieve(final E element)
 	{
@@ -1888,17 +1811,6 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		);
 		return removeCount;
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int remove(final E sample, final Equalator<? super E> equalator)
-//	{
-//		final int removeCount;
-//		this.size -= removeCount = removeAllFromArray(
-//			sample, this.data, 0, this.size, this.data, 0, this.size, (Equalator<Object>)equalator
-//		);
-//		return removeCount;
-//	}
 
 	@Override
 	public long nullRemove()
@@ -1950,17 +1862,6 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		return removeCount;
 	}
 
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int retainAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		final int removeCount;
-//		this.size -= removeCount = AbstractArrayStorage.retainAll(
-//			(E[])this.data, this.size, (XGettingCollection<E>)samples, equalator, EqBulkList.<E>marker()
-//		);
-//		return removeCount;
-//	}
-
 	// processing //
 
 	@Override
@@ -1992,9 +1893,8 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 	public long removeAll(final XGettingCollection<? extends E> elements)
 	{
 		/* it is nasty of course to cast from <? extends E> to <E>, but <?> like in JDK is no solution either
-		 * and causes even more trouble (in all normal cases!).
-		 * The actual problem is type erasure.
-		 * Nevertheless, this is typesafe, as the algorithm uses identity comparison ( == ) which is applicable to
+		 * and causes even more trouble.
+		 * This is typesafe, as the algorithm uses identity comparison ( == ) which is applicable to
 		 * incompatible types.
 		 */
 		final int removed;
@@ -2003,17 +1903,6 @@ public final class EqBulkList<E> extends AbstractSimpleArrayCollection<E> implem
 		);
 		return removed;
 	}
-//
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int removeAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		final int removed;
-//		this.size -= removed = removeAllFromArray(
-//			(XGettingCollection<E>)samples, (E[])this.data, 0, this.size, (E[])this.data, 0, this.size, false, equalator
-//		);
-//		return removed;
-//	}
 
 	// removing - duplicates //
 

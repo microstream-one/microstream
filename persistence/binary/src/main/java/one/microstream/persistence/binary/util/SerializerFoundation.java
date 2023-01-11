@@ -120,7 +120,6 @@ import one.microstream.util.InstanceDispatcher;
  * are intentionally hidden in) a {@link PersistenceManager} instance.*
  * Hence it can be seen as a kind of "master instance" of the built persistence layer or as its "foundation".
  *
- * 
  * @param <F> the foundation type
  */
 public interface SerializerFoundation<F extends SerializerFoundation<?>>
@@ -1820,7 +1819,7 @@ extends ByteOrderTargeting.Mutable<F>,
 		/////////////
 		
 		/* Explanation:
-		 * These methods are not actually abstract because it is not necessaryly required
+		 * These methods are not actually abstract because it is not necessarily required
 		 * to create new instances of these types. Instead, appropriate instances can be set.
 		 * These methods exist in order to allow sub classes to implement them optionally
 		 * and throw an exception if neither implementation nor set instance is available.
@@ -1961,7 +1960,7 @@ extends ByteOrderTargeting.Mutable<F>,
 		
 		protected ClassLoaderProvider ensureClassLoaderProvider()
 		{
-			// must always resolve types using that ClassCloader with which the initialization happned (this class's).
+			// must always resolve types using that ClassLoader with which the initialization happened (this class's).
 			return ClassLoaderProvider.New(
 				this.getClass().getClassLoader()
 			);
@@ -1983,7 +1982,6 @@ extends ByteOrderTargeting.Mutable<F>,
 		{
 			// (13.09.2018 TM)NOTE: changed for Legacy Type Mapping. Still a valid callback for monitoring purposes.
 			return Persistence.typeMismatchValidatorNoOp();
-//			return Persistence.typeMismatchValidatorFailing();
 		}
 		
 		protected PersistenceTypeDefinitionCreator ensureTypeDefinitionCreator()

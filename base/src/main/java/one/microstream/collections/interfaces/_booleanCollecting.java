@@ -20,10 +20,7 @@ package one.microstream.collections.interfaces;
  * #L%
  */
 
-/**
- * 
- *
- */
+
 public interface _booleanCollecting
 {
 	public boolean add(boolean b);

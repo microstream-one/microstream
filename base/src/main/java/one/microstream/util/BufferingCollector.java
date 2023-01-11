@@ -30,7 +30,6 @@ import one.microstream.collections.BulkList;
 /**
  * An instance that collects (buffers) elements and gets notified once the collecting process is completed.
  *
- * 
  * @param <E> the collected element's type
  */
 public interface BufferingCollector<E>

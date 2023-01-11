@@ -442,24 +442,6 @@ public final class LockedGettingMap<K, V> implements XGettingMap<K, V>, Synchron
 		}
 	}
 
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		synchronized(this.lock)
-//		{
-//			return this.subject.hasDistinctValues();
-//		}
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super KeyValue<K, V>> equalator)
-//	{
-//		synchronized(this.lock)
-//		{
-//			return this.subject.hasDistinctValues(equalator);
-//		}
-//	}
-
 	@Override
 	public final KeyValue<K, V> search(final Predicate<? super KeyValue<K, V>> predicate)
 	{

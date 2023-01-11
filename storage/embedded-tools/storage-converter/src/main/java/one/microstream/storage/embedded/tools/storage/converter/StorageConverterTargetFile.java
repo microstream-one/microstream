@@ -26,7 +26,7 @@ import one.microstream.afs.types.AWritableFile;
 
 /**
  * Helper to hold all information of a single target "File"
- * of a {@link StorageConverterTarget} a on place
+ * of a {@link StorageConverterTarget} a on place.
  */
 public class StorageConverterTargetFile
 {
@@ -44,7 +44,7 @@ public class StorageConverterTargetFile
 	/////////////////
 	
 	/**
-	 * Create a {@link StorageConverterTargetFile} instance
+	 * Create a {@link StorageConverterTargetFile} instance.
 	 * 
 	 * @param file the target storage file
 	 * @param fileNumber the file number

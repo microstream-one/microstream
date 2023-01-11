@@ -56,6 +56,7 @@ public class StorageManagerFactory
     public EmbeddedStorageManager embeddedStorageManager()
     {
         return storageManagerProvider.get(StorageManagerProvider.PRIMARY_QUALIFIER);
+
     }
 
 }

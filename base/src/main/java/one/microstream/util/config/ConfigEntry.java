@@ -21,9 +21,6 @@ package one.microstream.util.config;
  */
 
 
-/* CHECKSTYLE.OFF: AbstractClassName: Should be named ~Abstract, but is used at such a lot of places
- *                 that renaming it would significantly harm readability
- */
 public interface ConfigEntry<T>
 {
 	public String key();

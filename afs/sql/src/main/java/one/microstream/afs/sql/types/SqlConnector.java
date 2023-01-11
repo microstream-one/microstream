@@ -114,7 +114,7 @@ public interface SqlConnector
 
 	public static class Default implements SqlConnector
 	{
-		// indexes in JDBC-API are 1-based not 0-based ¯\_(ツ)_/¯
+		// indexes in JDBC-API are 1-based not 0-based
 		public final static int IDENTIFIER_COLUMN_INDEX = 1;
 		public final static int START_COLUMN_INDEX      = 2;
 		public final static int END_COLUMN_INDEX        = 3;

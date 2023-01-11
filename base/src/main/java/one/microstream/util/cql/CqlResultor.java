@@ -57,14 +57,14 @@ public interface CqlResultor<O, R>
 		;
 	}
 
-	// (06.07.2016 TM)NOTE: javac reports a false ambiguity here. Probably one of several bugs encountered when trying to use it.
+	// (06.07.2016 TM)NOTE: javac reports a false ambiguity here.
 	public static <O, R> CqlResultor<O, R> NewFromAggregator(final Aggregator<O, R> collector)
 	{
 		notNull(collector);
 		return e -> collector;
 	}
 
-	// (06.07.2016 TM)NOTE: javac reports a false ambiguity here. Probably one of several bugs encountered when trying to use it.
+	// (06.07.2016 TM)NOTE: javac reports a false ambiguity here.
 	public static <O, T extends Consumer<O>> CqlResultor<O, T> NewFromSupplier(final Supplier<T> supplier)
 	{
 		return e -> new CqlWrapperCollectorProcedure<>(supplier.get());

@@ -44,11 +44,11 @@ public class ComBinary
 	 * The length of the fixed-size chunk header.<p>
 	 * So far, the header only consists of one field holding the length of the chunk content.
 	 * See {@link Binary#lengthLength()}.
-	 * And an crc32 checksum of the chunk content length
-	 * 
+	 * And a crc32 checksum of the chunk content length
+	 * <p>
 	 * In the future, the header might contain validation values like protocol name, version, byte order, etc.<br>
 	 * Maybe, the consequence will be a dynamically sized header, meaning there
-	 * 
+	 * <p>
 	 * 
 	 * @return The length of the fixed-size chunk header.
 	 */
@@ -178,14 +178,13 @@ public class ComBinary
 
 		if(expectedCheckSum != contentLengthCheckSum)
 		{
-			//XDebug.println("ContentLength checksum missmatch");
 			throw new ComException("ContentLength checksum missmatch");
 		}
 				
 		
 		/* (13.11.2018 TM)NOTE:
 		 * Should the header contain validation meta-data in the future, they have to be validated here.
-		 * This would probably mean turning this method into a instance of a com-handling type.
+		 * This would probably mean turning this method into an instance of a com-handling type.
 		 */
 		
 		// the content after the header is read into a buffer since the header has already been siphoned off.

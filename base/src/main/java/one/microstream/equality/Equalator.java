@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 import one.microstream.hashing.XHashing;
 
 /**
- * A equalator function which checks if two given objects are equal or not.
+ * An equalator function which checks if two given objects are equal or not.
  * Since it is very close to the {@link java.util.Comparator}, but has limited return value,
  * it is possible to wrap an existing comparator with the {@link #Wrap(Comparator)} method.
  * 
@@ -119,8 +119,6 @@ public interface Equalator<T>
 
 	/**
 	 * Useful for implementing SQL-like "GROUP BY" for collections.
-	 *
-	 * 
 	 *
 	 */
 	public final class Sequence<T> implements Equalator<T>

@@ -42,7 +42,7 @@ public interface XAddingMap<K, V> extends CapacityExtendable, ExtendedMap<K, V>
 
 
 	public boolean nullKeyAllowed();
-	public boolean nullValuesAllowed(); // don't fall for asking why Values is plural while Key is singular :P
+	public boolean nullValuesAllowed();
 
 	/**
 	 * Adds the passed key and value as an entry if key is not yet contained. Return value indicates new entry.

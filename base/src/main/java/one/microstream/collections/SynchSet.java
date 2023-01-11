@@ -38,9 +38,6 @@ import one.microstream.util.iterables.SynchronizedIterator;
 
 /**
  * Synchronization wrapper class that wraps an {@link XSet} instance in public synchronized delegate methods.
- *
- * 
- *
  */
 public final class SynchSet<E> implements XSet<E>, Synchronized
 {
@@ -219,12 +216,6 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 		return this.subject.containsAll(elements);
 	}
 
-//	@Override
-//	public synchronized boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.containsAll(samples, equalator);
-//	}
-
 	@Override
 	public synchronized boolean containsId(final E element)
 	{
@@ -343,18 +334,6 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 		return this.subject.hashCode();
 	}
 
-//	@Override
-//	public synchronized boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return this.subject.hasDistinctValues(equalator);
-//	}
-//
-//	@Override
-//	public synchronized boolean hasDistinctValues()
-//	{
-//		return this.subject.hasDistinctValues();
-//	}
-
 	@Override
 	public synchronized boolean hasVolatileElements()
 	{
@@ -443,29 +422,12 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 		return this.subject.removeOne(element);
 	}
 
-//	@Override
-//	public synchronized boolean removeOne(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.removeOne(sample, equalator);
-//	}
-
 	@Override
 	public synchronized long remove(final E element)
 	{
 		return this.subject.remove(element);
 	}
 
-//	@Override
-//	public synchronized int remove(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.remove(sample, equalator);
-//	}
-
-//	@Override
-//	public synchronized int removeAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.removeAll(samples, equalator);
-//	}
 
 	@Override
 	public synchronized long removeAll(final XGettingCollection<? extends E> elements)
@@ -491,23 +453,11 @@ public final class SynchSet<E> implements XSet<E>, Synchronized
 		return this.subject.nullRemove();
 	}
 
-//	@Override
-//	public synchronized int retainAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.retainAll(samples, equalator);
-//	}
-
 	@Override
 	public synchronized long retainAll(final XGettingCollection<? extends E> elements)
 	{
 		return this.subject.retainAll(elements);
 	}
-
-//	@Override
-//	public synchronized E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.search(sample, equalator);
-//	}
 
 	@Override
 	public E seek(final E sample)

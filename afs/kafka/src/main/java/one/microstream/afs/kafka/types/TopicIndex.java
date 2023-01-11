@@ -258,6 +258,9 @@ public interface TopicIndex extends AutoCloseable
 		public Iterable<Blob> get()
 		{
 			final BulkList<Blob> blobs = this.ensureBlobs();
+			// locking on local variable. Since blobs point tho this.blobs
+			// it synchronizing reading the BulkList, adding to it and deleting from.
+			// It would be better to have a static Object to lock on.
 			synchronized(blobs)
 			{
 				return blobs.immure();
@@ -270,6 +273,10 @@ public interface TopicIndex extends AutoCloseable
 		)
 		{
 			final BulkList<Blob> blobs = this.ensureBlobs();
+			// locking on local variable. Since blobs point tho this.blobs
+			// it synchronizing reading the BulkList, adding to it and deleting from.
+			// It would be better to have a static Object to lock on.
+
 			synchronized(blobs)
 			{
 				final Producer<String, byte[]> producer = this.ensureProducer();
@@ -290,6 +297,10 @@ public interface TopicIndex extends AutoCloseable
 		)
 		{
 			final BulkList<Blob> blobs = this.ensureBlobs();
+			// locking on local variable. Since blobs point tho this.blobs
+			// it synchronizing reading the BulkList, adding to it and deleting from.
+			// It would be better to have a static Object to lock on.
+
 			synchronized(blobs)
 			{
 				final Map<Integer, RecordsToDelete> partitionMap = recordsToDelete
@@ -335,6 +346,8 @@ public interface TopicIndex extends AutoCloseable
 		{
 			if(this.blobs != null)
 			{
+				// clearing out List that might be in use by get(), put(), delete()
+				// TODO Need to be synchronized.
 				this.blobs.clear();
 				this.blobs = null;
 			}

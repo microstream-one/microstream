@@ -231,12 +231,6 @@ public class SubListView<E> implements XGettingList<E>
 		return XUtilsCollection.rngExcept(this.list, this.startIndex, this.length, other, equalator, target);
 	}
 
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return  XUtilsCollection.rngHasUniqueValues(this.list, this.startIndex, this.length, equalator);
-//	}
-
 	@Override
 	public boolean contains(final E element)
 	{
@@ -248,12 +242,6 @@ public class SubListView<E> implements XGettingList<E>
 	{
 		return  XUtilsCollection.rngCount(this.list, this.startIndex, this.length, element);
 	}
-
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return  XUtilsCollection.rngHasUniqueValues(this.list, this.startIndex, this.length);
-//	}
 
 	@Override
 	public <C extends Consumer<? super E>> C intersect(
@@ -368,12 +356,6 @@ public class SubListView<E> implements XGettingList<E>
 	{
 		return XUtilsCollection.rngIndexOF(this.list, this.startIndex, this.length, element);
 	}
-
-//	@Override
-//	public int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return XUtilsCollection.rngIndexOf(this.list, this.startIndex, this.length, sample, equalator);
-//	}
 
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
@@ -498,18 +480,6 @@ public class SubListView<E> implements XGettingList<E>
 		return new SubListView<>(this.list, this.getEndIndex(), this.startIndex);
 	}
 
-//	@Override
-//	public <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return XUtilsCollection.rngAggregate(this.list, this.startIndex, this.length, aggregate);
-//	}
-
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return XUtilsCollection.rngContainsAll(this.list, this.startIndex, this.length, samples, equalator);
-//	}
-
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)
 	{
@@ -604,7 +574,7 @@ public class SubListView<E> implements XGettingList<E>
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 

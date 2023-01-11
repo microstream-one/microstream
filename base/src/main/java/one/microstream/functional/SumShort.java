@@ -21,10 +21,6 @@ package one.microstream.functional;
  */
 
 
-/**
- * 
- *
- */
 public final class SumShort implements Aggregator<Short, Integer>
 {
 	private int sum;

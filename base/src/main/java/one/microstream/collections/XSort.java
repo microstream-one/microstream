@@ -252,7 +252,7 @@ public final class XSort
 
 	private static void initPseudoRandom()
 	{
-		// CHECKSTYLE.OFF: ArrayTypeStyle: a really rare case where that normaly stupid array style is valid
+		// CHECKSTYLE.OFF: ArrayTypeStyle: a really rare case where that array style is not valid
 
 		final FastRandom rnd = new FastRandom();
 		for(int segment = 0, random[] = RND32; segment < RANDOM_SEGMENTS; segment++)
@@ -785,7 +785,7 @@ public final class XSort
 	 * an internal buffer array with the same size as the passed array. If the repeated creation of buffer arrays shall
 	 * be prevented, use {@link #bufferedAdaptiveMergesort(Object[], Object[], Comparator)} to explicitly provide a reusable buffer.
 	 * <p>
-	 * If maintaining the orginal order of equal elements (stability) is not required,
+	 * If maintaining the original order of equal elements (stability) is not required,
 	 * {@link #valueSort(Object[], Comparator)} usually yields better performance and also does not require additional
 	 * storage space by using an unstable sorting algorithm.<br>
 	 * Note that unstable sorting algorithms can achieve stable results, too, if the passed array contains only distinct
@@ -854,7 +854,7 @@ public final class XSort
 	 * <p>
 	 * The used algorithm works inplace, i.e. does not instantiate any additional instances.
 	 * <p>
-	 * If maintaining the orginal order of equal elements (stability) is required, {@link #sort(Object[], Comparator)}
+	 * If maintaining the original order of equal elements (stability) is required, {@link #sort(Object[], Comparator)}
 	 * has to be used instead, which maintains stability at the cost of performance and the need of additional
 	 * temporary storage.
 	 *
@@ -899,7 +899,7 @@ public final class XSort
 	 * (NOT the sorted array!) is returned.
 	 * <p>
 	 * The buffer array is NOT cleared after the sorting is completed and may contain partial and inconsistent
-	 * intermediate results. It is the external buffer array provider's responsibility to ensure programmatical
+	 * intermediate results. It is the external buffer array provider's responsibility to ensure programmatically
 	 * correctness and memory leak avoidance for any content that might remain in the buffer array.
 	 *
 	 * @param <E> the type of the elements to be sorted.
@@ -1026,9 +1026,9 @@ public final class XSort
 			}
 		}
 
-		// 2. a similiar check could recognize (nearly) reverse sorted data for another 1-3 - 10% performance in bad cases
+		// 2. a similar check could recognize (nearly) reverse sorted data for another 1-3 - 10% performance in bad cases
 
-		// 3. few distinct optimisation sadly not worth while as no efficient recognition spottest was found (yet?)
+		// 3. few distinct optimisation sadly not worthwhile as no efficient recognition spottest was found (yet?)
 
 		adaptiveMergesort0(values, buffer, start, mid, c, log2 - 1);
 		adaptiveMergesort0(values, buffer, mid, bound, c, log2 - 1);
@@ -1195,18 +1195,6 @@ public final class XSort
 		checkRange(values, start, bound);
 		dualPivotQuicksort(values, start, bound - 1);
 	}
-
-
-	/* (16.12.2012 TM)FIXME: sort map
-	 * A logic is required that does not actually sort a sequence of values, but only creates
-	 * the indices how the sequence would have to be sorted (aka sort map).
-	 * Rationale:
-	 * Two (or more) sequence contain values that correspond to each other by index (1st to 1st, etc.),
-	 * like a primitive collection of records or like a column-oriented table.
-	 * Immediately sorting one column would destroy the association with the other column(s).
-	 * Hence, only a sort map based on one column may be built in the first step
-	 * and that sort map must then by applied to ALL sequences.
-	 */
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -2373,41 +2361,7 @@ public final class XSort
 		return(double)uniformity * 2 / (length * (length + 1));
 	}
 
-	
 
-	///////////////////////////////////////////////////////////////////////////
-	// Debugging Statistics //
-	/////////////////////////
-
-//	static int comps = 0;
-//	static boolean comp()
-//	{
-//		comps++;
-//		return true;
-//	}
-//
-//	static int swaps = 0;
-//	static boolean swap()
-//	{
-//		swaps++;
-//		return true;
-//	}
-//
-//	static void resetStats()
-//	{
-//		comps = 0;
-//		swaps = 0;
-//	}
-//	static void printStats()
-//	{
-//		System.out.println("comparisons: " + comps);
-//		System.out.println("swaps      : " + swaps);
-//	}
-//	static void printStats(final int[] values)
-//	{
-//		System.out.println("length     : " + values.length);
-//		printStats();
-//	}
 	
 	
 	

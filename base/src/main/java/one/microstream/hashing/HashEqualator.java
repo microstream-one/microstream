@@ -25,9 +25,6 @@ import one.microstream.equality.IdentityEqualator;
 import one.microstream.equality.ValueTypeEqualator;
 
 
-/**
- * 
- */
 public interface HashEqualator<T> extends Equalator<T>, Hasher<T>
 {
 	@Override

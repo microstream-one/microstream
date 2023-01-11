@@ -44,7 +44,7 @@ public interface StorageRequestAcceptor
 
 	/*
 	 * required for refactoring: all instances of a certain type have to be queried, modified and stored again.
-	 * (22.06.2015 TM)NOTE: Also required to initialize a substituter cache.
+	 * (22.06.2015 TM)NOTE: Also required to initialize a substitute cache.
 	 * E.g. load ALL string instance at system start, reuse existing fitting strings in business logic instead of
 	 * creating redundant new ones. Of course, this method will have to be used carefully.
 	 * Loading all instances of an entity type can quickly result in the whole database being loaded.
@@ -174,7 +174,7 @@ public interface StorageRequestAcceptor
 		{
 			// note: enabled accepting tasks has to be checked prior to calling this method (external concern)
 
-			// prevalidate on the caller site before creating and enqueing a task (may be no-op)
+			// pre-validate on the caller site before creating and enqueuing a task (it may be a no-op)
 			this.prevalidatorDataChunk.validateDataChunk(data);
 
 			waitOnTask(this.taskBroker.enqueueStoreTask(data));
@@ -185,10 +185,9 @@ public interface StorageRequestAcceptor
 		{
 			// note: enabled accepting tasks has to be checked prior to calling this method (external concern)
 
-			// no need for a plain-oid prevalidator at this point (i.e. invalid OIDs are no error, just yield nothing)
+			// no need for a plain-oid pre-validator at this point (i.e. invalid OIDs are no error, just yield nothing)
 
 			// create and enqueue new chunk entry for task broker
-//			return this.enqueueAndWaitOnTask(this.taskCreator.createLoadTask(loadOids)).result();
 			return waitOnTask(this.taskBroker.enqueueLoadTaskByOids(loadOids)).result();
 		}
 

@@ -29,7 +29,7 @@ import one.microstream.equality.Equalator;
  * Logic for bidirectionally and exclusively linking all matching elements from two collections according
  * to equality and/or sufficient similarity.
  * <p>
- * Exclusviely means each element in both collections can at most be linked with one element from the other collection.
+ * Exclusively means each element in both collections can at most be linked with one element from the other collection.
  * Bidirectionally means the link between two elements always has two directions. If element A is linked to element B,
  * element B is inherently linked to element A as well.
  * <p>
@@ -165,8 +165,6 @@ public interface MultiMatcher<E>
 	public class Default<E> implements MultiMatcher<E>
 	{
 		/* (04.08.2011 TM)TOD0: JavaDoc
-		 * (04.09.2018 TM)NOTE: I'll leave that here for nostalgia's sake and as a foundation stone timestamp.
-		 * (of course, EVERYTHING needs JavaDoc... )
 		 */
 
 		///////////////////////////////////////////////////////////////////////////

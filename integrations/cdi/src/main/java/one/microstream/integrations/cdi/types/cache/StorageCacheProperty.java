@@ -32,7 +32,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 
 
 /**
- * Load info the belongs to the {@link StorageCache} annotation
+ * Load info the belongs to the {@link StorageCache} annotation.
  *
  * @param <K>
  *            the key property

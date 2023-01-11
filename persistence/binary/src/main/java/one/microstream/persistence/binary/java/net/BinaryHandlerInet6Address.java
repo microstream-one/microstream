@@ -62,7 +62,6 @@ public class BinaryHandlerInet6Address extends AbstractBinaryHandlerInetAddress<
 		// sadly, they did not provide a method that _just_ creates an unresolved instance.
 		try
 		{
-			// they never got how to design stuff so that no dangerous casts are necessary.
 			return (Inet6Address)InetAddress.getByAddress(hostNamePart, address);
 		}
 		catch(final UnknownHostException e)

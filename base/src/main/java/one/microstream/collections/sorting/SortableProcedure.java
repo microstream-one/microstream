@@ -27,7 +27,6 @@ import java.util.function.Consumer;
  * Composite type to guarantee that the implementation of {@link Sortable} and {@link Consumer} refers to the same
  * parametrized type.
  *
- * 
  * @param <E> the type of the input to the operation
  */
 public interface SortableProcedure<E> extends Sortable<E>, Consumer<E>

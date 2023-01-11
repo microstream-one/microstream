@@ -30,7 +30,7 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
 
-// this is an "abstract type" TypeHandler that handles all classess implementing Path as Path, not as the actual class.
+// this is an "abstract type" TypeHandler that handles all classes implementing Path as Path, not as the actual class.
 public final class BinaryHandlerPath extends AbstractBinaryHandlerCustomValueVariableLength<Path, String>
 {
 	///////////////////////////////////////////////////////////////////////////

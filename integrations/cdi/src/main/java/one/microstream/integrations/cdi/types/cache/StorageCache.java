@@ -31,8 +31,8 @@ import javax.inject.Qualifier;
 
 
 /**
- * Defines a cache managed by Microstream:
- * https://docs.microstream.one/manual/cache/getting-started.html
+ * Defines a cache managed by MicroStream:
+ * <a href="https://docs.microstream.one/manual/cache/getting-started.html">Getting started for Cache</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
@@ -40,7 +40,7 @@ import javax.inject.Qualifier;
 public @interface StorageCache
 {
 	/**
-	 * the name of the managed {@link javax.cache.Cache} to acquire
+	 * the name of the managed {@link javax.cache.Cache} to acquire.
 	 * 
 	 * @return the cache name
 	 */

@@ -24,7 +24,6 @@ package one.microstream.storage.types;
 /**
  * The representation of a data file inside a transactions file, accumulated from multiple transactions entries.
  *
- * 
  */
 public interface StorageTransactionEntry
 {

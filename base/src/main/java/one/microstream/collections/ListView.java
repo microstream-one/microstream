@@ -54,8 +54,7 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
  * This concept can be very useful if a class wants to provide public read access to an internal list without
  * either the danger of the list being modified from the outside or the need to copy the whole list on every access.
  * <p>
- * This is a useful concept that is, so far, missing in the JDK Collections Framework and thus can lead to
- * either inefficient or unnecessary verbose program code (or both).
+ * This is a useful concept that is, so far, missing in the JDK Collections Framework.
  *
  * @param <E> type of contained elements
  * 
@@ -267,24 +266,6 @@ public class ListView<E> implements XGettingList<E>
 		return this.subject.peek();
 	}
 
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return this.subject.hasDistinctValues(equalator);
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return this.subject.hasDistinctValues();
-//	}
-
-//	@Override
-//	public int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.list.indexOf(sample, equalator);
-//	}
-
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
 	{
@@ -355,11 +336,6 @@ public class ListView<E> implements XGettingList<E>
 		return this.subject.scan(predicate);
 	}
 
-//	@Override
-//	public E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.list.search(sample, equalator);
-//	}
 
 	@Override
 	public E seek(final E sample)

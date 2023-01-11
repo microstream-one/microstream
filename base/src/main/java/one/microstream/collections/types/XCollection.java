@@ -28,9 +28,6 @@ import one.microstream.functional.Aggregator;
  * A collection is the root type for all collections (level 0 collection type).
  *
  * @param <E> type of contained elements
- *
- * 
- *
  */
 public interface XCollection<E> extends XPutGetCollection<E>, XProcessingCollection<E>
 {

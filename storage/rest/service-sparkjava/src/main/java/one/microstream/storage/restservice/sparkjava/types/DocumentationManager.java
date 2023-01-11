@@ -66,7 +66,7 @@ public class DocumentationManager extends RouteManager
 
 	/**
 	 * Registers a route / httpMethod and automatically creates and registers an options route
-	 * to get help on this route
+	 * to get help on this route.
 	 * 
 	 * @param httpMethod the http method
 	 * @param uri the uri
@@ -83,7 +83,7 @@ public class DocumentationManager extends RouteManager
 	}
 
 	/**
-	 * get a Json Array containing all registered roots and there httpMethods
+	 * Get a Json Array containing all registered roots and there httpMethods.
 	 *
 	 * @param host the host url and context path
 	 *
@@ -112,7 +112,7 @@ public class DocumentationManager extends RouteManager
 	}
 
 	/**
-	 * Get the documentation snippet for a http method for a registered uri
+	 * Get the documentation snippet for a http method for a registered uri.
 	 *
 	 * @param uri the uri
 	 * @param httpMethod the http method
@@ -131,7 +131,7 @@ public class DocumentationManager extends RouteManager
 	}
 
 	/**
-	 * Get the documentation snippet of all http methods for a registered uri
+	 * Get the documentation snippet of all http methods for a registered uri.
 	 *
 	 * @param uri the uri
 	 * @return JsonObject
@@ -154,7 +154,7 @@ public class DocumentationManager extends RouteManager
 	}
 
 	/**
-	 * Build the documentation from an provided embedded json resource file
+	 * Build the documentation from an provided embedded json resource file.
 	 * 
 	 * @param filePath the file path
 	 */

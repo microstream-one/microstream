@@ -29,11 +29,6 @@ import one.microstream.math.XMath;
 import one.microstream.typing.Composition;
 import one.microstream.typing.KeyValue;
 
-/**
- *
- * 
- *
- */
 public final class HashMapIdId implements OptimizableCollection, Composition
 {
 	///////////////////////////////////////////////////////////////////////////

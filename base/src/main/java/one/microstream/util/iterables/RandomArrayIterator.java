@@ -269,13 +269,4 @@ public final class RandomArrayIterator<E> implements Iterator<E>
 
 	}
 
-	// test example
-//	public static void main(final String[] args)
-//	{
-//		for(final Integer i : random(10, array(1,3,5,7,9)))
-//		{
-//			System.out.println(i);
-//		}
-//	}
-
 }

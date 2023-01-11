@@ -143,7 +143,7 @@ extends AbstractBinaryHandlerCustomCollection<ConcurrentSkipListMap<?, ?>>
 		
 		/*
 		 * Tree collections don't use hashing, but their comparing logic still uses the elements' state,
-		 * which might not yet be available when this method is called. Hence the detour to #complete.
+		 * which might not yet be available when this method is called. Hence, the detour to #complete.
 		 */
 		final int elementCount = getElementCount(data);
 		final KeyValueFlatCollector<Object, Object> collector = KeyValueFlatCollector.New(elementCount);

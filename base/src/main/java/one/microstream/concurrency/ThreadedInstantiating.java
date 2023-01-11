@@ -145,7 +145,7 @@ public class ThreadedInstantiating<E> extends Threaded<E>
 	 * Also note that the internal storage size can drop below the passed value (to the same size used by
 	 * {@link #ThreadedInstantiating(Instantiator)}) if at some point the optimizing algorithm detects that a smaller
 	 * storage size will suffice. This is guaranteed not to happen before the storage size allocated depending on the
-	 * passed value had to be increased at least once (i.e. the initial capacity remains guaranteed for the initial life
+	 * passed value had to be increased at least once (i.e. the initial capacity remains guaranteed for the initial life-
 	 * time of the created instance).
 	 *
 	 * @param instantiator the {@link Instantiator} instance to be used to create to be associated instances of type E.

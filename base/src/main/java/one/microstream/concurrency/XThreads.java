@@ -25,10 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
-/**
- * 
- *
- */
 public final class XThreads
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -96,12 +92,10 @@ public final class XThreads
 	 * Causes the current thread to sleep the specified amount of milliseconds by calling {@link Thread#sleep(long)}.
 	 * Should an {@link InterruptedException} of {@link Thread#sleep(long)} occur, this method restored the
 	 * interruption state by invoking {@link Thread#interrupted()} and reporting the {@link InterruptedException}
-	 * wrappedn in a {@link RuntimeException}.<p>
+	 * wrapped in a {@link RuntimeException}.<p>
 	 * The underlying rationale to this behavior is explained in an internal comment.<br>
 	 * In short: generically interrupting a thread while ignoring the application/library state and logic is just
-	 * as naive and dangerous as {@link Thread#stop()} is. They realized it for that method. Interruption is nothing
-	 * different in this regard. Until that erratic and dangerous behavior is fixed, this method provides a
-	 * convenient encapsulation of handling the nonsense as well as possible.
+	 * as naive and dangerous as {@link Thread#stop()} is.
 	 * 
 	 * @param  millis
 	 *         the length of time to sleep in milliseconds
@@ -124,7 +118,7 @@ public final class XThreads
 			 * Interrupting an application's (/library's) internal thread that has a certain purpose, state and
 			 * dependency to other parts of the application state by a generic technical is pretty much the same
 			 * dangerous nonsense as Thread#stop:
-			 * A thread embedded in a complex context and state can't be stopped or interrputed "just like that".
+			 * A thread embedded in a complex context and state can't be stopped or interrupted "just like that".
 			 * What should a crucial thread do on such a request? Say a thread that updates a database's lock file
 			 * to indicate it is actively used. Should it just terminate and stop updating the lock file that secures
 			 * the database despite the other threads still accessing the database? Surely not.
@@ -135,12 +129,12 @@ public final class XThreads
 			 * 
 			 * Whoever (in terms of program logic, of course) wants a certain thread to stop must use the proper
 			 * methods to do so, that properly control the application state, etc.
-			 * If there are none provided, then the thread is not supposed to be stoppable or interruptable.
+			 * If there are none provided, then the thread is not supposed to be stoppable or interrupt-able.
 			 * It's that simple.
 			 * 
 			 * If a managing layer (like the OS) wants to shut down the application, it has to use its proper
 			 * interfacing means for that, but never pick out single threads and stop or interrupt them one by one.
-			 * Generic interruption CAN be useful IF the logic explicitely supports it.
+			 * Generic interruption CAN be useful IF the logic explicitly supports it.
 			 * Otherwise, this is just another JDK naivety that does more harm than good.
 			 * Thread#stop has been deprecated and so should generic interruption be.
 			 */
@@ -312,15 +306,12 @@ public final class XThreads
 	 * A copy of the JDK's default behavior for handling ultimately uncaught exceptions, as implemented in
 	 * the last fallback case of {@link ThreadGroup#uncaughtException(Thread, Throwable)}.
 	 * <p>
-	 * Sadly, this copy is necessary as they one again failed to modularize their default logic adequately.
-	 * <p>
 	 * Such a method is strongly required if a custom default {@link java.lang.Thread.UncaughtExceptionHandler}
-	 * only handles exceptions of some type and/or some threads and wants/needs to pass all others along to the
+	 * only handles exceptions to some type and/or some threads and wants/needs to pass all others along to the
 	 * default logic.
 	 * <p>
 	 * As this is a copy of the JDK's logic, it suffers the typical problems of having to be updated manually
 	 * in case the JDK's logic should ever change (which is not very probable in this case).
-	 *
 	 *
 	 * @param t the thread that caused the {@link Throwable} e.
 	 * @param e the {@link Throwable} to be handled.

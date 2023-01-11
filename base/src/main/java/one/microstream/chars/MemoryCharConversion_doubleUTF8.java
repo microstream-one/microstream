@@ -88,7 +88,7 @@ public final class MemoryCharConversion_doubleUTF8
 
 	/**
 	 * This algorithm is somewhere from 3 times to 25 times (depending on exponent) faster than the
-	 * infinite spaghetti code used in JDK. It generates discrepancies of +/- 1 at the 16th digit and +/- 8 in the
+	 * code used in JDK. It generates discrepancies of +/- 1 at the 16th digit and +/- 8 in the
 	 * 17th digit compared to the stricter JDK algorithm. As digits 16 and 17 cannot be relied upon anyway due to
 	 * the technical floating point inaccuracy (e.g. the JDK double parser generates comparable discrepancies),
 	 * the algorithm is still deemed correct ("enough").
@@ -97,7 +97,7 @@ public final class MemoryCharConversion_doubleUTF8
 	 * character '.', denormalized representation in range ]1E7; 1E-3], exponent character 'E', etc.
 	 * <p>
 	 * Note that this method is intended as an implementation detail and a "know-what-you-are-doing" tool that does
-	 * not perform array bound checks. If array bound checking is desired, use {@link VarString#add(double)}explicitly.
+	 * not perform array bound checks. If array bound checking is desired, use {@link VarString#add(double)} explicitly.
 	 *
 	 * @param value the value to be represented as a character sequence.
 	 * @param address the memory address where the character sequence shall start.
@@ -187,7 +187,6 @@ public final class MemoryCharConversion_doubleUTF8
 	{
 		if(exponent == 7)
 		{
-			// what do you know: special case inside a special case
 			XMemory.copyArrayToAddress(CHARS_NORM_THRESH_HIGH, address);
 			return address + CHARS_NORM_THRESH_HIGH.length;
 		}

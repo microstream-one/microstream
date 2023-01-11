@@ -29,7 +29,6 @@ import one.microstream.collections.sorting.XLadder;
  * the otherwise typical list concerns like inserting, ordering, setting due to the limitations of the characteristic
  * of being always sorted.
  *
- * 
  * @param <E> type of contained elements
  */
 public interface XBasicList<E> extends XBag<E>, XBasicSequence<E>, XPutGetList<E>, XProcessingList<E>
@@ -75,7 +74,7 @@ public interface XBasicList<E> extends XBag<E>, XBasicSequence<E>, XPutGetList<E
 	 * <p>
 	 * This method creates a new collection and does <b>not</b> change the
 	 * existing collection.<br>
-	 * Furthermore changes to the reversed collection do <b>not</b> reflect to the original.
+	 * Furthermore, changes to the reversed collection do <b>not</b> reflect to the original.
 	 * @return new reversed collection
 	 */
 	@Override

@@ -26,10 +26,6 @@ import static one.microstream.chars.XChars.systemString;
 import one.microstream.chars.VarString;
 
 
-/**
- * 
- * 
- */
 public class EntityExceptionIdentityMismatch extends EntityException
 {
 	private final Entity entity1;

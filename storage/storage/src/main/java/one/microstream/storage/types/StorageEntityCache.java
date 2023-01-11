@@ -225,39 +225,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			this.fileManager = fileManager;
 		}
 
-//		final void DEBUG_gcState()
-//		{
-//			final VarString vs = VarString.New();
-//
-//			for(GraySegment s = this.graySegmentTail; s != this.graySegmentHead; s = s.next)
-//			{
-//				vs.add("(" + s.lowIndex + "/" + s.highIndex + ")-");
-//			}
-//			vs.add("(" + this.graySegmentHead.lowIndex + "/" + this.graySegmentHead.highIndex + ")");
-//
-//			GraySegment s = this.graySegmentRoot;
-//			int elementCount1 = 0;
-//			int elementCount2 = 0;
-//			do
-//			{
-//				elementCount1 += s.highIndex - s.lowIndex;
-//				for(int i = 0; i < GraySegment.MAX_SIZE; i++)
-//				{
-//					if(s.entities[i] != null)
-//					{
-//						elementCount2++;
-//					}
-//				}
-//			}
-//			while((s = s.next) != this.graySegmentRoot);
-//
-//			vs.add(" isMarking = " + this.isMarking);
-//			vs.add(", gray element count = " + elementCount1 + "/" + elementCount2);
-//			vs.add(", marked = " + this.DEBUG_marked);
-//
-//			DEBUGStorage.println(vs.toString());
-//		}
-
 		@Override
 		public final synchronized void reset()
 		{
@@ -289,8 +256,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			// live cursor may never be a head dummy-entity (but it may be a tail entity as this is checked)
 			this.liveCursor = null;
 
-			// (22.09.2016 TM)NOTE: old
-//			this.liveCursor = this.typeHead.head;
 		}
 
 		// must use lock to keep other channels from marking while rebuild is in progress
@@ -630,27 +595,24 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			 */
 
 			// ensure (lookup or create) complete entity item for storing
-//			DEBUGStorage.println("looking for " + Binary.getEntityObjectId(entityAddress));
 			final StorageEntity.Default entry;
 			if((entry = this.getEntry(objectId)) != null)
 			{
-//				DEBUGStorage.println("updating entry " + entry);
 				this.resetExistingEntityForUpdate(entry);
 				return entry;
 			}
 
-//			DEBUGStorage.println("creating " + Binary.getEntityObjectId(entityAddress) + ", " + Binary.getEntityTypeId(entityAddress) + ", [" + Binary.getEntityLength(entityAddress) + "]");
 			return this.createEntity(objectId, type);
 		}
 
 		final StorageEntity.Default putEntity(final long entityAddress)
 		{
 			/* (11.02.2019 TM)NOTE: On byte order switching:
-			 * Theoreticaly, the storage engine (OGS) could also use the switchByteOrder mechanism implemented for
+			 * Theoretically, the storage engine (OGS) could also use the switchByteOrder mechanism implemented for
 			 * communication (OGC). However, there are a lot stumbling blocks in the details that are currently not
 			 * worth resolving for a feature that is most probably never required in the foreseeable future.
 			 * This method is one of them. Instead of reading the raw value, additional work (performance loss)
-			 * would have to be done to check if byte reversal is necessary. For now, this method here alons kills
+			 * would have to be done to check if byte reversal is necessary. For now, this method here alone kills
 			 * the byte order switching for storage usage. Should the need arise in the future, additional
 			 * time can be invested to solve this.
 			 */
@@ -670,8 +632,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 					entityTypeId);
 			}
 
-//			DEBUGStorage.println("creating " + Binary.getEntityObjectId(entityAddress) + ", " + Binary.getEntityTypeId(entityAddress) + ", [" + Binary.getEntityLength(entityAddress) + "]");
-	
 			/* the added try-catch showed no change in performance in a test.
 			 * loading ~25 million entities took from 32 to 75 seconds and depends overwhelmingly on
 			 * the state of the disc cache and other OS disturbances and hardly on the actual program code runtime.
@@ -711,7 +671,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		{
 			// ensure the old data is not cached any longer
 			this.ensureNoCachedData(entry);
-//			this.markEntityForChangedData(entry);
 			entry.detachFromFile();
 		}
 
@@ -722,7 +681,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		 * See "doomed kept alive" and "slipped through" cases.
 		 * This means an entity with references that is already black (saved from sweep and has its references iterated)
 		 * must be demoted to gray (saved from sweep but references not handled yet) and have its OID enqueued in the gray chain.
-		 *
+		 * <p>
 		 * If the entity has no reference, it can be marked black right away. This either anticipates/replaces the black marking
 		 * by the GC and should actually not be necessary, however as the effort to do it at this point is rather minimal, it's done
 		 * nonetheless.
@@ -736,19 +695,19 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			 * have already been marked.
 			 * The data change did reset the GC completion state.
 			 * The following sweep will complete the hot phase.
-			 * Enqueing entities with references here would mean to have them safed in the next marking phase
+			 * Enqueuing entities with references here would mean to have them saved in the next marking phase
 			 * (potentially a final/cold gc sweep) even if they are not reachable at all. This would be an error.
 			 * Their references do not have to be checked anyway because the marking has been completed beforehand
 			 * and the purpose of re-marking references is not to safe some priorly unreachable entity by a race
 			 * conditional store. It is only to prevent "slipped through" cases during live marking.
-			 * Entities have, however, to be safed in the coming sweep because they might be new or referenced
+			 * Entities have, however, to be saved in the coming sweep because they might be new or referenced
 			 * by an entity in the same store and have not been marked in the conventional way.
 			 *
 			 * In short:
 			 * Changing data with a pending sweep (marking completed):
-			 * - Mark everything black, no gray enqueing
+			 * - Mark everything black, no gray enqueuing
 			 *
-			 * Changing data during incomplte marking:
+			 * Changing data during incomplete marking:
 			 * - Mark non-referential entities black
 			 * - Mark referential entities gray (actually white would suffice) and enqueue them into the gray chain.
 			 */
@@ -759,7 +718,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 					return;
 				}
 
-//				this.DEBUG_marked++;
 				entry.markBlack();
 				return;
 			}
@@ -768,10 +726,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			// entities with references
 			if(entry.hasReferences())
 			{
-//				if(entry.isGcBlack())
-//				{
-//					this.DEBUG_marked--;
-//				}
 
 				/*
 				 * The gray state is still required even despite the oidMarkQueue
@@ -786,12 +740,12 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 				 * - the task processing is completed
 				 * - ch #0 and #1 continue doing housekeeping, see the sweep flag and perform their pending sweep.
 				 * - ch #0 and #1 check gray entities in the sweep and (correctly!) rescue them as they are not white.
-				 * - ch #0 and #1 complete their sweep and continue with marking, inluding marking the enqueued stored entities
+				 * - ch #0 and #1 complete their sweep and continue with marking, including marking the enqueued stored entities
 				 *
 				 * The gray state might be superfluous if entities are not gray marked if a sweep is pending,
 				 * but this might complicate things and maybe there are other scenarios that wouldn't be covered
 				 * correctly anymore. In the very least, the gray state is a safety net of indicating:
-				 * The entity must not be collected, but it must be revisted.
+				 * The entity must not be collected, but it must be revisited.
 				 */
 				entry.markGray();
 
@@ -799,11 +753,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 				this.markMonitor.enqueue(this.oidMarkQueue, entry.objectId());
 				return;
 			}
-
-//			if(!entry.isGcBlack())
-//			{
-//				this.DEBUG_marked++;
-//			}
 
 			// entities without references
 			entry.markBlack();
@@ -846,9 +795,6 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			type.add(entity);
 			this.oidSize++; // increment size not before creating and registering succeeded
 
-			// (17.11.2016 TM)NOTE: moved outside
-//			this.markEntityForChangedData(entity);
-
 			// must explicitly touch the entity to overwrite initial timestamp
 			entity.touch();
 
@@ -863,7 +809,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		{
 			logger.debug("Deleting entity {}, typeId: {}", entity.objectId(), entity.typeId());
 			
-			// 1.) unregister entity from hash table (= unfindable by future requests)
+			// 1.) unregister entity from hash table (= not findable by future requests)
 			this.unregisterEntity(entity);
 
 			// 2.) detach entity from file registry. Actual physical remains don't hurt, even on restart, as they will be unreachable again.
@@ -878,7 +824,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			// 5.) mark entity as deleted
 			entity.setDeleted();
 						
-			// decrement size, otherwise the the cache can't shrink
+			// decrement size, otherwise the cache can't shrink
 			this.oidSize--;
 		}
 
@@ -922,7 +868,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			// index of next oid to be marked (and current amount of already marked oids). Range: [0; oidsMarkAmount]
 			int oidsMarkIndex  = 0;
 
-			// mark at least one entity, even if there no time, to avoid starvation
+			// mark at least one entity, even if there is no time, to avoid starvation
 			do
 			{
 				// fetch next batch of oids to mark and advance gray queue if necessary
@@ -1233,7 +1179,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			/* (18.07.2016 TM)TODO: ensure singleton root instance over all channels
 			 * If there may be only one root instance, it should be guaranteed here to determine the valid
 			 * one and ignore the rest.
-			 * The tricky part is: this has to be done accross all channels and in a thread safe way.
+			 * The tricky part is: this has to be done across all channels and in a thread safe way.
 			 * To achieve this, the MarkMonitor would have to do it in a centralized method.
 			 * For that, it has to know the entity caches, which it does / can not currently.
 			 * Also, letting one thread call methods of all channels would mean to break the strict thread locality
@@ -1299,7 +1245,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			tail   = file.tail;
 			entity = cursor;
 
-			// abort condition is checkd at the end to guarantee one entity progress to avoid starvation
+			// abort condition is checked at the end to guarantee one entity progress to avoid starvation
 			do
 			{
 				// if the end of one file is reached, the next file gets checked. The last file connects to the first.
@@ -1438,7 +1384,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 				 * If there aren't any, a wait on the queue is performed.
 				 *
 				 * Note:
-				 * This covers spurious wakeups, however slightly complicated:
+				 * This covers spurious wake-ups, however slightly complicated:
 				 * On any wakeup, a check for time and completion is performed.
 				 */
 				waitForWork:

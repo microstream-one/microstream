@@ -21,10 +21,6 @@ package one.microstream.functional;
  */
 
 
-/**
- * 
- *
- */
 public final class SumFloat implements Aggregator<Float, Double>
 {
 	private double sum;

@@ -151,11 +151,6 @@ public final class XUtilsCollection
 				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)collection), XTypes.to_int(collection.size())
 			);
 		}
-		// (04.03.2020 TM)NOTE: Chain shuffle has not been implemented correctly so far.
-//		else if(collection instanceof AbstractChainCollection<?, ?, ?, ?>)
-//		{
-//			((AbstractChainCollection<E, ?, ?, ?>)collection).getInternalStorageChain().shuffle();
-//		}
 		else
 		{
 			final FastRandom random = new FastRandom();
@@ -290,7 +285,7 @@ public final class XUtilsCollection
 				comparator
 			);
 		}
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngHasUniqueValues(
@@ -308,7 +303,7 @@ public final class XUtilsCollection
 				XTypes.to_int(length)
 			);
 		}
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngHasUniqueValues(
@@ -328,26 +323,8 @@ public final class XUtilsCollection
 				equalator
 			);
 		}
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
-
-//	public static <E> boolean rngContainsAll(
-//		final XGettingSequence<E> sequence,
-//		final long offset,
-//		final long length,
-//		final XGettingCollection<? extends E> samples,
-//		final Equalator<? super E> equalator
-//	)
-//	{
-//		if(sequence instanceof AbstractSimpleArrayCollection<?>)
-//		{
-//			return AbstractArrayStorage.rangedContainsAll(
-//				AbstractSimpleArrayCollection.internalGetStorageArray((AbstractSimpleArrayCollection<?>)sequence),
-//				sequence.size(), offset, length, sequence, equalator
-//			);
-//		}
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
 
 	public static <E> boolean rngContainsAll(
 		final XGettingSequence<E> sequence,
@@ -367,7 +344,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> E rngMax(
@@ -388,7 +365,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> E rngMin(
@@ -409,7 +386,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E>
@@ -432,7 +409,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E>
@@ -449,7 +426,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E>
@@ -472,7 +449,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E>
@@ -493,7 +470,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngIsSorted(
@@ -514,7 +491,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, C extends Consumer<? super E>> C rngCopyTo(
@@ -585,7 +562,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, C extends XGettingSequence<E>>
@@ -603,7 +580,7 @@ public final class XUtilsCollection
 			return sequence;
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, C extends XGettingSequence<E>> C rngIterate(
@@ -625,7 +602,7 @@ public final class XUtilsCollection
 			return sequence;
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, C extends XGettingSequence<E>> C rngIterate(
@@ -649,7 +626,7 @@ public final class XUtilsCollection
 			return sequence;
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, A> A rngJoin(
@@ -673,7 +650,7 @@ public final class XUtilsCollection
 			return aggregate;
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> E rngFind(
@@ -696,7 +673,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngContains(
@@ -717,7 +694,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngContainsId(
@@ -738,7 +715,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngContains(
@@ -760,7 +737,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngContains(
@@ -781,7 +758,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngContainsNull(final XGettingSequence<E> sequence, final long offset, final long length)
@@ -797,7 +774,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngApplies(
@@ -807,7 +784,7 @@ public final class XUtilsCollection
 		final Predicate<? super E> predicate
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngAppliesAll(
@@ -828,7 +805,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> int rngCount(
@@ -849,7 +826,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> int rngIndexOf(
@@ -870,7 +847,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> int rngScan(
@@ -891,7 +868,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> E rngGet(
@@ -914,7 +891,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> E rngSearch(
@@ -936,7 +913,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngEqualsContent(
@@ -959,7 +936,7 @@ public final class XUtilsCollection
 		}
 
 		// (13.03.2011)TODO: rngEqualsContent() ... tricky
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, R> R rngAggregate(
@@ -1024,7 +1001,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> VarString rngAppendTo(
@@ -1047,7 +1024,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> VarString rngAppendTo(
@@ -1070,7 +1047,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> VarString rngAppendTo(
@@ -1093,7 +1070,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> VarString rngAppendTo(
@@ -1118,7 +1095,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> VarString rngAppendTo(
@@ -1143,7 +1120,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> int rngMaxIndex(
@@ -1164,7 +1141,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E>
@@ -1186,7 +1163,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, C extends Consumer<? super E>>
@@ -1203,7 +1180,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, C extends Consumer<? super E>> C rngDistinct(
@@ -1226,7 +1203,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, C extends Consumer<? super E>> C rngIntersect(
@@ -1251,7 +1228,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, C extends Consumer<? super E>> C rngUnion(
@@ -1276,7 +1253,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 
 	}
 
@@ -1302,7 +1279,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 
@@ -1318,36 +1295,7 @@ public final class XUtilsCollection
 		final Predicate<? super E> predicate
 	)
 	{
-//		if(target instanceof XAddingList<?> && target instanceof AbstractSimpleArrayCollection<?>)
-//		{
-//			target.ensureFreeCapacity(length < 0 ? -length : length); // problem if length is huge but only few are picked
-//
-//			DelegateSimpleArrayLogic.rngAggregate(elements, elements.length, offset, length, new Aggregate<E, Integer>()
-//			{
-//				private final Object[] data = ((AbstractSimpleArrayCollection<?>)target).internalGetStorageArray();
-//				private int size = ((AbstractSimpleArrayCollection<?>)target).internalSize();
-//
-//				@Override
-//				public void apply(final E e) throws RuntimeException
-//				{
-//					this.data[this.size++] = e; // should be fast due to escape analysis
-//				}
-//				@Override
-//				public Aggregate<E, Integer> reset()
-//				{
-//					return null; // never called
-//				}
-//				@Override
-//				public Integer yield()
-//				{
-//					// (07.07.2011 TM)FIXME: target.internalSetSize(this.size). sadly architectural problem, atm.
-//					return null; // do not create wrapper instance, won't be used anyway
-//				}
-//			});
-//			target.optimize(); // just in case length was way more than needed.
-//			return target;
-//		}
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 	public static <E, C extends XAddingCollection<? super E>> C addAll(
 		final C target,
@@ -1355,7 +1303,7 @@ public final class XUtilsCollection
 		final Predicate<? super E> predicate
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, C extends XAddingCollection<? super E>> C putAll(
@@ -1366,7 +1314,7 @@ public final class XUtilsCollection
 		final Predicate<? super E> predicate
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 	public static <E, C extends XAddingCollection<? super E>> C putAll(
 		final C target,
@@ -1374,7 +1322,7 @@ public final class XUtilsCollection
 		final Predicate<? super E> predicate
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E, C extends XInsertingList<? super E>> C insert(
@@ -1465,7 +1413,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1490,7 +1438,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1513,7 +1461,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngRemoveOne(
@@ -1534,7 +1482,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> boolean rngRemoveOne(
@@ -1557,7 +1505,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> int rngRemoveNull(
@@ -1576,7 +1524,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> int rngRemove(
@@ -1597,7 +1545,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> int rngRemove(
@@ -1620,7 +1568,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1645,7 +1593,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> int rngRemoveAll(
@@ -1666,7 +1614,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1691,7 +1639,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1714,7 +1662,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1737,7 +1685,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1758,7 +1706,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1781,7 +1729,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1807,7 +1755,7 @@ public final class XUtilsCollection
 			return target;
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1831,7 +1779,7 @@ public final class XUtilsCollection
 			return sequence;
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> void rngSort(
@@ -1852,7 +1800,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> void rngShuffle(
@@ -1871,7 +1819,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> void rngSortMerge(
@@ -1892,7 +1840,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> void rngSortInsertion(
@@ -1913,7 +1861,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> void rngSortQuick(
@@ -1934,7 +1882,7 @@ public final class XUtilsCollection
 			);
 		}
 
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	public static <E> VarString appendTo(final XGettingCollection<E> collection, final VarString vc)
@@ -2234,7 +2182,7 @@ public final class XUtilsCollection
 	 * Furthermore, binarySearch can be inefficient for chain storage implementations,
 	 * further discouraging the declaration of binarySearch() in an interface type.
 	 *
-	 * And SortedSequences can't be explicetely binarySearch-ed either, as they use an
+	 * And SortedSequences can't be explicitly binarySearch-ed either, as they use an
 	 * internal comparator. BinarySearch can be used internally when searching an element.
 	 *
 	 * Hence, the binarySearch() is best defined as an independent util method taking advantage

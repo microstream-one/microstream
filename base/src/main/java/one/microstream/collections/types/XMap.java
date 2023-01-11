@@ -112,7 +112,7 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 
 	/**
 	 * Ensures the passed value to be either set to an existing entry equal to sampleKey or inserted as a new one.
-	 * @param sampleKey to find the an existing element
+	 * @param sampleKey to find an existing element
 	 * @param value to insert
 	 * @return {@code true} if element was changed; {@code false} if not
 	 */
@@ -121,7 +121,7 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 
 	/**
 	 * Sets only the passed value to an existing entry appropriate to the passed sampleKey.
-	 * @param sampleKey to find the an existing element
+	 * @param sampleKey to find an existing element
 	 * @param value to set
 	 * @return {@code true} if element was changed; {@code false} if not
 	 */
@@ -130,7 +130,7 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 
 	/**
 	 * Ensures the passed value to be either set to an existing entry appropriate to sampleKey or inserted as a new one.
-	 * @param sampleKey to find the an existing element
+	 * @param sampleKey to find an existing element
 	 * @param value to add
 	 * @return the old value
 	 */
@@ -138,7 +138,7 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 
 	/**
 	 * Sets only the passed value to an existing entry appropriate to the passed sampleKey.
-	 * @param sampleKey to find the an existing element
+	 * @param sampleKey to find an existing element
 	 * @param value to add
 	 * @return the old value
 	 */
@@ -166,7 +166,7 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 
 	/**
 	 * Ensures the passed key-value-pairs to be contained as entries in the map.
-	 * Only the elements with indizes from the srcStartIndex to the srcStartIndex+srcLength are put in the collection. <br>
+	 * Only the elements with indices from the srcStartIndex to the srcStartIndex+srcLength are put in the collection. <br>
 	 * A return value indicates a new entry.
 	 * 
 	 * @return this
@@ -216,7 +216,7 @@ public interface XMap<K, V> extends XProcessingMap<K, V>, XPutGetMap<K, V>, XSet
 
 	public interface Keys<K, V> extends XProcessingMap.Keys<K, V>, XSet<K>, Satellite<K, V>, XReplacingCollection<K>
 	{
-		// emoty so far
+		// empty so far
 	}
 
 }

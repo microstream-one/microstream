@@ -41,7 +41,7 @@ public final class BinaryHandlerIdentityHashMap extends AbstractBinaryHandlerCus
 	//////////////
 
 	static final long BINARY_OFFSET_ELEMENTS = 0;
-	// to prevent recurring confusion: IdentityHashMap really has no loadFactor. It uses an open adressing hash array.
+	// to prevent recurring confusion: IdentityHashMap really has no loadFactor. It uses an open addressing hash array.
 
 
 

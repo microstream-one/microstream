@@ -110,9 +110,9 @@ public final class JdkInternals
 	 * Rationale for these local constants:
 	 * For Unsafe putting methods like Unsafe#putInt etc, there were two versions before Java 9:
 	 * One with an int offset (deprecated) and one with a long offset.
-	 * The base offset constants are ints, so they have to be casted for the compiler to select the corrent
+	 * The base offset constants are ints, so they have to be casted for the compiler to select the correct
 	 * method option.
-	 * However, in Java 9, the int variant disappeared (finally). That now causes an "unnecessary cast" warning.
+	 * However, in Java 9, the int variant disappeared. That now causes an "unnecessary cast" warning.
 	 * But removing it would mean in Java 8 and below, the int variant would be chosen and a deprecation warning would
 	 * be displayed.
 	 * So the only way to use those methods without warnings in either version is to have a constant that is
@@ -355,7 +355,7 @@ public final class JdkInternals
 		|| FIELD_OFFSET_Buffer_address < 0
 		)
 		{
-			// deallocator is left as NoOp and must be provided/set explicitely by the user
+			// deallocator is left as NoOp and must be provided/set explicitly by the user
 			return DirectBufferDeallocator.NoOp();
 		}
 
@@ -456,12 +456,12 @@ public final class JdkInternals
 			((Runnable)cleanerThunkDeallocatorRunnable).run();
 
 			/*
-			 * Must be set explicitely since the deallocator only sets his copy of the address to 0.
+			 * Must be set explicitly since the deallocator only sets his copy of the address to 0.
 			 * It might seem dangerous to zero out the address of a still reachable and potentially used
-			 * direct byte buffer, but this logic here is only executed if the DirectByteBuffer is explicitely
+			 * direct byte buffer, but this logic here is only executed if the DirectByteBuffer is explicitly
 			 * deallocated. If it is still used after that, it is simple a programming error, not different
 			 * from writing to a wrong memory address.
-			 * So zeroing out the address is the correct thing to do to one the one hand keep the state consistent
+			 * So zeroing out the address is the correct thing to do and keep the state consistent
 			 * and on the other hand prevent access to allegedly still allocated memory while in fact, it has
 			 * already been deallocated. It is much better to encounter a zero address in such a case than to
 			 * chaotically read or even write from/to memory that might already have been allocated for something else.
@@ -1087,7 +1087,6 @@ public final class JdkInternals
 				continue;
 			}
 			final long fieldOffset = VM.objectFieldOffset(declaredFields[i]);
-//			XDebug.debugln(fieldOffset + "\t" + declaredFields[i]);
 			if(fieldOffset >= maxInstanceFieldOffset)
 			{
 				maxInstanceField = declaredFields[i];
@@ -1206,7 +1205,7 @@ public final class JdkInternals
 
 
 
-	// compar and swap //
+	// compare and swap //
 
 	public static final boolean compareAndSwap_int(
 		final Object subject    ,
@@ -1349,7 +1348,7 @@ public final class JdkInternals
 	// extra class to keep MemoryAccessorSun instances stateless
 	static final class ObjectHeaderSizeDummy
 	{
-		// implicitely used in #calculateByteSizeObjectHeader
+		// implicitly used in #calculateByteSizeObjectHeader
 		Object calculateByteSizeObjectHeaderFieldOffsetDummy;
 	}
 

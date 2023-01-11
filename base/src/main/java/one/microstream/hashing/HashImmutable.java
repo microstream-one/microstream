@@ -39,8 +39,6 @@ import one.microstream.equality.Equalator;
  * implementations of {@link Collection} are).<br>
  * For those cases, use an externally defined {@link Equalator} or {@link HashEqualator} with fitting implementation
  * instead.
- *
- * 
  */
 public interface HashImmutable
 {

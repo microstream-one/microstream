@@ -265,7 +265,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			 * The only requirement is that the registry's register method is thread-safe.
 			 *
 			 * Note that the context field is still a thread-local field, just one that points to an instance
-			 * known by the context. The only true multithread-ly used part is the context itself.
+			 * known by the context. The only true multi-thread-ly used part is the context itself.
 			 *
 			 * Note on instance type: both ways that set instances here (local and context),
 			 * namely registry and type handler, are trusted to provide (instantiate or know) instances of the
@@ -293,7 +293,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			 * Not a good idea. The concept of the two instances was:
 			 * If a new instance has to be created, it is not in a consistent state until after #update
 			 * oder even after #complete. Until then, it may not be publicly available via the object registry.
-			 * Funnily, this code does exactely that, nonetheless:
+			 * Funnily, this code does exactly that, nonetheless:
 			 * - new instance instance is created locally (safe)
 			 * - new instance gets registered in the object Registry (not safe)
 			 * - THEN it gets updated
@@ -305,11 +305,11 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			 * (a little shady)
 			 * OR the registration process must be shifted to behind complete or at least to behind update.
 			 * 
-			 * Ah yes. The point below did already handle that.
+			 * The point below did already handle that.
 			 * 
 			 * Addon to the point above
 			 * Albeit: what about globally registering an instance before it is completely built?
-			 * Couldn't that cause race conditions and inconcistencies?
+			 * Couldn't that cause race conditions and inconsistencies?
 			 * And if not: Why not determine (select or created&register) the instance right away when creating
 			 * the build item? Maybe the whole process of created all required build items should happen under
 			 * one big lock of the objectRegistry?
@@ -356,7 +356,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		{
 			this.registerRoot(rootInstance, rootObjectId);
 			
-			// must explicitely require reference, otherwise #isUnrequiredReference will skip it as already existing.
+			// must explicitly require reference, otherwise #isUnrequiredReference will skip it as already existing.
 			this.requireReferenceEager(rootObjectId);
 		}
 
@@ -379,7 +379,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		
 		private void registerRoot(final Object rootInstance, final long rootObjectId)
 		{
-			// root instances are global, so it is apropirate and required to register it globally right away
+			// root instances are global, so it is appropriate and required to register it globally right away
 			this.objectRegistry.registerObject(rootObjectId, rootInstance);
 		}
 		
@@ -431,7 +431,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 				 * information, how can there ever be a situation where an already existing instance has to be
 				 * (or even MAY be!) updated?
 				 * The persistence layer is NOT a data modification reverting tool, it is a persistence layer.
-				 * This means: only newly created instaces should have to be updated (filled with data), not already
+				 * This means: only newly created instances should have to be updated (filled with data), not already
 				 * existing ones.
 				 *
 				 * This has to be thought through thoroughly.
@@ -464,8 +464,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 				 */
 				
 				logger.trace("Updating {}", entry);
-//				XDebug.println("Updating " + entry);
-				
+
 				// (26.08.2019 TM)NOTE: paradigm change: #create may return null. Required for handling deleted enums.
 				final Object effectiveInstance = this.getEffectiveInstance(entry);
 				if(effectiveInstance != null)
@@ -480,12 +479,6 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 					}
 				}
 				
-				// (26.08.2019 TM)NOTE: old version
-//				entry.handler.update(
-//					entry,
-//					this.getEffectiveInstance(entry),
-//					this
-//				);
 			}
 		}
 
@@ -495,7 +488,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			 * what if completing one instance properly depends on completing another instance first?
 			 * E.g. hash collection of hash collections with the hash value depending on the inner
 			 * hash collection's content?
-			 * Stupid idea in the first place, but a general implementation pattern in JDK with its naive equals&hash
+			 * Stupid idea in the first place, but a general implementation pattern in JDK with its equals&hash
 			 * concept.
 			 * What if two such instances have a circular dependency between each other?
 			 * Possible solutions:
@@ -563,13 +556,11 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			
 			return null;
 			
-			// (08.04.2020 TM)NOTE: old version before dummy-item covering.
-//			return this.buildItemsHead.next == null ? null : this.buildItemsHead.next.existingInstance;
 		}
 
 		private void rebuildBuildItems()
 		{
-			// moreless academic check for more than 1 billion entries
+			// more or less academic check for more than 1 billion entries
 			if(XMath.isGreaterThanOrEqualHighestPowerOf2(this.buildItemsHashSlots.length))
 			{
 				return; // note that aborting rebuild does not ruin anything, only performance degrades
@@ -707,11 +698,9 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		
 		private BinaryLoadItem createLoadItemDummy()
 		{
-			// (04.12.2019 TM)NOTE: Oooor simply allocate a non-memory-leaking instance and fix toString()...
+			// (04.12.2019 TM)NOTE: Or simply allocate a non-memory-leaking instance and fix toString()...
 			return new BinaryLoadItem(0);
 			
-			// tricky: dummies must have a valid memory address or else calling toString in the debugger crashes the JVM.
-//			return new BinaryLoadItem(XMemory.allocate(Binary.entityHeaderLength()) + Binary.entityHeaderLength());
 		}
 
 		private void clearBuildItems()
@@ -749,12 +738,12 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		{
 			/* (09.09.2015 TM)TODO: persistence loading consistency
 			 * Doesn't the incremental loading of references have to be an atomic process on the source side
-			 * (e.g. storage engine) to avoid potential inconstencies by concurrent write requests?
+			 * (e.g. storage engine) to avoid potential inconsistencies by concurrent write requests?
 			 * As BinaryLoading and Storage are decoupled, maybe both should be implemented:
 			 * The storage task collects all required items via reference iteration by the handler and
 			 * returns the completed result to the loader.
 			 * This logic here will then never need to do more than 1 loop, but CAN do more loops if the source
-			 * only provides exactely what is requested (e.g. a simple file source with no concurrency issues).
+			 * only provides exactly what is requested (e.g. a simple file source with no concurrency issues).
 			 *
 			 * On problem is, however: the storage task processing may not return instances that are already loaded
 			 * and registered in the registry. Otherwise, every load request could potentially load "half the database",
@@ -776,17 +765,15 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 			 * references. Otherwise, the lazy reference would become effectively eager, i.e. stop working.
 			 * In the end, this means to enhance the type description syntax with a "do not deep load references"
 			 * marker.
-			 * Which is kind of ugly :(.
+			 * Which is kind of ugly.
 			 * The currently used logic-side BinaryHandler solution is much more elegant...
 			 *
 			 * 2.) maybe, once all the data is assembled, the loader has to acquire and keep a lock on the object
 			 * registry for the whole building process. Otherwise, it could occur that concurrent modifications in the
-			 * the object registry lead to a mixture of entity state (inconcistencies).
+			 * the object registry lead to a mixture of entity state (inconsistencies).
 			 * Or maybe than can never happen as the memory is always more current than the database and building
 			 * the graph automatically creates the right state. Tricky ... needs more thought.
 			 *
-			 *
-			 * HM...
 			 *
 			 * OR is it maybe not required at all because:
 			 * - the application memory always has the most current version of an entity
@@ -813,7 +800,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 
 			/*
 			 * Create build items for ALL instances prior to handling references to ensure that already loaded
-			 * instances are properly found when coming accross their reference id.
+			 * instances are properly found when coming across their reference id.
 			 *
 			 * Note on anchor:
 			 * As only each chunk's memory address is stored in each entity entry it must be guaranteed that

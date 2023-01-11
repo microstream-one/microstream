@@ -140,7 +140,7 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 			for(int i = entityCount; i --> 0;)
 			{
 				/*
-				 * Initialization only registers the first occurance in the reversed initialization,
+				 * Initialization only registers the first occurrence in the reversed initialization,
 				 * meaning only the most current version of every entity (identified by its ObjectId).
 				 * All earlier versions are simply ignored, hence the "return false".
 				 */
@@ -167,7 +167,7 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 			// the total length of all actually registered entities is the file's content length. The rest is gaps.
 			file.increaseContentLength(totalFileContentLength);
 			
-			// the buffer is currently limited to exactely the file size. So gapLength = limit - contentLength.
+			// the buffer is currently limited to exactly the file size. So gapLength = limit - contentLength.
 			file.registerGapLength(buffer.limit() - totalFileContentLength);
 		}
 				
@@ -275,7 +275,7 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 			try
 			{
 				buffer.clear();
-				// the reason for the stupid limit is actually a single clumsy toArray() somewhere in NIO.
+				// the reason for the stupid limit is actually a single toArray() somewhere in NIO.
 				buffer.limit(X.checkArrayRange(fileActualLength));
 				
 				file.readBytes(buffer, 0, fileActualLength);
@@ -299,13 +299,12 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 					 * In case someone gets here after suffering this exception:
 					 * Yes, the file could be read incrementally in chunks, but while this would prevent some
 					 * problems with the JDK IO buffer limitation to int, it cannot prevent all of them.
-					 * Consider a single entity, probabaly a giant collection, whose binary form (8 bytes per
+					 * Consider a single entity, probably a giant collection, whose binary form (8 bytes per
 					 * element) exceeds the int limit by itself.
 					 * The most reasonable strategy is:
 					 * For files that should be in the range of 1-100 MB, anyway, assume int to be "infinite".
-					 * Blame problems on users who chose too high a file size and on JDK devs who implemented
-					 * the short-sighted and completely unnecessary int limit.
-					 * And wait for a proper solution, of course. Maybe a self-built tailored IO via JNI.
+					 * Blame problems on users who chose too high a file size and on JDK who implemented
+					 * the int limit.
 					 */
 					throw new StorageExceptionIoReading(
 						"Storage file size exceeds Java technical IO limitations: " + file.identifier()

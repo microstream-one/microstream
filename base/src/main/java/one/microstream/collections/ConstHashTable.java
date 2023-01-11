@@ -661,13 +661,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 	@Override
 	public final XEnum<KeyValue<K, V>> range(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME ConstHashTable.Entries#range()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ConstHashTable.Entries#range()
 	}
 
 	@Override
 	public final XGettingEnum<KeyValue<K, V>> view(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME ConstHashTable.Entries#view()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ConstHashTable.Entries#view()
 	}
 
 	@Override
@@ -1109,13 +1109,13 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 		@Override
 		public final XEnum<K> range(final long lowIndex, final long highIndex)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME ConstHashTable.Keys#range()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME ConstHashTable.Keys#range()
 		}
 
 		@Override
 		public final XGettingEnum<K> view(final long lowIndex, final long highIndex)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME ConstHashTable.Keys#view()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME ConstHashTable.Keys#view()
 		}
 
 		@Override
@@ -1216,7 +1216,7 @@ implements XImmutableTable<K, V>, HashCollection<K>, Composition, IdentityEquali
 //			{
 //				return true;
 //			}
-//			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME ConstHashTable.Keys#hasDistinctValues()
+//			throw new one.microstream.meta.NotImplementedYetError(); // FIXME ConstHashTable.Keys#hasDistinctValues()
 //		}
 
 		// boolean querying - applies //

@@ -88,7 +88,7 @@ extends ChainStorage<KeyValue<K, V>, K, V, EN>
 	public void removeRange(long offset, long length);
 
 	/**
-	 * Removes all entries at the indices (offsets) given in the passed {@code int} array.
+	 * Removes all entries at the indices (offsets) given in the provided {@code int} array.
 	 * <p>
 	 * Note that the indices array gets presorted to increase algorithm performance. If the original {@code int} array
 	 * shall be unchanged, a clone must be passed.

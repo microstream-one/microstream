@@ -120,7 +120,6 @@ extends ExtendedCollection<E>, CapacityExtendable, OptimizableCollection, Consum
 	 *
 	 * What about strictRemove() methods (throw exception if the passed element could not be found) ?
 	 * strictReplace()?
-	 * :-/
 	 */
 
 }

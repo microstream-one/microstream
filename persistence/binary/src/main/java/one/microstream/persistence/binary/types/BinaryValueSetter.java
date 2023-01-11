@@ -26,16 +26,16 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 public interface BinaryValueSetter
 {
 	/* (20.09.2018 TM)TODO: BinaryValueSetter performance optimization
-	 * A distinction betwee BinaryValueSetterPrimitive and BinaryValueSetterReference could be made.
+	 * A distinction between BinaryValueSetterPrimitive and BinaryValueSetterReference could be made.
 	 * Since the persistent form order all references at the start and all primitives afterwards,
 	 * the switching overhead from one array iteration to another would be minimal.
 	 * As a result, setting a primitive value could omit the reference to the idResolver.
 	 * However it is not clear how much performance that would effectively bring.
 	 * 
 	 * Before a premature optimization is done, this should be tested.
-	 * However, if the order of all primitives in instance form and in persistent form is exactely the same,
+	 * However, if the order of all primitives in instance form and in persistent form is exactly the same,
 	 * a shortcut for copying primitives could be made where a low-level loop (Unsafe) copies all primitive
-	 * values at one swoop. Or at least all per inheritence level.
+	 * values at one swoop. Or at least all per inheritance level.
 	 * However, all these assumptions about memory layout would have to be thoroughly validated at type handler
 	 * initialization and if not true, a fallback to the current mechanism would have to be used.
 	 * 

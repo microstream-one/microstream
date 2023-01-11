@@ -38,13 +38,12 @@ import one.microstream.storage.types.StorageLiveFileProvider;
 
 /**
  * Static utility class containing static pseudo-constructor methods (indicated by a capital first letter)
- * and various utility methods to setup and start a database.
+ * and various utility methods to set up and start a database.
  * <p>
- * In the simplest case, the following call is enough to setup and start an embedded object graph database:<br>
+ * In the simplest case, the following call is enough to set up and start an embedded object graph database:<br>
  * {@code EmbeddedStorageManager storage = EmbeddedStorage.start();}<br>
  * Anything beyond that is optimization and customization. As it should be.
  *
- * 
  */
 public final class EmbeddedStorage
 {
@@ -337,7 +336,7 @@ public final class EmbeddedStorage
 
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
-	 * the passed {@literal directory} as its storage location and defaults for the remainings values.
+	 * the passed {@literal directory} as its storage location and defaults for the remaining values.
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
@@ -359,7 +358,7 @@ public final class EmbeddedStorage
 	
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
-	 * the passed {@literal directory} as its storage location and defaults for the remainings values.
+	 * the passed {@literal directory} as its storage location and defaults for the remaining values.
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
@@ -454,11 +453,11 @@ public final class EmbeddedStorage
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
 	 * the passed {@literal root} as the persistent entity graph's root instance
-	 * and defaults for the remainings values.
+	 * and defaults for the remaining values.
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root the explicitely defined root instance of the persistent entity graph.
+	 * @param root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
@@ -478,7 +477,7 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @param root      root the explicitely defined root instance of the persistent entity graph.
+	 * @param root      root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @param directory the directory where the storage will be located.
 	 *
@@ -498,11 +497,11 @@ public final class EmbeddedStorage
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
 	 * the passed {@literal root} as the persistent entity graph's root instance,
-	 * the passed {@literal directory} as its storage location and defaults for the remainings values.
+	 * the passed {@literal directory} as its storage location and defaults for the remaining values.
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root      root the explicitely defined root instance of the persistent entity graph.
+	 * @param root      root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @param directory the directory where the storage will be located.
 	 *
@@ -527,11 +526,11 @@ public final class EmbeddedStorage
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
 	 * the passed {@literal root} as the persistent entity graph's root instance,
-	 * the passed {@literal directory} as its storage location and defaults for the remainings values.
+	 * the passed {@literal directory} as its storage location and defaults for the remaining values.
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root      root the explicitely defined root instance of the persistent entity graph.
+	 * @param root      root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @param directory the directory where the storage will be located.
 	 *
@@ -560,7 +559,7 @@ public final class EmbeddedStorage
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root          root the explicitely defined root instance of the persistent entity graph.
+	 * @param root          root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @param configuration the {@link StorageConfiguration} to be used.
 	 *
@@ -589,7 +588,7 @@ public final class EmbeddedStorage
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root          root the explicitely defined root instance of the persistent entity graph.
+	 * @param root          root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @param configuration the {@link StorageConfiguration.Builder} to be used.
 	 *
@@ -618,7 +617,7 @@ public final class EmbeddedStorage
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root                 root the explicitely defined root instance of the persistent entity graph.
+	 * @param root                 root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @param configuration        the {@link StorageConfiguration} to be used.
 	 *
@@ -649,7 +648,7 @@ public final class EmbeddedStorage
 	 *
 	 * @param foundation the {@link EmbeddedStorageFoundation} to be used.
 	 *
-	 * @param root       the persistent entiy graph's root instance, potentially null.
+	 * @param root       the persistent entity graph's root instance, potentially null.
 	 *
 	 * @return a newly created and started {@link EmbeddedStorageManager} instance.
 	 */

@@ -67,11 +67,9 @@ import one.microstream.typing.XTypes;
  * See {@link ChainStorage} and for example {@link ChainStorageStrong} as a comparable actual logic implementation without
  * delegate-pseudo-character.
  *
- * 
  */
 public abstract class AbstractArrayStorage
 {
-	// CHECKSTYLE.OFF: FinalParameter: A LOT of methods use that pattern in this class
 
 	///////////////////////////////////////////////////////////////////////////
 	// utility methods //
@@ -2115,7 +2113,6 @@ public abstract class AbstractArrayStorage
 			throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
 		}
 
-		// shut up FindBugs ..
 		return XArrays.removeAllFromArray(null, data, start, bound);
 	}
 
@@ -2148,7 +2145,7 @@ public abstract class AbstractArrayStorage
 		}
 		finally
 		{
-			//even if predicate throws an execption, the remove markers have to be cleared
+			//even if predicate throws an exception, the remove markers have to be cleared
 			removeCount = XArrays.removeAllFromArray(data, 0, size, removeMarker);
 		}
 		return removeCount;
@@ -4902,7 +4899,6 @@ public abstract class AbstractArrayStorage
 			if(a.length == 0)
 			{
 				return X.ArrayOfSameType(a, 1); // length-one array with null
-//				return (T[])Array.newInstance(a.getClass().getComponentType(), 1); // length-one array with null
 			}
 			return a;
 		}
@@ -4912,7 +4908,6 @@ public abstract class AbstractArrayStorage
 			if(a.length < length)
 			{
 				a = X.ArrayOfSameType(a, length);
-//				a = (T[])Array.newInstance(a.getClass().getComponentType(), length);
 			}
 			// convenient and more performant case: increasing iteration direction, arraycopy can be used
 			System.arraycopy(data, offset, a, 0, length);
@@ -4928,7 +4923,6 @@ public abstract class AbstractArrayStorage
 			if(a.length < -length)
 			{
 				a = X.ArrayOfSameType(a, -length);
-//				a = (T[])Array.newInstance(a.getClass().getComponentType(), -length);
 			}
 
 			for(int i = offset, j = 0; i > boundIndex; i--)
@@ -5048,5 +5042,4 @@ public abstract class AbstractArrayStorage
 		return 0;
 	}
 
-	// CHECKSTYLE.ON: FinalParameter
 }

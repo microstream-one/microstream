@@ -77,7 +77,7 @@ public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<
 		int removeCount = 0;
 		final XSet<E> list = (XSet<E>)this.subject;
 
-		// even xcollections have to be handled that way because of the missing type info (argh)
+		// even xcollections have to be handled that way because of the missing type info
 		for(final Object o : c)
 		{
 			removeCount += list.removeBy(XFunc.isEqualTo((E)o));
@@ -97,7 +97,7 @@ public abstract class AbstractOldRemovingList<E> extends AbstractOldGettingList<
 	public AbstractOldRemovingList<E> subList(final int fromIndex, final int toIndex)
 	{
 		/* XList implementations always create a SubList instance whose implementation creates an
-		 * OldXList bridge instance, so this cast is safe (and inevitable). Savvy :)?
+		 * OldXList bridge instance, so this cast is safe (and inevitable).
 		 */
 		return (AbstractOldRemovingList<E>)((XProcessingList<E>)this.subject).range(fromIndex, toIndex).old();
 	}

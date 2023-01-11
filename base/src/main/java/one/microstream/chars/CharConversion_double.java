@@ -54,7 +54,7 @@ public final class CharConversion_double
 
 	/**
 	 * This algorithm is somewhere from 3 times to 25 times (depending on exponent) faster than the
-	 * infinite spaghetti code used in JDK. It generates discrepancies of +/- 1 at the 16th digit and +/- 8 in the
+	 * code used in JDK. It generates discrepancies of +/- 1 at the 16th digit and +/- 8 in the
 	 * 17th digit compared to the stricter JDK algorithm. As digits 16 and 17 cannot be relied upon anyway due to
 	 * the technical floating point inaccuracy (e.g. the JDK double parser generates comparable discrepancies),
 	 * the algorithm is still deemed correct ("enough").
@@ -149,7 +149,6 @@ public final class CharConversion_double
 	{
 		if(exponent == 7)
 		{
-			// what do you know: special case inside a special case
 			System.arraycopy(XChars.CHARS_NORM_THRESH_HIGH, 0, target, offset, XChars.CHARS_NORM_THRESH_HIGH.length);
 			return offset + XChars.CHARS_NORM_THRESH_HIGH.length;
 		}

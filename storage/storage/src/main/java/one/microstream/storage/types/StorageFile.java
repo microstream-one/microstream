@@ -243,19 +243,6 @@ public interface StorageFile
 			}
 		}
 		
-//		@Override
-//		public final synchronized void pull(final AWritableFile fileToMove)
-//		{
-//			try
-//			{
-//				fileToMove.moveTo(this.ensureWritable());
-//			}
-//			catch(final Exception e)
-//			{
-//				throw new StorageExceptionIoReading(e);
-//			}
-//		}
-				
 		@Override
 		public final synchronized long copyTo(
 			final StorageFile target
@@ -445,16 +432,6 @@ public interface StorageFile
 					this.readAccess = this.writeAccess;
 				}
 				
-				/*
-				 * This is too expensive (additional round trip on network calls
-				 * and even on low-level implementation like JDK NIO).
-				 * So the file must be assumed to be still properly there after being created.
-				 * Maybe it's even good to NOT ensure it since that recognizes erroneously
-				 * missing files instead of swallowing the problem by silently compensating it.
-				 */
-				// (20.09.2020 TM) priv#392
-//				this.writeAccess.ensureExists();
-				
 				return this.writeAccess.open();
 			}
 			catch(final Exception e)
@@ -472,16 +449,6 @@ public interface StorageFile
 					this.writeAccess = null;
 					this.readAccess = this.file().useReading();
 				}
-				
-				/*
-				 * This is too expensive (additional round trip on network calls
-				 * and even on low-level implementation like JDK NIO).
-				 * So the file must be assumed to be still properly there after being created.
-				 * Maybe it's even good to NOT ensure it since that recognizes erroneously
-				 * missing files instead of swallowing the problem by silently compensating it.
-				 */
-				// (20.09.2020 TM) priv#392
-//				this.readAccess.ensureExists();
 				
 				return this.readAccess.open();
 			}

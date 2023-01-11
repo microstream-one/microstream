@@ -51,8 +51,6 @@ import one.microstream.util.iterables.TrivialIterator;
  * As there is always only one element, this type can be a List and a Set (Enum) at the same time, enabling it
  * to be used in any type situation.
  *
- * .
- *
  * @param <E> the type of elements in this collection
  * @see Constant
  */
@@ -346,7 +344,7 @@ public class Singleton<E> implements XReference<E>
 	@Override
 	public final boolean containsAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -407,7 +405,7 @@ public class Singleton<E> implements XReference<E>
 	@Override
 	public final boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -416,7 +414,7 @@ public class Singleton<E> implements XReference<E>
 		final Equalator<? super E>            equalator
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -426,20 +424,8 @@ public class Singleton<E> implements XReference<E>
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
-
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		return true;
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return true;
-//	}
 
 	@Override
 	public final boolean hasVolatileElements()
@@ -454,7 +440,7 @@ public class Singleton<E> implements XReference<E>
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -530,7 +516,7 @@ public class Singleton<E> implements XReference<E>
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -562,38 +548,32 @@ public class Singleton<E> implements XReference<E>
 	@Override
 	public final boolean replaceOne(final E element, final E replacement)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final long replace(final E element, final E replacement)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final long replaceAll(final XGettingCollection<? extends E> elements, final E replacement)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final boolean replaceOne(final Predicate<? super E> predicate, final E substitute)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final long replace(final Predicate<? super E> predicate, final E substitute)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
-
-//	@Override
-//	public final int replace(final CtrlPredicate<? super E> predicate, final E substitute)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
-//	}
 
 	@Override
 	public final long substitute(final Function<? super E, ? extends E> mapper)
@@ -608,14 +588,8 @@ public class Singleton<E> implements XReference<E>
 	@Override
 	public final long substitute(final Predicate<? super E> predicate, final Function<E, E> mapper)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
-
-//	@Override
-//	public final int modify(final CtrlPredicate<? super E> predicate, final Function<E, E> mapper)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
-//	}
 
 	@Override
 	public final boolean set(final long index, final E element)
@@ -651,25 +625,25 @@ public class Singleton<E> implements XReference<E>
 	@Override
 	public final Singleton<E> shiftTo(final long sourceIndex, final long targetIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final Singleton<E> shiftTo(final long sourceIndex, final long targetIndex, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final Singleton<E> shiftBy(final long sourceIndex, final long distance)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final Singleton<E> shiftBy(final long sourceIndex, final long distance, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -808,7 +782,7 @@ public class Singleton<E> implements XReference<E>
 		@Override
 		public final boolean contains(final Object o)
 		{
-			return Singleton.this.contains((E)o); // safe because of referencial comparison
+			return Singleton.this.contains((E)o); // safe because of referential comparison
 		}
 
 		@Override
@@ -911,7 +885,7 @@ public class Singleton<E> implements XReference<E>
 		@Override
 		public final List<E> subList(final int fromIndex, final int toIndex)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 		}
 
 		@Override

@@ -20,7 +20,7 @@ package one.microstream.functional;
  * #L%
  */
 
-public final class KamikazeArrayAdder<E> implements Aggregator<E, Integer> // +1 for creative class name :D
+public final class KamikazeArrayAdder<E> implements Aggregator<E, Integer> // +1 for creative class name
 {
 	private final Object[] array;
 	private int index;

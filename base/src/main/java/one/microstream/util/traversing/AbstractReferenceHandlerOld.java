@@ -275,7 +275,6 @@ public abstract class AbstractReferenceHandlerOld implements TraversalReferenceH
 	
 	final <T> void handleNode(final T instance, final TypeTraverser<T> traverser)
 	{
-//		XDebug.debugln("Traversing NODE " + XChars.systemString(instance) + " via " + XChars.systemString(traverser));
 		traverser.traverseReferences(instance, this);
 	}
 	

@@ -49,8 +49,8 @@ import one.microstream.util.logging.Logging;
  * It is based on a {@link SerializerFoundation}, which can be configured to various needs.
  * <p>
  * Per default {@link Binary} and <code>byte[]</code> are supported as medium types.
- * 
- * The included type information can be configured by suppling a {@link SerializerTypeInfoStrategy}
+ * <p>
+ * The included type information can be configured by supplying a {@link SerializerTypeInfoStrategy}
  * using a {@link SerializerTypeInfoStrategyCreator} to the {@link SerializerFoundation}.
  *
  * @param <M> the medium type
@@ -59,7 +59,7 @@ public interface TypedSerializer<M> extends Serializer<M>
 {
 	/**
 	 * Create a new TypedSerializer instance using the default configuration.
-	 * The serialized data is supplied as microstream {@link Binary}.
+	 * The serialized data is supplied as MicroStream {@link Binary}.
 	 * The serializer will include the whole set of current type information
 	 * in every serialized Binary.
 	 * 

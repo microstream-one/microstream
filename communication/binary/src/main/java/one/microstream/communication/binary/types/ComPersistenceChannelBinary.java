@@ -160,8 +160,7 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		{
 			final ByteBuffer defaultBuffer = this.ensureDefaultBufferRead();
 			
-//			this.DEBUG_printTargetByteOrder();
-			
+
 			ByteBuffer filledContentBuffer;
 			try
 			{
@@ -182,8 +181,6 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 				throw new PersistenceExceptionTransfer(e);
 			}
 			
-//			DEBUG_printBufferBinaryValues(filledContentBuffer);
-			
 			final ChunksWrapper chunks = this.switchByteOrder()
 				? ChunksWrapperByteReversing.New(filledContentBuffer)
 				: ChunksWrapper.New(filledContentBuffer)
@@ -196,8 +193,6 @@ public interface ComPersistenceChannelBinary<C> extends ComPersistenceChannel<C,
 		protected void internalWrite(final ComConnection connection, final Binary chunk)
 			throws PersistenceExceptionTransfer
 		{
-//			this.DEBUG_printTargetByteOrder();
-			
 			final ByteBuffer defaultBuffer = ComBinary.setChunkHeaderContentLength(
 				this.ensureDefaultBufferWrite(),
 				chunk.totalLength(),

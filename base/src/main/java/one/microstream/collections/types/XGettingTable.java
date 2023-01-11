@@ -27,8 +27,6 @@ import one.microstream.typing.KeyValue;
 /**
  * Map plus order
  *
- * 
- *
  * @param <K> the key type
  * @param <V> the value type
  */

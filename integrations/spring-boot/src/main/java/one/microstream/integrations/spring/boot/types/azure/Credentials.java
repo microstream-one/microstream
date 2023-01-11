@@ -24,7 +24,7 @@ public class Credentials
 {
 
     /**
-     * The type of the credentials provider. Supported values are:
+     * The type of the credentials' provider. Supported values are:
      * <ul>
      * <li>"basic"</li>
      * Credentials will be loaded from the credentials.username and credentials.password properties.

@@ -30,8 +30,7 @@ import one.microstream.persistence.types.PersistenceStoreHandler;
 
 /**
  * Blunt copy of {@link BinaryHandlerDate} for the as good as superfluous type {@link java.sql.Timestamp}.
- * 
- * 
+ *
  */
 @SuppressWarnings("exports")
 public final class BinaryHandlerSqlTimestamp extends AbstractBinaryHandlerCustomNonReferentialFixedLength<Timestamp>

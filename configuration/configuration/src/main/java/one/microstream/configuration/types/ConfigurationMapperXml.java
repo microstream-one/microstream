@@ -31,7 +31,7 @@ import one.microstream.chars.XChars;
 import one.microstream.configuration.types.Configuration.Builder;
 
 /**
- * Mapper which maps entries from a XML {@link Element} to a {@link Configuration#Builder()}.
+ * Mapper which maps entries from an XML {@link Element} to a {@link Configuration#Builder()}.
  *
  */
 public interface ConfigurationMapperXml extends ConfigurationMapper<Element>

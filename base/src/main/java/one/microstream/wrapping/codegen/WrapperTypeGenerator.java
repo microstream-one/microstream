@@ -46,10 +46,6 @@ import one.microstream.chars.VarString;
 import one.microstream.exceptions.IORuntimeException;
 import one.microstream.wrapping.Wrapper;
 
-/**
- * 
- * 
- */
 class WrapperTypeGenerator
 {
 	private final static String         JAVA_LANG_PACKAGE = "java.lang";

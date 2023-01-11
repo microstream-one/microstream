@@ -364,7 +364,7 @@ public final class BinaryValueFunctions
 		)
 		{
 			XMemory.set_boolean(target, trgOffset, XMemory.get_boolean(srcAddress));
-			return srcAddress + Byte.BYTES; // there is no Boolean.BYTES because lol
+			return srcAddress + Byte.BYTES; // there is no Boolean.BYTES
 		}
 	};
 	

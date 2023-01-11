@@ -27,13 +27,12 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 
 
 /**
- * Due to the usual incompetence in the JDK, this type handler cannot handle a {@link Properties}' defaults values.
- * They simply left no (reasonable and JDK-independant) way to query the defaults of a certain {@link Properties}
+ * This type handler cannot handle a {@link Properties}' defaults values.
+ * They simply left no way to query the defaults of a certain {@link Properties}
  * instance.<p>
  * For a type handler that provides this functionality, albeit specific to JDK 8 (and higher but still compatible JDKs),
  * see {@literal one.microstream.jdk8.java.util.BinaryHandlerProperties}.
- * 
- * 
+ *
  */
 public final class BinaryHandlerProperties extends AbstractBinaryHandlerMap<Properties>
 {

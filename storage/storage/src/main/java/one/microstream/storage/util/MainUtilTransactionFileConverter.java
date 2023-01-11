@@ -33,8 +33,7 @@ import one.microstream.storage.types.StorageTransactionsAnalysis;
 /**
  * Tiny utility class that allows conversion of transaction files into a human readable form.
  * Search internal confluence for "Transaction File Converter" for a helper .bat file and a guide.
- * 
- * 
+ *
  */
 public class MainUtilTransactionFileConverter
 {
@@ -94,7 +93,7 @@ public class MainUtilTransactionFileConverter
 Use in combination with the following batch script to allow convenience file drag&drop:
 
 @ECHO OFF
-REM "%~1" is required to correcly handle spaces and special characters
+REM "%~1" is required to correctly handle spaces and special characters
 REM ECHO Executing "%~dp0MicroStreamTransactionFileConverter.jar" "%~1"
 ECHO Converting "%~1" ...
 REM %~dp0 is the batch file's directory, which has to be specified here because %~1 changes the working directory (or something like that)

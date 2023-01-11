@@ -51,7 +51,7 @@ public interface StorageEntityExporter<E extends StorageEntity>
 		@Override
 		public final void cleanup()
 		{
-			// nothing to cleanup in simple storage copying implementation
+			// nothing to clean up in simple storage copying implementation
 		}
 
 	}

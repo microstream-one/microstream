@@ -168,7 +168,7 @@ public class ComTLSConnection implements ComConnection
 			}
 			catch (final SSLException e)
 			{
-				throw new ComException("failed to encypt buffer", e);
+				throw new ComException("failed to encrypt buffer", e);
 			}
 			if(result.getStatus() == Status.OK)
 			{
@@ -205,7 +205,7 @@ public class ComTLSConnection implements ComConnection
 			}
 			catch (final SSLException e)
 			{
-				throw new ComException("failed to encypt buffer", e);
+				throw new ComException("failed to encrypt buffer", e);
 			}
 			
 			switch(result.getStatus())
@@ -466,7 +466,7 @@ public class ComTLSConnection implements ComConnection
 	
 	/**
 	 * If the supplied buffer is to small to hold the required input size
-	 * an new appropriate buffer is created;
+	 * a new appropriate buffer is created;
 	 * @param length
 	 * @param defaultBuffer
 	 * 
@@ -502,7 +502,7 @@ public class ComTLSConnection implements ComConnection
 		}
 		catch (final SSLException e)
 		{
-			throw new ComException("failed to decypt buffer", e);
+			throw new ComException("failed to decrypt buffer", e);
 		}
 	}
 

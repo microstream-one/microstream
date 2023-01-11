@@ -55,7 +55,7 @@ import one.microstream.storage.types.StorageTypeDictionary;
 
 /**
  * For MicroProfile Config, at deployment time, we need to validate if @ConfigProperty is valid by
- * creating the StorageManager.  Since we need to lookup the beans for {@link EmbeddedStorageFoundationCustomizer}
+ * creating the StorageManager.  Since we need to look up the beans for {@link EmbeddedStorageFoundationCustomizer}
  * and {@link StorageManagerInitializer} we need a fully initialised bean Manager which we do not have.
  * And to avoid the creating of the StorageManager at deployment time, we have this proxy that
  * delays the creation of the StorageManager until first use.

@@ -264,12 +264,12 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 		{
 			logger.info("Starting backup handler");
 			
-			// must be the method instead of the field to check the lock but don't conver the whole loop
+			// must be the method instead of the field to check the lock but don't cover the whole loop
 			try
 			{
 				this.active = true;
 				
-				// can not / may not copy storage files if the storage is not running (has locked and opend files, etc.)
+				// can not / may not copy storage files if the storage is not running (has locked and opened files, etc.)
 				while(this.isRunning() && this.operationController.checkProcessingEnabled())
 				{
 					try
@@ -396,7 +396,7 @@ public interface StorageBackupHandler extends Runnable, StorageActivePart
 			{
 				final StorageBackupDataFile backupTargetFile = dataFile.ensureBackupFile(this);
 				
-				// non-existant files have either not been backupped, yet, or a "healable" error.
+				// non-existent files have either not been backupped, yet, or a "healable" error.
 				if(!backupTargetFile.exists())
 				{
 					// in any case, the storage file is simply copied (backed up)

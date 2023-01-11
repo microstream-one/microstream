@@ -30,10 +30,6 @@ import one.microstream.typing.KeyValue;
 import one.microstream.typing.XTypes;
 
 
-/**
- * 
- *
- */
 public abstract class AbstractChainEntryLinked<E, K, V, EN extends AbstractChainEntryLinked<E, K, V, EN>>
 extends AbstractChainEntry<E, K, V, EN>
 {

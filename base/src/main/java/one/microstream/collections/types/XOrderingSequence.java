@@ -23,10 +23,6 @@ package one.microstream.collections.types;
 import one.microstream.collections.IndexExceededException;
 import one.microstream.collections.interfaces.ExtendedSequence;
 
-/**
- * 
- *
- */
 public interface XOrderingSequence<E> extends ExtendedSequence<E>
 {
 	/**

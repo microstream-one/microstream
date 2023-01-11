@@ -23,10 +23,6 @@ package one.microstream.collections.types;
 
 
 
-/**
- * 
- *
- */
 public interface XPuttingList<E> extends XAddingList<E>, XPuttingBag<E>, XPuttingSequence<E>
 {
 	public interface Creator<E> extends XAddingList.Creator<E>, XPuttingBag.Creator<E>, XPuttingSequence.Creator<E>

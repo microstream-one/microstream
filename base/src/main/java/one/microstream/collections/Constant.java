@@ -49,8 +49,6 @@ import one.microstream.util.iterables.TrivialIterator;
  * As there is always only one element, this type can be a List and a Set (Enum) at the same time, enabling it
  * to be used in any type situation.
  *
- * .
- *
  * @param <E> the type of elements in this collection
  * @see Singleton
  */
@@ -308,13 +306,6 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		return this;
 	}
 
-//	@Override
-//	public final <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		aggregate.accept(this.element);
-//		return aggregate.yield();
-//	}
-
 	@Override
 	public final boolean containsSearched(final Predicate<? super E> predicate)
 	{
@@ -423,20 +414,8 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
-
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		return true;
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return true;
-//	}
 
 	@Override
 	public final boolean hasVolatileElements()
@@ -451,7 +430,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME  not implemented yet
 	}
 
 	@Override
@@ -527,7 +506,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -598,7 +577,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		@Override
 		public final boolean contains(final Object o)
 		{
-			return Constant.this.contains((E)o); // safe because of referencial comparison
+			return Constant.this.contains((E)o); // safe because of referential comparison
 		}
 
 		@Override
@@ -624,7 +603,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		@Override
 		public final int indexOf(final Object o)
 		{
-			return X.checkArrayRange(Constant.this.indexOf((E)o)); // safe because of referencial comparison
+			return X.checkArrayRange(Constant.this.indexOf((E)o)); // safe because of referential comparison
 		}
 
 		@Override
@@ -643,7 +622,7 @@ public class Constant<E> implements XImmutableList<E>, XImmutableEnum<E>, XRefer
 		@Override
 		public final int lastIndexOf(final Object o)
 		{
-			return X.checkArrayRange(Constant.this.lastIndexOf((E)o)); // safe because of referencial comparison
+			return X.checkArrayRange(Constant.this.lastIndexOf((E)o)); // safe because of referential comparison
 		}
 
 		@Override

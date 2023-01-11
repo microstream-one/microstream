@@ -96,10 +96,10 @@ public class AndroidInternals
 	 * See
 	 * http://stackoverflow.com/questions/8462200/examples-of-forcing-freeing-of-native-memory-direct-bytebuffer-has-allocated-us
 	 * In short:
-	 * A server application with very low heap consumption but very high off-heap consumtion could run for hours without
+	 * A server application with very low heap consumption but very high off-heap consumption could run for hours without
 	 * a JVM GC ever being called. So the DBBs would never get collected, their allocated off-heap memory never freed.
-	 * The JDK geniuses simply forgot the most basic rule of memory handling: if you can allocate memory explicitely,
-	 * you MUST have a way to deallocate it explicitely, as well.
+	 * The JDK simply forgot the most basic rule of memory handling: if you can allocate memory explicitly,
+	 * you MUST have a way to deallocate it explicitly, as well.
 	 * But for an Android app, such a scenario is very unlikely, so it is hardly important.
 	 * 
 	 * The lookup and usage of the #free method is done in such a fashion that they never throw an exception.
@@ -179,7 +179,7 @@ public class AndroidInternals
 		}
 		catch(final Exception e)
 		{
-			// something went wrong during the method invokation. Again do nothing.
+			// something went wrong during the method invocation. Again do nothing.
 			return false;
 		}
 		

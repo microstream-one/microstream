@@ -254,42 +254,9 @@ public final class XIO
 	
 	/* (19.11.2019 TM)NOTE:
 	 * "Path" is not the greatest idea on earth for a name to represent a file or a directory.
-	 * "Path" is way too generic. A physical way is also a path. A reference track is a path. The rules of
-	 * a cult can be a "path". Etc etc.
-	 * It's explicitely not a generic "can-be-anything-Path", it is designed to represent a FileSystem file.
-	 * 
-	 * It is traceable that they needed another short and unique type name after "File" was already
-	 * taken by their first attempt, but still: Who talks (primarily!) about "paths" when referring to
-	 * files and directories? No one. Of course, every file has a uniquely identifying path in the file system,
-	 * but the concept a file is more than just being a path. It has content, attributes, a "primary" name,
-	 * a suffix, etc.
-	 * A "Path" does not indicate all this. All the concept of a "Path" stands for is:
-	 * "follow me and you will get to your destination".
-	 * When an API forces people to talk about "paths" when they actually mean files, it's nothing but a
-	 * complication.
-	 * At least they finally understood to design with interfaces instead of classes (halleluja!), but they did
-	 * it on a very basic, beginner-like level. The proper solution would have been:
-	 * interface FileItem (or "FSItem" if you must)
-	 * interface File extends FileItem
-	 * interface Directory extends FileItem
-	 * 
-	 * With Directory having methods like
-	 * iterateFiles
-	 * iterateDirectories
-	 * iterateItems
-	 * etc.
-	 * Proper typing. It would have been, could be wonderful.
-	 * But noooo. A singular, diffusely general "Path" is the best they could have come up with.
-	 * And clumsiest-possible API like Files.newDirectoryStream(mustHappenToBeADirectoryOrElseYouAreInTrouble).
-	 * 
-	 * Also, it only sufficed for exactely ONE interface.
-	 * FileSystem HAD to be a class again. One with purely abstract methods (AKA an idiot's interface).
-	 * 
-	 * So now we are stuck with "Path" to indiscriminately talk about files and directories alike.
-	 * If there is a name of type String, the variable is "String name" and not "String string // this is a name".
-	 * So "Path file" and "Path directory" it is.
-	 * The same applies to method names. It's about ensuring a writeable FILE, an actual file, not a directory
-	 * and not some pilgrim path on which you are allowed to write a diary or something like that.
+	 * "Path" is way too generic.
+	 * It's explicitly not a generic "can-be-anything-Path", it is designed to represent a FileSystem file.
+	 *
 	 */
 
 	public static final Path Path(final String path)
@@ -317,13 +284,11 @@ public final class XIO
 		}
 		
 		/*
-		 * To workaround the JDK behavior of conveniently ignoring empty strings in the path items.
+		 * To work around the JDK behavior of conveniently ignoring empty strings in the path items.
 		 * This is a critical bug if a leading separator is used to define an absolut path.
 		 * Consider:
-		 * - "/mydir" gets parsed to the separator-independant path items {"", "mydir"}.
+		 * - "/mydir" gets parsed to the separator-independent path items {"", "mydir"}.
 		 * - that array is passed here and on to Paths#get
-		 * - Paths#get hilariously ignores the "", reassembling {"", "mydir"} to just "mydir" instead of "/mydir".
-		 * To workaround that, that specific case is explicitely checked and a blank separator is prepended.
 		 */
 		if(items.length > 0 && "".equals(items[0]))
 		{
@@ -362,19 +327,10 @@ public final class XIO
 			return Path(items);
 		}
 		
-		/*
-		 * They seem to really have made every mistake possible on the Path API.
-		 * Not even a defined, reliable getter method for the string representation.
-		 * Oh wait, there's #getFileName() ... but oh... wait... lol
-		 */
 		return parent.getFileSystem().getPath(parent.toString(), items);
 	}
 	
-	/*
-	 * Providing only the abused moreless debug-information method #toString is a horrible misconception since
-	 * it conveys no clear message which string is desired.
-	 */
-	public static String getFilePath(final Path file)
+ 	public static String getFilePath(final Path file)
 	{
 		// because lol.
 		return file != null
@@ -396,7 +352,7 @@ public final class XIO
 	{
 		/*
 		 * Note on algorithm:
-		 * Path#iterator does not work, because it hilariously omits the root element.
+		 * Path#iterator does not work, because it omits the root element.
 		 * Prepending the root element does not work because it has a trailing separator in its toString
 		 * representation (which is inconsistent to all other Path elements) and there is no proper "getIdentifier"
 		 * method or such in Path.
@@ -405,10 +361,9 @@ public final class XIO
 		 * So the only reasonable and performance-wise best approach in the first place is to split the string
 		 * directly.
 		 * 
-		 * But the fun continues:
+		 * But :
 		 * String#split cannot be used since the separator might be a regex meta character.
-		 * It could be quoted, but all this regex business gets into the realm of cracking a nut with a a sledgehammer.
-		 * (or shooting sparrows with cannons! :D)
+		 * It could be quoted, but all this regex business gets into the realm of cracking a nut with a sledgehammer.
 		 * 
 		 * So a simpler, more direct and in the end much faster approach is used.
 		 * This might very well become relevant if lots of Paths (e.g. tens of thousands when scanning a drive) have
@@ -430,14 +385,12 @@ public final class XIO
 		return XChars.assembleSeparated(vs, XIO.filePathSeparator(), elements);
 	}
 
-	// because the IDE-generated ", null" for their method drives one crazy when working with it.
 	public static boolean isDirectory(final Path path) throws IOException
 	{
 		// file or directory
 		return Files.isDirectory(path);
 	}
-	
-	// because the IDE-generated ", null" for their method drives one crazy when working with it.
+
 	public static boolean exists(final Path path) throws IOException
 	{
 		// file or directory
@@ -683,7 +636,7 @@ public final class XIO
 	 * properly typed file instances like {@link Path}.
 	 * However, for a convenience method, there is not much safety won writing
 	 * {@code readString(Path("./my/path/myFile.txt"))}, only verbosity.<br>
-	 * So when already using a convenience method, anyway, why not make it really convienent and accept file path
+	 * So when already using a convenience method, anyway, why not make it really convenient and accept file path
 	 * strings right away?
 	 * 
 	 * @param filePath the source file path
@@ -1311,13 +1264,12 @@ public final class XIO
 	 * {@link #ensureDirectoryAndFile(Path)} is intentionally <b>NOT</b> called in order to not swallow problems
 	 * in the calling context's logic.<p>
 	 * <b>Important note</b>:<br>
-	 * This method is a fix for the bugged JDK method {@link Files#copy(Path, Path, java.nio.file.CopyOption...)},
-	 * which throws an incorrect exception about another process having locked "the file" (without specifying
+	 * This method is a fix for the JDK method {@link Files#copy(Path, Path, java.nio.file.CopyOption...)},
+	 * which throws an exception about another process having locked "the file" (without specifying
 	 * which one it means) if the process owns a lock on the source file. Since this means the process locks
-	 * itself out of using the source file if it has secured the source file for its exclusive use, this is nothing
-	 * but a bug. As a consequence, the JDK method cannot be used if a file is locked and should generally not be
-	 * trusted. Once again, one has to write a proper solution by oneself since the quality in the JDK code is just
-	 * too low.
+	 * itself out of using the source file if it has secured the source file for its exclusive use.
+	 * As a consequence, the JDK method cannot be used if a file is locked and should generally not be
+	 * trusted.
 	 * <p>
 	 * For any special needs like copying from and/or to a position and/or only a part of the file and/or using
 	 * custom OpenOptions and/or modifying file timestamps and or performing pre- or post-actions, it is strongly
@@ -1349,7 +1301,6 @@ public final class XIO
 		throws IOException
 	{
 		
-		// (20.02.2020 TM)NOTE: Files#copy is bugged as it recognizes the process's file locks as foreign (rofl).
 		try(
 			final FileChannel sourceChannel = openFileChannelReading(sourceFile);
 			final FileChannel targetChannel = openFileChannelWriting(targetFile, targetChannelOpenOptions);
@@ -1361,7 +1312,6 @@ public final class XIO
 	
 	/**
 	 * Alias for {@code targetChannel.transferFrom(sourceChannel, 0, sourceChannel.size())}.<br>
-	 * (Once again a method that is missing in the JDK.)
 	 * 
 	 * @param sourceChannel an open and readable channel to the source file whose content shall be copied.
 	 * @param targetChannel an open and writeable channel to the target file that shall receive the copied content.
@@ -1640,7 +1590,7 @@ public final class XIO
 		 * 
 		 * @param <C> the consumer type
 		 * @param directory the source directory
-		 * @param logic the itaration logic
+		 * @param logic the iteration logic
 		 * @return the given logic
 		 * @throws IORuntimeException when an IO error occurs
 		 */
@@ -1667,7 +1617,7 @@ public final class XIO
 		 * 
 		 * @param <C> the consumer type
 		 * @param directory the source directory
-		 * @param logic the itaration logic
+		 * @param logic the iteration logic
 		 * @param selector filter predicate
 		 * @return the given logic
 		 * @throws IORuntimeException when an IO error occurs

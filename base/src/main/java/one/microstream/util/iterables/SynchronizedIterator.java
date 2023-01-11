@@ -22,10 +22,6 @@ package one.microstream.util.iterables;
 
 import java.util.Iterator;
 
-/**
- * 
- *
- */
 public class SynchronizedIterator<E> implements Iterator<E>
 {
 	///////////////////////////////////////////////////////////////////////////

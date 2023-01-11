@@ -54,10 +54,7 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
  * either the danger of the list being structurally modified from the outside or the need to copy the whole list on
  * every access.
  * <p>
- * This is one of many useful concepts that are missing in the JDK Collections Framework and thus so far lead to
- * either inefficient or unneccessary verbose program code (or both).
- *
- * 
+ * This is one of many useful concepts that are missing in the JDK Collections Framework.
  *
  */
 public class ListAccessor<E> implements XSettingList<E>
@@ -98,12 +95,6 @@ public class ListAccessor<E> implements XSettingList<E>
 		return false;
 	}
 
-//	@Override
-//	public final <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return this.subject.iterate(aggregate);
-//	}
-
 	@Override
 	public final boolean containsSearched(final Predicate<? super E> predicate)
 	{
@@ -115,12 +106,6 @@ public class ListAccessor<E> implements XSettingList<E>
 	{
 		return this.subject.applies(predicate);
 	}
-
-//	@Override
-//	public final boolean contains(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.list.contains(sample, equalator);
-//	}
 
 	@Override
 	public final boolean nullAllowed()
@@ -294,24 +279,6 @@ public class ListAccessor<E> implements XSettingList<E>
 		return this.subject.hashCode();
 	}
 
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return this.subject.hasDistinctValues(equalator);
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		return this.subject.hasDistinctValues();
-//	}
-
-//	@Override
-//	public final int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.list.indexOf(sample, equalator);
-//	}
-
 	@Override
 	public final long indexBy(final Predicate<? super E> predicate)
 	{
@@ -401,12 +368,6 @@ public class ListAccessor<E> implements XSettingList<E>
 		return this.subject.minIndex(comparator);
 	}
 
-//	@Override
-//	public final int replace(final E oldElement, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		return this.list.replace(oldElement, equalator, replacement);
-//	}
-
 	@Override
 	public final long replace(final E element, final E replacement)
 	{
@@ -418,12 +379,6 @@ public class ListAccessor<E> implements XSettingList<E>
 	{
 		return this.subject.replace(predicate, substitute);
 	}
-
-//	@Override
-//	public final int replace(final CtrlPredicate<? super E> predicate, final E substitute)
-//	{
-//		return this.subject.replace(predicate, substitute);
-//	}
 
 	@Override
 	public final long substitute(final Function<? super E, ? extends E> mapper)
@@ -467,12 +422,6 @@ public class ListAccessor<E> implements XSettingList<E>
 	{
 		return this.subject.scan(predicate);
 	}
-
-//	@Override
-//	public final E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.list.search(sample, equalator);
-//	}
 
 	@Override
 	public final E seek(final E sample)

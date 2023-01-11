@@ -27,10 +27,7 @@ import one.microstream.collections.types.XGettingCollection;
  * Actually being a "Collation" (a collection of elements to which a sortation is applied), this type has been named
  * "Sortation" nevertheless to avoid the mistakable similarity to the basic collection type "Collection" in reading,
  * writing, talking and IntelliSense filtering.
- * <p>
- * On a funny side note:
  *
- * 
  *
  * @param <E> the type of the input to the operation
  */

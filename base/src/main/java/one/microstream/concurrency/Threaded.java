@@ -94,9 +94,9 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	 * As opposed to (outdated?) resources findable in the net that state (without evidence) that calls to this
 	 * method are quite slow, I imagine that (modern?) -server optimisations can dramatically reduce execution
 	 * time for this call (maybe to simply inline the current thread pointer value from the stack or so).
-	 * In addition, the current thread reference is normaly not used very often, here. Mostly 2-3 times per get(),
+	 * In addition, the current thread reference is normally not used very often, here. Mostly 2-3 times per get(),
 	 * sometimes even only once (e.g. get() call encountering a missing head entry).
-	 * So all local "Thread t = currentThread()" occurances have been substituted by repeated currentThread() calls.
+	 * So all local "Thread t = currentThread()" occurrences have been substituted by repeated currentThread() calls.
 	 */
 
 
@@ -108,7 +108,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	@SuppressWarnings("unchecked")
 	private static <E> Entry<E>[] createSlots(final int minimumLength)
 	{
-		// escape condition for highest int value that can be reached by leftshifting 1.
+		// escape condition for highest int value that can be reached by left-shifting 1.
 		if(XMath.isGreaterThanOrEqualHighestPowerOf2(minimumLength))
 		{
 			return new Entry[XMath.highestPowerOf2_int()]; // technical magic number
@@ -178,13 +178,13 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	/**
 	 * Instantiates a new empty {@link Threaded} instance with a storage size of at least the passed value.
 	 * <p>
-	 * The created instance is guaranteed to be able to store an amount of associations equal to the passed
+	 * The created instance is guaranteed to be able to store an amount of associations equals to the passed
 	 * value before a storage rebuild occurs.
 	 * <p>
 	 * Note that the internal storage size can drop below the passed value (to the same size used by
 	 * {@link #Threaded()}) if at some point the optimizing algorithm detects that a smaller storage size will
 	 * suffice. This is guaranteed not to happen before the storage size allocated depending on the passed value had to
-	 * be increased at least once (i.e. the initial capacity remains guaranteed for the initial life time of the created
+	 * be increased at least once (i.e. the initial capacity remains guaranteed for the initial life-time of the created
 	 * instance).
 	 *
 	 * @param initialCapacity the minimal storage size the {@link Threaded} instance gets allocated with.
@@ -261,7 +261,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	 * associated with the current {@link Thread}, yet.
 	 * <p>
 	 * Note that repeated calls to this method for the same {@link Thread} will be significantly faster and
-	 * wont block other threads as the existance of a thread-exclusive entry to be updated with the passed element is
+	 * won't block other threads as the existence of a thread-exclusive entry to be updated with the passed element is
 	 * already guaranteed by the first call.
 	 *
 	 * @param element the instance of type E that shall be associated with the current {@link Thread}.
@@ -273,7 +273,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	{
 		final Entry<E>[] slots; // this.slots can change any time, so it may only be read once per lookup!
 
-		// unsynchronized thread-safe because every thread can only find his own exclusive entry 8-).
+		// unsynchronized thread-safe because every thread can only find his own exclusive entry.
 		for(Entry<E> e = (slots = this.slots)[identityHashCode(currentThread()) & slots.length - 1]; e != null; e = e.next)
 		{
 			if(e.get() == currentThread())
@@ -292,10 +292,10 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 
 	/**
 	 * Removes the association for the current {@link Thread}, releasing and returning the reference to the instance
-	 * of type E so far associated with with it.
+	 * of type E so far associated with it.
 	 * <p>
 	 * Note that repeated calls to this method for the same {@link Thread} will be significantly faster and
-	 * wont block other threads as the removal of the thread-exclusive entry is already guaranteed by the first call.
+	 * won't block other threads as the removal of the thread-exclusive entry is already guaranteed by the first call.
 	 *
 	 * @return the instance of type E so far associated with the current {@link Thread}.
 	 * @see #get()
@@ -305,12 +305,12 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	{
 		final Entry<E>[] slots; // this.slots can change any time, so it may only be read once per lookup!
 
-		// unsynchronized thread-safe because every thread finds a his own exclusive entry 8-).
+		// unsynchronized thread-safe because every thread finds his own exclusive entry.
 		for(Entry<E> e = (slots = this.slots)[identityHashCode(currentThread()) & slots.length - 1]; e != null; e = e.next)
 		{
 			if(e.get() == currentThread())
 			{
-				// can't directly remove found entry as storeage could have been rebuilt.
+				// can't directly remove found entry as storage could have been rebuilt.
 				this.removeForCurrentThread(identityHashCode(currentThread())); // calculate hashCode unsynchronized.
 				return e.value; // the grabbed entry's value reference is still valid, so use it to return the value.
 			}
@@ -481,7 +481,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 		 *   has been set in this method.
 		 * - this.size is not used in get(), so there can be no concurrency problem with setting it asynchronously.
 		 *   size() may return out of synch values, but that is no problem either as the value of size can't be seen as
-		 *   a "hard fact" in the first place due to weakly referencing entries and unpredictably occuring optimsation.
+		 *   a "hard fact" in the first place due to weakly referencing entries and unpredictably occurring optimisation.
 		 */
 	}
 
@@ -492,7 +492,7 @@ public class Threaded<E> implements ConsolidatableCollection, OptimizableCollect
 	/////////////////////
 
 	/**
-	 * Optimizes the interal storage of this {@link Threaded} instance by removing all entries that no longer
+	 * Optimizes the internal storage of this {@link Threaded} instance by removing all entries that no longer
 	 * reference an existing thread, determining the new required storage size afterwards and rebuilding the storage
 	 * if necessary.
 	 * <p>

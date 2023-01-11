@@ -37,5 +37,4 @@ public interface StorageBackupItemEnqueuer
 		StorageLiveChannelFile<?> file
 	);
 	
-//	public StorageFileUser fileUser();
 }
