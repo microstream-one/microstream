@@ -41,7 +41,6 @@
 		<maven.compiler.compilerId>javac</maven.compiler.compilerId>
 		<maven.version.minimum>3.8.1</maven.version.minimum>
 		<maven.java.version.minimum>11</maven.java.version.minimum>
-		<org.owasp.depencency.check.version>6.1.6</org.owasp.depencency.check.version>
 		<org.eclipse.jdt.ecj.version>3.29.0</org.eclipse.jdt.ecj.version>
 		<license.inceptionYear>2019</license.inceptionYear>
 		<license.licenseName>epl_v2</license.licenseName>
