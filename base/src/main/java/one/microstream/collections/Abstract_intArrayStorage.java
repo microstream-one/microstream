@@ -2111,7 +2111,7 @@ public abstract class Abstract_intArrayStorage
 
 		final int removeCount;
 		int i = offset - d;
-		int removeStartIndex = i;
+		int removeStartIndex = offset;
 		try
 		{
 			while(i != endIndex)
@@ -2196,7 +2196,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = XArrays.removeAllFromArray(data, min, ++max, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, min, size, removeMarker);
 		}
 		return removeCount;
 	}

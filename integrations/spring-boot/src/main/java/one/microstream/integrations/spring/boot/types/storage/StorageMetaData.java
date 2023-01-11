@@ -20,21 +20,23 @@ package one.microstream.integrations.spring.boot.types.storage;
  * #L%
  */
 
+import java.util.List;
+
 /**
  * We need to keep track if there is a @Storage annotated class to know when the StorageManagerInitializer needs to be called.
  * This class will be turned into a bean and placed into the Context if there is such a bean.
  */
 public class StorageMetaData
 {
-    private final Class<?> storageClassName;
+    private final List<StorageClassData> storageClassData;
 
-    public StorageMetaData(final Class<?> storageClassName)
+    public StorageMetaData(final List<StorageClassData> storageClassData)
     {
-        this.storageClassName = storageClassName;
+        this.storageClassData = storageClassData;
     }
 
-    public Class<?> getStorageClassName()
+    public List<StorageClassData> getStorageClassData()
     {
-        return this.storageClassName;
+        return this.storageClassData;
     }
 }

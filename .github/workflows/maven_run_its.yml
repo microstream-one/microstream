@@ -14,18 +14,12 @@ jobs:
 
     steps:
       #Build with java 11
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up JDK 11
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         java-version: '11'
-        distribution: 'adopt'
-    - name: Cache Maven packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+        distribution: 'temurin'
+        cache: 'maven'
     - name: Run Integration Tests
-      run: mvn -Prun-its -B package --file pom.xml
-
+      run: mvn -Prun-its -B install --file pom.xml
