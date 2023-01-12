@@ -19,8 +19,19 @@
 
 	<modules>
 		<module>cdi</module>
-		<module>spring-boot-common</module>
 		<module>spring-boot</module>
 		<module>quarkus</module>
 	</modules>
+
+	<profiles>
+		<profile>
+			<id>from_java_17</id>
+			<activation>
+				<jdk>[17,)</jdk>
+			</activation>
+			<modules>
+				<module>spring-boot3</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

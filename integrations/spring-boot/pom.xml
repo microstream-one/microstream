@@ -31,12 +31,7 @@
             <version>${org.springframework.boot.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!--dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-            <version>${org.springframework.boot.version}</version>
-            <scope>provided</scope>
-        </dependency-->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -45,13 +40,16 @@
             <optional>true</optional>
         </dependency>
 
-
         <dependency>
             <groupId>one.microstream</groupId>
-            <artifactId>microstream-integrations-spring-boot-common</artifactId>
+            <artifactId>microstream-storage-embedded</artifactId>
             <version>08.00.00-MS-GA-SNAPSHOT</version>
         </dependency>
-
+        <dependency>
+            <groupId>one.microstream</groupId>
+            <artifactId>microstream-storage-embedded-configuration</artifactId>
+            <version>08.00.00-MS-GA-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 
