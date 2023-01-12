@@ -2,7 +2,7 @@ package one.microstream.integrations.spring.boot.types.redis;
 
 /*-
  * #%L
- * microstream-integrations-spring-boot-common
+ * microstream-integrations-spring-boot
  * %%
  * Copyright (C) 2019 - 2023 MicroStream Software
  * %%
