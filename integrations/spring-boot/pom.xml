@@ -69,6 +69,32 @@
                     </statelessTestsetReporter>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-files-exist</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <rules>
+                                <requireFilesExist>
+                                    <message>File: '/target/classes/META-INF/spring-configuration-metadata.json' is not present</message>
+                                    <files>
+                                        <file>
+                                            ${project.basedir}/target/classes/META-INF/spring-configuration-metadata.json
+                                        </file>
+                                    </files>
+                                </requireFilesExist>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
