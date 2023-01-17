@@ -116,7 +116,12 @@ import one.microstream.persistence.binary.one.microstream.collections.BinaryHand
 import one.microstream.persistence.binary.one.microstream.collections.BinaryHandlerHashTable;
 import one.microstream.persistence.binary.one.microstream.collections.BinaryHandlerLimitList;
 import one.microstream.persistence.binary.one.microstream.collections.BinaryHandlerSingleton;
+import one.microstream.persistence.binary.one.microstream.collections.lazy.BinaryHandlerLazyArrayList;
+import one.microstream.persistence.binary.one.microstream.collections.lazy.BinaryHandlerLazyHashMap;
+import one.microstream.persistence.binary.one.microstream.collections.lazy.BinaryHandlerLazyHashMapSegmentEntryList;
+import one.microstream.persistence.binary.one.microstream.collections.lazy.BinaryHandlerLazyHashSet;
 import one.microstream.persistence.binary.one.microstream.reference.BinaryHandlerLazyDefault;
+import one.microstream.persistence.binary.one.microstream.reference.BinaryHandlerLazyObservable;
 import one.microstream.persistence.binary.one.microstream.util.BinaryHandlerSubstituterDefault;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
@@ -171,6 +176,7 @@ public final class BinaryPersistence extends Persistence
 			.registerTypeHandlers(nativeHandlersValueTypes)
 			.registerTypeHandlers(nativeHandlersReferencingTypes)
 			.registerTypeHandlers(defaultCustomHandlers(controller))
+			.registerTypeHandlers(lazyCollectionsHandlers())
 			.registerTypeHandlers(customHandlers)
 		;
 
@@ -377,6 +383,19 @@ public final class BinaryPersistence extends Persistence
 
 		// default custom handlers have no fixed typeId like native handlers.
 		return defaultHandlers;
+	}
+	
+	public static final XGettingSequence<? extends PersistenceTypeHandler<Binary, ?>> lazyCollectionsHandlers()
+	{
+		final ConstList<? extends PersistenceTypeHandler<Binary, ?>> lazyCollectionsHandlers = ConstList.New(
+			BinaryHandlerLazyArrayList.New(),
+			BinaryHandlerLazyHashMap.New(),
+			BinaryHandlerLazyHashMapSegmentEntryList.New(),
+			BinaryHandlerLazyHashSet.New(),
+			BinaryHandlerLazyObservable.New()
+		);
+		
+		return lazyCollectionsHandlers;
 	}
 
 	public static final long resolveFieldBinaryLength(final Class<?> fieldType)
