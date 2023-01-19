@@ -1,0 +1,10 @@
+debug: false
+one:
+  microstream:
+    storage-directory: microstream_storage
+    storage-filesystem:
+      sql:
+        postgres:
+          data-source-provider: test.microstream.integrations.spring.boot.MyDataSourceProvider
+          password: password1
+          user: postgres

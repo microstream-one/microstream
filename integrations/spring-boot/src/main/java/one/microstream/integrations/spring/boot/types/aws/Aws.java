@@ -2,7 +2,7 @@ package one.microstream.integrations.spring.boot.types.aws;
 
 /*-
  * #%L
- * microstream-spring
+ * microstream-integrations-spring-boot
  * %%
  * Copyright (C) 2019 - 2023 MicroStream Software
  * %%

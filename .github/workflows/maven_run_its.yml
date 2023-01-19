@@ -23,3 +23,14 @@ jobs:
         cache: 'maven'
     - name: Run Integration Tests
       run: mvn -Prun-its -B install --file pom.xml
+
+      #Build with java 17
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+    - name: Run Integration Tests
+      run: mvn -Prun-its -B install --file pom.xml

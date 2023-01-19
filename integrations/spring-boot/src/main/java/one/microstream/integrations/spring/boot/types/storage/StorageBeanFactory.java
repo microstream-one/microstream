@@ -9,13 +9,13 @@ package one.microstream.integrations.spring.boot.types.storage;
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
- *
+ * 
  * This Source Code may also be made available under the following Secondary
  * Licenses when the conditions for such availability set forth in the Eclipse
  * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
  * with the GNU Classpath Exception which is
  * available at https://www.gnu.org/software/classpath/license.html.
- *
+ * 
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
@@ -47,7 +47,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static one.microstream.integrations.spring.boot.types.config.StorageManagerProvider.PRIMARY_QUALIFIER;
 
 @Component
 public class StorageBeanFactory implements ApplicationContextAware, BeanDefinitionRegistryPostProcessor
@@ -201,7 +200,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
 
         // Bean name must be the qualifier name!
         String result = storageClass.getQualifier();
-        if (PRIMARY_QUALIFIER.equals(result))
+        if (StorageManagerProvider.PRIMARY_QUALIFIER.equals(result))
         {
             // Unless no Qualifier, than it must be the class name
             result = storageClass.getClazz()

@@ -43,9 +43,13 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
       - name: Build with java 17
-        run: mvn -pl persistence/binary-jdk17 clean source:jar install -am -B
+        run: |
+          mvn -pl persistence/binary-jdk17 clean source:jar install -am -B
+          mvn -pl integrations/spring-boot3 clean source:jar install -am -B
       - name: Deploy module build with java 17        
-        run: mvn -Pdeploy -pl persistence/binary-jdk17 -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} deploy      
+        run: |
+          mvn -Pdeploy -pl persistence/binary-jdk17 -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} deploy
+          mvn -Pdeploy -pl integrations/spring-boot3 -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} deploy
         env:
           MAVEN_USERNAME: ${{ secrets.REPO_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.REPO_PASSWORD }}

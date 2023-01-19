@@ -2,7 +2,7 @@ package test.microstream.integrations.spring.boot;
 
 /*-
  * #%L
- *  microstream-integrations-spring-boot
+ * microstream-integrations-spring-boot
  * %%
  * Copyright (C) 2019 - 2022 MicroStream Software
  * %%
