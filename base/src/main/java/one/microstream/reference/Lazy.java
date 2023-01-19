@@ -455,6 +455,12 @@ public interface Lazy<T> extends Referencing<T>
 			this.$setLoader(loader);
 			this.objectId = objectId;
 		}
+		
+		public final synchronized void $unlink()
+		{
+			this.objectId = Swizzling.toUnmappedObjectId(this.subject);
+			this.loader   = null;
+		}
 
 		public final synchronized void $setLoader(final ObjectSwizzling loader)
 		{
