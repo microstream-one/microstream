@@ -30,21 +30,21 @@ import one.microstream.util.logging.Logging;
  *
  * @param <T> type of the lazy loaded object
  */
-public interface ObservedLazyReference<T> extends Lazy<T>
+public interface ControlledLazyReference<T> extends Lazy<T>
 {
-	public void setClearObserver(LazyClearObserver lazyClearObserver);
+	public void setLazyClearController(LazyClearController lazyClearController);
 	
 	/**
-	 * This implementation of the {@link ObservedLazyReference}
-	 * lets a {@link LazyClearObserver} decide if the lazy reference can be cleared.
+	 * This implementation of the {@link ControlledLazyReference}
+	 * lets a {@link LazyClearController} decide if the lazy reference can be cleared.
 	 *
 	 * @param <T> type parameter
 	 */
-	public class Default<T> extends Lazy.Default<T> implements ObservedLazyReference<T>
+	public final class Default<T> extends Lazy.Default<T> implements ControlledLazyReference<T>
 	{
-		private final static Logger logger = Logging.getLogger(ObservedLazyReference.Default.class);
+		private final static Logger logger = Logging.getLogger(ControlledLazyReference.Default.class);
 				
-		private LazyClearObserver lazyClearObserver;
+		private LazyClearController lazyClearController;
 		
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -54,12 +54,12 @@ public interface ObservedLazyReference<T> extends Lazy<T>
 		* Standard constructor used by normal logic to instantiate a reference.
 		*
 		* @param subject the subject to be referenced.
-		* @param lazyClearObserver the lazy reference clear observer.
+		* @param lazyClearController the lazy reference clear observer.
 		*/
-		public Default(final T subject, final LazyClearObserver lazyClearObserver)
+		public Default(final T subject, final LazyClearController lazyClearController)
 		{
 			this(subject, Swizzling.toUnmappedObjectId(subject), null);
-			this.lazyClearObserver = lazyClearObserver;
+			this.lazyClearController = lazyClearController;
 		}
 		
 		/**
@@ -76,14 +76,15 @@ public interface ObservedLazyReference<T> extends Lazy<T>
 		}
 
 		@Override
-		public void setClearObserver(final LazyClearObserver lazyClearObserver) {
-			this.lazyClearObserver = lazyClearObserver;
+		public void setLazyClearController(final LazyClearController lazyClearController)
+		{
+			this.lazyClearController = lazyClearController;
 		}
 		
 		@Override
 		public final synchronized T clear()
 		{
-			if(this.lazyClearObserver.allowClear())
+			if(this.lazyClearController.allowClear())
 			{
 				return super.clear();
 			}
@@ -95,7 +96,7 @@ public interface ObservedLazyReference<T> extends Lazy<T>
 		@Override
 		public final synchronized boolean clear(final ClearingEvaluator clearingEvaluator)
 		{
-			if(this.lazyClearObserver.allowClear())
+			if(this.lazyClearController.allowClear())
 			{
 				return super.clear(clearingEvaluator);
 			}

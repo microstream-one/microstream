@@ -121,7 +121,7 @@ import one.microstream.persistence.binary.one.microstream.collections.lazy.Binar
 import one.microstream.persistence.binary.one.microstream.collections.lazy.BinaryHandlerLazyHashMapSegmentEntryList;
 import one.microstream.persistence.binary.one.microstream.collections.lazy.BinaryHandlerLazyHashSet;
 import one.microstream.persistence.binary.one.microstream.reference.BinaryHandlerLazyDefault;
-import one.microstream.persistence.binary.one.microstream.reference.BinaryHandlerLazyObservable;
+import one.microstream.persistence.binary.one.microstream.reference.BinaryHandlerControlledLazy;
 import one.microstream.persistence.binary.one.microstream.util.BinaryHandlerSubstituterDefault;
 import one.microstream.persistence.internal.PersistenceTypeDictionaryFileHandler;
 import one.microstream.persistence.types.Persistence;
@@ -392,7 +392,7 @@ public final class BinaryPersistence extends Persistence
 			BinaryHandlerLazyHashMap.New(),
 			BinaryHandlerLazyHashMapSegmentEntryList.New(),
 			BinaryHandlerLazyHashSet.New(),
-			BinaryHandlerLazyObservable.New()
+			BinaryHandlerControlledLazy.New()
 		);
 		
 		return lazyCollectionsHandlers;

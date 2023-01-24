@@ -33,10 +33,10 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 import one.microstream.branching.ThrowBreak;
+import one.microstream.reference.ControlledLazyReference;
 import one.microstream.reference.Lazy;
-import one.microstream.reference.LazyClearObserver;
+import one.microstream.reference.LazyClearController;
 import one.microstream.reference.ObjectSwizzling;
-import one.microstream.reference.ObservedLazyReference;
 
 /**
  * This map implementation internally uses {@link Lazy} references internally,
@@ -55,7 +55,7 @@ import one.microstream.reference.ObservedLazyReference;
  * The required handlers are:
  * BinaryHandlerLazyHashMap
  * BinaryHandlerLazyHashMapSegmentEntryList
- * BinaryHandlerLazyObservable
+ * BinaryHandlerControlledLazy
  * <br><br>
  * The Map gets bound to a specific storage instance at the first store.
  * After the map has been persisted the first time it is no more possible to
@@ -65,7 +65,7 @@ import one.microstream.reference.ObservedLazyReference;
  * @param <K> Type of keys.
  * @param <V> Type of values.
  */
-public class LazyHashMap<K, V> implements Map<K, V>
+public final class LazyHashMap<K, V> implements Map<K, V>
 {
 	private static final int MAX_SEGMENT_SIZE_DEFAULT = 1000;
 
@@ -162,22 +162,22 @@ public class LazyHashMap<K, V> implements Map<K, V>
 	 * 
 	 * @return the current number of internal segments.
 	 */
-    public long getSegmentCount()
+	public long getSegmentCount()
 	{
 		return this.segments.size();
 	}
-    
-    /**
-     * Returns an Iterable over the Segment in this list.
-     * 
-     * @return an Iterable over the Segment in this list
-     */
+	
+	/**
+	 * Returns an Iterable over the Segment in this list.
+	 * 
+	 * @return an Iterable over the Segment in this list
+	 */
 	public Iterable<? extends Segment<?>> segments()
 	{
 		return this.segments;
 	}
-    
-    /**
+	
+	/**
 	 * Returns the maximum segment size of this {@link LazyArrayList}.
 	 * 
 	 * @return the maximum segment size of this {@link LazyArrayList}
@@ -196,17 +196,17 @@ public class LazyHashMap<K, V> implements Map<K, V>
 	protected int hash(final Object key)
 	{
 		int h;
-        return key == null ? 0 : (h = key.hashCode()) ^ h >>> 16;
+		return key == null ? 0 : (h = key.hashCode()) ^ h >>> 16;
 	}
 		
-    /**
-     * Do a binary search for the segment that contains the supplied hash.
-     *
-     * @param hash index to be searched for.
-     * @param lowSegmentIndex lower limit to search within.
-     * @param highSegmentIndex upper limit to search within.
-     * @return Segment containing the hash or null.
-     */
+	/**
+	 * Do a binary search for the segment that contains the supplied hash.
+	 *
+	 * @param hash index to be searched for.
+	 * @param lowSegmentIndex lower limit to search within.
+	 * @param highSegmentIndex upper limit to search within.
+	 * @return Segment containing the hash or null.
+	 */
 	private Segment<Entry<K, V>> searchSegment(final int hash, final int lowSegmentIndex, final int highSegmentIndex)
 	{
 		if(this.segments.size() < 1)
@@ -234,11 +234,10 @@ public class LazyHashMap<K, V> implements Map<K, V>
 			{
 				lo = mid + 1;
 			}
-            
-    	}
-    	//should not be reached as there should be at least one segment that covers the whole hash range
+		}
+		//should not be reached as there should be at least one segment that covers the whole hash range
 		throw new NoSuchElementException("No segment found for hash " + hash);
-    }
+	}
 
 	private Entry<K, V> insert(final Entry<K, V> entry)
 	{
@@ -277,7 +276,7 @@ public class LazyHashMap<K, V> implements Map<K, V>
 
 		return retVal;
 	}
-    
+
 	private Entry<K, V> getByHash(final Object key)
 	{
 		final int hash = this.hash(key);
@@ -524,7 +523,7 @@ public class LazyHashMap<K, V> implements Map<K, V>
 	@SuppressWarnings({ "unchecked", "unused" })
 	private void addSegment(final int min, final int max, final int segmentSize, final Object data)
 	{
-		this.segments.add(new Segment<>(min, max, segmentSize, (ObservedLazyReference<LazyHashMapSegmentEntryList<K, V>>) data));
+		this.segments.add(new Segment<>(min, max, segmentSize, (ControlledLazyReference<LazyHashMapSegmentEntryList<K, V>>) data));
 	}
 	
 	/**
@@ -609,13 +608,13 @@ public class LazyHashMap<K, V> implements Map<K, V>
 		}
 	}
 	
-	public class Segment<E extends Entry<K, V>> implements LazyClearObserver, LazySegment<LazyHashMapSegmentEntryList<K,V>>
+	public final class Segment<E extends Entry<K, V>> implements LazyClearController, LazySegment<LazyHashMapSegmentEntryList<K,V>>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
 		////////////////////
 		
-		private final ObservedLazyReference<LazyHashMapSegmentEntryList<K, V>> data;
+		private final ControlledLazyReference<LazyHashMapSegmentEntryList<K, V>> data;
 		private int min;
 		private int max;
 		private int segmentSize;
@@ -633,7 +632,7 @@ public class LazyHashMap<K, V> implements Map<K, V>
 		Segment(final int initialCapacity)
 		{
 			super();
-			this.data = Lazy.register(new ObservedLazyReference.Default<>(
+			this.data = Lazy.register(new ControlledLazyReference.Default<>(
 				new LazyHashMapSegmentEntryList<>(initialCapacity),
 				this));
 
@@ -642,14 +641,14 @@ public class LazyHashMap<K, V> implements Map<K, V>
 			this.modified = true;
 		}
 
-		Segment(final int min, final int max, final int segmentSize, final ObservedLazyReference<LazyHashMapSegmentEntryList<K, V>> data)
+		Segment(final int min, final int max, final int segmentSize, final ControlledLazyReference<LazyHashMapSegmentEntryList<K, V>> data)
 		{
 			super();
 			this.min = min;
 			this.max = max;
 			this.segmentSize = segmentSize;
 			this.data = data;
-			this.data.setClearObserver(this);
+			this.data.setLazyClearController(this);
 		}
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -1280,20 +1279,20 @@ public class LazyHashMap<K, V> implements Map<K, V>
 				throw new NoSuchElementException();
 			}
 			                                   
-            this.currentSegment = LazyHashMap.this.segments.get(this.segmentIndex);
-            final Entry<K, V> e = this.currentSegment.getData().get(this.localIndex);
-            
-            this.currentLocalIndex = this.localIndex;
-            
-            //check next:
-            this.nextIndex++;
-            if(this.nextIndex >= LazyHashMap.this.size)
-            {
-            	this.nextIndex = -1;
-            }
-            else
-            {
-	            //advance:
+			this.currentSegment = LazyHashMap.this.segments.get(this.segmentIndex);
+			final Entry<K, V> e = this.currentSegment.getData().get(this.localIndex);
+			
+			this.currentLocalIndex = this.localIndex;
+			
+			//check next:
+			this.nextIndex++;
+			if(this.nextIndex >= LazyHashMap.this.size)
+			{
+				this.nextIndex = -1;
+			}
+			else
+			{
+				//advance:
 				if (this.localIndex < this.currentSegment.segmentSize - 1)
 				{
 					// next entry is in current segment
@@ -1305,9 +1304,9 @@ public class LazyHashMap<K, V> implements Map<K, V>
 					this.localIndex = 0;
 					this.segmentIndex++;
 				}
-            }
-                        
-            return e;
+			}
+			
+			return e;
 		}
 		
 		public final void remove()
@@ -1326,8 +1325,8 @@ public class LazyHashMap<K, V> implements Map<K, V>
 									
 			if(this.nextIndex > LazyHashMap.this.size)
 			{
-            	this.nextIndex = -1;
-            }
+				this.nextIndex = -1;
+			}
 						
 			this.currentLocalIndex = -1;
 			this.localIndex = Math.max(0, --this.localIndex);

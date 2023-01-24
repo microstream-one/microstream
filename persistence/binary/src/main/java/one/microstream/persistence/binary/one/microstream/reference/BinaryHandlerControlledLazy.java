@@ -27,37 +27,37 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
+import one.microstream.reference.ControlledLazyReference;
 import one.microstream.reference.Lazy;
 import one.microstream.reference.ObjectSwizzling;
-import one.microstream.reference.ObservedLazyReference;
 import one.microstream.reflect.XReflect;
 
 /**
  * Nearly identical to {@link BinaryHandlerLazyDefault} except
- * the handled type. That is {@link one.microstream.reference.ObservedLazyReference.Default}.
+ * the handled type. That is {@link one.microstream.reference.ControlledLazyReference.Default}.
  * 
  */
-public final class BinaryHandlerLazyObservable extends AbstractBinaryHandlerCustom<ObservedLazyReference.Default<?>>
+public final class BinaryHandlerControlledLazy extends AbstractBinaryHandlerCustom<ControlledLazyReference.Default<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// static methods //
 	///////////////////
 	
-	public static BinaryHandlerLazyObservable New()
+	public static BinaryHandlerControlledLazy New()
 	{
-		return new BinaryHandlerLazyObservable();
+		return new BinaryHandlerControlledLazy();
 	}
 	
 	@SuppressWarnings("rawtypes")
-	static final Constructor<ObservedLazyReference.Default> CONSTRUCTOR = XReflect.setAccessible(
-		XReflect.getDeclaredConstructor(ObservedLazyReference.Default.class, Object.class, long.class, ObjectSwizzling.class)
+	static final Constructor<ControlledLazyReference.Default> CONSTRUCTOR = XReflect.setAccessible(
+		XReflect.getDeclaredConstructor(ControlledLazyReference.Default.class, Object.class, long.class, ObjectSwizzling.class)
 	);
 		
 	@SuppressWarnings({"unchecked",  "rawtypes"})
-	private static Class<ObservedLazyReference.Default<?>> handledType()
+	private static Class<ControlledLazyReference.Default<?>> handledType()
 	{
 		// no idea how to get ".class" to work otherwise
-		return (Class)ObservedLazyReference.Default.class;
+		return (Class)ControlledLazyReference.Default.class;
 	}
 	
 	
@@ -65,7 +65,7 @@ public final class BinaryHandlerLazyObservable extends AbstractBinaryHandlerCust
 	// constructors //
 	/////////////////
 
-	BinaryHandlerLazyObservable()
+	BinaryHandlerControlledLazy()
 	{
 		super(
 			handledType(),
@@ -82,10 +82,10 @@ public final class BinaryHandlerLazyObservable extends AbstractBinaryHandlerCust
 
 	@Override
 	public final void store(
-		final Binary                          data    ,
-		final ObservedLazyReference.Default<?>                 instance,
-		final long                            objectId,
-		final PersistenceStoreHandler<Binary> handler
+		final Binary                             data    ,
+		final ControlledLazyReference.Default<?> instance,
+		final long                               objectId,
+		final PersistenceStoreHandler<Binary>    handler
 	)
 	{
 		final Object referent = instance.peek();
@@ -111,7 +111,7 @@ public final class BinaryHandlerLazyObservable extends AbstractBinaryHandlerCust
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final ObservedLazyReference.Default<?> create(final Binary data, final PersistenceLoadHandler handler)
+	public final ControlledLazyReference.Default<?> create(final Binary data, final PersistenceLoadHandler handler)
 	{
 		final long objectId = data.read_long(0);
 		
@@ -123,7 +123,7 @@ public final class BinaryHandlerLazyObservable extends AbstractBinaryHandlerCust
 	@Override
 	public final void updateState(
 		final Binary                 data    ,
-		final ObservedLazyReference.Default<?>        instance,
+		final ControlledLazyReference.Default<?>        instance,
 		final PersistenceLoadHandler handler
 	)
 	{
@@ -138,7 +138,7 @@ public final class BinaryHandlerLazyObservable extends AbstractBinaryHandlerCust
 	@Override
 	public final void complete(
 		final Binary                 data    ,
-		final ObservedLazyReference.Default<?>        instance,
+		final ControlledLazyReference.Default<?>        instance,
 		final PersistenceLoadHandler handler
 	)
 	{

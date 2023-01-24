@@ -55,13 +55,13 @@ public interface LazyCollection<E> extends Collection<E>
 	
 	/**
 	 * Returns a sequential {@code Stream} with this collection as its source.
-     * <p>
-     * This stream comes with a custom close handler, which clears all {@link Lazy} references
-     * of this collection, which were not loaded before.
-     * So if you want to close all {@link Lazy} references which were not loaded before the
-     * {@link Stream} was created, just call {@link Stream#close()} afterwards.
-     *
-     * @return a sequential {@code Stream} over the elements in this collection
+	 * <p>
+	 * This stream comes with a custom close handler, which clears all {@link Lazy} references
+	 * of this collection, which were not loaded before.
+	 * So if you want to close all {@link Lazy} references which were not loaded before the
+	 * {@link Stream} was created, just call {@link Stream#close()} afterwards.
+	 *
+	 * @return a sequential {@code Stream} over the elements in this collection
 	 */
 	@Override
 	public default Stream<E> stream()
@@ -73,13 +73,13 @@ public interface LazyCollection<E> extends Collection<E>
 	
 	/**
 	 * Returns a parallel {@code Stream} with this collection as its source.
-     * <p>
-     * This stream comes with a custom close handler, which clears all {@link Lazy} references
-     * of this collection, which were not loaded before.
-     * So if you want to close all {@link Lazy} references which were not loaded before the
-     * {@link Stream} was created, just call {@link Stream#close()} afterwards.
-     *
-     * @return a parallel {@code Stream} over the elements in this collection
+	 * <p>
+	 * This stream comes with a custom close handler, which clears all {@link Lazy} references
+	 * of this collection, which were not loaded before.
+	 * So if you want to close all {@link Lazy} references which were not loaded before the
+	 * {@link Stream} was created, just call {@link Stream#close()} afterwards.
+	 *
+	 * @return a parallel {@code Stream} over the elements in this collection
 	 */
 	@Override
 	public default Stream<E> parallelStream()

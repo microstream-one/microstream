@@ -28,7 +28,7 @@ import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 
-public class BinaryHandlerLazyHashMapSegmentEntryList extends AbstractBinaryHandlerCustomIterable<LazyHashMap.LazyHashMapSegmentEntryList<?,?>>
+public final class BinaryHandlerLazyHashMapSegmentEntryList extends AbstractBinaryHandlerCustomIterable<LazyHashMap.LazyHashMapSegmentEntryList<?,?>>
 {
 	
 	static final long ENTRY_LENGHT = Binary.referenceBinaryLength(2) + Integer.BYTES;

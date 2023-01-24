@@ -47,7 +47,7 @@ public interface LazySegmentUnloader
 	 * can't be unloaded.
 	 * 
 	 */
-	public class Default implements LazySegmentUnloader
+	public final class Default implements LazySegmentUnloader
 	{
 		private final static Logger logger = Logging.getLogger(Default.class);
 
@@ -158,7 +158,7 @@ public interface LazySegmentUnloader
 		
 	}
 	
-	public class Timed implements LazySegmentUnloader
+	public final class Timed implements LazySegmentUnloader
 	{
 		private final static Logger logger = Logging.getLogger(Timed.class);
 		
@@ -223,7 +223,7 @@ public interface LazySegmentUnloader
 	 *  LazyUnloader implementation that does no unloading.
 	 *
 	 */
-	public class Never implements LazySegmentUnloader
+	public final class Never implements LazySegmentUnloader
 	{
 		@Override
 		public void unload(final LazySegment<?> lazySegment)

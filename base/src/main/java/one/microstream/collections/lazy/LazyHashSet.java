@@ -31,7 +31,7 @@ import one.microstream.collections.lazy.LazyHashMap.Entry;
  *
  * @param <T> Type of contained elements
  */
-public class LazyHashSet<T>
+public final class LazyHashSet<T>
 	extends AbstractSet<T>
 {
 	

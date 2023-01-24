@@ -21,10 +21,10 @@ package one.microstream.reference;
  */
 
 /**
- * Classes that implement that interface can utilize {@link one.microstream.reference.ObservedLazyReference.Default}
+ * Classes that implement that interface can utilize {@link one.microstream.reference.ControlledLazyReference.Default}
  * to gain control of the unloading of {@link Lazy} references.
  */
-public interface LazyClearObserver
+public interface LazyClearController
 {
 	/**
 	 * Allow or deny clearing a lazy reference.

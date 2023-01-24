@@ -33,10 +33,10 @@ import one.microstream.persistence.types.PersistenceFunction;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
-import one.microstream.reference.ObservedLazyReference;
+import one.microstream.reference.ControlledLazyReference;
 import one.microstream.reflect.XReflect;
 
-public class BinaryHandlerLazyArrayList extends AbstractBinaryHandlerCustomCollection<LazyArrayList<?>>
+public final class BinaryHandlerLazyArrayList extends AbstractBinaryHandlerCustomCollection<LazyArrayList<?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //
@@ -96,7 +96,7 @@ public class BinaryHandlerLazyArrayList extends AbstractBinaryHandlerCustomColle
 				Complex("segments",
 					CustomField(int.class,                   "offset"),
 					CustomField(int.class,                   "size"  ),
-					CustomField(ObservedLazyReference.class, "data"  )
+					CustomField(ControlledLazyReference.class, "data"  )
 				)
 			)
 		);

@@ -31,7 +31,7 @@ import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.reflect.XReflect;
 
-public class BinaryHandlerLazyHashSet extends AbstractBinaryHandlerCustom<LazyHashSet<?>>{
+public final class BinaryHandlerLazyHashSet extends AbstractBinaryHandlerCustom<LazyHashSet<?>>{
 
 	private static final Field FIELD_MAP = getMapField();
 	

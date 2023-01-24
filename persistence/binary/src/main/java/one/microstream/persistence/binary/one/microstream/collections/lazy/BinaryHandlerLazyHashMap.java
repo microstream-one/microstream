@@ -14,7 +14,7 @@ import one.microstream.persistence.types.PersistenceReferenceLoader;
 import one.microstream.persistence.types.PersistenceStoreHandler;
 import one.microstream.reflect.XReflect;
 
-public class BinaryHandlerLazyHashMap extends AbstractBinaryHandlerCustomCollection<LazyHashMap<?,?>>
+public final class BinaryHandlerLazyHashMap extends AbstractBinaryHandlerCustomCollection<LazyHashMap<?,?>>
 {
 	///////////////////////////////////////////////////////////////////////////
 	// constants //

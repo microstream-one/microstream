@@ -37,9 +37,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import one.microstream.branching.ThrowBreak;
+import one.microstream.reference.ControlledLazyReference;
 import one.microstream.reference.Lazy;
-import one.microstream.reference.LazyClearObserver;
-import one.microstream.reference.ObservedLazyReference;
+import one.microstream.reference.LazyClearController;
 
 
 /**
@@ -52,14 +52,14 @@ import one.microstream.reference.ObservedLazyReference;
  * type handlers. Without those handles a correct behavior is not guaranteed.
  * The required handlers are:
  * BinaryHandlerLazyArrayList
- * BinaryHandlerLazyObservable
+ * BinaryHandlerControlledLazy
  * <br>
  * This list tries to unload segments depending on the provided {@link LazySegmentUnloader}.
  * By default, it will use the {@link LazySegmentUnloader.Default} that keeps two segments loaded.
  *
  * @param <E> the type of elements in this collection
  */
-public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, RandomAccess
+public final class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, RandomAccess
 {
 	private static final int MAX_SEGMENT_SIZE_DEFAULT = 1000;
 	
@@ -142,16 +142,16 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 	 * 
 	 * @return the current number of internal segments.
 	 */
-    public long getSegmentCount()
+	public long getSegmentCount()
 	{
 		return this.segments.size();
 	}
-    
-    /**
-     * Returns an Iterable over the Segment in this list.
-     * 
-     * @return an Iterable over the Segment in this list
-     */
+	
+	/**
+	 * Returns an Iterable over the Segment in this list.
+	 * 
+	 * @return an Iterable over the Segment in this list
+	 */
 	public Iterable<? extends Segment> segments()
 	{
 		return this.segments;
@@ -176,26 +176,26 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 	@Override
 	public boolean isEmpty()
 	{
-        return this.size == 0;
-    }
+		return this.size == 0;
+	}
 	
 	@Override
 	public boolean contains(final Object element)
 	{
-        return this.indexOf(element) >= 0;
-    }
+		return this.indexOf(element) >= 0;
+	}
 	
 	@Override
 	public int indexOf(final Object element)
 	{
-        return this.indexOfRange(element, 0, this.size);
-    }
+		return this.indexOfRange(element, 0, this.size);
+	}
 	
 	@Override
 	public int lastIndexOf(final Object element)
 	{
-        return this.lastIndexOfRange(element, 0, this.size);
-    }
+		return this.lastIndexOfRange(element, 0, this.size);
+	}
 	
 	@Override
 	public Object[] toArray()
@@ -643,57 +643,57 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 		return null;
 	}
 
-    private int indexOfRange(
-    	final Object element       ,
-    	final int    startInclusive,
-    	final int    endExclusive
-    )
-    {
-    	final IterationLogic<E, Integer> logic = element == null
-    		? (e, index) -> e == null         ? index : null
-    		: (e, index) -> e.equals(element) ? index : null
-    	;
-    	final Integer index = this.iterateForward(startInclusive, endExclusive, logic);
-    	return index != null
-    		? index
-    		: -1
-    	;
-    }
-
-    private int lastIndexOfRange(
-    	final Object element       ,
-    	final int    startInclusive,
-    	final int    endExclusive
-    )
-    {
-    	final IterationLogic<E, Integer> logic = element == null
-    		? (e, index) -> e == null         ? index : null
-    		: (e, index) -> e.equals(element) ? index : null
-    	;
-    	final Integer index = this.iterateBackward(startInclusive, endExclusive, logic);
-    	return index != null
-    		? index
-    		: -1
-    	;
-    }
-     
-    /**
-     * Search the segment that contains the supplied index.
-     * <br><b>
-     * The Index is not validated, this must be done before calling this method!
-     * </b></br>
-     * 
-     * @param index index to be searched for.
-     * @return Segment containing the index or null.
-     */
-    private Segment segmentForIndex(final int index)
-    {
-    	final int firstGuess = index / this.maxSegmentSize;
-    	
-    	if(this.segments.size() > firstGuess)
-    	{
-	    	final Segment segment = this.segments.get(firstGuess);
-	    	
+	private int indexOfRange(
+		final Object element       ,
+		final int    startInclusive,
+		final int    endExclusive
+	)
+	{
+		final IterationLogic<E, Integer> logic = element == null
+			? (e, index) -> e == null         ? index : null
+			: (e, index) -> e.equals(element) ? index : null
+		;
+		final Integer index = this.iterateForward(startInclusive, endExclusive, logic);
+		return index != null
+			? index
+			: -1
+		;
+	}
+	
+	private int lastIndexOfRange(
+		final Object element       ,
+		final int    startInclusive,
+		final int    endExclusive
+	)
+	{
+		final IterationLogic<E, Integer> logic = element == null
+			? (e, index) -> e == null         ? index : null
+			: (e, index) -> e.equals(element) ? index : null
+		;
+		final Integer index = this.iterateBackward(startInclusive, endExclusive, logic);
+		return index != null
+			? index
+			: -1
+		;
+	}
+	 
+	/**
+	 * Search the segment that contains the supplied index.
+	 * <br><b>
+	 * The Index is not validated, this must be done before calling this method!
+	 * </b></br>
+	 * 
+	 * @param index index to be searched for.
+	 * @return Segment containing the index or null.
+	 */
+	private Segment segmentForIndex(final int index)
+	{
+		final int firstGuess = index / this.maxSegmentSize;
+		
+		if(this.segments.size() > firstGuess)
+		{
+			final Segment segment = this.segments.get(firstGuess);
+			
 			if(segment.containsIndex(index))
 			{
 				return segment;
@@ -707,56 +707,56 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 			{
 				return this.segmentForIndex(index, 0, firstGuess -1);
 			}
-    	}
-    	
-    	throw new NoSuchElementException("Index " + index + "not found!");
-    }
-    
-    /**
-     * Do a binary search for the segment that contains the supplied index.
-     * <br><b>
-     * The Index is not validated, this must be done before calling this method!
-     * </b></br>
-     * @param index index to be searched for.
-     * @param lowSegmentIndex lower limit to search within.
-     * @param highSegmentIndex upper limit to search within.
-     * @return Segment containing the index or null.
-     */
-    private Segment segmentForIndex(final int index, final int lowSegmentIndex, final int highSegmentIndex)
-    {
-    	int hi = highSegmentIndex;
-    	int lo = lowSegmentIndex;
-  
-    	while (lo <= hi)
-    	{
-            final int mid = lo  + (hi - lo) / 2;
+		}
+		
+		throw new NoSuchElementException("Index " + index + "not found!");
+	}
+	
+	/**
+	 * Do a binary search for the segment that contains the supplied index.
+	 * <br><b>
+	 * The Index is not validated, this must be done before calling this method!
+	 * </b></br>
+	 * @param index index to be searched for.
+	 * @param lowSegmentIndex lower limit to search within.
+	 * @param highSegmentIndex upper limit to search within.
+	 * @return Segment containing the index or null.
+	 */
+	private Segment segmentForIndex(final int index, final int lowSegmentIndex, final int highSegmentIndex)
+	{
+		int hi = highSegmentIndex;
+		int lo = lowSegmentIndex;
+	
+		while (lo <= hi)
+		{
+			final int mid = lo  + (hi - lo) / 2;
 
-            final Segment midSegment = this.segments.get(mid);
-            if(index >= midSegment.offset + midSegment.segmentSize)
-            {
-            	lo = mid + 1;
-            }
-            else if(index < midSegment.offset)
-            {
-            	hi = mid - 1;
-            }
-            else
-            {
-            	return midSegment;
-            }
-    	}
+			final Segment midSegment = this.segments.get(mid);
+			if(index >= midSegment.offset + midSegment.segmentSize)
+			{
+				lo = mid + 1;
+			}
+			else if(index < midSegment.offset)
+			{
+				hi = mid - 1;
+			}
+			else
+			{
+				return midSegment;
+			}
+		}
 		return null;
-    }
-        
-    private Segment ensureSlots()
-    {
-    	Segment segment;
-    	if(this.segments.isEmpty())
+	}
+	
+	private Segment ensureSlots()
+	{
+		Segment segment;
+		if(this.segments.isEmpty())
 		{
 			this.segments.add(segment = this.createSegment());
 		}
-    	else
-    	{
+		else
+		{
 			segment = this.segments.get(this.segments.size() - 1);
 			if(segment.segmentSize >= this.maxSegmentSize)
 			{
@@ -764,14 +764,14 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 				segment.offset = this.size;
 				this.segments.add(segment);
 			}
-    	}
+	}
 		return segment;
     }
 	
-    /**
-     * Adds segments to fit the new elements at the specified segment index.
-     * The caller is responsible to update the offsets afterwards.
-     */
+	/**
+	 * Adds segments to fit the new elements at the specified segment index.
+	 * The caller is responsible to update the offsets afterwards.
+	 */
 	private void addSegments(final int index, final Iterator<? extends E> elements)
 	{
 		int     newSegmentIndex = index;
@@ -815,20 +815,20 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 		}
 		return changed;
 	}
-    
-    private void updateOffsets()
-    {
-    	int offset = 0;
-    	for(final Segment segment : this.segments)
+	
+	private void updateOffsets()
+	{
+		int offset = 0;
+		for(final Segment segment : this.segments)
 		{
-    		if(segment.offset != offset)
-    		{
-    			segment.setOffset(offset);
-    		}
-    		offset += segment.segmentSize;
+			if(segment.offset != offset)
+			{
+				segment.setOffset(offset);
+			}
+			offset += segment.segmentSize;
 		}
-    }
-      
+	}
+
 	private E removeFromSegment( final Segment segment, final int index)
 	{
 		final E element = segment.remove(index);
@@ -837,17 +837,17 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 		this.updateOffsets();
 		return element;
 	}
-    
-    private Segment createSegment()
-    {
-    	return new Segment(this.maxSegmentSize);
-    }
+	
+	private Segment createSegment()
+	{
+		return new Segment(this.maxSegmentSize);
+	}
 	
 	//required by BinaryHandlerLazyArrayList
 	@SuppressWarnings({ "unchecked", "unused" })
 	private void addSegment(final int segmentOffset, final int segmentSize, final Object data)
 	{
-		this.segments.add(new Segment(segmentOffset, segmentSize, (ObservedLazyReference<ArrayList<E>>)data));
+		this.segments.add(new Segment(segmentOffset, segmentSize, (ControlledLazyReference<ArrayList<E>>)data));
 		
 	}
 	
@@ -930,7 +930,7 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 			
 			if (LazyArrayList.this.modCount() != this.expectedModCount)
 			{
-                throw new ConcurrentModificationException();
+				throw new ConcurrentModificationException();
 			}
 			
 			if(this.currentSegment == null)
@@ -963,7 +963,7 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 			
 			if (LazyArrayList.this.modCount() != this.expectedModCount)
 			{
-                throw new ConcurrentModificationException();
+				throw new ConcurrentModificationException();
 			}
 			
 			LazyArrayList.this.removeFromSegment(this.lastSegment, this.lastRet);
@@ -1010,7 +1010,7 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 		}
 	}
 	
-	public final class Segment implements LazyClearObserver, LazySegment<ArrayList<E>>
+	public final class Segment implements LazyClearController, LazySegment<ArrayList<E>>
 	{
 		///////////////////////////////////////////////////////////////////////////
 		// instance fields //
@@ -1019,7 +1019,7 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 		private int                                 offset     ;
 		private int                                 segmentSize;
 		private transient boolean                   modified   ;
-		private final ObservedLazyReference<ArrayList<E>> data ;
+		private final ControlledLazyReference<ArrayList<E>> data ;
 		boolean allowUnloading = true;
 		
 		
@@ -1035,7 +1035,7 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 			super();
 			this.offset = 0;
 			this.segmentSize   = 0;
-			this.data = Lazy.register(new  ObservedLazyReference.Default<>(
+			this.data = Lazy.register(new  ControlledLazyReference.Default<>(
 				 new ArrayList<>(initialCapacity),
 				 this
 				));
@@ -1044,13 +1044,13 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 		/**
 		 * Constructor
 		 */
-		private Segment(final int offset, final int size, final ObservedLazyReference<ArrayList<E>> data)
+		private Segment(final int offset, final int size, final ControlledLazyReference<ArrayList<E>> data)
 		{
 			super();
 			this.offset = offset;
 			this.segmentSize = size;
 			this.data = data;
-			this.data.setClearObserver(this);
+			this.data.setLazyClearController(this);
 		}
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -1256,7 +1256,7 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 	 * This implementation throws {@link ConcurrentModificationException} if a concurrent modification is detected.
 	 *	
 	 * <p>The Spliterator reports the characteristics {@link Spliterator#SIZED},
-     *  {@link Spliterator#SUBSIZED}, and {@link Spliterator#ORDERED}.
+	 *  {@link Spliterator#SUBSIZED}, and {@link Spliterator#ORDERED}.
 	 */
 	final class SegmentSpliterator implements Spliterator<E>
 	{
@@ -1279,14 +1279,14 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 		@SuppressWarnings("synthetic-access")
 		private int getFence()
 		{
-            int hi;
-            if ((hi = this.fence) < 0)
-            {
-            	this.expectedModCount = LazyArrayList.this.modCount;
-                hi = this.fence = LazyArrayList.this.size;
-            }
-            return hi;
-        }
+			int hi;
+			if ((hi = this.fence) < 0)
+			{
+				this.expectedModCount = LazyArrayList.this.modCount;
+				hi = this.fence = LazyArrayList.this.size;
+			}
+			return hi;
+		}
 		
 		@SuppressWarnings("synthetic-access")
 		@Override
@@ -1294,7 +1294,7 @@ public class LazyArrayList<E> extends AbstractList<E> implements LazyList<E>, Ra
 		{
 			if (action == null)
 			{
-                throw new NullPointerException();
+				throw new NullPointerException();
 			}
 			
 			final int hi = this.getFence(), i = this.index;
