@@ -85,7 +85,7 @@ public interface LazyCollection<E> extends Collection<E>
 	public default Stream<E> parallelStream()
 	{
 		return Collection.super.parallelStream()
-			//.onClose(Static.createLazyStreamCloseHandler(this))
+			.onClose(Static.createLazyStreamCloseHandler(this))
 		;
 	}
 	
