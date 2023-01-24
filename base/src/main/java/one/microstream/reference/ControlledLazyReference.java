@@ -54,7 +54,7 @@ public interface ControlledLazyReference<T> extends Lazy<T>
 		* Standard constructor used by normal logic to instantiate a reference.
 		*
 		* @param subject the subject to be referenced.
-		* @param lazyClearController the lazy reference clear observer.
+		* @param lazyClearController the lazy reference clear controller.
 		*/
 		public Default(final T subject, final LazyClearController lazyClearController)
 		{
