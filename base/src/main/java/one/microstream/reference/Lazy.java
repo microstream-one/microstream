@@ -241,6 +241,18 @@ public interface Lazy<T> extends Referencing<T>
 		return register(new Lazy.Default<>(subject));
 	}
 
+	/**
+	 * Create a new Lazy reference that is not registered to the {@link LazyReferenceManager}
+	 * 
+	 * @param <T> type parameter
+	 * @param subject lazy referenced object
+	 * @return a new Lazy reference
+	 */
+	public static <T> Lazy<T> UnregisteredReference(final T subject)
+	{
+		return new Lazy.Default<>(subject);
+	}
+
 	public static <T> Lazy<T> New(final long objectId)
 	{
 		return register(new Lazy.Default<>(null, objectId, null));
@@ -271,7 +283,7 @@ public interface Lazy<T> extends Referencing<T>
 	}
 	
 	
-	public final class Default<T> implements Lazy<T>
+	public class Default<T> implements Lazy<T>
 	{
 		private final static Logger logger = Logging.getLogger(Default.class);
 		
@@ -395,7 +407,7 @@ public interface Lazy<T> extends Referencing<T>
 		}
 
 		@Override
-		public final synchronized T clear()
+		public synchronized T clear()
 		{
 			final T subject = this.subject;
 			this.internalClear();
@@ -403,7 +415,7 @@ public interface Lazy<T> extends Referencing<T>
 		}
 		
 		@Override
-		public final synchronized boolean clear(final ClearingEvaluator clearingEvaluator)
+		public synchronized boolean clear(final ClearingEvaluator clearingEvaluator)
 		{
 			// must be stored and not already cleared to even consider asking the evaluator
 			if(this.isStored() && this.subject != null && clearingEvaluator.needsClearing(this))
