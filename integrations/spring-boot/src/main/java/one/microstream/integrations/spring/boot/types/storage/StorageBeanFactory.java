@@ -143,8 +143,14 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
             {
                 try
                 {
+                    // Try to get an appropriate ClassLoader from the Spring context
+                    ClassLoader classLoader = applicationContext.getClassLoader();
+                    // Fall back to the current ClassLoader if null
+                    if (classLoader == null)
+                        classLoader = this.getClass().getClassLoader();
+
                     // Don't use generics as that will not work with the Supplier that provides the Root object further in this method
-                    final Class clazz = Class.forName(beanDefinition.getBeanClassName());
+                    final Class clazz = classLoader.loadClass(beanDefinition.getBeanClassName());
                     final Storage storageAnnotation = (Storage) clazz.getAnnotation(Storage.class);
                     if (storageAnnotation != null)
                     {

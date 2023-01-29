@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.ConfigurationPropertyName;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
@@ -71,18 +72,20 @@ public class StorageManagerProvider
     // StorageManagerInitializer's
     private final Optional<StorageMetaData> storageMetaData;
     private final Environment env;
+    private final ApplicationContext applicationContext;
 
     public StorageManagerProvider(
             final List<EmbeddedStorageFoundationCustomizer> customizers,
             final List<StorageManagerInitializer> initializers,
             final Optional<StorageMetaData> storageMetaData,
-            final Environment env
-    )
+            final Environment env,
+            final ApplicationContext applicationContext)
     {
         this.customizers = customizers;
         this.initializers = initializers;
         this.storageMetaData = storageMetaData;
         this.env = env;
+        this.applicationContext = applicationContext;
     }
 
     private Map<String, String> readProperties(final String qualifier)
@@ -135,6 +138,8 @@ public class StorageManagerProvider
                     Thread.currentThread()
                             .getContextClassLoader())));
         }
+        embeddedStorageFoundation.onConnectionFoundation(
+                cf -> cf.setClassLoaderProvider(typeName -> applicationContext.getClassLoader()));
 
         ByQualifier.filter(this.customizers, qualifier)
                 .forEach(c -> c.customize(embeddedStorageFoundation));

@@ -9,13 +9,13 @@ package one.microstream.integrations.spring.boot.types.storage;
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
- * 
+ *
  * This Source Code may also be made available under the following Secondary
  * Licenses when the conditions for such availability set forth in the Eclipse
  * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
  * with the GNU Classpath Exception which is
  * available at https://www.gnu.org/software/classpath/license.html.
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
@@ -143,8 +143,14 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
             {
                 try
                 {
+                    // Try to get an appropriate ClassLoader from the Spring context
+                    ClassLoader classLoader = applicationContext.getClassLoader();
+                    // Fall back to the current ClassLoader if null
+                    if (classLoader == null)
+                        classLoader = this.getClass().getClassLoader();
+
                     // Don't use generics as that will not work with the Supplier that provides the Root object further in this method
-                    final Class clazz = Class.forName(beanDefinition.getBeanClassName());
+                    final Class clazz = classLoader.loadClass(beanDefinition.getBeanClassName());
                     final Storage storageAnnotation = (Storage) clazz.getAnnotation(Storage.class);
                     if (storageAnnotation != null)
                     {
