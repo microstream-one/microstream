@@ -1992,7 +1992,7 @@ extends Cloneable<PersistenceFoundation<D, F>>,
 		}
 		
 		@Override
-		public final F setStorerCreationObserver(final PersistenceStorer.CreationObserver liveStorerRegistry)
+		public F setStorerCreationObserver(final PersistenceStorer.CreationObserver liveStorerRegistry)
 		{
 			this.liveStorerRegistry = liveStorerRegistry;
 			return this.$();

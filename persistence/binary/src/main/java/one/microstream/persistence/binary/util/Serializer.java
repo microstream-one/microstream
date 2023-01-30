@@ -239,9 +239,13 @@ public interface Serializer<M> extends AutoCloseable
 			{
 				final Source source = ()   -> X.Constant(this.input);
 				final Target target = data -> this.output = data    ;
-								
-				this.persistenceManager = this.foundation.createPersistenceManager(source, target);
-				this.storer             = this.persistenceManager.createStorer(
+				
+				this.persistenceManager = this.foundation
+					.setPersistenceSource(source)
+					.setPersistenceTarget(target)
+					.createPersistenceManager()
+				;
+				this.storer = this.persistenceManager.createStorer(
 					new SerializerStorer.Creator(this.foundation.isByteOrderMismatch())
 				);
 			}
@@ -252,6 +256,10 @@ public interface Serializer<M> extends AutoCloseable
 		}
 		
 		
+		/*
+		 * Performance-optimized re-implementation of BinaryStorer.Eager
+		 * with no locking and no local object registration.
+		 */
 		static class SerializerStorer
 		implements BinaryStorer, PersistenceStoreHandler<Binary>, PersistenceObjectIdRequestor<Binary>
 		{

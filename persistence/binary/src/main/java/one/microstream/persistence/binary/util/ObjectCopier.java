@@ -90,7 +90,11 @@ public interface ObjectCopier extends Closeable
 				final Serializer.Source source = ()   -> X.Constant(buffer.get());
 				final Serializer.Target target = data -> buffer.set(data)        ;
 
-				this.persistenceManager = this.foundation.createPersistenceManager(source, target);
+				this.persistenceManager = this.foundation
+					.setPersistenceSource(source)
+					.setPersistenceTarget(target)
+					.createPersistenceManager()
+				;
 			}
 			else
 			{
