@@ -36,6 +36,7 @@ import one.microstream.collections.types.XGettingSequence;
 import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.binary.types.ChunksWrapper;
+import one.microstream.persistence.binary.util.Serializer.Default.SerializerStorer;
 import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.Storer;
@@ -370,7 +371,9 @@ public interface TypedSerializer<M> extends Serializer<M>
 					.setPersistenceTarget(target)
 					.createPersistenceManager()
 				;
-				this.storer = this.persistenceManager.createEagerStorer();
+				this.storer             = this.persistenceManager.createStorer(
+					new SerializerStorer.Creator(this.foundation.isByteOrderMismatch())
+				);
 				
 				this.typeDefintionBuilder = new TypeDefinitionBuilder.Default(
 					this.foundation.getTypeDictionaryParser(),
