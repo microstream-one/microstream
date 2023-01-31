@@ -144,6 +144,7 @@ public interface Serializer<M> extends AutoCloseable
 		{
 			final ByteBuffer buffer = XMemory.allocateDirectNative(bytes.length);
 			buffer.put(bytes);
+			buffer.flip();
 			return ChunksWrapper.New(buffer);
 		}
 		
@@ -282,6 +283,7 @@ public interface Serializer<M> extends AutoCloseable
 					final BufferSizeProviderIncremental         bufferSizeProvider
 				)
 				{
+					// always eager
 					return this.createEagerStorer(
 						typeManager       ,
 						objectManager     ,
