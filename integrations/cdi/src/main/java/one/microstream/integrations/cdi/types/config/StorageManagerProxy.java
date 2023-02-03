@@ -36,7 +36,6 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.persistence.types.PersistenceRootsView;
 import one.microstream.persistence.types.PersistenceTypeDictionaryExporter;
-import one.microstream.reference.Reference;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
 import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
@@ -215,13 +214,6 @@ public class StorageManagerProxy implements StorageManager
     public PersistenceRootsView viewRoots()
     {
         return this.getStorageManager().viewRoots();
-    }
-
-    @Override
-    @Deprecated
-    public Reference<Object> defaultRoot()
-    {
-        return this.getStorageManager().defaultRoot();
     }
 
     @Override

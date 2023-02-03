@@ -117,21 +117,6 @@ public final class Storage
 	}
 
 	/**
-	 * Alias for {@code FileProvider(storageDirectory.toPath())}
-	 *
-	 * @param storageDirectory the directory where the storage will be located.
-	 * 
-	 * @return a new {@link StorageLiveFileProvider} instance.
-	 * 
-	 * @deprecated replaced by {@link #FileProvider(Path)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static final StorageLiveFileProvider FileProvider(final File storageDirectory)
-	{
-		return FileProvider(storageDirectory.toPath());
-	}
-
-	/**
 	 * Creates a new {@link StorageLiveFileProvider}.
 	 * <p>
 	 * For a detailed explanation see {@link StorageLiveFileProvider#New(ADirectory)}.
@@ -547,19 +532,6 @@ public final class Storage
 	)
 	{
 		return StorageDataFileEvaluator.New(fileMinimumSize, fileMaximumSize, minimumUseRatio, cleanUpHeadFile);
-	}
-
-	/**
-	 * @param backupDirectory the directory where the backup shall be located.
-	 * 
-	 * @return a new {@link StorageBackupSetup} instance.
-	 * 
-	 * @deprecated replaced by {@link #BackupSetup(Path)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static final StorageBackupSetup BackupSetup(final File backupDirectory)
-	{
-		return BackupSetup(backupDirectory.toPath());
 	}
 	
 	/**

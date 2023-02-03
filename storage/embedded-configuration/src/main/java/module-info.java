@@ -20,7 +20,6 @@
 module microstream.storage.embedded.configuration
 {
 	exports one.microstream.storage.embedded.configuration.types;
-	exports one.microstream.storage.configuration;
 	
 	requires java.xml;
 	requires transitive microstream.configuration;
