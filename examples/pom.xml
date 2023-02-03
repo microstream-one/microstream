@@ -24,6 +24,7 @@
 		<module>custom-legacy-type-handler</module>
 		<module>deleting</module>
 		<module>eager-storing</module>
+		<module>extension-wrapper</module>
 		<module>filesystems</module>
 		<module>helidon-mp</module>
 		<module>helloworld</module>
