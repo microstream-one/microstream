@@ -28,13 +28,13 @@ import java.util.stream.Collectors;
 
 public class MultipleStorageBeanException extends BeansException
 {
-    public MultipleStorageBeanException(final Map<String, List<Class>> classes)
+    public MultipleStorageBeanException(final Map<String, ? extends List<? extends Class<?>>> classes)
     {
         super(String.format("Multiple beans are annotated with @Storage and the same qualifier: %s",
                             defineInfo(classes)));
     }
 
-    private static String defineInfo(final Map<String, List<Class>> classes)
+    private static String defineInfo(final Map<String, ? extends List<? extends Class<?>>> classes)
     {
         return classes.entrySet()
                 .stream()
@@ -42,7 +42,7 @@ public class MultipleStorageBeanException extends BeansException
                 .collect(Collectors.joining(" / "));
     }
 
-    private static String listClassNames(List<Class> classes)
+    private static String listClassNames(List<? extends Class<?>> classes)
     {
         return classes.stream()
                 .map(Class::getName)

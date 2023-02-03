@@ -171,7 +171,7 @@ public class StorageManagerProvider
             return false;
         }
 
-        Optional<StorageClassData> storageClassData = this.storageMetaData.get()
+        Optional<StorageClassData<?>> storageClassData = this.storageMetaData.get()
                 .getStorageClassData()
                 .stream()
                 .filter(scd -> scd.getQualifier()
