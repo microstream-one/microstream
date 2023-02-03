@@ -89,6 +89,10 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
             storageManager.setRoot(root);
             storageManager.storeRoot();
         }
+        if (!root.getClass().equals(storageClass.getClazz()))
+        {
+            throw new IllegalStateException(String.format("Root class \"%s\" doesn't match bean class \"%s\"!", root.getClass(), storageClass.getClazz()));
+        }
 
         this.applicationContext
                 .getAutowireCapableBeanFactory()
