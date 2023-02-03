@@ -29,8 +29,6 @@ import java.util.function.Function;
  * <p>
  * This type is primarily used for the values list of a map, which can offer all functionality except adding
  * values (without mapping it to a key).
- *
- * 
  */
 public interface XDecreasingEnum<E> extends XProcessingEnum<E>, XSettingEnum<E>, XDecreasingSequence<E>, XReplacingCollection<E>
 {

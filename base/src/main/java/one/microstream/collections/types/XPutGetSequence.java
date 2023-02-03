@@ -22,10 +22,6 @@ package one.microstream.collections.types;
 
 
 
-/**
- * 
- *
- */
 public interface XPutGetSequence<E> extends XPuttingSequence<E>, XGettingSequence<E>, XPutGetCollection<E>
 {
 	public interface Factory<E> extends XPuttingSequence.Creator<E>, XPutGetCollection.Creator<E>

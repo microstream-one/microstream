@@ -22,10 +22,6 @@ package one.microstream.collections.types;
 
 
 
-/**
- * 
- *
- */
 public interface XInputtingSequence<E> extends XInsertingSequence<E>, XExpandingSequence<E>
 {
 	public interface Creator<E> extends XInsertingSequence.Creator<E>, XExpandingSequence.Creator<E>

@@ -36,11 +36,11 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 	// constants //
 	//////////////
 
-	// Inet4Address#INADDRSZ ... "Bcs we too stpd t wrt prpr idntifiours or mk thm pblcly accssble."
+	// Inet4Address#INADDRSZ ... "
 	static final int
 		IPV4_BYTE_SIZE =  4,
 		IPV6_BYTE_SIZE = 16,
-		HEX_RADIX      = 16  // this 16 is not the other 16, you know? It's 10+6 instead of 8*2 :-D.
+		HEX_RADIX      = 16  // this 16 is not the other 16. It's 10+6 instead of 8*2 :-D.
 	;
 	
 	
@@ -49,7 +49,6 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 	// static methods //
 	///////////////////
 	
-	// and of course the InetAddress guy did not create a method to parse his own string representation. Why would he?
 	public static byte[] parseIpAddress(final String ipAddress)
 	{
 		if(XChars.contains(ipAddress, '.'))
@@ -68,7 +67,6 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 		throw new BinaryPersistenceException("Unknown IP address pattern: \"" + ipAddress + '"');
 	}
 	
-	// Because I have nothing better to do than writing an IP address parser. Yay.
 	public static byte[] parseIpV4Address(final String ipV4Address)
 	{
 		final String[] parts = ipV4Address.split("\\.");
@@ -110,7 +108,7 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 			final String p = parts[i];
 			if(p.isEmpty())
 			{
-				// empty part means "::" in the input string, means ommitted zeroes.
+				// empty part means "::" in the input string, means omitted zeroes.
 				return parseRestOfIpV6AddressAfterOmittedZeroes(ipV6Address, parts, i + 1, address);
 			}
 			
@@ -145,7 +143,7 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 	)
 	{
 		/* Rationale:
-		 * There can be only one "::", so after it, the remainig bytes MUST be in synch with the remaining parts.
+		 * There can be only one "::", so after it, the remaining bytes MUST be in synch with the remaining parts.
 		 */
 		
 		// re-synchronize a counting from the end.
@@ -190,14 +188,11 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 	private static String instanceState(final InetAddress instance)
 	{
 		/*
-		 * Since #toString is usually not a productively usable representation of an instance's data, since it usually
-		 * is incomplete, inefficient, ambiguous, etc. So it is normally a horrible idea to rely on it to persist
+		 * Since #toString is usually not a productively usable representation of an instance's data, since it is usually
+		 * incomplete, inefficient, ambiguous, etc. So it is normally a horrible idea to rely on it to persist
 		 * an instance's state. However, wih InetAddress, the designer in charge decided to make EVERY getter
 		 * try to resolve the host instead of just returning the data that was used to specify the address.
 		 * Every except one: #toString.
-		 * Since the class is also horribly bad designed in countless other ways, there's no way to properly
-		 * query the specifying data without getting in dependencies to JDK-version-specific implementation.
-		 * So the only left option is the very bad one of using #toString.
 		 */
 		return instance.toString();
 	}
@@ -215,7 +210,6 @@ extends AbstractBinaryHandlerCustomValueVariableLength<A, String>
 		final PersistenceStoreHandler<Binary> handler
 	)
 	{
-		// for once, they managed to do a kind of proper de/serialization logic. Amazing.
 		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}
 

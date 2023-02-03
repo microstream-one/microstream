@@ -77,8 +77,7 @@ import java.nio.ByteBuffer;
  * 
  * Also see:
  * http://stackoverflow.com/questions/8462200/examples-of-forcing-freeing-of-native-memory-direct-bytebuffer-has-allocated-us
- * 
- * 
+ *
  */
 public interface DirectBufferDeallocator
 {
@@ -107,59 +106,5 @@ public interface DirectBufferDeallocator
 		}
 		
 	}
-	
-//	public final class Java8Makeshift implements DirectByteBufferDeallocator
-//	{
-//		public Java8Makeshift()
-//		{
-//			super();
-//		}
-//
-//		@Override
-//		public void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
-//		{
-//			// compensate missing proper typing in JDK
-//			if(!(directBuffer instanceof sun.nio.ch.DirectBuffer))
-//			{
-//				return; // or throw exception
-//			}
-//
-//			final sun.misc.Cleaner cleaner = ((sun.nio.ch.DirectBuffer)directBuffer).cleaner();
-//
-//			// cleaner can be null
-//			if(cleaner != null)
-//			{
-//				cleaner.clean();
-//			}
-//		}
-//
-//	}
-	
-//	public final class Java9Makeshift implements DirectByteBufferDeallocator
-//	{
-//		public Java9Makeshift()
-//		{
-//			super();
-//		}
-//
-//		@Override
-//		public void deallocateDirectByteBuffer(final ByteBuffer directBuffer)
-//		{
-//			// compensate missing proper typing in JDK
-//			if(!(directBuffer instanceof sun.nio.ch.DirectBuffer))
-//			{
-//				return; // or throw exception
-//			}
-//
-//			final jdk.internal.ref.Cleaner cleaner = ((sun.nio.ch.DirectBuffer)directBuffer).cleaner();
-//
-//			// cleaner can be null
-//			if(cleaner != null)
-//			{
-//				cleaner.clean();
-//			}
-//		}
-//
-//	}
 	
 }

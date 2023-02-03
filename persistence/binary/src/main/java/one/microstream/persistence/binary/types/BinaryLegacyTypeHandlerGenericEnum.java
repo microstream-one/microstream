@@ -92,7 +92,7 @@ extends AbstractBinaryLegacyTypeHandlerReflective<T>
 	// methods //
 	////////////
 
-	// note on initializing methods: exluding the java.lang.Enum fields must already be excluded in valueTranslators
+	// note on initializing methods: excluding the java.lang.Enum fields must already be excluded in valueTranslators
 
 	public int getOrdinal(final Binary data)
 	{

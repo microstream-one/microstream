@@ -171,6 +171,9 @@ public interface FileSystemIndex extends AutoCloseable
 		public Stream<String> files()
 		{
 			final Set<String> files = this.ensureFiles();
+			// locking on local variable. Since files point tho this.files
+			// it synchronizing reading the Set, adding to the set and deleting from.
+			// It would be better to have a static Object to lock on.
 			synchronized(files)
 			{
 				return new HashSet<>(files).stream();
@@ -183,6 +186,9 @@ public interface FileSystemIndex extends AutoCloseable
 		)
 		{
 			final Set<String> files = this.ensureFiles();
+			// locking on local variable. Since files point tho this.files
+			// it synchronizing reading the Set, adding to the set and deleting from.
+			// It would be better to have a static Object to lock on.
 			synchronized(files)
 			{
 				if(files.add(file))
@@ -202,6 +208,9 @@ public interface FileSystemIndex extends AutoCloseable
 		)
 		{
 			final Set<String> files = this.ensureFiles();
+			// locking on local variable. Since files point tho this.files
+			// it synchronizing reading the Set, adding to the set and deleting from.
+			// It would be better to have a static Object to lock on.
 			synchronized(files)
 			{
 				if(files.remove(file))
@@ -237,6 +246,8 @@ public interface FileSystemIndex extends AutoCloseable
 		{
 			if(this.files != null)
 			{
+				// clearing out Set that might be in use by files(), put(), delete()
+				// TODO Need to be synchronized.
 				this.files.clear();
 				this.files = null;
 			}

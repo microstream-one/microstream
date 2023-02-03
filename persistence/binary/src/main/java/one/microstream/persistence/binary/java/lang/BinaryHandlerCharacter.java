@@ -90,7 +90,6 @@ public final class BinaryHandlerCharacter extends AbstractBinaryHandlerCustomVal
 	@Override
 	public Character getValidationStateFromInstance(final Character instance)
 	{
-		// well, lol
 		return instance;
 	}
 

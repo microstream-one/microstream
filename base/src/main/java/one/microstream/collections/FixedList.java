@@ -67,15 +67,10 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
  * and removing more than one element of it without using the iterator's method.<br>
  * <br>
- * Current conclusion is that the JDK's failfast implementations buy unneeded (and even unreliable as stated by
- * official guides) concurrency modification recognition at the cost of performance loss and even a bug when already
- * used in a thread-safe manner.
- * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
- * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * to maximize internal iteration potential, eliminating the need to use the external iteration
  * {@link Iterator} paradigm.
  *
- * 
  * @version 0.9, 2011-02-06
  */
 public final class FixedList<E> extends AbstractSimpleArrayCollection<E> implements XSettingList<E>, Composition
@@ -462,20 +457,6 @@ public final class FixedList<E> extends AbstractSimpleArrayCollection<E> impleme
 	{
 		return AbstractArrayStorage.isSorted((E[])this.data, this.data.length, comparator);
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return AbstractArrayStorage.hasDistinctValues((E[])this.data, this.data.length);
-//	}
-//
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.hasDistinctValues((E[])this.data, this.data.length, equalator);
-//	}
 
 	// boolean querying - applies //
 

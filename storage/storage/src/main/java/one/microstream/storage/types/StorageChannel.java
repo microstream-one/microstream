@@ -223,50 +223,33 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 					+ Storage.millisecondsToNanoseconds(this.housekeepingController.housekeepingIntervalMs())
 				;
 				this.housekeepingIntervalBudgetNs = this.housekeepingController.housekeepingTimeBudgetNs();
-//				DEBUGStorage.println(this.channelIndex + " resetting housekeeping budget at " + new java.text.DecimalFormat("00,000,000,000").format(currentNanotime) + " to " + new java.text.DecimalFormat("00,000,000,000").format(this.housekeepingIntervalBoundTimeNs));
 			}
 			else if(this.housekeepingIntervalBudgetNs <= 0)
 			{
-//				if(this.channelIndex ==  0)
-//				{
-//					DEBUGStorage.println(this.channelIndex + " has no time for house keeping.");
-//				}
 				return;
 			}
 			else if(this.housekeepingIntervalBoundTimeNs - currentNanotime < this.housekeepingIntervalBudgetNs)
 			{
 				// cap remaining housekeeping budget at the current interval's housekeeping time bound
 				this.housekeepingIntervalBudgetNs = this.housekeepingIntervalBoundTimeNs - currentNanotime;
-//				DEBUGStorage.println(this.channelIndex + " capping housekeeping budget to " + new java.text.DecimalFormat("00,000,000,000").format(this.housekeepingIntervalBudgetNs));
 			}
 
 			final long budgetOffset = currentNanotime + this.housekeepingIntervalBudgetNs;
 
-//			if(this.channelIndex ==  0)
-//			{
-//				DEBUGStorage.println(this.channelIndex + " housekeepig budget (ns) = " + new java.text.DecimalFormat("00,000,000,000").format(this.housekeepingIntervalBudgetNs));
-//			}
 
 			// execute every task once at most per cycle (therefore the counter, but NOT for selecting the task)
 			for(int c = 0; c < this.housekeepingTasks.length; c++)
 			{
-//				DEBUGStorage.println(this.channelIndex + " house keeping task #" + (c + 1));
 				// call the next task (next from last cycle or just another one if there is still time)
 				this.housekeepingTasks[this.getCurrentHouseKeepingIndexAndAdvance()].perform();
 
 				// intentionally checked AFTER the first housekeeping task to guarantee at least one task to be executed
 				if((this.housekeepingIntervalBudgetNs = budgetOffset - System.nanoTime()) <= 0)
 				{
-//					DEBUGStorage.println(this.channelIndex + " has no more time for house keeping.");
 					break;
 				}
 			}
 
-//			final long endTime = System.nanoTime();
-//			final long duration = endTime - cycleStartTime;
-//			final long budget = timeBudgetBound - cycleStartTime;
-//			final double ratio = (double)duration / budget * 100;
-//			DEBUGStorage.println(this.channelIndex + " ending housekeeping, total time (ns) = " + duration + " of " + budget + "(" + ratio + "%)");
 		}
 		
 		@Override
@@ -373,7 +356,6 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		
 		private long calculateSpecificHousekeepingTimeBudget(final long nanoTimeBudget)
 		{
-//			DEBUGStorage.println(this.channelIndex + " spec budget = " + specificBudget + ", gen budget = " + this.housekeepingIntervalBudgetNs);
 			return Math.min(nanoTimeBudget, this.housekeepingIntervalBudgetNs);
 		}
 
@@ -424,7 +406,6 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				// ensure to process every task only once in case no new task came in in time (see below).
 				if(currentTask != processedTask)
 				{
-//					DEBUGStorage.println(this.channelIndex + " processing " + currentTask);
 					currentTask.processBy(this);
 					processedTask = currentTask;
 				}
@@ -432,7 +413,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				/*
 				 * Must check immediately after task processing to abort BEFORE houseKeeping is called in case
 				 * of shutdown (otherwise NPE on headFile etc.). So do-while not possible.
-				 * Also may NOT check before task processing as the first task is initializing which in turn
+				 * Also, may NOT check before task processing as the first task is initializing which in turn
 				 * enables channel processing on success. So no simple while condition possible.
 				 */
 				if(!operationController.checkProcessingEnabled())
@@ -442,7 +423,6 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 					break;
 				}
 
-//				DEBUGStorage.println(this.channelIndex + " housekeeping");
 				// do a little house keeping, either after a new task or use time if no new task came in.
 				/* (29.07.2020 TM)FIXME: priv#361: An exception during housekeeping is fatal
 				 * it kills the channel thread and leaves the application thread forever waiting to be
@@ -465,21 +445,13 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 					break;
 				}
 				
-//				final long waitStart = System.currentTimeMillis();
 
 				// check and wait for the next task to come in
 				if((currentTask = processedTask.awaitNext(housekeepingController.housekeepingIntervalMs())) == null)
 				{
-//					DEBUGStorage.println(this.channelIndex + " issuing GC");
-//					if(waitStart + timeConfiguration.housekeepingInterval() < System.currentTimeMillis())
-//					{
-//						currentTask = this.taskBroker.issueGarbageCollectionPhaseCheck(processedTask);
-//					}
 					// revert to processed task to wait on it again for the next task
 					currentTask = processedTask;
-//					currentTask = this.taskBroker.issueGarbageCollectionPhaseCheck(processedTask);
 				}
-//				DEBUGStorage.println(this.channelIndex + " current Task: " + currentTask);
 			}
 			
 			logger.debug("StorageChannel#{} stopped", this.channelIndex);
@@ -522,14 +494,13 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			catch(final Throwable t)
 			{
 				/*
-				 * Note that t could be an error or it could even be a checked exception thrown via
+				 * Note that `t` could be an error or it could even be a checked exception thrown via
 				 * Proxy reflective tinkering or Unsafe mechanisms.
-				 * However Throwable cannot be rethrown in Runnable#run() without cheating exception checking again.
-				 * The whole checked exceptions stuff is just nonsense in the non-simple cases.
+				 * However, Throwable cannot be rethrown in Runnable#run() without cheating exception checking again.
 				 * Luckily, in this special case, reporting the cause and then dying "silently" is sufficient.
 				 *
 				 * Note: applies to interruption as well, because on privately managed threads,
-				 * interruping ultimately means just stop running in a ordered fashion
+				 * interrupting ultimately means just stop running in an ordered fashion
 				 */
 				workingDisruption = t;
 				logger.error("StorageChannel#{} encountered disrupting exception", this.channelIndex, t);
@@ -551,7 +522,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 				}
 				finally
 				{
-					// finally finally: guaranteed last thing to do ever in any case. Ever. Really. Good night.
+					// finally finally: guaranteed last thing to do ever in any case. Ever.
 					this.deactivate();
 				}
 			}
@@ -609,7 +580,6 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		public final ChunksBuffer collectLoadByOids(final ChunksBuffer[] resultArray, final PersistenceIdSet loadOids)
 		{
 			logger.debug("StorageChannel#{} loading {} references", this.channelIndex, loadOids.size());
-//			DEBUGStorage.println(this.channelIndex + " loading " + loadOids.size() + " references");
 
 			/* it is probably best to start (any maybe continue) with lots of small, memory-agile
 			 * byte buffers than to estimate one sufficiently huge bulky byte buffer.
@@ -846,7 +816,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 			{
 				/* (14.01.2015 TM)NOTE: this actually is an error, as every oid request comes
 				 * from a referencing entity from inside the same database. So if any load request lookup
-				 * yields null, it is a inconcistency that has to be expressed rather sooner than later.
+				 * yields null, it is an inconsistency that has to be expressed rather sooner than later.
 				 *
 				 * If some kind of querying request (look if an arbitrary oid yields an entity) is needed,
 				 * is has to be a dedicated kind of request, not this one.

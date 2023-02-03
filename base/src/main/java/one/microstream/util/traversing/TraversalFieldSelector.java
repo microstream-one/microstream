@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 
 public interface TraversalFieldSelector
 {
-	// Field only knows its decalaring class, not the actual class, which can be very important for making the decision.
+	// Field only knows its declaring class, not the actual class, which can be very important for making the decision.
 	public boolean test(Class<?> actualClass, Field field);
 	
 	

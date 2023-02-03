@@ -195,9 +195,9 @@ public interface XCsvRecordParserCharArray
 				 * A simple comment is defined as being terminated by a (ascii) line end (not a record separator),
 				 * so no configuration.
 				 * Simplified check for just \n is intentional. It covers both standard/java/unix
-				 * and windows's clumsy \r\n.
-				 * Older Mac OS, with their moronic idea of NOT using a new line symbol to indicate a new line
-				 * just to be different from everyone else can go to overpriced iHell. At least they fixed it in OS X.
+				 * and windows's \r\n.
+				 * Older Mac OS, with their idea of NOT using a new line symbol to indicate a new line.
+				 * At least they fixed it in OS X.
 				 */
 				if(input[i] == '\n')
 				{

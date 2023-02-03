@@ -22,10 +22,6 @@ package one.microstream.collections.types;
 
 import java.util.Comparator;
 
-/**
- * 
- *
- */
 public interface XSettingEnum<E> extends XSortableEnum<E>, XSettingSequence<E>
 {
 	public interface Creator<E> extends XSortableEnum.Creator<E>, XSettingSequence.Creator<E>

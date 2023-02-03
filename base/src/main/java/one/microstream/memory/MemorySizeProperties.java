@@ -27,7 +27,7 @@ public interface MemorySizeProperties
 	// memory size querying logic //
 
 	/**
-	 * Returns the system's memory "page size" (whatever that may be exactely for a given system).
+	 * Returns the system's memory "page size" (whatever that may be exactly for a given system).
 	 * Use with care (and the dependency to a system value in mind!).
 	 *
 	 * @return the system's memory "page size".

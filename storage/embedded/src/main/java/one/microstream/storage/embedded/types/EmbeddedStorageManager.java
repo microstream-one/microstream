@@ -70,8 +70,7 @@ import one.microstream.util.logging.Logging;
  * "Embedded" is meant in the context that a database is managed in the same process that uses this database,
  * as opposed to the database being managed by a different process that the using process connects to via network
  * communication. That would be a "remote" or "standalone" storage process.
- * 
- * 
+ *
  */
 public interface EmbeddedStorageManager extends StorageManager
 {
@@ -387,7 +386,7 @@ public interface EmbeddedStorageManager extends StorageManager
 			}
 			catch(final Exception e)
 			{
-				logger.error("Exception occured while initializing embedded storage manager", e);
+				logger.error("Exception occurred while initializing embedded storage manager", e);
 				
 				throw e;
 			}

@@ -266,29 +266,11 @@ public final class ListProcessor<E> implements XProcessingList<E>
 		return this.subject.hashCode();
 	}
 
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return this.subject.hasDistinctValues(equalator);
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return this.subject.hasDistinctValues();
-//	}
-
 	@Override
 	public boolean hasVolatileElements()
 	{
 		return this.subject.hasVolatileElements();
 	}
-
-//	@Override
-//	public int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.indexOf(sample, equalator);
-//	}
 
 	@Override
 	public long indexOf(final E element)
@@ -384,12 +366,6 @@ public final class ListProcessor<E> implements XProcessingList<E>
 	{
 		return this.subject.scan(predicate);
 	}
-
-//	@Override
-//	public E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.search(sample, equalator);
-//	}
 
 	@Override
 	public E seek(final E sample)
@@ -511,12 +487,6 @@ public final class ListProcessor<E> implements XProcessingList<E>
 		return this.subject.removeAt(index);
 	}
 
-//	@Override
-//	public int removeAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.removeAll(samples, equalator);
-//	}
-
 	@Override
 	public long removeAll(final XGettingCollection<? extends E> elements)
 	{
@@ -577,12 +547,6 @@ public final class ListProcessor<E> implements XProcessingList<E>
 		return this.subject.removeOne(element);
 	}
 
-//	@Override
-//	public boolean removeOne(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.removeOne(sample, equalator);
-//	}
-
 	@Override
 	public ListProcessor<E> removeRange(final long startIndex, final long length)
 	{
@@ -602,12 +566,6 @@ public final class ListProcessor<E> implements XProcessingList<E>
 	{
 		return this.subject.removeSelection(indices);
 	}
-
-//	@Override
-//	public int retainAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.retainAll(samples, equalator);
-//	}
 
 	@Override
 	public long retainAll(final XGettingCollection<? extends E> elements)

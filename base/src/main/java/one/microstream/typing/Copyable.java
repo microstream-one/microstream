@@ -21,12 +21,11 @@ package one.microstream.typing;
  */
 
 /**
- * Copyable objects can create copies of themselves that will have the same type and behave exacely as they do.
+ * Copyable objects can create copies of themselves that will have the same type and behave exactly as they do.
  * <p>
- * This does not neccessarily mean that all data is copied. E.g. caching fields or ones that are set lazy on
+ * This does not necessarily mean that all data is copied. E.g. caching fields or ones that are set lazy on
  * demand could be left out in the copy process.
  *
- * 
  */
 public interface Copyable
 {

@@ -51,6 +51,7 @@ module microstream.base
 	exports one.microstream.collections.sorting;
 	exports one.microstream.memory.sun;
 	exports one.microstream.collections.old;
+	exports one.microstream.collections.lazy;
 	exports one.microstream.meta;
 	exports one.microstream.exceptions;
 	exports one.microstream.math;

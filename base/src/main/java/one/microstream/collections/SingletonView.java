@@ -116,7 +116,6 @@ public class SingletonView<E> implements XReferencing<E>
 		return this.subject.listIterator(index);
 	}
 
-	// (25.12.2011)NOTE: really, why is this necessary? Everything is properly typed. Compiler bug ?
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public OldSingleton old()

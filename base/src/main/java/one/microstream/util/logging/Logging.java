@@ -125,7 +125,7 @@ public final class Logging
 	
 	/**
 	 * Creates a new lazy argument for a specific context, whose Object to String converter will be used.
-	 * The lazy args' {@link #toString()} method is only called on demand.
+	 * The lazy args {@link #toString()} method is only called on demand.
 	 * 
 	 * @param context  the context to register the lazy arg for
 	 * @param argument the argument
@@ -141,7 +141,7 @@ public final class Logging
 	
 	/**
 	 * Creates a new lazy argument for a specific context, whose Object to String converter will be used.
-	 * The lazy args' {@link #toString()} method is only called on demand.
+	 * The lazy args {@link #toString()} method is only called on demand.
 	 * 
 	 * @param context  the context to register the lazy arg for
 	 * @param supplier the argument supplier
@@ -168,7 +168,7 @@ public final class Logging
 	
 	/**
 	 * Creates a lazy argument.
-	 * The lazy args' {@link #toString()} method is only called on demand.
+	 * The lazy args {@link #toString()} method is only called on demand.
 	 * 
 	 * @param argument the argument
 	 * @return the lazy argument
@@ -180,7 +180,7 @@ public final class Logging
 
 	/**
 	 * Creates a lazy argument.
-	 * The lazy args' {@link #toString()} method is only called on demand.
+	 * The lazy args {@link #toString()} method is only called on demand.
 	 * 
 	 * @param supplier the argument supplier
 	 * @return the lazy object
@@ -200,7 +200,7 @@ public final class Logging
 	}
 
 	/**
-	 * Creates a Object to String converter, which only includes a limited amount of elements
+	 * Creates an Object to String converter, which only includes a limited amount of elements
 	 * in the resulting String, if {@link Iterable}s or arrays are to be converted.
 	 * <p>
 	 * For all other object's {@link String#valueOf(Object)} is used as converter.
@@ -221,7 +221,7 @@ public final class Logging
 	}
 		
 	/**
-	 * Creates a Object to String converter, which only includes a limited amount of elements
+	 * Creates an Object to String converter, which only includes a limited amount of elements
 	 * in the resulting String, if {@link Iterable}s or arrays are to be converted.
 	 * <p>
 	 * For all other object's the supplied <code>toStringConverter</code> will be used.
@@ -246,7 +246,7 @@ public final class Logging
 	}
 	
 	/**
-	 * Creates a Object to String converter, which only includes a limited amount of elements
+	 * Creates an Object to String converter, which only includes a limited amount of elements
 	 * in the resulting String, if {@link Iterable}s or arrays are to be converted.
 	 * <p>
 	 * For all other object's the supplied <code>toStringConverter</code> will be used.

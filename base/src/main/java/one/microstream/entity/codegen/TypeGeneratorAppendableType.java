@@ -31,10 +31,6 @@ import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 
 
-/**
- * 
- * 
- */
 class TypeGeneratorAppendableType extends TypeGenerator
 {
 	final static String SUFFIX = "Appendable";

@@ -28,10 +28,6 @@ import javax.lang.model.element.TypeParameterElement;
 
 import one.microstream.entity.EntityLayerIdentity;
 
-/**
- * 
- * 
- */
 class TypeGeneratorEntityIdentityType extends TypeGenerator
 {
 	final static String SUFFIX = "Entity";

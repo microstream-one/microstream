@@ -327,7 +327,6 @@ public class CompositeConfig
 		}
 		catch(final IOException e)
 		{
-			// so sick of this counter-functional impractical sloppyness-prone checked stuff
 			throw new IORuntimeException(e);
 		}
 		return file;

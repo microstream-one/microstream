@@ -26,7 +26,7 @@ import one.microstream.collections.Singleton;
 /**
  * Simple Reference class to handle mutable references. Handle with care!
  * <p>
- * Note: In most cases, a mutable reference object like this should not be neccessary if the program is well
+ * Note: In most cases, a mutable reference object like this should not be necessary if the program is well
  * structured (that's why no such class exists in the Java API).
  * Extensive use of this class where it would be better to restructure the program may end in even more structural
  * problems.<br>

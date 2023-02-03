@@ -330,7 +330,7 @@ extends BinaryPersistenceFoundation<F>
 
 			final PersistenceManager<Binary> pm = super.createPersistenceManager();
 
-			// reference explicitely the PM's object registry, just to be safe
+			// reference explicitly the PM's object registry, just to be safe
 			this.getObjectRegistryCallback().initializeObjectRegistry(pm.objectRegistry());
 			// note: using more than 1 connection might cause consistency problems for the Storage GC using the callback
 
@@ -347,7 +347,7 @@ extends BinaryPersistenceFoundation<F>
 			 * even though super.create() always gets called prior to reading the connectionRequestAcceptor
 			 * and in the process calling internalGetStorageRequestAcceptor() and createRequestAcceptor(),
 			 * sometimes it happens that despite the internalGetStorageRequestAcceptor() and despite being
-			 * singlethreaded and even synchronized (= no code rearrangement), the field reference
+			 * single-threaded and even synchronized (= no code rearrangement), the field reference
 			 * is still null when read as the second constructor argument.
 			 * It is not clear why this happens under those conditions.
 			 * As a workaround, the initializing getter has to be called once beforehand.

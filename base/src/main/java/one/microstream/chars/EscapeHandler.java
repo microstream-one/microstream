@@ -80,10 +80,8 @@ public interface EscapeHandler
 		static char internalUnescape(final char chr)
 		{
 			/* note:
-			 * The left side are arbitrary literal escaping symbols,
+			 * The left side are (arbitrary) literal escaping symbols,
 			 * the right side are java syntax control character symbols.
-			 * Both sides do not necessarily have to be the same characters in source code.
-			 * They just happen to be (for conformity) in this generic default implementation.
 			 */
 			switch(chr)
 			{

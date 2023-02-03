@@ -40,8 +40,6 @@ import one.microstream.util.xcsv.XCsvSegmentsParser;
 
 /**
  * Reference implementation for the XCSV file format based on a {@code char[]} input.
- *
- * 
  */
 public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, Stateless
 {
@@ -51,11 +49,11 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 	
 	/* Note on implementation:
 	 * This implementation might seem a bit too procedural and cumbersome.
-	 * The rationale behind this implementation is that is is several times faster (x8 or more) than a comparable
+	 * The rationale behind this implementation is that it is several times faster (x8 or more) than a comparable
 	 * "neat" object oriented implementation (most static parameters transformed to fields).
 	 * The comparison was done on a 1.7.0_25 jvm with server mode, ensured escape analysis, enough heap to
 	 * neglect GC pauses (checked), etc.
-	 * One should assume that passing around a dozend of parameters everywhere would be slower than
+	 * One should assume that passing around a dozen of parameters everywhere would be slower than
 	 * intelligent field accesses before and after loops, but it is obviously the other way around.
 	 * Probably due to aggressive inlining and optimization of static methods
 	 *
@@ -697,7 +695,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 				input                    ,
 				i1                       ,
 				iBound                   ,
-				lineSeparator          ,
+				lineSeparator            ,
 				valueSeparator           ,
 				commentSignal            ,
 				literalDelimiter         ,
@@ -923,7 +921,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		final XCsvRowCollector  rowAggregator
 	)
 	{
-		// crazy sh*t indirection nesting
+		// indirection nesting
 		return input -> parseSegments(
 			input.array(),
 			input.start(),
@@ -1015,7 +1013,7 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 			return dataType.configuration();
 		}
 				
-		// \n character and honestly: everything else is just idiocy. Including a certain OS that defiantly uses \r.
+		// \n character
 		final char lineSeparator = XCSV.configurationDefault().lineSeparator();
 		
 		final XGettingCollection<ValueSeparatorWeight> valueSeparatorWeights =
@@ -1037,12 +1035,6 @@ public final class XCsvParserCharArray implements XCsvParser<_charArrayRange>, S
 		counters.sort(Counter::orderByScore);
 		
 		final XCsvConfiguration guessedConfiguration = guessValueSeparator(dataType, counters);
-		
-		// debugging/testing
-//		counters.iterate(c ->
-//			System.out.println('"'+XChars.escapeChar(c.character) +'"'+" = " + c.score + " (weight = " + c.weight + ")")
-//		);
-//		XDebug.println("Guessed separator = '" + guessedConfiguration.valueSeparator() + "'");
 		
 		return guessedConfiguration;
 	}

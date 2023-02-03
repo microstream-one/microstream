@@ -147,7 +147,7 @@ extends AbstractBinaryHandlerCustomIterable<PriorityQueue<?>>
 		
 		/*
 		 * Tree collections don't use hashing, but their comparing logic still uses the elements' state,
-		 * which might not yet be available when this method is called. Hence the detour to #complete.
+		 * which might not yet be available when this method is called. Hence, the detour to #complete.
 		 */
 		final Object[] elementsHelper = new Object[getElementCount(data)];
 		data.collectElementsIntoArray(BINARY_OFFSET_ELEMENTS, handler, elementsHelper);

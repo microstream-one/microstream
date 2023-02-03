@@ -21,11 +21,6 @@ package one.microstream.collections.types;
  */
 
 
-
-/**
- * 
- *
- */
 public interface XProcessingSet<E> extends XRemovingSet<E>, XGettingSet<E>, XProcessingCollection<E>
 {
 	public interface Factory<E>

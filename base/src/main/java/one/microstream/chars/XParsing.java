@@ -52,7 +52,7 @@ public final class XParsing
 	}
 	
 	/**
-	 * Skips to the position beyond the second occurance of the current character (input[iStart]).
+	 * Skips to the position beyond the second occurrence of the current character (input[iStart]).
 	 * This simple logic does NOT support escaping.
 	 * 
 	 * @param input the input character array
@@ -82,7 +82,7 @@ public final class XParsing
 			}
 		}
 			
-		// no occurance has been found. No quote to skip. Current index is returned.
+		// no occurrence has been found. No quote to skip. Current index is returned.
 		return iStart;
 	}
 	
@@ -198,7 +198,6 @@ public final class XParsing
 	{
 		if(input[i] != c)
 		{
-			// (06.11.2018 TM)NOTE: for once, not a provisional exception, but a proper one.
 			throw new ParsingExceptionUnexpectedCharacterInArray(input, i, c, input[i], contextHint);
 		}
 		

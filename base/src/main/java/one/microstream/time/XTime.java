@@ -50,7 +50,7 @@ public final class XTime
 	
 	
 	/**
-	 * Short cut for {@code new Date(System.currentTimeMillis())}.
+	 * Short-cut for {@code new Date(System.currentTimeMillis())}.
 	 * Returns a new {@link Date} instance representing the current time in the current {@link TimeZone}
 	 * and for the current {@link Locale}.
 	 * @return right now!
@@ -135,7 +135,6 @@ public final class XTime
 
 	public static final GregorianCalendar asGregCal(final Date date)
 	{
-		// stupid old JDK stuff. Everything has to be done manually -.-. Boiler plate code to the max.
 		final GregorianCalendar gc = new GregorianCalendar();
 		gc.setTime(date);
 		return gc;
@@ -143,7 +142,6 @@ public final class XTime
 
 	public static final GregorianCalendar asGregCal(final long timestamp)
 	{
-		// stupid old JDK stuff. Everything has to be done manually -.-. Boiler plate code to the max.
 		final GregorianCalendar gc = new GregorianCalendar();
 		gc.setTimeInMillis(timestamp);
 		return gc;
@@ -152,9 +150,6 @@ public final class XTime
 
 	public static final int currentYear()
 	{
-		/* I wonder if any of those JDK hackers ever use the stuff they're knitting in real world projects ^^
-		 * Not only is "reading more important than writing", but this is even a mess to type, too. o_0
-		 */
 		return Calendar.getInstance().get(Calendar.YEAR);
 	}
 	

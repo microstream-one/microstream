@@ -30,11 +30,6 @@ import java.util.Random;
 import one.microstream.exceptions.NumberRangeException;
 import one.microstream.functional.To_double;
 
-
-/**
- * 
- *
- */
 public final class XMath
 {
 	// CHECKSTYLE.OFF: MagicNumber: all magic numbers are intentional in this class
@@ -88,7 +83,6 @@ public final class XMath
 	 */
 	public static final int pow(final int base, final int exponent) throws IllegalArgumentException
 	{
-		// why is this missing in the JDK?
 		if(exponent < 0)
 		{
 			throw new IllegalArgumentException("exponent may not be negative: " + exponent);
@@ -363,7 +357,7 @@ public final class XMath
 	/**
 	 * Returns the amount of digits the passed values requires to be projected as a string.
 	 * <p>
-	 * The additional length for the minus of to represent negative values is acounted for as well.<br>
+	 * The additional length for the minus of to represent negative values is accounted for as well.<br>
 	 * Examples:
 	 * <pre>
 	 * stringLength(0) = 1
@@ -575,7 +569,7 @@ public final class XMath
 
 	/**
 	 * Rounds {@code value} to the actual closest value for {@code decimals} decimals.<br>
-	 * This is useful as well in order to "normalize" values if multiple subsequent calulations with double values
+	 * This is useful as well in order to "normalize" values if multiple subsequent calculations with double values
 	 * accumulate rounding errors that drift the value away from the value it actually should (could) be.<br>
 	 * See the "candy" example in Joshua Bloch's "Effective Java": this method fixes the problem.
 	 * <p>
@@ -1169,13 +1163,6 @@ public final class XMath
 			case  0: return 1;
 			default: throw new IllegalArgumentException("n not in [0;12]: " + n);
 		}
-		
-		// generic calculation algorithm (shortened)
-//		if(n < 0) throw new IllegalArgumentException("n may not be negative: " + n);
-//		if(n > 12) throw new IllegalArgumentException("n may not be greater 12: " + n);
-//		int result = 1;
-//		while(n > 1) result *= n--;
-//		return result;
 	}
 
 	/**
@@ -1213,22 +1200,6 @@ public final class XMath
 			case  0: return 1L;
 			default: throw new IllegalArgumentException("n not in [0;20]: " + n);
 		}
-		//calculation
-//		if(n <  0)
-//		{
-//			throw new IllegalArgumentException("n may not be negative: " + n);
-//		}
-//		if(n > 20)
-//		{
-//			throw new IllegalArgumentException("n may not be greater 20: " + n);
-//		}
-//		int i = (int)n;
-//		long result = 1;
-//		while(i > 1)
-//		{
-//			result *= i--;
-//		}
-//		return result;
 	}
 
 	/**
@@ -1239,7 +1210,7 @@ public final class XMath
 	 */
 	public static final BigInteger factorial(final BigInteger n) throws IllegalArgumentException
 	{
-		//recursive algorithms are nonsense here as the doy method call and range checking overhead in every step!
+		// recursive algorithms are nonsense here as they do method call and range checking overhead in every step!
 		final long nValue = n.longValue();
 		if(nValue < 0)
 		{
@@ -1253,7 +1224,7 @@ public final class XMath
 		BigInteger result = BigInteger.valueOf(factorial(20L));
 		BigInteger value  = n;
 
-		while(n.longValue() > 20)
+		while(value.longValue() > 20)
 		{
 			result = result.multiply(value);
 			value = value.subtract(BigInteger.ONE);

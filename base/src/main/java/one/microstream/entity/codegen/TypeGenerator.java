@@ -42,10 +42,6 @@ import one.microstream.chars.VarString;
 import one.microstream.exceptions.IORuntimeException;
 
 
-/**
- * 
- * 
- */
 abstract class TypeGenerator
 {
 	private final static String       JAVA_LANG_PACKAGE = "java.lang";

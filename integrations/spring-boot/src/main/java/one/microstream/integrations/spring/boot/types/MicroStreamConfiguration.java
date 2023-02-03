@@ -4,7 +4,7 @@ package one.microstream.integrations.spring.boot.types;
  * #%L
  * microstream-integrations-spring-boot
  * %%
- * Copyright (C) 2019 - 2022 MicroStream Software
+ * Copyright (C) 2019 - 2023 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -19,6 +19,7 @@ package one.microstream.integrations.spring.boot.types;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+
 
 import one.microstream.integrations.spring.boot.types.config.MicrostreamConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

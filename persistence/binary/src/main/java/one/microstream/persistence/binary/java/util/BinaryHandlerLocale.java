@@ -78,7 +78,7 @@ public final class BinaryHandlerLocale extends AbstractBinaryHandlerCustomValueV
 		final PersistenceStoreHandler<Binary> handler
 	)
 	{
-		// for once, they managed to do a kind of proper de/serialization logic. Amazing.
+		// for once, they managed to do a kind of proper de/serialization logic.
 		data.storeStringSingleValue(this.typeId(), objectId, instanceState(instance));
 	}
 

@@ -90,8 +90,6 @@ public interface StorageDataConverterCsvConfiguration
 
 	public static XGettingMap<String, String> deriveTypeNameToCsvTypeNameMapping(
 		final XGettingMap<String, String> typeNameToCsvTypeNameMapping
-//		final String referenceCsvTypeName   ,
-//		final String referenceActualTypeName
 	)
 	{
 		final EqHashTable<String, String> csvTypeNameToTypeNameMapping = EqHashTable.New();
@@ -104,11 +102,6 @@ public interface StorageDataConverterCsvConfiguration
 			throw new StorageException("Ambiguous csv type mapping entries.");
 		}
 
-		// add special case entry after ambiguity validation to avoid false positive
-//		if(referenceCsvTypeName != null)
-//		{
-//			csvTypeNameToTypeNameMapping.add(referenceCsvTypeName, referenceActualTypeName);
-//		}
 
 		return csvTypeNameToTypeNameMapping;
 	}
@@ -318,8 +311,6 @@ public interface StorageDataConverterCsvConfiguration
 		static final XGettingMap<String, String> DEFAULT_TYPE_MAPPING_REVERSED =
 			StorageDataConverterCsvConfiguration.deriveTypeNameToCsvTypeNameMapping(
 				DEFAULT_TYPE_MAPPING
-//				DEFAULT_TYPE_NAME_REFERENCE,
-//				long.class.getSimpleName()
 			)
 		;
 

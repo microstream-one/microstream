@@ -343,10 +343,7 @@ public interface StorageSystem extends StorageController
 		{
 			if(this.backupHandler == null && this.backupSetup != null)
 			{
-//				final StorageDataFileValidator validator = this.backupDataFileValidatorCreator
-//					.createDataFileValidator(this.typeDictionary)
-//				;
-				
+
 				this.backupHandler = this.backupSetup.setupHandler(
 					this.operationController,
 					this.writeController,
@@ -375,7 +372,7 @@ public interface StorageSystem extends StorageController
 			// set backup handling state to being running
 			backupHandler.start();
 			
-			// setup a backup thread and start it.
+			// set up a backup thread and start it.
 			this.backupThread = this.threadProvider.provideBackupThread(backupHandler);
 			this.backupThread.start();
 		}
@@ -396,7 +393,7 @@ public interface StorageSystem extends StorageController
 			// initialize lock file manager state to being running
 			lockFileManager.start();
 			
-			// setup a lock file manager thread and start it if initialization (obtaining the "lock") was successful.
+			// set up a lock file manager thread and start it if initialization (obtaining the "lock") was successful.
 			this.lockFileManagerThread = this.threadProvider.provideLockFileManagerThread(lockFileManager);
 			// can't start before the operation controller isn't in proper running state...
 		}
@@ -565,13 +562,12 @@ public interface StorageSystem extends StorageController
 			 * Or, more object-oriented-ly: an activities checker type that gets passed
 			 * the ongoing activity, the time since the shutdown issue, etc.
 			 * 
-			 * This could probabyl done in the context of a general overhaul of the shutdown process.
+			 * This could probably done in the context of a general overhaul of the shutdown process.
 			 * There are already a lot of other TODOs and even bugs concerning that.
 			 * Maybe channel threads should simply be registered as activities, too.
 			 * 
 			 */
 			
-//			DEBUGStorage.println("shutdown complete");
 		}
 
 		@Override
@@ -649,7 +645,7 @@ public interface StorageSystem extends StorageController
 					/* (09.12.2019 TM)FIXME: swallows interruption for the outside context.
 					 * Once again: How to handle these things?
 					 * Pass them through all API layers as checked exceptions? Doesn't feel right.
-					 * Wrap them in a runtime exception? Would make things even worse in thise
+					 * Wrap them in a runtime exception? Would make things even worse in these
 					 * particular case ...
 					 * 
 					 * Or does it really make sense to have an interruptible shutdown in the first place?

@@ -107,7 +107,7 @@ public abstract class Binary implements Chunk
 		OFFSET_DAT = OFFSET_OID + LENGTH_OID
 	;
 	
-	// header (currently) constists of only LEN, TID, OID. The extra constant has sementical reasons.
+	// header (currently) consists of only LEN, TID, OID. The extra constant has semantically reasons.
 	private static final int LENGTH_ENTITY_HEADER = (int)OFFSET_DAT;
 	
 	private static final int
@@ -180,7 +180,7 @@ public abstract class Binary implements Chunk
 	}
 	
 	/**
-	 * @return the length in bytes of a peristent item's length field (8 bytes).
+	 * @return the length in bytes of a persistent item's length field (8 bytes).
 	 */
 	public static int lengthLength()
 	{
@@ -193,7 +193,7 @@ public abstract class Binary implements Chunk
 		{
 			System.out.println();
 		}
-		// gap total length cannot indicate less then its own length (length of the length field, 1 long)
+		// gap total length cannot indicate less than its own length (length of the length field, 1 long)
 		return gapLength >= Binary.LENGTH_LEN;
 	}
 
@@ -1254,7 +1254,7 @@ public abstract class Binary implements Chunk
 		 * but there are occasions where instance identity matters, hence a loading/building
 		 * process must stay true to what it received during storing, otherwise it
 		 * can potentially (or WILL in respective cases) change the program behavior.
-		 * Whether or not that is a good idea in the first place is not the point, here.
+		 * Whether that is a good idea in the first place is not the point, here.
 		 * It is a decision of the application developer and a library like this has to
 		 * transparently handle whatever he/she decided to do (maybe for a good reason of a certain special case).
 		 * A library that alters design choices of a using developer and changes the application's behavior
@@ -1329,7 +1329,7 @@ public abstract class Binary implements Chunk
 
 	public final Float buildFloat(final long offset)
 	{
-		// decimal value instances are not chached, so #valueOf() can be used safely.
+		// decimal value instances are not cached, so #valueOf() can be used safely.
 		return Float.valueOf(this.read_float(offset));
 	}
 
@@ -1352,7 +1352,7 @@ public abstract class Binary implements Chunk
 
 	public final Double buildDouble(final long offset)
 	{
-		// decimal value instances are not chached, so #valueOf() can be used safely.
+		// decimal value instances are not cached, so #valueOf() can be used safely.
 		return Double.valueOf(this.read_double(offset));
 	}
 	
@@ -1704,28 +1704,6 @@ public abstract class Binary implements Chunk
 
 		return elementsDataAddress + elementsBinaryLength;
 	}
-
-	// (23.10.2019 TM)NOTE: obviously not used anymore
-//	public final void storeCharsDirect(
-//		final long   address,
-//		final char[] chars  ,
-//		final int    offset ,
-//		final int    length
-//	)
-//	{
-//		this.store_charsToAddress(address, chars, offset, length);
-//	}
-	
-	// (23.10.2019 TM)NOTE: obviously not used anymore
-//	public final void readCharsDirect(
-//		final long   address,
-//		final char[] chars  ,
-//		final int    offset ,
-//		final int    length
-//	)
-//	{
-//		this.update_charsFromAddress(address, chars, offset, length);
-//	}
 			
 	public final void copyMemory(
 		final ByteBuffer          directByteBuffer,
@@ -2025,7 +2003,7 @@ public abstract class Binary implements Chunk
 	{
 		/*
 		 * If there are fewer OR more elements than specified, it is an error.
-		 * The element count must match exactely, no matter what.
+		 * The element count must match exactly, no matter what.
 		 */
 		// (19.03.2019 TM)NOTE: added "|| iterator.hasNext()" check
 		if(address != elementsBinaryBound || iterator.hasNext())
@@ -2467,11 +2445,6 @@ public abstract class Binary implements Chunk
 		XMemory.copyRangeToArray(address, target);
 	}
 
-	// (23.10.2019 TM)NOTE: obviously not used anymore
-//	void update_charsFromAddress(final long address, final char[] target, final int offset, final int length)
-//	{
-//		XMemory.copyRangeToArray(address, target, offset, length);
-//	}
 
 	void update_intsFromAddress(final long address, final int[] target)
 	{
@@ -2515,12 +2488,7 @@ public abstract class Binary implements Chunk
 		XMemory.copyArrayToAddress(values, address);
 	}
 
-	// (23.10.2019 TM)NOTE: obviously not used anymore
-//	void store_charsToAddress(final long address, final char[] values, final int offset, final int length)
-//	{
-//		XMemory.copyArrayToAddress(values, offset, length, address);
-//	}
-	
+
 	void store_intsToAddress(final long address, final int[] values)
 	{
 		XMemory.copyArrayToAddress(values, address);
@@ -2580,7 +2548,7 @@ public abstract class Binary implements Chunk
 	 * Helper instances can be used as temporary additional state for the duration of the building process.
 	 * E.g.: JDK hash collections cannot properly collect elements during the building process as the element instances
 	 * might still be in an initialized state without their proper data, so hashing and equality comparisons would
-	 * failt or result in all elements being "equal". So building JDK hash collections required to pre-collect
+	 * fail or result in all elements being "equal". So building JDK hash collections required to pre-collect
 	 * their elements in an additional helper structure and defer the actual elements collecting to the completion.
 	 * <p>
 	 * Similar problems with other or complex custom handlers are conceivable.

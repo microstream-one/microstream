@@ -22,7 +22,7 @@ package one.microstream.math;
 
 public final class StaticLowRandom
 {
-	/* experimental singlethreaded static variant of java.util.Random for ints.
+	/* experimental single threaded static variant of java.util.Random for ints.
 	 * Tests show 3 times faster execution.
 	 * For "low quality" random numbers (e.g. for use in spot testing array values), this
 	 * has no disadvantage over the "proper" implementation.
@@ -43,7 +43,7 @@ public final class StaticLowRandom
 			oldseed = seed;
 			nextseed = oldseed * MULTIPLIER + ADDEND & MASK;
 		}
-		while(!compareAndSet(oldseed, nextseed)); // faster than whithout private method
+		while(!compareAndSet(oldseed, nextseed)); // faster than without private method
 
 		return (int)(nextseed >>> MASC_BIT_SIZE - bits);
 	}
@@ -63,13 +63,6 @@ public final class StaticLowRandom
 		{
 			throw new IllegalArgumentException("n must be positive");
 		}
-
-//		// this does not yield any performance gain in tests, so why do it. Stability problems with 31 below?
-//		if((n & -n) == n)
-//		{
-//			// i.e., n is a power of 2
-//			return (int)(n * (long)next(31) >> 31);
-//		}
 
 		int bits, val;
 		do

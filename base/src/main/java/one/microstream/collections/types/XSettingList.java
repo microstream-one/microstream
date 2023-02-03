@@ -32,7 +32,7 @@ public interface XSettingList<E> extends XReplacingBag<E>, XSettingSequence<E>, 
 
 	/**
 	 * Fills all slots from the offset to the offset+length with the given element,
-	 * regardless of whether or not a slot is {@code null}.
+	 * regardless whether a slot is {@code null} or not.
 	 * 
 	 * @param offset from the start of the collection (start index)
 	 * @param length of how many slots should be filled

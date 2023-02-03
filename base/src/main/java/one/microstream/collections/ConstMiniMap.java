@@ -30,8 +30,6 @@ import one.microstream.typing.KeyValue;
 /**
  * Immutable version of {@link MiniMap}.
  *
- * 
- *
  * @param <K> the key type.
  * @param <V> the value type.
  */

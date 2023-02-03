@@ -34,12 +34,11 @@ import one.microstream.reference.Reference;
 /**
  * Simple Reference class to handle mutable references. Handle with care!
  * <p>
- * Note: In most cases, a mutable reference object like this should not be neccessary if the program is well
- * structured (that's why no such class exists in the Java API).
+ * Note: In most cases, a mutable reference object like this should not be necessary if the program is well
+ * structured.
  * Extensive use of this class where it would be better to restructure the program may end in even more structural
  * problems.<br>
- * Yet in some cases, a mutable reference really is needed or at least helps in creating cleaner structures.<br>
- * So again, use wisely.
+ * Yet in some cases, a mutable reference really is needed or at least helps in creating cleaner structures.
  */
 public interface XReference<E> extends XReferencing<E>, XSettingList<E>, XSortableEnum<E>, Reference<E>, Consumer<E>
 {
@@ -67,12 +66,6 @@ public interface XReference<E> extends XReferencing<E>, XSettingList<E>, XSortab
 
 	@Override
 	public long replace(Predicate<? super E> predicate, E substitute);
-
-//	@Override
-//	public long modify(Function<E, E> mapper);
-//
-//	@Override
-//	public long modify(Predicate<? super E> predicate, Function<E, E> mapper);
 
 	@Override
 	public boolean set(long index, E element);

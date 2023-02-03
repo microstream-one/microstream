@@ -646,7 +646,7 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public ConstList<E> view(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -655,7 +655,6 @@ implements XImmutableList<E>, Composition, IdentityEqualityLogic
 		// range check is done in constructor
 		// (14.06.2011 TM)FIXME: SubConstList
 		throw new one.microstream.meta.NotImplementedYetError();
-//		return new SubListView<>(this, fromIndex, toIndex);
 	}
 
 	@Override

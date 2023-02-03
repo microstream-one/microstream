@@ -54,19 +54,19 @@ public class SubView<E> implements XGettingSequence<E>
 	@Override
 	public final <P extends Consumer<? super E>> P iterate(final P procedure)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME SubView#iterate()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME SubView#iterate()
 	}
 
 	@Override
 	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME SubView#iterate()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME SubView#iterate()
 	}
 
 	@Override
 	public <A> A join(final BiConsumer<? super E, ? super A> joiner, final A aggregate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME SubView#join()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME SubView#join()
 	}
 
 	@Override
@@ -98,12 +98,6 @@ public class SubView<E> implements XGettingSequence<E>
 	{
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
-
-//	@Override
-//	public int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError();
-//	}
 
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
@@ -283,18 +277,6 @@ public class SubView<E> implements XGettingSequence<E>
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError();
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError();
-//	}
-
 	@Override
 	public boolean hasVolatileElements()
 	{
@@ -346,12 +328,6 @@ public class SubView<E> implements XGettingSequence<E>
 	{
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
-
-//	@Override
-//	public E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError();
-//	}
 
 	@Override
 	public E seek(final E sample)

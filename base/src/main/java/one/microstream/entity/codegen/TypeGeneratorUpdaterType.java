@@ -29,10 +29,6 @@ import javax.lang.model.element.TypeParameterElement;
 import one.microstream.chars.XChars;
 import one.microstream.entity.Entity;
 
-/**
- * 
- * 
- */
 class TypeGeneratorUpdaterType extends TypeGenerator
 {
 	final static String SUFFIX = "Updater";

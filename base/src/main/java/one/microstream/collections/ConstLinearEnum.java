@@ -628,7 +628,7 @@ implements XImmutableEnum<E>, IdentityEqualityLogic
 	@Override
 	public ConstLinearEnum<E> view(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override

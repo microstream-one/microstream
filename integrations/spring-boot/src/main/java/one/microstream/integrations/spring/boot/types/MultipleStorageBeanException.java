@@ -4,7 +4,7 @@ package one.microstream.integrations.spring.boot.types;
  * #%L
  * microstream-integrations-spring-boot
  * %%
- * Copyright (C) 2019 - 2022 MicroStream Software
+ * Copyright (C) 2019 - 2023 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -22,12 +22,30 @@ package one.microstream.integrations.spring.boot.types;
 
 import org.springframework.beans.BeansException;
 
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-public class MultipleStorageBeanException extends BeansException {
-    public MultipleStorageBeanException(Set<Class<?>> classes) {
-        super(String.format("Multiple beans are annotated with @Storage: %s",
-                classes.stream().map(Class::getName).collect(Collectors.joining(","))));
+public class MultipleStorageBeanException extends BeansException
+{
+    public MultipleStorageBeanException(final Map<String, List<Class>> classes)
+    {
+        super(String.format("Multiple beans are annotated with @Storage and the same qualifier: %s",
+                            defineInfo(classes)));
+    }
+
+    private static String defineInfo(final Map<String, List<Class>> classes)
+    {
+        return classes.entrySet()
+                .stream()
+                .map(entry -> String.format("%s -> %s", entry.getKey(), listClassNames(entry.getValue())))
+                .collect(Collectors.joining(" / "));
+    }
+
+    private static String listClassNames(List<Class> classes)
+    {
+        return classes.stream()
+                .map(Class::getName)
+                .collect(Collectors.joining(","));
     }
 }

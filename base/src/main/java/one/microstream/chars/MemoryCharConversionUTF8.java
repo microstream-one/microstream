@@ -118,8 +118,7 @@ public final class MemoryCharConversionUTF8
 			XMemory.set_byte(address + 1, (byte)(0x80 | c      & 0x3F));
 			return address + 2;
 		}
-		/* would actually have to check for Surrogates here, but, well, surrogate hacking stuff...
-		 * If 65K symbols are not enough to cover your language, you are definitely doing something wrong.
+		/* would actually have to check for Surrogates here
 		 */
 		else
 		{
@@ -158,7 +157,7 @@ public final class MemoryCharConversionUTF8
 
 	public static final long writeUTF8(final long address, final String string)
 	{
-		// avoid copying potentially huge amounts of data repeatedly like the last noob.
+		// avoid copying potentially huge amounts of data repeatedly.
 		return writeUTF8(address, XChars.readChars(string));
 	}
 

@@ -55,7 +55,7 @@ public abstract class AbstractOldSettingList<E> extends AbstractOldGettingList<E
 	public AbstractOldSettingList<E> subList(final int fromIndex, final int toIndex)
 	{
 		/* XSettingList implementations always create a SubList instance whose implementation creates an
-		 * OldSettingList bridge instance, so this cast is safe (and inevitable). Savvy :)?
+		 * OldSettingList bridge instance, so this cast is safe (and inevitable).
 		 */
 		return (AbstractOldSettingList<E>)(((XSettingList<E>)this.subject).range(fromIndex, toIndex).old());
 	}

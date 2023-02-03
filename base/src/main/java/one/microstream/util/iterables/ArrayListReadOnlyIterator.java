@@ -23,10 +23,6 @@ package one.microstream.util.iterables;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-/**
- * 
- *
- */
 public final class ArrayListReadOnlyIterator<E> implements ListIterator<E>
 {
 	///////////////////////////////////////////////////////////////////////////

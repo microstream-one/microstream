@@ -34,9 +34,6 @@ import one.microstream.equality.Equalator;
  * </pre>
  * <p>
  * To not confound the admitted strange name "Similator" with "Simulator" or "Assimilator"
- * (the building where the Protoss get their gas from :D)
- *
- * 
  *
  */
 @FunctionalInterface

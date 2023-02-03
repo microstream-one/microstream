@@ -28,9 +28,6 @@ import one.microstream.util.similarity.Similator;
  * <p>
  * This class provides three overloaded methods for {@link String}, {@link CharSequence} and {@code char[]}.<br>
  * A constant {@link Similator} function object as well as static convenience methods are provided as well.
- *
- * 
- *
  */
 public final class Levenshtein
 {
@@ -70,17 +67,6 @@ public final class Levenshtein
 			 + Levenshtein.similarity(c1, c2)
 			) / 2.0D
 		;
-
-		// verbose version for debugging
-//		final int dSub, dPre, dSuf;
-//		final double dLev, dmin, similarity =
-//			((dmin=max((dSub = JaChars.commonSubstringLength(c1, c2) - 1)
-//			 ,(dPre = JaChars.commonPrefixLength(c1, c2))
-//			 ,(dSuf = JaChars.commonSuffixLength(c1, c2))
-//			)/minLen) + (dLev = Levenshtein.similarity(c1, c2))
-//			) / 2.0D
-//		;
-//		return similarity;
 	}
 
 

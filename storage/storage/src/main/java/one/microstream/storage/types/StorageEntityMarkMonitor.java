@@ -41,7 +41,6 @@ import one.microstream.util.logging.Logging;
  * Without that centralization and indirection, absolute concurrency correctness is hard to achieve and much more
  * coding effort.
  *
- * 
  */
 public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 {
@@ -71,8 +70,6 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 	public void enqueue(StorageObjectIdMarkQueue objectIdMarkQueue, long objectId);
 
-//	public String DEBUG_state();
-	
 	/**
 	 * Reset to a clean initial state, ready to be used.
 	 */
@@ -124,8 +121,8 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				 * 
 				 * Since this is just a cache to prevent inter-thread-communication for single objectIds,
 				 * it doesn't have to be very big in the first place. It just defines how big the batch
-				 * will be that is communicatated between channels. 100 should be fine. Numbers up to 1000 are
-				 * coneivable. Everything beyong that should be moreless overkill or even crazy.
+				 * will be that is communicated between channels. 100 should be fine. Numbers up to 1000 are
+				 * conceivable. Everything beyond that should be more or less overkill or even crazy.
 				 */
 				return 100;
 			}
@@ -399,12 +396,11 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 			/*
 			 * Advance the oidMarkQueue not before the mark monitor has been locked and the amount has been validated.
-			 * AND while the lock is held. Hence the channel must pass and update its queue instance in here, not outside.
+			 * AND while the lock is held. Hence, the channel must pass and update its queue instance in here, not outside.
 			 */
 			oidMarkQueue.advanceTail(amount);
 			this.pendingMarksCount -= amount;
 
-//			DEBUGStorage.println(System.identityHashCode(oidMarkQueue) + "  >-  " + this.pendingMarksCount + " " + oidMarkQueue.size());
 		}
 
 		@Override
@@ -413,7 +409,6 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			// check array to ensure idempotence
 			if(!this.pendingStoreUpdates[channel.channelIndex()])
 			{
-//				DEBUGStorage.println(channel.channelIndex() + " signals pending store update.");
 				this.pendingStoreUpdates[channel.channelIndex()] = true;
 				this.pendingStoreUpdateCount++;
 			}
@@ -425,7 +420,6 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			// check array to ensure idempotence
 			if(this.pendingStoreUpdates[channel.channelIndex()])
 			{
-//				DEBUGStorage.println(channel.channelIndex() + " clears pending store update.");
 				this.pendingStoreUpdates[channel.channelIndex()] = false;
 				this.pendingStoreUpdateCount--;
 			}
@@ -445,7 +439,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				/*
 				 * Note for debugging:
 				 * For testing repeated GC runs, do NOT just deactivate the cold completion flag here.
-				 * It will create a completion state inconcistency and thus a race condition in isComplete(),
+				 * It will create a completion state inconsistency and thus a race condition in isComplete(),
 				 * occasionally causing one channel to forever wait for itself while all others assumed
 				 * completion via the hot phase + sweep count check.
 				 * Nasty problem to find.
@@ -484,13 +478,11 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 			this.lastSweepStart = System.currentTimeMillis();
 
-//			DEBUGStorage.println("Marking complete.");
-
 			// reset channel root ids board because channels will update it upon ecountering the need to sweep.
 			this.resetChannelRootIds();
 
 			/*
-			 * This is the (lock-secured) only time where it is guaranteed that all mark queues are empty.
+			 * This is the (lock-secured) only time when it is guaranteed that all mark queues are empty.
 			 * So reset them to free memory occupied by the last mark.
 			 */
 			this.resetMarkQueues();
@@ -518,7 +510,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 			 * What is relevant is the logical order:
 			 * - A required sweep is ONLY issued if the marking is safely completed (lock-secured central count == 0 check)
 			 * - The sweep check itself is lock-secured and central, a sweep cannot be issues or done twice.
-			 * - After the count == 0 case is detected, every channel will exactely sweep once before it can go back to marking
+			 * - After the count == 0 case is detected, every channel will exactly sweep once before it can go back to marking
 			 * - The mark oid queue (long[]) does not in any way interfere with the sweeping (local Entry instances) or vice versa.
 			 */
 			return this.isPendingSweep(channel) || this.callToSweepRequired();
@@ -620,8 +612,6 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 				return;
 			}
 
-//			DEBUGStorage.println(Thread.currentThread().getName() + " enqueuing root OID " + currentMaxRootOid);
-
 			/*
 			 * this initializes the next marking.
 			 * From here on, pendingMarksCount can only be 0 again if marking is complete.
@@ -713,9 +703,6 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 		@Override
 		public final synchronized boolean isComplete(final StorageEntityCache<?> channel)
 		{
-//			// only for testing
-//			return false;
-
 			/*
 			 * GC is effectively complete if either:
 			 * - the cold phase is complete (meaning nothing will/can change until the next store)
@@ -877,7 +864,7 @@ public interface StorageEntityMarkMonitor extends PersistenceObjectIdAcceptor
 
 		private synchronized <T> T lockAllMarkQueues(final int currentIndex, final Supplier<T> logic)
 		{
-			// funny: dynamic locking via trivial recursion
+			// dynamic locking via trivial recursion
 			if(currentIndex >= 0)
 			{
 				synchronized(this.oidMarkQueues[currentIndex])

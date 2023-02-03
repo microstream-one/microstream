@@ -29,8 +29,7 @@ import java.lang.annotation.Target;
 
 /**
  * Marker annotation for interfaces for which the wrapper annotation processor should generate wrapper types.
- * 
- * 
+ *
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

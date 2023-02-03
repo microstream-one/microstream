@@ -34,10 +34,6 @@ import one.microstream.chars.XChars;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.typing.Stateless;
 
-/**
- * 
- * 
- */
 class TypeGeneratorHashEqualatorType extends TypeGenerator
 {
 	final static String SUFFIX = "HashEqualator";

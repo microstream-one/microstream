@@ -61,7 +61,7 @@ public interface StorageExceptionHandler
 		@Override
 		public void handleException(final Throwable exception, final StorageChannel channel)
 		{
-			logger.error("Exception occured in storage channel#{}", channel.channelIndex(), exception);
+			logger.error("Exception occurred in storage channel#{}", channel.channelIndex(), exception);
 			
 			StorageExceptionHandler.defaultHandleException(exception, channel);
 		}

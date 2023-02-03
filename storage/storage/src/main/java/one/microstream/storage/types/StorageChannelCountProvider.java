@@ -46,11 +46,6 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 	public interface Validation
 	{
 		/**
-		 * What was that: <i>'640 KB ought to be enough RAM for anybody'</i>?<br>
-		 * Nevertheless, I'll stick with that bound for now.<br>
-		 * TM, 2013-06-20
-		 * <p>
-		 * On a more serious note:<br>
 		 * This check has no actual technical background, it is just a safety net against
 		 * oversight mistakes to prevent creation of thousands of threads and files.<br>
 		 * Can be altered or removed anytime.
@@ -142,7 +137,7 @@ public interface StorageChannelCountProvider extends BinaryChannelCountProvider
 	public static StorageChannelCountProvider New()
 	{
 		/*
-		 * Validates its own default value, but the cost is neglible and it is a
+		 * Validates its own default value, but the cost is negligible and it is a
 		 * good defense against accidentally erroneous changes of the default value.
 		 */
 		return New(

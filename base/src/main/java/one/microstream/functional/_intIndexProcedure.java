@@ -20,10 +20,6 @@ package one.microstream.functional;
  * #L%
  */
 
-/**
- * 
- *
- */
 public interface _intIndexProcedure
 {
 	public void accept(int i, int index);

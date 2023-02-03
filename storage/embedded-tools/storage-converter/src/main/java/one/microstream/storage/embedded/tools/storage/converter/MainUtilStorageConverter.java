@@ -40,7 +40,7 @@ public class MainUtilStorageConverter
 {
 	public static String HELP =
 		"Convert a storage into a new one. The source and the new target storage \n"
-		+ "must be specified in microstream config files provided as program arguments: \n"
+		+ "must be specified in MicroStream config files provided as program arguments: \n"
 		+ "\n"
 		+ "MainUtilStorageConverter sourceConfig.xml targetConfig.xml"
 		+ "\n"

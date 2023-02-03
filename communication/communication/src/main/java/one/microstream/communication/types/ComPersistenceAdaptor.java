@@ -153,8 +153,8 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 		 * is not applicable here.
 		 * Also see descriptions in Issue priv#52. At some point in the future, a OGC-suitable type mapping
 		 * will probably become necessary. Until then, type mismatches are invalid.
-		 * The rationale behind this decission is that properly matching types on both sides must be established
-		 * at the time the connction is established, so BEFORE any data has been transmitted. On the fly type
+		 * The rationale behind this decision is that properly matching types on both sides must be established
+		 * at the time the connection is established, so BEFORE any data has been transmitted. On the fly type
 		 * mapping, be it dynamically new or legacy, can cause unresolvable problems if the other peer does not
 		 * have corresponding types (classes). Such a problem better be recognized sooner rather than later.
 		 */
@@ -287,7 +287,7 @@ public interface ComPersistenceAdaptor<C> extends PersistenceTypeDictionaryViewP
 					 * This is NOT a double-check antipattern since #provideTypeDictionary returns a fully
 					 * initialized instance.
 					 * Also, #cachedTypeDictionary is exclusively accessed in this method, so there can be no
-					 * side effect logic using a null value or a partially initalized instance.
+					 * side effect logic using a null value or a partially initialized instance.
 					 * 
 					 * Nevertheless, a "volatile" has been added to the field because its performance implication
 					 * should hardly matter in this case.

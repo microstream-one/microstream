@@ -46,7 +46,7 @@ public interface ACreator extends ARoot.Creator
 	@FunctionalInterface
 	public interface Creator
 	{
-		// yes, yes, Creator$Creator. Funny.
+
 		public ACreator createCreator(AFileSystem parent);
 	}
 	

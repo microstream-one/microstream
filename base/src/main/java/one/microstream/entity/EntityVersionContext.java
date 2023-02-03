@@ -29,10 +29,6 @@ import one.microstream.collections.types.XGettingTable;
 import one.microstream.hashing.HashEqualator;
 import one.microstream.hashing.XHashing;
 
-/**
- * 
- * 
- */
 public interface EntityVersionContext<K> extends EntityLayerProviderProvider
 {
 	@SuppressWarnings("unchecked")

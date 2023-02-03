@@ -28,8 +28,6 @@ import one.microstream.collections.sorting.XSortation;
  * the otherwise typical sequence concerns like inserting and ordering due to the limitations of the characteristic
  * of being always sorted.
  *
- * 
- *
  * @param <E> the type of elements in this collection
  */
 public interface XBasicSequence<E> extends XCollection<E>, XPutGetSequence<E>, XProcessingSequence<E>

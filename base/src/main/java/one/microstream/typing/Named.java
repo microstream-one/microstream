@@ -26,10 +26,6 @@ import one.microstream.X;
 import one.microstream.collections.types.XGettingCollection;
 
 
-/**
- * 
- *
- */
 public interface Named
 {
 	public String name();

@@ -390,25 +390,6 @@ public interface StorageView
 			);
 		}
 		
-//		private boolean isSingleValueType(
-//			final PersistenceTypeDescription typeDescription,
-//			final ViewerObjectDescription reference
-//		)
-//		{
-//			final XGettingSequence<? extends PersistenceTypeDescriptionMember>
-//				typeMembers = this.getTypeMembers(typeDescription);
-//			if(typeMembers.size() == 1 && !typeMembers.get().isReference())
-//			{
-//				final Object[] data = reference.getData();
-//				if(data.length == 1)
-//				{
-//					final Object obj = data[0];
-//					return !obj.getClass().isArray() && !(obj instanceof Collection);
-//				}
-//			}
-//			return false;
-//		}
-		
 		private String value(
 			final String value,
 			final ViewerObjectDescription reference,

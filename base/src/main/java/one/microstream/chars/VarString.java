@@ -41,8 +41,6 @@ import one.microstream.math.XMath;
  * Faster implementation of a StringBuilder with richer functionality.
  * Note that this class is NOT synchronized and only meant for single-threaded or thread-safe
  * (i.e. read only or explicitly synchronized) use.
- *
- * 
  */
 public final class VarString implements CharSequence, Appendable, Serializable
 {
@@ -51,11 +49,6 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	 * This is useful for preventing the instantiation and copying of potentially large temporary strings
 	 * which can have unnecessary and devastatingly negative effects on performance.
 	 * <br>
-	 * Note that {@link java.lang.Appendable} has a misleading name: it should properly be called "Appending",
-	 * as implementors of it can append things. Actually being "appendable" is what is defined by THIS interface.
-	 * One of countless design errors in the JDK.
-	 *
-	 * 
 	 */
 	public interface Appendable
 	{
@@ -124,7 +117,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			return Integer.MAX_VALUE;
 		}
 
-		//normale case: capacity up to 1 billion will suffice
+		//normal case: capacity up to 1 billion will suffice
 		int c = capacity;
 		while(c < minimumCapacity)
 		{
@@ -285,7 +278,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 			this.size += charSequence.length();
 			return;
 		}
-		// any other implementions fall through to default handling as is makes no difference
+		// any other implementations fall through to default handling as is makes no difference
 
 		// default case: create new generic String representation and add that.
 		this.internalAdd(charSequence.toString()); // applies to String efficiently by simply returning itself
@@ -668,11 +661,11 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	/**
 	 * Not implemented yet.
-	 * @return currenty exactely what {@link #reverse()} returns.
+	 * @return currently exactly what {@link #reverse()} returns.
 	 * @deprecated not implemented yet. Currently just calls {@link #reverse()}.
 	 * @see #reverse()
 	 */
-	@Deprecated // actually not depracted but work-in-progress, but there's no annotation for that
+	@Deprecated // actually not deprecated but work-in-progress, but there's no annotation for that
 	public final VarString surrogateCharReverse()
 	{
 		return this.reverse();
@@ -1177,7 +1170,7 @@ public final class VarString implements CharSequence, Appendable, Serializable
 
 	/**
 	 * Fills this instance's char storage completely with zeros and sets its size to 0.
-	 *
+	 * <p>
 	 * Only preferable to {@link #reset()} for in-memory security reasons.
 	 *
 	 * @return this
@@ -1452,15 +1445,6 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	
 	public final byte[] encodeBy(final Charset charset)
 	{
-		/*
-		 * As usual, they hid the actual logic, so everything has to be copied around multiple times
-		 * Maybe an own encoding logic can be written and used here in the future.
-		 * Also as usual, it would be WAY better strucutured and probably much faster then the JDK junk.
-		 * Until then, the clumsy way is used as a placeholder.
-		 */
-//		return StringCoding.encode(notNull(charset), this.data, 0, this.size);
-				
-		// and what kind of idiotic name is "getBytes" for the process of encoding characters to bytes?
 		return this.toString().getBytes(charset);
 	}
 
@@ -1523,25 +1507,5 @@ public final class VarString implements CharSequence, Appendable, Serializable
 	{
 		return new String(this.data, 0, this.size);
 	}
-
-	/*
-	 * not sure if hardcoding value type equality in this mutable type makes much sense.
-	 * Object#hashCode and Object#equals are pretty much anti-patterns for anything but true value types.
-	 */
-//	@Override
-//	public final int hashCode()
-//	{
-//		return XChars.hashCode(this.data, 0, this.size);
-//	}
-//
-//	@Override
-//	public final boolean equals(final Object other)
-//	{
-//		return this == other
-//			|| other instanceof VarString
-//			&& this.size == ((VarString)other).size
-//			&& XChars.equals(this.data, 0, ((VarString)other).data, 0, this.size)
-//		;
-//	}
 
 }

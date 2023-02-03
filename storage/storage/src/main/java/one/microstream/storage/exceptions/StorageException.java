@@ -23,7 +23,7 @@ package one.microstream.storage.exceptions;
 import one.microstream.exceptions.BaseException;
 
 /*
- * XXX check usages of this type, replace by better typed exceptions
+ * Check usages of this type, replace by better typed exceptions.
  */
 public class StorageException extends BaseException
 {

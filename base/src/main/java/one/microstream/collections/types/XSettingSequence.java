@@ -24,10 +24,6 @@ import java.util.Comparator;
 
 import one.microstream.collections.interfaces.ReleasingCollection;
 
-/**
- * 
- *
- */
 public interface XSettingSequence<E> extends XSortableSequence<E>, ReleasingCollection<E>
 {
 	public interface Creator<E> extends XSortableSequence.Creator<E>

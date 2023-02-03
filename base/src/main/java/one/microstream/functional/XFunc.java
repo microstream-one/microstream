@@ -33,12 +33,9 @@ import one.microstream.equality.Equalator;
  * Normally, writing "Func" instead of "Functional" is a capital sin of writing clean code.
  * However, in the sake of shortness for static util method class names AND in light of
  * "Mathematics", "Sorting" and "Characters" already being shortened to the (albeit more common)
- * names "Math", "Sort", "Chars" PLUS the unique recognizability of "Func", the shortness trumped
+ * names "Math", "Sort", "Chars" PLUS the unique recognizable of "Func", the shortness trumped
  * the clarity of completeness here (as well).
- * Rules are made for people and must be bendable if reasonable reflection (not laziness!)
- * concludes necessity.
- * 
- * 
+ *
  */
 public final class XFunc
 {
@@ -60,7 +57,7 @@ public final class XFunc
 	/**
 	 * Functional alias for{@code return true;}.
 	 * @param <T> the type of the input to the predicate
-	 * @return the any predicate
+	 * @return  The predicate denoting any.
 	 */
 	public static final <T> Predicate<T> any()
 	{

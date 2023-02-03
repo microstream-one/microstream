@@ -53,7 +53,7 @@ import one.microstream.util.BufferSizeProvider;
 import one.microstream.util.logging.Logging;
 
 
-// note that the name channel refers to the entity hash channel, not an nio channel
+// note that the name channel refers to the entity hash channel, not a nio channel
 public interface StorageFileManager extends StorageChannelResetablePart, Disposable
 {
 	/* (17.09.2014 TM)TODO: Much more loose coupling
@@ -412,9 +412,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 					// nothing to transfer yet and empty target file, transfer singleton oversized entity anyway
 				}
 
-	//			System.out.println(last.storagePosition + "\t" + (last.storagePosition - transferPositionOffset) + "\t" + last.length);
-	//			DEBUGStorage.println("transfer assigning\t" + current.objectId + "\t" + fileNewTotalLength + "\t" + current.length + "\t" + targetFile.number());
-				// set new file. Enqueing in the file's item chain is done for the whole sub chain
+				// set new file. Enqueuing in the file's item chain is done for the whole sub chain
 				current.typeInFile      = headFile.typeInFile(current.typeInFile.type);
 								
 				// update position to the one in the target file (old length plus current copy length)
@@ -426,21 +424,13 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			}
 			while(current.storagePosition == copyStart + copyLength);
 
-	//		DEBUGStorage.println("total transfer length = " + copyLength);
-
 			// can only reach here if there is at least one entity to transfer
 
-			// udpate source file to keep consistency as it might not be cleared completely
-	//		DEBUGStorage.println("Updating source file " + sourceFile + " for content length " + transferLength);
+			// update source file to keep consistency as it might not be cleared completely
 			sourceFile.removeHeadBoundChain(current, copyLength);
-	//		DEBUGStorage.println("Updated source file: " + sourceFile);
 
-			// update target files's content length. Must be done here as next transfer depends on updated length
-	//		DEBUGStorage.println("Updating target file " + targetFile + " for content length " + transferLength);
+			// update target file's content length. Must be done here as next transfer depends on updated length
 			headFile.addChainToTail(first, last);
-	//		DEBUGStorage.println("Updated target file: " + targetFile);
-			
-	//		DEBUGStorage.println(this.channelIndex + " transfering bytes, new length " + headFile.totalLength());
 
 			this.appendBytesToHeadFile(sourceFile, copyStart, copyLength);
 
@@ -457,11 +447,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			final long                           copyLength
 		)
 		{
-//			DEBUGStorage.println(
-//				this.channelIndex + " transerring " + copyLength + " bytes from position " + copyStart
-//				+ " from " + sourceFile + " to " + targetFile
-//			);
-			
+
 			final StorageLiveDataFile.Default headFile = this.headFile;
 
 			// do the actual file-level copying in one go at the end and validate the byte count to be sure
@@ -470,8 +456,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			// increase content length by length of chain
 			// (15.02.2019 TM)NOTE: changed from arithmetic inside #addChainToTail to directly using copyLength in here.
 			headFile.increaseContentLength(copyLength);
-//			headFile.increaseContentLength(last.storagePosition - first.storagePosition + last.length);
-			
+
 			final long newHeadFileLength = headFile.totalLength();
 			final long timestamp         = this.timestampProvider.currentNanoTimestamp();
 			this.writeTransactionsEntryTransfer(sourceFile, copyStart, copyLength, timestamp, newHeadFileLength);
@@ -482,9 +467,9 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			 * transactions entry for it is written.
 			 * This causes the next initialization to truncate a perfectly fine and complete transfer chunk
 			 * because it cannot find the transactions entry validating that chunk.
-			 * However this is not a problem but happens by design. Data can never be lost by this behavior:
+			 * However, this is not a problem but happens by design. Data can never be lost by this behavior:
 			 * If the process terminates before the entry write can be executed, there can also be no subsequent
-			 * file cleanup that deletes the old data file. Hence the transferred data still exists within it
+			 * file cleanup that deletes the old data file. Hence, the transferred data still exists within it
 			 * and gets registered as live data on the next initialization (and probably gets transferred then
 			 * once again).
 			 */
@@ -506,7 +491,6 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 
 		private void createNewStorageFile(final long fileNumber)
 		{
-//			DEBUGStorage.println(this.channelIndex + " creating new head file " + fileNumber);
 
 			final AFile file = this.fileProvider.provideDataFile(
 				this.channelIndex(),
@@ -627,24 +611,15 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			this.uncommittedDataLength = writeCount;
 			
 			this.writeTransactionsEntryStore(this.headFile, oldTotalLength, writeCount, timestamp, newTotalLength);
-//			DEBUGStorage.println(this.channelIndex + " wrote " + this.uncommittedDataLength + " bytes");
 
 			this.restartFileCleanupCursor();
-//			DEBUGStorage.println("Channel " + this.channelIndex + " wrote data for " + timestamp);
-			
+
 			return storagePositions;
 		}
 
 		@Override
 		public final void rollbackWrite()
 		{
-//			XDebug.debugln(
-//				this.channelIndex()
-//				+ " rolling back write: truncating "
-//				+ this.headFile.file().getName()
-//				+ "(length " + this.headFile.file().length()
-//				+ ") at " + this.headFile.totalLength()
-//			);
 			this.writer.truncate(this.headFile, this.headFile.totalLength(), this.fileProvider);
 		}
 
@@ -670,7 +645,6 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			final long                        cacheChange
 		)
 		{
-//			DEBUGStorage.println(this.channelIndex + " loading entity " + entity);
 			final ByteBuffer dataBuffer = this.buffer(X.checkArrayRange(length));
 			try
 			{
@@ -732,7 +706,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			{
 				/* (11.09.2014 TM)TODO: missing transactions file handler function
 				 * default implementation just returns null.
-				 * Also see TO-DO for deriver function.
+				 * Also see TO-DO for derive function.
 				 */
 				return null;
 			}
@@ -793,10 +767,6 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 				 * files that were registered as deleted but still linger around can/must be
 				 * safely deleted and removed from the dataFiles collection.
 				 */
-//				if(entryFile.isDeleted())
-//				{
-//
-//				}
 
 				// compare file lengths (head file special case: can be valid if longer, i.e. uncommitted write)
 				if(entryFile.length() == actualFileLength || file == lastFile && entryFile.length() < actualFileLength)
@@ -808,7 +778,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 				// inconsistent file length compared to transactions file, throw exception
 				throw new StorageExceptionConsistency(
 					this.channelIndex() + " Length " + actualFileLength + " of file "
-					+ file.number() + " is inconsinstent with the transactions entry's length of " + entryFile.length()
+					+ file.number() + " is inconsistent with the transactions entry's length of " + entryFile.length()
 				);
 			}
 			
@@ -870,7 +840,6 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			final StorageChannel   parent
 		)
 		{
-//			DEBUGStorage.println(this.channelIndex + " init for consistent timestamp " + consistentStoreTimestamp);
 
 			final EqHashTable<Long, StorageDataInventoryFile> supplementedMissingEmptyFiles = EqHashTable.New();
 			
@@ -919,7 +888,6 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 
 				this.restartFileCleanupCursor();
 				
-//				DEBUGStorage.println(this.channelIndex + " initialization complete, maxOid = " + maxOid);
 				return idAnalysis;
 			}
 			catch(final RuntimeException e)
@@ -996,7 +964,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			 * The data files and all entities in them get initialized in reverse order.
 			 * The reason is that for every entity, only the latest, most current version counts.
 			 * Reversing the order makes this trivial to implement: for every OID (i.e. entity), only the first
-			 * occurance counts and defines type, length and position in the storage. All further occurances
+			 * occurrence counts and defines type, length and position in the storage. All further occurrences
 			 * (meaning EARLIER versions) of an already encountered Entity/OID are simply ignored.
 			 */
 			
@@ -1026,7 +994,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			// special-case handle the last file
 			this.handleLastFile(this.headFile, lastFileLength);
 
-			// check if last file is oversized and should be retired right away.
+			// check if last file is over-sized and should be retired right away.
 			this.checkForNewFile();
 
 			return idAnalysis;
@@ -1067,7 +1035,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 								
 		private void initializeForNoFiles(final long taskTimestamp, final StorageInventory storageInventory)
 		{
-			// ensure transcations file BEFORE adding the first file as it writes a transactions entry
+			// ensure translations file BEFORE adding the first file as it writes a transactions entry
 			this.ensureTransactionsFile(taskTimestamp, storageInventory, -1);
 			this.addFirstFile();
 		}
@@ -1202,11 +1170,6 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			final long                headNewFileTotalLength
 		)
 		{
-//			DEBUGStorage.println(this.channelIndex + " writing transfer entry "
-//				+sourcefileNumber + " -> " + this.headFile.number() + "\t"
-//				+length + "\t"
-//				+timestamp + "\t"
-//			);
 			this.entryBufferTransfer.clear();
 			StorageTransactionsAnalysis.Logic.setEntryTransfer(
 				this.entryBufferTransferAddress,
@@ -1223,7 +1186,6 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 				sourcefileOffset,
 				copyLength
 			);
-//			DEBUGStorage.println(this.channelIndex + " written transfer entry");
 		}
 
 		private void writeTransactionsEntryFileDeletion(
@@ -1315,15 +1277,6 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 		{
 			if(lastFileLength != lastFile.size())
 			{
-//				XDebug.debugln(
-//					this.channelIndex()
-//					+ " last file initialization truncating "
-//					+ lastFile.file().getName()
-//					+ "(length " + lastFile.file().length()
-//					+ ") at " + lastFileLength
-//				);
-				
-//				DEBUGStorage.println(this.channelIndex + " truncating last file to " + lastFileLength + " " + lastFile);
 				// reaching here means in any case that the file has to be truncated and its header must be updated
 
 				final long timestamp = this.timestampProvider.currentNanoTimestamp();
@@ -1403,7 +1356,6 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 		public final void restartFileCleanupCursor()
 		{
 			this.fileCleanupCursor = this.headFile.next;
-//			DEBUGStorage.println(this.channelIndex + " resetted housekeeping to first file " + this.housekeepingFile.number() + " for head file " + this.headFile.number());
 		}
 
 		@Override
@@ -1414,12 +1366,11 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 
 		private void deletePendingFile(final StorageLiveDataFile.Default file)
 		{
-//			DEBUGStorage.println(this.channelIndex + " deleted pending file " + file);
 			if(this.pendingFileDeletes < 1)
 			{
 				/* (31.10.2014 TM)TODO: Proper storage inconsistency handling
 				 *  May never just throw an exception and potentially kill the channel thread
-				 *  Instead must signal the storage managr (one way or another) to shutdown so that no other
+				 *  Instead must signal the storage manager (one way or another) to shutdown so that no other
 				 *  thread continues working and ruins something.
 				 */
 				throw new StorageExceptionConsistency(
@@ -1446,21 +1397,16 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 
 			if(this.fileCleanupCursor == null)
 			{
-//				DEBUGStorage.println(this.channelIndex + " aborting file house keeping (all files checked)");
 				return true;
 			}
 
-//			DEBUGStorage.println(this.channelIndex + " cleanupcheck with budget of " + (nanoTimeBudget));
 
-//			DEBUGStorage.println(this.channelIndex + " checks for file cleanup with budget " + (nanoTimeBudget));
-						
 			StorageLiveDataFile.Default cycleAnchorFile = this.fileCleanupCursor;
 
 			// intentionally no minimum first loop execution as cleanup is not important if the system has heavy load
 			while(this.fileCleanupCursor != null && System.nanoTime() < nanoTimeBudgetBound)
 			{
 				// never check current head file for dissolving
-//				DEBUGStorage.println(this.channelIndex + " (head " + this.headFile.number() + ")" + " checking " + this.fileCleanupCursor);
 
 				// delete pending file and do special case checking. This never applies to head files automatically
 				if(!this.fileCleanupCursor.hasUsers())
@@ -1486,10 +1432,8 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 						this.createNextStorageFile();
 					}
 
-//					DEBUGStorage.println(this.channelIndex + " dissolves " + this.fileCleanupCursor);
 					if(!this.incrementalDissolveStorageFile(this.fileCleanupCursor, nanoTimeBudgetBound))
 					{
-//						DEBUGStorage.println(this.channelIndex + " dissolving not completed of " + this.housekeepingFile);
 						continue;
 					}
 					// file has been dissolved completely and deleted, do special case checking here as well.
@@ -1501,7 +1445,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 						continue;
 					}
 
-					/* Reaching here means normal case of advancing the house keeping file.
+					/* Reaching here means normal case of advancing the house-keeping file.
 					 * Either a healthy file or a removed file that is not the anchor special case.
 					 */
 				}
@@ -1512,23 +1456,19 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 					// if there are still pending deletes, file house keeping cannot be turned off
 					if(this.pendingFileDeletes > 0)
 					{
-//						DEBUGStorage.println(this.channelIndex + " still has pending deletes: " + this.pendingFileDeletes);
 
 						// at least one more file is pending deletion
 						break;
 					}
 
-//					DEBUGStorage.println(this.channelIndex + " completed file checking");
 
-					/* House keeping can be completely disabled for now as everything has been checked.
+					/* House-keeping can be completely disabled for now as everything has been checked.
 					 * Will be resetted by the next write, see #resetHousekeeping.
 					 */
-//					DEBUGStorage.println(this.channelIndex + " completed file checking.");
 					this.fileCleanupCursor = null;
 				}
 			}
 
-//			DEBUGStorage.println(this.channelIndex + " done with file checking. Complete: " + (this.housekeepingFile == null) + ". Time left: " + (nanoTimeBudgetBound - System.nanoTime()));
 			return this.fileCleanupCursor == null;
 		}
 
@@ -1537,31 +1477,25 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			final long                        nanoTimeBudgetBound
 		)
 		{
-//			DEBUGStorage.println("incrementally dissolving " + file);
 
 			if(this.incrementalTransferEntities(file, nanoTimeBudgetBound))
 			{
-//				DEBUGStorage.println(" * dissolved completely, deleting: " + file);
 				if(file.unregisterUsageClosingData(this, this.deleter))
 				{
-//					DEBUGStorage.println(this.channelIndex + " deleted right away: " + file);
 					return true;
 				}
 
-//				DEBUGStorage.println(this.channelIndex + " scheduling for later deletion: " + file);
 
 				// file has no more content but can't be deleted yet. Schedule for later deletion.
 				this.pendingFileDeletes++;
 				return false;
 			}
 
-//			DEBUGStorage.println(" * incrementally dissolving not done yet: " + file);
 			return false;
 		}
 
 		private void deleteFile(final StorageLiveDataFile.Default file)
 		{
-//			DEBUGStorage.println(this.channelIndex + " deleting " + file);
 
 			file.detach();
 			file.close(); // idempotent. No harm in calling on an already closed file.
@@ -1598,12 +1532,9 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			// dissolve file to as much head files as needed.
 			while(file.hasContent() && System.nanoTime() < nanoTimeBudgetBound)
 			{
-//				DEBUGStorage.println("transferring one head chain of " + file);
 				this.transferOneChainToHeadFile(file);
-//				DEBUGStorage.println(" * result: " + file);
 			}
 
-//			DEBUGStorage.println(" * transfer returning (" + System.nanoTime() + " / " + nanoTimeBudgetBound + "): " + file);
 
 			// if entity migration was completed before time ran out, the file has no more content.
 			return !file.hasContent();
@@ -1656,13 +1587,11 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 
 		public void copyData(final StorageImportSource importSource)
 		{
-//			DEBUGStorage.println(this.channelIndex + " processing import source file " + importFile);
 			importSource.iterateBatches(this.importHelper.setSource(importSource));
 		}
 
 		public void commitImport(final long taskTimestamp)
 		{
-//			DEBUGStorage.println(this.channelIndex + " committing import data (entity registering)");
 
 			// caching variables
 			final StorageEntityCache.Default  entityCache = this.entityCache;
@@ -1688,7 +1617,6 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			headFile.increaseContentLength(copyLength);
 			this.cleanupImportHelper();
 
-//			DEBUGStorage.println(this.channelIndex + " writing import store entry for " + this.headFile);
 			this.writeTransactionsEntryStore(this.headFile, oldTotalLength, copyLength, taskTimestamp, loopFileLength);
 		}
 
@@ -1706,7 +1634,6 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			}
 
 			this.checkForNewFile();
-//			DEBUGStorage.println(this.channelIndex + " importing batch from source @" + position + "[" + length + "] to file #" + this.headFile.number());
 			this.writer.writeImport(source, position, length, this.headFile);
 		}
 

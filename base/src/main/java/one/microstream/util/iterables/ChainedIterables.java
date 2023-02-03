@@ -23,10 +23,6 @@ package one.microstream.util.iterables;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-/**
- * 
- *
- */
 public class ChainedIterables<T> implements Iterable<T>
 {
 	///////////////////////////////////////////////////////////////////////////

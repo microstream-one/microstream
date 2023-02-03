@@ -44,8 +44,6 @@ import one.microstream.util.iterables.SynchronizedListIterator;
 /**
  * Synchronization wrapper class that wraps an {@link XList} instance in public synchronized delegate methods.
  *
- * 
- *
  */
 public final class SynchList<E> implements XList<E>, Synchronized
 {
@@ -363,12 +361,6 @@ public final class SynchList<E> implements XList<E>, Synchronized
 		return this.subject.containsAll(elements);
 	}
 
-//	@Override
-//	public final synchronized boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.containsAll(samples, equalator);
-//	}
-
 	@Override
 	public final synchronized boolean containsId(final E element)
 	{
@@ -542,29 +534,11 @@ public final class SynchList<E> implements XList<E>, Synchronized
 		return this.subject.hashCode();
 	}
 
-//	@Override
-//	public final synchronized boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return this.subject.hasDistinctValues(equalator);
-//	}
-//
-//	@Override
-//	public final synchronized boolean hasDistinctValues()
-//	{
-//		return this.subject.hasDistinctValues();
-//	}
-
 	@Override
 	public final synchronized boolean hasVolatileElements()
 	{
 		return this.subject.hasVolatileElements();
 	}
-
-//	@Override
-//	public final synchronized int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.indexOf(sample, equalator);
-//	}
 
 	@Override
 	public final synchronized long indexOf(final E element)
@@ -738,12 +712,6 @@ public final class SynchList<E> implements XList<E>, Synchronized
 		return this.subject.removeOne(element);
 	}
 
-//	@Override
-//	public final synchronized boolean removeOne(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.removeOne(sample, equalator);
-//	}
-
 	@Override
 	public final synchronized E retrieve(final E element)
 	{
@@ -776,12 +744,6 @@ public final class SynchList<E> implements XList<E>, Synchronized
 		return this.subject.removeSelection(indices);
 	}
 
-//	@Override
-//	public final synchronized int replace(final E oldElement, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		return this.subject.replace(oldElement, equalator, replacement);
-//	}
-
 	@Override
 	public final synchronized long replace(final E element, final E replacement)
 	{
@@ -793,12 +755,6 @@ public final class SynchList<E> implements XList<E>, Synchronized
 	{
 		return this.subject.replace(predicate, substitute);
 	}
-
-//	@Override
-//	public final synchronized int replace(final CtrlPredicate<? super E> predicate, final E substitute)
-//	{
-//		return this.subject.replace(predicate, substitute);
-//	}
 
 	@Override
 	public final synchronized long substitute(final Function<? super E, ? extends E> mapper)
@@ -812,29 +768,11 @@ public final class SynchList<E> implements XList<E>, Synchronized
 		return this.subject.substitute(predicate, mapper);
 	}
 
-//	@Override
-//	public final int modify(final CtrlPredicate<? super E> predicate, final Function<E, E> mapper)
-//	{
-//		return this.subject.modify(predicate, mapper);
-//	}
-
-//	@Override
-//	public final synchronized int replaceAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator, final E newElement)
-//	{
-//		return this.subject.replaceAll(samples, equalator, newElement);
-//	}
-
 	@Override
 	public final synchronized long replaceAll(final XGettingCollection<? extends E> elements, final E replacement)
 	{
 		return this.subject.replaceAll(elements, replacement);
 	}
-
-//	@Override
-//	public final synchronized boolean replaceOne(final E sample, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		return this.subject.replaceOne(sample, equalator, replacement);
-//	}
 
 	@Override
 	public final synchronized boolean replaceOne(final E element, final E replacement)
@@ -847,12 +785,6 @@ public final class SynchList<E> implements XList<E>, Synchronized
 	{
 		return this.subject.replaceOne(predicate, substitute);
 	}
-
-//	@Override
-//	public final synchronized int retainAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.retainAll(samples, equalator);
-//	}
 
 	@Override
 	public final synchronized long retainAll(final XGettingCollection<? extends E> elements)
@@ -872,12 +804,6 @@ public final class SynchList<E> implements XList<E>, Synchronized
 	{
 		return this.subject.scan(predicate);
 	}
-
-//	@Override
-//	public final synchronized E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.search(sample, equalator);
-//	}
 
 	@Override
 	public final synchronized E seek(final E sample)
@@ -959,7 +885,7 @@ public final class SynchList<E> implements XList<E>, Synchronized
 	@Override
 	public final synchronized XList<E> range(final long fromIndex, final long toIndex)
 	{
-		// (28.01.2011 TM)NOTE: not sure if this is sufficient ^^
+		// (28.01.2011 TM)NOTE: not sure if this is sufficient
 		return new SynchList<>(this.subject.range(fromIndex, toIndex));
 	}
 

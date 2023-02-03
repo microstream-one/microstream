@@ -31,7 +31,7 @@ public interface TraversalEnqueuer
 	/* (23.08.2017 TM)FIXME: enqueue stack with proper order
 	 * Implementing the enqueuing with a FiFo list as it done currently causes a memory overflow for larger graphs
 	 * or generally an inefficient memory usage. The FiFo list first enqueues all the graph's reference
-	 * subsequentially and then starts processing the gigantic list from start to end.
+	 * sub-sequentially and then starts processing the gigantic list from start to end.
 	 * It would be better if the handling of one instance would prepend its references, so that they get processed
 	 * next.
 	 * But a strict prepending would inverse the order of the references, which could cause erroneous bahavior
@@ -50,8 +50,4 @@ public interface TraversalEnqueuer
 	 * 
 	 */
 	
-//	public void prepareEnqueue(Object instance);
-//
-//	public void commitEnqueue();
-		
 }

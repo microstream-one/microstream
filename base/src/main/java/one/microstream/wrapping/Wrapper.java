@@ -22,8 +22,7 @@ package one.microstream.wrapping;
 
 /**
  * Generic interface for the wrapper (decorator) pattern.
- * 
- * , FH
+ * FH
  */
 public interface Wrapper<W>
 {

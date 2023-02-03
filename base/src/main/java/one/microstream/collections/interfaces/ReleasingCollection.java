@@ -25,11 +25,9 @@ package one.microstream.collections.interfaces;
  * <p>
  * This mainly applies to removing, but also to setting, replacing and to all kinds of putting in set collections.
  *
- * 
- *
  * @param <E> the type of elements in this collection
  */
 public interface ReleasingCollection<E>
 {
-	// empty marker interface (so far)
+	// empty marker interface
 }

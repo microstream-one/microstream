@@ -34,9 +34,9 @@ public interface ConfigurationBasedCreator<T>
 	public T create(Configuration configuration);
 	
 	
-	@SuppressWarnings("rawtypes")
-	public static List<ConfigurationBasedCreator> registeredCreators(
-		final Class<?> resultType
+	@SuppressWarnings("unchecked") // type-safety ensured by logic
+	public static <T> List<ConfigurationBasedCreator<T>> registeredCreators(
+		final Class<T> resultType
 	)
 	{
 		return StreamSupport.stream(
@@ -44,6 +44,7 @@ public interface ConfigurationBasedCreator<T>
 			false
 		)
 		.filter(creator -> resultType.isAssignableFrom(creator.resultType()))
+		.map(c -> (ConfigurationBasedCreator<T>)c)
 		.collect(Collectors.toList());
 	}
 	
@@ -65,7 +66,7 @@ public interface ConfigurationBasedCreator<T>
 		{
 			return this.resultType;
 		}
-				
+		
 	}
 	
 }

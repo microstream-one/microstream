@@ -50,10 +50,7 @@ import one.microstream.typing.XTypes;
  * This concept can be very useful if a class wants to provide public read access to an internal set without
  * either the danger of the set being modified from the outside or the need to copy the whole set on every access.
  * <p>
- * This is one of many useful concepts that are missing in the JDK Collections Framework and thus so far lead to
- * either inefficient or unneccessary verbose program code (or both).
- *
- * 
+ * This is one of many useful concepts that are missing in the JDK Collections Framework.
  *
  */
 public final class SetView<E> implements XGettingSet<E>
@@ -99,12 +96,6 @@ public final class SetView<E> implements XGettingSet<E>
 	{
 		return this.subject.hasVolatileElements();
 	}
-
-//	@Override
-//	public <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return this.subject.iterate(aggregate);
-//	}
 
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
@@ -224,18 +215,6 @@ public final class SetView<E> implements XGettingSet<E>
 		return this.subject.join(joiner, aggregate);
 	}
 
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return this.subject.hasDistinctValues(equalator);
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return this.subject.hasDistinctValues();
-//	}
-
 	@Override
 	public <C extends Consumer<? super E>> C intersect(
 		final XGettingCollection<? extends E> other    ,
@@ -257,12 +236,6 @@ public final class SetView<E> implements XGettingSet<E>
 	{
 		return this.subject.min(comparator);
 	}
-
-//	@Override
-//	public E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.set.search(sample, equalator);
-//	}
 
 	@Override
 	public E seek(final E sample)
@@ -380,7 +353,7 @@ public final class SetView<E> implements XGettingSet<E>
 	@Override
 	public Iterator<E> iterator()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME  not implemented yet
 	}
 
 	@Override

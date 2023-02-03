@@ -26,10 +26,6 @@ import static one.microstream.X.notNull;
 import one.microstream.collections.EqHashTable;
 import one.microstream.collections.types.XGettingTable;
 
-/**
- * 
- * 
- */
 public final class EntityLayerVersioning<K> extends EntityLayer
 {
 	EntityVersionContext<K> context ;

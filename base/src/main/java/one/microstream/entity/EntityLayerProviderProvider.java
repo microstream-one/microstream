@@ -21,8 +21,7 @@ package one.microstream.entity;
  */
 
 /**
- * 
- * , FH
+ * FH
  */
 public interface EntityLayerProviderProvider
 {

@@ -37,11 +37,10 @@ import java.util.Comparator;
  * enum (combining sequence and set) and sortation (enhancing the contract from being ordered to being sorted).
  * <p>
  * Note that all collection types not being a subtype of sequence (like pure set and pure bag subtypes) are rather
- * academic and most probably only reasonably usable for high end performance optimisations. This effectively
+ * academic and most probably only reasonably usable for high-end performance optimisations. This effectively
  * makes the sequence the dominant level 1 collection type, almost superseding the level 0 collection type collection
  * in practice.
  *
- * 
  */
 public interface XSequence<E> extends XBasicSequence<E>, XSortableSequence<E>, XInputtingSequence<E>
 {

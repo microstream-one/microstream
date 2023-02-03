@@ -114,8 +114,8 @@ public class TypeCastException extends ClassCastException
 	/**
 	 * Sadly, the Throwable implementation uses #getMessage() directly to print the exception.
 	 * This is a concern conflict: getMessage should actually be the getter for the explicit message.
-	 * But it is used as the String representating method as well.
-	 * So a output message generically assembling the output string must override the getter.
+	 * But it is used as the String representation method as well.
+	 * So an output message generically assembling the output string must override the getter.
 	 * As this hides the actual getting functionality, a workaround accessor method has to be provided
 	 * for potential subclasses.
 	 *
@@ -162,6 +162,6 @@ public class TypeCastException extends ClassCastException
 
 
 
-	// ridiculous hacky buggy security hole misconceptioned serialization, but if need be...
+	// Hacky buggy security hole misconception serialization.
 	private static final long serialVersionUID = -6986341469122765501L;
 }

@@ -33,7 +33,6 @@ import one.microstream.storage.exceptions.StorageExceptionIoWriting;
  * Function type that encapsulates handling of all writing accesses to persistent data, including copying,
  * truncation, deletion.
  *
- * 
  */
 public interface StorageFileWriter
 {
@@ -157,7 +156,6 @@ public interface StorageFileWriter
 		final StorageFileProvider           fileProvider
 	)
 	{
-//		DEBUGStorage.println("storage file truncation");
 		final AFile truncationTargetFile = fileProvider.provideTruncationTargetFile(
 			file,
 			newLength
@@ -192,8 +190,7 @@ public interface StorageFileWriter
 		final StorageFileProvider    fileProvider
 	)
 	{
-//		DEBUGStorage.println("storage file deletion");
-		
+
 		// validate BEFORE moving the file away. Deletion means removing the file.
 		writeController.validateIsFileDeletionEnabled();
 
@@ -263,7 +260,7 @@ public interface StorageFileWriter
 			AFS.executeWriting(deletionTargetFile, wf ->
 			{
 				/*
-				 * Target file explicitely may NOT be ensured to exist since
+				 * Target file explicitly may NOT be ensured to exist since
 				 * moving does not implicitly replace an existing file.
 				 */
 				file.moveTo(wf);
@@ -279,7 +276,7 @@ public interface StorageFileWriter
 	
 	public final class Default implements StorageFileWriter
 	{
-		// since default methods, interfaces should be directly instantiable :(
+		// since default methods, interfaces should be directly instantiable
 	}
 	
 	

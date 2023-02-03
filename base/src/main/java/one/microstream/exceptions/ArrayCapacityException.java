@@ -21,12 +21,11 @@ package one.microstream.exceptions;
  */
 
 /**
- * This implemention intentionally does NOT extend from {@link ArrayIndexOutOfBoundsException}.
+ * This implementation intentionally does NOT extend from {@link ArrayIndexOutOfBoundsException}.
  * See architectural explanation in {@link IndexBoundsException}.
- * 
- * 
+ *
  */
-// hopefully, this can be removed at some point in the future ... :(
+// hopefully, this can be removed at some point in the future ...
 public class ArrayCapacityException extends IndexBoundsException
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -64,6 +63,6 @@ public class ArrayCapacityException extends IndexBoundsException
 
 	
 	
-	// ridiculous hacky buggy security hole misconceptioned serialization, but if need be...
+	// hacky buggy security hole misconception serialization
 	private static final long serialVersionUID = 3168758028720258369L;
 }

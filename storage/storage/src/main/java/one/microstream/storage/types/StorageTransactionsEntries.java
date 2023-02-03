@@ -144,7 +144,7 @@ public interface StorageTransactionsEntries
 			final Long      specialOffset
 		)
 		{
-			// no constraints to allow inventorizing of any transactions file, potentially inconsistent.
+			// no constraints to allow inventorying of any transactions file, potentially inconsistent.
 			return new Entry.Default(
 				type            ,
 				timestamp       ,
@@ -359,8 +359,6 @@ public interface StorageTransactionsEntries
 			);
 			this.addEntry(e);
 			
-//			XDebug.println("STORE " + e.targetFileNumber() + " " + e.fileLength() + " " + e.lengthChange());
-			
 			return true;
 		}
 		
@@ -420,7 +418,7 @@ public interface StorageTransactionsEntries
 				null
 			);
 			
-			// no chaning of current file number or length by a delete!
+			// no changing of current file number or length by a delete!
 			this.entries.add(e);
 			
 			return true;

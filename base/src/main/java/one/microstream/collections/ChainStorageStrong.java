@@ -46,8 +46,6 @@ import one.microstream.typing.XTypes;
 public class ChainStorageStrong<E, K, V, EN extends AbstractChainEntry<E, K, V, EN>>
 extends AbstractChainStorage<E, K, V, EN>
 {
-	// CHECKSTYLE.OFF: FinalParameter: A LOT of methods use that pattern in this class
-
 	static final String exceptionRange(final long size, final long offset, final long length)
 	{
 		return "Range [" + (length < 0 ? offset + length + 1 + ";" + offset
@@ -338,14 +336,6 @@ extends AbstractChainStorage<E, K, V, EN>
 	@Override
 	public void clear()
 	{
-		// not sure this is worth the effort
-//		// break inter-entry references to ease GC
-//		for(EN entry = this.head; (entry = entry.next) != null; )
-//		{
-//			entry.prev.next = null; // subsequently clear previous entry's .next
-//			entry.prev = null;
-//		}
-
 		// reset singleton fields
 		(this.head.prev = this.head).next = null;
 	}
@@ -353,27 +343,27 @@ extends AbstractChainStorage<E, K, V, EN>
 	@Override
 	public final void shiftBy(final long sourceIndex, final long distance)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final void shiftBy(final long sourceIndex, final long distance, final long length)
 	{
-		// FIXME Auto-generated method stub, not implemented yet
+		// FIXME not implemented yet
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 	@Override
 	public final void shiftTo(final long sourceIndex, final long targetIndex)
 	{
-		// FIXME Auto-generated method stub, not implemented yet
+		// FIXME not implemented yet
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
 	@Override
 	public final void shiftTo(final long sourceIndex, final long targetIndex, final long length)
 	{
-		// FIXME Auto-generated method stub, not implemented yet
+		// FIXME not implemented yet
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
 
@@ -623,9 +613,6 @@ extends AbstractChainStorage<E, K, V, EN>
 
 		// scroll to offset
 		EN entry = this.head;
-
-//		System.out.println(size >>> 1);
-//		System.out.println(offset);
 
 		if(offset <= size >>> 1)
 		{
@@ -2343,20 +2330,6 @@ extends AbstractChainStorage<E, K, V, EN>
 	{
 		// (04.04.2016 TM)NOTE: chain storage shuffling is currently not correct (and has never been used/tested/needed)
 		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainStorageStrong#shuffle()
-//		EN entry;
-//		EN entry = this.head;
-//		int length = XTypes.to_int(this.parent.size());
-//
-//		final FastRandom random = new FastRandom();
-//		for(EN s1, s2; length > 0; entry = entry.next, length--)
-//		{
-//			s1 = s2 = entry.next;
-//			for(final int i = random.nextInt(length); i > 0;)
-//			{
-//				s2 = s2.next;
-//			}
-//			this.swapEntries(s1, s2);
-//		}
 	}
 
 
@@ -2781,6 +2754,5 @@ extends AbstractChainStorage<E, K, V, EN>
 
 	}
 
-	// CHECKSTYLE.ON: FinalParameter
 }
 

@@ -24,7 +24,7 @@ public interface StorageTimestampProvider
 {
 	/**
 	 * Provides the current timestamp in nanosecond precision but not necessarily in nanosecond accuracy.
-	 * However it is guaranteed that subsequent calls of this method never return an equal or lower value.
+	 * However, it is guaranteed that subsequent calls of this method never return an equal or lower value.
 	 * 
 	 * @return a strictly monotone increasing timestamp with nanosecond precision.
 	 */

@@ -20,17 +20,13 @@ package one.microstream.collections.interfaces;
  * #L%
  */
 
-/**
- * 
- *
- */
 public interface OptimizableCollection extends Sized
 {
 	/**
 	 * Optimizes the internal storage of this collection and returns the storage size of the collection after the
 	 * process is complete.
 	 *
-	 * @return the storage size of the collection after the optimzation.
+	 * @return the storage size of the collection after the optimization.
 	 */
 	public long optimize();
 

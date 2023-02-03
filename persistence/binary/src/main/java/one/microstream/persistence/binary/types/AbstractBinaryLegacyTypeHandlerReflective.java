@@ -58,7 +58,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 		 * Moved from AbstractBinaryLegacyTypeHandlerTranslating here as a recent fix was only correct for ~Rerouting
 		 * but incorrect for ~Reflective LegacyHandler. The latter needs the old version before the fix.
 		 */
-		// reference traversers mut be derived from the old type definition that fits the persisted layout.
+		// reference traversers must be derived from the old type definition that fits the persisted layout.
 		this.oldBinaryLayoutReferenceTraversers = deriveReferenceTraversers(typeDefinition, switchByteOrder);
 	}
 	
@@ -71,7 +71,7 @@ extends AbstractBinaryLegacyTypeHandlerTranslating<T>
 	@Override
 	public PersistenceTypeHandlerReflective<Binary, T> typeHandler()
 	{
-		// cast safety guranteed by constructor typing
+		// cast safety guaranteed by constructor typing
 		return (PersistenceTypeHandlerReflective<Binary, T>)super.typeHandler();
 	}
 	

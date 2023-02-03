@@ -26,7 +26,6 @@ import java.util.Comparator;
  * Helper class to chain multiple {@link Comparator} functions together as a super {@link Comparator}.<br>
  * Useful for implementing SQL-like "ORDER BY" for querying / processing collections.
  *
- * 
  */
 public class ComparatorSequence<T> implements Comparator<T>
 {

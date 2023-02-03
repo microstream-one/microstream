@@ -42,10 +42,6 @@ public enum XCsvDataType
 			vc( '|', 1.0),
 			vc( ':', 0.9)
 		)
-//		XCsvConfiguration.Builder()
-//		.setHasColumnNamesHeader(Boolean.FALSE)
-//		.setHasColumnTypesHeader(Boolean.FALSE)
-//		.setHasControlCharacterDefinitionHeader(Boolean.TRUE)
 	),
 	TSV(
 		"tsv",

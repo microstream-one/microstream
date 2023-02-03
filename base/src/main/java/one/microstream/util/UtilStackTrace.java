@@ -77,7 +77,7 @@ public class UtilStackTrace
 		{
 			return stackTrace[0].getMethodName();
 		}
-		return "unkown method name";
+		return "unknown method name";
 	}
 
 }

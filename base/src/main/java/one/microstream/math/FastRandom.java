@@ -22,7 +22,7 @@ package one.microstream.math;
 
 public final class FastRandom
 {
-	/* experimental singlethreaded static variant of java.util.Random for ints.
+	/* experimental single-threaded static variant of java.util.Random for ints.
 	 * Tests show 3 times faster execution.
 	 * For "low quality" random numbers (e.g. for use in spot testing array values), this
 	 * has no disadvantage over the "proper" implementation.
@@ -44,7 +44,7 @@ public final class FastRandom
 			oldseed = this.seed;
 			nextseed = oldseed * MULTIPLIER + ADDEND & MASK;
 		}
-		while(!this.compareAndSet(oldseed, nextseed)); // faster than whithout private method
+		while(!this.compareAndSet(oldseed, nextseed)); // faster than without private method
 
 		return (int)(nextseed >>> MASC_BIT_SIZE - bits);
 	}

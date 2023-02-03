@@ -36,8 +36,6 @@ import one.microstream.typing.KeyValue;
  * where only basic mapping functionality but best performance and low memory need is required, for example to associate
  * handler instances to class instances.
  *
- * 
- *
  * @param <K> the key type.
  * @param <V> the value type.
  */

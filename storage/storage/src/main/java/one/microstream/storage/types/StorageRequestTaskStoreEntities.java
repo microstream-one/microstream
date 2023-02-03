@@ -152,7 +152,7 @@ public interface StorageRequestTaskStoreEntities extends StorageRequestTask
 		@Override
 		protected final void cleanUp(final StorageChannel channel)
 		{
-			// signal channel to cleanup the current store, e.g. remove pending store updates to re-enable GC sweeping
+			// signal channel to clean up the current store, e.g. remove pending store updates to re-enable GC sweeping
 			channel.cleanupStore();
 		}
 

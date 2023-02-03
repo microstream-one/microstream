@@ -35,8 +35,8 @@ import one.microstream.reflect.XReflect;
 
 
 /**
- * The relation with the properties from Microstream docs:
- * https://docs.microstream.one/manual/cache/configuration/properties.html
+ * The relation with the properties from MicroStream docs:
+ * <a href="https://docs.microstream.one/manual/cache/configuration/properties.html">Configuration properties</a>
  */
 public enum CacheProperties implements Supplier<String>
 {
@@ -81,7 +81,7 @@ public enum CacheProperties implements Supplier<String>
 	/**
 	 * MicroStream’s storage can be used as a backing store for the cache.
 	 * It functions as a CacheWriter as well as a CacheReader, depending on the writeThrough
-	 * and readThrough configuration. Per default it is used for both.
+	 * and readThrough configuration. Per default, it is used for both.
 	 */
 	STORAGE(PREFIX.get() + "store");
 	
