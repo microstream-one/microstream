@@ -59,11 +59,11 @@ public class StorageManagerProvider
     public static final String PRIMARY_QUALIFIER = "Primary";
 
 
-    private final static Map<String, EmbeddedStorageManager> storageManagers = new ConcurrentHashMap<>();
+    private final Map<String, EmbeddedStorageManager> storageManagers = new ConcurrentHashMap<>();
 
     private static final String PREFIX = "one.microstream.";
 
-    private final static Logger logger = Logging.getLogger(StorageManagerFactory.class);
+    private final Logger logger = Logging.getLogger(StorageManagerFactory.class);
 
     private final List<EmbeddedStorageFoundationCustomizer> customizers;
     private final List<StorageManagerInitializer> initializers;
