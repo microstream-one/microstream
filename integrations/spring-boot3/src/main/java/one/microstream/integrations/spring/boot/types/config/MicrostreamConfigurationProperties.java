@@ -145,14 +145,6 @@ public class MicrostreamConfigurationProperties
     private String dataFileCleanupHeadFile;
 
     /**
-     * Allows you to force use for MicroStream Context Class Loader. Useful when Spring is supplemented with another class loader.
-     * Occasionally there is a problem, for example an attempt to use the hot replace feature for development, that the MicroStream is subsequently used from a different ClassLoader than the one that loaded the original objects.
-     * This causes subsequent problems and an exception: one.microstream.exceptions.TypeCastException
-     * Setting this value to true will force the standard class loader for MicroStream and Objects will be loaded by only one ClassLoader.
-     */
-    private Boolean useCurrentThreadClassLoader = false;
-
-    /**
      * Is the {@code StorageManager} started when the CDI bean for the instance is created or not.
      * Be aware that when you don't rely on the autostart of the StorageManager, you are responsible for starting it
      * and might result in Exceptions when code is executed that relies on a started StorageManager.
@@ -379,16 +371,6 @@ public class MicrostreamConfigurationProperties
     public void setDataFileCleanupHeadFile(String dataFileCleanupHeadFile)
     {
         this.dataFileCleanupHeadFile = dataFileCleanupHeadFile;
-    }
-
-    public Boolean getUseCurrentThreadClassLoader()
-    {
-        return useCurrentThreadClassLoader;
-    }
-
-    public void setUseCurrentThreadClassLoader(Boolean useCurrentThreadClassLoader)
-    {
-        this.useCurrentThreadClassLoader = useCurrentThreadClassLoader;
     }
 
     public Boolean getAutoStart()

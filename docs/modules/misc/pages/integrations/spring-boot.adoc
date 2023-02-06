@@ -190,13 +190,3 @@ to obtain all MicroStream configuration keys:
 ----
 
 Key values containing "password" are replaced by "xxxxx".
-
-== Classloader configuration
-
-If you use another class loader, such as hot replace, you may get an exception:
-`one.microstream.exceptions.TypeCastException`<br>
-In this case, it is possible to force the use of the current thread's class loader for MicroStream.<br>
-`one.microstream.use-current-thread-class-loader=false` <br>
-This value is not passed to the MicroStream framework but is set directly in this module.
-
-This configuration is only applied to the _StorageManager_ Spring bean and not to the _EmbeddedStorageFoundation_ Spring bean.

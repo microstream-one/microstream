@@ -24,7 +24,6 @@ import one.microstream.integrations.spring.boot.types.storage.StorageClassData;
 import one.microstream.integrations.spring.boot.types.storage.StorageMetaData;
 import one.microstream.integrations.spring.boot.types.util.ByQualifier;
 import one.microstream.integrations.spring.boot.types.util.EnvironmentFromMap;
-import one.microstream.reflect.ClassLoaderProvider;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
 import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
 import one.microstream.storage.embedded.types.EmbeddedStorageManager;
@@ -43,7 +42,6 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -132,14 +130,8 @@ public class StorageManagerProvider
         Binder.get(new EnvironmentFromMap(values))
                 .bind("", Bindable.ofInstance(configuration));
 
-        if (configuration.getUseCurrentThreadClassLoader() != null && configuration.getUseCurrentThreadClassLoader())
-        {
-            embeddedStorageFoundation.onConnectionFoundation(cf -> cf.setClassLoaderProvider(ClassLoaderProvider.New(
-                    Thread.currentThread()
-                            .getContextClassLoader())));
-        }
-        embeddedStorageFoundation.onConnectionFoundation(
-                cf -> cf.setClassLoaderProvider(typeName -> applicationContext.getClassLoader()));
+        embeddedStorageFoundation.getConnectionFoundation()
+                .setClassLoaderProvider(typeName -> applicationContext.getClassLoader());
 
         ByQualifier.filter(this.customizers, qualifier)
                 .forEach(c -> c.customize(embeddedStorageFoundation));
@@ -189,16 +181,6 @@ public class StorageManagerProvider
     private EmbeddedStorageFoundation<?> embeddedStorageFoundation(final String qualifier, final Map<String, String> values)
     {
         final EmbeddedStorageConfigurationBuilder builder = EmbeddedStorageConfigurationBuilder.New();
-
-        if (values.containsKey("use-current-thread-class-loader"))
-        {
-            if (Objects.equals(values.get("use-current-thread-class-loader"), "true"))
-            {
-                logger.debug("using current thread class loader");
-            }
-            values.remove("use-current-thread-class-loader");
-
-        }
 
         logger.debug("MicroStream configuration items: ");
         values.forEach((key, value) ->
