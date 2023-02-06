@@ -78,6 +78,8 @@ You can only annotate 1 class with the `@Storage`  annotation, if you have marke
 
 When using the `@Storage` functionality, you as a developer should not change the root object of the _StorageManager_ yourself anymore as that will lead to conflicts and mismatches between the Spring bean created for the Root object and your newly set instance on the _StorageManager_.
 
+WARNING: When using @Storage, the Root initialization when there is no data in the data storage yet, happens asynchronously from the `StorageManager` initialization. This means that your code that uses the `StorageManager` bean can retrieve/operate on a null root when initialization is still in progress.
+
 == Multiple Managers
 
 As of version 8.0.0, the integration support multiple _StorageManagers_.  Within Spring (Boot) you can define multiple beans that implement the same interface by assigning it a certain label with the `@Qualifier` annotation. Using the same principle, you can define multiple _StorageManagers_. And in this case, also the Root object (through the `@Storage` annotation) and `StorageManagerInitializer` and `EmbeddedStorageFoundationCustomizer` concepts are supported.
