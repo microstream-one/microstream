@@ -96,7 +96,8 @@ public interface Reloader
 		)
 		{
 			final long oid;
-			return Swizzling.isFoundId(oid = this.persistenceManager.lookupObjectId(instance))
+			return instance != null
+				&& Swizzling.isFoundId(oid = this.persistenceManager.lookupObjectId(instance))
 				? loader.getObject(oid)
 				: null
 			;
