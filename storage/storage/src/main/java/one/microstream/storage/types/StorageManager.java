@@ -23,7 +23,6 @@ package one.microstream.storage.types;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
 import one.microstream.persistence.types.PersistenceRootsView;
 import one.microstream.persistence.types.Storer;
-import one.microstream.reference.Reference;
 
 
 /**
@@ -130,45 +129,6 @@ public interface StorageManager extends StorageController, StorageConnection, Da
 	 * @return a new {@link PersistenceRootsView} instance allowing to iterate all technical root instances.
 	 */
 	public PersistenceRootsView viewRoots();
-	
-	/**
-	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
-	 * It is advised to use {@link #root()} and {@link #setRoot(Object)} instead.
-	 * 
-	 * @deprecated will be removed in version 8
-	 * 
-	 * @return a mutable {@link Reference} to the root object.
-	 */
-	@Deprecated
-	public Reference<Object> defaultRoot();
-
-	/**
-	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
-	 * It is advised to use {@link #root()} instead, for which this method is an alias.
-	 * 
-	 * @deprecated will be removed in version 8
-	 * 
-	 * @return the root object.
-	 */
-	@Deprecated
-	public default Object customRoot()
-	{
-		return this.root();
-	}
-	
-	/**
-	 * This method is deprecated due to simplified root handling and will be removed in a future version.<br>
-	 * It is advised to use {@link #storeRoot()} instead, for which this method is an alias.
-	 * 
-	 * @deprecated will be removed in version 8
-	 * 
-	 * @return stores the root object and returns its objectId.
-	 */
-	@Deprecated
-	public default long storeDefaultRoot()
-	{
-		return this.storeRoot();
-	}
 	
 	/**
 	 * Returns the {@link Database} instance this {@link StorageManager} is associated with.

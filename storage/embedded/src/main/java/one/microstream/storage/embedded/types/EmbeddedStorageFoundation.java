@@ -182,9 +182,6 @@ extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary
 	 * Creates and returns a new {@link EmbeddedStorageManager} instance by using the current state of all registered
 	 * logic part instances and by on-demand creating missing ones via a default logic.
 	 * <p>
-	 * If the passed {@literal explicitRoot} is {@literal null}, a default root instance will be created, see
-	 * {@link EmbeddedStorageManager#defaultRoot()}.
-	 * <p>
 	 * The returned {@link EmbeddedStorageManager} instance will NOT yet be started.
 	 *
 	 * @param explicitRoot the instance to be used as the persistent entity graph's root instance.

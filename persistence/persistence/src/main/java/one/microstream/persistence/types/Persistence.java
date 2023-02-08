@@ -22,7 +22,6 @@ package one.microstream.persistence.types;
 
 import static one.microstream.X.notNull;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.Reference;
@@ -1018,20 +1017,6 @@ public class Persistence
 		return "ROOT";
 	}
 
-	/**
-	 * @param refactoringsFile the file to read from
-	 * @return a new mapping provider
-	 * 
-	 * @deprecated replaced by {@link #RefactoringMapping(Path)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
-		final File refactoringsFile
-	)
-	{
-		return RefactoringMapping(refactoringsFile.toPath());
-	}
-
 	public static final PersistenceRefactoringMappingProvider RefactoringMapping(
 		final Path refactoringsFile
 	)
@@ -1085,17 +1070,6 @@ public class Persistence
 	)
 	{
 		return PersistenceRefactoringMappingProvider.New(refactoringMappings);
-	}
-
-	/**
-	 * @param file the file to read from
-	 * @return refactoring mappings from the file
-	 * @deprecated replaced by {@link #readRefactoringMappings(Path)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final File file)
-	{
-		return readRefactoringMappings(file.toPath());
 	}
 
 	public static XGettingSequence<KeyValue<String, String>> readRefactoringMappings(final Path file)

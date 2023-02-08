@@ -1,26 +1,5 @@
 package one.microstream.storage.embedded.types;
 
-/*-
- * #%L
- * microstream-storage-embedded
- * %%
- * Copyright (C) 2019 - 2022 MicroStream Software
- * %%
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
- * 
- * This Source Code may also be made available under the following Secondary
- * Licenses when the conditions for such availability set forth in the Eclipse
- * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
- * with the GNU Classpath Exception which is
- * available at https://www.gnu.org/software/classpath/license.html.
- * 
- * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
- * #L%
- */
-
-import java.io.File;
 import java.nio.file.Path;
 
 import one.microstream.afs.nio.types.NioFileSystem;
@@ -169,20 +148,6 @@ public final class EmbeddedStorage
 	{
 		return Foundation(Storage.defaultStorageDirectory());
 	}
-
-	/**
-	 * @param directory the storage directory
-	 * @return a new storage foundation
-	 * 
-	 * @deprecated replaced by {@link #Foundation(Path)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static final EmbeddedStorageFoundation<?> Foundation(
-		final File directory
-	)
-	{
-		return Foundation(directory.toPath());
-	}
 	
 	public static final EmbeddedStorageFoundation<?> Foundation(
 		final Path directory
@@ -317,21 +282,6 @@ public final class EmbeddedStorage
 	public static final EmbeddedStorageManager start()
 	{
 		return start((Object)null);
-	}
-
-	/**
-	 * @param directory the directory where the storage will be located.
-	 *
-	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
-	 * 
-	 * @deprecated replaced by {@link #start(Path)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static final EmbeddedStorageManager start(
-		final File directory
-	)
-	{
-		return start(directory.toPath());
 	}
 
 	/**
@@ -474,24 +424,6 @@ public final class EmbeddedStorage
 			Foundation(),
 			root
 		);
-	}
-
-	/**
-	 * @param root      root the explicitly defined root instance of the persistent entity graph.
-	 *
-	 * @param directory the directory where the storage will be located.
-	 *
-	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
-	 * 
-	 * @deprecated replaced by {@link #start(Object, Path)} and {@link #start(Object, ADirectory)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static final EmbeddedStorageManager start(
-		final Object root     ,
-		final File   directory
-	)
-	{
-		return start(root, directory.toPath());
 	}
 
 	/**

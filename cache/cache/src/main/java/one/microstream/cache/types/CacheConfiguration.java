@@ -95,17 +95,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @deprecated replaced by {@link #load()}, will be removed in version 8
-	 * 
-	 * @return the loaded configuration or <code>null</code> if none was found
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load()
-	{
-		return load();
-	}
-
-	/**
 	 * Tries to load the default configuration file.
 	 * <p>
 	 * The search order is as follows:
@@ -127,20 +116,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	public static CacheConfiguration<?, ?> load()
 	{
 		return load(ConfigurationLoader.Defaults.defaultCharset());
-	}
-
-	/**
-	 * @param charset the charset used to load the configuration
-	 * @return the loaded configuration or <code>null</code> if none was found
-	 * 
-	 * @deprecated replaced by {@link #load(Charset)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load(
-		final Charset charset
-	)
-	{
-		return load(charset);
 	}
 
 	/**
@@ -202,24 +177,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param keyType the class for the key type
-	 * @param valueType the class for value type
-	 * @return the loaded configuration or <code>null</code> if none was found
-	 * 
-	 * @deprecated replaced by {@link #load(Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K, V> CacheConfiguration<K, V> Load(
-		final Class<K> keyType  ,
-		final Class<V> valueType
-	)
-	{
-		return load(keyType, valueType);
-	}
-
-	/**
 	 * Tries to load the default configuration file.
 	 * <p>
 	 * The search order is as follows:
@@ -252,26 +209,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			keyType,
 			valueType
 		);
-	}
-
-	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param charset the charset used to load the configuration
-	 * @param keyType the class for the key type
-	 * @param valueType the class for value type
-	 * @return the loaded configuration or <code>null</code> if none was found
-	 * 
-	 * @deprecated replaced by {@link #load(Charset,Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K, V> CacheConfiguration<K, V> Load(
-		final Charset  charset  ,
-		final Class<K> keyType  ,
-		final Class<V> valueType
-	)
-	{
-		return load(charset, keyType, valueType);
 	}
 
 	/**
@@ -339,20 +276,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @param path a classpath resource, a file path or an URL
-	 * @return the configuration or <code>null</code> if none was found
-	 * 
-	 * @deprecated replaced by {@link #load(String)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load(
-		final String path
-	)
-	{
-		return load(path);
-	}
-
-	/**
 	 * Tries to load the configuration file from <code>path</code>.
 	 * <p>
 	 * The load order is as follows:
@@ -373,22 +296,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			path,
 			ConfigurationLoader.Defaults.defaultCharset()
 		);
-	}
-
-	/**
-	 * @param path a classpath resource, a file path or an URL
-	 * @param charset the charset used to load the configuration
-	 * @return the configuration or <code>null</code> if none was found
-	 * 
-	 * @deprecated replaced by {@link #load(String,Charset)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load(
-		final String  path   ,
-		final Charset charset
-	)
-	{
-		return load(path, charset);
 	}
 
 	/**
@@ -415,26 +322,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			ConfigurationParserIni.New()
 		);
 		return Builder(configuration).build();
-	}
-
-	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param path a classpath resource, a file path or an URL
-	 * @param keyType the class of the key type
-	 * @param valueType the class of the value type
-	 * @return the configuration or <code>null</code> if none was found
-	 * 
-	 * @deprecated replaced by {@link #load(String,Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K, V> CacheConfiguration<K, V> Load(
-		final String   path     ,
-		final Class<K> keyType  ,
-		final Class<V> valueType
-	)
-	{
-		return load(path, keyType, valueType);
 	}
 
 	/**
@@ -466,28 +353,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			keyType,
 			valueType
 		);
-	}
-
-	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param path a classpath resource, a file path or an URL
-	 * @param charset the charset used to load the configuration
-	 * @param keyType the class of the key type
-	 * @param valueType the class of the value type
-	 * @return the configuration or <code>null</code> if none was found
-	 * 
-	 * @deprecated replaced by {@link #load(String,Charset,Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K, V> CacheConfiguration<K, V> Load(
-		final String   path     ,
-		final Charset  charset  ,
-		final Class<K> keyType  ,
-		final Class<V> valueType
-	)
-	{
-		return load(path, charset, keyType, valueType);
 	}
 
 	/**
@@ -542,20 +407,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @param path file system path
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(Path)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load(
-		final Path path
-	)
-	{
-		return load(path);
-	}
-
-	/**
 	 * Tries to load the configuration from <code>path</code>.
 	 *
 	 * @param path file system path
@@ -570,22 +421,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			path,
 			ConfigurationLoader.Defaults.defaultCharset()
 		);
-	}
-
-	/**
-	 * @param path file system path
-	 * @param charset the charset used to load the configuration
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(Path,Charset)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load(
-		final Path    path   ,
-		final Charset charset
-	)
-	{
-		return load(path, charset);
 	}
 
 	/**
@@ -609,20 +444,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @param file file path
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(File)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load(
-		final File file
-	)
-	{
-		return load(file);
-	}
-
-	/**
 	 * Tries to load the configuration from the file <code>file</code>.
 	 *
 	 * @param file file path
@@ -637,22 +458,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			file,
 			ConfigurationLoader.Defaults.defaultCharset()
 		);
-	}
-
-	/**
-	 * @param file file path
-	 * @param charset the charset used to load the configuration
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(File,Charset)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load(
-		final File    file   ,
-		final Charset charset
-	)
-	{
-		return load(file, charset);
 	}
 
 	/**
@@ -676,20 +481,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @param url URL path
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(URL)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load(
-		final URL url
-	)
-	{
-		return load(url);
-	}
-
-	/**
 	 * Tries to load the configuration from the URL <code>url</code>.
 	 *
 	 * @param url URL path
@@ -704,22 +495,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			url,
 			ConfigurationLoader.Defaults.defaultCharset()
 		);
-	}
-
-	/**
-	 * @param url URL path
-	 * @param charset the charset used to load the configuration
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(URL,Charset)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load(
-		final URL     url    ,
-		final Charset charset
-	)
-	{
-		return load(url, charset);
 	}
 
 	/**
@@ -743,20 +518,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @param inputStream the stream to read from
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(InputStream)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load(
-		final InputStream inputStream
-	)
-	{
-		return load(inputStream);
-	}
-
-	/**
 	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
 	 *
 	 * @param inputStream the stream to read from
@@ -771,22 +532,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			inputStream,
 			ConfigurationLoader.Defaults.defaultCharset()
 		);
-	}
-
-	/**
-	 * @param inputStream the stream to read from
-	 * @param charset the charset used to load the configuration
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(InputStream,Charset)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static CacheConfiguration<?, ?> Load(
-		final InputStream inputStream,
-		final Charset     charset
-	)
-	{
-		return load(inputStream, charset);
 	}
 
 	/**
@@ -810,26 +555,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param path file system path
-	 * @param keyType the class for the key type
-	 * @param valueType the class for value type
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(Path,Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final Path     path     ,
-		final Class<K> keyType  ,
-		final Class<V> valueType
-	)
-	{
-		return load(path, keyType, valueType);
-	}
-
-	/**
 	 * Tries to load the configuration from <code>path</code>.
 	 *
 	 * @param <K> the key type
@@ -852,28 +577,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			keyType,
 			valueType
 		);
-	}
-
-	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param path file system path
-	 * @param charset the charset used to load the configuration
-	 * @param keyType the class for the key type
-	 * @param valueType the class for value type
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(Path,Charset,Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final Path     path     ,
-		final Charset  charset  ,
-		final Class<K> keyType  ,
-		final Class<V> valueType
-	)
-	{
-		return load(path, charset, keyType, valueType);
 	}
 
 	/**
@@ -903,26 +606,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param file file path
-	 * @param keyType the class for the key type
-	 * @param valueType the class for value type
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(File,Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final File     file     ,
-		final Class<K> keyType  ,
-		final Class<V> valueType
-	)
-	{
-		return load(file, keyType, valueType);
-	}
-
-	/**
 	 * Tries to load the configuration from the file <code>file</code>.
 	 * 
 	 * @param <K> the key type
@@ -945,28 +628,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			keyType,
 			valueType
 		);
-	}
-
-	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param file file path
-	 * @param charset the charset used to load the configuration
-	 * @param keyType the class for the key type
-	 * @param valueType the class for value type
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(File,Charset,Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final File     file     ,
-		final Charset  charset  ,
-		final Class<K> keyType  ,
-		final Class<V> valueType
-	)
-	{
-		return load(file, charset, keyType, valueType);
 	}
 
 	/**
@@ -996,26 +657,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param url URL path
-	 * @param keyType the class for the key type
-	 * @param valueType the class for value type
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(URL,Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final URL      url      ,
-		final Class<K> keyType  ,
-		final Class<V> valueType
-	)
-	{
-		return load(url, keyType, valueType);
-	}
-
-	/**
 	 * Tries to load the configuration from the URL <code>url</code>.
 	 * 
 	 * @param <K> the key type
@@ -1038,28 +679,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			keyType,
 			valueType
 		);
-	}
-
-	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param url URL path
-	 * @param charset the charset used to load the configuration
-	 * @param keyType the class for the key type
-	 * @param valueType the class for value type
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(URL,Charset,Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final URL      url      ,
-		final Charset  charset  ,
-		final Class<K> keyType  ,
-		final Class<V> valueType
-	)
-	{
-		return load(url, charset, keyType, valueType);
 	}
 
 	/**
@@ -1089,26 +708,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 	}
 
 	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param inputStream the stream to read from
-	 * @param keyType the class for the key type
-	 * @param valueType the class for value type
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(InputStream,Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final InputStream inputStream,
-		final Class<K>    keyType    ,
-		final Class<V>    valueType
-	)
-	{
-		return load(inputStream, keyType, valueType);
-	}
-
-	/**
 	 * Tries to load the configuration from the {@link InputStream} <code>inputStream</code>.
 	 *
 	 * @param <K> the key type
@@ -1131,28 +730,6 @@ public interface CacheConfiguration<K, V> extends CompleteConfiguration<K, V>
 			keyType,
 			valueType
 		);
-	}
-
-	/**
-	 * @param <K> the key type
-	 * @param <V> the value type
-	 * @param inputStream the stream to read from
-	 * @param charset the charset used to load the configuration
-	 * @param keyType the class for the key type
-	 * @param valueType the class for value type
-	 * @return the configuration
-	 * 
-	 * @deprecated replaced by {@link #load(InputStream,Charset,Class,Class)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static <K,V> CacheConfiguration<K, V> Load(
-		final InputStream inputStream,
-		final Charset     charset    ,
-		final Class<K>    keyType    ,
-		final Class<V>    valueType
-	)
-	{
-		return load(inputStream, charset, keyType, valueType);
 	}
 
 	/**
