@@ -24,6 +24,7 @@ import static one.microstream.X.notNull;
 
 import java.util.function.Consumer;
 
+import one.microstream.persistence.types.Persistence;
 import one.microstream.persistence.types.PersistenceLoader;
 import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.reference.Swizzling;
@@ -97,9 +98,9 @@ public interface Reloader
 		{
 			final long oid;
 			return instance != null
-				&& Swizzling.isFoundId(oid = this.persistenceManager.lookupObjectId(instance))
-				? loader.getObject(oid)
-				: null
+				&& Persistence.IdType.OID.isInRange(oid = this.persistenceManager.lookupObjectId(instance))
+				? loader.getObject(oid)  // Reload persisted object
+				: instance               // Null instance, or constant - nothing to reload
 			;
 		}
 		
