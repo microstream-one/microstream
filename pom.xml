@@ -57,6 +57,7 @@
 		<module>configuration</module>
 		<module>persistence</module>
 		<module>storage</module>
+		<module>export</module>
 		<module>integrations</module>
 		<module>examples</module>
 	</modules>
