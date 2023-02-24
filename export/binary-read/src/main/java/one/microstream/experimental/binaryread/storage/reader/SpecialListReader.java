@@ -20,7 +20,9 @@ package one.microstream.experimental.binaryread.storage.reader;
  * #L%
  */
 
+import one.microstream.collections.types.XGettingSequence;
 import one.microstream.experimental.binaryread.storage.DataFiles;
+import one.microstream.experimental.binaryread.storage.reader.helper.KeyValueEntry;
 import one.microstream.experimental.binaryread.structure.ArrayHeader;
 import one.microstream.experimental.binaryread.structure.EntityMember;
 import one.microstream.experimental.binaryread.structure.util.BinaryData;
@@ -29,8 +31,10 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGen
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
 
 import java.nio.ByteBuffer;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A special type of reader, similar to ArrayReader, that reads collections.
@@ -60,7 +64,7 @@ public class SpecialListReader extends MemberReader
     private void loadLengthFromStorage()
     {
         final ArrayHeader arrayHeader = DataFiles.readArrayHeader(entityMember.getEntity()
-                                                                    .getDataFile(), entityMember.getPos());
+                                                                          .getDataFile(), entityMember.getPos());
 
         totalLength = arrayHeader.getTotalLength();
         arraySize = arrayHeader.getSize();
@@ -78,13 +82,15 @@ public class SpecialListReader extends MemberReader
             if (complex.members()
                     .size() > 1)
             {
-                // FIXME
-                throw new RuntimeException("TODO More than 1 member in 'Collection'");
+                typeName = determineComplexType(complex.members());
             }
-
-            for (final PersistenceTypeDescriptionMemberFieldGeneric member : complex.members())
+            else
             {
-                typeName = member.typeName();
+
+                for (final PersistenceTypeDescriptionMemberFieldGeneric member : complex.members())
+                {
+                    typeName = member.typeName();
+                }
             }
         }
 
@@ -154,12 +160,39 @@ public class SpecialListReader extends MemberReader
             return (T) asLongList();
         }
 
+        if ("map".equals(typeName))
+        {
+            return (T) asMapEntryList();
+        }
         // FIXME An array of enum values is not handled !!
         // typeName is the fully qualified class name of the enum.
         // Solve with refactorings around enums.
         if (result == null)
         {
             System.out.println("WARNING: Not handled by SpecialListReader : " + typeName);
+        }
+        return result;
+    }
+
+    private String determineComplexType(final XGettingSequence<PersistenceTypeDescriptionMemberFieldGeneric> members)
+    {
+        String result = null;
+        if (members.size() == 2)
+        {
+            if ("key".equals(members.at(0)
+                                     .name()) &&
+                    "value".equals(members.at(1)
+                                           .name()))
+            {
+                // Can the type name be something else thn java.lang.Object?
+                // TODO is this to gready and do we need a more fine grained control?
+                result = "map";
+            }
+        }
+        if (result == null)
+        {
+            // FIXME
+            throw new RuntimeException("TODO More than 1 member in 'Collection'");
         }
         return result;
     }
@@ -328,5 +361,23 @@ public class SpecialListReader extends MemberReader
 
         return result;
 
+    }
+
+    private List<Map.Entry<Long, Long>> asMapEntryList()
+    {
+        final ByteBuffer buff = readData(totalLength);
+        long items = BinaryData.bytesToLong(buff, Long.BYTES);
+
+        final List<Map.Entry<Long, Long>> result = new ArrayList<>();
+        int idx = Long.BYTES * 2;
+        for (int i = 0; i < items; i++)
+        {
+            long key = BinaryData.bytesToLong(buff, idx);
+            idx += Long.BYTES;
+            long value = BinaryData.bytesToLong(buff, idx);
+            idx += Long.BYTES;
+            result.add(new KeyValueEntry<>(key, value));
+        }
+        return result;
     }
 }

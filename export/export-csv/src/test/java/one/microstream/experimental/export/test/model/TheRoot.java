@@ -9,13 +9,13 @@ package one.microstream.experimental.export.test.model;
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
- * 
+ *
  * This Source Code may also be made available under the following Secondary
  * Licenses when the conditions for such availability set forth in the Eclipse
  * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
  * with the GNU Classpath Exception which is
  * available at https://www.gnu.org/software/classpath/license.html.
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
@@ -23,7 +23,8 @@ package one.microstream.experimental.export.test.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TheRoot {
+public class TheRoot
+{
 
     private final List<SomePrimitives> primitives = new ArrayList<>();
     private final List<PrimitiveWrappers> wrappers = new ArrayList<>();
@@ -36,93 +37,126 @@ public class TheRoot {
     private final List<Strings> strings = new ArrayList<>();
     private final List<BigValues> bigValues = new ArrayList<>();
     private final List<Dates> dateValues = new ArrayList<>();
+    private final List<Maps> maps = new ArrayList<>();
 
-    public void addSomePrimitives(final SomePrimitives somePrimitives) {
+    public void addSomePrimitives(final SomePrimitives somePrimitives)
+    {
         primitives.add(somePrimitives);
     }
 
-    public List<SomePrimitives> getPrimitives() {
+    public List<SomePrimitives> getPrimitives()
+    {
         return primitives;
     }
 
-    public void addPrimitiveWrappers(final PrimitiveWrappers primitiveWrappers) {
+    public void addPrimitiveWrappers(final PrimitiveWrappers primitiveWrappers)
+    {
         wrappers.add(primitiveWrappers);
     }
 
-    public List<PrimitiveWrappers> getWrappers() {
+    public List<PrimitiveWrappers> getWrappers()
+    {
         return wrappers;
     }
 
-    public void addPrimitiveArrays(final PrimitiveArrays primitiveArrays) {
+    public void addPrimitiveArrays(final PrimitiveArrays primitiveArrays)
+    {
         this.primitiveArrays.add(primitiveArrays);
     }
 
-    public List<PrimitiveArrays> getPrimitiveArrays() {
+    public List<PrimitiveArrays> getPrimitiveArrays()
+    {
         return primitiveArrays;
     }
 
-    public void addPrimitiveWrapperArrays(final PrimitiveWrapperArrays primitiveWrapperArrays) {
+    public void addPrimitiveWrapperArrays(final PrimitiveWrapperArrays primitiveWrapperArrays)
+    {
         this.primitiveWrapperArrays.add(primitiveWrapperArrays);
 
     }
 
-    public List<PrimitiveWrapperArrays> getPrimitiveWrapperArrays() {
+    public List<PrimitiveWrapperArrays> getPrimitiveWrapperArrays()
+    {
         return primitiveWrapperArrays;
     }
 
-    public void addPrimitiveLists(final PrimitiveLists primitiveLists) {
+    public void addPrimitiveLists(final PrimitiveLists primitiveLists)
+    {
         this.primitiveLists.add(primitiveLists);
     }
 
-    public List<PrimitiveLists> getPrimitiveLists() {
+    public List<PrimitiveLists> getPrimitiveLists()
+    {
         return primitiveLists;
     }
 
-    public void addPrimitiveSets(final PrimitiveSets primitiveSets) {
+    public void addPrimitiveSets(final PrimitiveSets primitiveSets)
+    {
         this.primitiveSets.add(primitiveSets);
     }
 
-    public List<PrimitiveSets> getPrimitiveSets() {
+    public List<PrimitiveSets> getPrimitiveSets()
+    {
         return primitiveSets;
     }
 
-    public void addOptionals(final Optionals optionals) {
+    public void addOptionals(final Optionals optionals)
+    {
         this.optionalList.add(optionals);
     }
 
-    public List<Optionals> getOptionalList() {
+    public List<Optionals> getOptionalList()
+    {
         return optionalList;
     }
 
-    public void addStrings(final Strings strings) {
+    public void addStrings(final Strings strings)
+    {
         this.strings.add(strings);
     }
 
-    public List<Strings> getStrings() {
+    public List<Strings> getStrings()
+    {
         return strings;
     }
 
-    public void addEnums(final Enums enums) {
+    public void addEnums(final Enums enums)
+    {
         this.enumList.add(enums);
     }
 
-    public List<Enums> getEnumList() {
+    public List<Enums> getEnumList()
+    {
         return enumList;
     }
 
-    public void addBigValues(final BigValues values) {
+    public void addBigValues(final BigValues values)
+    {
         this.bigValues.add(values);
     }
 
-    public List<BigValues> getBigValues() {
+    public List<BigValues> getBigValues()
+    {
         return bigValues;
     }
 
-    public void addDateValues(final Dates dates) {
+    public void addDateValues(final Dates dates)
+    {
         this.dateValues.add(dates);
     }
 
-    public List<Dates> getDateValues() {
+    public List<Dates> getDateValues()
+    {
         return dateValues;
+    }
+
+    public void addMaps(final Maps maps)
+    {
+        this.maps.add(maps);
+    }
+
+    public List<Maps> getMaps()
+    {
+        return maps;
     }
 }

@@ -106,7 +106,8 @@ public enum EntityMemberType
     {
         // Will be handled as Primitive Collection when we export and see the type is a Primitive Wrapper.
         return "java.util.List".equals(member.typeName()) ||
-                "java.util.Set".equals(member.typeName());
+                "java.util.Set".equals(member.typeName()) ||
+                "java.util.Map".equals(member.typeName());
     }
 
     private static boolean isReference(final PersistenceTypeDefinitionMember member)

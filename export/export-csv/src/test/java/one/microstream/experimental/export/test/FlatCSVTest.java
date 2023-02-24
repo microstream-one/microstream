@@ -9,13 +9,13 @@ package one.microstream.experimental.export.test;
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
- * 
+ *
  * This Source Code may also be made available under the following Secondary
  * Licenses when the conditions for such availability set forth in the Eclipse
  * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
  * with the GNU Classpath Exception which is
  * available at https://www.gnu.org/software/classpath/license.html.
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
@@ -24,6 +24,7 @@ import one.microstream.experimental.export.FlatCSV;
 import one.microstream.experimental.export.test.model.BigValues;
 import one.microstream.experimental.export.test.model.Dates;
 import one.microstream.experimental.export.test.model.Enums;
+import one.microstream.experimental.export.test.model.Maps;
 import one.microstream.experimental.export.test.model.MyEnum;
 import one.microstream.experimental.export.test.model.Optionals;
 import one.microstream.experimental.export.test.model.PrimitiveArrays;
@@ -46,27 +47,43 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-class FlatCSVTest {
+class FlatCSVTest
+{
 
     @BeforeAll
-    public static void cleanup() {
+    public static void cleanup()
+    {
         deleteDirectory(new File("target/csv"));
         deleteDirectory(new File("target/data"));
     }
 
-    private static void deleteDirectory(final File directory) {
+    private static void deleteDirectory(final File directory)
+    {
         final String[] entries = directory.list();
-        if (entries == null) {
+        if (entries == null)
+        {
             return;
         }
-        for (final String file : entries) {
+        for (final String file : entries)
+        {
             final File currentFile = new File(directory.getPath(), file);
-            if (currentFile.isDirectory()) {
+            if (currentFile.isDirectory())
+            {
                 // delete the directory content and directory itself
                 deleteDirectory(currentFile);
-            } else {
+            }
+            else
+            {
                 // Just delete the file
                 currentFile.delete();
             }
@@ -75,7 +92,8 @@ class FlatCSVTest {
     }
 
     @Test
-    void export() {
+    void export()
+    {
         final TheRoot root = new TheRoot();
 
         createTestData(root);
@@ -85,8 +103,10 @@ class FlatCSVTest {
         csv.export();
     }
 
-    private void createTestData(final TheRoot root) {
-        try (final StorageManager storageManager = TestConfig.createStorageManager(root)) {
+    private void createTestData(final TheRoot root)
+    {
+        try (final StorageManager storageManager = TestConfig.createStorageManager(root))
+        {
 
             root.addSomePrimitives(primitives1());
             root.addSomePrimitives(primitives2());
@@ -130,6 +150,10 @@ class FlatCSVTest {
             root.addDateValues(dates1());
             root.addDateValues(dates2());
 
+            root.addMaps(maps1());
+            root.addMaps(maps2());
+            root.addMaps(maps3());
+
             storageManager.store(root.getPrimitives());
             storageManager.store(root.getWrappers());
             storageManager.store(root.getPrimitiveArrays());
@@ -141,12 +165,14 @@ class FlatCSVTest {
             storageManager.store(root.getEnumList());
             storageManager.store(root.getBigValues());
             storageManager.store(root.getDateValues());
+            storageManager.store(root.getMaps());
         }
 
 
     }
 
-    private SomePrimitives primitives1() {
+    private SomePrimitives primitives1()
+    {
         final SomePrimitives result = new SomePrimitives();
         result.setaBool(true);
         result.setaByte((byte) 123);
@@ -159,7 +185,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private SomePrimitives primitives2() {
+    private SomePrimitives primitives2()
+    {
         final SomePrimitives result = new SomePrimitives();
         result.setaBool(false);
         result.setaByte((byte) -123);
@@ -172,7 +199,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveWrappers wrappers1() {
+    private PrimitiveWrappers wrappers1()
+    {
         final PrimitiveWrappers result = new PrimitiveWrappers();
         result.setaBool(true);
         result.setaByte((byte) 123);
@@ -185,7 +213,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveWrappers wrappers2() {
+    private PrimitiveWrappers wrappers2()
+    {
         final PrimitiveWrappers result = new PrimitiveWrappers();
         result.setaBool(false);
         result.setaByte((byte) -123);
@@ -198,7 +227,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveWrappers wrappers3() {
+    private PrimitiveWrappers wrappers3()
+    {
         final PrimitiveWrappers result = new PrimitiveWrappers();
         result.setaBool(null);
         result.setaByte(null);
@@ -211,7 +241,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveArrays primitivesArrays1() {
+    private PrimitiveArrays primitivesArrays1()
+    {
         final PrimitiveArrays result = new PrimitiveArrays();
         result.setBoolArray(new boolean[]{true, false, true});
         result.setByteArray(new byte[]{123, -65, 0, 1});
@@ -224,7 +255,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveArrays primitivesArrays2() {
+    private PrimitiveArrays primitivesArrays2()
+    {
         final PrimitiveArrays result = new PrimitiveArrays();
         result.setBoolArray(null);
         result.setByteArray(null);
@@ -237,7 +269,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveWrapperArrays primitivesWrapperArrays1() {
+    private PrimitiveWrapperArrays primitivesWrapperArrays1()
+    {
         final PrimitiveWrapperArrays result = new PrimitiveWrapperArrays();
         result.setBoolArray(new Boolean[]{true, false, true});
         result.setByteArray(new Byte[]{123, -65, 0, 1});
@@ -250,7 +283,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveWrapperArrays primitivesWrapperArrays2() {
+    private PrimitiveWrapperArrays primitivesWrapperArrays2()
+    {
         final PrimitiveWrapperArrays result = new PrimitiveWrapperArrays();
         result.setBoolArray(null);
         result.setByteArray(null);
@@ -263,7 +297,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveLists primitivesLists1() {
+    private PrimitiveLists primitivesLists1()
+    {
         final PrimitiveLists result = new PrimitiveLists();
         result.setBoolList(createList(Boolean.FALSE, Boolean.TRUE, Boolean.FALSE));
         result.setByteList(createList((byte) 123, (byte) -65, (byte) 0, (byte) 1));
@@ -276,11 +311,13 @@ class FlatCSVTest {
         return result;
     }
 
-    private <T> List<T> createList(final T... values) {
+    private <T> List<T> createList(final T... values)
+    {
         return new ArrayList<>(Arrays.asList(values));
     }
 
-    private PrimitiveLists primitivesLists2() {
+    private PrimitiveLists primitivesLists2()
+    {
         final PrimitiveLists result = new PrimitiveLists();
         result.setBoolList(new ArrayList<>());
         result.setByteList(new ArrayList<>());
@@ -293,7 +330,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveLists primitivesLists3() {
+    private PrimitiveLists primitivesLists3()
+    {
         final PrimitiveLists result = new PrimitiveLists();
         result.setBoolList(createList(null, null));
         result.setByteList(createList(null, null));
@@ -306,7 +344,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveLists primitivesLists4() {
+    private PrimitiveLists primitivesLists4()
+    {
         final PrimitiveLists result = new PrimitiveLists();
         result.setBoolList(null);
         result.setByteList(null);
@@ -320,7 +359,8 @@ class FlatCSVTest {
     }
 
 
-    private PrimitiveSets primitivesSets1() {
+    private PrimitiveSets primitivesSets1()
+    {
         final PrimitiveSets result = new PrimitiveSets();
         result.setBoolSet(createSet(Boolean.FALSE, Boolean.TRUE, Boolean.FALSE));
         result.setByteSet(createSet((byte) 123, (byte) -65, (byte) 0, (byte) 1));
@@ -333,11 +373,13 @@ class FlatCSVTest {
         return result;
     }
 
-    private <T> Set<T> createSet(final T... values) {
+    private <T> Set<T> createSet(final T... values)
+    {
         return new HashSet<>(Arrays.asList(values));
     }
 
-    private PrimitiveSets primitivesSets2() {
+    private PrimitiveSets primitivesSets2()
+    {
         final PrimitiveSets result = new PrimitiveSets();
         result.setBoolSet(new HashSet<>());
         result.setByteSet(new HashSet<>());
@@ -350,7 +392,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveSets primitivesSets3() {
+    private PrimitiveSets primitivesSets3()
+    {
         final PrimitiveSets result = new PrimitiveSets();
         result.setBoolSet(createSet(null, null));
         result.setByteSet(createSet(null, null));
@@ -363,7 +406,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private PrimitiveSets primitivesSets4() {
+    private PrimitiveSets primitivesSets4()
+    {
         final PrimitiveSets result = new PrimitiveSets();
         result.setBoolSet(null);
         result.setByteSet(null);
@@ -376,7 +420,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private Optionals optionals1() {
+    private Optionals optionals1()
+    {
         final Optionals result = new Optionals();
         result.setOptBool(Optional.of(Boolean.TRUE));
         result.setOptByte(Optional.of((byte) 123));
@@ -389,7 +434,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private Optionals optionals2() {
+    private Optionals optionals2()
+    {
         final Optionals result = new Optionals();
         result.setOptBool(Optional.of(Boolean.FALSE));
         result.setOptByte(Optional.of((byte) -123));
@@ -402,7 +448,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private Optionals optionals3() {
+    private Optionals optionals3()
+    {
         final Optionals result = new Optionals();
         result.setOptBool(Optional.empty());
         result.setOptByte(Optional.empty());
@@ -415,7 +462,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private Optionals optionals4() {
+    private Optionals optionals4()
+    {
         final Optionals result = new Optionals();
         result.setOptBool(null);
         result.setOptByte(null);
@@ -428,7 +476,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private Strings strings1() {
+    private Strings strings1()
+    {
         final Strings result = new Strings();
         result.setValue("MicroStream");
         result.setOptValue(Optional.of("MicroStream as optional"));
@@ -438,7 +487,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private Strings strings2() {
+    private Strings strings2()
+    {
         final Strings result = new Strings();
         result.setValue("");
         result.setOptValue(Optional.empty());
@@ -448,7 +498,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private Strings strings3() {
+    private Strings strings3()
+    {
         final Strings result = new Strings();
         result.setValue(null);
         result.setOptValue(null);
@@ -458,7 +509,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private Enums enums1() {
+    private Enums enums1()
+    {
         final Enums result = new Enums();
         result.setAnEnum(MyEnum.ENUM_VAL2);
         result.setEnumArray(new MyEnum[]{MyEnum.ENUM_VAL1, MyEnum.ENUM_VAL3});
@@ -468,7 +520,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private Enums enums2() {
+    private Enums enums2()
+    {
         final Enums result = new Enums();
         result.setAnEnum(null);
         result.setEnumArray(new MyEnum[0]);
@@ -478,7 +531,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private Enums enums3() {
+    private Enums enums3()
+    {
         final Enums result = new Enums();
         result.setAnEnum(null);
         result.setEnumArray(null);
@@ -488,7 +542,8 @@ class FlatCSVTest {
         return result;
     }
 
-    private BigValues bigValues1() {
+    private BigValues bigValues1()
+    {
         final BigValues result = new BigValues();
         result.setaBigInteger(BigInteger.valueOf(123456789L));
         result.setaBigDecimal(BigDecimal.valueOf(123456789.54321));
@@ -504,7 +559,8 @@ class FlatCSVTest {
 
     }
 
-    private BigValues bigValues2() {
+    private BigValues bigValues2()
+    {
         final BigValues result = new BigValues();
         result.setaBigInteger(null);
         result.setaBigDecimal(null);
@@ -520,7 +576,8 @@ class FlatCSVTest {
 
     }
 
-    private BigValues bigValues3() {
+    private BigValues bigValues3()
+    {
         final BigValues result = new BigValues();
         result.setaBigInteger(null);
         result.setaBigDecimal(null);
@@ -536,7 +593,8 @@ class FlatCSVTest {
 
     }
 
-    private Dates dates1() {
+    private Dates dates1()
+    {
         final Dates result = new Dates();
         result.setaDate(new Date());
         result.setaLocalDate(LocalDate.now());
@@ -546,13 +604,66 @@ class FlatCSVTest {
         return result;
     }
 
-    private Dates dates2() {
+    private Dates dates2()
+    {
         final Dates result = new Dates();
         result.setaDate(null);
         result.setaLocalDate(null);
         result.setaLocalDateTime(null);
         result.setAnInstant(null);
         result.setaTimestamp(null);
+        return result;
+    }
+
+    private Maps maps1()
+    {
+        final Maps result = new Maps();
+
+        Map<String, String> m1 = new HashMap<>();
+        addEntry(m1, "key", "value");
+        addEntry(m1, "foo", "bar");
+        result.setStringMap(m1);
+
+        Map<String, Long> m2 = new HashMap<>();
+        addEntry(m2, "item1", 123L);
+        addEntry(m2, "item2", 87L);
+        addEntry(m2, "item3", 5432L);
+        result.setCountMap(m2);
+
+        Map<Double, Double> m3 = new HashMap<>();
+        addEntry(m3, 1.0, 1.0);
+        addEntry(m3, 2.0, 4.0);
+        addEntry(m3, 3.0, 9.0);
+        addEntry(m3, 4.0, 16.0);
+        result.setDataMap(m3);
+
+        return result;
+    }
+
+    private <K, V> void addEntry(Map<K, V> map, K key, V value)
+    {
+        map.put(key, value);
+    }
+
+    private Maps maps2()
+    {
+        final Maps result = new Maps();
+
+        result.setStringMap(new HashMap<>());
+        result.setCountMap(new HashMap<>());
+        result.setDataMap(new HashMap<>());
+
+        return result;
+    }
+
+    private Maps maps3()
+    {
+        final Maps result = new Maps();
+
+        result.setStringMap(null);
+        result.setCountMap(null);
+        result.setDataMap(null);
+
         return result;
     }
 }

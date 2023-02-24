@@ -22,6 +22,7 @@ module microstream.experimental.binaryread
     exports one.microstream.experimental.binaryread.structure;
     exports one.microstream.experimental.binaryread.storage;
     exports one.microstream.experimental.binaryread.storage.reader;
+    exports one.microstream.experimental.binaryread.storage.reader.helper;
     exports one.microstream.experimental.binaryread.exception;
 
     requires transitive microstream.persistence;
