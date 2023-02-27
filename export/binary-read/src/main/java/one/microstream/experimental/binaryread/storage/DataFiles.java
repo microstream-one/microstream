@@ -21,14 +21,9 @@ package one.microstream.experimental.binaryread.storage;
  */
 
 
-import one.microstream.experimental.binaryread.structure.ArrayHeader;
-import one.microstream.experimental.binaryread.structure.Entity;
-import one.microstream.experimental.binaryread.structure.EntityHeader;
-import one.microstream.experimental.binaryread.structure.util.BinaryData;
 import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
 import one.microstream.storage.types.StorageDataInventoryFile;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,44 +63,5 @@ public final class DataFiles
         }
 
         return result;
-    }
-
-    /**
-     * Reads the 'entity' header of a data block, 3 long values indicating the block length,
-     * typeId and objectId.
-     *
-     * @param dataFile The file we need to read the information from
-     * @param pos      Position where the block starts and start position to read the 3 long values.
-     * @return {@link Entity} Object representing the entity (The EntityMembers are not yet filled)
-     */
-    public static Entity readEntityHeader(final StorageDataInventoryFile dataFile, final long pos)
-    {
-        final ByteBuffer buff = ByteBuffer.allocate(Long.BYTES * 3);
-        dataFile.readBytes(buff, pos);
-
-        final long length = BinaryData.bytesToLong(buff);
-        final long typeId = BinaryData.bytesToLong(buff, Long.BYTES);
-
-        final long objectId = BinaryData.bytesToLong(buff, 2 * Long.BYTES);
-
-        return new Entity(dataFile, pos, new EntityHeader(length, typeId, objectId));
-    }
-
-    /**
-     * Read the Array header consisting of Size (total amount of bytes in block) and length (number of items).
-     *
-     * @param dataFile The file we need to read the information from
-     * @param pos      Position where the block starts and start position to read the 2 long values.
-     * @return A ArrayHeader instance with size and length info.
-     */
-    public static ArrayHeader readArrayHeader(final StorageDataInventoryFile dataFile, final long pos)
-    {
-        final ByteBuffer buff = ByteBuffer.allocate(Long.BYTES * 2);
-        dataFile.readBytes(buff, pos);
-
-        final long size = BinaryData.bytesToLong(buff);
-        final long length = BinaryData.bytesToLong(buff, Long.BYTES);
-
-        return new ArrayHeader(size, length);
     }
 }

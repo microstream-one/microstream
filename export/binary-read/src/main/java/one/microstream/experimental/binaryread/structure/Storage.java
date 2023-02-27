@@ -21,7 +21,7 @@ package one.microstream.experimental.binaryread.structure;
  */
 
 import one.microstream.experimental.binaryread.exception.NoRootFoundException;
-import one.microstream.experimental.binaryread.storage.DataFiles;
+import one.microstream.experimental.binaryread.storage.CachedStorageBytes;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
@@ -65,15 +65,18 @@ public final class Storage implements Closeable
     {
         LOGGER.info("Scanning Data Storage");
         final Map<Long, List<Entity>> entityByTypeId = new HashMap<>();
+
+        CachedStorageBytes cachedStorage = CachedStorageBytes.getInstance();
         for (final StorageDataInventoryFile file : files)
         {
 
             long pos = 0;
-            while (pos < file.size())
+            long fileSize = file.size();  // This is an expensive operation!
+            while (pos < fileSize)
             {
 
-                // Rad the header of the entity block.
-                final Entity entity = DataFiles.readEntityHeader(file, pos);
+                // Read the header of the entity block.
+                final Entity entity = cachedStorage.readEntityHeader(file, pos);
                 entityByObjectId.put(entity.getObjectId(), entity);
 
                 // Keep a list of

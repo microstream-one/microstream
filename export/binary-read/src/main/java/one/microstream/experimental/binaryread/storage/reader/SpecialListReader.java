@@ -21,7 +21,7 @@ package one.microstream.experimental.binaryread.storage.reader;
  */
 
 import one.microstream.collections.types.XGettingSequence;
-import one.microstream.experimental.binaryread.storage.DataFiles;
+import one.microstream.experimental.binaryread.storage.CachedStorageBytes;
 import one.microstream.experimental.binaryread.storage.reader.helper.KeyValueEntry;
 import one.microstream.experimental.binaryread.structure.ArrayHeader;
 import one.microstream.experimental.binaryread.structure.EntityMember;
@@ -31,14 +31,13 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGen
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
 
 import java.nio.ByteBuffer;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
  * A special type of reader, similar to ArrayReader, that reads collections.
- * TODO Can this be merged with ArrayReader
+ * TODO Can this be merged with ArrayReader?
  */
 public class SpecialListReader extends MemberReader
 {
@@ -63,8 +62,9 @@ public class SpecialListReader extends MemberReader
 
     private void loadLengthFromStorage()
     {
-        final ArrayHeader arrayHeader = DataFiles.readArrayHeader(entityMember.getEntity()
-                                                                          .getDataFile(), entityMember.getPos());
+        final ArrayHeader arrayHeader = CachedStorageBytes.getInstance()
+                .readArrayHeader(entityMember.getEntity()
+                                         .getDataFile(), entityMember.getPos());
 
         totalLength = arrayHeader.getTotalLength();
         arraySize = arrayHeader.getSize();
@@ -185,14 +185,14 @@ public class SpecialListReader extends MemberReader
                                            .name()))
             {
                 // Can the type name be something else thn java.lang.Object?
-                // TODO is this to gready and do we need a more fine grained control?
+                // TODO is this too greedy and do we need a more fine grained control?
                 result = "map";
             }
         }
         if (result == null)
         {
             // FIXME
-            throw new RuntimeException("TODO More than 1 member in 'Collection'");
+            throw new RuntimeException("TODO Define the complex type name for " + members);
         }
         return result;
     }
