@@ -20,9 +20,8 @@ package one.microstream.experimental.binaryread.structure;
  * #L%
  */
 
-import one.microstream.experimental.binaryread.exception.EntityMemberNotFoundException;
+import one.microstream.experimental.binaryread.exception.NoRootFoundException;
 import one.microstream.experimental.binaryread.storage.DataFiles;
-import one.microstream.experimental.binaryread.structure.util.BinaryData;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
@@ -31,22 +30,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public final class Storage implements Closeable
 {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Storage.class);
 
-    // "one.microstream.persistence.types.PersistenceRoots$Default"
-    // is a Map with ROOT defining the ObjectId/TypeId that points to the reference
-    // The reference indicates the actual Root defined by developer.
-    private static final String PERSISTENCE_ROOTS_DEFAULT = "one.microstream.persistence.types.PersistenceRoots$Default";
+    // "one.microstream.persistence.types.PersistenceRootReference$Default"
+    // holds the reference the Root defined by developer.
+    private static final String PERSISTENCE_ROOTS_REFERENCE_DEFAULT = "one.microstream.persistence.types.PersistenceRootReference$Default";
 
     private final List<StorageDataInventoryFile> files;
     private final PersistenceTypeDictionary typeDictionary;
@@ -120,44 +116,20 @@ public final class Storage implements Closeable
     {
         LOGGER.info("Defining Root object");
 
-        final PersistenceTypeDefinition persistenceRootsTypeDefinition = typeDictionary.lookupTypeByName(PERSISTENCE_ROOTS_DEFAULT);
+        final PersistenceTypeDefinition persistenceRootsTypeDefinition = typeDictionary.lookupTypeByName(PERSISTENCE_ROOTS_REFERENCE_DEFAULT);
         final List<Entity> entities = entityByTypeId.get(persistenceRootsTypeDefinition.typeId());
 
         // Take the last one. If multiple, the others are older versions as we only can have 1 active
         final Entity entity = entities.get(entities.size() - 1);
 
-        // Find index of identifier 'ROOT'
-        final Optional<EntityMember> identifiers = entity.findEntityMember("identifiers");
-        if (identifiers.isPresent())
-        {
+        final Long rootObjectId = entity.getMembers()
+                .get(0)
+                .getReader()
+                .read();
 
-            final List<String> names = identifiers.get()
-                    .getReader()
-                    .read();
-            // FIXME This also gives us the enums. Better as determineEnumEntities()?
-            final int idx = names.indexOf("ROOT");
-
-            // Get the Object Id of the reference.
-            final EntityMember instances = entity.getEntityMember("instances");
-            final List<Long> ids = instances.getReader()
-                    .read();
-
-            final Long referenceRootObjectId = ids.get(idx);
-
-            final Entity referenceRootEntity = entityByObjectId.get(referenceRootObjectId);
-
-            // Get the ObjectId of the Root
-            final ByteBuffer buff = ByteBuffer.allocate(Long.BYTES);
-            entity.getDataFile()
-                    .readBytes(buff, referenceRootEntity.getPos() + 3 * Long.BYTES);
-            final long rootObjectId = BinaryData.bytesToLong(buff);
-
-            rootEntity = entityByObjectId.get(rootObjectId);
-
-        }
-        else
-        {
-            throw new EntityMemberNotFoundException("identifiers");
+        rootEntity = entityByObjectId.get(rootObjectId);
+        if (rootEntity == null) {
+            throw new NoRootFoundException(rootObjectId);
         }
 
         LOGGER.info(String.format("Root object is of type '%s'", typeDictionary.lookupTypeById(rootEntity.getTypeId())
