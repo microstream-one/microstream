@@ -21,6 +21,7 @@ package one.microstream.storage.types;
  */
 
 import static one.microstream.X.notNull;
+import static one.microstream.chars.XChars.notEmpty;
 
 import one.microstream.afs.types.ADirectory;
 import one.microstream.afs.types.AFile;
@@ -80,6 +81,56 @@ public interface StorageEntityTypeExportFileProvider
 		{
 			throw new StorageException("Invalid TypeId String in file name \"" + uniqueTypeFileName + "\".", e);
 		}
+	}
+	
+	
+	/**
+	 * 
+	 * @since 08.00.00
+	 */
+	public interface Defaults
+	{
+		/**
+		 * Default file suufix for binary files.
+		 * 
+		 * @return {@code "bin"}
+		 */
+		public static String defaultFileSuffix()
+		{
+			return "bin";
+		}
+	}
+	
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageEntityTypeExportFileProvider}.
+	 * 
+	 * @param directory target directory for the export files
+	 * @return a new {@link StorageEntityTypeExportFileProvider}
+	 * @since 08.00.00
+	 */
+	public static StorageEntityTypeExportFileProvider New(final ADirectory directory)
+	{
+		return New(
+			directory,
+			Defaults.defaultFileSuffix()
+		);
+	}
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageEntityTypeExportFileProvider}.
+	 * 
+	 * @param directory target directory for the export files
+	 * @param fileSuffix suffix for created files
+	 * return a new {@link StorageEntityTypeExportFileProvider}
+	 * @since 08.00.00
+	 */
+	public static StorageEntityTypeExportFileProvider New(final ADirectory directory, final String fileSuffix)
+	{
+		return new StorageEntityTypeExportFileProvider.Default(
+			notNull(directory),
+			notEmpty(fileSuffix)
+		);
 	}
 	
 

@@ -323,6 +323,45 @@ public interface StorageConnection extends Persister
 	{
 		return this.exportTypes(exportFileProvider, null);
 	}
+	
+	/**
+	 * Alias for {@code this.exportTypes(StorageEntityTypeExportFileProvider.New(targetDirectory));}, meaning all types are exported.
+	 * 
+	 * @param targetDirectory the target directory for the export files
+	 * 
+	 * @return a {@link StorageEntityTypeExportStatistics} information instance about the completed export.
+	 * 
+	 * @see #exportTypes(StorageEntityTypeExportFileProvider, Predicate)
+	 * @since 08.00.00
+	 */
+	public default StorageEntityTypeExportStatistics exportTypes(
+		final ADirectory targetDirectory
+	)
+	{
+		return this.exportTypes(StorageEntityTypeExportFileProvider.New(targetDirectory));
+	}
+	
+	/**
+	 * Alias for {@code this.exportTypes(StorageEntityTypeExportFileProvider.New(targetDirectory), isExportType);}.
+	 * 
+	 * @param targetDirectory the target directory for the export files
+	 * @param isExportType a {@link Predicate} selecting which type's entity data to be exported.
+	 * 
+	 * @return a {@link StorageEntityTypeExportStatistics} information instance about the completed export.
+	 * 
+	 * @see #exportTypes(StorageEntityTypeExportFileProvider, Predicate)
+	 * @since 08.00.00
+	 */
+	public default StorageEntityTypeExportStatistics exportTypes(
+		final ADirectory                                  targetDirectory,
+		final Predicate<? super StorageEntityTypeHandler> isExportType
+	)
+	{
+		return this.exportTypes(
+			StorageEntityTypeExportFileProvider.New(targetDirectory),
+			isExportType
+		);
+	}
 
 	/**
 	 * Imports all files specified by the passed Enum (ordered set) of {@link AFile} in order.<br>
