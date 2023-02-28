@@ -86,11 +86,6 @@ public class DataExporter
 
     private void queueForExport(final Entity entity)
     {
-
-        if (entity.getObjectId() == 1000000000000000110L)
-        {
-            System.out.println("Entity that gives trouble");
-        }
         if (!processedObjectIds.contains(entity.getObjectId()))
         {
 
@@ -264,8 +259,6 @@ public class DataExporter
                             value = secondsValue * 1000 + nanosValue / 1_000_000;
                         }
 
-
-                        //Object value = valueEntity.getEntityMember("timestamp").getReader().read();
                         data.append(value == null ? "" : value.toString());
                     }
 
@@ -295,6 +288,43 @@ public class DataExporter
                                     .forEach(item ->
                                                      queueForExport(storage.getEntityByObjectId(item)));
                         }
+                        if (Map.Entry.class.isAssignableFrom(list.get(0)
+                                                                     .getClass()))
+                        {
+                            // HashMap, queue the key and value references for export but replace primitive references
+                            // If HashMap contained key/values that could be inlined (both values), it was already handled
+                            list = list.stream()
+                                    .map(item ->
+                                         {
+                                             Map.Entry<Long, Long> entry = (Map.Entry<Long, Long>) item;
+                                             Object key;
+                                             if (checkIfPrimitiveReference(entry.getKey()))
+                                             {
+                                                 // FIXME What about BigInteger for example? String is not suited there
+                                                 key = handlePrimitiveWrapper(entry.getKey(), "java.lang.String");
+                                             }
+                                             else
+                                             {
+                                                 queueForExport(storage.getEntityByObjectId(entry.getKey())); // Queue
+                                                 key = entry.getKey(); //keep reference in output.
+                                             }
+                                             Object value;
+                                             if (checkIfPrimitiveReference(entry.getValue()))
+                                             {
+                                                 // FIXME What about BigInteger for example? String is not suited there
+                                                 value = handlePrimitiveWrapper(entry.getValue(), "java.lang.String");
+                                             }
+                                             else
+                                             {
+                                                 queueForExport(storage.getEntityByObjectId(entry.getValue())); // Queue
+                                                 value = entry.getValue(); //keep reference in output.
+                                             }
+                                             return new KeyValueEntry<>(key, value);
+                                         })
+                                    .collect(Collectors.toList());
+                        }
+                        // FIXME Its it possible the some other type as List<Long> and Map.Entry? needs special treatment?
+                        // Is it worth to generify this?
                         final String value = list.stream()
                                 .map(Object::toString)
                                 .collect(Collectors.joining(",", "[", "]"));
@@ -325,7 +355,7 @@ public class DataExporter
 
     }
 
-    private Boolean checkIfPrimitiveReference(Long reference)
+    private Boolean checkIfPrimitiveReference(final Long reference)
     {
         Boolean result = null;
         if (reference > START_CID_BASE)
@@ -345,12 +375,12 @@ public class DataExporter
 
                     EntityMember entityMember = entityItem.getMembers()
                             .get(0);
-                    // String
+
                     result = entityMember
                             .getEntityMemberType() == EntityMemberType.PRIMITIVE
                             ||
                             entityMember
-                                    .getEntityMemberType() == EntityMemberType.ARRAY;
+                                    .getEntityMemberType() == EntityMemberType.ARRAY; // String
                 }
                 else
                 {
@@ -512,7 +542,6 @@ public class DataExporter
             // Only null items in collection
             return Objects.requireNonNullElse(result, CollectionPrimitiveItem.EMPTY);
 
-
         }
         else
         {
@@ -541,9 +570,11 @@ public class DataExporter
         {
 
             final Entity valueEntity = storage.getEntityByObjectId(reference);
-            if (valueEntity == null)
+            if (valueEntity == null || valueEntity.getMembers().isEmpty())
             {
-                // null  value
+                // FIXME when valueEntity.getMembers().isEmpty() we should not write out the record.
+                // It happened with javax.money.DefaultMonetaryRoundingsSingletonSpi$DefaultCurrencyRounding{}
+                // null value
                 return " ";
             }
             else
@@ -619,7 +650,6 @@ public class DataExporter
 
                         // It is a list of references.
                         // Replace the collection with a collection of its real values (resolve references)
-                        // FIXME what type do we need?
                         collection = collection.stream()
                                 .map(item -> handlePrimitiveWrapper((Long) item, memberFieldGeneric.typeName()))
                                 .collect(Collectors.toList());
@@ -637,12 +667,11 @@ public class DataExporter
 
     }
 
-    private Map.Entry<String, String> resolveToPrimitives(Map.Entry<Long, Long> entry)
+    private Map.Entry<String, String> resolveToPrimitives(final Map.Entry<Long, Long> entry)
     {
-
-        // FIXME, What if the vey or Value is a BigInteger? See performConversion
-        String keyValue = handlePrimitiveWrapper(entry.getKey(), "java.lang.String") ;
-        String value = handlePrimitiveWrapper(entry.getValue(), "java.lang.String") ;;
+        // FIXME, What if the Key or Value is a BigInteger? See performConversion
+        final String keyValue = handlePrimitiveWrapper(entry.getKey(), "java.lang.String");
+        final String value = handlePrimitiveWrapper(entry.getValue(), "java.lang.String");
 
         return new KeyValueEntry<>(keyValue, value);
     }
