@@ -338,6 +338,25 @@ public class DataExporter
                             .read();
                     data.append(enumValue);
                     break;
+                case ENUM_ARRAY:
+                    long enumArrayRef = entityMember.getReader()
+                            .read();
+                    Entity enumArrayEntity = storage.getEntityByObjectId(enumArrayRef);
+                    if (enumArrayEntity == null)
+                    {
+                        data.append(" "); // null array
+                    }
+                    else
+                    {
+                        List<Long> enumRefs = enumArrayEntity.getMembers()
+                                .get(0)
+                                .getReader()
+                                .read();
+                        data.append(enumRefs.stream()
+                                            .map(ref -> storage.getEnumValue(ref))
+                                            .collect(Collectors.joining(",", "[", "]")));
+                    }
+                    break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + entityMember.getEntityMemberType());
             }
@@ -385,7 +404,10 @@ public class DataExporter
                 else
                 {
                     // A primitive has never more than 1 member
-                    result = false;
+                    // Except when Enum
+                    String enumValue = storage.getEnumValue(entityItem.getObjectId());
+
+                    result = enumValue != null;
                 }
             }
         }
@@ -449,8 +471,16 @@ public class DataExporter
                     }
                     else
                     {
-                        // A POJO, so we cannot handle the Optional 'inline'
-                        handleReference(data, reference);
+                        String enumValue = storage.getEnumValue(optionalReference);
+                        if (enumValue == null)
+                        {
+                            // A POJO, so we cannot handle the Optional 'inline'
+                            handleReference(data, reference);
+                        }
+                        else
+                        {
+                            data.append(enumValue);
+                        }
                     }
                 }
             }
@@ -570,7 +600,8 @@ public class DataExporter
         {
 
             final Entity valueEntity = storage.getEntityByObjectId(reference);
-            if (valueEntity == null || valueEntity.getMembers().isEmpty())
+            if (valueEntity == null || valueEntity.getMembers()
+                    .isEmpty())
             {
                 // FIXME when valueEntity.getMembers().isEmpty() we should not write out the record.
                 // It happened with javax.money.DefaultMonetaryRoundingsSingletonSpi$DefaultCurrencyRounding{}
@@ -579,6 +610,10 @@ public class DataExporter
             }
             else
             {
+                final String enumValue = storage.getEnumValue(valueEntity.getObjectId());
+                if (enumValue != null) {
+                    return enumValue;
+                }
                 final EntityMember entityMember = valueEntity.getEntityMember("value");
                 Object value = entityMember.getReader()
                         .read();

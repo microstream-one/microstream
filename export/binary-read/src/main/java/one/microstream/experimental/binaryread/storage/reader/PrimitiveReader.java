@@ -20,6 +20,7 @@ package one.microstream.experimental.binaryread.storage.reader;
  * #L%
  */
 
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.structure.EntityMember;
 import one.microstream.experimental.binaryread.structure.util.BinaryData;
 
@@ -31,9 +32,9 @@ import java.nio.ByteBuffer;
 public class PrimitiveReader extends MemberReader
 {
 
-    protected PrimitiveReader(final EntityMember entityMember)
+    protected PrimitiveReader(final ReadingContext readingContext, final EntityMember entityMember)
     {
-        super(entityMember);
+        super(readingContext, entityMember);
     }
 
     @Override

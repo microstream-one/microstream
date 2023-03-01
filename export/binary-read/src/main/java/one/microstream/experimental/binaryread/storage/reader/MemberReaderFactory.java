@@ -20,6 +20,7 @@ package one.microstream.experimental.binaryread.storage.reader;
  * #L%
  */
 
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.exception.ReaderNotDefinedYetException;
 import one.microstream.experimental.binaryread.structure.EntityMember;
 import one.microstream.experimental.binaryread.structure.EntityMemberType;
@@ -28,7 +29,7 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 public class MemberReaderFactory
 {
 
-    public static MemberReader define(final EntityMemberType entityMemberType, final EntityMember entityMember)
+    public static MemberReader define(final ReadingContext readingContext, final EntityMemberType entityMemberType, final EntityMember entityMember)
     {
         final PersistenceTypeDefinitionMember typeDefinition = entityMember.getTypeDefinitionMember();
         final MemberReader result;
@@ -42,20 +43,21 @@ public class MemberReaderFactory
             case COLLECTION:
             case TIMESTAMP_BASED:
             case OPTIONAL:
+            case ENUM_ARRAY:
                 // There are many different types to make easier usage of the data.
-                result = new ReferenceReader(entityMember);
+                result = new ReferenceReader(readingContext, entityMember);
                 break;
             case PRIMITIVE:
-                result = new PrimitiveReader(entityMember);
+                result = new PrimitiveReader(readingContext, entityMember);
                 break;
             case ARRAY:
-                result = new ArrayReader(entityMember);
+                result = new ArrayReader(readingContext, entityMember);
                 break;
             case COMPLEX:
-                result = new SpecialListReader(entityMember);
+                result = new SpecialListReader(readingContext, entityMember);
                 break;
             case ENUM:
-                result = new EnumReader(entityMember);
+                result = new EnumReader(readingContext, entityMember);
                 break;
             default:
                 throw new ReaderNotDefinedYetException(typeDefinition);

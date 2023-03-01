@@ -20,6 +20,7 @@ package one.microstream.experimental.binaryread.structure;
  * #L%
  */
 
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.storage.reader.MemberReader;
 import one.microstream.experimental.binaryread.storage.reader.MemberReaderFactory;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
@@ -34,16 +35,20 @@ public class EntityMember
     private final PersistenceTypeDefinitionMember typeDefinitionMember;  // Definition of member as in TypeDictionary
     private final long pos; // Where the EntityMember Start [Header]? [Data]  (? means optional depending on type-
 
-    private final EntityMemberType entityMemberType;
-    private final MemberReader reader;  // A reader capable of reading the member value.
+    private  EntityMemberType entityMemberType;
+    private MemberReader reader;  // A reader capable of reading the member value.
 
     public EntityMember(final Entity entity, final PersistenceTypeDefinitionMember typeDefinitionMember, final long pos)
     {
         this.entity = entity;
         this.typeDefinitionMember = typeDefinitionMember;
         this.pos = pos;
-        entityMemberType = EntityMemberType.forDefinition(typeDefinitionMember);
-        reader = MemberReaderFactory.define(entityMemberType, this);
+    }
+
+    public void defineTypeAndReader(final ReadingContext readingContext ) {
+        entityMemberType = EntityMemberType.forDefinition(readingContext, typeDefinitionMember);
+        reader = MemberReaderFactory.define(readingContext, entityMemberType, this);
+
     }
 
     public Entity getEntity()

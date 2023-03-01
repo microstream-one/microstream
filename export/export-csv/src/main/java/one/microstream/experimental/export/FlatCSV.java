@@ -20,6 +20,7 @@ package one.microstream.experimental.export;
  * #L%
  */
 
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.storage.DataFiles;
 import one.microstream.experimental.binaryread.structure.Storage;
 import one.microstream.experimental.export.exception.NotSupportedException;
@@ -31,29 +32,31 @@ import java.util.List;
 
 public class FlatCSV {
 
-    private final EmbeddedStorageFoundation<?> storageFoundation;
     private final String exportLocation;
     private PersistenceTypeDictionary typeDictionary;
+        ReadingContext readingContext;
 
     public FlatCSV(final EmbeddedStorageFoundation<?> storageFoundation, final String exportLocation) {
         if (!Validation.ensureExportDirectoryValidity(exportLocation)) {
             throw new NotSupportedException(String.format("The directory %s is not empty", exportLocation));
         }
 
-        this.storageFoundation = storageFoundation;
-        this.exportLocation = exportLocation;
+        this.exportLocation = exportLocation;  // TODO , will be moved to configuration
+        readingContext = new ReadingContext(storageFoundation);
     }
 
     private Storage createStorage() {
+        EmbeddedStorageFoundation<?> storageFoundation = readingContext.getStorageFoundation();
         typeDictionary = storageFoundation.getConnectionFoundation().getTypeDictionaryProvider().provideTypeDictionary();
 
         final List<StorageDataInventoryFile> files = DataFiles.defineDataFiles(storageFoundation);
-        return Storage.create(files, typeDictionary);
-
+        return new Storage( files, typeDictionary);
     }
 
     public void export() {
         try (final Storage storage = createStorage()) {
+            readingContext = new ReadingContext(readingContext, storage);
+            storage.analyseStorage(readingContext);
             final DataExporter exporter = new DataExporter(storage, typeDictionary, exportLocation);
 
             exporter.export();

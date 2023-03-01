@@ -20,6 +20,7 @@ package one.microstream.experimental.binaryread.storage.reader;
  * #L%
  */
 
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.exception.UnhandledTypeException;
 import one.microstream.experimental.binaryread.structure.EntityMember;
 import one.microstream.experimental.binaryread.structure.util.BinaryData;
@@ -37,9 +38,9 @@ public class ArrayReader extends MemberReader
     private long totalLength = -1; // -1 means not yet loaded
     private int arraySize = -1; // -1 means not yet loaded
 
-    protected ArrayReader(final EntityMember entityMember)
+    protected ArrayReader(final ReadingContext readingContext, final EntityMember entityMember)
     {
-        super(entityMember);
+        super(readingContext, entityMember);
     }
 
     @Override

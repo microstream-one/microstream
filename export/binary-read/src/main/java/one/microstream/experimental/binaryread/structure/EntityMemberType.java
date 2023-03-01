@@ -20,15 +20,20 @@ package one.microstream.experimental.binaryread.structure;
  * #L%
  */
 
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.exception.EntityMemberTypeNotDefined;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 public enum EntityMemberType
 {
-    REFERENCE, STRING, PRIMITIVE, PRIMITIVE_WRAPPER, PRIMITIVE_COLLECTION, COLLECTION, OPTIONAL, TIMESTAMP_BASED, ARRAY, COMPLEX, ENUM;
+    REFERENCE, STRING, PRIMITIVE, PRIMITIVE_WRAPPER, PRIMITIVE_COLLECTION, COLLECTION, OPTIONAL, TIMESTAMP_BASED, ARRAY, ENUM_ARRAY, COMPLEX, ENUM;
 
 
-    public static EntityMemberType forDefinition(final PersistenceTypeDefinitionMember typeDefinitionMember)
+    public static EntityMemberType forDefinition(final ReadingContext readingContext, final PersistenceTypeDefinitionMember typeDefinitionMember)
     {
         if (isString(typeDefinitionMember))
         {
@@ -49,6 +54,10 @@ public enum EntityMemberType
         if (isArray(typeDefinitionMember))
         {
             return EntityMemberType.ARRAY;
+        }
+        if (isEnumArray(typeDefinitionMember, readingContext.getStorage()))
+        {
+            return EntityMemberType.ENUM_ARRAY;
         }
         if (isTimestampBased(typeDefinitionMember))
         {
@@ -78,33 +87,36 @@ public enum EntityMemberType
         throw new EntityMemberTypeNotDefined(typeDefinitionMember);
     }
 
-    private static boolean isPrimitiveCollection(final PersistenceTypeDefinitionMember member)
-    {
-        return "[C".equals(member.typeName()) ||
-                "[B".equals(member.typeName()) ||
-                "[Z".equals(member.typeName()) ||
-                "[S".equals(member.typeName()) ||
-                "[I".equals(member.typeName()) ||
-                "[J".equals(member.typeName()) ||
-                "[F".equals(member.typeName()) ||
-                "[D".equals(member.typeName()) ||
-                "[Ljava.lang.Integer;".equals(member.typeName()) ||
-                "[Ljava.lang.Long;".equals(member.typeName()) ||
-                "[Ljava.lang.Byte;".equals(member.typeName()) ||
-                "[Ljava.lang.Short;".equals(member.typeName()) ||
-                "[Ljava.lang.Float;".equals(member.typeName()) ||
-                "[Ljava.lang.Double;".equals(member.typeName()) ||
-                "[Ljava.lang.Character;".equals(member.typeName()) ||
-                "[Ljava.lang.Boolean;".equals(member.typeName()) ||
-                "[Ljava.lang.String;".equals(member.typeName()) ||
-                "[Ljava.math.BigInteger;".equals(member.typeName()) ||
-                "[Ljava.math.BigDecimal;".equals(member.typeName());
 
+    private static final Set<String> PRIMITIVE_COLLECTIONS = new HashSet<>(Arrays.asList(
+            "[C",
+            "[B",
+            "[Z",
+            "[S",
+            "[I",
+            "[J",
+            "[F",
+            "[D",
+            "[Ljava.lang.Integer;",
+            "[Ljava.lang.Long;",
+            "[Ljava.lang.Byte;",
+            "[Ljava.lang.Short;",
+            "[Ljava.lang.Float;",
+            "[Ljava.lang.Double;",
+            "[Ljava.lang.Character;",
+            "[Ljava.lang.Boolean;",
+            "[Ljava.lang.String;",
+            "[Ljava.math.BigInteger;",
+            "[Ljava.math.BigDecimal;"
+    ));
+
+    private static boolean isPrimitiveCollection(final PersistenceTypeDefinitionMember member) {
+        return PRIMITIVE_COLLECTIONS.contains(member.typeName());
     }
 
     private static boolean isCollection(final PersistenceTypeDefinitionMember member)
     {
-        // Will be handled as Primitive Collection when we export and see the type is a Primitive Wrapper.
+        // Will be handled as Primitive Collection when we export and identify the type of the item is a Primitive Wrapper.
         return "java.util.List".equals(member.typeName()) ||
                 "java.util.Set".equals(member.typeName()) ||
                 "java.util.Map".equals(member.typeName());
@@ -122,9 +134,22 @@ public enum EntityMemberType
 
     }
 
+    private static boolean isEnumArray(final PersistenceTypeDefinitionMember member, final Storage storage)
+    {
+        final String typeName = member.typeName();
+        if (typeName.startsWith("[L") && typeName.endsWith(";")) {
+            final String className = typeName.substring(2, typeName.length()-1);
+            return storage.isEnumClass(className);
+        }
+
+        return false;
+
+    }
+
     private static boolean isArray(final PersistenceTypeDefinitionMember member)
     {
-        return "[char]".equals(member.typeName()) || "[byte]".equals(member.typeName());
+        final String typeName = member.typeName();
+        return "[char]".equals(typeName) || "[byte]".equals(typeName);
 
     }
 
@@ -147,20 +172,23 @@ public enum EntityMemberType
 
     }
 
-    private static boolean isPrimitiveWrapper(final PersistenceTypeDefinitionMember member)
-    {
-        return "java.lang.Integer".equals(member.typeName()) ||
-                "java.lang.Long".equals(member.typeName()) ||
-                "java.lang.Float".equals(member.typeName()) ||
-                "java.lang.Double".equals(member.typeName()) ||
-                "java.lang.Boolean".equals(member.typeName()) ||
-                "java.lang.Character".equals(member.typeName()) ||
-                "java.lang.Byte".equals(member.typeName()) ||
-                "java.lang.Short".equals(member.typeName()) ||
-                "java.math.BigInteger".equals(member.typeName()) ||
-                "java.math.BigDecimal".equals(member.typeName());
+    private static final Set<String> PRIMITIVE_WRAPPERS = new HashSet<>(Arrays.asList(
+            "java.lang.Integer",
+            "java.lang.Long",
+            "java.lang.Float",
+            "java.lang.Double",
+            "java.lang.Boolean",
+            "java.lang.Character",
+            "java.lang.Byte",
+            "java.lang.Short",
+            "java.math.BigInteger",
+            "java.math.BigDecimal"
+    ));
 
+    private static boolean isPrimitiveWrapper(final PersistenceTypeDefinitionMember member) {
+        return PRIMITIVE_WRAPPERS.contains(member.typeName());
     }
+
 
     private static boolean isTimestampBased(final PersistenceTypeDefinitionMember member)
     {

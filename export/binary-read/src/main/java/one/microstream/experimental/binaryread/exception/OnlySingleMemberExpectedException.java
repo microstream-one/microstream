@@ -1,3 +1,5 @@
+package one.microstream.experimental.binaryread.exception;
+
 /*-
  * #%L
  * binary-read
@@ -17,17 +19,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.experimental.binaryread
-{
-    exports one.microstream.experimental.binaryread;
-    exports one.microstream.experimental.binaryread.structure;
-    exports one.microstream.experimental.binaryread.storage;
-    exports one.microstream.experimental.binaryread.storage.reader;
-    exports one.microstream.experimental.binaryread.storage.reader.helper;
-    exports one.microstream.experimental.binaryread.exception;
 
-    requires transitive microstream.persistence;
-    requires transitive microstream.storage;
-    requires transitive microstream.storage.embedded;
-    requires transitive org.slf4j;
+public class OnlySingleMemberExpectedException extends BinaryReadException
+{
+    public OnlySingleMemberExpectedException()
+    {
+        super("Only a single member is expected for this type.");
+    }
 }

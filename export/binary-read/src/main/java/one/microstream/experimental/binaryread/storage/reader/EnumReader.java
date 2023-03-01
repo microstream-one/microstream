@@ -20,6 +20,7 @@ package one.microstream.experimental.binaryread.storage.reader;
  * #L%
  */
 
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.structure.EntityMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumConstant;
 
@@ -29,9 +30,9 @@ import one.microstream.persistence.types.PersistenceTypeDefinitionMemberEnumCons
  */
 public class EnumReader extends MemberReader
 {
-    protected EnumReader(final EntityMember entityMember)
+    protected EnumReader(final ReadingContext readingContext, final EntityMember entityMember)
     {
-        super(entityMember);
+        super(readingContext, entityMember);
     }
 
     @Override

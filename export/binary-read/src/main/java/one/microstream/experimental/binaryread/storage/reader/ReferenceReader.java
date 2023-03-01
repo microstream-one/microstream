@@ -20,6 +20,7 @@ package one.microstream.experimental.binaryread.storage.reader;
  * #L%
  */
 
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.structure.EntityMember;
 import one.microstream.experimental.binaryread.structure.util.BinaryData;
 
@@ -32,9 +33,9 @@ public class ReferenceReader extends MemberReader
 {
 
 
-    protected ReferenceReader(final EntityMember entityMember)
+    protected ReferenceReader(final ReadingContext readingContext, final EntityMember entityMember)
     {
-        super(entityMember);
+        super(readingContext, entityMember);
     }
 
     @Override

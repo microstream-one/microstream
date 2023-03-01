@@ -21,6 +21,7 @@ package one.microstream.experimental.binaryread.storage.reader;
  */
 
 
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.structure.EntityMember;
 import one.microstream.experimental.binaryread.structure.util.ValidationUtil;
 
@@ -37,8 +38,11 @@ public abstract class MemberReader
     // information that we attempt to read!
     protected final EntityMember entityMember;
 
-    protected MemberReader(final EntityMember entityMember)
+    protected final ReadingContext readingContext;
+
+    protected MemberReader(final ReadingContext readingContext, final EntityMember entityMember)
     {
+        this.readingContext = readingContext;
         this.entityMember = entityMember;
     }
 

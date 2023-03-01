@@ -20,7 +20,9 @@ package one.microstream.experimental.binaryread.structure;
  * #L%
  */
 
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.exception.NoRootFoundException;
+import one.microstream.experimental.binaryread.exception.OnlySingleMemberExpectedException;
 import one.microstream.experimental.binaryread.storage.CachedStorageBytes;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
@@ -44,6 +46,11 @@ public final class Storage implements Closeable
     // holds the reference the Root defined by developer.
     private static final String PERSISTENCE_ROOTS_REFERENCE_DEFAULT = "one.microstream.persistence.types.PersistenceRootReference$Default";
 
+    // "one.microstream.persistence.types.PersistenceRoots$Default"
+    // Holds a list of names versus references that is a fast way to find out the enums in th storage.
+    // The name starts with "enum" and holds a reference to an enum value.
+    private static final String PERSISTENCE_ROOTS_DEFAULT = "one.microstream.persistence.types.PersistenceRoots$Default";
+
     private final List<StorageDataInventoryFile> files;
     private final PersistenceTypeDictionary typeDictionary;
 
@@ -52,18 +59,41 @@ public final class Storage implements Closeable
 
     private final Map<Long, String> enumValues = new HashMap<>();
 
+    private final List<String> enumClasses = new ArrayList<>();
+
     private Entity rootEntity;
 
 
-    private Storage(final List<StorageDataInventoryFile> files, final PersistenceTypeDictionary typeDictionary)
+    /**
+     * Create a Storage object out of the Data storage. Important, this is a snapshot and might
+     * be
+     *
+     * @param files
+     * @param typeDictionary
+     */
+    public Storage(final List<StorageDataInventoryFile> files, final PersistenceTypeDictionary typeDictionary)
     {
         this.files = files;
         this.typeDictionary = typeDictionary;
+
+
     }
 
-    private Map<Long, List<Entity>> initialRead()
+    public void analyseStorage(final ReadingContext readingContext)
     {
+        // FIXME, We need a copy for a system that is not guaranteed to be 'fixed'.
+        // use the https://github.com/microstream-one/microstream/blob/master/storage/embedded-tools/storage-converter/pom.xml
+        // to create a copy?
+
         LOGGER.info("Scanning Data Storage");
+        final Map<Long, List<Entity>> entityByTypeId = determineEntities();
+        determineEnumEntities(readingContext, entityByTypeId);
+        defineEntityDetails(readingContext);
+        defineRoot(entityByTypeId);
+    }
+
+    private Map<Long, List<Entity>> determineEntities()
+    {
         final Map<Long, List<Entity>> entityByTypeId = new HashMap<>();
 
         CachedStorageBytes cachedStorage = CachedStorageBytes.getInstance();
@@ -71,7 +101,7 @@ public final class Storage implements Closeable
         {
 
             long pos = 0;
-            long fileSize = file.size();  // This is an expensive operation!
+            final long fileSize = file.size();  // This is an expensive operation!
             while (pos < fileSize)
             {
 
@@ -83,7 +113,6 @@ public final class Storage implements Closeable
                 final List<Entity> entities = entityByTypeId.computeIfAbsent(entity.getTypeId(), x -> new ArrayList<>());
                 entities.add(entity);
 
-                saveStructure(entity, typeDictionary.lookupTypeById(entity.getTypeId()));
                 pos = pos + entity.getTotalLength();
             }
         }
@@ -98,14 +127,24 @@ public final class Storage implements Closeable
         // FIXME Any data to be removed from the storage?
     }
 
-    private void saveStructure(final Entity entity, final PersistenceTypeDefinition typeDefinition)
+    private void defineEntityDetails(final ReadingContext readingContext)
     {
+        entityByObjectId.values().stream()
+                .filter(e -> e.getMembers().isEmpty())
+                .forEach(e -> defineEntityDetails(readingContext, e));
+
+    }
+
+    private void defineEntityDetails(final ReadingContext readingContext, final Entity entity)
+    {
+        PersistenceTypeDefinition typeDefinition = typeDictionary.lookupTypeById(entity.getTypeId());
         long pos = entity.getPos() + 3 * Long.BYTES; // Start after the header
 
         // Based on info from Type Dictionary, define the
         for (final PersistenceTypeDefinitionMember typeDefinitionMember : typeDefinition.allMembers())
         {
             final EntityMember entityMember = new EntityMember(entity, typeDefinitionMember, pos);
+            entityMember.defineTypeAndReader(readingContext);
 
             entity.addMember(entityMember);
 
@@ -131,30 +170,13 @@ public final class Storage implements Closeable
                 .read();
 
         rootEntity = entityByObjectId.get(rootObjectId);
-        if (rootEntity == null) {
+        if (rootEntity == null)
+        {
             throw new NoRootFoundException(rootObjectId);
         }
 
         LOGGER.info(String.format("Root object is of type '%s'", typeDictionary.lookupTypeById(rootEntity.getTypeId())
                 .runtimeTypeName()));
-    }
-
-    private void determineEnumEntities()
-    {
-        // Each enum value is stored as an entity. We already identify the ObjectIds of such Enum entities.
-
-        entityByObjectId.entrySet()
-                .stream()
-                .filter(entry -> hasEnumMember(entry.getValue()
-                                                       .getMembers()))
-                .map(Map.Entry::getKey)
-                .forEach(id -> enumValues.put(id, null));
-    }
-
-    private boolean hasEnumMember(final List<EntityMember> members)
-    {
-        return members.stream()
-                .anyMatch(em -> em.getEntityMemberType() == EntityMemberType.ENUM);
     }
 
     /**
@@ -188,6 +210,11 @@ public final class Storage implements Closeable
                 .read();
     }
 
+    public boolean isEnumClass(final String className)
+    {
+        return enumClasses.contains(className);
+    }
+
     private boolean isEnumValueMember(final EntityMember entityMember)
     {
         final PersistenceTypeDefinitionMember typeDefinitionMember = entityMember.getTypeDefinitionMember();
@@ -207,27 +234,57 @@ public final class Storage implements Closeable
         return entityByObjectId.get(objectId);
     }
 
-
-    /**
-     * Create a Storage object out of the Data storage. Important, this is a snapshot and might
-     * be
-     *
-     * @param files
-     * @param typeDictionary
-     * @return
-     */
-    public static Storage create(final List<StorageDataInventoryFile> files, final PersistenceTypeDictionary typeDictionary)
+    private void determineEnumEntities(final ReadingContext readingContext, final Map<Long, List<Entity>> entityByTypeId)
     {
-        // FIXME, We need a copy for a system that is not guaranteed to be 'fixed'.
-        // use the https://github.com/microstream-one/microstream/blob/master/storage/embedded-tools/storage-converter/pom.xml
-        // to create a copy?
-        final Storage storage = new Storage(files, typeDictionary);
+        // Faster than the previous version to loop over all objectIds and find those that have
+        // an Enum EntityMemberType.
+        final PersistenceTypeDefinition persistenceRootsTypeDefinition = typeDictionary.lookupTypeByName(PERSISTENCE_ROOTS_DEFAULT);
+        final List<Entity> entities = entityByTypeId.get(persistenceRootsTypeDefinition.typeId());
 
-        final Map<Long, List<Entity>> entityByTypeId = storage.initialRead();
-        storage.defineRoot(entityByTypeId);
-        storage.determineEnumEntities();
+        // Take the last one. If multiple, the others are older versions as we only can have 1 active
+        final Entity entity = entities.get(entities.size() - 1);
+        defineEntityDetails(readingContext, entity);
 
-        return storage;
+        final EntityMember identifiers = entity.getEntityMember("identifiers");
+        final List<String> names = identifiers
+                .getReader()
+                .read();
+
+        // Get the Object Id of the reference.
+        final EntityMember instances = entity.getEntityMember("instances");
+        final List<Long> ids = instances.getReader()
+                .read();
+
+        int idx = 0;
+        while (idx < names.size())
+        {
+            String name = names.get(idx);
+            if (name.startsWith("enum "))
+            {
+                Entity enumEntity = entityByObjectId.get(ids.get(idx));
+                defineEntityDetails(readingContext, enumEntity);
+                if (enumEntity.getMembers()
+                        .size() > 1)
+                {
+                    throw new OnlySingleMemberExpectedException();
+                }
+                List<Long> enumIds = enumEntity.getMembers()
+                        .get(0)
+                        .getReader()
+                        .read();
+
+                for (Long enumId : enumIds)
+                {
+                    enumValues.put(enumId, null);
+                }
+
+                Entity firstEnumValueEntity = entityByObjectId.get(enumIds.get(0));
+                PersistenceTypeDefinition enumPersistenceTypeDefinition = typeDictionary.lookupTypeById(firstEnumValueEntity.getTypeId());
+                enumClasses.add(enumPersistenceTypeDefinition.runtimeTypeName());
+            }
+            idx++;
+        }
+
     }
 
 }

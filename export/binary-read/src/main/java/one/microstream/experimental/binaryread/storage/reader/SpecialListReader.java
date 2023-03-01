@@ -21,6 +21,7 @@ package one.microstream.experimental.binaryread.storage.reader;
  */
 
 import one.microstream.collections.types.XGettingSequence;
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.storage.CachedStorageBytes;
 import one.microstream.experimental.binaryread.storage.reader.helper.KeyValueEntry;
 import one.microstream.experimental.binaryread.structure.ArrayHeader;
@@ -45,9 +46,9 @@ public class SpecialListReader extends MemberReader
     private long totalLength = -1; // -1 means not yet loaded
     private long arraySize = -1; // -1 means not yet loaded
 
-    protected SpecialListReader(final EntityMember entityMember)
+    protected SpecialListReader(final ReadingContext readingContext, final EntityMember entityMember)
     {
-        super(entityMember);
+        super(readingContext, entityMember);
     }
 
     @Override
@@ -157,16 +158,19 @@ public class SpecialListReader extends MemberReader
 
         if ("java.lang.String".equals(typeName))
         {
-            return (T) asLongList();
+            result = (T) asLongList();
         }
 
         if ("map".equals(typeName))
         {
-            return (T) asMapEntryList();
+            result = (T) asMapEntryList();
         }
-        // FIXME An array of enum values is not handled !!
-        // typeName is the fully qualified class name of the enum.
-        // Solve with refactorings around enums.
+
+        if (readingContext.getStorage().isEnumClass(typeName)) {
+            // We have an array of enum and thus an array of references.
+            result = (T) asLongList();
+        }
+
         if (result == null)
         {
             System.out.println("WARNING: Not handled by SpecialListReader : " + typeName);
