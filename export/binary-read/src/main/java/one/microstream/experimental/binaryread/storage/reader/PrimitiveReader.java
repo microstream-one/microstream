@@ -22,7 +22,6 @@ package one.microstream.experimental.binaryread.storage.reader;
 
 import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.structure.EntityMember;
-import one.microstream.experimental.binaryread.structure.util.BinaryData;
 
 import java.nio.ByteBuffer;
 
@@ -105,28 +104,28 @@ public class PrimitiveReader extends MemberReader
     {
         final ByteBuffer buff = readData(entityMember.getTypeDefinitionMember()
                                            .persistentMinimumLength());
-        return BinaryData.bytesToLong(buff);
+        return readingContext.getBinaryDataHelper().bytesToLong(buff);
     }
 
     private Integer readInt()
     {
         final ByteBuffer buff = readData(entityMember.getTypeDefinitionMember()
                                            .persistentMinimumLength());
-        return BinaryData.bytesToInt(buff);
+        return readingContext.getBinaryDataHelper().bytesToInt(buff);
     }
 
     private Double readDouble()
     {
         final ByteBuffer buff = readData(entityMember.getTypeDefinitionMember()
                                            .persistentMinimumLength());
-        return BinaryData.bytesToDouble(buff);
+        return readingContext.getBinaryDataHelper().bytesToDouble(buff);
     }
 
     private Float readFloat()
     {
         final ByteBuffer buff = readData(entityMember.getTypeDefinitionMember()
                                            .persistentMinimumLength());
-        return BinaryData.bytesToFloat(buff);
+        return readingContext.getBinaryDataHelper().bytesToFloat(buff);
     }
 
 
@@ -142,13 +141,13 @@ public class PrimitiveReader extends MemberReader
     {
         final ByteBuffer buff = readData(entityMember.getTypeDefinitionMember()
                                            .persistentMinimumLength());
-        return BinaryData.bytesToShort(buff);
+        return readingContext.getBinaryDataHelper().bytesToShort(buff);
     }
 
     private Character readChar()
     {
         final ByteBuffer buff = readData(entityMember.getTypeDefinitionMember()
                                            .persistentMinimumLength());
-        return (char) BinaryData.bytesToShort(buff);
+        return (char) readingContext.getBinaryDataHelper().bytesToShort(buff);
     }
 }

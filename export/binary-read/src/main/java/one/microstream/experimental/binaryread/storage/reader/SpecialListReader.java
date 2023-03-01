@@ -22,11 +22,9 @@ package one.microstream.experimental.binaryread.storage.reader;
 
 import one.microstream.collections.types.XGettingSequence;
 import one.microstream.experimental.binaryread.ReadingContext;
-import one.microstream.experimental.binaryread.storage.CachedStorageBytes;
 import one.microstream.experimental.binaryread.storage.reader.helper.KeyValueEntry;
 import one.microstream.experimental.binaryread.structure.ArrayHeader;
 import one.microstream.experimental.binaryread.structure.EntityMember;
-import one.microstream.experimental.binaryread.structure.util.BinaryData;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGenericComplex;
 import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
@@ -63,7 +61,7 @@ public class SpecialListReader extends MemberReader
 
     private void loadLengthFromStorage()
     {
-        final ArrayHeader arrayHeader = CachedStorageBytes.getInstance()
+        final ArrayHeader arrayHeader = readingContext.getCachedStorageBytes()
                 .readArrayHeader(entityMember.getEntity()
                                          .getDataFile(), entityMember.getPos());
 
@@ -166,7 +164,9 @@ public class SpecialListReader extends MemberReader
             result = (T) asMapEntryList();
         }
 
-        if (readingContext.getStorage().isEnumClass(typeName)) {
+        if (readingContext.getStorage()
+                .isEnumClass(typeName))
+        {
             // We have an array of enum and thus an array of references.
             result = (T) asLongList();
         }
@@ -211,8 +211,10 @@ public class SpecialListReader extends MemberReader
         for (int i = 0; i < arraySize; i++)
         {
 
-            final long bytesLength = BinaryData.bytesToLong(buff, idx);
-            result.add(BinaryData.bytesToString(buff, idx));
+            final long bytesLength = readingContext.getBinaryDataHelper()
+                    .bytesToLong(buff, idx);
+            result.add(readingContext.getBinaryDataHelper()
+                               .bytesToString(buff, idx));
             idx += bytesLength;
         }
 
@@ -286,7 +288,8 @@ public class SpecialListReader extends MemberReader
         for (int i = 0; i < arraySize; i++)
         {
 
-            result.add(BinaryData.bytesToShort(buff, idx));
+            result.add(readingContext.getBinaryDataHelper()
+                               .bytesToShort(buff, idx));
             idx += Short.BYTES;
         }
 
@@ -304,7 +307,8 @@ public class SpecialListReader extends MemberReader
         for (int i = 0; i < arraySize; i++)
         {
 
-            result.add(BinaryData.bytesToInt(buff, idx));
+            result.add(readingContext.getBinaryDataHelper()
+                               .bytesToInt(buff, idx));
             idx += Integer.BYTES;
         }
 
@@ -322,7 +326,8 @@ public class SpecialListReader extends MemberReader
         for (int i = 0; i < arraySize; i++)
         {
 
-            final long value = BinaryData.bytesToLong(buff, idx);
+            final long value = readingContext.getBinaryDataHelper()
+                    .bytesToLong(buff, idx);
             result.add(value);
             idx += Long.BYTES;
         }
@@ -341,7 +346,8 @@ public class SpecialListReader extends MemberReader
         for (int i = 0; i < arraySize; i++)
         {
 
-            result.add(BinaryData.bytesToFloat(buff, idx));
+            result.add(readingContext.getBinaryDataHelper()
+                               .bytesToFloat(buff, idx));
             idx += Float.BYTES;
         }
 
@@ -359,7 +365,8 @@ public class SpecialListReader extends MemberReader
         for (int i = 0; i < arraySize; i++)
         {
 
-            result.add(BinaryData.bytesToDouble(buff, idx));
+            result.add(readingContext.getBinaryDataHelper()
+                               .bytesToDouble(buff, idx));
             idx += Double.BYTES;
         }
 
@@ -370,15 +377,18 @@ public class SpecialListReader extends MemberReader
     private List<Map.Entry<Long, Long>> asMapEntryList()
     {
         final ByteBuffer buff = readData(totalLength);
-        long items = BinaryData.bytesToLong(buff, Long.BYTES);
+        long items = readingContext.getBinaryDataHelper()
+                .bytesToLong(buff, Long.BYTES);
 
         final List<Map.Entry<Long, Long>> result = new ArrayList<>();
         int idx = Long.BYTES * 2;
         for (int i = 0; i < items; i++)
         {
-            long key = BinaryData.bytesToLong(buff, idx);
+            long key = readingContext.getBinaryDataHelper()
+                    .bytesToLong(buff, idx);
             idx += Long.BYTES;
-            long value = BinaryData.bytesToLong(buff, idx);
+            long value = readingContext.getBinaryDataHelper()
+                    .bytesToLong(buff, idx);
             idx += Long.BYTES;
             result.add(new KeyValueEntry<>(key, value));
         }

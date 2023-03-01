@@ -30,7 +30,7 @@ import java.util.Set;
 
 public enum EntityMemberType
 {
-    REFERENCE, STRING, PRIMITIVE, PRIMITIVE_WRAPPER, PRIMITIVE_COLLECTION, COLLECTION, OPTIONAL, TIMESTAMP_BASED, ARRAY, ENUM_ARRAY, COMPLEX, ENUM;
+    REFERENCE, STRING, PRIMITIVE, PRIMITIVE_WRAPPER, PRIMITIVE_COLLECTION, COLLECTION, DICTIONARY, OPTIONAL, TIMESTAMP_BASED, ARRAY, ENUM_ARRAY, COMPLEX, ENUM;
 
 
     public static EntityMemberType forDefinition(final ReadingContext readingContext, final PersistenceTypeDefinitionMember typeDefinitionMember)
@@ -79,6 +79,10 @@ public enum EntityMemberType
         {
             return EntityMemberType.COLLECTION;
         }
+        if (isDictionary(typeDefinitionMember))
+        {
+            return EntityMemberType.DICTIONARY;
+        }
         if (isReference(typeDefinitionMember))
         {
             // Many other types are also references, but we might inline then in the export.
@@ -118,8 +122,13 @@ public enum EntityMemberType
     {
         // Will be handled as Primitive Collection when we export and identify the type of the item is a Primitive Wrapper.
         return "java.util.List".equals(member.typeName()) ||
-                "java.util.Set".equals(member.typeName()) ||
-                "java.util.Map".equals(member.typeName());
+                "java.util.Set".equals(member.typeName());
+    }
+
+    private static boolean isDictionary(final PersistenceTypeDefinitionMember member)
+    {
+        // Will be handled as Primitive Collection when we export and identify the type of the item is a Primitive Wrapper.
+        return  "java.util.Map".equals(member.typeName());
     }
 
     private static boolean isReference(final PersistenceTypeDefinitionMember member)

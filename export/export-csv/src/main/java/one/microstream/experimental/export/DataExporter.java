@@ -28,6 +28,7 @@ import one.microstream.experimental.binaryread.structure.Entity;
 import one.microstream.experimental.binaryread.structure.EntityMember;
 import one.microstream.experimental.binaryread.structure.EntityMemberType;
 import one.microstream.experimental.binaryread.structure.Storage;
+import one.microstream.experimental.export.config.CSVExportConfiguration;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGenericComplex;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -56,20 +58,20 @@ public class DataExporter
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataExporter.class);
 
-    private final String CSV_DELIMITER = "\t";  // FIXME configurable
     private final ArrayDeque<Entity> exportQueue = new ArrayDeque<>();
     private final Storage storage;
     private final PersistenceTypeDictionary typeDictionary;
     private final File exportLocation;
+    private final CSVExportConfiguration csvExportConfiguration;
 
     private final List<Long> processedObjectIds = new ArrayList<>();
 
-    public DataExporter(final Storage storage, final PersistenceTypeDictionary typeDictionary, final String exportLocation)
+    public DataExporter(final Storage storage, final PersistenceTypeDictionary typeDictionary, final CSVExportConfiguration csvExportConfiguration)
     {
-
         this.storage = storage;
         this.typeDictionary = typeDictionary;
-        this.exportLocation = new File(exportLocation);
+        this.csvExportConfiguration = csvExportConfiguration;
+        this.exportLocation = new File(csvExportConfiguration.getTargetDirectory());
     }
 
     public void export()
@@ -115,7 +117,7 @@ public class DataExporter
 
         for (final PersistenceTypeDefinitionMember member : typeDefinition.allMembers())
         {
-            data.append(CSV_DELIMITER);
+            data.append(csvExportConfiguration.getValueDelimiter());
             final EntityMember entityMember = entity.getEntityMember(member.name());
             final Long reference;
             switch (entityMember.getEntityMemberType())
@@ -142,7 +144,9 @@ public class DataExporter
                         final Object value = stringEntity.getEntityMember("value")
                                 .getReader()
                                 .read();
-                        data.append(value == null ? "" : value.toString());
+                        data.append(csvExportConfiguration.getStringsQuote());
+                        data.append(value == null ? "" : value.toString());  // TODO Can this be null?
+                        data.append(csvExportConfiguration.getStringsQuote());
                     }
                     break;
                 case PRIMITIVE:
@@ -156,23 +160,29 @@ public class DataExporter
                 case PRIMITIVE_COLLECTION:
                     reference = entityMember.getReader()
                             .read();
-                    handlePrimitiveCollection(data, reference);
+                    handlePrimitiveCollection(data, reference, false);
                     break;
                 case COLLECTION:
+                case DICTIONARY:
                     reference = entityMember.getReader()
                             .read();
                     final CollectionPrimitiveItem collectionPrimitiveItem = hasPrimitivesOnly(reference);
+                    boolean dictionary = entityMember.getEntityMemberType() == EntityMemberType.DICTIONARY;
                     switch (collectionPrimitiveItem)
                     {
 
                         case YES:
-                            handlePrimitiveCollection(data, reference);
+                            handlePrimitiveCollection(data, reference, dictionary);
                             break;
                         case NO:
                             handleReference(data, reference);
                             break;
                         case EMPTY:
-                            // empty, null collection or only null items
+                            // empty or only null items
+                            emptyCollection(data, dictionary);
+                            break;
+                        case NULL:
+                            // null collection
                             data.append(" ");
                             break;
                         default:
@@ -274,7 +284,8 @@ public class DataExporter
                             .read();
                     if (list == null || list.isEmpty())
                     {
-                        data.append(" ");
+                        data.append(csvExportConfiguration.getCollectionMarkerStart());
+                        data.append(csvExportConfiguration.getCollectionMarkerEnd());
                     }
                     else
                     {
@@ -319,7 +330,7 @@ public class DataExporter
                                                  queueForExport(storage.getEntityByObjectId(entry.getValue())); // Queue
                                                  value = entry.getValue(); //keep reference in output.
                                              }
-                                             return new KeyValueEntry<>(key, value);
+                                             return new KeyValueEntry<>(key, value, csvExportConfiguration.getDictionaryEntryMarker());
                                          })
                                     .collect(Collectors.toList());
                         }
@@ -327,13 +338,14 @@ public class DataExporter
                         // Is it worth to generify this?
                         final String value = list.stream()
                                 .map(Object::toString)
-                                .collect(Collectors.joining(",", "[", "]"));
+                                .collect(Collectors.joining(",", csvExportConfiguration.getCollectionMarkerStart(), csvExportConfiguration.getCollectionMarkerEnd()));
                         data.append(value);
                     }
                     break;
                 case ENUM:
                     // FIXME exported within the ENUM CSV but not really useful as all enum value names are repeated as 'member'
                     // FIXME This should be skipped!
+                    // FIXME Is this still used now that Enum handling is rewritten.
                     final String enumValue = entityMember.getReader()
                             .read();
                     data.append(enumValue);
@@ -463,9 +475,19 @@ public class DataExporter
                                                                        .read(), member.typeName()));
                             handled = true;
                         }
+                        if (entityMemberType == EntityMemberType.ARRAY)
+                        {
+                            // FIXME Is this only String and BigInteger?
+                            // They are handled correctly, other ARRAY types might not
+                            data.append(handlePrimitiveWrapper(optionalReference, wrappedEntityMember.getTypeDefinitionMember()
+                                    .typeName()));
+
+                            handled = true;
+                        }
+
                         if (!handled)
                         {
-                            // At the end, handle it as a reference.
+                            // At the end, handle it as a reference of not inlined
                             handleReference(data, reference);
                         }
                     }
@@ -493,7 +515,7 @@ public class DataExporter
         if (entityCollection == null)
         {
             // null for collection
-            return CollectionPrimitiveItem.EMPTY;
+            return CollectionPrimitiveItem.NULL;
         }
         if (entityCollection.getMembers()
                 .size() > 1)
@@ -506,7 +528,7 @@ public class DataExporter
                 .get(0)
                 .getReader()
                 .read();
-        if (isLenient())
+        if (csvExportConfiguration.isLenient())
         {
             if (collectionItems.isEmpty())
             {
@@ -579,11 +601,6 @@ public class DataExporter
         }
     }
 
-    private boolean isLenient()
-    {
-        return true;  // FIXME Configuration !!!
-    }
-
     private String handlePrimitiveWrapper(final Long reference, final String type)
     {
         if (reference > START_CID_BASE)
@@ -611,13 +628,23 @@ public class DataExporter
             else
             {
                 final String enumValue = storage.getEnumValue(valueEntity.getObjectId());
-                if (enumValue != null) {
+                if (enumValue != null)
+                {
                     return enumValue;
                 }
                 final EntityMember entityMember = valueEntity.getEntityMember("value");
                 Object value = entityMember.getReader()
                         .read();
-                value = performConversion(value, type);
+                String actualType = type;
+                if ("java.lang.Object".equals(type))
+                {
+                    // If Object, get the actual type for the value entity.
+                    actualType = valueEntity.getMembers()
+                            .get(0)
+                            .getTypeDefinitionMember()
+                            .typeName();
+                }
+                value = performConversion(value, actualType);
                 return value == null ? "" : value.toString();
             }
         }
@@ -630,17 +657,27 @@ public class DataExporter
             // Nothing to convert
             return null;
         }
-        if (BigInteger.class.getName()
-                .equals(type) || "[byte]".equals(type))
+        if ("java.math.BigInteger".equals(type) || "[byte]".equals(type))
         {
             return new BigInteger((byte[]) value).toString();
         }
+        if ("java.math.BigDecimal".equals(type))
+        {
+            // TODO Is this always a good way. Value is String for type BigDecimal but can conversion fail?
+            return new BigDecimal((String) value).toString();
+        }
+        if (String.class.equals(value.getClass()))
+        {
+            return csvExportConfiguration.getStringsQuote()
+                    + value
+                    + csvExportConfiguration.getStringsQuote();
+        }
         // TODO How can we find all other cases??
-        // When value is a String, it is ok, but the rest?
+
         return value;
     }
 
-    private void handlePrimitiveCollection(final StringBuilder data, final Long reference)
+    private void handlePrimitiveCollection(final StringBuilder data, final Long reference, final boolean dictionary)
     {
         final Entity valueEntity = storage.getEntityByObjectId(reference);
         if (valueEntity != null)
@@ -657,7 +694,7 @@ public class DataExporter
                     .read();
             if (collection == null || collection.isEmpty())
             {
-                data.append(" ");
+                emptyCollection(data, dictionary);
             }
             else
             {
@@ -690,9 +727,11 @@ public class DataExporter
                                 .collect(Collectors.toList());
                     }
                 }
+                String markerStart = dictionary ? csvExportConfiguration.getDictionaryMarkersStart() : csvExportConfiguration.getCollectionMarkerStart();
+                String markerEnd = dictionary ? csvExportConfiguration.getDictionaryMarkersEnd() : csvExportConfiguration.getCollectionMarkerEnd();
                 data.append(collection.stream()
                                     .map(Object::toString)
-                                    .collect(Collectors.joining(",")));
+                                    .collect(Collectors.joining(",", markerStart, markerEnd)));
             }
         }
         else
@@ -702,13 +741,27 @@ public class DataExporter
 
     }
 
+    private void emptyCollection(final StringBuilder data, final boolean dictionary)
+    {
+        if (!dictionary)
+        {
+            data.append(csvExportConfiguration.getCollectionMarkerStart());
+            data.append(csvExportConfiguration.getCollectionMarkerEnd());
+        }
+        else
+        {
+            data.append(csvExportConfiguration.getDictionaryMarkersStart());
+            data.append(csvExportConfiguration.getDictionaryMarkersEnd());
+        }
+    }
+
     private Map.Entry<String, String> resolveToPrimitives(final Map.Entry<Long, Long> entry)
     {
         // FIXME, What if the Key or Value is a BigInteger? See performConversion
         final String keyValue = handlePrimitiveWrapper(entry.getKey(), "java.lang.String");
         final String value = handlePrimitiveWrapper(entry.getValue(), "java.lang.String");
 
-        return new KeyValueEntry<>(keyValue, value);
+        return new KeyValueEntry<>(keyValue, value, csvExportConfiguration.getDictionaryEntryMarker());
     }
 
     private void handlePrimitive(final StringBuilder data, final EntityMember entityMember)
@@ -767,7 +820,7 @@ public class DataExporter
         names.append("ObjectId");
         for (final PersistenceTypeDefinitionMember member : typeDefinition.allMembers())
         {
-            names.append(CSV_DELIMITER)
+            names.append(csvExportConfiguration.getValueDelimiter())
                     .append(member.name());
         }
 
@@ -784,6 +837,6 @@ public class DataExporter
 
     private enum CollectionPrimitiveItem
     {
-        YES, NO, EMPTY
+        YES, NO, EMPTY, NULL
     }
 }

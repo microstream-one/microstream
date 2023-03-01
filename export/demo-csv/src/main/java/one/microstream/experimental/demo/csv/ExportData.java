@@ -20,7 +20,11 @@ package one.microstream.experimental.demo.csv;
  * #L%
  */
 
+import one.microstream.experimental.binaryread.config.BinaryReadConfig;
+import one.microstream.experimental.binaryread.config.BinaryReadConfigBuilder;
 import one.microstream.experimental.export.FlatCSV;
+import one.microstream.experimental.export.config.CSVExportConfiguration;
+import one.microstream.experimental.export.config.CSVExportConfigurationBuilder;
 import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
 
 public class ExportData {
@@ -28,7 +32,14 @@ public class ExportData {
     public static void main(final String[] args) {
         final EmbeddedStorageFoundation<?> foundation = Config.createStorageFoundation();
 
-        final FlatCSV flatCSV = new FlatCSV(foundation, "csv");
+        final BinaryReadConfig binaryReadConfig = new BinaryReadConfigBuilder()
+                .withStorageFoundation(foundation)
+                .build();
+        final CSVExportConfiguration exportConfiguration = new CSVExportConfigurationBuilder()
+                .withTargetDirectory("csv")
+                .build();
+
+        final FlatCSV flatCSV = new FlatCSV(binaryReadConfig, exportConfiguration);
         flatCSV.export();
     }
 }

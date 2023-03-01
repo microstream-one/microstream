@@ -1,6 +1,8 @@
+package one.microstream.experimental.binaryread.exception;
+
 /*-
  * #%L
- * export-flat-csv
+ * binary-read
  * %%
  * Copyright (C) 2019 - 2023 MicroStream Software
  * %%
@@ -17,11 +19,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.experimental.export.csv
-{
-    exports one.microstream.experimental.export;
-    exports one.microstream.experimental.export.config;
-    exports one.microstream.experimental.export.exception;
 
-    requires microstream.experimental.binaryread;
+/**
+ * Exception when the configuration receives an invalid size for the Cache size
+ */
+public class InvalidCacheSizeConfigValueException extends BinaryReadException
+{
+    public InvalidCacheSizeConfigValueException(final int invalidCacheSize)
+    {
+        super(String.format("The provided cache size is invalid. It must be 1024 or larger and got %s", invalidCacheSize));
+    }
 }

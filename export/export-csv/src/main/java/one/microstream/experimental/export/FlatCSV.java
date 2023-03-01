@@ -21,8 +21,10 @@ package one.microstream.experimental.export;
  */
 
 import one.microstream.experimental.binaryread.ReadingContext;
+import one.microstream.experimental.binaryread.config.BinaryReadConfig;
 import one.microstream.experimental.binaryread.storage.DataFiles;
 import one.microstream.experimental.binaryread.structure.Storage;
+import one.microstream.experimental.export.config.CSVExportConfiguration;
 import one.microstream.experimental.export.exception.NotSupportedException;
 import one.microstream.persistence.types.PersistenceTypeDictionary;
 import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
@@ -32,21 +34,21 @@ import java.util.List;
 
 public class FlatCSV {
 
-    private final String exportLocation;
+    private final CSVExportConfiguration csvExportConfiguration;
     private PersistenceTypeDictionary typeDictionary;
-        ReadingContext readingContext;
+    private ReadingContext readingContext;
 
-    public FlatCSV(final EmbeddedStorageFoundation<?> storageFoundation, final String exportLocation) {
-        if (!Validation.ensureExportDirectoryValidity(exportLocation)) {
-            throw new NotSupportedException(String.format("The directory %s is not empty", exportLocation));
+    public FlatCSV(final BinaryReadConfig binaryReadConfig, final CSVExportConfiguration csvExportConfiguration) {
+        if (!Validation.ensureExportDirectoryValidity(csvExportConfiguration.getTargetDirectory())) {
+            throw new NotSupportedException(String.format("The directory %s is not empty", csvExportConfiguration.getTargetDirectory()));
         }
 
-        this.exportLocation = exportLocation;  // TODO , will be moved to configuration
-        readingContext = new ReadingContext(storageFoundation);
+        this.csvExportConfiguration = csvExportConfiguration;
+        this.readingContext = new ReadingContext(binaryReadConfig);
     }
 
     private Storage createStorage() {
-        EmbeddedStorageFoundation<?> storageFoundation = readingContext.getStorageFoundation();
+        EmbeddedStorageFoundation<?> storageFoundation = readingContext.getBinaryReadConfig().getStorageFoundation();
         typeDictionary = storageFoundation.getConnectionFoundation().getTypeDictionaryProvider().provideTypeDictionary();
 
         final List<StorageDataInventoryFile> files = DataFiles.defineDataFiles(storageFoundation);
@@ -57,7 +59,7 @@ public class FlatCSV {
         try (final Storage storage = createStorage()) {
             readingContext = new ReadingContext(readingContext, storage);
             storage.analyseStorage(readingContext);
-            final DataExporter exporter = new DataExporter(storage, typeDictionary, exportLocation);
+            final DataExporter exporter = new DataExporter(storage, typeDictionary, csvExportConfiguration);
 
             exporter.export();
         }

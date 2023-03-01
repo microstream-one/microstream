@@ -24,12 +24,17 @@ import one.microstream.experimental.binaryread.exception.IncorrectByteArrayLengt
 
 import java.nio.ByteBuffer;
 
-public class BinaryData
+public final class BinaryDataHelper
 {
 
-    private final static boolean REVERSE = true; // FIXME config
+    private final StringBuilder STRING_BUILDER = new StringBuilder();
 
-    private final static StringBuilder STRING_BUILDER = new StringBuilder();
+    private final boolean reverse;
+
+    public BinaryDataHelper(final boolean reverse)
+    {
+        this.reverse = reverse;
+    }
 
     /**
      * Converts bytes from the {@code ByteBuffer} to a long value. An offset value of 0 is assumed.
@@ -38,7 +43,7 @@ public class BinaryData
      * @param buffer The {@link ByteBuffer}  containing the long value from position 0 onwards.
      * @return The long value.
      */
-    public static long bytesToLong(final ByteBuffer buffer)
+    public long bytesToLong(final ByteBuffer buffer)
     {
         return bytesToLong(buffer, 0);
     }
@@ -52,7 +57,7 @@ public class BinaryData
      * @param offset The offset
      * @return The long value.
      */
-    public static long bytesToLong(final ByteBuffer buffer, final int offset)
+    public long bytesToLong(final ByteBuffer buffer, final int offset)
     {
         if (buffer.capacity() < offset + Long.BYTES)
         {
@@ -60,7 +65,7 @@ public class BinaryData
         }
 
         final long result = buffer.getLong(offset);
-        if (REVERSE)
+        if (reverse)
         {
             return Long.reverseBytes(result);
         }
@@ -77,7 +82,7 @@ public class BinaryData
      * @param buffer The {@link ByteBuffer} containing the integer value from position 0 onwards.
      * @return The integer value.
      */
-    public static int bytesToInt(final ByteBuffer buffer)
+    public int bytesToInt(final ByteBuffer buffer)
     {
         return bytesToInt(buffer, 0);
     }
@@ -91,7 +96,7 @@ public class BinaryData
      * @param offset The offset
      * @return The integer value.
      */
-    public static int bytesToInt(final ByteBuffer buffer, final int offset)
+    public int bytesToInt(final ByteBuffer buffer, final int offset)
     {
         if (buffer.capacity() < offset + Integer.BYTES)
         {
@@ -100,7 +105,7 @@ public class BinaryData
 
         final int result = buffer.getInt(offset);
 
-        if (REVERSE)
+        if (reverse)
         {
             return Integer.reverseBytes(result);
         }
@@ -118,7 +123,7 @@ public class BinaryData
      * @param buffer The {@link ByteBuffer} containing the short value from position 0 onwards.
      * @return The short value.
      */
-    public static short bytesToShort(final ByteBuffer buffer)
+    public short bytesToShort(final ByteBuffer buffer)
     {
         return bytesToShort(buffer, 0);
     }
@@ -132,7 +137,7 @@ public class BinaryData
      * @param offset The offset
      * @return The short value
      */
-    public static short bytesToShort(final ByteBuffer buffer, final int offset)
+    public short bytesToShort(final ByteBuffer buffer, final int offset)
     {
         if (buffer.capacity() < offset + Short.BYTES)
         {
@@ -141,7 +146,7 @@ public class BinaryData
 
         final short result = buffer.getShort(offset);
 
-        if (REVERSE)
+        if (reverse)
         {
             return Short.reverseBytes(result);
         }
@@ -158,7 +163,7 @@ public class BinaryData
      * @param buffer The {@link ByteBuffer} containing the double value from position 0 onwards.
      * @return The double value.
      */
-    public static double bytesToDouble(final ByteBuffer buffer)
+    public double bytesToDouble(final ByteBuffer buffer)
     {
         return bytesToDouble(buffer, 0);
     }
@@ -172,7 +177,7 @@ public class BinaryData
      * @param offset The offset
      * @return The double value.
      */
-    public static double bytesToDouble(final ByteBuffer buffer, final int offset)
+    public double bytesToDouble(final ByteBuffer buffer, final int offset)
     {
         if (buffer.capacity() < offset + Double.BYTES)
         {
@@ -181,7 +186,7 @@ public class BinaryData
 
         final double result = buffer.getDouble(offset);
 
-        if (REVERSE)
+        if (reverse)
         {
             return reverseDouble(result);
         }
@@ -191,7 +196,7 @@ public class BinaryData
         }
     }
 
-    private static double reverseDouble(final double d)
+    private double reverseDouble(final double d)
     {
         final long bits = Double.doubleToRawLongBits(d);
         final long reversedBits = Long.reverseBytes(bits);
@@ -205,7 +210,7 @@ public class BinaryData
      * @param buffer The {@link ByteBuffer} containing the float value from position 0 onwards.
      * @return The float value.
      */
-    public static float bytesToFloat(final ByteBuffer buffer)
+    public float bytesToFloat(final ByteBuffer buffer)
     {
 
         return bytesToFloat(buffer, 0);
@@ -221,7 +226,7 @@ public class BinaryData
      * @param offset The offset
      * @return the float value.
      */
-    public static float bytesToFloat(final ByteBuffer buffer, final int offset)
+    public float bytesToFloat(final ByteBuffer buffer, final int offset)
     {
         if (buffer.capacity() < offset + Float.BYTES)
         {
@@ -230,7 +235,7 @@ public class BinaryData
 
         final float result = buffer.getFloat(offset);
 
-        if (REVERSE)
+        if (reverse)
         {
             return reverseFloat(result);
         }
@@ -240,7 +245,7 @@ public class BinaryData
         }
     }
 
-    private static float reverseFloat(final float f)
+    private float reverseFloat(final float f)
     {
         final int bits = Float.floatToRawIntBits(f);
         final int reversedBits = Integer.reverseBytes(bits);
@@ -256,7 +261,7 @@ public class BinaryData
      * @param offset The offset
      * @return The String
      */
-    public static String bytesToString(final ByteBuffer buffer, final int offset)
+    public String bytesToString(final ByteBuffer buffer, final int offset)
     {
         // String Structure [Bytes Length][String length][data]
         // Bytes Length = [String Length] * 2 + 16

@@ -23,7 +23,6 @@ package one.microstream.experimental.binaryread.storage.reader;
 import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.exception.UnhandledTypeException;
 import one.microstream.experimental.binaryread.structure.EntityMember;
-import one.microstream.experimental.binaryread.structure.util.BinaryData;
 import one.microstream.experimental.binaryread.structure.util.ValidationUtil;
 
 import java.nio.ByteBuffer;
@@ -57,8 +56,8 @@ public class ArrayReader extends MemberReader
     {
         final ByteBuffer buff = readData(Long.BYTES * 2);
 
-        totalLength = BinaryData.bytesToLong(buff);
-        arraySize = ValidationUtil.longAsSize(BinaryData.bytesToLong(buff, Long.BYTES));
+        totalLength = readingContext.getBinaryDataHelper().bytesToLong(buff);
+        arraySize = ValidationUtil.longAsSize(readingContext.getBinaryDataHelper().bytesToLong(buff, Long.BYTES));
 
     }
 
@@ -94,6 +93,6 @@ public class ArrayReader extends MemberReader
     private String readString()
     {
         final ByteBuffer buff = readData(totalLength);
-        return BinaryData.bytesToString(buff, 0);
+        return readingContext.getBinaryDataHelper().bytesToString(buff, 0);
     }
 }

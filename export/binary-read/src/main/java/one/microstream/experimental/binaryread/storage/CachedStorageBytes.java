@@ -9,21 +9,22 @@ package one.microstream.experimental.binaryread.storage;
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
- * 
+ *
  * This Source Code may also be made available under the following Secondary
  * Licenses when the conditions for such availability set forth in the Eclipse
  * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
  * with the GNU Classpath Exception which is
  * available at https://www.gnu.org/software/classpath/license.html.
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
 
+import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.structure.ArrayHeader;
 import one.microstream.experimental.binaryread.structure.Entity;
 import one.microstream.experimental.binaryread.structure.EntityHeader;
-import one.microstream.experimental.binaryread.structure.util.BinaryData;
+import one.microstream.experimental.binaryread.structure.util.BinaryDataHelper;
 import one.microstream.storage.types.StorageDataInventoryFile;
 
 import java.io.Serializable;
@@ -39,15 +40,16 @@ import java.util.Map;
  */
 public final class CachedStorageBytes
 {
-
-    private static final CachedStorageBytes INSTANCE = new CachedStorageBytes();
-    private static final int CACHE_SIZE = 16384;
-    // TODO initial tests doesn't show an improvement when 16384 -> 65536
+    private final int cacheSize;
+    private final BinaryDataHelper binaryDataHelper;
 
     private final Map<DataFileKey, DataFileCache> dataFileCacheMap = new HashMap<>();
 
-    private CachedStorageBytes()
+    public CachedStorageBytes(final ReadingContext readingContext)
     {
+        this.cacheSize = readingContext.getBinaryReadConfig()
+                .getCacheSize();
+        this.binaryDataHelper = readingContext.getBinaryDataHelper();
     }
 
     /**
@@ -66,10 +68,10 @@ public final class CachedStorageBytes
         final int cachePos = (int) (pos - dataFileCache.startPosition);
 
         // read the data
-        final long length = BinaryData.bytesToLong(dataFileCache.byteBuffer, cachePos);
-        final long typeId = BinaryData.bytesToLong(dataFileCache.byteBuffer, cachePos + Long.BYTES);
+        final long length = binaryDataHelper.bytesToLong(dataFileCache.byteBuffer, cachePos);
+        final long typeId = binaryDataHelper.bytesToLong(dataFileCache.byteBuffer, cachePos + Long.BYTES);
 
-        final long objectId = BinaryData.bytesToLong(dataFileCache.byteBuffer, cachePos + 2 * Long.BYTES);
+        final long objectId = binaryDataHelper.bytesToLong(dataFileCache.byteBuffer, cachePos + 2 * Long.BYTES);
 
         return new Entity(dataFile, pos, new EntityHeader(length, typeId, objectId));
     }
@@ -88,8 +90,8 @@ public final class CachedStorageBytes
         // We recalculate the position of the header according the start position of the cache.
         final int cachePos = (int) (pos - dataFileCache.startPosition);
 
-        final long size = BinaryData.bytesToLong(dataFileCache.byteBuffer, cachePos);
-        final long length = BinaryData.bytesToLong(dataFileCache.byteBuffer, cachePos + Long.BYTES);
+        final long size = binaryDataHelper.bytesToLong(dataFileCache.byteBuffer, cachePos);
+        final long length = binaryDataHelper.bytesToLong(dataFileCache.byteBuffer, cachePos + Long.BYTES);
 
         return new ArrayHeader(size, length);
     }
@@ -126,10 +128,10 @@ public final class CachedStorageBytes
     {
         final long fileSize = dataFile.size();
         int bufferSize;
-        if (fileSize - pos > CACHE_SIZE)
+        if (fileSize - pos > cacheSize)
         {
 
-            bufferSize = CACHE_SIZE;
+            bufferSize = cacheSize;
         }
         else
         {
@@ -197,10 +199,6 @@ public final class CachedStorageBytes
             this.byteBuffer = byteBuffer;
             this.startPosition = startPosition;
         }
-    }
-
-    public static CachedStorageBytes getInstance() {
-        return INSTANCE;
     }
 
 }

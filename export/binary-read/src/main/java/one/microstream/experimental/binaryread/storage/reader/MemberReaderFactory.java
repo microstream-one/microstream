@@ -41,6 +41,7 @@ public class MemberReaderFactory
             case PRIMITIVE_WRAPPER:
             case PRIMITIVE_COLLECTION:
             case COLLECTION:
+            case DICTIONARY:
             case TIMESTAMP_BASED:
             case OPTIONAL:
             case ENUM_ARRAY:

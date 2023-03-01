@@ -20,7 +20,11 @@ package one.microstream.experimental.export.test;
  * #L%
  */
 
+import one.microstream.experimental.binaryread.config.BinaryReadConfig;
+import one.microstream.experimental.binaryread.config.BinaryReadConfigBuilder;
 import one.microstream.experimental.export.FlatCSV;
+import one.microstream.experimental.export.config.CSVExportConfiguration;
+import one.microstream.experimental.export.config.CSVExportConfigurationBuilder;
 import one.microstream.experimental.export.test.model.BigValues;
 import one.microstream.experimental.export.test.model.Dates;
 import one.microstream.experimental.export.test.model.Enums;
@@ -98,8 +102,15 @@ class FlatCSVTest
 
         createTestData(root);
         final EmbeddedStorageFoundation<?> foundation = TestConfig.createStorageFoundation();
+        final BinaryReadConfig binaryReadConfig = new BinaryReadConfigBuilder()
+                .withStorageFoundation(foundation)
+                .build();
 
-        final FlatCSV csv = new FlatCSV(foundation, "target/csv");
+        final CSVExportConfiguration exportConfiguration = new CSVExportConfigurationBuilder()
+                .withTargetDirectory("target/csv")
+                .withStringsQuote("\"")
+                .build();
+        final FlatCSV csv = new FlatCSV(binaryReadConfig, exportConfiguration);
         csv.export();
     }
 
@@ -116,14 +127,16 @@ class FlatCSVTest
 
             root.addPrimitiveArrays(primitivesArrays1());
             root.addPrimitiveArrays(primitivesArrays2());
+            root.addPrimitiveArrays(primitivesArrays3());
 
             root.addPrimitiveWrapperArrays(primitivesWrapperArrays1());
             root.addPrimitiveWrapperArrays(primitivesWrapperArrays2());
+            root.addPrimitiveWrapperArrays(primitivesWrapperArrays3());
 
             root.addPrimitiveLists(primitivesLists1());
-            root.addPrimitiveLists(primitivesLists2());
-            root.addPrimitiveLists(primitivesLists3());
-            root.addPrimitiveLists(primitivesLists4());
+            root.addPrimitiveLists(primitivesLists2());  // empty list
+            root.addPrimitiveLists(primitivesLists3());  // List with nulls
+            root.addPrimitiveLists(primitivesLists4()); // null as instance
 
             root.addPrimitiveSets(primitivesSets1());
             root.addPrimitiveSets(primitivesSets2());
@@ -258,6 +271,20 @@ class FlatCSVTest
     private PrimitiveArrays primitivesArrays2()
     {
         final PrimitiveArrays result = new PrimitiveArrays();
+        result.setBoolArray(new boolean[]{});
+        result.setByteArray(new byte[]{});
+        result.setShortArray(new short[]{});
+        result.setIntArray(new int[]{});
+        result.setLongArray(new long[]{});
+        result.setFloatArray(new float[]{});
+        result.setDoubleArray(new double[]{});
+        result.setCharArray(new char[]{});
+        return result;
+    }
+
+    private PrimitiveArrays primitivesArrays3()
+    {
+        final PrimitiveArrays result = new PrimitiveArrays();
         result.setBoolArray(null);
         result.setByteArray(null);
         result.setShortArray(null);
@@ -284,6 +311,20 @@ class FlatCSVTest
     }
 
     private PrimitiveWrapperArrays primitivesWrapperArrays2()
+    {
+        final PrimitiveWrapperArrays result = new PrimitiveWrapperArrays();
+        result.setBoolArray(new Boolean[]{});
+        result.setByteArray(new Byte[]{});
+        result.setShortArray(new Short[]{});
+        result.setIntArray(new Integer[]{});
+        result.setLongArray(new Long[]{});
+        result.setFloatArray(new Float[]{});
+        result.setDoubleArray(new Double[]{});
+        result.setCharArray(new Character[]{});
+        return result;
+    }
+
+    private PrimitiveWrapperArrays primitivesWrapperArrays3()
     {
         final PrimitiveWrapperArrays result = new PrimitiveWrapperArrays();
         result.setBoolArray(null);
@@ -619,18 +660,18 @@ class FlatCSVTest
     {
         final Maps result = new Maps();
 
-        Map<String, String> m1 = new HashMap<>();
+        final Map<String, String> m1 = new HashMap<>();
         addEntry(m1, "key", "value");
         addEntry(m1, "foo", "bar");
         result.setStringMap(m1);
 
-        Map<String, Long> m2 = new HashMap<>();
+        final Map<String, Long> m2 = new HashMap<>();
         addEntry(m2, "item1", 123L);
         addEntry(m2, "item2", 87L);
         addEntry(m2, "item3", 5432L);
         result.setCountMap(m2);
 
-        Map<Double, Double> m3 = new HashMap<>();
+        final Map<Double, Double> m3 = new HashMap<>();
         addEntry(m3, 1.0, 1.0);
         addEntry(m3, 2.0, 4.0);
         addEntry(m3, 3.0, 9.0);
@@ -640,7 +681,7 @@ class FlatCSVTest
         return result;
     }
 
-    private <K, V> void addEntry(Map<K, V> map, K key, V value)
+    private <K, V> void addEntry(final Map<K, V> map, final K key, final V value)
     {
         map.put(key, value);
     }

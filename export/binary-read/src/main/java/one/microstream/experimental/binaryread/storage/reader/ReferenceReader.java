@@ -22,7 +22,6 @@ package one.microstream.experimental.binaryread.storage.reader;
 
 import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.structure.EntityMember;
-import one.microstream.experimental.binaryread.structure.util.BinaryData;
 
 import java.nio.ByteBuffer;
 
@@ -53,7 +52,7 @@ public class ReferenceReader extends MemberReader
         // A reference should be an ObjectId.
         final ByteBuffer buff = readData(entityMember.getTypeDefinitionMember()
                                            .persistentMinimumLength());
-        final Long result = BinaryData.bytesToLong(buff);
+        final Long result = readingContext.getBinaryDataHelper().bytesToLong(buff);
         return (T) result;
     }
 }

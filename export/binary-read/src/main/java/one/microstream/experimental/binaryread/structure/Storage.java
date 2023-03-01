@@ -86,17 +86,17 @@ public final class Storage implements Closeable
         // to create a copy?
 
         LOGGER.info("Scanning Data Storage");
-        final Map<Long, List<Entity>> entityByTypeId = determineEntities();
+        final Map<Long, List<Entity>> entityByTypeId = determineEntities(readingContext);
         determineEnumEntities(readingContext, entityByTypeId);
         defineEntityDetails(readingContext);
         defineRoot(entityByTypeId);
     }
 
-    private Map<Long, List<Entity>> determineEntities()
+    private Map<Long, List<Entity>> determineEntities(final ReadingContext readingContext)
     {
         final Map<Long, List<Entity>> entityByTypeId = new HashMap<>();
 
-        CachedStorageBytes cachedStorage = CachedStorageBytes.getInstance();
+        CachedStorageBytes cachedStorage = readingContext.getCachedStorageBytes();
         for (final StorageDataInventoryFile file : files)
         {
 

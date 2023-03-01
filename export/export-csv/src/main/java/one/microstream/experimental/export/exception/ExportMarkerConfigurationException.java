@@ -1,3 +1,5 @@
+package one.microstream.experimental.export.exception;
+
 /*-
  * #%L
  * export-flat-csv
@@ -17,11 +19,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.experimental.export.csv
-{
-    exports one.microstream.experimental.export;
-    exports one.microstream.experimental.export.config;
-    exports one.microstream.experimental.export.exception;
 
-    requires microstream.experimental.binaryread;
+public class ExportMarkerConfigurationException extends ExportException
+{
+    public ExportMarkerConfigurationException(final String type, final String marker)
+    {
+        super(String.format("The specified marker configuration '%s' is not valid for %s ", marker, type));
+    }
 }

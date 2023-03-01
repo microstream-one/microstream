@@ -26,11 +26,18 @@ public class KeyValueEntry<K, V> implements Map.Entry<K, V>
 {
     private final K key;
     private V value;
+    private final String delimiter;
 
     public KeyValueEntry(final K key, final V value)
     {
+       this(key, value, null);
+    }
+
+    public KeyValueEntry(final K key, final V value, final String delimiter)
+    {
         this.key = key;
         this.value = value;
+        this.delimiter = delimiter;
     }
 
     @Override
@@ -56,6 +63,6 @@ public class KeyValueEntry<K, V> implements Map.Entry<K, V>
     @Override
     public String toString()
     {
-        return String.format("[%s,%s]", key, value);
+        return String.format("[%s%s%s]", key, delimiter, value);
     }
 }

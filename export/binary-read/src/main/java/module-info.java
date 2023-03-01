@@ -20,11 +20,13 @@
 module microstream.experimental.binaryread
 {
     exports one.microstream.experimental.binaryread;
+    exports one.microstream.experimental.binaryread.config;
+    exports one.microstream.experimental.binaryread.exception;
     exports one.microstream.experimental.binaryread.structure;
+    exports one.microstream.experimental.binaryread.structure.util;
     exports one.microstream.experimental.binaryread.storage;
     exports one.microstream.experimental.binaryread.storage.reader;
     exports one.microstream.experimental.binaryread.storage.reader.helper;
-    exports one.microstream.experimental.binaryread.exception;
 
     requires transitive microstream.persistence;
     requires transitive microstream.storage;
