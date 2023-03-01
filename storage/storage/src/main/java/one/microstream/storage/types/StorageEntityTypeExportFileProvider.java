@@ -91,7 +91,7 @@ public interface StorageEntityTypeExportFileProvider
 	public interface Defaults
 	{
 		/**
-		 * Default file suufix for binary files.
+		 * Default file suffix for binary files.
 		 * 
 		 * @return {@code "bin"}
 		 */
