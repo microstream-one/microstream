@@ -1,3 +1,5 @@
+package one.microstream.experimental.export.writing;
+
 /*-
  * #%L
  * export-flat-csv
@@ -17,12 +19,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-module microstream.experimental.export.csv
-{
-    exports one.microstream.experimental.export;
-    exports one.microstream.experimental.export.config;
-    exports one.microstream.experimental.export.exception;
-    exports one.microstream.experimental.export.writing;
 
-    requires microstream.experimental.binaryread;
+import java.io.Writer;
+
+@FunctionalInterface
+public interface WriteHeaders
+{
+    void write(final Writer writer);
 }

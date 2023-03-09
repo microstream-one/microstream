@@ -53,7 +53,8 @@ public abstract class MemberReader
 
     protected ByteBuffer readData(final int size)
     {
-        final ByteBuffer buff = ByteBuffer.allocate(ValidationUtil.longAsSize(size));
+        final ByteBuffer buff = ByteBuffer.allocate(size);
+        // This readBytes is slow due to checking the fileSize every time.
         entityMember.getEntity()
                 .getDataFile()
                 .readBytes(buff, entityMember.getPos());

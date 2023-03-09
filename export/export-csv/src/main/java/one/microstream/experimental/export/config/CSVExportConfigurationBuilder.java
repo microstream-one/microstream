@@ -23,6 +23,7 @@ package one.microstream.experimental.export.config;
 public class CSVExportConfigurationBuilder
 {
     private String targetDirectory;
+    private int fileWriterCacheSize = 16;
     private String valueDelimiter = "\t";
     private String collectionMarkers = "[]";
     private String dictionaryMarkers = "{}";
@@ -33,6 +34,12 @@ public class CSVExportConfigurationBuilder
     public CSVExportConfigurationBuilder withTargetDirectory(final String targetDirectory)
     {
         this.targetDirectory = targetDirectory;
+        return this;
+    }
+
+    public CSVExportConfigurationBuilder withFileWriterCacheSize(final int fileWriterCacheSize)
+    {
+        this.fileWriterCacheSize = fileWriterCacheSize;
         return this;
     }
 
@@ -74,6 +81,6 @@ public class CSVExportConfigurationBuilder
 
     public CSVExportConfiguration build()
     {
-        return new CSVExportConfiguration(targetDirectory, valueDelimiter, collectionMarkers, dictionaryMarkers, dictionaryEntryMarker, stringsQuote, isLenient);
+        return new CSVExportConfiguration(targetDirectory, fileWriterCacheSize, valueDelimiter, collectionMarkers, dictionaryMarkers, dictionaryEntryMarker, stringsQuote, isLenient);
     }
 }

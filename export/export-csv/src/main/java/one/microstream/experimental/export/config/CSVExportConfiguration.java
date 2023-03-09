@@ -26,6 +26,9 @@ public class CSVExportConfiguration
 {
 
     private final String targetDirectory;
+
+    private final int fileWriterCacheSize;
+
     private final String valueDelimiter;  // like \t or ,
 
     private String collectionMarkerStart; // like [ resulting in [item1, item2, item3]
@@ -39,9 +42,10 @@ public class CSVExportConfiguration
     private final String stringsQuote; // like "
     private final boolean isLenient; // When determining if collection can be inlined. Do we look only at first item or do we check everything?
 
-    public CSVExportConfiguration(final String targetDirectory, final String valueDelimiter, final String collectionMarkers, final String dictionaryMarkers, final String dictionaryEntryMarker, final String stringsQuote, final boolean isLenient)
+    public CSVExportConfiguration(final String targetDirectory, final int fileWriterCacheSize, final String valueDelimiter, final String collectionMarkers, final String dictionaryMarkers, final String dictionaryEntryMarker, final String stringsQuote, final boolean isLenient)
     {
         this.targetDirectory = targetDirectory;
+        this.fileWriterCacheSize = fileWriterCacheSize;
         this.valueDelimiter = valueDelimiter;
         defineCollectionMarkers(checkCollectionMarkers(collectionMarkers));
         defineDictionaryMarkers(checkDictionaryMarkers(dictionaryMarkers));
@@ -89,6 +93,11 @@ public class CSVExportConfiguration
     public String getTargetDirectory()
     {
         return targetDirectory;
+    }
+
+    public int getFileWriterCacheSize()
+    {
+        return fileWriterCacheSize;
     }
 
     public String getValueDelimiter()

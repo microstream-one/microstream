@@ -29,6 +29,8 @@ import one.microstream.experimental.binaryread.structure.EntityMember;
 import one.microstream.experimental.binaryread.structure.EntityMemberType;
 import one.microstream.experimental.binaryread.structure.Storage;
 import one.microstream.experimental.export.config.CSVExportConfiguration;
+import one.microstream.experimental.export.writing.CSVWriterHeaders;
+import one.microstream.experimental.export.writing.LimitedFileWriters;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGenericComplex;
@@ -38,16 +40,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DataExporter
@@ -64,7 +66,9 @@ public class DataExporter
     private final File exportLocation;
     private final CSVExportConfiguration csvExportConfiguration;
 
-    private final List<Long> processedObjectIds = new ArrayList<>();
+    private final Set<Long> processedObjectIds = new HashSet<>();
+
+    private final LimitedFileWriters limitedFileWriters;
 
     public DataExporter(final Storage storage, final PersistenceTypeDictionary typeDictionary, final CSVExportConfiguration csvExportConfiguration)
     {
@@ -72,6 +76,7 @@ public class DataExporter
         this.typeDictionary = typeDictionary;
         this.csvExportConfiguration = csvExportConfiguration;
         this.exportLocation = new File(csvExportConfiguration.getTargetDirectory());
+        this.limitedFileWriters = new LimitedFileWriters(csvExportConfiguration.getFileWriterCacheSize());
     }
 
     public void export()
@@ -83,6 +88,7 @@ public class DataExporter
         {
             exportObject(exportQueue.pop());
         }
+        limitedFileWriters.close();
         LOGGER.info("Finished export");
     }
 
@@ -99,8 +105,11 @@ public class DataExporter
     private void exportObject(final Entity entity)
     {
         final PersistenceTypeDefinition typeDefinition = typeDictionary.lookupTypeById(entity.getTypeId());
-        final Writer writer = initializeCSVFileWriter(typeDefinition);
+        final File csvFile = new File(exportLocation, typeDefinition.runtimeTypeName() + ".csv");
+        CSVWriterHeaders writeHeaders = new CSVWriterHeaders(csvExportConfiguration, typeDefinition);
+        final Writer writer = limitedFileWriters.get(csvFile.getAbsolutePath(), writeHeaders);
         exportObjectData(writer, entity, typeDefinition);
+        /*
         try
         {
             writer.close();
@@ -108,6 +117,8 @@ public class DataExporter
         {
             throw new UnexpectedException("Exception when closing the file", e);
         }
+
+         */
     }
 
     private void exportObjectData(final Writer writer, final Entity entity, final PersistenceTypeDefinition typeDefinition)
@@ -791,46 +802,6 @@ public class DataExporter
         else
         {
             data.append(enumValue);
-        }
-    }
-
-    private Writer initializeCSVFileWriter(final PersistenceTypeDefinition typeDefinition)
-    {
-        final File csvFile = new File(exportLocation, typeDefinition.runtimeTypeName() + ".csv");
-        final boolean fileExists = csvFile.exists();
-        final FileWriter result;
-        try
-        {
-            result = new FileWriter(csvFile, true);
-        } catch (final IOException e)
-        {
-            throw new UnexpectedException("Exception when creating the file", e);
-        }
-        if (!fileExists)
-        {
-            writeHeader(result, typeDefinition);
-        }
-        return result;
-    }
-
-    private void writeHeader(final FileWriter result, final PersistenceTypeDefinition typeDefinition)
-    {
-        final StringBuilder names = new StringBuilder();
-        // every object has an id (=MicroStream ObjectId)
-        names.append("ObjectId");
-        for (final PersistenceTypeDefinitionMember member : typeDefinition.allMembers())
-        {
-            names.append(csvExportConfiguration.getValueDelimiter())
-                    .append(member.name());
-        }
-
-        try
-        {
-            result.write(names.toString());
-            result.write("\n");
-        } catch (final IOException e)
-        {
-            throw new UnexpectedException("Exception when writing to the file", e);
         }
     }
 
