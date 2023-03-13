@@ -63,7 +63,7 @@ public enum EntityMemberType
         {
             return EntityMemberType.TIMESTAMP_BASED;
         }
-        if (isEnum(typeDefinitionMember))
+        if (isEnum(typeDefinitionMember, readingContext.getStorage()))
         {
             return EntityMemberType.ENUM;
         }
@@ -114,7 +114,8 @@ public enum EntityMemberType
             "[Ljava.math.BigDecimal;"
     ));
 
-    private static boolean isPrimitiveCollection(final PersistenceTypeDefinitionMember member) {
+    private static boolean isPrimitiveCollection(final PersistenceTypeDefinitionMember member)
+    {
         return PRIMITIVE_COLLECTIONS.contains(member.typeName());
     }
 
@@ -128,7 +129,7 @@ public enum EntityMemberType
     private static boolean isDictionary(final PersistenceTypeDefinitionMember member)
     {
         // Will be handled as Primitive Collection when we export and identify the type of the item is a Primitive Wrapper.
-        return  "java.util.Map".equals(member.typeName());
+        return "java.util.Map".equals(member.typeName());
     }
 
     private static boolean isReference(final PersistenceTypeDefinitionMember member)
@@ -146,8 +147,9 @@ public enum EntityMemberType
     private static boolean isEnumArray(final PersistenceTypeDefinitionMember member, final Storage storage)
     {
         final String typeName = member.typeName();
-        if (typeName.startsWith("[L") && typeName.endsWith(";")) {
-            final String className = typeName.substring(2, typeName.length()-1);
+        if (typeName.startsWith("[L") && typeName.endsWith(";"))
+        {
+            final String className = typeName.substring(2, typeName.length() - 1);
             return storage.isEnumClass(className);
         }
 
@@ -174,10 +176,11 @@ public enum EntityMemberType
 
     }
 
-    private static boolean isEnum(final PersistenceTypeDefinitionMember member)
+    private static boolean isEnum(final PersistenceTypeDefinitionMember member, Storage storage)
     {
         return member.typeName()
-                .startsWith("enum");
+                .startsWith("enum") ||
+                storage.isEnumClass(member.typeName());
 
     }
 
@@ -194,7 +197,8 @@ public enum EntityMemberType
             "java.math.BigDecimal"
     ));
 
-    private static boolean isPrimitiveWrapper(final PersistenceTypeDefinitionMember member) {
+    private static boolean isPrimitiveWrapper(final PersistenceTypeDefinitionMember member)
+    {
         return PRIMITIVE_WRAPPERS.contains(member.typeName());
     }
 

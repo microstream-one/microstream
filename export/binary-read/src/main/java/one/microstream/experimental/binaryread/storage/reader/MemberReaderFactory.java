@@ -45,6 +45,7 @@ public class MemberReaderFactory
             case TIMESTAMP_BASED:
             case OPTIONAL:
             case ENUM_ARRAY:
+            case ENUM:
                 // There are many different types to make easier usage of the data.
                 result = new ReferenceReader(readingContext, entityMember);
                 break;
@@ -56,9 +57,6 @@ public class MemberReaderFactory
                 break;
             case COMPLEX:
                 result = new SpecialListReader(readingContext, entityMember);
-                break;
-            case ENUM:
-                result = new EnumReader(readingContext, entityMember);
                 break;
             default:
                 throw new ReaderNotDefinedYetException(typeDefinition);

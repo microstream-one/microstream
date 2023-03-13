@@ -354,12 +354,11 @@ public class DataExporter
                     }
                     break;
                 case ENUM:
-                    // FIXME exported within the ENUM CSV but not really useful as all enum value names are repeated as 'member'
-                    // FIXME This should be skipped!
-                    // FIXME Is this still used now that Enum handling is rewritten.
-                    final String enumValue = entityMember.getReader()
+                    reference = entityMember.getReader()
                             .read();
-                    data.append(enumValue);
+
+                    final String enumValue = storage.getEnumValue(reference);
+                    data.append(enumValue == null ? " " : enumValue);
                     break;
                 case ENUM_ARRAY:
                     long enumArrayRef = entityMember.getReader()
@@ -428,9 +427,11 @@ public class DataExporter
                 {
                     // A primitive has never more than 1 member
                     // Except when Enum
+                    // Used in case of a List or Set of enums.
                     String enumValue = storage.getEnumValue(entityItem.getObjectId());
 
                     result = enumValue != null;
+
                 }
             }
         }
@@ -638,6 +639,7 @@ public class DataExporter
             }
             else
             {
+                // Enums List and Sets are handled by this bit.
                 final String enumValue = storage.getEnumValue(valueEntity.getObjectId());
                 if (enumValue != null)
                 {
