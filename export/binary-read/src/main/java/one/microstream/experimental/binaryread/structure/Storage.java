@@ -57,6 +57,8 @@ public final class Storage implements Closeable
 
     private final Map<Long, Entity> entityByObjectId = new HashMap<>();
 
+    private Map<Long, List<Entity>> entityByTypeId;  // FIXME Needed for jdbc-driver, review the logic so that it is not needed?
+
     private final Map<Long, String> enumValues = new HashMap<>();
 
     private final List<String> enumClasses = new ArrayList<>();
@@ -75,8 +77,11 @@ public final class Storage implements Closeable
     {
         this.files = files;
         this.typeDictionary = typeDictionary;
+    }
 
-
+    public PersistenceTypeDictionary getTypeDictionary()
+    {
+        return typeDictionary;
     }
 
     public void analyseStorage(final ReadingContext readingContext)
@@ -86,7 +91,7 @@ public final class Storage implements Closeable
         // to create a copy?
 
         LOGGER.info("Scanning Data Storage");
-        final Map<Long, List<Entity>> entityByTypeId = determineEntities(readingContext);
+        entityByTypeId = determineEntities(readingContext);
         determineEnumEntities(readingContext, entityByTypeId);
         defineEntityDetails(readingContext);
         defineRoot(entityByTypeId);
@@ -159,10 +164,7 @@ public final class Storage implements Closeable
         LOGGER.info("Defining Root object");
 
         final PersistenceTypeDefinition persistenceRootsTypeDefinition = typeDictionary.lookupTypeByName(PERSISTENCE_ROOTS_REFERENCE_DEFAULT);
-        final List<Entity> entities = entityByTypeId.get(persistenceRootsTypeDefinition.typeId());
-
-        // Take the last one. If multiple, the others are older versions as we only can have 1 active
-        final Entity entity = entities.get(entities.size() - 1);
+        final Entity entity = getEntityByTypeId(persistenceRootsTypeDefinition.typeId());
 
         final Long rootObjectId = entity.getMembers()
                 .get(0)
@@ -287,4 +289,17 @@ public final class Storage implements Closeable
 
     }
 
+    public Entity getEntityByTypeId(long typeId)
+    {
+        final List<Entity> entities = entityByTypeId.get(typeId);
+
+        // Take the last one. If multiple, the others are older versions as we only can have 1 active
+        return entities.get(entities.size() - 1);
+
+    }
+
+    public List<Entity> getAllEntityByTypeId(long typeId)
+    {
+        return entityByTypeId.get(typeId);
+    }
 }

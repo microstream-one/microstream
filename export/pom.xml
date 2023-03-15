@@ -23,7 +23,9 @@
 	<modules>
 		<module>binary-read</module>
 		<module>export-csv</module>
+		<module>jdbc-driver</module>
 		<module>demo-csv</module>
+		<module>demo-jdbc</module>
 
 	</modules>
 
