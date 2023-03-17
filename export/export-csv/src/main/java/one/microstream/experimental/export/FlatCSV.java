@@ -9,19 +9,20 @@ package one.microstream.experimental.export;
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
- * 
+ *
  * This Source Code may also be made available under the following Secondary
  * Licenses when the conditions for such availability set forth in the Eclipse
  * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
  * with the GNU Classpath Exception which is
  * available at https://www.gnu.org/software/classpath/license.html.
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
 
 import one.microstream.experimental.binaryread.ReadingContext;
 import one.microstream.experimental.binaryread.config.BinaryReadConfig;
+import one.microstream.experimental.binaryread.exception.IncorrectConfigurationException;
 import one.microstream.experimental.binaryread.storage.DataFiles;
 import one.microstream.experimental.binaryread.structure.Storage;
 import one.microstream.experimental.export.config.CSVExportConfiguration;
@@ -32,14 +33,17 @@ import one.microstream.storage.types.StorageDataInventoryFile;
 
 import java.util.List;
 
-public class FlatCSV {
+public class FlatCSV
+{
 
     private final CSVExportConfiguration csvExportConfiguration;
     private PersistenceTypeDictionary typeDictionary;
     private ReadingContext readingContext;
 
-    public FlatCSV(final BinaryReadConfig binaryReadConfig, final CSVExportConfiguration csvExportConfiguration) {
-        if (!Validation.ensureExportDirectoryValidity(csvExportConfiguration.getTargetDirectory())) {
+    public FlatCSV(final BinaryReadConfig binaryReadConfig, final CSVExportConfiguration csvExportConfiguration)
+    {
+        if (!Validation.ensureExportDirectoryValidity(csvExportConfiguration.getTargetDirectory()))
+        {
             throw new NotSupportedException(String.format("The directory %s is not empty", csvExportConfiguration.getTargetDirectory()));
         }
 
@@ -47,19 +51,30 @@ public class FlatCSV {
         this.readingContext = new ReadingContext(binaryReadConfig);
     }
 
-    private Storage createStorage() {
-        EmbeddedStorageFoundation<?> storageFoundation = readingContext.getBinaryReadConfig().getStorageFoundation();
-        typeDictionary = storageFoundation.getConnectionFoundation().getTypeDictionaryProvider().provideTypeDictionary();
+    // FIXME duplicated within jdbc-driver
+    private Storage createStorage()
+    {
+        EmbeddedStorageFoundation<?> storageFoundation = readingContext.getBinaryReadConfig()
+                .getStorageFoundation();
+        typeDictionary = storageFoundation.getConnectionFoundation()
+                .getTypeDictionaryProvider()
+                .provideTypeDictionary();
+
+        if (typeDictionary.isEmpty()) {
+            throw new IncorrectConfigurationException("Incorrect configuration of the data storage, no TypeDictionary found");
+        }
 
         final List<StorageDataInventoryFile> files = DataFiles.defineDataFiles(storageFoundation);
-        return new Storage( files, typeDictionary);
+        return new Storage(files, typeDictionary);
     }
 
-    public void export() {
-        try (final Storage storage = createStorage()) {
+    public void export()
+    {
+        try (final Storage storage = createStorage())
+        {
             readingContext = new ReadingContext(readingContext, storage);
             storage.analyseStorage(readingContext);
-            final DataExporter exporter = new DataExporter(storage, typeDictionary, csvExportConfiguration);
+            final DataExporter exporter = new DataExporter(readingContext, csvExportConfiguration);
 
             exporter.export();
         }

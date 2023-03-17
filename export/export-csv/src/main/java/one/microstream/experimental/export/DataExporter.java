@@ -20,9 +20,11 @@ package one.microstream.experimental.export;
  * #L%
  */
 
-import one.microstream.experimental.binaryread.exception.InvalidObjectIdFoundException;
+import one.microstream.experimental.binaryread.ReadingContext;
+import one.microstream.experimental.binaryread.data.ConvertedData;
+import one.microstream.experimental.binaryread.data.DataConversion;
+import one.microstream.experimental.binaryread.data.DeserializerOptionsBuilder;
 import one.microstream.experimental.binaryread.exception.UnexpectedException;
-import one.microstream.experimental.binaryread.storage.ConstantRegistry;
 import one.microstream.experimental.binaryread.storage.reader.helper.KeyValueEntry;
 import one.microstream.experimental.binaryread.structure.Entity;
 import one.microstream.experimental.binaryread.structure.EntityMember;
@@ -33,17 +35,12 @@ import one.microstream.experimental.export.writing.CSVWriterHeaders;
 import one.microstream.experimental.export.writing.LimitedFileWriters;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
-import one.microstream.persistence.types.PersistenceTypeDefinitionMemberFieldGenericComplex;
-import one.microstream.persistence.types.PersistenceTypeDescriptionMemberFieldGeneric;
-import one.microstream.persistence.types.PersistenceTypeDictionary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.List;
@@ -61,8 +58,8 @@ public class DataExporter
     private static final Logger LOGGER = LoggerFactory.getLogger(DataExporter.class);
 
     private final ArrayDeque<Entity> exportQueue = new ArrayDeque<>();
-    private final Storage storage;
-    private final PersistenceTypeDictionary typeDictionary;
+
+    private final ReadingContext readingContext;
     private final File exportLocation;
     private final CSVExportConfiguration csvExportConfiguration;
 
@@ -70,10 +67,9 @@ public class DataExporter
 
     private final LimitedFileWriters limitedFileWriters;
 
-    public DataExporter(final Storage storage, final PersistenceTypeDictionary typeDictionary, final CSVExportConfiguration csvExportConfiguration)
+    public DataExporter(final ReadingContext readingContext, final CSVExportConfiguration csvExportConfiguration)
     {
-        this.storage = storage;
-        this.typeDictionary = typeDictionary;
+        this.readingContext = readingContext;
         this.csvExportConfiguration = csvExportConfiguration;
         this.exportLocation = new File(csvExportConfiguration.getTargetDirectory());
         this.limitedFileWriters = new LimitedFileWriters(csvExportConfiguration.getFileWriterCacheSize());
@@ -82,7 +78,8 @@ public class DataExporter
     public void export()
     {
         LOGGER.info("Starting export");
-        queueForExport(storage.getRoot());
+        queueForExport(readingContext.getStorage()
+                               .getRoot());
 
         while (!exportQueue.isEmpty())
         {
@@ -104,27 +101,20 @@ public class DataExporter
 
     private void exportObject(final Entity entity)
     {
-        final PersistenceTypeDefinition typeDefinition = typeDictionary.lookupTypeById(entity.getTypeId());
+        final PersistenceTypeDefinition typeDefinition = readingContext.getStorage()
+                .getTypeDictionary()
+                .lookupTypeById(entity.getTypeId());
         final File csvFile = new File(exportLocation, typeDefinition.runtimeTypeName() + ".csv");
         CSVWriterHeaders writeHeaders = new CSVWriterHeaders(csvExportConfiguration, typeDefinition);
         final Writer writer = limitedFileWriters.get(csvFile.getAbsolutePath(), writeHeaders);
         exportObjectData(writer, entity, typeDefinition);
-        /*
-        try
-        {
-            writer.close();
-        } catch (final IOException e)
-        {
-            throw new UnexpectedException("Exception when closing the file", e);
-        }
-
-         */
     }
 
     private void exportObjectData(final Writer writer, final Entity entity, final PersistenceTypeDefinition typeDefinition)
     {
         final StringBuilder data = new StringBuilder();
         data.append(entity.getObjectId());
+        Storage storage = readingContext.getStorage();
 
         for (final PersistenceTypeDefinitionMember member : typeDefinition.allMembers())
         {
@@ -141,32 +131,16 @@ public class DataExporter
                     handleReference(data, reference);
                     break;
                 case STRING:
-                    final Long stringRef = entityMember.getReader()
-                            .read();
-
-                    final Entity stringEntity = storage.getEntityByObjectId(stringRef);
-                    if (stringEntity == null)
-                    {
-                        // null String value
-                        data.append(" ");
-                    }
-                    else
-                    {
-                        final Object value = stringEntity.getEntityMember("value")
-                                .getReader()
-                                .read();
-                        data.append(csvExportConfiguration.getStringsQuote());
-                        data.append(value == null ? "" : value.toString());  // TODO Can this be null?
-                        data.append(csvExportConfiguration.getStringsQuote());
-                    }
+                    final ConvertedData stringValue = readingContext.getDataStorageDeserializerFactory()
+                            .getDataStorageDeserializer(entityMember.getEntityMemberType())
+                            .resolve(entityMember);
+                    writeString(data, stringValue.getData());
                     break;
                 case PRIMITIVE:
                     handlePrimitive(data, entityMember);
                     break;
                 case PRIMITIVE_WRAPPER:
-                    reference = entityMember.getReader()
-                            .read();
-                    data.append(handlePrimitiveWrapper(reference, member.typeName()));
+                    data.append(handlePrimitiveWrapper(entityMember));
                     break;
                 case PRIMITIVE_COLLECTION:
                     reference = entityMember.getReader()
@@ -202,181 +176,46 @@ public class DataExporter
 
                     break;
                 case OPTIONAL:
-                    // This is the pointer to the Optional
-                    reference = entityMember.getReader()
-                            .read();
-                    handleOptional(data, member, reference);
+                    handleOptional(data, entityMember);
                     break;
                 case TIMESTAMP_BASED:
-                    reference = entityMember.getReader()
-                            .read();
-                    final Entity valueEntity = storage.getEntityByObjectId(reference);
-                    if (valueEntity == null)
-                    {
-                        // null  value
-                        data.append(" ");
-                    }
-                    else
-                    {
-                        final String names = valueEntity.getMembers()
-                                .stream()
-                                .map(em -> em.getName())
-                                .collect(Collectors.joining(","));
-                        Object value = null;
-                        if ("timestamp".equals(names))
-                        {
-                            // Java util Date, sql TimeStamp
-                            value = valueEntity.getEntityMember("timestamp")
-                                    .getReader()
-                                    .read();
-                        }
-                        if ("year,month,day".equals(names))
-                        {
-                            // LocalDate -> year:month:day
-                            value = valueEntity.getMembers()
-                                    .stream()
-                                    .map(em -> em.getReader()
-                                            .read()
-                                            .toString())
-                                    .collect(Collectors.joining(":"));
-                        }
-                        if ("date,time".equals(names))
-                        {
-                            // LocalDateTime ->
-                            final Long dateReference = valueEntity.getEntityMember("date")
-                                    .getReader()
-                                    .read();
-                            final Long timeReference = valueEntity.getEntityMember("time")
-                                    .getReader()
-                                    .read();
-                            final Entity dateEntity = storage.getEntityByObjectId(dateReference);
-                            final Entity timeEntity = storage.getEntityByObjectId(timeReference);
-
-                            value = dateEntity.getMembers()
-                                    .stream()
-                                    .map(em -> em.getReader()
-                                            .read()
-                                            .toString())
-                                    .collect(Collectors.joining(":"));
-
-                            value = value + " " + timeEntity.getMembers()
-                                    .stream()
-                                    .map(em -> em.getReader()
-                                            .read()
-                                            .toString())
-                                    .collect(Collectors.joining(":"));
-                            // TODO improvement?  Convert to epoch?
-                        }
-                        if ("seconds,nanos".equals(names))
-                        {
-                            // Instant ->
-                            final Long secondsValue = valueEntity.getEntityMember("seconds")
-                                    .getReader()
-                                    .read();
-                            final Integer nanosValue = valueEntity.getEntityMember("nanos")
-                                    .getReader()
-                                    .read();
-                            // convert to epoch
-                            value = secondsValue * 1000 + nanosValue / 1_000_000;
-                        }
-
-                        data.append(value == null ? "" : value.toString());
-                    }
+                    ConvertedData convertedData =
+                            readingContext.getDataStorageDeserializerFactory()
+                                    .getDataStorageDeserializer(entityMember.getEntityMemberType())
+                                    .resolve(entityMember);
+                    Object timestampValue = convertedData.getData();
+                    data.append(timestampValue == null ? "" : timestampValue);
 
                     break;
                 case ARRAY:
-                    // We come here when reading Optional.of(String) and BigInteger within collection.
-                    data.append(performConversion(entityMember.getReader()
-                                                          .read(), member.typeName()));
-
+                    DataConversion dataConversion = new DataConversion();
+                    data.append(dataConversion.perform(entityMember.getReader()
+                                                               .read(), member.typeName()));
                     break;
                 case COMPLEX:
-                    List<?> list = entityMember.getReader()
-                            .read();
-                    if (list == null || list.isEmpty())
-                    {
-                        data.append(csvExportConfiguration.getCollectionMarkerStart());
-                        data.append(csvExportConfiguration.getCollectionMarkerEnd());
-                    }
-                    else
-                    {
-                        if (list.get(0)
-                                .getClass()
-                                .equals(Long.class))
-                        {
-                            // List of references, queue the references for export.
-                            list.stream()
-                                    .map(x -> (Long) x)
-                                    .forEach(item ->
-                                                     queueForExport(storage.getEntityByObjectId(item)));
-                        }
-                        if (Map.Entry.class.isAssignableFrom(list.get(0)
-                                                                     .getClass()))
-                        {
-                            // HashMap, queue the key and value references for export but replace primitive references
-                            // If HashMap contained key/values that could be inlined (both values), it was already handled
-                            list = list.stream()
-                                    .map(item ->
-                                         {
-                                             Map.Entry<Long, Long> entry = (Map.Entry<Long, Long>) item;
-                                             Object key;
-                                             if (checkIfPrimitiveReference(entry.getKey()))
-                                             {
-                                                 // FIXME What about BigInteger for example? String is not suited there
-                                                 key = handlePrimitiveWrapper(entry.getKey(), "java.lang.String");
-                                             }
-                                             else
-                                             {
-                                                 queueForExport(storage.getEntityByObjectId(entry.getKey())); // Queue
-                                                 key = entry.getKey(); //keep reference in output.
-                                             }
-                                             Object value;
-                                             if (checkIfPrimitiveReference(entry.getValue()))
-                                             {
-                                                 // FIXME What about BigInteger for example? String is not suited there
-                                                 value = handlePrimitiveWrapper(entry.getValue(), "java.lang.String");
-                                             }
-                                             else
-                                             {
-                                                 queueForExport(storage.getEntityByObjectId(entry.getValue())); // Queue
-                                                 value = entry.getValue(); //keep reference in output.
-                                             }
-                                             return new KeyValueEntry<>(key, value, csvExportConfiguration.getDictionaryEntryMarker());
-                                         })
-                                    .collect(Collectors.toList());
-                        }
-                        // FIXME Its it possible the some other type as List<Long> and Map.Entry? needs special treatment?
-                        // Is it worth to generify this?
-                        final String value = list.stream()
-                                .map(Object::toString)
-                                .collect(Collectors.joining(",", csvExportConfiguration.getCollectionMarkerStart(), csvExportConfiguration.getCollectionMarkerEnd()));
-                        data.append(value);
-                    }
+                    handleComplex(data, storage, entityMember);
                     break;
                 case ENUM:
-                    reference = entityMember.getReader()
-                            .read();
-
-                    final String enumValue = storage.getEnumValue(reference);
+                    final ConvertedData convertedEnumData = readingContext.getDataStorageDeserializerFactory()
+                            .getDataStorageDeserializer(entityMember.getEntityMemberType())
+                            .resolve(entityMember);
+                    final String enumValue = convertedEnumData.getData();
                     data.append(enumValue == null ? " " : enumValue);
                     break;
                 case ENUM_ARRAY:
-                    long enumArrayRef = entityMember.getReader()
-                            .read();
-                    Entity enumArrayEntity = storage.getEntityByObjectId(enumArrayRef);
-                    if (enumArrayEntity == null)
+                    final List<String> enumArray = readingContext.getDataStorageDeserializerFactory()
+                            .getDataStorageDeserializer(entityMember.getEntityMemberType())
+                            .resolve(entityMember)
+                            .getData();
+
+                    if (enumArray == null)
                     {
                         data.append(" "); // null array
                     }
                     else
                     {
-                        List<Long> enumRefs = enumArrayEntity.getMembers()
-                                .get(0)
-                                .getReader()
-                                .read();
-                        data.append(enumRefs.stream()
-                                            .map(ref -> storage.getEnumValue(ref))
-                                            .collect(Collectors.joining(",", "[", "]")));
+                        data.append(enumArray.stream()
+                                            .collect(Collectors.joining(",", csvExportConfiguration.getCollectionMarkerStart(), csvExportConfiguration.getCollectionMarkerEnd())));
                     }
                     break;
                 default:
@@ -396,8 +235,97 @@ public class DataExporter
 
     }
 
+    private void writeString(StringBuilder data, Object stringValue)
+    {
+        if (stringValue == null)
+        {
+            data.append(" ");
+        }
+        else
+        {
+            data.append(csvExportConfiguration.getStringsQuote());
+            data.append(stringValue);
+            data.append(csvExportConfiguration.getStringsQuote());
+
+        }
+    }
+
+    private void handleComplex(StringBuilder data, Storage storage, EntityMember entityMember)
+    {
+        Object temp = entityMember.getReader()
+                .read();
+        if (temp instanceof String)
+        {
+            // The SpecialListReader return either a List or a String.
+            writeString(data, temp);
+            return;
+        }
+
+        List<?> list = (List<?>) temp;
+        if (list == null || list.isEmpty())
+        {
+            data.append(csvExportConfiguration.getCollectionMarkerStart());
+            data.append(csvExportConfiguration.getCollectionMarkerEnd());
+        }
+        else
+        {
+            if (list.get(0)
+                    .getClass()
+                    .equals(Long.class))
+            {
+                // List of references, queue the references for export.
+                list.stream()
+                        .map(x -> (Long) x)
+                        .forEach(item ->
+                                         queueForExport(storage.getEntityByObjectId(item)));
+            }
+            if (Map.Entry.class.isAssignableFrom(list.get(0)
+                                                         .getClass()))
+            {
+                // HashMap, queue the key and value references for export but replace primitive references
+                // If HashMap contained key/values that could be inlined (both values), it was already handled
+                list = list.stream()
+                        .map(item ->
+                             {
+                                 Map.Entry<Long, Long> entry = (Map.Entry<Long, Long>) item;
+                                 Object key;
+                                 if (checkIfPrimitiveReference(entry.getKey()))
+                                 {
+                                     // FIXME What about BigInteger for example? String is not suited there
+                                     key = handlePrimitiveWrapper(entry.getKey(), "java.lang.String");
+                                 }
+                                 else
+                                 {
+                                     queueForExport(storage.getEntityByObjectId(entry.getKey())); // Queue
+                                     key = entry.getKey(); //keep reference in output.
+                                 }
+                                 Object value;
+                                 if (checkIfPrimitiveReference(entry.getValue()))
+                                 {
+                                     // FIXME What about BigInteger for example? String is not suited there
+                                     value = handlePrimitiveWrapper(entry.getValue(), "java.lang.String");
+                                 }
+                                 else
+                                 {
+                                     queueForExport(storage.getEntityByObjectId(entry.getValue())); // Queue
+                                     value = entry.getValue(); //keep reference in output.
+                                 }
+                                 return new KeyValueEntry<>(key, value, csvExportConfiguration.getDictionaryEntryMarker());
+                             })
+                        .collect(Collectors.toList());
+            }
+            // FIXME Its it possible the some other type as List<Long> and Map.Entry? needs special treatment?
+            // Is it worth to generify this?
+            final String value = list.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(",", csvExportConfiguration.getCollectionMarkerStart(), csvExportConfiguration.getCollectionMarkerEnd()));
+            data.append(value);
+        }
+    }
+
     private Boolean checkIfPrimitiveReference(final Long reference)
     {
+        Storage storage = readingContext.getStorage();
         Boolean result = null;
         if (reference > START_CID_BASE)
         {
@@ -438,91 +366,27 @@ public class DataExporter
         return result;
     }
 
-    private void handleOptional(final StringBuilder data, final PersistenceTypeDefinitionMember member, final Long reference)
+    private void handleOptional(final StringBuilder data, final EntityMember entityMember)
     {
-        final Entity optionalEntity = storage.getEntityByObjectId(reference);
-        // This is the pointer to the value contained in the optional.
-        if (optionalEntity == null)
+        ConvertedData convertedData =
+                readingContext.getDataStorageDeserializerFactory()
+                        .getDataStorageDeserializer(entityMember.getEntityMemberType())
+                        .resolve(entityMember);
+
+        if (!convertedData.isResolved())
         {
-            // null instead op Optional instance
-            data.append(" ");
+            handleReference(data, convertedData.getReference());
         }
         else
         {
-            final Long optionalReference = optionalEntity.getEntityMember("value")
-                    .getReader()
-                    .read();
-            final Object cachedInstance = ConstantRegistry.lookupObject(optionalReference);
-            if (cachedInstance != null)
-            {
-                // We have a cached primitive instance
-                data.append(cachedInstance);
-            }
-            else
-            {
-                final Entity optionalValueEntity = storage.getEntityByObjectId(optionalReference);
-
-                if (optionalValueEntity == null)
-                {
-                    // Optional.empty
-                    data.append(" ");
-                }
-                else
-                {
-                    if (optionalValueEntity.getMembers()
-                            .size() == 1)
-                    {
-                        final EntityMember wrappedEntityMember = optionalValueEntity.getMembers()
-                                .get(0);
-                        final EntityMemberType entityMemberType = wrappedEntityMember.getEntityMemberType();
-                        boolean handled = false;
-                        if (entityMemberType == EntityMemberType.PRIMITIVE)
-                        {
-                            handlePrimitive(data, wrappedEntityMember);
-                            handled = true;
-                        }
-                        if (entityMemberType == EntityMemberType.PRIMITIVE_WRAPPER)
-                        {
-                            data.append(handlePrimitiveWrapper(wrappedEntityMember.getReader()
-                                                                       .read(), member.typeName()));
-                            handled = true;
-                        }
-                        if (entityMemberType == EntityMemberType.ARRAY)
-                        {
-                            // FIXME Is this only String and BigInteger?
-                            // They are handled correctly, other ARRAY types might not
-                            data.append(handlePrimitiveWrapper(optionalReference, wrappedEntityMember.getTypeDefinitionMember()
-                                    .typeName()));
-
-                            handled = true;
-                        }
-
-                        if (!handled)
-                        {
-                            // At the end, handle it as a reference of not inlined
-                            handleReference(data, reference);
-                        }
-                    }
-                    else
-                    {
-                        String enumValue = storage.getEnumValue(optionalReference);
-                        if (enumValue == null)
-                        {
-                            // A POJO, so we cannot handle the Optional 'inline'
-                            handleReference(data, reference);
-                        }
-                        else
-                        {
-                            data.append(enumValue);
-                        }
-                    }
-                }
-            }
+            Object value = convertedData.getData();
+            data.append(value == null ? "" : value);
         }
     }
 
     private CollectionPrimitiveItem hasPrimitivesOnly(final Long reference)
     {
+        Storage storage = readingContext.getStorage();
         final Entity entityCollection = storage.getEntityByObjectId(reference);
         if (entityCollection == null)
         {
@@ -613,143 +477,47 @@ public class DataExporter
         }
     }
 
-    private String handlePrimitiveWrapper(final Long reference, final String type)
+    private String handlePrimitiveWrapper(final EntityMember entityMember)
     {
-        if (reference > START_CID_BASE)
-        {
-            // A constant
-            final Object constantObject = ConstantRegistry.lookupObject(reference);
-            if (constantObject == null)
-            {
-                throw new InvalidObjectIdFoundException("cached instance", reference);
-            }
-            return constantObject.toString();
-        }
-        else
-        {
-
-            final Entity valueEntity = storage.getEntityByObjectId(reference);
-            if (valueEntity == null || valueEntity.getMembers()
-                    .isEmpty())
-            {
-                // FIXME when valueEntity.getMembers().isEmpty() we should not write out the record.
-                // It happened with javax.money.DefaultMonetaryRoundingsSingletonSpi$DefaultCurrencyRounding{}
-                // null value
-                return " ";
-            }
-            else
-            {
-                // Enums List and Sets are handled by this bit.
-                final String enumValue = storage.getEnumValue(valueEntity.getObjectId());
-                if (enumValue != null)
-                {
-                    return enumValue;
-                }
-                final EntityMember entityMember = valueEntity.getEntityMember("value");
-                Object value = entityMember.getReader()
-                        .read();
-                String actualType = type;
-                if ("java.lang.Object".equals(type))
-                {
-                    // If Object, get the actual type for the value entity.
-                    actualType = valueEntity.getMembers()
-                            .get(0)
-                            .getTypeDefinitionMember()
-                            .typeName();
-                }
-                value = performConversion(value, actualType);
-                return value == null ? "" : value.toString();
-            }
-        }
+        final ConvertedData convertedData = readingContext.getDataStorageDeserializerFactory()
+                .getDataStorageDeserializer(entityMember.getEntityMemberType())
+                .resolve(entityMember);
+        final Object value = convertedData.getData();
+        return value == null ? "" : value.toString();
     }
 
-    private Object performConversion(final Object value, final String type)
+    private Object handlePrimitiveWrapper(final Long reference, final String typeName)
     {
-        if (value == null)
-        {
-            // Nothing to convert
-            return null;
-        }
-        if ("java.math.BigInteger".equals(type) || "[byte]".equals(type))
-        {
-            return new BigInteger((byte[]) value).toString();
-        }
-        if ("java.math.BigDecimal".equals(type))
-        {
-            // TODO Is this always a good way. Value is String for type BigDecimal but can conversion fail?
-            return new BigDecimal((String) value).toString();
-        }
-        if (String.class.equals(value.getClass()))
-        {
-            return csvExportConfiguration.getStringsQuote()
-                    + value
-                    + csvExportConfiguration.getStringsQuote();
-        }
-        // TODO How can we find all other cases??
-
-        return value;
+        ConvertedData convertedData = readingContext.getDataStorageDeserializerFactory()
+                .getDataStorageDeserializer(EntityMemberType.PRIMITIVE_WRAPPER)
+                .resolve(reference, new DeserializerOptionsBuilder().withTypeName(typeName)
+                        .build());
+        return convertedData.getData();
     }
 
     private void handlePrimitiveCollection(final StringBuilder data, final Long reference, final boolean dictionary)
     {
-        final Entity valueEntity = storage.getEntityByObjectId(reference);
-        if (valueEntity != null)
+        DeserializerOptionsBuilder builder = new DeserializerOptionsBuilder();
+        if (dictionary)
         {
-            if (valueEntity.getMembers()
-                    .size() > 1)
-            {
-                throw new RuntimeException("We have more than 1 member for Primitive Collection. Is this possible?");
-            }
-
-            List<Object> collection = valueEntity.getMembers()
-                    .get(0)
-                    .getReader()
-                    .read();
-            if (collection == null || collection.isEmpty())
-            {
-                emptyCollection(data, dictionary);
-            }
-            else
-            {
-                // The above collection can be our result, or a collection of references, depending on the type we are exporting.
-                if (valueEntity.getMembers()
-                        .get(0)
-                        .getTypeDefinitionMember()
-                        .hasReferences())
-                {
-
-                    if (Map.Entry.class.isAssignableFrom(collection.get(0)
-                                                                 .getClass()))
-                    {
-                        collection = collection.stream()
-                                .map(e -> resolveToPrimitives((Map.Entry<Long, Long>) e))
-                                .collect(Collectors.toList());
-                    }
-                    else
-                    {
-                        final PersistenceTypeDefinitionMemberFieldGenericComplex itemTypeDefinition = (PersistenceTypeDefinitionMemberFieldGenericComplex) valueEntity.getMembers()
-                                .get(0)
-                                .getTypeDefinitionMember();
-                        final PersistenceTypeDescriptionMemberFieldGeneric memberFieldGeneric = itemTypeDefinition.members()
-                                .get();
-
-                        // It is a list of references.
-                        // Replace the collection with a collection of its real values (resolve references)
-                        collection = collection.stream()
-                                .map(item -> handlePrimitiveWrapper((Long) item, memberFieldGeneric.typeName()))
-                                .collect(Collectors.toList());
-                    }
-                }
-                String markerStart = dictionary ? csvExportConfiguration.getDictionaryMarkersStart() : csvExportConfiguration.getCollectionMarkerStart();
-                String markerEnd = dictionary ? csvExportConfiguration.getDictionaryMarkersEnd() : csvExportConfiguration.getCollectionMarkerEnd();
-                data.append(collection.stream()
-                                    .map(Object::toString)
-                                    .collect(Collectors.joining(",", markerStart, markerEnd)));
-            }
+            builder.withEntryMarker(csvExportConfiguration.getDictionaryEntryMarker());
+        }
+        ConvertedData convertedData = readingContext.getDataStorageDeserializerFactory()
+                .getDataStorageDeserializer(EntityMemberType.PRIMITIVE_COLLECTION)
+                .resolve(reference, builder.build());
+        List<?> collection = convertedData.getData();
+        if (collection == null || collection.isEmpty())
+        {
+            emptyCollection(data, dictionary);
         }
         else
         {
-            data.append(" ");
+            String markerStart = dictionary ? csvExportConfiguration.getDictionaryMarkersStart() : csvExportConfiguration.getCollectionMarkerStart();
+            String markerEnd = dictionary ? csvExportConfiguration.getDictionaryMarkersEnd() : csvExportConfiguration.getCollectionMarkerEnd();
+            data.append(collection.stream()
+                                .map(Object::toString)
+                                .collect(Collectors.joining(",", markerStart, markerEnd)));
+
         }
 
     }
@@ -768,42 +536,29 @@ public class DataExporter
         }
     }
 
-    private Map.Entry<String, String> resolveToPrimitives(final Map.Entry<Long, Long> entry)
-    {
-        // FIXME, What if the Key or Value is a BigInteger? See performConversion
-        final String keyValue = handlePrimitiveWrapper(entry.getKey(), "java.lang.String");
-        final String value = handlePrimitiveWrapper(entry.getValue(), "java.lang.String");
-
-        return new KeyValueEntry<>(keyValue, value, csvExportConfiguration.getDictionaryEntryMarker());
-    }
-
     private void handlePrimitive(final StringBuilder data, final EntityMember entityMember)
     {
-        data.append(entityMember.getReader()
-                            .read()
+        final ConvertedData value = readingContext.getDataStorageDeserializerFactory()
+                .getDataStorageDeserializer(entityMember.getEntityMemberType())
+                .resolve(entityMember);
+
+        data.append(value.getData()
                             .toString());
     }
 
     private void handleReference(final StringBuilder data, final Long reference)
     {
-        final String enumValue = storage.getEnumValue(reference);
-        if (enumValue == null)
+        Storage storage = readingContext.getStorage();
+        final Entity entityByObjectId = storage.getEntityByObjectId(reference);
+        if (entityByObjectId == null)
         {
-            final Entity entityByObjectId = storage.getEntityByObjectId(reference);
-            if (entityByObjectId == null)
-            {
-                // A null object
-                data.append(" ");
-            }
-            else
-            {
-                data.append(reference);
-                queueForExport(entityByObjectId);
-            }
+            // A null object
+            data.append(" ");
         }
         else
         {
-            data.append(enumValue);
+            data.append(reference);
+            queueForExport(entityByObjectId);
         }
     }
 

@@ -21,6 +21,7 @@ module microstream.experimental.binaryread
 {
     exports one.microstream.experimental.binaryread;
     exports one.microstream.experimental.binaryread.config;
+    exports one.microstream.experimental.binaryread.data;
     exports one.microstream.experimental.binaryread.exception;
     exports one.microstream.experimental.binaryread.structure;
     exports one.microstream.experimental.binaryread.structure.util;

@@ -21,6 +21,7 @@ package one.microstream.experimental.binaryread;
  */
 
 import one.microstream.experimental.binaryread.config.BinaryReadConfig;
+import one.microstream.experimental.binaryread.data.DataStorageDeserializerFactory;
 import one.microstream.experimental.binaryread.storage.CachedStorageBytes;
 import one.microstream.experimental.binaryread.structure.Storage;
 import one.microstream.experimental.binaryread.structure.util.BinaryDataHelper;
@@ -42,6 +43,8 @@ public class ReadingContext
 
     private final BinaryDataHelper binaryDataHelper;
 
+    private final DataStorageDeserializerFactory dataStorageDeserializerFactory;
+
     /**
      * Step 1 for building reading context, we assign the read configuration options.
      *
@@ -53,6 +56,7 @@ public class ReadingContext
         this.storage = null;
         this.binaryDataHelper = null;
         this.cachedStorageBytes = null;
+        this.dataStorageDeserializerFactory = null;
     }
 
     /**
@@ -68,6 +72,7 @@ public class ReadingContext
         this.storage = storage;
         this.binaryDataHelper = new BinaryDataHelper(this.binaryReadConfig.isReverse());
         this.cachedStorageBytes = new CachedStorageBytes(this);
+        this.dataStorageDeserializerFactory = new DataStorageDeserializerFactory(this);
     }
 
     public BinaryReadConfig getBinaryReadConfig()
@@ -88,5 +93,10 @@ public class ReadingContext
     public BinaryDataHelper getBinaryDataHelper()
     {
         return Objects.requireNonNull(binaryDataHelper, "ReadingContext is not yet in the state of having a BinaryDataHelper");
+    }
+
+    public DataStorageDeserializerFactory getDataStorageDeserializerFactory()
+    {
+        return Objects.requireNonNull(dataStorageDeserializerFactory, "ReadingContext is not yet in the state of having a DataStorageDeserializerFactory");
     }
 }

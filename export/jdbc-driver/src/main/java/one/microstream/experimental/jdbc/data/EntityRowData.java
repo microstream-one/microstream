@@ -20,28 +20,25 @@ package one.microstream.experimental.jdbc.data;
  * #L%
  */
 
-import one.microstream.experimental.binaryread.exception.InvalidObjectIdFoundException;
+import one.microstream.experimental.binaryread.data.ConvertedData;
 import one.microstream.experimental.binaryread.storage.ConstantRegistry;
 import one.microstream.experimental.binaryread.structure.Entity;
 import one.microstream.experimental.binaryread.structure.EntityMember;
 import one.microstream.experimental.binaryread.structure.EntityMemberType;
 import one.microstream.experimental.binaryread.structure.Storage;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static one.microstream.experimental.binaryread.data.DataStorageDeserializer.START_CID_BASE;
 
 /**
  * Implementation with the `Entity` as building block.
  */
 public class EntityRowData implements RowData
 {
-
-    // Duplicated from
-    private static final long START_CID_BASE = 9_000_000_000_000_000_000L;
 
     private final JDBCReadingContext jdbcReadingContext;
 
@@ -126,143 +123,14 @@ public class EntityRowData implements RowData
 
     private Object getValue(final EntityMember entityMember)
     {
-        // FIXME extract common code from DataExporter
-        Object result = null;
-        switch (entityMember.getEntityMemberType())
-        {
-
-            case STRING:
-                final Long stringRef = entityMember.getReader()
-                        .read();
-
-                final Entity stringEntity = storage.getEntityByObjectId(stringRef);
-                if (stringEntity == null)
-                {
-                    // null String value
-                    result = null;
-                }
-                else
-                {
-                    final Object value = stringEntity.getEntityMember("value")
-                            .getReader()
-                            .read();
-
-                    result = value.toString();  // TODO Can this be null?
-
-                }
-                break;
-            case PRIMITIVE:
-                result = entityMember.getReader()
-                        .read();
-                break;
-            case PRIMITIVE_WRAPPER:
-                final Long reference = entityMember.getReader()
-                        .read();
-                result = handlePrimitiveWrapper(storage, reference, entityMember.getTypeDefinitionMember()
-                        .typeName());
-                break;
-            case PRIMITIVE_COLLECTION:
-                final Long collectionReference = entityMember.getReader()
-                        .read();
-                final Entity collectionEntity = storage.getEntityByObjectId(collectionReference);
-                if (collectionEntity != null)
-                {
-                    // FIXME Check if there is only 1 member?
-                    result = collectionEntity.getMembers()
-                            .get(0)
-                            .getReader()
-                            .read();
-                } // else null array and null result is ok
-                break;
-            case ENUM:
-                final Long enumObjectId = entityMember.getReader()
-                        .read();
-                result = storage.getEnumValue(enumObjectId);
-                break;
-            // FIXME Are these empty case blocks not needed at all?
-            case REFERENCE:
-            case COLLECTION:
-            case DICTIONARY:
-            case OPTIONAL:
-            case TIMESTAMP_BASED:
-            case ARRAY:
-            case ENUM_ARRAY:
-            case COMPLEX:
-                break;
-
+        final ConvertedData convertedData =  jdbcReadingContext.getReadingContext()
+                .getDataStorageDeserializerFactory()
+                .getDataStorageDeserializer(entityMember.getEntityMemberType())
+                .resolve(entityMember);
+        if (!convertedData.isResolved()) {
+            // We take the reference TODO Review Is this enough to have ObjectId on th client?
+            return convertedData.getReference();
         }
-
-
-        return result;
-    }
-
-    private Object handlePrimitiveWrapper(final Storage storage, final Long reference, final String type)
-    {
-        if (reference > START_CID_BASE)
-        {
-            // A constant
-            final Object constantObject = ConstantRegistry.lookupObject(reference);
-            if (constantObject == null)
-            {
-                throw new InvalidObjectIdFoundException("cached instance", reference);
-            }
-            return constantObject;
-        }
-        else
-        {
-
-            final Entity valueEntity = storage.getEntityByObjectId(reference);
-            if (valueEntity == null || valueEntity.getMembers()
-                    .isEmpty())
-            {
-                return null;
-            }
-            else
-            {
-                final String enumValue = storage.getEnumValue(valueEntity.getObjectId());
-                if (enumValue != null)
-                {
-                    return enumValue;
-                }
-                final EntityMember entityMember = valueEntity.getEntityMember("value");
-                final Object value = entityMember.getReader()
-                        .read();
-                String actualType = type;
-                if ("java.lang.Object".equals(type))
-                {
-                    // If Object, get the actual type for the value entity.
-                    actualType = valueEntity.getMembers()
-                            .get(0)
-                            .getTypeDefinitionMember()
-                            .typeName();
-                }
-                return performConversion(value, actualType);
-            }
-        }
-    }
-
-    private Object performConversion(final Object value, final String type)
-    {
-        if (value == null)
-        {
-            // Nothing to convert
-            return null;
-        }
-        if ("java.math.BigInteger".equals(type) || "[byte]".equals(type))
-        {
-            return new BigInteger((byte[]) value).toString();
-        }
-        if ("java.math.BigDecimal".equals(type))
-        {
-            // TODO Is this always a good way. Value is String for type BigDecimal but can conversion fail?
-            return new BigDecimal((String) value).toString();
-        }
-        if (String.class.equals(value.getClass()))
-        {
-            return value;
-        }
-        // TODO How can we find all other cases??
-
-        return value;
+        return convertedData.getData();
     }
 }
