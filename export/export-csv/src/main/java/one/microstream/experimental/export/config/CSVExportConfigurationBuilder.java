@@ -86,6 +86,18 @@ public class CSVExportConfigurationBuilder
         return this;
     }
 
+    public CSVExportConfigurationBuilder onlySubTrees(final String... subTrees)
+    {
+        filteringOptions.addSubTrees(subTrees);
+        return this;
+    }
+
+    public CSVExportConfigurationBuilder showSubTrees()
+    {
+        filteringOptions.showSubTrees();
+        return this;
+    }
+
     public CSVExportConfiguration build()
     {
         return new CSVExportConfiguration(targetDirectory, fileWriterCacheSize, valueDelimiter, collectionMarkers

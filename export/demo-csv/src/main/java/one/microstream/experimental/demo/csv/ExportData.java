@@ -37,6 +37,9 @@ public class ExportData {
                 .build();
         final CSVExportConfiguration exportConfiguration = new CSVExportConfigurationBuilder()
                 .withTargetDirectory("csv")
+                //.onlyClasses("be.rubus.microstream.performance.model.Address")
+                //.showSubTrees()
+                //.onlySubTrees("ROOT.customers")
                 .build();
 
         final FlatCSV flatCSV = new FlatCSV(binaryReadConfig, exportConfiguration);

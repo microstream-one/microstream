@@ -94,7 +94,7 @@ public final class Storage implements Closeable
         entityByTypeId = determineEntities(readingContext);
         determineEnumEntities(readingContext, entityByTypeId);
         defineEntityDetails(readingContext);
-        defineRoot(entityByTypeId);
+        defineRoot();
     }
 
     private Map<Long, List<Entity>> determineEntities(final ReadingContext readingContext)
@@ -159,7 +159,7 @@ public final class Storage implements Closeable
 
     }
 
-    private void defineRoot(final Map<Long, List<Entity>> entityByTypeId)
+    private void defineRoot()
     {
         LOGGER.info("Defining Root object");
 
@@ -176,6 +176,8 @@ public final class Storage implements Closeable
         {
             throw new NoRootFoundException(rootObjectId);
         }
+
+        rootEntity.setName("ROOT");  // TODO Constant
 
         LOGGER.info(String.format("Root object is of type '%s'", typeDictionary.lookupTypeById(rootEntity.getTypeId())
                 .runtimeTypeName()));

@@ -76,7 +76,6 @@ public class EntityMember
         return reader;
     }
 
-    // TODO to be reviewed if needed.
     public String getName()
     {
         return typeDefinitionMember.name();

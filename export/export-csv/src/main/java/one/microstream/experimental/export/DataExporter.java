@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,8 @@ public class DataExporter
 
     private final List<Long> objectTypesToExport = new ArrayList<>();  // empty means all types are exported.
 
+    private final Set<String> subTrees = new HashSet<>();
+
     public DataExporter(final ReadingContext readingContext, final CSVExportConfiguration csvExportConfiguration)
     {
         this.readingContext = readingContext;
@@ -88,12 +91,11 @@ public class DataExporter
         {
             determineTypeIdsToExport();
         }
-        // FIXME Add the other export filtering functionality
     }
 
     private void determineTypeIdsToExport()
     {
-        PersistenceTypeDictionary typeDictionary = readingContext.getStorage()
+        final PersistenceTypeDictionary typeDictionary = readingContext.getStorage()
                 .getTypeDictionary();
         objectTypesToExport.addAll(csvExportConfiguration.getFilteringOptions()
                                            .getClassNames()
@@ -126,6 +128,16 @@ public class DataExporter
         }
         limitedFileWriters.close();
         LOGGER.info("Finished export");
+
+        if (csvExportConfiguration.getFilteringOptions()
+                .isShowSubTrees())
+        {
+            LOGGER.info("The following list are the discovered entity names:");
+            final ArrayList<String> names = new ArrayList<>(subTrees);
+            names.sort(Comparator.naturalOrder());
+            names.forEach(System.out::println);
+        }
+
     }
 
     private void queueForExport(final Entity entity)
@@ -144,13 +156,33 @@ public class DataExporter
                 .getTypeDictionary()
                 .lookupTypeById(entity.getTypeId());
         Writer writer = null;
-        if (objectTypesToExport.isEmpty() || objectTypesToExport.contains(typeDefinition.typeId()))
+        if (csvExportConfiguration.getFilteringOptions()
+                .isShowSubTrees())
+        {
+            subTrees.add(entity.getName());
+        }
+        if (partOfSelectedSubTree(entity) && (objectTypesToExport.isEmpty() || objectTypesToExport.contains(typeDefinition.typeId())))
         {
             final File csvFile = new File(exportLocation, typeDefinition.runtimeTypeName() + ".csv");
-            CSVWriterHeaders writeHeaders = new CSVWriterHeaders(csvExportConfiguration, typeDefinition);
+            final CSVWriterHeaders writeHeaders = new CSVWriterHeaders(csvExportConfiguration, typeDefinition);
             writer = limitedFileWriters.get(csvFile.getAbsolutePath(), writeHeaders);
         }
         exportObjectData(writer, entity, typeDefinition);
+    }
+
+    private boolean partOfSelectedSubTree(final Entity entity)
+    {
+        boolean result = true;
+        final Set<String> subTrees = csvExportConfiguration.getFilteringOptions()
+                .getSubTrees();
+        if (!subTrees.isEmpty())
+        {
+            result = subTrees.stream()
+                    .anyMatch(n -> entity.getName()
+                            .startsWith(n));
+
+        }
+        return result;
     }
 
     private void exportObjectData(final Writer writer, final Entity entity, final PersistenceTypeDefinition typeDefinition)
@@ -172,7 +204,7 @@ public class DataExporter
                     reference = entityMember.getReader()
                             .read();
 
-                    handleReference(data, reference);
+                    handleReference(data, reference, defineEntityName(entity, entityMember));
                     break;
                 case STRING:
                     final ConvertedData stringValue = readingContext.getDataStorageDeserializerFactory()
@@ -204,7 +236,7 @@ public class DataExporter
                             handlePrimitiveCollection(data, reference, dictionary);
                             break;
                         case NO:
-                            handleReference(data, reference);
+                            handleReference(data, reference, defineEntityName(entity, entityMember));
                             break;
                         case EMPTY:
                             // empty or only null items
@@ -220,10 +252,10 @@ public class DataExporter
 
                     break;
                 case OPTIONAL:
-                    handleOptional(data, entityMember);
+                    handleOptional(data, entity, entityMember);
                     break;
                 case TIMESTAMP_BASED:
-                    ConvertedData convertedData =
+                    final ConvertedData convertedData =
                             readingContext.getDataStorageDeserializerFactory()
                                     .getDataStorageDeserializer(entityMember.getEntityMemberType())
                                     .resolve(entityMember);
@@ -282,6 +314,11 @@ public class DataExporter
 
     }
 
+    private String defineEntityName(final Entity entity, final EntityMember entityMember)
+    {
+        return entity.getName() + '.' + entityMember.getName();
+    }
+
     private void writeString(StringBuilder data, Object stringValue)
     {
         if (stringValue == null)
@@ -324,7 +361,11 @@ public class DataExporter
                 list.stream()
                         .map(x -> (Long) x)
                         .forEach(item ->
-                                         queueForExport(storage.getEntityByObjectId(item)));
+                                 {
+                                     final Entity entityByObjectId = storage.getEntityByObjectId(item);
+                                     setEntityName(entityByObjectId, entityMember);
+                                     queueForExport(entityByObjectId);
+                                 });
             }
             if (Map.Entry.class.isAssignableFrom(list.get(0)
                                                          .getClass()))
@@ -343,7 +384,9 @@ public class DataExporter
                                  }
                                  else
                                  {
-                                     queueForExport(storage.getEntityByObjectId(entry.getKey())); // Queue
+                                     final Entity entityByObjectId = storage.getEntityByObjectId(entry.getKey());
+                                     setEntityName(entityByObjectId, entityMember);
+                                     queueForExport(entityByObjectId); // Queue
                                      key = entry.getKey(); //keep reference in output.
                                  }
                                  Object value;
@@ -354,7 +397,9 @@ public class DataExporter
                                  }
                                  else
                                  {
-                                     queueForExport(storage.getEntityByObjectId(entry.getValue())); // Queue
+                                     Entity entityByObjectId = storage.getEntityByObjectId(entry.getValue());
+                                     setEntityName(entityByObjectId, entityMember);
+                                     queueForExport(entityByObjectId); // Queue
                                      value = entry.getValue(); //keep reference in output.
                                  }
                                  return new KeyValueEntry<>(key, value, csvExportConfiguration.getDictionaryEntryMarker());
@@ -370,9 +415,18 @@ public class DataExporter
         }
     }
 
+    private void setEntityName(final Entity entity, final EntityMember entityMember)
+    {
+        if (entity.getName() == null)
+        {
+            entity.setName(entityMember.getEntity()
+                                   .getName() + '.' + entityMember.getName());
+        }
+    }
+
     private Boolean checkIfPrimitiveReference(final Long reference)
     {
-        Storage storage = readingContext.getStorage();
+        final Storage storage = readingContext.getStorage();
         Boolean result = null;
         if (reference > START_CID_BASE)
         {
@@ -389,7 +443,7 @@ public class DataExporter
                         .size() == 1)
                 {
 
-                    EntityMember entityMember = entityItem.getMembers()
+                    final EntityMember entityMember = entityItem.getMembers()
                             .get(0);
 
                     result = entityMember
@@ -403,7 +457,7 @@ public class DataExporter
                     // A primitive has never more than 1 member
                     // Except when Enum
                     // Used in case of a List or Set of enums.
-                    String enumValue = storage.getEnumValue(entityItem.getObjectId());
+                    final String enumValue = storage.getEnumValue(entityItem.getObjectId());
 
                     result = enumValue != null;
 
@@ -413,16 +467,16 @@ public class DataExporter
         return result;
     }
 
-    private void handleOptional(final StringBuilder data, final EntityMember entityMember)
+    private void handleOptional(final StringBuilder data, final Entity entity, final EntityMember entityMember)
     {
-        ConvertedData convertedData =
+        final ConvertedData convertedData =
                 readingContext.getDataStorageDeserializerFactory()
                         .getDataStorageDeserializer(entityMember.getEntityMemberType())
                         .resolve(entityMember);
 
         if (!convertedData.isResolved())
         {
-            handleReference(data, convertedData.getReference());
+            handleReference(data, convertedData.getReference(), defineEntityName(entity, entityMember));
         }
         else
         {
@@ -433,7 +487,7 @@ public class DataExporter
 
     private CollectionPrimitiveItem hasPrimitivesOnly(final Long reference)
     {
-        Storage storage = readingContext.getStorage();
+        final Storage storage = readingContext.getStorage();
         final Entity entityCollection = storage.getEntityByObjectId(reference);
         if (entityCollection == null)
         {
@@ -535,7 +589,7 @@ public class DataExporter
 
     private Object handlePrimitiveWrapper(final Long reference, final String typeName)
     {
-        ConvertedData convertedData = readingContext.getDataStorageDeserializerFactory()
+        final ConvertedData convertedData = readingContext.getDataStorageDeserializerFactory()
                 .getDataStorageDeserializer(EntityMemberType.PRIMITIVE_WRAPPER)
                 .resolve(reference, new DeserializerOptionsBuilder().withTypeName(typeName)
                         .build());
@@ -549,7 +603,7 @@ public class DataExporter
         {
             builder.withEntryMarker(csvExportConfiguration.getDictionaryEntryMarker());
         }
-        ConvertedData convertedData = readingContext.getDataStorageDeserializerFactory()
+        final ConvertedData convertedData = readingContext.getDataStorageDeserializerFactory()
                 .getDataStorageDeserializer(EntityMemberType.PRIMITIVE_COLLECTION)
                 .resolve(reference, builder.build());
         List<?> collection = convertedData.getData();
@@ -593,7 +647,7 @@ public class DataExporter
                             .toString());
     }
 
-    private void handleReference(final StringBuilder data, final Long reference)
+    private void handleReference(final StringBuilder data, final Long reference, final String entityName)
     {
         Storage storage = readingContext.getStorage();
         final Entity entityByObjectId = storage.getEntityByObjectId(reference);
@@ -605,6 +659,12 @@ public class DataExporter
         else
         {
             data.append(reference);
+            if (entityByObjectId.getName() == null)
+            {
+                // TODO What about circular ones. We only consider one path and maybe
+                // user specified anther path to the entity in the filtering.
+                entityByObjectId.setName(entityName);
+            }
             queueForExport(entityByObjectId);
         }
     }

@@ -40,6 +40,8 @@ public class Entity
     // The members/properties included in this entity.
     private final List<EntityMember> members = new ArrayList<>();
 
+    private String name;  // The name of the entity like ROOT.books
+
     public Entity(final StorageDataInventoryFile dataFile, final long pos, final EntityHeader entityHeader)
     {
         this.pos = pos;
@@ -153,4 +155,13 @@ public class Entity
                 .findAny();
     }
 
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(final String name)
+    {
+        this.name = name;
+    }
 }
