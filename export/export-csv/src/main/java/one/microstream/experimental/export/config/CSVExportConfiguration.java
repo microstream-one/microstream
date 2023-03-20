@@ -42,7 +42,11 @@ public class CSVExportConfiguration
     private final String stringsQuote; // like "
     private final boolean isLenient; // When determining if collection can be inlined. Do we look only at first item or do we check everything?
 
-    public CSVExportConfiguration(final String targetDirectory, final int fileWriterCacheSize, final String valueDelimiter, final String collectionMarkers, final String dictionaryMarkers, final String dictionaryEntryMarker, final String stringsQuote, final boolean isLenient)
+    private final FilteringOptions filteringOptions;
+
+    public CSVExportConfiguration(final String targetDirectory, final int fileWriterCacheSize, final String valueDelimiter
+            , final String collectionMarkers, final String dictionaryMarkers, final String dictionaryEntryMarker
+            , final String stringsQuote, final boolean isLenient, final FilteringOptions filteringOptions)
     {
         this.targetDirectory = targetDirectory;
         this.fileWriterCacheSize = fileWriterCacheSize;
@@ -52,6 +56,7 @@ public class CSVExportConfiguration
         this.dictionaryEntryMarker = dictionaryEntryMarker;
         this.stringsQuote = stringsQuote;
         this.isLenient = isLenient;
+        this.filteringOptions = filteringOptions;
     }
 
     private void defineCollectionMarkers(final String collectionMarkers)
@@ -138,5 +143,10 @@ public class CSVExportConfiguration
     public boolean isLenient()
     {
         return isLenient;
+    }
+
+    public FilteringOptions getFilteringOptions()
+    {
+        return filteringOptions;
     }
 }

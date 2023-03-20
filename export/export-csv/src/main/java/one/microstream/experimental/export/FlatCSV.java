@@ -37,7 +37,6 @@ public class FlatCSV
 {
 
     private final CSVExportConfiguration csvExportConfiguration;
-    private PersistenceTypeDictionary typeDictionary;
     private ReadingContext readingContext;
 
     public FlatCSV(final BinaryReadConfig binaryReadConfig, final CSVExportConfiguration csvExportConfiguration)
@@ -54,9 +53,9 @@ public class FlatCSV
     // FIXME duplicated within jdbc-driver
     private Storage createStorage()
     {
-        EmbeddedStorageFoundation<?> storageFoundation = readingContext.getBinaryReadConfig()
+        final EmbeddedStorageFoundation<?> storageFoundation = readingContext.getBinaryReadConfig()
                 .getStorageFoundation();
-        typeDictionary = storageFoundation.getConnectionFoundation()
+        final PersistenceTypeDictionary typeDictionary = storageFoundation.getConnectionFoundation()
                 .getTypeDictionaryProvider()
                 .provideTypeDictionary();
 

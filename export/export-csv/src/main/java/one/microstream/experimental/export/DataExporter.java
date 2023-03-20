@@ -35,6 +35,7 @@ import one.microstream.experimental.export.writing.CSVWriterHeaders;
 import one.microstream.experimental.export.writing.LimitedFileWriters;
 import one.microstream.persistence.types.PersistenceTypeDefinition;
 import one.microstream.persistence.types.PersistenceTypeDefinitionMember;
+import one.microstream.persistence.types.PersistenceTypeDictionary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -67,12 +69,49 @@ public class DataExporter
 
     private final LimitedFileWriters limitedFileWriters;
 
+    private final List<Long> objectTypesToExport = new ArrayList<>();  // empty means all types are exported.
+
     public DataExporter(final ReadingContext readingContext, final CSVExportConfiguration csvExportConfiguration)
     {
         this.readingContext = readingContext;
         this.csvExportConfiguration = csvExportConfiguration;
         this.exportLocation = new File(csvExportConfiguration.getTargetDirectory());
         this.limitedFileWriters = new LimitedFileWriters(csvExportConfiguration.getFileWriterCacheSize());
+        processExportFilteringOptions();
+    }
+
+    private void processExportFilteringOptions()
+    {
+        if (!csvExportConfiguration.getFilteringOptions()
+                .getClassNames()
+                .isEmpty())
+        {
+            determineTypeIdsToExport();
+        }
+        // FIXME Add the other export filtering functionality
+    }
+
+    private void determineTypeIdsToExport()
+    {
+        PersistenceTypeDictionary typeDictionary = readingContext.getStorage()
+                .getTypeDictionary();
+        objectTypesToExport.addAll(csvExportConfiguration.getFilteringOptions()
+                                           .getClassNames()
+                                           .stream()
+                                           .map(n -> nameToTypeId(typeDictionary, n))
+                                           .filter(Objects::nonNull)
+                                           .collect(Collectors.toList()));
+    }
+
+    private Long nameToTypeId(final PersistenceTypeDictionary typeDictionary, final String name)
+    {
+        PersistenceTypeDefinition typeDefinition = typeDictionary.lookupTypeByName(name);
+        if (typeDefinition == null)
+        {
+            LOGGER.info(String.format("No TypeId found for '%s' - ignored.", name));
+            return null;
+        }
+        return typeDefinition.typeId();
     }
 
     public void export()
@@ -104,14 +143,19 @@ public class DataExporter
         final PersistenceTypeDefinition typeDefinition = readingContext.getStorage()
                 .getTypeDictionary()
                 .lookupTypeById(entity.getTypeId());
-        final File csvFile = new File(exportLocation, typeDefinition.runtimeTypeName() + ".csv");
-        CSVWriterHeaders writeHeaders = new CSVWriterHeaders(csvExportConfiguration, typeDefinition);
-        final Writer writer = limitedFileWriters.get(csvFile.getAbsolutePath(), writeHeaders);
+        Writer writer = null;
+        if (objectTypesToExport.isEmpty() || objectTypesToExport.contains(typeDefinition.typeId()))
+        {
+            final File csvFile = new File(exportLocation, typeDefinition.runtimeTypeName() + ".csv");
+            CSVWriterHeaders writeHeaders = new CSVWriterHeaders(csvExportConfiguration, typeDefinition);
+            writer = limitedFileWriters.get(csvFile.getAbsolutePath(), writeHeaders);
+        }
         exportObjectData(writer, entity, typeDefinition);
     }
 
     private void exportObjectData(final Writer writer, final Entity entity, final PersistenceTypeDefinition typeDefinition)
     {
+        // writer is null when we do not need to write to file (because user specified a list of classes to export)
         final StringBuilder data = new StringBuilder();
         data.append(entity.getObjectId());
         Storage storage = readingContext.getStorage();
@@ -223,14 +267,17 @@ public class DataExporter
             }
         }
 
-        try
+        if (writer != null)
         {
-            writer.write(data.toString());
-            writer.write("\n");
+            try
+            {
+                writer.write(data.toString());
+                writer.write("\n");
 
-        } catch (final IOException e)
-        {
-            throw new UnexpectedException("Exception when writing to the file", e);
+            } catch (final IOException e)
+            {
+                throw new UnexpectedException("Exception when writing to the file", e);
+            }
         }
 
     }
