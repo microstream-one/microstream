@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>one.microstream</groupId>
+		<artifactId>microstream-integrations-parent</artifactId>
+		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<groupId>one.microstream.experimental</groupId>
+	<artifactId>microstream-integrations-kotlin-parent</artifactId>
+	<packaging>pom</packaging>
+
+	<name>MicroStream Kotlin Parent</name>
+	<description>Parent for Kotlin integration with the MicroStream Framework</description>
+
+	<properties>
+		<kotlin.code.style>official</kotlin.code.style>
+		<kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
+	</properties>
+
+	<modules>
+		<module>configuration</module>
+	</modules>
+
+	<build>
+		<sourceDirectory>src/main/kotlin</sourceDirectory>
+		<testSourceDirectory>src/test/kotlin</testSourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.jetbrains.kotlin</groupId>
+				<artifactId>kotlin-maven-plugin</artifactId>
+				<version>1.7.21</version>
+				<executions>
+					<execution>
+						<id>compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>test-compile</id>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>test-compile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

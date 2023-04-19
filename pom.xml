@@ -254,6 +254,7 @@
 						<overrideFile>false</overrideFile>
 						<includes>
 							<include>**/*.java</include>
+							<include>**/*.kt</include>
 						</includes>
 						<ignoreNoFileToScan>true</ignoreNoFileToScan>
 					</configuration>
