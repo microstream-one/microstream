@@ -155,6 +155,10 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.spdx</groupId>
+				<artifactId>spdx-maven-plugin</artifactId>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -314,6 +318,26 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>3.3.0</version>
+					<executions>
+						<execution>
+							<id>copy-meta-inf-resources</id>
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>copy-resources</goal>
+							</goals>
+							<configuration>
+								<outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
+								<resources>
+									<resource>
+										<directory>${project.build.directory}/sbom/</directory>
+										<includes>
+											<include>*.txt</include>
+										</includes>
+									</resource>
+								</resources>
+							</configuration>
+						</execution>
+					</executions>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -324,6 +348,23 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.0.0-M7</version>
+				</plugin>
+				<plugin>
+					<groupId>org.spdx</groupId>
+					<artifactId>spdx-maven-plugin</artifactId>
+					<version>0.6.5</version>
+					<executions>
+						<execution>
+							<id>build-spdx</id>
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>createSPDX</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<spdxFile>${project.build.directory}/sbom/SPDX.txt</spdxFile>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -414,7 +455,7 @@
 								</configuration>
 							</execution>
 						</executions>
-					</plugin> 
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
