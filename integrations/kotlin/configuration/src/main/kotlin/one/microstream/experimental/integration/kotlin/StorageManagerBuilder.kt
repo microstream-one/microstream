@@ -23,7 +23,6 @@ import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfi
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder
 import one.microstream.storage.embedded.types.EmbeddedStorageFoundation
 import one.microstream.storage.types.StorageManager
-import java.nio.file.Path
 
 class StorageManagerBuilder {
 

@@ -27,6 +27,7 @@
 
 	<modules>
 		<module>configuration</module>
+		<module>kodein</module>
 	</modules>
 
 	<build>
