@@ -12,6 +12,7 @@
 	</parent>
 
 	<artifactId>microstream-examples-blobs</artifactId>
+	<url>https://microstream.one</url>
 
 	<dependencies>
 		<dependency>

@@ -16,6 +16,7 @@
 
 	<name>Microstream Integrations</name>
 	<description>Microstream Integrations Project</description>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>cdi</module>

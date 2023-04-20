@@ -12,6 +12,7 @@
 	</parent>
 
 	<artifactId>microstream-afs-azure-storage</artifactId>
+	<url>https://microstream.one</url>
 	
 	<dependencies>
 		<dependency>

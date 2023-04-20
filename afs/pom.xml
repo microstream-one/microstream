@@ -18,6 +18,7 @@
 	
 	<name>MicroStream Abstract File System</name>
 	<description>File System Abstraction Project</description>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>afs</module>

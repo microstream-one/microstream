@@ -3,6 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>microstream-integrations-spring-boot3</artifactId>
+    <url>https://microstream.one</url>
 
     <parent>
         <groupId>one.microstream</groupId>

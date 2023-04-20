@@ -18,6 +18,7 @@
 	
 	<name>MicroStream Storage</name>
 	<description>MicroStream Storage Project</description>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>storage</module>

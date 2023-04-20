@@ -14,6 +14,7 @@
 	</parent>
 
 	<artifactId>microstream-examples-lazy-loading</artifactId>
+	<url>https://microstream.one</url>
 
 	<dependencies>
 		<dependency>

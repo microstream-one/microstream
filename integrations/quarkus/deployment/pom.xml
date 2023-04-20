@@ -13,6 +13,8 @@
 
     <artifactId>microstream-quarkus-extension-deployment</artifactId>
     <name>MicroStream Quarkus Extension - Deployment</name>
+    <url>https://microstream.one</url>
+
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>

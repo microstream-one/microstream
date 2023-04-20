@@ -12,6 +12,7 @@
 	</parent>
 
 	<artifactId>microstream-examples-helidon-mp</artifactId>
+	<url>https://microstream.one</url>
 
 	<properties>
 		<maven.compiler.target>11</maven.compiler.target>

@@ -15,6 +15,7 @@
 
 	<artifactId>microstream-afs-oracle-parent</artifactId>
 	<packaging>pom</packaging>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>coherence</module>

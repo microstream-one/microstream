@@ -17,6 +17,7 @@
 
 	<name>MicroStream Cache for Hibernate</name>
 	<description>Hibernate Cache Region Factory</description>
+	<url>https://microstream.one</url>
 
 	<dependencies>
 		<dependency>

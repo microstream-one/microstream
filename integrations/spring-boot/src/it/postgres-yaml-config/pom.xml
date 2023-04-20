@@ -5,6 +5,7 @@
     <groupId>one.microstream</groupId>
     <artifactId>postgres-yaml-config-test</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <url>https://microstream.one</url>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

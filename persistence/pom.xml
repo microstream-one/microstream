@@ -18,6 +18,7 @@
 
     <name>MicroStream Persistence</name>
     <description>MicroStream Persistence Project</description>
+    <url>https://microstream.one</url>
 
     <modules>
         <module>persistence</module>

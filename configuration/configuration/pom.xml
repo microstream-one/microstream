@@ -15,6 +15,7 @@
 	
 	<name>MicroStream Configuration</name>
 	<description>MicroStream General Purpose Configuration</description>
+	<url>https://microstream.one</url>
 
 	<dependencies>
 		<dependency>

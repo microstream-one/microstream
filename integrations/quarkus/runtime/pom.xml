@@ -4,15 +4,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
 
-  <parent>
+    <parent>
         <groupId>one.microstream</groupId>
-      <artifactId>microstream-integrations-quarkus-parent</artifactId>
+        <artifactId>microstream-integrations-quarkus-parent</artifactId>
         <version>08.00.00-MS-GA-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>microstream-quarkus-extension</artifactId>
     <name>MicroStream Quarkus Extension - Runtime</name>
+    <url>https://microstream.one</url>
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>

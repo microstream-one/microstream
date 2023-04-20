@@ -14,6 +14,7 @@
 	</parent>
 
 	<artifactId>microstream-examples-loading</artifactId>
+	<url>https://microstream.one</url>
 
 	<dependencies>
 		<dependency>

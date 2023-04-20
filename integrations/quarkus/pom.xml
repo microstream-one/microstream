@@ -15,6 +15,7 @@
 
     <name>MicroStream Integrations Quarkus</name>
     <description>MicroStream Quarkus Extension</description>
+    <url>https://microstream.one</url>
 
     <modules>
         <module>deployment</module>

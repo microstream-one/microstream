@@ -12,6 +12,7 @@
 	</parent>
 
 	<artifactId>microstream-afs-kafka</artifactId>
+	<url>https://microstream.one</url>
 	
 	<dependencies>
 		<dependency>

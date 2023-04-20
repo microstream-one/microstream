@@ -14,6 +14,7 @@
 	</parent>
 
 	<artifactId>microstream-afs-aws-s3</artifactId>
+	<url>https://microstream.one</url>
 
 	<dependencies>
 		<dependency>
