@@ -15,6 +15,7 @@
 
 	<artifactId>microstream-examples-filesystems</artifactId>
 
+
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>

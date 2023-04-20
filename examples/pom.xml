@@ -15,6 +15,7 @@
 
 	<artifactId>microstream-examples-parent</artifactId>
 	<packaging>pom</packaging>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>blobs</module>

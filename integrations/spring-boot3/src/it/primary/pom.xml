@@ -5,6 +5,7 @@
     <groupId>test.microstream</groupId>
     <artifactId>microstream-integrations-spring-boot-primary-manager</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <url>https://microstream.one</url>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

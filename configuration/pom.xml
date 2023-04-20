@@ -18,6 +18,7 @@
 	
 	<name>MicroStream Configuration</name>
 	<description>MicroStream Configuration Project</description>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>configuration</module>

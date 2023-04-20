@@ -15,6 +15,7 @@
 	
 	<name>MicroStream Communication</name>
 	<description>MicroStream Object Graph Communication</description>
+	<url>https://microstream.one</url>
 	
 	<dependencies>
 		<dependency>

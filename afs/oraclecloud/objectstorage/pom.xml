@@ -14,6 +14,7 @@
 	</parent>
 
 	<artifactId>microstream-afs-oraclecloud-objectstorage</artifactId>
+	<url>https://microstream.one</url>
 
 	<dependencies>
 		<dependency>

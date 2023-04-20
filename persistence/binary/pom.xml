@@ -15,6 +15,7 @@
 	
 	<name>MicroStream Persistence Binary</name>
 	<description>MicroStream Persistence Binary Data Extension</description>
+	<url>https://microstream.one</url>
 	
 	<dependencies>
 		<dependency>

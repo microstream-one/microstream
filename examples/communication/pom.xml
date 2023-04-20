@@ -11,6 +11,7 @@
 	</parent>
 
 	<artifactId>microstream-examples-communication-echo</artifactId>
+	<url>https://microstream.one</url>
 
 	<dependencies>
 		<dependency>

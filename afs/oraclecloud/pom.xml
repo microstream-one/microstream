@@ -15,6 +15,7 @@
 
 	<artifactId>microstream-afs-oraclecloud-parent</artifactId>
 	<packaging>pom</packaging>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>objectstorage</module>

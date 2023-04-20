@@ -19,6 +19,8 @@
 	<name>MicroStream P2 Repository</name>
 	<description>MicroStream P2 Repository</description>
 
+	<url>https://microstream.one</url>
+
 	<properties>
 		<osgi.version>${pv.majorVersion}.${pv.minorVersion}.${pv.incrementalVersion}.qualifier</osgi.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

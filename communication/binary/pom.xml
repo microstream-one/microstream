@@ -15,6 +15,7 @@
 	
 	<name>MicroStream Communication Binary</name>
 	<description>MicroStream Object Graph Communication Binary Implementation</description>
+	<url>https://microstream.one</url>
 	
 	<dependencies>
 		<dependency>

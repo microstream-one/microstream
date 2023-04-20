@@ -17,6 +17,7 @@
 	
 	<name>MicroStream Storage REST Client Jersey</name>
 	<description>Jersey REST Client Implementation</description>
+	<url>https://microstream.one</url>
 	
 	<properties>
 		<jersey.version>2.33</jersey.version>

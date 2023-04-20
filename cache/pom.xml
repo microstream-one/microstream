@@ -18,6 +18,7 @@
 	
 	<name>MicroStream Cache</name>
 	<description>MicroStream Cache Project</description>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>cache</module>

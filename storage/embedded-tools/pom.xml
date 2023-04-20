@@ -18,6 +18,7 @@
 	
 	<name>MicroStream Embedded Storage Tools Parent</name>
 	<description>MicroStream Embedded Storage Tools Parent</description>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>storage-converter</module>

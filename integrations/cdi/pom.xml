@@ -13,6 +13,7 @@
 
     <name>MicroStream Integrations CDI</name>
     <description>MicroStream CDI Extension</description>
+    <url>https://microstream.one</url>
 
     <properties>
         <maven.test.skip>true</maven.test.skip>

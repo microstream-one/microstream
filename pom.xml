@@ -156,8 +156,12 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.spdx</groupId>
-				<artifactId>spdx-maven-plugin</artifactId>
+				<groupId>org.cyclonedx</groupId>
+				<artifactId>cyclonedx-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -331,7 +335,8 @@
 									<resource>
 										<directory>${project.build.directory}/sbom/</directory>
 										<includes>
-											<include>*.txt</include>
+											<include>*.json</include>
+											<include>*.xml</include>
 										</includes>
 									</resource>
 								</resources>
@@ -350,20 +355,31 @@
 					<version>3.0.0-M7</version>
 				</plugin>
 				<plugin>
-					<groupId>org.spdx</groupId>
-					<artifactId>spdx-maven-plugin</artifactId>
-					<version>0.6.5</version>
+					<groupId>org.cyclonedx</groupId>
+					<artifactId>cyclonedx-maven-plugin</artifactId>
+					<version>2.7.5</version>
 					<executions>
 						<execution>
-							<id>build-spdx</id>
 							<phase>prepare-package</phase>
 							<goals>
-								<goal>createSPDX</goal>
+								<goal>makeAggregateBom</goal>
 							</goals>
 						</execution>
 					</executions>
 					<configuration>
-						<spdxFile>${project.build.directory}/sbom/SPDX.txt</spdxFile>
+						<projectType>library</projectType>
+						<schemaVersion>1.4</schemaVersion>
+						<includeBomSerialNumber>true</includeBomSerialNumber>
+						<includeCompileScope>true</includeCompileScope>
+						<includeProvidedScope>true</includeProvidedScope>
+						<includeRuntimeScope>true</includeRuntimeScope>
+						<includeSystemScope>true</includeSystemScope>
+						<includeTestScope>false</includeTestScope>
+						<includeLicenseText>false</includeLicenseText>
+						<outputReactorProjects>true</outputReactorProjects>
+						<outputFormat>all</outputFormat>
+						<outputName>Microstream-Sbom</outputName>
+						<outputDirectory>${project.build.directory}/sbom</outputDirectory>
 					</configuration>
 				</plugin>
 			</plugins>

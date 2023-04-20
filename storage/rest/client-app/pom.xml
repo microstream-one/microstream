@@ -17,6 +17,7 @@
 	
 	<name>MicroStream Storage REST Client App</name>
 	<description>Executable Client App with Web User Interface</description>
+	<url>https://microstream.one</url>
 
 	<properties>
 		<vaadin.version>14.8.9</vaadin.version>

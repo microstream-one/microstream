@@ -18,6 +18,7 @@
 	
 	<name>MicroStream Communication</name>
 	<description>MicroStream Communication Project</description>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>communication</module>

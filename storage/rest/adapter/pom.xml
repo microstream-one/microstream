@@ -17,6 +17,7 @@
 	
 	<name>MicroStream Storage REST Adapter</name>
 	<description>MicroStream Storage Adapter for Low-Level Data Externalization</description>
+	<url>https://microstream.one</url>
 
 	<dependencies>
 		<dependency>

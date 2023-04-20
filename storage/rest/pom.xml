@@ -18,6 +18,7 @@
 	
 	<name>MicroStream Storage REST</name>
 	<description>MicroStream Storage REST Project</description>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>adapter</module>

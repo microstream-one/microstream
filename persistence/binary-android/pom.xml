@@ -15,6 +15,7 @@
 	
 	<name>MicroStream Persistence Android</name>
 	<description>MicroStream Persistence Specialized Android Type Handlers</description>
+	<url>https://microstream.one</url>
 	
 	<dependencies>
 		<dependency>
