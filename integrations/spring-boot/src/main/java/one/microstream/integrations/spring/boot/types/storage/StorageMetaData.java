@@ -28,14 +28,14 @@ import java.util.List;
  */
 public class StorageMetaData
 {
-    private final List<StorageClassData> storageClassData;
+    private final List<StorageClassData<?>> storageClassData;
 
-    public StorageMetaData(final List<StorageClassData> storageClassData)
+    public StorageMetaData(final List<StorageClassData<?>> storageClassData)
     {
         this.storageClassData = storageClassData;
     }
 
-    public List<StorageClassData> getStorageClassData()
+    public List<StorageClassData<?>> getStorageClassData()
     {
         return this.storageClassData;
     }

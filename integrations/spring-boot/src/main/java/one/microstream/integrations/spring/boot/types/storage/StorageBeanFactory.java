@@ -56,11 +56,13 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
 
     private ApplicationContext applicationContext;
 
-    private final List<StorageClassData> storageClasses = new ArrayList<>();
+    private final List<StorageClassData<?>> storageClasses = new ArrayList<>();
 
-    public Object createRootObject(final String qualifier)
+    public <T> T createRootObject(final StorageClassData<T> storageClass)
     {
         LOGGER.debug("Creating Spring bean for @Storage annotated class");
+
+        final String qualifier = storageClass.getQualifier();
 
         final StorageManager storageManager;
         if (StorageManagerProvider.PRIMARY_QUALIFIER.equals(qualifier))
@@ -87,6 +89,10 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
             storageManager.setRoot(root);
             storageManager.storeRoot();
         }
+        if (!root.getClass().equals(storageClass.getClazz()))
+        {
+            throw new IllegalStateException(String.format("Root class \"%s\" doesn't match bean class \"%s\"!", root.getClass(), storageClass.getClazz()));
+        }
 
         this.applicationContext
                 .getAutowireCapableBeanFactory()
@@ -94,12 +100,12 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
 
         this.processInitializers(storageManager, qualifier);
 
-        return root;
+        //noinspection unchecked
+        return (T) root;
     }
 
-    private Class findRootClass(final String qualifier)
+    private Class<?> findRootClass(final String qualifier)
     {
-
         return storageClasses.stream()
                 .filter(scd -> scd.getQualifier()
                         .equals(qualifier))
@@ -143,12 +149,18 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
             {
                 try
                 {
+                    // Try to get an appropriate ClassLoader from the Spring context
+                    ClassLoader classLoader = applicationContext.getClassLoader();
+                    // Fall back to the current ClassLoader if null
+                    if (classLoader == null)
+                        classLoader = this.getClass().getClassLoader();
+
                     // Don't use generics as that will not work with the Supplier that provides the Root object further in this method
-                    final Class clazz = Class.forName(beanDefinition.getBeanClassName());
-                    final Storage storageAnnotation = (Storage) clazz.getAnnotation(Storage.class);
+                    final Class<?> clazz = classLoader.loadClass(beanDefinition.getBeanClassName());
+                    final Storage storageAnnotation = clazz.getAnnotation(Storage.class);
                     if (storageAnnotation != null)
                     {
-                        this.storageClasses.add(new StorageClassData(clazz));
+                        this.storageClasses.add(new StorageClassData<>(clazz));
 
                         // Remove the original definition
                         beanDefinitionRegistry.removeBeanDefinition(definitionName);
@@ -161,16 +173,19 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
             }
 
         }
-        final Map<String, List<Class>> storageClassByQualifier = storageClasses.stream()
-                .collect(Collectors.groupingBy(StorageClassData::getQualifier
-                        , Collectors.mapping(StorageClassData::getClazz, Collectors.toList())));
+        final Map<String, ? extends List<? extends Class<?>>> storageClassByQualifier = storageClasses.stream()
+                .collect(
+                        Collectors.groupingBy(StorageClassData::getQualifier,
+                                Collectors.mapping(StorageClassData::getClazz,
+                                        Collectors.toUnmodifiableList())
+                        )
+                );
 
-        final Map<String, List<Class>> multipleStorageClassByQualifier =
+        final Map<String, ? extends List<? extends Class<?>>> multipleStorageClassByQualifier =
                 storageClassByQualifier.entrySet()
                         .stream()
-                        .filter(entry -> entry.getValue()
-                                .size() > 1)
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                        .filter(entry -> entry.getValue().size() > 1)
+                        .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
 
         if (multipleStorageClassByQualifier.size() > 1)
         {
@@ -183,7 +198,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
 
             // Add a definition for each class annotated with @Storage
             // Add a new definition based on the createRootObject 'factory method'
-            for (final StorageClassData storageClass : this.storageClasses)
+            for (final StorageClassData<?> storageClass : this.storageClasses)
             {
 
                 beanDefinitionRegistry
@@ -195,24 +210,24 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
 
     }
 
-    private static String defineBeanName(StorageClassData storageClass)
+    private static String defineBeanName(StorageClassData<?> storageClass)
     {
 
         // Bean name must be the qualifier name!
         String result = storageClass.getQualifier();
         if (StorageManagerProvider.PRIMARY_QUALIFIER.equals(result))
         {
-            // Unless no Qualifier, than it must be the class name
+            // Unless no Qualifier, then it must be the class name
             result = storageClass.getClazz()
                     .getName();
         }
         return result;
     }
 
-    private BeanDefinition createBeanDefinition(final StorageClassData storageClass)
+    private <T> BeanDefinition createBeanDefinition(final StorageClassData<T> storageClass)
     {
         return BeanDefinitionBuilder.genericBeanDefinition(storageClass.getClazz(),
-                                                           () -> createRootObject(storageClass.getQualifier()))
+                                                           () -> createRootObject(storageClass))
                 //.addConstructorArgValue(storageClass.getQualifier())
                 .getBeanDefinition();
     }

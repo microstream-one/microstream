@@ -23,14 +23,14 @@ package one.microstream.integrations.spring.boot.types.storage;
 import one.microstream.integrations.spring.boot.types.config.StorageManagerProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-public class StorageClassData
+public class StorageClassData<T>
 {
 
-    private final Class<?> clazz;  // The Root class
+    private final Class<T> clazz;  // The Root class
 
     private final String qualifier;  // The qualifier
 
-    public StorageClassData(final Class<?> clazz)
+    public StorageClassData(final Class<T> clazz)
     {
         this.clazz = clazz;
         this.qualifier = findQualifier(clazz);
@@ -47,7 +47,7 @@ public class StorageClassData
         return StorageManagerProvider.PRIMARY_QUALIFIER;
     }
 
-    public Class getClazz()
+    public Class<T> getClazz()
     {
         return this.clazz;
     }
@@ -69,7 +69,7 @@ public class StorageClassData
             return false;
         }
 
-        StorageClassData that = (StorageClassData) o;
+        StorageClassData<?> that = (StorageClassData<?>) o;
 
         if (!this.clazz.equals(that.clazz))
         {
