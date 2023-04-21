@@ -14,25 +14,7 @@ The Lazy collections that are added to the library can help you to maintain a la
 [#config]
 == Configuration
 
-To correctly handle one of the Lazy Collections that are included in your object graph, you need to add a specific Binary Handler to correctly write and read the Lazy Collections to and from the data storage.
-
-If you are using the builder pattern to create the `DataStorage` you can do this in the following way
-
-[source, java]
-----
-    return EmbeddedStorageConfiguration.Builder()
-            // define config
-
-            .createEmbeddedStorageFoundation()
-            .registerTypeHandler(new BinaryHandlerLazyHashMap())
-
-            // customize StorageFoundation
-
-            .createEmbeddedStorageManager();
-
-----
-
-The above example adds the handler for the HashMap implementation. Another handler is available for the List and Set implementations we made.
+No additional configuration is required to make use of these Lazy Collections. The Binary Handlers to correctly write and read the Lazy Collections to and from the data storage are already configured by default.
 
 [#use]
 == Using
