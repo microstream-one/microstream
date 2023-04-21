@@ -41,6 +41,7 @@
 *** xref:storage:storing-data/deep-copy.adoc[Deep Copy Utility]
 ** xref:storage:loading-data/index.adoc[Loading Data]
 *** xref:storage:loading-data/lazy-loading/index.adoc[Lazy Loading]
+*** xref:storage:loading-data/lazy-loading/lazy-collections.adoc[Lazy Collections]
 *** xref:storage:loading-data/lazy-loading/touched-timestamp-null-safe-variant.adoc[Touched Timestamp, Null-Safe Variant]
 *** xref:storage:loading-data/lazy-loading/clearing-lazy-references.adoc[Clearing Lazy References]
 ** xref:storage:deleting-data.adoc[Deleting Data]

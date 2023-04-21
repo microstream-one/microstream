@@ -1,0 +1,45 @@
+= Lazy collections
+
+New functionality since MicroStream v8.0
+
+[#background]
+== Background
+
+A List, Map, or Set is a single entity within MicroStream. So this means that all data are loaded at once into memory.  This can be an issue if you have a very large collection, like a list with several millions of __Customer__s.
+
+That is why we recommend splitting up large lists using an indexing strategy like a `HashMap` that contains a `Lazy` list of data as _value_.  Or when more advanced functionality is required, you can make use of an Apache Lucene index that efficiently determines which data needs to be loaded.
+
+The Lazy collections that are added to the library can help you to maintain a larger block of data in a more memory-efficient way. The implementation might need to load and unload data (when there is not enough memory) so access time to the data might be slightly increased.
+
+[#config]
+== Configuration
+
+No additional configuration is required to make use of these Lazy Collections. The Binary Handlers to correctly write and read the Lazy Collections to and from the data storage are already configured by default.
+
+[#use]
+== Using
+
+When you need to instantiate an instance, you can just call the default constructor. The instance you receive implements the standard Java collection interface that you expect based on the name of the class.
+
+[source, java]
+----
+    new LazyArrayList();
+    new LazyHashSet();
+    new LazyHashMap();
+----
+
+The default constructor takes a value of 1000 items in each segment. This is not a hard limit since various factors, like the hash collision with a Map, can result in the fact that more elements are maintained in a segment.
+
+You can specify the number of items that should be maintained by specifying this value as a constructor parameter. Note that small values, like smaller than 100, or large values like 1_000_000 and more might negatively impact the performance.
+
+== Internals
+
+As mentioned, the implementation stores the data in different _segments_ which are lazily operated.  Initially, at the startup of the _StorageManager_, the data is not yet loaded into memory and your object graph.
+
+When accessing the values, it loads the required _segments_ to fulfill your request.  Depending on how you access the data, it might be that all segments need to be loaded. Since they behave like Lazy objects, they can be unloaded by the Garbage collector if needed when the memory consumption of your Java application is high.
+
+Some aspects of the implementations
+
+The _size_ property is cached, so calling for the amount of data in the collection doesn't need to load the segments.
+
+Accessing the `LazyHashMap` by a key value will load at maximum log2(n) segments when the implementation uses n segments since the search is implemented as btree.
