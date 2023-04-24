@@ -20,7 +20,7 @@ The port parameter is optional, default port is 8080.
 
 [source, text, subs=attributes+]
 ----
-java -jar storage.restclient.app-{maven-version}.jar --server.port=8888
+java -jar microstream-storage-restclient-app-{maven-version}.jar --server.port=8888
 ----
 
 Then just open http://localhost:8888 in your browser, select the base URL of the REST service and click connect.
