@@ -77,8 +77,8 @@ public interface TypedSerializer<M> extends Serializer<M>
 	 * The serializer will include the whole set of current type information
 	 * in every serialized Binary.
 	 * 
-	 * @param foundation
-	 * @return
+	 * @param foundation the foundation to base the serializer on
+	 * @return A new TypedSerializer instance.
 	 */
 	public static Serializer<Binary> Binary(final SerializerFoundation<?> foundation)
 	{

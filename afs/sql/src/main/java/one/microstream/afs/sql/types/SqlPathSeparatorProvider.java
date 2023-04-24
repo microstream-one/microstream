@@ -35,7 +35,7 @@ package one.microstream.afs.sql.types;
  * E.g. to configure "_" as separator:
  * <blockquote><pre>
  * SqlPath.set(SqlPathSeparatorProvider.New("_", '_'));
- * </pre></blockquote><p>
+ * </pre></blockquote>
  */
 public interface SqlPathSeparatorProvider
 {
