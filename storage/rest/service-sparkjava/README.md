@@ -45,7 +45,7 @@ EmbeddedStorageManager storage =  EmbeddedStorage
 By default  the server will listen on port 4567
 
 ```
-final StorageRestService service = RestServiceResolver.getType(storage, StorageRestServiceDefault.class);
+final StorageRestService service = RestServiceResolver.getType(storage, StorageRestServiceSparkJava.class);
 service.start();
 ```
 
@@ -68,7 +68,7 @@ public class MainTestStorageRestService
               storage.storeRoot();
          }
          
-         final StorageRestService service = RestServiceResolver.getType(storage, StorageRestServiceDefault.class);
+         final StorageRestService service = RestServiceResolver.getType(storage, StorageRestServiceSparkJava.class);
          service.start();
      }         
 }
@@ -152,11 +152,11 @@ http://localhost:4567/microstream/maintenance/filesStatistics
 ### 5.1. Server
 The Storage viewer uses the Spark micro framework from http://sparkjava.com/ as server.
 
-To provide a custom configured server just create an Spark.service and initilize the StorageRestService with this Spark.service
+To provide a custom configured server just create an Spark.service and initialize the StorageRestService with this Spark.service
 
 ```
 final Service service = Service.ignite().port(port);
-final StorageRestServiceDefault service = RestServiceResolver.getType(storage, StorageRestServiceDefault.class);
+final StorageRestServiceSparkJava service = RestServiceResolver.getType(storage, StorageRestServiceSparkJava.class);
 service.setSparkService(sparkService);
 service.start();
 ```
@@ -165,18 +165,18 @@ service.start();
 To set an other url root then 'microstream' use the constructor:
 
 ```
-final StorageRestServiceDefault service = RestServiceResolver.getType(storage, StorageRestServiceDefault.class);
+final StorageRestServiceSparkJava service = RestServiceResolver.getType(storage, StorageRestServiceSparkJava.class);
 service.setInstanceName(storageName);
 service.start();
 	
 ```
 
 #### 5.1.2 Port
-To set an other port then the default port 4567 it is required to provide a custom confgured Spark Server session to the StorageRestService constructor:
+To set an other port then the default port 4567 it is required to provide a custom configured Spark Server session to the StorageRestService constructor:
 
 ```
 final Service service = Service.ignite().port(port);
-final StorageRestServiceDefault service = RestServiceResolver.getType(storage, StorageRestServiceDefault.class);
+final StorageRestServiceSparkJava service = RestServiceResolver.getType(storage, StorageRestServiceSparkJava.class);
 service.setSparkService(sparkService);
 service.start();
 
