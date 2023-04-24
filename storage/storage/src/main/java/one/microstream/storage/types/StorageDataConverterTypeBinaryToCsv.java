@@ -66,7 +66,8 @@ public interface StorageDataConverterTypeBinaryToCsv
 	
 	/**
 	 * Batch-converts a list of files.
-	 * 
+	 *
+	 * @param <I> file collection type
 	 * @param files the binary files to convert to CSV
 	 * @since 08.00.00
 	 */
