@@ -1,6 +1,6 @@
 name: manual
 title: MicroStream Reference Manual
-version: master
+version: '7.0'
 display_version: '7.0'
 start_page: intro:welcome.adoc
 nav:
