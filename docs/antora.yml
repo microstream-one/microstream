@@ -1,12 +1,12 @@
 name: manual
 title: MicroStream Reference Manual
 version: master
-display_version: '7.0'
+display_version: '8.0'
 start_page: intro:welcome.adoc
 nav:
 - modules/ROOT/nav.adoc
 asciidoc:
   attributes:
-    display-version: '7.1'
-    api-version: '7.0'
-    maven-version: '07.01.00-MS-GA'
+    display-version: '8.0'
+    api-version: '8.0'
+    maven-version: '08.00.00-MS-GA'

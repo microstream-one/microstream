@@ -1,5 +1,39 @@
 = Changelog
 
+== 8.0
+
+=== *Features*
+
+* Upgrade to Java 11 https://github.com/microstream-one/microstream/pull/359[[359]]
+* xref:storage:loading-data/lazy-loading/lazy-collections.adoc[Lazy Collections]
+* Quarkus integration https://github.com/microstream-one/microstream/pull/422[[422]]
+* Update CDI integration to use Jakarta EE https://github.com/microstream-one/microstream/issues/509[[509]] https://github.com/microstream-one/microstream/pull/513[[513]]
+* Support for Multiple StorageManagers within Spring Boot 2.x https://github.com/microstream-one/microstream/pull/490[[490]]
+* Java 17 type handler improvement https://github.com/microstream-one/microstream/pull/462[[462]]
+* Read-only mode https://github.com/microstream-one/microstream/issues/427[[427]] https://github.com/microstream-one/microstream/pull/436[[436]]
+* Serializer with type information https://github.com/microstream-one/microstream/pull/376[[376]]
+* Channel count migration tool https://github.com/microstream-one/microstream/pull/371[[371]]
+* Helidon MP example update https://github.com/microstream-one/microstream/pull/444[[444]]
+* More convenient API for xref:storage:import-export.adoc[import, export and CSV conversion] https://github.com/microstream-one/microstream/pull/535[[535]]
+* Built-in SBOM https://github.com/microstream-one/microstream/issues/460[[460]]
+
+=== *Bugfixes*
+
+* Spring Boot 3.x fixes https://github.com/microstream-one/microstream/pull/504[[504]]
+* Set appropriate ClassLoaderProvider in Spring Boot integrations https://github.com/microstream-one/microstream/issues/517[[517]] https://github.com/microstream-one/microstream/pull/518[[518]]
+* Maven 4 build compliance https://github.com/microstream-one/microstream/pull/471[[471]]
+* Helidon example build fix https://github.com/microstream-one/microstream/pull/463[[463]]
+* Spring integration fixes https://github.com/microstream-one/microstream/pull/415[[415]]
+* File deletion fix https://github.com/microstream-one/microstream/pull/408[[408]]
+* Cache read through fix https://github.com/microstream-one/microstream/pull/369[[369]]
+* Define service providers in module info https://github.com/microstream-one/microstream/pull/368[[368]]
+
+=== *Migration guide*
+
+When you are still on an older Java version, remember to upgrade to Java 11 or above.
+
+Deprecated content was removed, see details here: https://github.com/microstream-one/microstream/issues/277[[277]]
+
 == 7.1
 
 === *Features*
