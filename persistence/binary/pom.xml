@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-persistence-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>08.00.00-MS-GA</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-persistence</artifactId>
-			<version>08.00.00-MS-GA-SNAPSHOT</version>
+			<version>08.00.00-MS-GA</version>
 		</dependency>
 	</dependencies>
 	

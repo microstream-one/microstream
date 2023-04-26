@@ -9,7 +9,7 @@
     <parent>
         <groupId>one.microstream</groupId>
         <artifactId>microstream-parent</artifactId>
-        <version>08.00.00-MS-GA-SNAPSHOT</version>
+        <version>08.00.00-MS-GA</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
