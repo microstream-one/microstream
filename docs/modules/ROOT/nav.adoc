@@ -10,6 +10,7 @@
 *** xref:storage:configuration/storage-files-and-directories.adoc[Storage Files and Directories]
 *** xref:storage:configuration/using-channels.adoc[Using Channels]
 *** xref:storage:configuration/housekeeping.adoc[Houskeeping]
+*** xref:storage:configuration/readonly.adoc[Read-only Manager]
 *** Backup
 **** xref:storage:configuration/backup/continuous-backup.adoc[Continous Backup]
 **** xref:storage:configuration/backup/full-backup.adoc[Full Backup]
