@@ -47,9 +47,6 @@
 	<profiles>
 		<profile>
 			<id>openliberty</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<build>
 				<plugins>
 					<plugin>
