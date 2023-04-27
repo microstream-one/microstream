@@ -7,7 +7,7 @@ MicroProfile Starter has generated this MicroProfile application for you.
 The generation of the executable jar file can be performed by issuing the following command
 
 ```shell
-mvn clean package
+mvn -Popenliberty clean package
 ```
 This will create an executable jar file **liberty-example.jar** within the _target_ maven folder. This can be started by executing the following command
 
