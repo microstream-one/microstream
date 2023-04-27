@@ -42,6 +42,15 @@
 	
 	<build>
 		<finalName>openliberty-example</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.3.2</version>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 	
 	<profiles>
@@ -49,13 +58,6 @@
 			<id>openliberty</id>
 			<build>
 				<plugins>
-					<plugin>
-						<artifactId>maven-war-plugin</artifactId>
-						<version>3.3.2</version>
-						<configuration>
-							<failOnMissingWebXml>false</failOnMissingWebXml>
-						</configuration>
-					</plugin>
 					<plugin>
 						<groupId>io.openliberty.tools</groupId>
 						<artifactId>liberty-maven-plugin</artifactId>
