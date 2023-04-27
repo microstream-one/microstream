@@ -31,6 +31,7 @@
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
         <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
         <failsafe-plugin.version>${surefire-plugin.version}</failsafe-plugin.version>
+        <maven.test.skip>true</maven.test.skip>
 
     </properties>
 
@@ -52,13 +53,6 @@
                     <groupId>io.quarkus</groupId>
                     <artifactId>quarkus-maven-plugin</artifactId>
                     <version>${quarkus.version}</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${surefire-plugin.version}</version>
-                    <configuration>
-                        <skip>true</skip>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -86,6 +80,9 @@
     <profiles>
         <profile>
             <id>run-its</id>
+            <properties>
+                <maven.test.skip>false</maven.test.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
