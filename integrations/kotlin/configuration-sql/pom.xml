@@ -7,38 +7,41 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>one.microstream</groupId>
-		<artifactId>microstream-integrations-parent</artifactId>
+		<groupId>one.microstream.experimental</groupId>
+		<artifactId>microstream-integrations-kotlin-parent</artifactId>
 		<version>08.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>one.microstream.experimental</groupId>
-	<artifactId>microstream-integrations-kotlin-parent</artifactId>
-	<packaging>pom</packaging>
-
-	<name>MicroStream Kotlin Parent</name>
-	<description>Parent for Kotlin integration with the MicroStream Framework</description>
+	<artifactId>microstream-integrations-configuration-sql</artifactId>
+	
+	<name>MicroStream SQL data Storage Configuration integration</name>
 
 	<properties>
-		<kotlin.code.style>official</kotlin.code.style>
-		<kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
+		<kotlin.version>1.8.21</kotlin.version>
 	</properties>
 
-	<modules>
-		<module>configuration</module>
-		<module>configuration-sql</module>
-		<module>kodein</module>
-	</modules>
+	<dependencies>
+		<dependency>
+			<groupId>one.microstream.experimental</groupId>
+			<artifactId>microstream-integrations-kotlin-configuration</artifactId>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>microstream-afs-sql</artifactId>
+			<version>08.00.00-MS-GA-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<sourceDirectory>src/main/kotlin</sourceDirectory>
-		<testSourceDirectory>src/test/kotlin</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-maven-plugin</artifactId>
-				<version>1.7.21</version>
+				<version>${kotlin.version}</version>
 				<executions>
 					<execution>
 						<id>compile</id>
@@ -55,6 +58,9 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<jvmTarget>1.8</jvmTarget>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

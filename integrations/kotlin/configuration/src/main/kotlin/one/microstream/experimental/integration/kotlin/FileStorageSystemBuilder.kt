@@ -30,7 +30,54 @@ class FileStorageSystemBuilder(private val storageManagerBuilder: StorageManager
         storageManagerBuilder.registerPropertiesProvider(this)
     }
 
+    // TODO We need this also within other 'systems' since storage-directory means also bucket in AWS S3 for example.
+    // Make a similar abstract method for
     fun withPath(path: Path) = apply { configValues["storage-directory"] = path.toAbsolutePath().toString() }
+
+    // Idem
+    fun withDeletionDirectory(path: Path) = apply { configValues["deletion-directory"] = path.toAbsolutePath().toString() }
+
+    // Idem
+    fun withTruncationDirectory(path: Path) = apply { configValues["truncation-directory"] = path.toAbsolutePath().toString() }
+
+    // Idem
+    fun withBackupDirectory(path: Path) = apply { configValues["backup-directory"] = path.toAbsolutePath().toString() }
+
+    // Idem
+    fun withChannelDirectoryPrefix(prefix: String) = apply { configValues["channel-directory-prefix"] = prefix }
+
+    // Idem
+    fun withDataFilePrefix(prefix: String) = apply { configValues["data-file-prefix"] = prefix }
+
+    // Idem
+    fun withDataFileSuffix(suffix: String) = apply { configValues["data-file-suffix"] = suffix }
+
+    // Idem
+    fun withTransactionFilePrefix(prefix: String) = apply { configValues["transaction-file-prefix"] = prefix }
+
+    // Idem
+    fun withTransactionFileSuffix(suffix: String) = apply { configValues["transaction-file-suffix"] = suffix }
+
+    // Idem
+    fun withTypeDictionaryFileName(fileName: String) = apply { configValues["type-dictionary-file-name"] = fileName }
+
+    // Idem
+    fun withRescuedFileSuffix(suffix: String) = apply { configValues["rescued-file-suffix"] = suffix }
+
+    // Idem
+    fun withLockFileName(fileName: String) = apply { configValues["lock-file-name"] = fileName }
+
+    // Idem
+    fun withDataFileMinimumSize(size: Long) = apply { configValues["data-file-minimum-size"] = size.toString() }
+
+    // Idem
+    fun withDataFileMaximumSize(size: Long) = apply { configValues["data-file-maximum-size"] = size.toString() }
+
+    // Idem
+    fun withDataFileMinimumUseRatio(ratio: Double) = apply { configValues["data-file-minimum-use-ratio"] = ratio.toString() }
+
+    // idem
+    fun withDataFileCleanupHeadFile(cleanup: Boolean) = apply { configValues["data-file-cleanup-head-file"] = cleanup.toString() }
 
     fun endSystemConfig(): StorageManagerBuilder = storageManagerBuilder
 

@@ -23,41 +23,44 @@ import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfi
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder
 import one.microstream.storage.embedded.types.EmbeddedStorageFoundation
 import one.microstream.storage.types.StorageManager
+import kotlin.time.Duration
 
 class StorageManagerBuilder {
 
     private var root: Any? = null
     private var configurationFile: String? = null
-    private val configValues = mutableMapOf<String, String?>()
+    private val configValues = mutableMapOf<String, String>()
     private val customizers = mutableListOf<EmbeddedStorageFoundationCustomizer>()
     private val initializers = mutableListOf<StorageManagerInitializer>()
 
     private val propertiesProviders = mutableSetOf<ConfigurationPropertiesProvider>()
 
-    fun withRoot(root: Any) = apply {this.root = root}
+    fun withRoot(root: Any) = apply { this.root = root }
 
-    fun usingConfigurationFile(configurationFile: String): StorageManagerBuilder {
-        this.configurationFile = configurationFile
-        return this
-    }
+    fun usingConfigurationFile(configurationFile: String): StorageManagerBuilder =
+        apply { this.configurationFile = configurationFile }
 
-    fun withFileStorageSystem(): FileStorageSystemBuilder {
-        return FileStorageSystemBuilder(this)
-    }
+    fun withFileStorageSystem(): FileStorageSystemBuilder = FileStorageSystemBuilder(this)
 
-    fun withCustomizers(vararg customizers: EmbeddedStorageFoundationCustomizer): StorageManagerBuilder {
-        this.customizers.addAll(customizers)
-        return this
-    }
+    fun withChannelCount(channelCount: Int) = apply { configValues["channel-count"] = channelCount.toString() }
 
-    fun withInitializers(vararg initializers: StorageManagerInitializer): StorageManagerBuilder {
-        this.initializers.addAll(initializers)
-        return this
-    }
+    fun withHousekeepingInterval(interval: Duration) = apply { configValues["housekeeping-interval"] = interval.toIsoString() }
 
-    fun registerPropertiesProvider(provider : ConfigurationPropertiesProvider) {
-        propertiesProviders.add(provider)
-    }
+    fun withHousekeepingTimeBudget(budget: Duration) = apply { configValues["housekeeping-time-budget"] = budget.toIsoString() }
+
+    fun withEntityCacheThreshold(threshold: Duration) = apply { configValues["entity-cache-threshold"] = threshold.toIsoString() }
+
+    fun withEntityCacheTimeout(timeout: Long) = apply { configValues["entity-cache-timeout"] = timeout.toString() }
+
+
+    fun withCustomizers(vararg customizers: EmbeddedStorageFoundationCustomizer): StorageManagerBuilder =
+        apply { this.customizers.addAll(customizers) }
+
+    fun withInitializers(vararg initializers: StorageManagerInitializer): StorageManagerBuilder =
+        apply { this.initializers.addAll(initializers) }
+
+    fun registerPropertiesProvider(provider: ConfigurationPropertiesProvider) =
+        apply { propertiesProviders.add(provider) }
 
     fun build(): StorageManager {
         val storageFoundation = buildFoundation()
@@ -77,9 +80,7 @@ class StorageManagerBuilder {
         propertiesProviders.forEach { configValues.putAll(it.retrieveProperties()) }
         // Set the configuration values that are assigned through builder functions
         configValues.forEach { (key: String, value: String?) ->
-            if (value != null) {
-                builder[key] = value
-            }
+            builder[key] = value
         }
 
         val storageFoundation = builder.createEmbeddedStorageFoundation()
