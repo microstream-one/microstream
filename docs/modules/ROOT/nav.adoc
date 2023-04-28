@@ -40,6 +40,7 @@
 *** xref:storage:storing-data/transient-fields.adoc[Transient Fields]
 *** xref:storage:storing-data/best-practice.adoc[Best Practice]
 *** xref:storage:storing-data/deep-copy.adoc[Deep Copy Utility]
+*** xref:storage:storing-data/reloader.adoc[Reloading]
 ** xref:storage:loading-data/index.adoc[Loading Data]
 *** xref:storage:loading-data/lazy-loading/index.adoc[Lazy Loading]
 *** xref:storage:loading-data/lazy-loading/lazy-collections.adoc[Lazy Collections]
