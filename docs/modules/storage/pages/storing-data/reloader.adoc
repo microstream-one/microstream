@@ -4,6 +4,8 @@ New functionality since MicroStream v8.0
 
 When you have already changed your object within memory, but not yet stored through the `store()` method of the _StorageManager_, you can re-load the data from the storage using the `Reloader` class.
 
+When using the "Reloader" on an instance that hasn't yet been stored in MicroStream data storage through a call to `.store()`, there is no _Exception_ thrown and instance is unaltered. So it only 'reverts' the content to the previous value if the instance was already stored.
+
 == Code
 
 The `Reloader` class makes the functionality that was already available within the `PersistenceLoader` class easier accessible.
