@@ -13,8 +13,8 @@ Returns the name and object id of the current storage root element.
 [source, json, title="Response"]
 ----
 {
-	name: "ROOT",
-	objectId: "1000000000000000028"
+	"name": "ROOT",
+	"objectId": "1000000000000000028"
 }
 ----
 
@@ -35,7 +35,7 @@ Returns description and values of a distinct object.
 |Description
 //-------------
 |objectId
-|integer
+|long
 |The requested object's id
 |===
 
@@ -48,27 +48,27 @@ Returns description and values of a distinct object.
 |Default
 //-------------
 |valueLength
-|integer
+|long
 |Limit size of returned value elements, e.g. String values.
 |unlimited
 
 |fixedOffset
-|integer
+|long
 |Fixed size members start offset.
 |0
 
 |fixedLength
-|integer
+|long
 |Amount of returned fixed size members.
 |unlimited
 
 |variableOffset
-|integer
+|long
 |Variable size members start offset.
 |0
 
 |variableLength
-|integer
+|long
 |Amount of returned variable size members.
 |unlimited
 
