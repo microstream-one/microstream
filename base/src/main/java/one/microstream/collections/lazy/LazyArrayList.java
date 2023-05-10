@@ -180,6 +180,12 @@ public final class LazyArrayList<E> extends AbstractList<E> implements LazyList<
 	}
 	
 	@Override
+	public void tryUnload(final boolean unloadAll)
+	{
+		this.unloader.unload(unloadAll);
+	}
+	
+	@Override
 	public boolean contains(final Object element)
 	{
 		return this.indexOf(element) >= 0;
@@ -1016,11 +1022,11 @@ public final class LazyArrayList<E> extends AbstractList<E> implements LazyList<
 		// instance fields //
 		////////////////////
 		
-		private int                                 offset     ;
-		private int                                 segmentSize;
-		private transient boolean                   modified   ;
-		private final ControlledLazyReference<ArrayList<E>> data ;
-		boolean allowUnloading = true;
+		private int                                         offset     ;
+		private int                                         segmentSize;
+		private transient boolean                           modified   ;
+		private final ControlledLazyReference<ArrayList<E>> data       ;
+		private boolean allowUnloading = true;
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -1312,9 +1318,6 @@ public final class LazyArrayList<E> extends AbstractList<E> implements LazyList<
 						this.lastSegment.allowUnload(true);
 					}
 					this.lastSegment = nextSegment;
-				}
-				else
-				{
 					this.lastSegment.allowUnload(false);
 				}
 								

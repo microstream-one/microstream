@@ -1073,6 +1073,12 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 		{
 			return false;
 		}
+		
+		@Override
+		public void tryUnload(final boolean unloadAll)
+		{
+			LazyHashMap.this.unloader.unload(unloadAll);
+		}
 
 	}
 
@@ -1128,6 +1134,12 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 		public boolean consolidate()
 		{
 			return false;
+		}
+		
+		@Override
+		public void tryUnload(final boolean unloadAll)
+		{
+			LazyHashMap.this.unloader.unload(unloadAll);
 		}
 
 	}
@@ -1186,6 +1198,11 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 			return false;
 		}
 
+		@Override
+		public void tryUnload(final boolean unloadAll)
+		{
+			LazyHashMap.this.unloader.unload(unloadAll);
+		}
 	}
 
 	final class EntryIterator extends LazyMapIterator implements Iterator<Map.Entry<K, V>>
