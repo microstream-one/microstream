@@ -1107,6 +1107,7 @@ public final class LazyArrayList<E> extends AbstractList<E> implements LazyList<
 		public void unloadSegment()
 		{
 			this.data.clear();
+			this.allowUnloading = true;
 		}
 		
 		@Override

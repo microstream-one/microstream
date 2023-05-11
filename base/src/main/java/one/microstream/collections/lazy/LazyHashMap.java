@@ -677,6 +677,7 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 		public void unloadSegment()
 		{
 			this.data.clear();
+			this.allowUnloading = true;
 		}
 		
 		//required by BinaryHandlerLazyHashMap
