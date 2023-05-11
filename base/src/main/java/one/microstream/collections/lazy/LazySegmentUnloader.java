@@ -45,6 +45,18 @@ public interface LazySegmentUnloader
 	public void unload(LazySegment<?> currentLazySegment);
 	
 	/**
+	 * Tries to unload as much as possible elements from the collection.
+	 * The amount of unloaded data depends on the unloader implementation details.
+	 * E.g if the unloader is configured to keep a minimum of data in memory that minimum
+	 * will not be unloaded as long as the parameter unloadAll is not specified.
+	 * If unloadAll is try it will try to to fall below that limit.
+	 * 
+	 * @param unloadAll if true try to unload everything, try to fall below limit if possible.
+	 * 
+	 */
+	public void unload(boolean unloadAll);
+	
+	/**
 	 * Unregister the provided segment from the Unloader.
 	 * 
 	 * @param segment Segment to be unregistered.
@@ -147,6 +159,31 @@ public interface LazySegmentUnloader
 			}
 		}
 		
+		@Override
+		public synchronized void unload(final boolean unloadAll)
+		{
+			if(this.loadedSegments == null)
+			{
+				this.loadedSegments = new LinkedList<>();
+			}
+			
+			final int segmentsToKeep = unloadAll ? 0 : this.desiredLoadCount;
+			
+			final Iterator<LazySegment<?>> iterator = this.loadedSegments.iterator();
+			while(iterator.hasNext() && this.loadedSegments.size() > segmentsToKeep)
+			{
+				final LazySegment<?> segment = iterator.next();
+				if(!segment.isModified()
+					&&  segment.isLoaded()
+					)
+				{
+					logger.debug("unloading segment {}", segment);
+					segment.unloadSegment();
+					iterator.remove();
+				}
+			}
+		}
+		
 		/**
 		 * Add provided segment on top of "loaded" list.
 		 * 
@@ -178,6 +215,15 @@ public interface LazySegmentUnloader
 		
 	}
 	
+	/**
+	 * Implementation of LazyUnloader
+	 * <br>
+	 * This implementation will try to unload segments that are older then
+	 * the configured lifetime.
+	 * The number of unloaded elements may vary because not stored or modified segments
+	 * can't be unloaded.
+	 * 
+	 */
 	public final class Timed implements LazySegmentUnloader
 	{
 		private final static Logger logger = Logging.getLogger(Timed.class);
@@ -186,6 +232,11 @@ public interface LazySegmentUnloader
 		transient private HashMap<LazySegment<?>, Long> loadedSegments;
 		long lifetime;
 					
+		/**
+		 * Creates a LazyUnloader.Timed instance.
+		 * 
+		 * @param lifetime desired time to life in milliseconds.
+		 */
 		public Timed(final long lifetime)
 		{
 			super();
@@ -194,7 +245,7 @@ public interface LazySegmentUnloader
 		}
 
 		@Override
-		public void unload(final LazySegment<?> currentLazySegment)
+		public synchronized void unload(final LazySegment<?> currentLazySegment)
 		{
 			if(this.loadedSegments == null)
 			{
@@ -217,6 +268,34 @@ public interface LazySegmentUnloader
 							&&  segment.isLoaded()
 							&&  segment.unloadAllowed()
 							)
+					{
+						logger.debug("unloading segment {}", segment.hashCode());
+						segment.unloadSegment();
+					}
+				}
+			}
+		}
+		
+		@Override
+		public synchronized void unload(final boolean unloadAll)
+		{
+			if(this.loadedSegments == null)
+			{
+				this.loadedSegments = new HashMap<>();
+			}
+			
+			final long currentTime = System.currentTimeMillis();
+			
+			final Iterator<Entry<LazySegment<?>, Long>> iterator = this.loadedSegments.entrySet().iterator();
+			while(iterator.hasNext())
+			{
+				final Entry<LazySegment<?>, Long> item = iterator.next();
+				final LazySegment<?> segment = item.getKey();
+				if(item.getValue() + this.lifetime < currentTime )
+				{
+					if(!segment.isModified()
+						&& segment.isLoaded()
+						)
 					{
 						logger.debug("unloading segment {}", segment.hashCode());
 						segment.unloadSegment();
@@ -251,6 +330,12 @@ public interface LazySegmentUnloader
 			//no op
 		}
 
+		@Override
+		public void unload(final boolean unloadAll)
+		{
+			//no op
+		}
+		
 		@Override
 		public LazySegmentUnloader copy()
 		{
