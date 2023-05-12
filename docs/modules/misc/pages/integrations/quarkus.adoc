@@ -13,9 +13,7 @@ mvn quarkus:add-extension -Dextensions="one.microstream:microstream-quarkus-exte
 
 The extension requires Quarkus 2.11.1 as a minimal version.
 
-The integration requires Spring Boot 2.x (with version 2.1.0.RELEASE being the minimal supported one).
-
-If you are running Quarkus 3, use the following dependency in your project:
+If you are running Quarkus 3, use the following command in your project:
 
 [source, shell, title="Add Quarkus 3 extension", subs=attributes+]
 ----
