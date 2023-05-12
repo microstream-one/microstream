@@ -1,0 +1,8 @@
+name: MicroStream Quarkus 3 Extension
+description: Integrate MicroStream within your application.
+metadata:
+  keywords:
+    - MicroStream
+  guide: https://docs.microstream.one/manual/misc/integrations/quarkus.html
+  categories:
+    - "integration"
