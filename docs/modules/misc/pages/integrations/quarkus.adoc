@@ -13,6 +13,15 @@ mvn quarkus:add-extension -Dextensions="one.microstream:microstream-quarkus-exte
 
 The extension requires Quarkus 2.11.1 as a minimal version.
 
+If you are running Quarkus 3, use the following command in your project:
+
+[source, shell, title="Add Quarkus 3 extension", subs=attributes+]
+----
+mvn quarkus:add-extension -Dextensions="one.microstream:microstream-quarkus3-extension:09.00.00-MS-GA"
+----
+
+The migration from version 2 to 3 doesn't require any code changes related to the MicroStream integration classes.
+
 == Configuration
 
 The configuration of the _StorageManager_ can be done using key/value pairs that are provided by Quarkus configuration.  The configuration keys must be prefixed by `one.microstream`
