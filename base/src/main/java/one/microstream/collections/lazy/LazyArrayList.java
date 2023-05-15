@@ -180,6 +180,12 @@ public final class LazyArrayList<E> extends AbstractList<E> implements LazyList<
 	}
 	
 	@Override
+	public void tryUnload(final boolean unloadAll)
+	{
+		this.unloader.unload(unloadAll);
+	}
+	
+	@Override
 	public boolean contains(final Object element)
 	{
 		return this.indexOf(element) >= 0;
@@ -1016,11 +1022,11 @@ public final class LazyArrayList<E> extends AbstractList<E> implements LazyList<
 		// instance fields //
 		////////////////////
 		
-		private int                                 offset     ;
-		private int                                 segmentSize;
-		private transient boolean                   modified   ;
-		private final ControlledLazyReference<ArrayList<E>> data ;
-		boolean allowUnloading = true;
+		private int                                         offset     ;
+		private int                                         segmentSize;
+		private transient boolean                           modified   ;
+		private final ControlledLazyReference<ArrayList<E>> data       ;
+		private boolean allowUnloading = true;
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -1101,6 +1107,7 @@ public final class LazyArrayList<E> extends AbstractList<E> implements LazyList<
 		public void unloadSegment()
 		{
 			this.data.clear();
+			this.allowUnloading = true;
 		}
 		
 		@Override
@@ -1263,7 +1270,7 @@ public final class LazyArrayList<E> extends AbstractList<E> implements LazyList<
 		private int fence;
 		private int index;
 		private int expectedModCount;
-
+		private Segment lastSegment = null;
 		
 		public SegmentSpliterator(final int index, final int fence, final int expectedModCount)
 		{
@@ -1301,7 +1308,20 @@ public final class LazyArrayList<E> extends AbstractList<E> implements LazyList<
 			if(i < hi)
 			{
 				this.index = i + 1;
-				LazyArrayList.this.segmentForIndex(i).allowUnload(false);
+				
+				final LazyArrayList<E>.Segment nextSegment = LazyArrayList.this.segmentForIndex(i);
+				nextSegment.allowUnload(false);
+				
+				if(this.lastSegment != nextSegment)
+				{
+					if(this.lastSegment != null)
+					{
+						this.lastSegment.allowUnload(true);
+					}
+					this.lastSegment = nextSegment;
+					this.lastSegment.allowUnload(false);
+				}
+								
 				action.accept(LazyArrayList.this.get(i));
 				if (LazyArrayList.this.modCount != this.expectedModCount)
 				{
@@ -1309,7 +1329,11 @@ public final class LazyArrayList<E> extends AbstractList<E> implements LazyList<
 				}
 				return true;
 			}
-			LazyArrayList.this.segmentForIndex(i-1).allowUnload(true);
+					
+			if(this.lastSegment != null)
+			{
+				this.lastSegment.allowUnload(true);
+			}
 			
 			return false;
 		}
