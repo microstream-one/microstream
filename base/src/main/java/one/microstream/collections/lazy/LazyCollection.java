@@ -58,7 +58,7 @@ public interface LazyCollection<E> extends Collection<E>
 	 * The amount of unloaded data depends on the collection's implementation details.
 	 * E.g if the collection is configured to keep a minimum of data in memory that minimum
 	 * will not be unloaded as long as the parameter unloadAll is not specified.
-	 * If unloadAll is try it will try to to fall below that limit.
+	 * If unloadAll is set it will try to to fall below that limit.
 	 * 
 	 * @param unloadAll if true try to unload everything, try to fall below limit if possible.
 	 * 
