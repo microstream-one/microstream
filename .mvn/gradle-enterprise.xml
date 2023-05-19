@@ -4,7 +4,7 @@
         xmlns="https://www.gradle.com/gradle-enterprise-maven" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="https://www.gradle.com/gradle-enterprise-maven https://www.gradle.com/schema/gradle-enterprise-maven.xsd">
     <server>
-        <url>https://byob-devnexus-1.gradle-enterprise.cloud/</url>
+        <url>https://ge.microstream.one</url>
         <allowUntrusted>false</allowUntrusted>
     </server>
     <buildScan>
@@ -13,13 +13,14 @@
         </capture>
         <backgroundBuildScanUpload>#{isFalse(env['CI'])}</backgroundBuildScanUpload>
         <publish>ALWAYS</publish>
+        <publishIfAuthenticated>true</publishIfAuthenticated>
         <obfuscation>
             <ipAddresses>#{{'0.0.0.0'}}</ipAddresses>
         </obfuscation>
     </buildScan>
     <buildCache>
         <local>
-            <enabled>true</enabled>
+            <enabled>false</enabled>
         </local>
         <remote>
             <enabled>false</enabled>
