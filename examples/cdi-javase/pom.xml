@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-examples-parent</artifactId>
-		<version>08.01.00-MS-GA-SNAPSHOT</version>
+		<version>08.01.00-MS-GA</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-integrations-cdi</artifactId>
-            <version>08.01.00-MS-GA-SNAPSHOT</version>
+            <version>08.01.00-MS-GA</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.weld.se</groupId>
