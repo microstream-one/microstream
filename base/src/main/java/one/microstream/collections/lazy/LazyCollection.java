@@ -54,6 +54,18 @@ public interface LazyCollection<E> extends Collection<E>
 	public boolean consolidate();
 	
 	/**
+	 * Tries to unload as much as possible elements from the collection.
+	 * The amount of unloaded data depends on the collection's implementation details.
+	 * E.g if the collection is configured to keep a minimum of data in memory that minimum
+	 * will not be unloaded as long as the parameter unloadAll is not specified.
+	 * If unloadAll is set it will try to to fall below that limit.
+	 * 
+	 * @param unloadAll if true try to unload everything, try to fall below limit if possible.
+	 * 
+	 */
+	public void tryUnload(boolean unloadAll);
+	
+	/**
 	 * Returns a sequential {@code Stream} with this collection as its source.
 	 * <p>
 	 * This stream comes with a custom close handler, which clears all {@link Lazy} references

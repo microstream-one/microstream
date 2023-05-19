@@ -1,0 +1,23 @@
+= Reloading
+
+New functionality since MicroStream v8.0
+
+When you have already changed your object within memory, but not yet stored through the `store()` method of the _StorageManager_, you can re-load the data from the storage using the `Reloader` class.
+
+When using the "Reloader" on an instance that hasn't yet been stored in MicroStream data storage through a call to `.store()`, there is no _Exception_ thrown and instance is unaltered. So it only 'reverts' the content to the previous value if the instance was already stored.
+
+== Code
+
+The `Reloader` class makes the functionality that was already available within the `PersistenceLoader` class easier accessible.
+
+After you have created an instance of a `Reloader` instance, you can reload an object with the `reloadFlat()` method, or the entire object graph of this instance with the `reloadDeep()`.
+
+The following snippet shows an example of reloading a _List_ where it restores the items as it is stored in the data storage.
+
+[source, java]
+----
+    final Reloader reloader = Reloader.New(persistenceManager);
+    reloader.reloadFlat(root.getData());
+
+----
+

@@ -677,6 +677,7 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 		public void unloadSegment()
 		{
 			this.data.clear();
+			this.allowUnloading = true;
 		}
 		
 		//required by BinaryHandlerLazyHashMap
@@ -1073,6 +1074,12 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 		{
 			return false;
 		}
+		
+		@Override
+		public void tryUnload(final boolean unloadAll)
+		{
+			LazyHashMap.this.unloader.unload(unloadAll);
+		}
 
 	}
 
@@ -1128,6 +1135,12 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 		public boolean consolidate()
 		{
 			return false;
+		}
+		
+		@Override
+		public void tryUnload(final boolean unloadAll)
+		{
+			LazyHashMap.this.unloader.unload(unloadAll);
 		}
 
 	}
@@ -1186,6 +1199,11 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 			return false;
 		}
 
+		@Override
+		public void tryUnload(final boolean unloadAll)
+		{
+			LazyHashMap.this.unloader.unload(unloadAll);
+		}
 	}
 
 	final class EntryIterator extends LazyMapIterator implements Iterator<Map.Entry<K, V>>
@@ -1438,6 +1456,7 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 
 			if (this.index < hi)
 			{
+				this.currentSegment.allowUnload(false);
 				final K key = this.currentSegment.getData().get(this.localIndex).key;
 				action.accept(key);
 				
@@ -1461,11 +1480,14 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 				{
 					this.localIndex = 0;
 					this.segmentIndex++;
+					this.currentSegment.allowUnload(true);
 					this.currentSegment = this.map.segments.get(this.segmentIndex);
 				}
 				
 				return true;
 			}
+			
+			this.currentSegment.allowUnload(true);
 			return false;
 		}
 
@@ -1544,6 +1566,7 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 
 			if (this.index < hi)
 			{
+				this.currentSegment.allowUnload(false);
 				final Map.Entry<K, V> entry = this.currentSegment.getData().get(this.localIndex);
 				action.accept(entry);
 				
@@ -1567,11 +1590,14 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 				{
 					this.localIndex = 0;
 					this.segmentIndex++;
+					this.currentSegment.allowUnload(true);
 					this.currentSegment = this.map.segments.get(this.segmentIndex);
 				}
 
 				return true;
 			}
+			
+			this.currentSegment.allowUnload(true);
 			return false;
 		}
 
@@ -1650,6 +1676,7 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 
 			if (this.index < hi)
 			{
+				this.currentSegment.allowUnload(false);
 				final V value = this.currentSegment.getData().get(this.localIndex).value;
 				action.accept(value);
 				
@@ -1673,11 +1700,14 @@ public final class LazyHashMap<K, V> implements Map<K, V>
 				{
 					this.localIndex = 0;
 					this.segmentIndex++;
+					this.currentSegment.allowUnload(true);
 					this.currentSegment = this.map.segments.get(this.segmentIndex);
 				}
 
 				return true;
 			}
+			
+			this.currentSegment.allowUnload(true);
 			return false;
 		}
 
