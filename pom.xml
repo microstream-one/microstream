@@ -357,6 +357,7 @@
 				<plugin>
 					<groupId>com.gradle</groupId>
 					<artifactId>gradle-enterprise-maven-extension</artifactId>
+					<version>1.16.5</version>
 					<configuration>
 						<gradleEnterprise>
 							<normalization>
