@@ -1,5 +1,15 @@
 = Changelog
 
+== 8.1
+
+=== *Features*
+
+* Integration for Quarkus 3 https://github.com/microstream-one/microstream/issues/564[[564]]
+
+=== *Bugfixes*
+
+* Fixed Lazy Collections unloading https://github.com/microstream-one/microstream/issues/563[[563]] https://github.com/microstream-one/microstream/pull/568[[568]]
+
 == 8.0
 
 === *Features*
