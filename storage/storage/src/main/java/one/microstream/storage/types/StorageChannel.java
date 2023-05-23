@@ -108,7 +108,7 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 
 	public void cleanupStore();
 
-
+	public void createIndex();
 	
 
 	public final class Default implements StorageChannel, Unpersistable, StorageHousekeepingExecutor
@@ -770,6 +770,15 @@ public interface StorageChannel extends Runnable, StorageChannelResetablePart, S
 		{
 			this.entityCache.reset();
 			this.fileManager.dispose();
+		}
+
+		@Override
+		public void createIndex()
+		{
+			if(this.fileManager.startupIndexManager() != null)
+			{
+				this.fileManager.startupIndexManager().createIndex(this.fileManager);
+			}
 		}
 	}
 

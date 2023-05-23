@@ -119,6 +119,7 @@ public interface StorageSystem extends StorageController
 		private final Referencing<PersistenceLiveStorerRegistry> refStorerRegistry             ;
 		private final boolean                                    switchByteOrder               ;
 		private final StorageStructureValidator                  storageStructureValidator     ;
+		private final StorageStartupIndexSetup                   startupIndexSetup             ;
 		
 		// state flags //
 		private final AtomicBoolean    isStartingUp       = new AtomicBoolean();
@@ -128,17 +129,17 @@ public interface StorageSystem extends StorageController
 		private final AtomicLong       operationModeTime  = new AtomicLong()   ;
 
 		// running state members //
-		private volatile StorageTaskBroker    taskbroker    ;
-		private final    ChannelKeeper[]      channelKeepers;
+		private volatile StorageTaskBroker          taskbroker    ;
+		private final    ChannelKeeper[]            channelKeepers;
 		
-		private          StorageBackupHandler backupHandler;
-		private          Thread               backupThread ;
+		private          StorageBackupHandler       backupHandler;
+		private          Thread                     backupThread ;
 		
-		private          Thread               lockFileManagerThread;
+		private          Thread                     lockFileManagerThread;
 		
-		private          StorageIdAnalysis    initializationIdAnalysis;
+		private          StorageIdAnalysis          initializationIdAnalysis;
 
-
+		private 		 StorageStartupIndexManager storageStartupIndexManager;
 
 		///////////////////////////////////////////////////////////////////////////
 		// constructors //
@@ -219,6 +220,7 @@ public interface StorageSystem extends StorageController
 			this.refStorerRegistry              = notNull(refStorerRegistry)                   ;
 			this.switchByteOrder                =         switchByteOrder                      ;
 			this.storageStructureValidator      = notNull(storageStructureValidator)           ;
+			this.startupIndexSetup              = storageConfiguration.startupIndexSetup()     ;
 		}
 
 
@@ -377,6 +379,16 @@ public interface StorageSystem extends StorageController
 			this.backupThread.start();
 		}
 		
+		private StorageStartupIndexManager provideStorageStartupIndexManager()
+		{
+			if(this.storageStartupIndexManager == null && this.startupIndexSetup != null)
+			{
+				this.storageStartupIndexManager = this.startupIndexSetup.createStartupIndexManager();
+			}
+			
+			return this.storageStartupIndexManager;
+		}
+		
 		private void initializeLockFileManager()
 		{
 			if(this.lockFileSetup == null || this.lockFileSetup.updateInterval() == 0)
@@ -469,6 +481,7 @@ public interface StorageSystem extends StorageController
 				this.eventLogger                           ,
 				this.liveObjectIdChecker                   ,
 				this.refStorerRegistry                     ,
+				this.provideStorageStartupIndexManager()   ,
 				this.switchByteOrder                       ,
 				this.rootTypeIdProvider.provideRootTypeId()
 			);

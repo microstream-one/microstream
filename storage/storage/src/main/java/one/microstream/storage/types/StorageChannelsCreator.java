@@ -52,6 +52,7 @@ public interface StorageChannelsCreator
 		StorageEventLogger                         eventLogger                  ,
 		ObjectIdsSelector                          liveObjectIdChecker          ,
 		Referencing<PersistenceLiveStorerRegistry> refStorerRegistry            ,
+		StorageStartupIndexManager                 storageStartupIndexManager   ,
 		boolean                                    switchByteOrder              ,
 		long                                       rootTypeId
 	);
@@ -88,6 +89,7 @@ public interface StorageChannelsCreator
 			final StorageEventLogger                         eventLogger                  ,
 			final ObjectIdsSelector                          liveObjectIdChecker          ,
 			final Referencing<PersistenceLiveStorerRegistry> refStorerRegistry            ,
+			final StorageStartupIndexManager                 storageStartupIndexManager   ,
 			final boolean                                    switchByteOrder              ,
 			final long                                       rootTypeId
 		)
@@ -144,7 +146,8 @@ public interface StorageChannelsCreator
 					writeController                 ,
 					writerProvider.provideWriter(i) ,
 					readingDefaultBufferSizeProvider,
-					backupHandler
+					backupHandler                   ,
+					storageStartupIndexManager
 				);
 
 				// required to resolve the initializer cyclic dependency

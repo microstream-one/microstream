@@ -769,7 +769,7 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 		 * channel's inherent thread which is also the same that rebuilds the hashTables, so it can never work
 		 * on old cached instances.
 		 */
-		private StorageEntity.Default createEntity(
+		StorageEntity.Default createEntity(
 			final long                             objectId,
 			final StorageEntityType.Default type
 		)

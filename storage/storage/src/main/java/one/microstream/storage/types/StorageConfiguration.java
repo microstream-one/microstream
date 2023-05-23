@@ -42,6 +42,8 @@ public interface StorageConfiguration
 	public StorageDataFileEvaluator dataFileEvaluator();
 	
 	public StorageBackupSetup backupSetup();
+	
+	public StorageStartupIndexSetup startupIndexSetup();
 
 	
 	/**
@@ -89,10 +91,11 @@ public interface StorageConfiguration
 	public static StorageConfiguration New(
 		final StorageChannelCountProvider   channelCountProvider  ,
 		final StorageHousekeepingController housekeepingController,
-		final StorageLiveFileProvider           fileProvider          ,
+		final StorageLiveFileProvider       fileProvider          ,
 		final StorageDataFileEvaluator      dataFileEvaluator     ,
 		final StorageEntityCacheEvaluator   entityCacheEvaluator  ,
-		final StorageBackupSetup            backupSetup
+		final StorageBackupSetup            backupSetup           ,
+		final StorageStartupIndexSetup      startupIndexSetup
 	)
 	{
 		return new StorageConfiguration.Default(
@@ -101,7 +104,8 @@ public interface StorageConfiguration
 			notNull(fileProvider)          ,
 			notNull(dataFileEvaluator)     ,
 			notNull(entityCacheEvaluator)  ,
-			mayNull(backupSetup)
+			mayNull(backupSetup)           ,
+			mayNull(startupIndexSetup)
 		);
 	}
 
@@ -113,10 +117,11 @@ public interface StorageConfiguration
 
 		private final StorageChannelCountProvider   channelCountProvider  ;
 		private final StorageHousekeepingController housekeepingController;
-		private final StorageLiveFileProvider           fileProvider          ;
+		private final StorageLiveFileProvider       fileProvider          ;
 		private final StorageDataFileEvaluator      dataFileEvaluator     ;
 		private final StorageEntityCacheEvaluator   entityCacheEvaluator  ;
 		private final StorageBackupSetup            backupSetup           ;
+		private final StorageStartupIndexSetup      startupIndexSetup     ;
 
 
 
@@ -127,10 +132,11 @@ public interface StorageConfiguration
 		Default(
 			final StorageChannelCountProvider   channelCountProvider  ,
 			final StorageHousekeepingController housekeepingController,
-			final StorageLiveFileProvider           fileProvider          ,
+			final StorageLiveFileProvider       fileProvider          ,
 			final StorageDataFileEvaluator      dataFileEvaluator     ,
 			final StorageEntityCacheEvaluator   entityCacheEvaluator  ,
-			final StorageBackupSetup            backupSetup
+			final StorageBackupSetup            backupSetup           ,
+			final StorageStartupIndexSetup      startupIndexSetup
 		)
 		{
 			super();
@@ -140,6 +146,7 @@ public interface StorageConfiguration
 			this.fileProvider           = fileProvider          ;
 			this.dataFileEvaluator      = dataFileEvaluator     ;
 			this.backupSetup            = backupSetup           ;
+			this.startupIndexSetup      = startupIndexSetup     ;
 		}
 
 
@@ -198,6 +205,12 @@ public interface StorageConfiguration
 				.toString()
 			;
 		}
+		
+		@Override
+		public StorageStartupIndexSetup startupIndexSetup()
+		{
+			return this.startupIndexSetup;
+		}
 
 	}
 	
@@ -245,6 +258,9 @@ public interface StorageConfiguration
 		
 		public StorageConfiguration createConfiguration();
 		
+		public B setStartupIndexSetup(final StorageStartupIndexSetup startupIndexSetup);
+		
+		public StorageStartupIndexSetup startupIndexSetup();
 		
 		
 		public class Default<B extends Builder.Default<?>> implements StorageConfiguration.Builder<B>
@@ -259,6 +275,7 @@ public interface StorageConfiguration
 			private StorageDataFileEvaluator      dataFileEvaluator      = this.initializeDataFileEvaluator();
 			private StorageEntityCacheEvaluator   entityCacheEvaluator   = this.initializeEntityCacheEvaluator();
 			private StorageBackupSetup            backupSetup           ; // optional
+			private StorageStartupIndexSetup      startupIndexSetup     ; // optional
 			
 			
 			
@@ -404,6 +421,19 @@ public interface StorageConfiguration
 			}
 			
 			@Override
+			public StorageStartupIndexSetup startupIndexSetup()
+			{
+				return this.startupIndexSetup;
+			}
+			
+			@Override
+			public B setStartupIndexSetup(final StorageStartupIndexSetup startupIndexSetup)
+			{
+				this.startupIndexSetup = startupIndexSetup;
+				return this.$();
+			}
+			
+			@Override
 			public StorageConfiguration createConfiguration()
 			{
 				return StorageConfiguration.New(
@@ -412,12 +442,13 @@ public interface StorageConfiguration
 					this.storageFileProvider   ,
 					this.dataFileEvaluator     ,
 					this.entityCacheEvaluator  ,
-					this.backupSetup
+					this.backupSetup           ,
+					this.startupIndexSetup
 				);
 			}
 			
 		}
 		
 	}
-
+	
 }

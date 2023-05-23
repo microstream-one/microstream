@@ -159,6 +159,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 		private final StorageWriteController               writeController              ;
 		private final StorageFileWriter                    writer                       ;
 		private final StorageBackupHandler                 backupHandler                ;
+		private final StorageStartupIndexManager           storageStartupIndexManager   ;
 		
 		// to avoid permanent lambda instantiation
 		private final Consumer<? super StorageLiveDataFile.Default> deleter        = this::deleteFile       ;
@@ -228,6 +229,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 		// cleared and nulled by clearRegisteredFiles() / reset()
 		private StorageLiveDataFile.Default headFile;
 
+		
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -244,7 +246,8 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			final StorageWriteController               writeController              ,
 			final StorageFileWriter                    writer                       ,
 			final BufferSizeProvider                   standardBufferSizeProvider   ,
-			final StorageBackupHandler                 backupHandler
+			final StorageBackupHandler                 backupHandler                ,
+			final StorageStartupIndexManager           storageStartupIndexManager
 		)
 		{
 			super();
@@ -257,6 +260,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			this.writeController               =     notNull(writeController)              ;
 			this.writer                        =     notNull(writer)                       ;
 			this.backupHandler                 =     mayNull(backupHandler)                ;
+			this.storageStartupIndexManager    =     mayNull(storageStartupIndexManager)   ;
 			
 			this.standardByteBuffer = XMemory.allocateDirectNative(
 				standardBufferSizeProvider.provideBufferSize()
@@ -569,6 +573,11 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 		final void createNextStorageFile()
 		{
 			this.createNewStorageFile(this.headFile.number() + 1);
+			
+			logger.trace("created new storage head file: {}", this.headFile.identifier());
+			if(this.storageStartupIndexManager != null) {
+				this.storageStartupIndexManager.indexFile(this.headFile.prev);
+			}
 		}
 		
 		private long ensureHeadFileTotalLength()
@@ -694,7 +703,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 				this.channelIndex()
 			);
 			dataFiles.keys().sort(XSort::compare);
-
+			
 			return StorageInventory.New(this.channelIndex(), dataFiles, transactionsAnalysis);
 		}
 
@@ -888,6 +897,11 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 
 				this.restartFileCleanupCursor();
 				
+				if(this.startupIndexManager() != null)
+				{
+					this.storageStartupIndexManager.cleanupIndexFiles(this);
+				}
+				
 				return idAnalysis;
 			}
 			catch(final RuntimeException e)
@@ -979,8 +993,10 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 
 			// register items (gaps and entities, with latest version of each entity replacing all previous)
 			final StorageEntityInitializer<StorageLiveDataFile.Default> initializer =
-				StorageEntityInitializer.New(this.entityCache, f ->
-					StorageLiveDataFile.New(this, f)
+				StorageEntityInitializer.New(
+					this.entityCache,
+					f -> StorageLiveDataFile.New(this, f),
+					this.storageStartupIndexManager
 				)
 			;
 			this.headFile = initializer.registerEntities(files, lastFileLength);
@@ -1519,6 +1535,11 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			
 			// physically delete file after the transactions entry is ensured
 			this.writer.delete(file, this.writeController, this.fileProvider);
+			
+			if(this.storageStartupIndexManager != null)
+			{
+				this.storageStartupIndexManager.deleteIndexFileFor(file);
+			}
 		}
 
 		private boolean incrementalTransferEntities(
@@ -1741,6 +1762,11 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			}
 			
 			throw new StorageException(vs.toString());
+		}
+		
+		StorageStartupIndexManager startupIndexManager()
+		{
+			return this.storageStartupIndexManager;
 		}
 
 	}

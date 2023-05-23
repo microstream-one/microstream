@@ -20,6 +20,7 @@ package one.microstream.storage.types;
  * #L%
  */
 
+import static one.microstream.X.mayNull;
 import static one.microstream.X.notNull;
 
 import java.nio.ByteBuffer;
@@ -34,6 +35,7 @@ import one.microstream.storage.exceptions.StorageExceptionConsistency;
 import one.microstream.storage.exceptions.StorageExceptionIoReading;
 import one.microstream.typing.XTypes;
 
+
 public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 {
 	public D registerEntities(XGettingSequence<? extends StorageDataInventoryFile> files, long lastFileLength);
@@ -41,13 +43,15 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 	
 	
 	static StorageEntityInitializer<StorageLiveDataFile.Default> New(
-		final StorageEntityCache.Default                                      entityCache    ,
-		final Function<StorageDataInventoryFile, StorageLiveDataFile.Default> dataFileCreator
+		final StorageEntityCache.Default                                      entityCache        ,
+		final Function<StorageDataInventoryFile, StorageLiveDataFile.Default> dataFileCreator    ,
+		final StorageStartupIndexManager                                      startupIndexManager
 	)
 	{
 		return new StorageEntityInitializer.Default(
 			notNull(dataFileCreator),
-			notNull(entityCache)
+			notNull(entityCache),
+			mayNull(startupIndexManager)
 		);
 	}
 	
@@ -59,6 +63,7 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 
 		private final Function<StorageDataInventoryFile, StorageLiveDataFile.Default> dataFileCreator;
 		private final StorageEntityCache.Default                                      entityCache    ;
+		private final StorageStartupIndexManager                                      indexManager   ;
 		
 		
 		
@@ -68,12 +73,14 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 
 		Default(
 			final Function<StorageDataInventoryFile, StorageLiveDataFile.Default> dataFileCreator,
-			final StorageEntityCache.Default                                      entityCache
+			final StorageEntityCache.Default                                      entityCache,
+			final StorageStartupIndexManager                                      storageStartupIndexManager
 		)
 		{
 			super();
-			this.dataFileCreator = dataFileCreator;
-			this.entityCache     = entityCache    ;
+			this.dataFileCreator = dataFileCreator           ;
+			this.entityCache     = entityCache               ;
+			this.indexManager    = storageStartupIndexManager;
 		}
 		
 		
@@ -81,14 +88,18 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 		///////////////////////////////////////////////////////////////////////////
 		// methods //
 		////////////
-		
+			
 		@Override
 		public final StorageLiveDataFile.Default registerEntities(
 			final XGettingSequence<? extends StorageDataInventoryFile> files ,
 			final long                                             lastFileLength
 		)
 		{
-			return registerEntities(this.dataFileCreator, this.entityCache, files.toReversed(), lastFileLength);
+			if(this.indexManager == null)
+			{
+				return registerEntities(this.dataFileCreator, this.entityCache, files.toReversed(), lastFileLength);
+			}
+			return this.registerIndexedEntities(files);
 		}
 		
 		private static StorageLiveDataFile.Default registerEntities(
@@ -319,6 +330,45 @@ public interface StorageEntityInitializer<D extends StorageLiveDataFile>
 			}
 			
 			return largestFileSize;
+		}
+		
+		private final StorageLiveDataFile.Default registerIndexedEntities(
+			final XGettingSequence<? extends StorageDataInventoryFile> files
+		)
+		{
+			final XGettingSequence<? extends StorageDataInventoryFile> reversedFiles = files.toReversed();
+			
+			final Iterator<? extends StorageDataInventoryFile> iterator = reversedFiles.iterator();
+			
+			
+			
+			final StorageLiveDataFile.Default headFile = setupHeadFile(this.dataFileCreator.apply(iterator.next()));
+			this.indexManager.initializeEntities(headFile, this.entityCache, this::registerEntities);
+			
+
+			for(StorageLiveDataFile.Default dataFile = headFile; iterator.hasNext();)
+			{
+				dataFile  = linkTailFile(dataFile, this.dataFileCreator.apply(iterator.next()));
+				this.indexManager.initializeEntities(dataFile, this.entityCache, this::registerEntities);
+			}
+			
+			return headFile;
+		}
+		
+		private void registerEntities(final StorageLiveDataFile.Default dataFile)
+		{
+			final long fileLength = dataFile.file().size();
+			if(fileLength > Integer.MAX_VALUE)
+			{
+				throw new StorageExceptionIoReading(
+					"Storage file size exceeds Java technical IO limitations: " + dataFile.identifier()
+				);
+			}
+			
+			final ByteBuffer buffer = XMemory.allocateDirectNative((int)fileLength);
+			final int[] entityOffsets = createAllFilesOffsetsArray(buffer.capacity());
+			registerFileEntities(this.entityCache, System.currentTimeMillis(), dataFile, dataFile.size(), buffer, entityOffsets);
+			XMemory.deallocateDirectByteBuffer(buffer);
 		}
 		
 	}

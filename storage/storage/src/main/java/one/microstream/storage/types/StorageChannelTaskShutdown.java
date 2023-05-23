@@ -62,7 +62,9 @@ public interface StorageChannelTaskShutdown extends StorageChannelTask
 			/* (07.07.2016 TM)FIXME: Shutdown must properly handle completion notification
 			 * so that the issuing shutdown method waits for the shutdown to actually complete.
 			 */
-
+			
+			channel.createIndex();
+			
 			// can / may never throw an exception
 			channel.reset();
 		}
