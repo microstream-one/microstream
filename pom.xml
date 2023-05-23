@@ -136,6 +136,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>com.gradle</groupId>
+				<artifactId>gradle-enterprise-maven-extension</artifactId>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -345,6 +349,23 @@
 						<outputFormat>all</outputFormat>
 						<outputName>Microstream-Sbom</outputName>
 						<outputDirectory>${project.build.directory}/sbom</outputDirectory>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.gradle</groupId>
+					<artifactId>gradle-enterprise-maven-extension</artifactId>
+					<configuration>
+						<gradleEnterprise>
+							<normalization>
+								<runtimeClassPath>
+									<metaInf>
+										<ignoredAttributes>
+											<ignore>Bnd-LastModified</ignore>
+										</ignoredAttributes>
+									</metaInf>
+								</runtimeClassPath>
+							</normalization>
+						</gradleEnterprise>
 					</configuration>
 				</plugin>
 			</plugins>
