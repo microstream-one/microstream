@@ -19,6 +19,7 @@ dependency-reduced-pom.xml
 release.properties
 buildNumber.properties
 .flattened-pom.xml
+.mvn/.gradle-enterprise
 
 # Gradle
 .gradle/
