@@ -136,10 +136,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<groupId>com.gradle</groupId>
-				<artifactId>gradle-enterprise-maven-extension</artifactId>
-			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
