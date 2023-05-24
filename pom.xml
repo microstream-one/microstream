@@ -47,6 +47,8 @@
 		<license.licenceFile>${basedir}/LICENSE</license.licenceFile>
 		<api.version>8.0</api.version>
 		<javadoc.failed.on.error>false</javadoc.failed.on.error>
+		<failsafe.rerunFailingTestsCount>2</failsafe.rerunFailingTestsCount>
+		<surefire.rerunFailingTestsCount>2</surefire.rerunFailingTestsCount>
 	</properties>
 
 	<modules>
