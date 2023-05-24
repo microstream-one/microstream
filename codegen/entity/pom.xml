@@ -9,10 +9,10 @@
         <version>09.00.00-MS-GA-SNAPSHOT</version>
     </parent>
 
-    <artifactId>wrapping-codegen</artifactId>
+    <artifactId>microstream-codegen-entity</artifactId>
 
-    <name>MicroStream Wrapping Codegen</name>
-    <description>MicroStream Wrapping Codegen Project</description>
+    <name>MicroStream Codegen Entity</name>
+    <description>MicroStream Codegen Entity Project</description>
     <url>https://microstream.one</url>
 
     <dependencies>
@@ -40,5 +40,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

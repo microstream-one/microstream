@@ -9,7 +9,7 @@ The maven configuration looks like this:
 <dependencies>
 	<dependency>
 		<groupId>one.microstream</groupId>
-		<artifactId>microstream-entity-codegen</artifactId>
+		<artifactId>microstream-codegen-entity</artifactId>
 		<version>{maven-version}</version>
 	</dependency>
 </dependencies>

@@ -25,7 +25,7 @@
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
-			<artifactId>microstream-entity-codegen</artifactId>
+			<artifactId>microstream-codegen-entity</artifactId>
 			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>

@@ -15,8 +15,8 @@
     <url>https://microstream.one</url>
 
     <modules>
-        <module>entity-codegen</module>
-        <module>wrapping-codegen</module>
+        <module>entity</module>
+        <module>wrapping</module>
     </modules>
 
     <artifactId>microstream-codegen-parent</artifactId>
