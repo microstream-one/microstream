@@ -23,6 +23,11 @@
 			<artifactId>microstream-base</artifactId>
 			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>one.microstream</groupId>
+			<artifactId>microstream-entity-codegen</artifactId>
+			<version>09.00.00-MS-GA-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>

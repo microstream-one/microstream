@@ -59,6 +59,7 @@
 		<module>storage</module>
 		<module>integrations</module>
 		<module>examples</module>
+		<module>entity-codegen</module>
 	</modules>
 
 	<distributionManagement>

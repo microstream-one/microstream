@@ -35,7 +35,6 @@ module microstream.base
 	exports one.microstream.chars;
 	exports one.microstream.collections;
 	exports one.microstream.com;
-	exports one.microstream.entity.codegen;
 	exports one.microstream.branching;
 	exports one.microstream.equality;
 	exports one.microstream.entity;
@@ -59,8 +58,7 @@ module microstream.base
 	exports one.microstream.time;
 	
 	provides javax.annotation.processing.Processor
-	    with one.microstream.entity.codegen.EntityProcessor,
-	         one.microstream.wrapping.codegen.WrapperProcessor
+	    with one.microstream.wrapping.codegen.WrapperProcessor
 	;
 
 	requires java.compiler;
