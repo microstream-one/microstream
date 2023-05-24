@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>one.microstream</groupId>
+        <artifactId>microstream-codegen-parent</artifactId>
+        <version>09.00.00-MS-GA-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>microstream-entity-codegen</artifactId>
+
+    <name>MicroStream Entity Codegen</name>
+    <description>MicroStream Entity Codegen Project</description>
+    <url>https://microstream.one</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>one.microstream</groupId>
+            <artifactId>microstream-base</artifactId>
+            <version>09.00.00-MS-GA-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <configuration>
+                            <compilerArgument>-proc:none</compilerArgument>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

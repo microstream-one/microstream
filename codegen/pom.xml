@@ -8,15 +8,17 @@
         <artifactId>microstream-parent</artifactId>
         <version>09.00.00-MS-GA-SNAPSHOT</version>
     </parent>
+    <packaging>pom</packaging>
 
-    <artifactId>microstream-entity-codegen</artifactId>
+    <name>MicroStream Codegen</name>
+    <description>MicroStream Codegen Project</description>
+    <url>https://microstream.one</url>
 
+    <modules>
+        <module>entity-codegen</module>
+        <module>wrapping-codegen</module>
+    </modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>one.microstream</groupId>
-            <artifactId>microstream-base</artifactId>
-            <version>09.00.00-MS-GA-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
+    <artifactId>microstream-codegen-parent</artifactId>
+
 </project>

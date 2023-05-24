@@ -23,7 +23,6 @@ module microstream.base
 	exports one.microstream.memory.android;
 	exports one.microstream.hashing;
 	exports one.microstream.util.xcsv;
-	exports one.microstream.wrapping.codegen;
 	exports one.microstream.reference;
 	exports one.microstream.reflect;
 	exports one.microstream.wrapping;
@@ -56,10 +55,6 @@ module microstream.base
 	exports one.microstream.math;
 	exports one.microstream.util.cql;
 	exports one.microstream.time;
-	
-	provides javax.annotation.processing.Processor
-	    with one.microstream.wrapping.codegen.WrapperProcessor
-	;
 
 	requires java.compiler;
 	requires transitive java.management;
