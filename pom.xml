@@ -363,6 +363,10 @@
 											<ignore>Bnd-LastModified</ignore>
 										</ignoredAttributes>
 									</metaInf>
+									<ignoredFiles>
+										<ignoredFile>META-INF/Microstream-Sbom.json</ignoredFile>
+										<ignoredFile>META-INF/Microstream-Sbom.xml</ignoredFile>
+									</ignoredFiles>
 								</runtimeClassPath>
 							</normalization>
 						</gradleEnterprise>
