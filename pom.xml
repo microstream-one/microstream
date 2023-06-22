@@ -362,6 +362,7 @@
 										<ignoredAttributes>
 											<ignore>Bnd-LastModified</ignore>
 											<ignore>Bundle-Version</ignore>
+											<ignore>Class-Path</ignore>
 										</ignoredAttributes>
 									</metaInf>
 									<ignoredFiles>
