@@ -82,7 +82,7 @@
 		<url>https://github.com/microstream-one/microstream</url>
 		<tag>HEAD</tag>
 	</scm>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -366,7 +366,16 @@
 									<ignoredFiles>
 										<ignoredFile>META-INF/Microstream-Sbom.json</ignoredFile>
 										<ignoredFile>META-INF/Microstream-Sbom.xml</ignoredFile>
+										<ignoredFile>META-INF/maven/one.microstream/*/pom.xml</ignoredFile>
 									</ignoredFiles>
+									<propertiesNormalizations>
+										<propetiesNormalization>
+											<path>one/microstream/**/pom.properties</path>
+											<ignoredProperties>
+												<ignore>version</ignore>
+											</ignoredProperties>
+										</propetiesNormalization>
+									</propertiesNormalizations>
 								</runtimeClassPath>
 							</normalization>
 						</gradleEnterprise>
