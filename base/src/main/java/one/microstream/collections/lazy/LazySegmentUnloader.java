@@ -210,7 +210,10 @@ public interface LazySegmentUnloader
 		@Override
 		public void remove(final LazySegment<?> segment)
 		{
-			this.loadedSegments.remove(segment);
+			if(this.loadedSegments != null)
+			{
+				this.loadedSegments.remove(segment);
+			}
 		}
 		
 	}
@@ -313,7 +316,10 @@ public interface LazySegmentUnloader
 		@Override
 		public void remove(final LazySegment<?> segment)
 		{
-			this.loadedSegments.remove(segment);
+			if(this.loadedSegments != null)
+			{
+				this.loadedSegments.remove(segment);
+			}
 		}
 				
 	}
