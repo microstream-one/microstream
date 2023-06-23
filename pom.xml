@@ -206,7 +206,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.4.1</version>
+					<version>3.5.0</version>
 					<configuration>
 						<doclint>none</doclint>
 						<failOnError>false</failOnError>
@@ -233,7 +233,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>license-maven-plugin</artifactId>
-					<version>2.0.1</version>
+					<version>2.1.0</version>
 					<configuration>
 						<overrideFile>false</overrideFile>
 						<includes>
@@ -305,7 +305,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.3.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -325,7 +325,7 @@
 				<plugin>
 					<groupId>org.cyclonedx</groupId>
 					<artifactId>cyclonedx-maven-plugin</artifactId>
-					<version>2.7.5</version>
+					<version>2.7.9</version>
 					<executions>
 						<execution>
 							<phase>prepare-package</phase>
