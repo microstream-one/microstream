@@ -20,13 +20,13 @@ package test.microstream.integrations.spring.boot.service;
  * #L%
  */
 
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import test.microstream.integrations.spring.boot.database.Products;
 import test.microstream.integrations.spring.boot.model.Product;
 
 import java.util.Collection;
 
-@Controller
+@Service
 public class ProductService {
 
 
