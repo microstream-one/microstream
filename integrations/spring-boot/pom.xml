@@ -14,7 +14,7 @@
 
     <properties>
         <!-- minimal version is 2.1.0.RELEASE -->
-        <org.springframework.boot.version>2.7.3</org.springframework.boot.version>
+        <org.springframework.boot.version>2.7.13</org.springframework.boot.version>
     </properties>
 
 
@@ -107,7 +107,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
-                        <version>3.4.0</version>
+                        <version>3.6.0</version>
                         <configuration>
                             <debug>true</debug>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
