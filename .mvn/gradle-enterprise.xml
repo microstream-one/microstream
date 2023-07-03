@@ -20,10 +20,11 @@
     </buildScan>
     <buildCache>
         <local>
-            <enabled>false</enabled>
+            <enabled>true</enabled>
         </local>
         <remote>
-            <enabled>false</enabled>
+            <enabled>true</enabled>
+            <storeEnabled>#{isTrue(env['CI'])}</storeEnabled>
         </remote>
     </buildCache>
 </gradleEnterprise>

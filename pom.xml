@@ -82,7 +82,7 @@
 		<url>https://github.com/microstream-one/microstream</url>
 		<tag>HEAD</tag>
 	</scm>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -348,6 +348,39 @@
 						<outputFormat>all</outputFormat>
 						<outputName>Microstream-Sbom</outputName>
 						<outputDirectory>${project.build.directory}/sbom</outputDirectory>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.gradle</groupId>
+					<artifactId>gradle-enterprise-maven-extension</artifactId>
+					<version>1.16.5</version>
+					<configuration>
+						<gradleEnterprise>
+							<normalization>
+								<runtimeClassPath>
+									<metaInf>
+										<ignoredAttributes>
+											<ignore>Bnd-LastModified</ignore>
+											<ignore>Bundle-Version</ignore>
+											<ignore>Class-Path</ignore>
+										</ignoredAttributes>
+									</metaInf>
+									<ignoredFiles>
+										<ignoredFile>META-INF/Microstream-Sbom.json</ignoredFile>
+										<ignoredFile>META-INF/Microstream-Sbom.xml</ignoredFile>
+										<ignoredFile>META-INF/maven/one.microstream/*/pom.xml</ignoredFile>
+									</ignoredFiles>
+									<propertiesNormalizations>
+										<propetiesNormalization>
+											<path>one/microstream/**/pom.properties</path>
+											<ignoredProperties>
+												<ignore>version</ignore>
+											</ignoredProperties>
+										</propetiesNormalization>
+									</propertiesNormalizations>
+								</runtimeClassPath>
+							</normalization>
+						</gradleEnterprise>
 					</configuration>
 				</plugin>
 			</plugins>
