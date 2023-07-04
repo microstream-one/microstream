@@ -13,7 +13,7 @@
     </parent>
 
     <properties>
-        <org.springframework.boot.version>3.0.0</org.springframework.boot.version>
+        <org.springframework.boot.version>3.1.1</org.springframework.boot.version>
     </properties>
 
 
@@ -57,7 +57,6 @@
             <plugins>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.10.1</version>
                     <configuration>
                         <compilerArgs>
                             <arg>-parameters</arg>
@@ -70,7 +69,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
                 <configuration>
                     <trimStackTrace>false</trimStackTrace>
                     <statelessTestsetReporter
@@ -132,6 +130,7 @@
                             <settingsFile>src/it/settings.xml</settingsFile>
                             <addTestClassPath>true</addTestClassPath>
                             <parallelThreads>5</parallelThreads>
+                            <streamLogsOnFailures>true</streamLogsOnFailures>
                         </configuration>
                         <executions>
                             <execution>
