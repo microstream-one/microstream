@@ -8,7 +8,7 @@
     <parent>
         <groupId>one.microstream</groupId>
         <artifactId>microstream-integrations-parent</artifactId>
-        <version>08.01.01-MS-GA-SNAPSHOT</version>
+        <version>08.01.01-MS-GA</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -44,12 +44,12 @@
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded</artifactId>
-            <version>08.01.01-MS-GA-SNAPSHOT</version>
+            <version>08.01.01-MS-GA</version>
         </dependency>
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded-configuration</artifactId>
-            <version>08.01.01-MS-GA-SNAPSHOT</version>
+            <version>08.01.01-MS-GA</version>
         </dependency>
 
     </dependencies>

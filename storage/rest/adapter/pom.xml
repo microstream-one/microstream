@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-storage-rest-parent</artifactId>
-		<version>08.01.01-MS-GA-SNAPSHOT</version>
+		<version>08.01.01-MS-GA</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage</artifactId>
-			<version>08.01.01-MS-GA-SNAPSHOT</version>
+			<version>08.01.01-MS-GA</version>
 		</dependency>
 	</dependencies>
 
