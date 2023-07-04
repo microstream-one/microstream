@@ -34,3 +34,5 @@ storage-filesystem.kafka-properties.bootstrap.servers=localhost:9093
 == Supported properties
 
 All supported properties of Kafka, see https://kafka.apache.org/documentation/
+
+CAUTION: Depending on the amount of data and transactions, charges may apply depending on service usage. Please check with your service provider for details.

@@ -57,3 +57,5 @@ storage-filesystem.oraclecloud.object-storage.region=us-phoenix-1
 |endpoint
 |Sets the endpoint to call (ex, https://www.example.com).
 |===
+
+CAUTION: Depending on the amount of data and transactions, charges may apply depending on service usage. Please check with your service provider for details.
