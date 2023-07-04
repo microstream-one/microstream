@@ -1,5 +1,11 @@
 = Changelog
 
+== 8.1.1
+
+=== *Bugfixes*
+
+* Fix dynamodb table creation settings https://github.com/microstream-one/microstream/issues/599[[599]] https://github.com/microstream-one/microstream/pull/600[[600]]
+
 == 8.1
 
 === *Features*

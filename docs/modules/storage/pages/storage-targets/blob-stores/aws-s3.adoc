@@ -71,3 +71,5 @@ Credentials provider chain that looks for credentials in this order:
 |credentials.secret-access-key
 |The secret access key, used when "credentials.type" is "static".
 |===
+
+CAUTION: Depending on the amount of data and transactions, charges may apply depending on service usage. Please check with your service provider for details.

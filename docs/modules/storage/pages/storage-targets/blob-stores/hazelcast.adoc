@@ -46,3 +46,5 @@ Creates new Config which is loaded from the given URL and uses the System.proper
 * a file path +
 Creates a Config based on a Hazelcast file and uses the System.properties to resolve variables.
 |===
+
+CAUTION: Depending on the amount of data and transactions, charges may apply depending on service usage. Please check with your service provider for details.

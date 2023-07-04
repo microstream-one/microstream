@@ -56,3 +56,5 @@ public class MyDataSourceProvider implements SqlDataSourceProvider
 	}
 }
 ----
+
+CAUTION: Depending on the amount of data and transactions, charges may apply depending on service usage. Please check with your service provider for details.
