@@ -66,3 +66,4 @@ Credentials will be loaded from the credentials.account-name and credentials.acc
 |The account key, used when "credentials.type" is "shared-key".
 |===
 
+CAUTION: Depending on the amount of data and transactions, charges may apply depending on service usage. Please check with your service provider for details.
