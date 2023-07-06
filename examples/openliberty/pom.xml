@@ -20,7 +20,7 @@
 	<properties>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
-		<openliberty.maven.version>3.5.1</openliberty.maven.version>
+		<openliberty.maven.version>3.8.2</openliberty.maven.version>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<final.name>openliberty-example</final.name>
 	</properties>
@@ -52,7 +52,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>3.3.2</version>
+				<version>3.4.0</version>
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
