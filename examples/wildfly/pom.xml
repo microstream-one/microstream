@@ -50,7 +50,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>3.3.2</version>
+				<version>3.4.0</version>
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
@@ -87,13 +87,6 @@
 					<groupId>org.jboss.spec.javax.ws.rs</groupId>
 					<artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
 					<version>1.0.1.Final</version>
-					<scope>provided</scope>
-				</dependency>
-				<dependency>
-					<groupId>org.eclipse.microprofile</groupId>
-					<artifactId>microprofile</artifactId>
-					<version>4.0.1</version>
-					<type>pom</type>
 					<scope>provided</scope>
 				</dependency>
 			</dependencies>
