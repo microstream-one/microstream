@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.jboss.weld.se</groupId>
             <artifactId>weld-se-shaded</artifactId>
-            <version>3.1.8.Final</version>
+            <version>3.1.9.Final</version>
         </dependency>
         <dependency>
             <groupId>io.smallrye.config</groupId>
