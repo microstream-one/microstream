@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 
 import one.microstream.afs.types.AFile;
+import one.microstream.afs.types.AWritableFile;
 import one.microstream.util.logging.Logging;
 
 /*-
@@ -163,6 +164,7 @@ public interface StorageStartupIndexManager
 				
 				logger.debug("deleting index file {}; not up to date", indexFile.identifier());
 				indexFile.delete();
+				indexFile.close();
 			}
 			
 			
@@ -175,6 +177,7 @@ public interface StorageStartupIndexManager
 			{
 				logger.error("Indexing failed for storage file " + storageLiveDataFile.identifier() + "!", e);
 				indexFile.delete();
+				indexFile.close();
 			}
 		}
 
@@ -187,6 +190,7 @@ public interface StorageStartupIndexManager
 			{
 				logger.debug("deleting index file {}", indexFile.identifier());
 				indexFile.delete();
+				indexFile.close();
 			}
 		}
 
@@ -212,6 +216,7 @@ public interface StorageStartupIndexManager
 					{
 						logger.error("Failed initialization from index file " + indexFile.identifier() + ", init with storage file instead", e);
 						indexFile.delete();
+						indexFile.close();
 					}
 						
 				}
@@ -246,8 +251,12 @@ public interface StorageStartupIndexManager
 			});
 			
 			indexFiles.forEach(f -> {
-				logger.debug("deleting obsolete index file {}", f.name());
-				f.tryUseWriting().delete();
+				if(f.exists()) {
+					logger.debug("deleting obsolete index file {}", f.name());
+					final AWritableFile file = f.tryUseWriting();
+					file.delete();
+					file.release();
+				}
 			});
 		}
 
