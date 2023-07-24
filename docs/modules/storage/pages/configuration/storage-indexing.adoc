@@ -1,0 +1,36 @@
+= Storage Startup Indexing
+
+Storage Startup Indexing is a feature that can speedup the storage start.
+
+If enabled, it will create a index file for every storage data file that serves as inventory.
+If a valid index file is present the storage will initialize from that file instead if the data file at the next startup.
+
+An Index file contains only management data for each entity but not the data of those entities.
+That way the data that needs to be loaded during startup can be reduced.
+
+To benefit from that feature the storage is required to minimize the amount of data that should be available
+right after startup. This must be done using the Lazy-Loading feature.
+
+The improvement largely depends on the the ratio of management data to the saved amount of entity data.
+Be aware that, if the ratio is to bad the startup index will cause a slow down.
+This is also the case if there is to much no lazy loaded data.
+
+
+== Indexing Configuration
+
+Storage indexing can be enabled by setting the StartupIndexSetup:
+
+[source,java,title="Java"] 
+----
+NioFileSystem fileSystem = NioFileSystem.New();
+
+final EmbeddedStorageManager storageManager = EmbeddedStorageFoundation.New().setConfiguration(
+	StorageConfiguration.Builder().setStartupIndexSetup(
+		new StorageStartupIndexSetup.Default(
+			new StorageStartupIndexFileProvider.Default(
+				fileSystem.ensureDirectoryPath("startupIndex"),
+				StorageStartupIndexFileProvider.StorageStartupIndexFileNameProvider.New()),
+			new StorageStartupFileIndexer.Default())).createConfiguration())
+	.createEmbeddedStorageManager();
+
+----
