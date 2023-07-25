@@ -54,6 +54,10 @@ public interface StorageHousekeepingBroker
 		long                        nanoTimeBudget
 	);
 	
+	public boolean performTransactionFileCheck(
+		StorageHousekeepingExecutor executor ,
+		boolean                     checkSize
+	);
 	
 	public static StorageHousekeepingBroker New()
 	{
@@ -131,6 +135,15 @@ public interface StorageHousekeepingBroker
 		)
 		{
 			return executor.performEntityCacheCheck(nanoTimeBudget);
+		}
+		
+		@Override
+		public boolean performTransactionFileCheck(
+			final StorageHousekeepingExecutor executor ,
+			final boolean                     checkSize
+		)
+		{
+			return executor.performTransactionFileCheck(checkSize);
 		}
 		
 	}

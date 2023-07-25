@@ -78,6 +78,9 @@ public interface StorageRequestAcceptor
 	public boolean issueCacheCheck(long nanoTimeBudget, StorageEntityCacheEvaluator entityEvaluator)
 		throws InterruptedException;
 
+	public void issueTransactionsLogCleanup()
+		throws InterruptedException;
+	 
 	// exporting //
 
 	public default StorageEntityTypeExportStatistics exportTypes(final StorageEntityTypeExportFileProvider exportFileProvider)
@@ -226,6 +229,13 @@ public interface StorageRequestAcceptor
 			return waitOnTask(this.taskBroker.issueFileCheck(nanoTimeBudget)).result();
 		}
 
+		@Override
+		public void issueTransactionsLogCleanup()
+			throws InterruptedException
+		{
+			waitOnTask(this.taskBroker.issueTransactionsLogCleanup());
+		}
+		
 		@Override
 		public final StorageEntityTypeExportStatistics exportTypes(
 			final StorageEntityTypeExportFileProvider         exportFileProvider,

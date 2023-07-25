@@ -45,6 +45,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 
 	public int fileMaximumSize();
 
+	public int transactionFileMaximumSize();
 
 	/**
 	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
@@ -66,10 +67,11 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		 * good defense against accidentally erroneous changes of the default values.
 		 */
 		return New(
-			Defaults.defaultFileMinimumSize(),
-			Defaults.defaultFileMaximumSize(),
-			Defaults.defaultMinimumUseRatio(),
-			Defaults.defaultResolveHeadfile()
+			Defaults.defaultFileMinimumSize()          ,
+			Defaults.defaultFileMaximumSize()          ,
+			Defaults.defaultMinimumUseRatio()          ,
+			Defaults.defaultResolveHeadfile()          ,
+			Defaults.defaultTransactionFileMaxiumSize()
 		);
 	}
 
@@ -96,10 +98,11 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	public static StorageDataFileEvaluator New(final double minimumUseRatio)
 	{
 		return New(
-			Defaults.defaultFileMinimumSize(),
-			Defaults.defaultFileMaximumSize(),
-			minimumUseRatio                  ,
-			Defaults.defaultResolveHeadfile()
+			Defaults.defaultFileMinimumSize()          ,
+			Defaults.defaultFileMaximumSize()          ,
+			minimumUseRatio                            ,
+			Defaults.defaultResolveHeadfile()          ,
+			Defaults.defaultTransactionFileMaxiumSize()
 		);
 	}
 
@@ -131,10 +134,11 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	)
 	{
 		return New(
-			fileMinimumSize                  ,
-			fileMaximumSize                  ,
-			Defaults.defaultMinimumUseRatio(),
-			Defaults.defaultResolveHeadfile()
+			fileMinimumSize                            ,
+			fileMaximumSize                            ,
+			Defaults.defaultMinimumUseRatio()          ,
+			Defaults.defaultResolveHeadfile()          ,
+			Defaults.defaultTransactionFileMaxiumSize()
 		);
 	}
 
@@ -183,13 +187,113 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	)
 	{
 		return New(
-			fileMinimumSize                  ,
-			fileMaximumSize                  ,
-			minimumUseRatio                  ,
-			Defaults.defaultResolveHeadfile()
+			fileMinimumSize                            ,
+			fileMaximumSize                            ,
+			minimumUseRatio                            ,
+			Defaults.defaultResolveHeadfile()          ,
+			Defaults.defaultTransactionFileMaxiumSize()
 		);
 	}
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
+	 * using the passed values and default values specified by {@link StorageDataFileEvaluator.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.
+	 *
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved.
+	 *
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that already exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of, for example, 30 MB.
+	 *
+	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
+	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
+	 *        including older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        as a negative value length header).<br>
+	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
+	 *        file dissolving (data transfers to new files) is required and vice versa.
+	 * 
+	 * @param cleanUpHeadFile a flag defining wether the current head file (the only file actively written to)
+	 *        shall be subjected to file cleanups as well.
+	 * 
+	 * @return a new {@link StorageDataFileEvaluator} instance.
+	 *
+	 * @see StorageDataFileEvaluator#New()
+	 * @see StorageDataFileEvaluator#New(double)
+	 * @see StorageDataFileEvaluator#New(int, int)
+	 * @see StorageDataFileEvaluator#New(int, int, double)
+	 * @see StorageDataFileEvaluator.Defaults
+	 */
+	public static StorageDataFileEvaluator New(
+		final int     fileMinimumSize,
+		final int     fileMaximumSize,
+		final double  minimumUseRatio,
+		final boolean cleanUpHeadFile
+	)
+	{
+		return New(
+			fileMinimumSize                            ,
+			fileMaximumSize                            ,
+			minimumUseRatio                            ,
+			cleanUpHeadFile                            ,
+			Defaults.defaultTransactionFileMaxiumSize()
+			);
+	}
 
+
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
+	 * using the passed values and default values specified by {@link StorageDataFileEvaluator.Defaults}.
+	 * <p>
+	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.
+	 *
+	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
+	 *        will be dissolved.
+	 *
+	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
+	 *        will be dissolved.<br>
+	 *        Note that a file can exceed this limit if it contains a single entity that already exceeds the limit.
+	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
+	 *        limit of, for example, 30 MB.
+	 *
+	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
+	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
+	 *        including older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        as a negative value length header).<br>
+	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
+	 *        file dissolving (data transfers to new files) is required and vice versa.
+	 * 
+	 * @param cleanUpHeadFile a flag defining wether the current head file (the only file actively written to)
+	 *        shall be subjected to file cleanups as well.
+	 * 
+	 * @param transactionFileMaximumSize the maximum file size for transaction files. Lager files will
+	 *        be deleted and a new one will be created. <br>
+	 *        Note that the max file size should be smaller than the technical limit of 2 GB (Integer.MAX_VALUE)
+	 *        to allow more appends without exceeding the limit until housekeeping will create a new one.
+	 *
+	 * @return a new {@link StorageDataFileEvaluator} instance.
+	 *
+	 * @see StorageDataFileEvaluator#New()
+	 * @see StorageDataFileEvaluator#New(double)
+	 * @see StorageDataFileEvaluator#New(int, int)
+	 * @see StorageDataFileEvaluator#New(int, int, double)
+	 * @see StorageDataFileEvaluator.Defaults
+	 */
+	public static StorageDataFileEvaluator New(
+		final int     fileMinimumSize,
+		final int     fileMaximumSize,
+		final double  minimumUseRatio,
+		final boolean cleanUpHeadFile,
+		final int     transactionFileMaximumSize
+	)
+	{
+		Validation.validateParameters(fileMinimumSize, fileMaximumSize, minimumUseRatio, transactionFileMaximumSize);
+		return new Default(fileMinimumSize, fileMaximumSize, minimumUseRatio, cleanUpHeadFile, transactionFileMaximumSize);
+	}
 
 
 
@@ -203,6 +307,11 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		public static int maximumFileSize()
 		{
 			return Integer.MAX_VALUE;
+		}
+		
+		public static int maximumTransactionFileSize()
+		{
+			return Integer.MAX_VALUE >> 1;
 		}
 
 		/**
@@ -228,7 +337,8 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		public static void validateParameters(
 			final int    fileMinimumSize,
 			final int    fileMaximumSize,
-			final double minimumUseRatio
+			final double minimumUseRatio,
+			final int    transactionFileMaximumSize
 		)
 		{
 			// > maximumFileSize() can technically never happen for now, but the max value might change.
@@ -269,51 +379,17 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 					+ useRatioLowerBound() + ", " + useRatioMaximum() + "]."
 				);
 			}
+			
+			// > maximumFileSize() can technically never happen for now, but the max value might change.
+			if(transactionFileMaximumSize < minimumFileSize() || transactionFileMaximumSize > maximumTransactionFileSize())
+			{
+				throw new IllegalArgumentException(
+					"Specified transaction file maximum size of " + transactionFileMaximumSize
+					+ " is not in the valid range of ["
+					+ minimumFileSize() + ", " + maximumFileSize() + "]."
+				);
+			}
 		}
-	}
-
-	/**
-	 * Pseudo-constructor method to create a new {@link StorageDataFileEvaluator} instance
-	 * using the passed values and default values specified by {@link StorageDataFileEvaluator.Defaults}.
-	 * <p>
-	 * For explanations and customizing values, see {@link StorageDataFileEvaluator#New(int, int, double)}.
-	 *
-	 * @param fileMinimumSize the minimum file size in bytes that a single storage file must have. Smaller files
-	 *        will be dissolved.
-	 *
-	 * @param fileMaximumSize the maximum file size in bytes that a single storage file may have. Larger files
-	 *        will be dissolved.<br>
-	 *        Note that a file can exceed this limit if it contains a single entity that already exceeds the limit.
-	 *        E.g. an int array with 10 million elements would be about 40 MB in size and would exceed a file size
-	 *        limit of, for example, 30 MB.
-	 *
-	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
-	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
-	 *        including older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
-	 *        as a negative value length header).<br>
-	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
-	 *        file dissolving (data transfers to new files) is required and vice versa.
-	 * 
-	 * @param cleanUpHeadFile a flag defining wether the current head file (the only file actively written to)
-	 *        shall be subjected to file cleanups as well.
-	 *
-	 * @return a new {@link StorageDataFileEvaluator} instance.
-	 *
-	 * @see StorageDataFileEvaluator#New()
-	 * @see StorageDataFileEvaluator#New(double)
-	 * @see StorageDataFileEvaluator#New(int, int)
-	 * @see StorageDataFileEvaluator#New(int, int, double)
-	 * @see StorageDataFileEvaluator.Defaults
-	 */
-	public static StorageDataFileEvaluator New(
-		final int     fileMinimumSize,
-		final int     fileMaximumSize,
-		final double  minimumUseRatio,
-		final boolean cleanUpHeadFile
-	)
-	{
-		Validation.validateParameters(fileMinimumSize, fileMaximumSize, minimumUseRatio);
-		return new Default(fileMinimumSize, fileMaximumSize, minimumUseRatio, cleanUpHeadFile);
 	}
 
 	public interface Defaults
@@ -325,6 +401,12 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		{
 			// 1 MB in common byte magnitude
 			return 1 * 1024 * 1024;
+		}
+
+		public static int defaultTransactionFileMaxiumSize()
+		{
+			// 100 MB as default
+			return 1024 * 1024 * 100;
 		}
 
 		/**
@@ -362,7 +444,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		private final int     fileMaximumSize;
 		private final double  minimumUseRatio;
 		private final boolean cleanupHeadFile;
-
+		private final int     transactionFileMaximumSize;
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -373,14 +455,16 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			final int     fileMinimumSize,
 			final int     fileMaximumSize,
 			final double  minimumUseRatio,
-			final boolean cleanupHeadFile
+			final boolean cleanupHeadFile,
+			final int     transactionFileMaximumSize
 		)
 		{
 			super();
-			this.fileMinimumSize = fileMinimumSize;
-			this.fileMaximumSize = fileMaximumSize;
-			this.minimumUseRatio = minimumUseRatio;
-			this.cleanupHeadFile = cleanupHeadFile;
+			this.fileMinimumSize            = fileMinimumSize;
+			this.fileMaximumSize            = fileMaximumSize;
+			this.minimumUseRatio            = minimumUseRatio;
+			this.cleanupHeadFile            = cleanupHeadFile;
+			this.transactionFileMaximumSize = transactionFileMaximumSize;
 		}
 
 
@@ -409,6 +493,12 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		public boolean cleanupHeadFile()
 		{
 			return this.cleanupHeadFile;
+		}
+		
+		@Override
+		public final int transactionFileMaximumSize()
+		{
+			return this.transactionFileMaximumSize;
 		}
 
 		@Override

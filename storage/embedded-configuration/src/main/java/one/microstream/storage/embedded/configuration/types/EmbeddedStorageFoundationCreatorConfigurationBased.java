@@ -238,7 +238,10 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 				this.configuration.optDouble(DATA_FILE_MINIMUM_USE_RATIO)
 					.orElse(StorageDataFileEvaluator.Defaults.defaultMinimumUseRatio()),
 				this.configuration.optBoolean(DATA_FILE_CLEANUP_HEAD_FILE)
-					.orElse(StorageDataFileEvaluator.Defaults.defaultResolveHeadfile())
+					.orElse(StorageDataFileEvaluator.Defaults.defaultResolveHeadfile()),
+				this.configuration.opt(TRANSACTION_FILE_MAXIMUM_SIZE, ByteSize.class)
+					.map(byteSize -> (int)byteSize.bytes())
+					.orElse(StorageDataFileEvaluator.Defaults.defaultTransactionFileMaxiumSize())
 			);
 		}
 

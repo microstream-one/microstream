@@ -228,6 +228,8 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 		// cleared and nulled by clearRegisteredFiles() / reset()
 		private StorageLiveDataFile.Default headFile;
 
+		private StorageTransactionsFileCleaner.Default transactionFileCleaner;
+
 
 
 		///////////////////////////////////////////////////////////////////////////
@@ -261,6 +263,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			this.standardByteBuffer = XMemory.allocateDirectNative(
 				standardBufferSizeProvider.provideBufferSize()
 			);
+			
 		}
 
 
@@ -886,6 +889,14 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 					this.initializeBackupHandler(effectiveStorageInventory);
 				}
 
+				this.transactionFileCleaner = new StorageTransactionsFileCleaner.Default(
+					this.fileTransactions,
+					this.channelIndex,
+					this.dataFileEvaluator.transactionFileMaximumSize(),
+					this.fileProvider,
+					this.writer
+				);
+			
 				this.restartFileCleanupCursor();
 				
 				return idAnalysis;
@@ -1363,6 +1374,11 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 		{
 			return this.internalCheckForCleanup(nanoTimeBudgetBound, this.dataFileEvaluator);
 		}
+		
+		public boolean issuedTransactionFileCheck(final boolean checkSize)
+		{
+			return this.internalTransactionFileCheck(checkSize);
+		}
 
 		private void deletePendingFile(final StorageLiveDataFile.Default file)
 		{
@@ -1742,7 +1758,19 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			
 			throw new StorageException(vs.toString());
 		}
-
+		
+		private boolean internalTransactionFileCheck(final boolean checkSize)
+		{
+			if(this.fileTransactions == null)
+			{
+				return true;
+			}
+			
+			this.transactionFileCleaner.compactTransactionsFile(checkSize);
+			
+			return true;
+		}
+		
 	}
 		
 }

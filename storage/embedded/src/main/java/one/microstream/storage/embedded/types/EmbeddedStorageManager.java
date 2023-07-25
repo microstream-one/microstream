@@ -525,6 +525,12 @@ public interface EmbeddedStorageManager extends StorageManager
 		}
 		
 		@Override
+		public void issueTransactionsLogCleanup()
+		{
+			this.singletonConnection().issueTransactionsLogCleanup();
+		}
+		
+		@Override
 		public final StorageRawFileStatistics createStorageStatistics()
 		{
 			return this.singletonConnection().createStorageStatistics();
