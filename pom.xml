@@ -363,7 +363,7 @@
 				<plugin>
 					<groupId>com.gradle</groupId>
 					<artifactId>gradle-enterprise-maven-extension</artifactId>
-					<version>1.18</version>
+					<version>1.18.1</version>
 					<configuration>
 						<gradleEnterprise>
 							<normalization>
