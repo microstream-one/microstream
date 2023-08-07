@@ -311,7 +311,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 		
 		public static int maximumTransactionFileSize()
 		{
-			return Integer.MAX_VALUE >> 1;
+			return 1024*1024*1024;
 		}
 
 		/**
