@@ -21,8 +21,6 @@ package one.microstream.storage.types;
  */
 
 import java.nio.ByteBuffer;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.LinkedHashMap;
 
 import org.slf4j.Logger;
@@ -58,8 +56,8 @@ public interface StorageTransactionsFileCleaner
 			
 			private long creationFileLength;
 			private long creationTimeStamp;
-			private long lastFileLength;
-			private long lastTimeStamp;
+			private long storeFileLength;
+			private long storeTimeStamp;
 			private long deletionFileLength;
 			private long deletionTimeStamp;
 	
@@ -84,8 +82,8 @@ public interface StorageTransactionsFileCleaner
 			
 			public void setStore(final long fileLength, final long timestamp)
 			{
-				this.lastFileLength = fileLength;
-				this.lastTimeStamp  = timestamp;
+				this.storeFileLength = fileLength;
+				this.storeTimeStamp  = timestamp;
 			}
 			
 			public void setDeletion(final long fileLength, final long timestamp)
@@ -93,20 +91,7 @@ public interface StorageTransactionsFileCleaner
 				this.deletionFileLength = fileLength;
 				this.deletionTimeStamp  = timestamp;
 			}
-	
-			@Override
-			public String toString() {
-				return "FileTransactionInfo "
-						+ "\n[ creationFileLength=" + this.creationFileLength + ", creationTimeStamp="
-						+ formatTimeStamp(this.creationTimeStamp) + "\n, lastFileLength=" + this.lastFileLength + ", lastTimeStamp="
-						+ formatTimeStamp(this.lastTimeStamp) + "\n, deletionFileLength=" + this.deletionFileLength + ", deletionTimeStamp="
-						+ formatTimeStamp(this.deletionTimeStamp) + "]\n";
-			}
-			
-			private static String formatTimeStamp(final long timestamp) {
-				return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(Storage.millisecondsToSeconds(timestamp)));
-			}
-			
+				
 		}
 		
 		private static class Collector implements EntryIterator
@@ -193,7 +178,7 @@ public interface StorageTransactionsFileCleaner
 				
 				final long FileLength = Logic.getFileLength(address);
 				
-				this.currentTransactionInfo.setStore(FileLength, this.currentTransactionInfo.lastTimeStamp);
+				this.currentTransactionInfo.setStore(FileLength, this.currentTransactionInfo.storeTimeStamp);
 
 				return true;
 			}
@@ -206,9 +191,8 @@ public interface StorageTransactionsFileCleaner
 				}
 				
 				final long FileLength = Logic.getFileLength(address);
-				final long timestamp  = Logic.getEntryTimestamp(address);
 				
-				this.currentTransactionInfo.setStore(FileLength, timestamp);
+				this.currentTransactionInfo.setStore(FileLength, this.currentTransactionInfo.storeTimeStamp);
 				
 				return true;
 			}
@@ -258,11 +242,17 @@ public interface StorageTransactionsFileCleaner
 		// instance fields //
 		////////////////////
 		
-		private final StorageLiveTransactionsFile StorageLiveTransactionsFile;
+		private final StorageLiveTransactionsFile storageLiveTransactionsFile;
 		private final int channelIndex;
 		private final long transactionFileSizeLimit;
 		private final StorageFileWriter storageFileWriter;
 		private final StorageLiveFileProvider fileProvider;
+
+		/**
+		 * The most actual store time stamp in all processed files.
+		 * Required if a file has only transfers but no stores.
+		 */
+		private long lastStoreTimestamp;
 		
 		
 		///////////////////////////////////////////////////////////////////////////
@@ -279,7 +269,7 @@ public interface StorageTransactionsFileCleaner
 			super();
 			this.channelIndex = channelIndex;
 			this.transactionFileSizeLimit = transactionFileSizeLimit;
-			this.StorageLiveTransactionsFile = fileTransactions;
+			this.storageLiveTransactionsFile = fileTransactions;
 			this.fileProvider = fileProvider;
 			this.storageFileWriter = storageFileWriter;
 		}
@@ -292,25 +282,42 @@ public interface StorageTransactionsFileCleaner
 		@Override
 		public void compactTransactionsFile(final boolean checkSize)
 		{
-			if(checkSize == true && this.StorageLiveTransactionsFile.size() > this.transactionFileSizeLimit)
+			if(checkSize == true && this.storageLiveTransactionsFile.size() > this.transactionFileSizeLimit)
 			{
-				logger.info("Transaction file {} size exceeds limit of {} bytes", this.StorageLiveTransactionsFile.identifier(), this.transactionFileSizeLimit);
-						
-				final LinkedHashMap<Long, FileTransactionInfo> transactions = this.collectEntries();
-				this.removeDeletedEntries(transactions);
-				
-				this.storageFileWriter.truncate(this.StorageLiveTransactionsFile, 0, this.fileProvider);
-				this.writeTransactionLog(transactions);
+				logger.info("Transaction file {} size exceeds limit of {} bytes", this.storageLiveTransactionsFile.identifier(), this.transactionFileSizeLimit);
+				this.compactTransactionsFileInternal();
 			}
+			else if(checkSize == false)
+			{
+				this.compactTransactionsFileInternal();
+			}
+		}
+		
+		private void compactTransactionsFileInternal()
+		{
+			logger.info("Compacting transaction file {}", this.storageLiveTransactionsFile.identifier());
+			
+			final LinkedHashMap<Long, FileTransactionInfo> transactions = this.collectEntries();
+			this.lastStoreTimestamp = this.getLastStoreTimestamp(transactions);
+			
+			this.removeDeletedEntries(transactions);
+			
+			this.storageFileWriter.truncate(this.storageLiveTransactionsFile, 0, this.fileProvider);
+			this.writeTransactionLog(transactions);
 		}
 		
 		private LinkedHashMap<Long, FileTransactionInfo> collectEntries()
 		{
 			final Collector collector = new Collector();
-			StorageTransactionsAnalysis.Logic.processInputFile(this.StorageLiveTransactionsFile.file().tryUseReading(), collector);
+			StorageTransactionsAnalysis.Logic.processInputFile(this.storageLiveTransactionsFile.file().tryUseReading(), collector);
 			return collector.transactions();
 		}
 		
+		private long getLastStoreTimestamp(final LinkedHashMap<Long, FileTransactionInfo> transactions)
+		{
+			return transactions.values().stream().mapToLong((x)->x.storeTimeStamp).max().orElse(0);
+		}
+			
 		private void removeDeletedEntries(final LinkedHashMap<Long, FileTransactionInfo> transactions)
 		{
 			transactions.entrySet().removeIf( e -> {
@@ -349,35 +356,55 @@ public interface StorageTransactionsFileCleaner
 					v.creationTimeStamp,
 					k
 				);
-				this.storageFileWriter.writeTransactionEntryCreate(this.StorageLiveTransactionsFile, entryBufferWrapFileCreation, null);
+				this.storageFileWriter.writeTransactionEntryCreate(this.storageLiveTransactionsFile, entryBufferWrapFileCreation, null);
 									
-				entryBufferStore.clear();
-				StorageTransactionsAnalysis.Logic.setEntryStore(
-					entryBufferStoreAddress,
-					v.lastFileLength,
-					v.lastTimeStamp
-				);
-				
-				this.storageFileWriter.writeTransactionEntryStore(
-					this.StorageLiveTransactionsFile,
-					entryBufferWrapStore,
-					null,
-					0,
-					v.lastFileLength);
-				});
+								
+				if(v.storeTimeStamp > 0) {
 			
-				transactions.forEach( (k,v) -> {
-					if(v.deletionTimeStamp > 0) {
-						entryBufferFileDeletion.clear();
-						StorageTransactionsAnalysis.Logic.setEntryFileDeletion(
-							entryBufferFileDeletionAddress,
-							v.deletionFileLength,
-							v.deletionTimeStamp,
-							k
-						);
-						this.storageFileWriter.writeTransactionEntryDelete(this.StorageLiveTransactionsFile, entryBufferWrapFileDeletion, null);
+					entryBufferStore.clear();
+					StorageTransactionsAnalysis.Logic.setEntryStore(
+						entryBufferStoreAddress,
+						v.storeFileLength,
+						v.storeTimeStamp
+					);
+					
+					this.storageFileWriter.writeTransactionEntryStore(
+						this.storageLiveTransactionsFile,
+						entryBufferWrapStore,
+						null,
+						0,
+						v.storeFileLength);
 				}
-						
+				else
+				{
+					//special case: there is no real store entry that sets a correct time stamp and file length.
+					//This may happen if older data file are deleted and the current one has only transfers.
+					
+					entryBufferStore.clear();
+					StorageTransactionsAnalysis.Logic.setEntryStore(
+						entryBufferStoreAddress,
+						v.storeFileLength,
+						this.lastStoreTimestamp
+					);
+					
+					this.storageFileWriter.writeTransactionEntryStore(
+						this.storageLiveTransactionsFile,
+						entryBufferWrapStore,
+						null,
+						0,
+						v.storeFileLength);
+				}
+							
+				if(v.deletionTimeStamp > 0) {
+					entryBufferFileDeletion.clear();
+					StorageTransactionsAnalysis.Logic.setEntryFileDeletion(
+						entryBufferFileDeletionAddress,
+						v.deletionFileLength,
+						v.deletionTimeStamp,
+						k
+					);
+					this.storageFileWriter.writeTransactionEntryDelete(this.storageLiveTransactionsFile, entryBufferWrapFileDeletion, null);
+				}
 			});
 			
 			XMemory.deallocateDirectByteBuffer(entryBufferFileCreation);
