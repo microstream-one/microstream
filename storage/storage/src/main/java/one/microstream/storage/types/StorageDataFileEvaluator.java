@@ -379,14 +379,13 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 					+ useRatioLowerBound() + ", " + useRatioMaximum() + "]."
 				);
 			}
-			
-			// > maximumFileSize() can technically never happen for now, but the max value might change.
+						
 			if(transactionFileMaximumSize < minimumFileSize() || transactionFileMaximumSize > maximumTransactionFileSize())
 			{
 				throw new IllegalArgumentException(
 					"Specified transaction file maximum size of " + transactionFileMaximumSize
 					+ " is not in the valid range of ["
-					+ minimumFileSize() + ", " + maximumFileSize() + "]."
+					+ minimumFileSize() + ", " + maximumTransactionFileSize() + "]."
 				);
 			}
 		}
