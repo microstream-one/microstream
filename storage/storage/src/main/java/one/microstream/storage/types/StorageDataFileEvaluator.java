@@ -309,7 +309,12 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			return Integer.MAX_VALUE;
 		}
 		
-		public static int maximumTransactionFileSize()
+		public static int minimumTransactionLogFileSize()
+		{
+			return 1024;
+		}
+		
+		public static int maximumTransactionLogFileSize()
 		{
 			return 1024*1024*1024;
 		}
@@ -380,12 +385,12 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 				);
 			}
 						
-			if(transactionFileMaximumSize < minimumFileSize() || transactionFileMaximumSize > maximumTransactionFileSize())
+			if(transactionFileMaximumSize < minimumTransactionLogFileSize() || transactionFileMaximumSize > maximumTransactionLogFileSize())
 			{
 				throw new IllegalArgumentException(
 					"Specified transaction file maximum size of " + transactionFileMaximumSize
 					+ " is not in the valid range of ["
-					+ minimumFileSize() + ", " + maximumTransactionFileSize() + "]."
+					+ minimumTransactionLogFileSize() + ", " + maximumTransactionLogFileSize() + "]."
 				);
 			}
 		}
