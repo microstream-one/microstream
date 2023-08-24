@@ -22,6 +22,8 @@ package one.microstream.persistence.internal;
 
 import static one.microstream.X.KeyValue;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 
 import org.slf4j.Logger;
@@ -203,7 +205,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	private Object[]                  constantsColdStorageObjects  ;
 	private long[]                    constantsColdStorageObjectIds;
 
-	
+	private final ReferenceQueue<Object> queue = new ReferenceQueue<>();
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -636,7 +638,8 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				objectId,
 				object,
 				this.oidHashTable[(int)objectId & this.hashRange],
-				this.refHashTable[ hash(object) & this.hashRange]
+				this.refHashTable[ hash(object) & this.hashRange],
+				this.queue
 			)
 		;
 
@@ -1231,7 +1234,23 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		distributionTable.keys().sort(XSort::compare);
 	}
 
-
+	@Override
+	public void cleanUp()
+	{
+		long counter = 0;
+		
+		for (Reference<? extends Object> e; (e = this.queue.poll()) != null; )
+		{
+			//System.out.println(e);
+			this.synchRemoveEntry((Entry)e);
+			counter++;
+		}
+		
+		logger.info("Cleaned {} gc entries", counter);
+		
+		this.checkForDecrease();
+				
+	}
 
 	///////////////////////////////////////////////////////////////////////////
 	// member types //
@@ -1243,9 +1262,9 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		      int  refHash ;
 		      Entry oidNext, refNext;
 		
-		Entry(final long objectId, final Object referent, final Entry oidNext, final Entry refnext)
+		Entry(final long objectId, final Object referent, final Entry oidNext, final Entry refnext, final ReferenceQueue<Object> queue)
 		{
-			super(referent);
+			super(referent, queue);
 			this.objectId = objectId;
 			this.refHash  = hash(referent);
 			this.oidNext  = oidNext;

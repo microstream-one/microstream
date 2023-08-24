@@ -218,4 +218,9 @@ public class ViewerObjectRegistryDisabled implements PersistenceObjectRegistry
 		return objectIdsBaseSet;
 	}
 
+	@Override
+	public void cleanUp() {
+		// no-op
+	}
+
 }

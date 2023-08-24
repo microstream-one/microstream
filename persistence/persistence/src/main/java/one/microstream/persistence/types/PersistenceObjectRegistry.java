@@ -173,7 +173,7 @@ public interface PersistenceObjectRegistry extends PersistenceSwizzlingLookup, C
 	 */
 	public Set_long selectLiveObjectIds(Set_long objectIdsBaseSet);
 	
-	
+	public void cleanUp();
 	
 	public static DefaultObjectRegistry New()
 	{
