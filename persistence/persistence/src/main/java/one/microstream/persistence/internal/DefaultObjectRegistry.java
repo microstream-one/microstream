@@ -809,6 +809,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		}
 		
 		this.size -= orphanCount;
+		logger.info("removed {} orphans, new size: {}!", orphanCount, this.size);
 		
 		return this.checkForDecrease();
 	}
