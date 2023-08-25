@@ -707,12 +707,16 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	
 	private void synchRemoveEntry(final Entry entry)
 	{
-		removeFromOidTable(this.oidHashTable, (int)entry.objectId & this.hashRange, entry);
-		removeFromRefTable(this.refHashTable,      entry.refHash  & this.hashRange, entry);
-		this.size--;
+		logger.debug("remove entry {}", entry.objectId);
+		final boolean removeOid = removeFromOidTable(this.oidHashTable, (int)entry.objectId & this.hashRange, entry);
+		final boolean removeRef = removeFromRefTable(this.refHashTable,      entry.refHash  & this.hashRange, entry);
+		if(removeOid || removeRef)
+		{
+			this.size--;
+		}
 	}
 	
-	private static void removeFromOidTable(final Entry[] table, final int index, final Entry entry)
+	private static boolean removeFromOidTable(final Entry[] table, final int index, final Entry entry)
 	{
 		for(Entry e = table[index], last = null; e != null; e = (last = e).oidNext)
 		{
@@ -726,11 +730,13 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				{
 					last.oidNext = e.oidNext;
 				}
+				return true;
 			}
 		}
+		return false;
 	}
 	
-	private static void removeFromRefTable(final Entry[] table, final int index, final Entry entry)
+	private static boolean removeFromRefTable(final Entry[] table, final int index, final Entry entry)
 	{
 		for(Entry e = table[index], last = null; e != null; e = (last = e).refNext)
 		{
@@ -744,8 +750,10 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				{
 					last.refNext = e.refNext;
 				}
+				return true;
 			}
 		}
+		return false;
 	}
 		
 	private void synchValidateObjectNotYetRegistered(final long objectId, final Object object)
@@ -1237,19 +1245,21 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 	@Override
 	public void cleanUp()
 	{
-		long counter = 0;
-		
-		for (Reference<? extends Object> e; (e = this.queue.poll()) != null; )
+		synchronized (this.mutex)
 		{
-			//System.out.println(e);
-			this.synchRemoveEntry((Entry)e);
-			counter++;
+			long counter = 0;
+			
+			for (Reference<? extends Object> e; (e = this.queue.poll()) != null; )
+			{
+				//System.out.println(e);
+				this.synchRemoveEntry((Entry)e);
+				counter++;
+			}
+			
+			logger.info("Cleaned {} gc entries", counter);
+			
+			this.checkForDecrease();
 		}
-		
-		logger.info("Cleaned {} gc entries", counter);
-		
-		this.checkForDecrease();
-				
 	}
 
 	///////////////////////////////////////////////////////////////////////////
