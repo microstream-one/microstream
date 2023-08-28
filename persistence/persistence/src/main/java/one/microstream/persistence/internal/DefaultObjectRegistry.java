@@ -809,7 +809,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 		}
 		
 		this.size -= orphanCount;
-		logger.info("removed {} orphans, new size: {}!", orphanCount, this.size);
+		logger.debug("removed {} orphans, new size: {}!", orphanCount, this.size);
 		
 		return this.checkForDecrease();
 	}
@@ -1257,7 +1257,7 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 				counter++;
 			}
 			
-			logger.info("Cleaned {} gc entries", counter);
+			logger.debug("Cleaned {} gc entries", counter);
 			
 			this.checkForDecrease();
 		}
