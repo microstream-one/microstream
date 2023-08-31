@@ -23,10 +23,6 @@ package one.microstream.util.iterables;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-/**
- * 
- *
- */
 public final class ArrayIterator<E> implements Iterator<E>
 {
 	///////////////////////////////////////////////////////////////////////////

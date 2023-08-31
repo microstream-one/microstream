@@ -96,7 +96,7 @@ public abstract class ComChannelDynamic<C> implements ComChannel
 			this.persistenceManager.store(new ComMessageData(graphRoot));
 		}
 		
-		logger.trace("sended data successfully");
+		logger.trace("sent data successfully");
 	}
 
 	@Override

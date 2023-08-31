@@ -184,16 +184,6 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		
 		return objectFieldOffsets;
 		
-		// (11.11.2019 TM)NOTE: old logic without class context
-//		final long[] offsets = new long[members.intSize()];
-//
-//		int i = 0;
-//		for(final PersistenceTypeDefinitionMemberFieldReflective member : members)
-//		{
-//			offsets[i++] = XMemory.objectFieldOffset(member.field());
-//		}
-//
-//		return offsets;
 	}
 
 	
@@ -286,7 +276,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		
 		this.membersInDeclaredOrder = this.deriveAllMembers(instMembersInDeclOrdr);
 		
-		// member instances are created from the persistable fields and splitted into references and primitives
+		// member instances are created from the persistable fields and split into references and primitives
 		this.referenceMembers = this.filterReferenceMembers(instMembersInDeclOrdr, MemberEnum()).immure();
 		this.primitiveMembers = this.filterPrimitiveMembers(instMembersInDeclOrdr, MemberEnum()).immure();
 		
@@ -299,7 +289,7 @@ implements PersistenceTypeHandlerReflective<Binary, T>
 		this.settingMemoryOffsets = this.initializeSettingMemoryOffsets();
 		this.refrnceMemoryOffsets = this.initializeStoringRefMemOffsets();
 		
-		// references are always stored at the beginnnig of the content (0 bytes after header)
+		// references are always stored at the beginning of the content (0 bytes after header)
 		this.refBinaryOffsetStart = 0;
 		this.refBinaryOffsetBound = Binary.referenceBinaryLength(this.referenceMembers.size());
 

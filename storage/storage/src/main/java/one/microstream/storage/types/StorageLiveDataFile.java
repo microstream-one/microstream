@@ -46,7 +46,7 @@ extends StorageDataFile, StorageLiveChannelFile<StorageLiveDataFile>, StorageCre
 	 * This is necessary to avoid dissolving files that are oversized because of one single oversized
 	 * entity.
 	 *
-	 * @return {@literal true} if the file containts exactely one live entity.
+	 * @return {@literal true} if the file contains exactly one live entity.
 	 */
 	public boolean hasSingleEntity();
 	
@@ -316,7 +316,7 @@ extends StorageDataFile, StorageLiveChannelFile<StorageLiveDataFile>, StorageCre
 		{
 			// check for special case of completely clearing a file (no new first means empty file)
 
-			// these checks are moreless for debugging purposes, as it can never yield true if the logic is correct.
+			// these checks are more or less for debugging purposes, as it can never yield true if the logic is correct.
 			if(newFirst == this.tail)
 			{
 				if(copylength != this.dataLength())
@@ -329,7 +329,7 @@ extends StorageDataFile, StorageLiveChannelFile<StorageLiveDataFile>, StorageCre
 				throw new StorageExceptionConsistency("Inconsistent file partial transfer length of " + copylength + " in " + this);
 			}
 
-			// copy length can't be derived from newFirst's position because of potantial gap before it.
+			// copy length can't be derived from newFirst's position because of potential gap before it.
 			this.decrementDataLength(copylength);
 			(this.head.fileNext = newFirst).filePrev = this.head;
 		}
@@ -362,8 +362,8 @@ extends StorageDataFile, StorageLiveChannelFile<StorageLiveDataFile>, StorageCre
 		{
 			// moved here from StorageEntity.Default#updateStorageInformation
 			entry.typeInFile = this.typeInFile(entry.typeInFile.type);
-			
-//			// entry gets appended before the end (the tail), hence forward-building the order
+
+            // entry gets appended before the end (the tail), hence forward-building the order
 			(entry.fileNext = this.tail).filePrev = (entry.filePrev = this.tail.filePrev).fileNext = entry;
 		}
 

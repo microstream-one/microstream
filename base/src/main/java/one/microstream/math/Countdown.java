@@ -147,7 +147,7 @@ public class Countdown
 	}
 	
 	/**
-	 * Sets this countdown's remaining value to the given value and return its preceeding value.
+	 * Sets this countdown's remaining value to the given value and return its preceding value.
 	 * @param newValue the new value for {@code remainingValue}
 	 * @return the value that {@code remainingValue} had so far
 	 */

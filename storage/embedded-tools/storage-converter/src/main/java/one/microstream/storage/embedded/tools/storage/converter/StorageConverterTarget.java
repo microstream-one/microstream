@@ -86,7 +86,7 @@ public class StorageConverterTarget implements Closeable
 	}
 
 	/**
-	 * Write the supplied TypeDictionary String as the new targets TypeDictionary
+	 * Write the supplied TypeDictionary String as the new targets TypeDictionary.
 	 * 
 	 * @param srcTypeDictionary the source type dictionary as String
 	 */

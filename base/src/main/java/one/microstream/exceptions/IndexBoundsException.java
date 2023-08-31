@@ -103,7 +103,7 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 		this(startIndex, indexBound, index, null);
 	}
 
-	// methods with more then 3 parameters should better be broken into one paramter per line
+	// methods with more than 3 parameters should better be broken into one parameter per line
 	public IndexBoundsException(
 		final long   startIndex,
 		final long   indexBound,
@@ -149,7 +149,7 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 	 * Sadly, the Throwable implementation uses #getMessage() directly to print the exception.
 	 * This is a concern conflict: getMessage should actually be the getter for the explicit message.
 	 * But it is used as the String assembling method as well.
-	 * So a output method generically assembling the output string must override the getter.
+	 * So an output method generically assembling the output string must override the getter.
 	 * As this hides the actual getting functionality, a workaround accessor method has to be provided
 	 * for potential subclasses.
 	 *
@@ -201,6 +201,6 @@ public class IndexBoundsException extends IndexOutOfBoundsException
 
 
 
-	// ridiculous hacky buggy security hole misconceptioned JDK serialization, but if need be...
+	// Hacky buggy security hole misconception JDK serialization
 	private static final long serialVersionUID = 1489211066951377456L;
 }

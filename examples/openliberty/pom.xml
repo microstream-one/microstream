@@ -9,17 +9,18 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-examples-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-examples-openliberty</artifactId>
+	<url>https://microstream.one</url>
 	
 	<packaging>war</packaging>
 	<properties>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
-		<openliberty.maven.version>3.5.1</openliberty.maven.version>
+		<openliberty.maven.version>3.8.2</openliberty.maven.version>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<final.name>openliberty-example</final.name>
 	</properties>
@@ -35,29 +36,35 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-integrations-cdi</artifactId>
-			<version>08.00.00-MS-GA-SNAPSHOT</version>
+			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	
 	<build>
 		<finalName>openliberty-example</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.4.0</version>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 	
 	<profiles>
 		<profile>
 			<id>openliberty</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<build>
 				<plugins>
-					<plugin>
-						<artifactId>maven-war-plugin</artifactId>
-						<version>3.3.2</version>
-						<configuration>
-							<failOnMissingWebXml>false</failOnMissingWebXml>
-						</configuration>
-					</plugin>
 					<plugin>
 						<groupId>io.openliberty.tools</groupId>
 						<artifactId>liberty-maven-plugin</artifactId>

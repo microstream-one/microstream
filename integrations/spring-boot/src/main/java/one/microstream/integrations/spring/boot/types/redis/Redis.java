@@ -2,9 +2,9 @@ package one.microstream.integrations.spring.boot.types.redis;
 
 /*-
  * #%L
- * microstream-spring
+ * microstream-integrations-spring-boot
  * %%
- * Copyright (C) 2019 - 2022 MicroStream Software
+ * Copyright (C) 2019 - 2023 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -24,7 +24,9 @@ public class Redis
 {
 
     /**
-     * The RedisURI contains the host/port and can carry authentication/database details. On a successful connect you get authenticated, and the database is selected afterward. This applies also after re-establishing a connection after a connection loss.
+     * The RedisURI contains the host/port and can carry authentication/database details. On a successful connect
+     * you get authenticated, and the database is selected afterward. This applies also after re-establishing a connection
+     * after a connection loss.
      */
     private String uri;
 

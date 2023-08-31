@@ -45,12 +45,9 @@ import one.microstream.math.XMath;
  * <p>
  * See {@link ChainStorage} and for example {@link ChainStorageStrong} as a comparable actual logic implementation without
  * delegate-pseudo-character.
- *
- * 
  */
 public abstract class Abstract_intArrayStorage
 {
-	// CHECKSTYLE.OFF: FinalParameter: A LOT of methods use that pattern in this class
 	
 	static final String exceptionSkipNegative(final int skip)
 	{
@@ -595,8 +592,6 @@ public abstract class Abstract_intArrayStorage
 		{
 			// (30.03.2012 TM)FIXME: fix
 			throw new one.microstream.meta.NotImplementedYetError(); // FIXME _intArrayStorage#rngCopyTo()
-//			XUtilsCollection.addAll((_intList)target, data, offset, length, predicate);
-//			return target;
 		}
 
 		for(int i = offset - d; i != endIndex;)
@@ -710,38 +705,33 @@ public abstract class Abstract_intArrayStorage
 		final int targetOffset
 	)
 	{
-		final int endIndex;
 		if(length >= 0)
 		{
 			if(length == 0)
 			{
 				return target;
 			}
-			System.arraycopy(data, offset, target, offset, length);
+			System.arraycopy(data, offset, target, targetOffset, length);
 			return target;
-		}
-		else if(length < 0)
-		{
-			if((endIndex = offset + length + 1) < 0 || offset >= size)
-			{
-				throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
-			}
-		}
-		else if(offset < 0 || offset >= size)
-		{
-			throw new IndexOutOfBoundsException(exceptionIndexOutOfBounds(size, offset));
 		}
 		else
 		{
-			// handle length 0 special case not as escape condition but as last case to ensure index checking
+			final int endIndex= offset + length + 1;
+			if(endIndex  < 0)
+			{
+				throw new IndexOutOfBoundsException(exceptionRange(size, offset, length));
+			}
+			else if(offset < 0 || offset >= size)
+			{
+				throw new IndexOutOfBoundsException(exceptionIndexOutOfBounds(size, offset));
+			}
+
+			for(int i = offset, t = targetOffset; i >= endIndex; i--)
+			{
+				target[t++] = data[i];
+			}
 			return target;
 		}
-
-		for(int i = offset, t = targetOffset; i >= endIndex; i--)
-		{
-			target[t++] = data[i];
-		}
-		return target;
 	}
 
 	public static final <C extends _intCollecting> C copySelection(
@@ -1377,7 +1367,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			//even if predicate throws an execption, the remove markers have to be cleared
+			//even if predicate throws an exception, the remove markers have to be cleared
 			removeCount = XArrays.removeAllFromArray(data, 0, i, removeMarker);
 		}
 		return removeCount;
@@ -1650,7 +1640,7 @@ public abstract class Abstract_intArrayStorage
 				procedure.accept(data[i]);
 				data[i] = removeMarker; // only needed in case of exception
 			}
-			// no exception occured, so completely clear array right away
+			// no exception occurred, so completely clear array right away
 			while(i-- > 0)
 			{
 				data[i] = 0;
@@ -2121,7 +2111,7 @@ public abstract class Abstract_intArrayStorage
 
 		final int removeCount;
 		int i = offset - d;
-		int removeStartIndex = i;
+		int removeStartIndex = offset;
 		try
 		{
 			while(i != endIndex)
@@ -2206,7 +2196,7 @@ public abstract class Abstract_intArrayStorage
 		}
 		finally
 		{
-			removeCount = XArrays.removeAllFromArray(data, min, ++max, removeMarker);
+			removeCount = XArrays.removeAllFromArray(data, min, size, removeMarker);
 		}
 		return removeCount;
 	}
@@ -3785,7 +3775,5 @@ public abstract class Abstract_intArrayStorage
 		}
 		return hashCode;
 	}
-
-	// CHECKSTYLE.ON: FinalParameter
 
 }

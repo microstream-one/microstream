@@ -23,9 +23,8 @@ package one.microstream.util;
 import java.lang.management.ManagementFactory;
 
 /**
- * Provides an arbitrary identity string that is unique for an individual process accross any number of systems.
- * 
- * 
+ * Provides an arbitrary identity string that is unique for an individual process across any number of systems.
+ *
  */
 public interface ProcessIdentityProvider
 {

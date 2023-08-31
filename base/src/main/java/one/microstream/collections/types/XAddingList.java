@@ -23,11 +23,6 @@ package one.microstream.collections.types;
 import one.microstream.collections.interfaces.ExtendedList;
 
 
-
-/**
- * 
- *
- */
 public interface XAddingList<E> extends XAddingSequence<E>, XAddingBag<E>, ExtendedList<E>
 {
 	public interface Creator<E> extends XAddingSequence.Creator<E>

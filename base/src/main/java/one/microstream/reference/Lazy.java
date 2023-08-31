@@ -52,7 +52,6 @@ import one.microstream.util.logging.Logging;
  * "but I want it anyway in a sneaky 'transparent' way" indicate ambivalent conflicting design errors and thus
  * in the end poor design.
  *
- * 
  * @param <T> the type of the lazily referenced element
  */
 public interface Lazy<T> extends Referencing<T>
@@ -220,7 +219,7 @@ public interface Lazy<T> extends Referencing<T>
 	{
 		if(reference == null)
 		{
-			// philosophical question: is a non-existent reference implicitely always loaded or never loaded?
+			// philosophical question: is a non-existent reference implicitly always loaded or never loaded?
 			return false; // debug-hook
 		}
 		
@@ -240,6 +239,18 @@ public interface Lazy<T> extends Referencing<T>
 	public static <T> Lazy<T> Reference(final T subject)
 	{
 		return register(new Lazy.Default<>(subject));
+	}
+
+	/**
+	 * Create a new Lazy reference that is not registered to the {@link LazyReferenceManager}
+	 * 
+	 * @param <T> type parameter
+	 * @param subject lazy referenced object
+	 * @return a new Lazy reference
+	 */
+	public static <T> Lazy<T> UnregisteredReference(final T subject)
+	{
+		return new Lazy.Default<>(subject);
 	}
 
 	public static <T> Lazy<T> New(final long objectId)
@@ -272,7 +283,7 @@ public interface Lazy<T> extends Referencing<T>
 	}
 	
 	
-	public final class Default<T> implements Lazy<T>
+	public class Default<T> implements Lazy<T>
 	{
 		private final static Logger logger = Logging.getLogger(Default.class);
 		
@@ -306,7 +317,7 @@ public interface Lazy<T> extends Referencing<T>
 		 * The cached object id of the not loaded actual instance to later load it lazily.
 		 * Although this value never changes logically during the lifetime of an instance,
 		 * it might be delayed initialized. See {@link #link(long, ObjectSwizzling)} and its use site(s).
-		 * 
+		 * <p>
 		 * A "not found" id (id < 0) here means not yet persisted (the id assigned via persisting is not yet present).
 		 */
 		// CHECKSTYLE.OFF: VisibilityModifier CheckStyle false positive for same package in another project
@@ -396,7 +407,7 @@ public interface Lazy<T> extends Referencing<T>
 		}
 
 		@Override
-		public final synchronized T clear()
+		public synchronized T clear()
 		{
 			final T subject = this.subject;
 			this.internalClear();
@@ -404,7 +415,7 @@ public interface Lazy<T> extends Referencing<T>
 		}
 		
 		@Override
-		public final synchronized boolean clear(final ClearingEvaluator clearingEvaluator)
+		public synchronized boolean clear(final ClearingEvaluator clearingEvaluator)
 		{
 			// must be stored and not already cleared to even consider asking the evaluator
 			if(this.isStored() && this.subject != null && clearingEvaluator.needsClearing(this))
@@ -455,6 +466,12 @@ public interface Lazy<T> extends Referencing<T>
 			this.validateObjectIdToBeSet(objectId);
 			this.$setLoader(loader);
 			this.objectId = objectId;
+		}
+		
+		public final synchronized void $unlink()
+		{
+			this.objectId = Swizzling.toUnmappedObjectId(this.subject);
+			this.loader   = null;
 		}
 
 		public final synchronized void $setLoader(final ObjectSwizzling loader)
@@ -526,7 +543,7 @@ public interface Lazy<T> extends Referencing<T>
 				LazyArg(() -> systemString(this.subject))
 			);
 
-			// time check implicitely covers already cleared reference. May of course not clear unstored references.
+			// time check implicitly covers already cleared reference. May of course not clear unstored references.
 			if(this.lastTouched >= millisecondThreshold || !this.isStored())
 			{
 				return false;
@@ -679,7 +696,7 @@ public interface Lazy<T> extends Referencing<T>
 			
 			public static double defaultMemoryQuota()
 			{
-				// all avaiable memory is used
+				// all available memory is used
 				return 1.0;
 			}
 			
@@ -726,8 +743,7 @@ public interface Lazy<T> extends Referencing<T>
 		 * If both are non-zero, a arithmetically combined check will make clearing of a certain reference
 		 * more like the older it gets as free memory shrinks.<br>
 		 * So, as free memory gets lower, older/passive references are cleared sooner, newer/active ones later.
-		 * 
-		 * 
+		 *
 		 */
 		public final class Default implements Lazy.Checker, Lazy.ClearingEvaluator
 		{
@@ -778,8 +794,8 @@ public interface Lazy<T> extends Referencing<T>
 			/**
 			 * The quota of total available memory (= min(committed, max)) the check has to comply with.<br>
 			 * May be 0.0 to be deactivated.<br>
-			 * 1.0 means all of the available memory can be used.<br>
-			 * Anything outside of [0.0; 1.0] is invalid and must be checked before the constructor is called.
+			 * 1.0 means all the available memory can be used.<br>
+			 * Anything outside [0.0; 1.0] is invalid and must be checked before the constructor is called.
 			 * 
 			 */
 			private final double memoryQuota;
@@ -914,15 +930,15 @@ public interface Lazy<T> extends Referencing<T>
 				 * Rationale for this logic:
 				 * After every clearing of a lazy reference, there is a chance that a JVM GC run will
 				 * dramatically free up occupied memory. So the MemoryUsage instance would have to be updated.
-				 * However, querying such an instance takes a considerable amount of time, so doint it on
+				 * However, querying such an instance takes a considerable amount of time, so doing it on
 				 * every clear would be a performance overkill.
 				 * To ease that overhead, it is only queried every certain number of clears.
-				 * Every 100th (modulo 100) would be an apropriate strategy. However, modulo 128 can be
+				 * Every 100th (modulo 100) would be an appropriate strategy. However, modulo 128 can be
 				 * performed much, much faster by a bit operation. Hence the "% 127L" below.
 				 * 
 				 * Also:
-				 * Updating the current memory usage has hardly any effect if the JVM GC did not run in the mean time.
-				 * But calling the JVM GC explicitely and repeatedly in a generic framework logic is a very bad idea.
+				 * Updating the current memory usage has hardly any effect if the JVM GC did not run in the meantime.
+				 * But calling the JVM GC explicitly and repeatedly in a generic framework logic is a very bad idea.
 				 * However, there is at least the chance that the GC will be executed in between.
 				 * It will definitely, eventually.
 				 * And an explicit call can still be done by passing an appropriate custom check function that always

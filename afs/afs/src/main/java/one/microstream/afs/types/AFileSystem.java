@@ -350,7 +350,7 @@ public interface AFileSystem extends AResolving, WriteController
 		{
 			this.validateMember(rootDirectory);
 			
-			// validate and check for already registerd (abort condition)
+			// validate and check for already registered (abort condition)
 			if(this.validateRegisteredRootDirectory(rootDirectory))
 			{
 				return false;
@@ -379,7 +379,7 @@ public interface AFileSystem extends AResolving, WriteController
 			
 			this.validateIsUnusedRootDirectory(rootDirectory);
 			
-			// remove only if no inconcistency was detected.
+			// remove only if no inconsistency was detected.
 			this.rootDirectories.removeFor(rootDirectory.identifier());
 			
 			return true;

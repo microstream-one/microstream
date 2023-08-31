@@ -403,7 +403,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		@Override
 		public AFile provideDeletionTargetFile(final StorageChannelFile fileToBeDeleted)
 		{
-			// maybe null, indicating to not backup the file
+			// maybe null, indicating to not back up the file
 			if(this.deletionDirectory == null)
 			{
 				return null;
@@ -427,7 +427,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 		@Override
 		public AFile provideTruncationTargetFile(final StorageChannelFile fileToBeTruncated, final long newLength)
 		{
-			// maybe null, indicating to not backup the file
+			// maybe null, indicating to not back up the file
 			if(this.truncationDirectory == null)
 			{
 				return null;
@@ -474,8 +474,7 @@ public interface StorageFileProvider extends PersistenceTypeDictionaryIoHandler.
 			 * Hm. But does that justify a library deleting file entries from some potentially passed AFS instance?
 			 * Maybe the exist check in the iteration is the better option, yet.
 			 */
-//			directory.consolidateFiles();
-			
+
 			directory.iterateFiles(f ->
 			{
 				// collecting files refers only to those that physically exist. Residual AFS entries don't count.

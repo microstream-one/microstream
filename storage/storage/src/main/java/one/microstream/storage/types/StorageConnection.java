@@ -22,6 +22,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
 import one.microstream.afs.types.ADirectory;
@@ -38,13 +39,12 @@ import one.microstream.storage.exceptions.StorageExceptionBackupFullBackupTarget
 
 
 /**
- * Ultra-thin delegatig type that connects the application context to a storage instance via a Persistence layer
+ * Ultra-thin delegating type that connects the application context to a storage instance via a Persistence layer
  * (a {@link PersistenceManager} instance, potentially exclusively created).
  * <p>
  * Note that this is a rather "internal" type that users usually do not have to use or care about.
- * Since {@link StorageManager} implements this interface, is is normally sufficient to use just that.
+ * Since {@link StorageManager} implements this interface, is normally sufficient to use just that.
  *
- * 
  */
 public interface StorageConnection extends Persister
 {
@@ -85,7 +85,7 @@ public interface StorageConnection extends Persister
 	 * When the time budget is used up, the garbage collector will keep the current progress and continue there
 	 * at the next opportunity. The same progress marker is used by the implicit housekeeping, so both mechanisms
 	 * will continue on the same progress.<br>
-	 * If no store has occured since the last completed garbage sweep, this method will have no effect and return
+	 * If no store has occurred since the last completed garbage sweep, this method will have no effect and return
 	 * immediately.
 	 * 
 	 * @param nanoTimeBudget the time budget in nanoseconds to be used to perform garbage collection.
@@ -121,7 +121,7 @@ public interface StorageConnection extends Persister
 	 * When the time budget is used up, the checking logic will keep the current progress and continue there
 	 * at the next opportunity. The same progress marker is used by the implicit housekeeping, so both mechanisms
 	 * will continue on the same progress.<br>
-	 * If no store has occured since the last completed check, this method will have no effect and return
+	 * If no store has occurred since the last completed check, this method will have no effect and return
 	 * immediately.
 	 * 
 	 * @param nanoTimeBudget the time budget in nanoseconds to be used to perform file checking.
@@ -129,29 +129,6 @@ public interface StorageConnection extends Persister
 	 * @return whether the returned call has completed file checking.
 	 */
 	public boolean issueFileCheck(long nanoTimeBudget);
-	
-	/* (06.02.2020 TM)NOTE: As shown by HG, allowing one-time custom evaluators can cause conflicts.
-	 * E.g. infinite loops:
-	 * - Default evaluator allows 8 MB files
-	 * - Custom evaluator allows only 4 MB files
-	 * - So the call splits an 8 MB file
-	 * - The new file is filled up to 8 MB based on the default evaluator
-	 * - Then it is evaluated by the custom evaluator and split again
-	 * - This repeats forever
-	 * 
-	 * On a more general note:
-	 * In contrary to cache management, it hardly makes sense to interrupt the default logic,
-	 * mess around with all the storage files once and then fall back to the default logic,
-	 * undoing all changes according to its own strategy.
-	 * 
-	 * In any case, this method hardly makes sense.
-	 */
-//	public default void issueFullFileCheck(final StorageDataFileDissolvingEvaluator fileDissolvingEvaluator)
-//	{
-//		 this.issueFileCheck(Long.MAX_VALUE, fileDissolvingEvaluator);
-//	}
-
-//	public boolean issueFileCheck(long nanoTimeBudget, StorageDataFileDissolvingEvaluator fileDissolvingEvaluator);
 
 	/**
 	 * Issues a full storage cache check to be executed. Depending on the size of the database,
@@ -227,7 +204,7 @@ public interface StorageConnection extends Persister
 	 * very long running operation, depending on the storage size.<br>
 	 * Although the full backup may be a valid solution in some circumstances, the incremental backup should
 	 * be preferred, since it is by far more efficient.
-	 * 
+	 * <p>
 	 * if the target is existing and not empty an {@link StorageExceptionBackupFullBackupTargetNotEmpty} exception
 	 * will be thrown
 	 * 
@@ -346,6 +323,45 @@ public interface StorageConnection extends Persister
 	{
 		return this.exportTypes(exportFileProvider, null);
 	}
+	
+	/**
+	 * Alias for {@code this.exportTypes(StorageEntityTypeExportFileProvider.New(targetDirectory));}, meaning all types are exported.
+	 * 
+	 * @param targetDirectory the target directory for the export files
+	 * 
+	 * @return a {@link StorageEntityTypeExportStatistics} information instance about the completed export.
+	 * 
+	 * @see #exportTypes(StorageEntityTypeExportFileProvider, Predicate)
+	 * @since 08.00.00
+	 */
+	public default StorageEntityTypeExportStatistics exportTypes(
+		final ADirectory targetDirectory
+	)
+	{
+		return this.exportTypes(StorageEntityTypeExportFileProvider.New(targetDirectory));
+	}
+	
+	/**
+	 * Alias for {@code this.exportTypes(StorageEntityTypeExportFileProvider.New(targetDirectory), isExportType);}.
+	 * 
+	 * @param targetDirectory the target directory for the export files
+	 * @param isExportType a {@link Predicate} selecting which type's entity data to be exported.
+	 * 
+	 * @return a {@link StorageEntityTypeExportStatistics} information instance about the completed export.
+	 * 
+	 * @see #exportTypes(StorageEntityTypeExportFileProvider, Predicate)
+	 * @since 08.00.00
+	 */
+	public default StorageEntityTypeExportStatistics exportTypes(
+		final ADirectory                                  targetDirectory,
+		final Predicate<? super StorageEntityTypeHandler> isExportType
+	)
+	{
+		return this.exportTypes(
+			StorageEntityTypeExportFileProvider.New(targetDirectory),
+			isExportType
+		);
+	}
 
 	/**
 	 * Imports all files specified by the passed Enum (ordered set) of {@link AFile} in order.<br>
@@ -359,13 +375,17 @@ public interface StorageConnection extends Persister
 	 */
 	public void importFiles(XGettingEnum<AFile> importFiles);
 
-	/* (13.07.2015 TM)TODO: load by type somehow
-	 * Query by typeId already implemented. Question is how to best provide it to the user.
-	 * As a result HashTable or Sequence?
-	 * By class or by type id or both?
+	/**
+	 * Imports all data specified by the passed Enum (ordered set) of {@link ByteBuffer} in order.<br>
+	 * The buffers are assumed to be in the native binary format used internally by the storage.<br>
+	 * All entities contained in the specified buffers will be imported. If they already exist in the storage
+	 * (identified by their ObjectId), their current data will be replaced by the imported data.<br>
+	 * Note that importing data that is not reachable from any root entity will have no effect and will
+	 * eventually be deleted by the garbage collector.
+	 * 
+	 * @param importData the files whose native binary content shall be imported.
 	 */
-
-//	public XGettingTable<Class<?>, ? extends XGettingEnum<?>> loadAllByTypes(XGettingEnum<Class<?>> types);
+	public void importData(XGettingEnum<ByteBuffer> importData);
 
 	/**
 	 * @return the {@link PersistenceManager} used by this {@link StorageConnection}.
@@ -595,6 +615,20 @@ public interface StorageConnection extends Persister
 			try
 			{
 				this.connectionRequestAcceptor.importFiles(importFiles);
+			}
+			catch(final InterruptedException e)
+			{
+				// thread interrupted, task aborted, return
+				return;
+			}
+		}
+
+		@Override
+		public void importData(final XGettingEnum<ByteBuffer> importData)
+		{
+			try
+			{
+				this.connectionRequestAcceptor.importData(importData);
 			}
 			catch(final InterruptedException e)
 			{

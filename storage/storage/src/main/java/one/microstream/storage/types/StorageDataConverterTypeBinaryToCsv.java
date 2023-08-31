@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import one.microstream.X;
+import one.microstream.afs.types.ADirectory;
 import one.microstream.afs.types.AFS;
 import one.microstream.afs.types.AFile;
 import one.microstream.afs.types.AReadableFile;
@@ -62,6 +63,29 @@ import one.microstream.util.xcsv.XCsvConfiguration;
 public interface StorageDataConverterTypeBinaryToCsv
 {
 	public void convertDataFile(AReadableFile file);
+	
+	/**
+	 * Batch-converts a list of files.
+	 *
+	 * @param <I> file collection type
+	 * @param files the binary files to convert to CSV
+	 * @since 08.00.00
+	 */
+	public default <I extends Iterable<AFile>> void convertDataFiles(final I files)
+	{
+		for(final AFile file : files)
+		{
+			final AReadableFile dataFile = file.useReading();
+			try
+			{
+				this.convertDataFile(dataFile);
+			}
+			finally
+			{
+				dataFile.close();
+			}
+		}
+	}
 
 
 
@@ -92,6 +116,88 @@ public interface StorageDataConverterTypeBinaryToCsv
 				return mappedTypeName;
 			}
 		};
+	}
+	
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageDataConverterTypeBinaryToCsv}.
+	 * 
+	 * @param targetDirectory write target directory
+	 * @param typeDictionary the type dictionary to use
+	 * @return a new {@link StorageDataConverterTypeBinaryToCsv}
+	 * @since 08.00.00
+	 */
+	public static StorageDataConverterTypeBinaryToCsv New(
+		final ADirectory                targetDirectory,
+		final PersistenceTypeDictionary typeDictionary
+	)
+	{
+		return New(
+			StorageDataConverterCsvConfiguration.defaultConfiguration(),
+			new StorageEntityTypeConversionFileProvider.Default(
+				targetDirectory,
+				"csv"
+			),
+			typeDictionary
+		);
+	}
+	
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageDataConverterTypeBinaryToCsv}.
+	 * 
+	 * @param configuration the CSV configuration to use
+	 * @param fileProvider target file provider
+	 * @param typeDictionary the type dictionary to use
+	 * @return a new {@link StorageDataConverterTypeBinaryToCsv}
+	 * @since 08.00.00
+	 */
+	public static StorageDataConverterTypeBinaryToCsv New(
+		final StorageDataConverterCsvConfiguration    configuration ,
+		final StorageEntityTypeConversionFileProvider fileProvider  ,
+		final PersistenceTypeDictionary               typeDictionary
+	)
+	{
+		return New(
+			configuration ,
+			fileProvider  ,
+			typeDictionary,
+			null          ,
+			0             ,
+			0
+		);
+	}
+	
+	
+	/**
+	 * Pseudo-constructor method to create a new {@link StorageDataConverterTypeBinaryToCsv}.
+	 * 
+	 * @param configuration the CSV configuration to use
+	 * @param fileProvider target file provider
+	 * @param typeDictionary the type dictionary to use
+	 * @param typeNameMapper optional type name mapper
+	 * @param readBufferSize buffer size for reading
+	 * @param writeBufferSize buffer size for writing
+	 * @return a new {@link StorageDataConverterTypeBinaryToCsv}
+	 * @since 08.00.00
+	 */
+	public static StorageDataConverterTypeBinaryToCsv New(
+		final StorageDataConverterCsvConfiguration    configuration  ,
+		final StorageEntityTypeConversionFileProvider fileProvider   ,
+		final PersistenceTypeDictionary               typeDictionary ,
+		final TypeNameMapper                          typeNameMapper ,
+		final int                                     readBufferSize ,
+		final int                                     writeBufferSize
+	)
+	{
+		return new StorageDataConverterTypeBinaryToCsv.UTF8(
+			configuration  ,
+			fileProvider   ,
+			typeDictionary ,
+			typeNameMapper ,
+			readBufferSize ,
+			writeBufferSize
+		);
 	}
 
 
@@ -478,13 +584,7 @@ public interface StorageDataConverterTypeBinaryToCsv
 
 		private boolean writeCsvHeaderColumnNames(final VarString vs, final boolean linePresent)
 		{
-			// column names must always be present. Also, allowing 0 header lines messes up prefixed record linebreaks.
-//			if(X.isFalse(this.csvConfiguration.hasColumnNamesHeader()))
-//			{
-//				// only abort if false (CSV standard as default behavior)
-//				return false;
-//			}
-			
+
 			if(linePresent)
 			{
 				vs.add((char)this.lineSeparator);

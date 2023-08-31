@@ -30,6 +30,7 @@ import java.util.Set;
  *
  * The handler takes the internal constant java.util.ImmutableCollections.EMPTY
  * into account which must not be persisted.
+ * @param <T> the handled type.
  */
 public class BinaryHandlerImmutableCollectionsSet12<T> extends AbstractBinaryHandlerGenericImmutableCollections12<T>
 {
@@ -39,7 +40,7 @@ public class BinaryHandlerImmutableCollectionsSet12<T> extends AbstractBinaryHan
 
 	public static BinaryHandlerImmutableCollectionsSet12<?> New()
 	{
-		return new BinaryHandlerImmutableCollectionsSet12<>(Set.of(1).getClass());
+		return new BinaryHandlerImmutableCollectionsSet12<>(Set.of(new Object()).getClass());
 	}
 
 
@@ -59,22 +60,9 @@ public class BinaryHandlerImmutableCollectionsSet12<T> extends AbstractBinaryHan
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected T createInstance(final Object e0, final Object e1)
+	protected T createInstance()
 	{
-		if(e0 != null && e1 != null)
-		{
-			return (T) Set.of(e0, e1);
-		}
-		if(e0 != null && e1 == null)
-		{
-			return (T) Set.of(e0);
-		}
-		if(e0 == null && e1 != null)
-		{
-			return (T) Set.of(e1);
-		}
-
-		return (T) Set.of();
+		return (T) Set.of(new Object());
 	}
 
 }

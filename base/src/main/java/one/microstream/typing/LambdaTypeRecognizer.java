@@ -69,19 +69,16 @@ public interface LambdaTypeRecognizer
 	 * of querying if a type is a lambda type. Brian Goetz wrote on Stackoverflow that if one needs to make such a
 	 * distinction, one surely made a mistake. However, there is a very simple example that objectively proves him
 	 * wrong:<br>
-	 * In contrast to other generated classes like anonynmous inner classes, the Java type system cannot resolve the
+	 * In contrast to other generated classes like anonymous inner classes, the Java type system cannot resolve the
 	 * type String for a lambda type that it itself created. This sets lambda types apart from other types in certain
 	 * situations involving generic handling of types, thus creating an absolutely essential need to indeed recognize
 	 * lambda types.<br>
-	 * Maybe someone can explain this trait of Java's lambda concept to its creator, so he can understand and remedy
-	 * the error he made.
 	 * <p>
-	 * To indicate the weakness of the current approach, its implementation is explicitely named
+	 * To indicate the weakness of the current approach, its implementation is explicitly named
 	 * {@link one.microstream.typing.LambdaTypeRecognizer.Java8Makeshift}.
 	 * Hopefully, there will be a better, proper way in the future, causing a second implementation
 	 * ("JavaXX") to be created.
-	 * 
-	 * 
+	 *
 	 */
 	public final class Java8Makeshift implements LambdaTypeRecognizer
 	{
@@ -91,7 +88,6 @@ public interface LambdaTypeRecognizer
 		 * only temporarily? Also, creating new instances has certain benefits (like stack allocation instead of
 		 * heap allocation). If a permanent instance of this type is really needed, it can still be kept in a constant
 		 * of a specific project's context. But it should never be forced into permanent memory if there is no need.
-		 * Singleton is an anti-pattern!
 		 */
 		
 		
@@ -127,14 +123,7 @@ public interface LambdaTypeRecognizer
 			return Java8Makeshift.staticIsLambdaType(type);
 		}
 		
-//		public static void main(final String[] args)
-//		{
-//			final Comparator<Integer> lambda = Integer::compare;
-//			final Class<?> lambdaType = lambda.getClass();
-//			System.out.println(lambdaType.getName());
-//			System.out.println(LambdaTypeRecognizer.Java8Makeshift.staticIsLambdaType(lambdaType));
-//		}
-		
+
 	}
 	
 }

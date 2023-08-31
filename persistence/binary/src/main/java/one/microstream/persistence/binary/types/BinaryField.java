@@ -537,7 +537,6 @@ public interface BinaryField<T> extends PersistenceTypeDefinitionMemberFieldGene
 		@Override
 		public final long calculateBinaryLength(final T instance)
 		{
-			// because it was unaccomplishable hard for them to implement Boolean#BYTES
 			return Byte.BYTES;
 		}
 		

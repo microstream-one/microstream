@@ -42,8 +42,6 @@ import one.microstream.typing.XTypes;
 /**
  * Some utility functionality for the JDK collections that is so obvious but still
  * missing in the JDK that got implemented here.
- * 
- * 
  */
 public final class OldCollections
 {
@@ -79,8 +77,7 @@ public final class OldCollections
 		{
 			return new ArrayList<>();
 		}
-	
-		// ... because they can't even write the most obvious util methods.
+
 		final ArrayList<E> list = new ArrayList<>(elements.length);
 		for(int i = 0; i < elements.length; i++)
 		{
@@ -102,8 +99,7 @@ public final class OldCollections
 		{
 			return new LinkedList<>();
 		}
-	
-		// ... because they can't even write the most obvious util methods.
+
 		final LinkedList<E> list = new LinkedList<>();
 		for(int i = 0; i < elements.length; i++)
 		{
@@ -447,7 +443,7 @@ public final class OldCollections
 	}
 
 	/**
-	 * Alias for the annoying {@code collection.toArray((T[])Array.newInstance(elementType, collection.size()))}
+	 * Convenience method for  {@code collection.toArray((T[])Array.newInstance(elementType, collection.size()))}
 	 *
 	 * @param <T> the element type parameter of the list
 	 * @param collection the collection whose elements shall be copied to an array

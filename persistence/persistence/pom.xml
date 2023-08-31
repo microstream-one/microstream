@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-persistence-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -15,12 +15,13 @@
 	
 	<name>MicroStream Persistence</name>
 	<description>MicroStream Persistence for Java Object Graphs</description>
+	<url>https://microstream.one</url>
 	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-afs</artifactId>
-			<version>08.00.00-MS-GA-SNAPSHOT</version>
+			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	

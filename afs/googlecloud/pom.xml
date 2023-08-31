@@ -9,12 +9,13 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-afs-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-afs-googlecloud-parent</artifactId>
 	<packaging>pom</packaging>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>firestore</module>
@@ -36,12 +37,12 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-afs-blobstore</artifactId>
-			<version>08.00.00-MS-GA-SNAPSHOT</version>
+			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-configuration</artifactId>
-			<version>08.00.00-MS-GA-SNAPSHOT</version>
+			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

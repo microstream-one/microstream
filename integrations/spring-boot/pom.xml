@@ -3,17 +3,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>microstream-integrations-spring-boot</artifactId>
+    <url>https://microstream.one</url>
 
     <parent>
         <groupId>one.microstream</groupId>
         <artifactId>microstream-integrations-parent</artifactId>
-        <version>08.00.00-MS-GA-SNAPSHOT</version>
+        <version>09.00.00-MS-GA-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <properties>
         <!-- minimal version is 2.1.0.RELEASE -->
-        <org.springframework.boot.version>2.7.3</org.springframework.boot.version>
+        <org.springframework.boot.version>2.7.13</org.springframework.boot.version>
     </properties>
 
 
@@ -31,12 +32,7 @@
             <version>${org.springframework.boot.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-            <version>${org.springframework.boot.version}</version>
-            <scope>provided</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -44,22 +40,16 @@
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <version>${org.springframework.boot.version}</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded</artifactId>
-            <version>08.00.00-MS-GA-SNAPSHOT</version>
+            <version>09.00.00-MS-GA-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-storage-embedded-configuration</artifactId>
-            <version>08.00.00-MS-GA-SNAPSHOT</version>
+            <version>09.00.00-MS-GA-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
@@ -69,7 +59,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
                 <configuration>
                     <trimStackTrace>false</trimStackTrace>
                     <statelessTestsetReporter
@@ -118,7 +107,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.6.0</version>
                         <configuration>
                             <debug>true</debug>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
@@ -131,6 +120,7 @@
                             <settingsFile>src/it/settings.xml</settingsFile>
                             <addTestClassPath>true</addTestClassPath>
                             <parallelThreads>5</parallelThreads>
+                            <streamLogsOnFailures>true</streamLogsOnFailures>
                         </configuration>
                         <executions>
                             <execution>

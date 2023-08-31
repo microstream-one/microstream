@@ -24,12 +24,12 @@ package one.microstream.storage.types;
 public interface StorageLockFileManagerThreadProvider extends StorageThreadProviding
 {
 	/**
-	 * Provides a newly created, yet unstarted {@link Thread} instance wrapping the passed
+	 * Provides a newly created, yet un-started {@link Thread} instance wrapping the passed
 	 * {@link StorageLockFileManager} instance.
 	 * The thread will be used as an exclusive, permanent lock file validator and updater worker thread
 	 * until the storage is shut down.
 	 * Interfering with the thread from outside the storage compound has undefined and potentially
-	 * unpredictable and erronous behavior.
+	 * unpredictable and erroneous behavior.
 	 * @param lockFileManager the lock file manager to wrap
 	 * @return a {@link Thread} instance to be used as a storage lock file managing worker thread.
 	 */

@@ -9,11 +9,12 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-examples-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-examples-cdi-javase</artifactId>
+    <url>https://microstream.one</url>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -25,12 +26,12 @@
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-integrations-cdi</artifactId>
-            <version>08.00.00-MS-GA-SNAPSHOT</version>
+            <version>09.00.00-MS-GA-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.weld.se</groupId>
             <artifactId>weld-se-shaded</artifactId>
-            <version>3.1.8.Final</version>
+            <version>3.1.9.Final</version>
         </dependency>
         <dependency>
             <groupId>io.smallrye.config</groupId>

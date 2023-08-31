@@ -27,8 +27,7 @@ import java.util.function.Consumer;
 /**
  * Gateway/relay to the actual application/framework communication logic.
  * Potentially in another, maybe even dedicated thread.
- * 
- * 
+ *
  * @param <C> the communication layer type
  */
 @FunctionalInterface

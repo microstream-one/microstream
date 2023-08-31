@@ -257,7 +257,7 @@ extends BinaryLegacyTypeHandler.Abstract<T>
 	@Override
 	public final T create(final Binary rawData, final PersistenceLoadHandler handler)
 	{
-		// the method splitting might help jitting out the not occuring case.
+		// the method splitting might help jitting out the not occurring case.
 		return this.listener == null
 			? this.internalCreate(rawData, handler)
 			: this.internalCreateListening(rawData, handler)

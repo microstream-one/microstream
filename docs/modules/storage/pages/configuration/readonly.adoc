@@ -1,0 +1,32 @@
+= Read-Only Storage Manager
+
+It is possible to have a _Storage Manager_ which operates in a read-only mode. Since there is a limitation in the Open Source version of MicroStream that you can have only one manager that is connected to one data storage, you can bypass this restriction with this read-only mode.  But there are limitations, such as:
+
+- In read-only mode, you cannot write to a data storage. This means that calls to `.store()` and other methods which would result in a write, will throw an exception.
+- In read-only mode, the housekeeping processes do not run since that would corrupt the data storage because two managers are operating on the same 'files'.
+- In read-only mode, your data root is filled on startup of the manager as usual, and lazy references operate as normal. But there is no notification mechanism that the underlying data storage has changed and the Storage Manager only remembers the structure of the data storage as it was when it started.
+
+The last bullet point is important.  It indicates that when another _Storage Manager_ writes some new data, this new data never gets picked up by this read-only manager. And when the house-holding process of the other _Storage Manager_ removes a file or reorganizes a file as cleanup, an exception will be thrown as the structure is changed but still expected by the read-only manager.
+
+So the read-only manager can only be used to read some data but should be closed 'soon' after starting and a new manager created if you need to read data later on.
+
+== Configuration
+
+The following snippet shows how you can make a read-only _Storage Manager_.  It actually wraps the `StorageWriteController` configured by the _Foundation_ and can either block or pass through the normal behaviour.
+
+
+[source, java]
+----
+        EmbeddedStorageFoundation<?> foundation = ...
+
+        final StorageWriteControllerReadOnlyMode storageWriteController =
+                new StorageWriteControllerReadOnlyMode(foundation.getWriteController());
+        foundation.setWriteController(storageWriteController);
+----
+
+With the `.setReadOnly()` method you can switch the read-only mode of the Storage Manager after it has started.  But be careful with the method because you can't have more than one manager that writes to the same data storage as that would corrupt the storage.
+
+[source, java]
+----
+        storageWriteController.setReadOnly(false);
+----

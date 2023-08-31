@@ -9,12 +9,13 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-examples-parent</artifactId>
 	<packaging>pom</packaging>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>blobs</module>
@@ -24,6 +25,7 @@
 		<module>custom-legacy-type-handler</module>
 		<module>deleting</module>
 		<module>eager-storing</module>
+		<module>extension-wrapper</module>
 		<module>filesystems</module>
 		<module>helidon-mp</module>
 		<module>helloworld</module>
@@ -31,6 +33,7 @@
 		<module>items</module>
 		<module>layered-entities</module>
 		<module>lazy-loading</module>
+		<module>reloader</module>
 		<module>loading</module>
 		<module>openliberty</module>
 		<module>payara-micro</module>
@@ -60,13 +63,6 @@
 	
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>

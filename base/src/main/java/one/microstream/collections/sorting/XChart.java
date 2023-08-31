@@ -26,11 +26,6 @@ import one.microstream.collections.types.XList;
 import one.microstream.typing.KeyValue;
 
 
-
-/**
- * 
- *
- */
 public interface XChart<K, V> extends XBasicTable<K, V>, Sorted<KeyValue<K, V>>
 {
 	@Override

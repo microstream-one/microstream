@@ -43,11 +43,10 @@ public interface MemoryAccessor
 	// direct byte buffer handling //
 	
 	/* (07.11.2019 TM)NOTE:
-	 * Sadly, the JDK geniuses neither know how to write proper public APIs (*cough* interfaces *cough*) nor do they
-	 * know that for every explicit memory allocation method, there needs to be an explicit deallocation method,
+	 * Sadly, for every explicit memory allocation method, there needs to be an explicit deallocation method,
 	 * since implicit deallocation via the garbage collector is not always sufficient.
-	 * So in order to being able to work properly with their botch job hacking, one has to add a lot of
-	 * magically and sometime pretty hacky support logic to fix their mistakes.
+	 * So in order to being able to work properly, one has to add a lot of
+	 * magically and sometime pretty hacky support logic to fix this.
 	 */
 	
 	public long getDirectByteBufferAddress(ByteBuffer directBuffer);
@@ -253,7 +252,7 @@ public interface MemoryAccessor
 	// field offset abstraction //
 	
 	/**
-	 * Returns an unspecified, abstract "offset" of the passed {@link Field} to specify a generic access of the
+	 * Returns an unspecified, abstract "offset" of the passed {@link Field} to specify generic access of the
 	 * field's value for an instance of its declaring class that can be used with object-based methods like
 	 * {@link #set_int(Object, long, int)}. Whether that offset is an actual low-level memory offset relative
 	 * to an instance' field offset base or simply an index of the passed field in its declaring class' list
@@ -313,7 +312,7 @@ public interface MemoryAccessor
 	public void ensureClassInitialized(Class<?> c);
 	
 	/**
-	 * Uses the passed fields if required by the implementation. If not, this method behaves exactely like
+	 * Uses the passed fields if required by the implementation. If not, this method behaves exactly like
 	 * {@link #ensureClassInitialized(Class)}.
 	 * 
 	 * @param c the class to ensure the initialization for

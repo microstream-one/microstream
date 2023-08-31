@@ -1,5 +1,13 @@
 package one.microstream.integrations.cdi.types.config;
 
+import java.nio.ByteBuffer;
+import java.util.Optional;
+import java.util.function.Predicate;
+
+import javax.enterprise.inject.spi.CDI;
+
+import org.eclipse.microprofile.config.ConfigProvider;
+
 /*-
  * #%L
  * MicroStream Integrations CDI
@@ -28,7 +36,6 @@ import one.microstream.persistence.binary.types.Binary;
 import one.microstream.persistence.types.PersistenceManager;
 import one.microstream.persistence.types.PersistenceRootsView;
 import one.microstream.persistence.types.PersistenceTypeDictionaryExporter;
-import one.microstream.reference.Reference;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfiguration;
 import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
 import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
@@ -44,15 +51,10 @@ import one.microstream.storage.types.StorageLiveFileProvider;
 import one.microstream.storage.types.StorageManager;
 import one.microstream.storage.types.StorageRawFileStatistics;
 import one.microstream.storage.types.StorageTypeDictionary;
-import org.eclipse.microprofile.config.ConfigProvider;
-
-import javax.enterprise.inject.spi.CDI;
-import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * For MicroProfile Config, at deployment time, we need to validate if @ConfigProperty is valid by
- * creating the StorageManager.  Since we need to lookup the beans for {@link EmbeddedStorageFoundationCustomizer}
+ * creating the StorageManager.  Since we need to look up the beans for {@link EmbeddedStorageFoundationCustomizer}
  * and {@link StorageManagerInitializer} we need a fully initialised bean Manager which we do not have.
  * And to avoid the creating of the StorageManager at deployment time, we have this proxy that
  * delays the creation of the StorageManager until first use.
@@ -72,7 +74,7 @@ public class StorageManagerProxy implements StorageManager
         // location.
         final EmbeddedStorageConfigurationBuilder configurationBuilder = EmbeddedStorageConfiguration.load(value);
 
-        Configuration configuration = configurationBuilder.buildConfiguration();
+        final Configuration configuration = configurationBuilder.buildConfiguration();
         final String name = Optional.ofNullable(configuration.get("database-name")).orElse(value);
 
         this.foundation = configurationBuilder
@@ -215,13 +217,6 @@ public class StorageManagerProxy implements StorageManager
     }
 
     @Override
-    @Deprecated
-    public Reference<Object> defaultRoot()
-    {
-        return this.getStorageManager().defaultRoot();
-    }
-
-    @Override
     public Database database()
     {
         return this.getStorageManager().database();
@@ -273,6 +268,12 @@ public class StorageManagerProxy implements StorageManager
     public void importFiles(final XGettingEnum<AFile> importFiles)
     {
         this.getStorageManager().importFiles(importFiles);
+    }
+    
+    @Override
+    public void importData(final XGettingEnum<ByteBuffer> importData)
+    {
+    	this.getStorageManager().importData(importData);
     }
 
     @Override

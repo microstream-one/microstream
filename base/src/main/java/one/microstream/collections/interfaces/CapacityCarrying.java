@@ -24,7 +24,7 @@ public interface CapacityCarrying extends Sized
 {
 	/**
 	 * Returns the maximum amount of elements this carrier instance can contain.<br>
-	 * The actual value may be depend on the configuration of the concrete instance or may depend only on the
+	 * The actual value may be depending on the configuration of the concrete instance or may depend only on the
 	 * implementation of the carrier (meaning it is constant for all instances of the implementation,
 	 * e.g. {@link Integer#MAX_VALUE})
 	 *
@@ -42,7 +42,7 @@ public interface CapacityCarrying extends Sized
 	}
 
 	/**
-	 * @return true if the current capacity cannot be increased any more.
+	 * @return true if the current capacity cannot be increased anymore.
 	 */
 	public default boolean isFull()
 	{

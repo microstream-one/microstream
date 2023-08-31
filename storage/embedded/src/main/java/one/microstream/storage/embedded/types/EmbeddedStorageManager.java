@@ -22,6 +22,7 @@ package one.microstream.storage.embedded.types;
 
 import static one.microstream.X.notNull;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
@@ -43,7 +44,6 @@ import one.microstream.persistence.types.PersistenceTypeDictionaryExporter;
 import one.microstream.persistence.types.Storer;
 import one.microstream.persistence.types.Unpersistable;
 import one.microstream.reference.LazyReferenceManager;
-import one.microstream.reference.Reference;
 import one.microstream.reference.Swizzling;
 import one.microstream.storage.exceptions.StorageExceptionConsistency;
 import one.microstream.storage.types.Database;
@@ -69,8 +69,7 @@ import one.microstream.util.logging.Logging;
  * "Embedded" is meant in the context that a database is managed in the same process that uses this database,
  * as opposed to the database being managed by a different process that the using process connects to via network
  * communication. That would be a "remote" or "standalone" storage process.
- * 
- * 
+ *
  */
 public interface EmbeddedStorageManager extends StorageManager
 {
@@ -386,7 +385,7 @@ public interface EmbeddedStorageManager extends StorageManager
 			}
 			catch(final Exception e)
 			{
-				logger.error("Exception occured while initializing embedded storage manager", e);
+				logger.error("Exception occurred while initializing embedded storage manager", e);
 				
 				throw e;
 			}
@@ -555,15 +554,10 @@ public interface EmbeddedStorageManager extends StorageManager
 			this.singletonConnection().importFiles(importFiles);
 		}
 		
-
-		/**
-		 * @deprecated will be removed in version 8
-		 */
-		@Deprecated
 		@Override
-		public final Reference<Object> defaultRoot()
+		public void importData(final XGettingEnum<ByteBuffer> importData)
 		{
-			return this.rootReference();
+			this.singletonConnection().importData(importData);
 		}
 
 	}

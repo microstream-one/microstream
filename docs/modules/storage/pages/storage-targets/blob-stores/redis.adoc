@@ -35,3 +35,5 @@ storage-filesystem.redis.uri=redis://localhost:6379/0
 |redis.uri
 |The RedisURI contains the host/port and can carry authentication/database details. On a successful connect you get authenticated, and the database is selected afterward. This applies also after re-establishing a connection after a connection loss.
 |===
+
+CAUTION: Depending on the amount of data and transactions, charges may apply depending on service usage. Please check with your service provider for details.

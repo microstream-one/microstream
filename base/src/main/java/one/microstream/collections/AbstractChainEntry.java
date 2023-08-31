@@ -26,10 +26,6 @@ import one.microstream.typing.KeyValue;
 
 
 
-/**
- * 
- *
- */
 public abstract class AbstractChainEntry<E, K, V, EN extends AbstractChainEntry<E, K, V, EN>>
 implements ChainStorage.Entry<E, K, V, EN>, KeyValue<K, V>, java.util.Map.Entry<K, V>
 {
@@ -134,7 +130,7 @@ implements ChainStorage.Entry<E, K, V, EN>, KeyValue<K, V>, java.util.Map.Entry<
 	public abstract V value();
 	
 	@Override
-	public abstract V setValue(V value); // polymorphs with java.util.Map$Entry (should actually be named setGetValue)
+	public abstract V setValue(V value); // polymorph with java.util.Map$Entry (should actually be named setGetValue)
 	
 	protected abstract void setValue0(V value); // for consistency with clumsy #setValue (should actually be setValue)
 	

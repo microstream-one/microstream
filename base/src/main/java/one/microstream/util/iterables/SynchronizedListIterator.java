@@ -22,10 +22,7 @@ package one.microstream.util.iterables;
 
 import java.util.ListIterator;
 
-/**
- * 
- *
- */
+
 public class SynchronizedListIterator<E> implements ListIterator<E>
 {
 	///////////////////////////////////////////////////////////////////////////

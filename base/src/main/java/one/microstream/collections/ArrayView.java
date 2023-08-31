@@ -51,10 +51,9 @@ import one.microstream.util.iterables.ReadOnlyListIterator;
  * As instances of this class are completely immutable after creation, this list is automatically thread-safe.
  * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
- * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * to maximize internal iteration potential, eliminating the need to use the external iteration
  * {@link Iterator} paradigm.
  *
- * 
  * @version 0.91, 2011-02-28
  */
 public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> implements XGettingList<E>
@@ -279,12 +278,6 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 		return AbstractArrayStorage.forwardCount(this.data, 0, this.size, element);
 	}
 
-//	@Override
-//	public int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.forwardCount(this.data, 0, this.size, sample, equalator);
-//	}
-
 	@Override
 	public long countBy(final Predicate<? super E> predicate)
 	{
@@ -298,12 +291,6 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	{
 		return AbstractArrayStorage.forwardIndexOf(this.data, 0, this.size, element);
 	}
-
-//	@Override
-//	public int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.forwardIndexOf(this.data, this.size, sample, equalator);
-//	}
 
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
@@ -373,12 +360,6 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 		return this.size == 0 ? null : (E)this.data[this.size - 1];
 	}
 
-//	@Override
-//	public E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.find(this.data, this.size, sample, equalator);
-//	}
-
 	@Override
 	public E seek(final E sample)
 	{
@@ -422,18 +403,6 @@ public final class ArrayView<E> extends AbstractSimpleArrayCollection<E> impleme
 	{
 		return AbstractArrayStorage.isSorted(this.data, this.size, comparator);
 	}
-
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
-//	}
 
 	// boolean querying - applies //
 

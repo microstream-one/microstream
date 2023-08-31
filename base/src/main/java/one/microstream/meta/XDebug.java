@@ -51,8 +51,7 @@ import one.microstream.typing.KeyValue;
 
 /**
  * This is a helper class merely for debugging purposes. None of its members should be used for productive code.
- * 
- * 
+ *
  */
 public final class XDebug
 {

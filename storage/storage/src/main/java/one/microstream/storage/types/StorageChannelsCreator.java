@@ -147,7 +147,7 @@ public interface StorageChannelsCreator
 					backupHandler
 				);
 
-				// required to resolve the initializer cyclic depedency
+				// required to resolve the initializer cyclic dependency
 				entityCache.initializeStorageManager(fileManager);
 
 				// everything bundled together in a "channel".

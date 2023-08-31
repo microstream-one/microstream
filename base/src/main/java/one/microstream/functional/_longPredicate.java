@@ -20,10 +20,6 @@ package one.microstream.functional;
  * #L%
  */
 
-/**
- * 
- *
- */
 public interface _longPredicate
 {
 	public boolean test(long l);

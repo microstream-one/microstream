@@ -7,17 +7,18 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-afs-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-afs-blobstore</artifactId>
+	<url>https://microstream.one</url>
 	
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-afs</artifactId>
-			<version>08.00.00-MS-GA-SNAPSHOT</version>
+			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	

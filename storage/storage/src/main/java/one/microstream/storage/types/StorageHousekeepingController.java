@@ -109,7 +109,7 @@ public interface StorageHousekeepingController
 	public static StorageHousekeepingController New()
 	{
 		/*
-		 * Validates its own default values, but the cost is neglible and it is a
+		 * Validates its own default values, but the cost is negligible and it is a
 		 * good defense against accidentally erroneous changes of the default values.
 		 */
 		return new StorageHousekeepingController.Default(
@@ -126,7 +126,7 @@ public interface StorageHousekeepingController
 	 * Example:<br>
 	 * 10 Million ns (= 10 ms) housekeeping budget every 1000 ms
 	 * means (roughly) 1% of the computing power will be used for storage housekeeping.<p>
-	 * Note that in an application where no store occures over a longer period of time, all housekeeping tasks
+	 * Note that in an application where no store occurs over a longer period of time, all housekeeping tasks
 	 * will eventually be completed, reducing the required computing power to 0. When the next store occurs, the
 	 * housekeeping starts anew.<br>
 	 * How long the housekeeping requires to complete depends on the computing power it is granted by the

@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-storage-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -17,12 +17,13 @@
 	
 	<name>MicroStream Embedded Storage</name>
 	<description>MicroStream Embedded Storage Implementation</description>
+	<url>https://microstream.one</url>
 
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage</artifactId>
-			<version>08.00.00-MS-GA-SNAPSHOT</version>
+			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

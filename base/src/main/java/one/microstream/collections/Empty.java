@@ -48,8 +48,6 @@ import one.microstream.util.iterables.EmptyListIterator;
  * As there is no element at all, this type can be a List and a Set (Enum) at the same time, enabling it
  * to be used in any type situation.
  *
- * .
- *
  * @param <E> the type of elements in this collection
  */
 public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Stateless
@@ -109,15 +107,13 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 	public ListIterator<E> listIterator(final long index)
 	{
 		/* (20.11.2011)NOTE:
-		 * the definition of java.util.list#listIterator(int) is bugged for all collection than can be empty
-		 * (i.e. for ALL collections).
+		 * the definition of java.util.list#listIterator(int) has issues for collections can be empty
 		 * The exception definition says:
 		 * throws IndexOutOfBoundsException if the index is out of range ({@code index < 0 || index > size()})
 		 * Then what should happen if the list is empty and the method is called with index 0 for the first element?
 		 * index is not < 0 and index is also not > size (which is 0). So no exception is to be thrown but
 		 * a valid iterator has to be returned, validly returning one element (that at index 0).
 		 * But which element should that be if the list is empty?
-		 * => bug
 		 *
 		 * The extended collection's backward-compatibility #listIterator(int) throws the correct exception in this
 		 * case. Thus throwing one here.
@@ -172,12 +168,6 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 	{
 		return -1;
 	}
-
-//	@Override
-//	public int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return -1;
-//	}
 
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
@@ -251,12 +241,6 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 		throw new IndexOutOfBoundsException();
 	}
 
-//	@Override
-//	public <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		return aggregate.yield();
-//	}
-
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{
@@ -274,18 +258,6 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 	{
 		return false;
 	}
-
-//	@Override
-//	public boolean contains(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return false;
-//	}
-
-//	@Override
-//	public boolean containsAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return false;
-//	}
 
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)
@@ -363,18 +335,6 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 		return target;
 	}
 
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return true; // philosophical question, here
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return true; // philosophical question, here
-//	}
-
 	@Override
 	public boolean hasVolatileElements()
 	{
@@ -420,12 +380,6 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 	{
 		return false;
 	}
-
-//	@Override
-//	public E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return null;
-//	}
 
 	@Override
 	public E seek(final E sample)
@@ -587,18 +541,17 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 		public ListIterator<E> listIterator(final int index)
 		{
 			/* (20.11.2011)NOTE:
-			 * the definition of java.util.list#listIterator(int) is bugged for all collection than can be empty
-			 * (i.e. for ALL collections).
+			 * the definition of java.util.list#listIterator(int) has issues for collections can be empty
 			 * The exception definition says:
 			 * throws IndexOutOfBoundsException if the index is out of range ({@code index < 0 || index > size()})
 			 * Then what should happen if the list is empty and the method is called with index 0 for the first element?
 			 * index is not < 0 and index is also not > size (which is 0). So no exception is to be thrown but
 			 * a valid iterator has to be returned, validly returning one element (that at index 0).
 			 * But which element should that be if the list is empty?
-			 * => bug
 			 *
 			 * The extended collection's backward-compatibility #listIterator(int) throws the correct exception in this
 			 * case. Thus throwing one here.
+
 			 */
 			throw new IndexOutOfBoundsException("collection is empty");
 		}
@@ -642,7 +595,7 @@ public final class Empty<E> implements XImmutableList<E>, XImmutableEnum<E>, Sta
 		@Override
 		public List<E> subList(final int fromIndex, final int toIndex)
 		{
-			// no matter what gets passed, it must fail :)
+			// no matter what gets passed, it must fail
 			throw new IndexOutOfBoundsException("Empty collection is always empty");
 		}
 

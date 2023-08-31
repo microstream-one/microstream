@@ -186,5 +186,17 @@ public class BinaryLoadItem extends Binary
 		// technically, the single data set could be iterated, but designwise, it's not the task, here.
 		throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	public void mark()
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void reset()
+	{
+		throw new UnsupportedOperationException();
+	}
 
 }

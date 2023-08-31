@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -16,9 +16,25 @@
 
 	<name>Microstream Integrations</name>
 	<description>Microstream Integrations Project</description>
+	<url>https://microstream.one</url>
 
 	<modules>
 		<module>cdi</module>
+		<module>cdi3</module>
 		<module>spring-boot</module>
+		<module>quarkus</module>
+		<module>quarkus3</module>
 	</modules>
+
+	<profiles>
+		<profile>
+			<id>from_java_17</id>
+			<activation>
+				<jdk>[17,)</jdk>
+			</activation>
+			<modules>
+				<module>spring-boot3</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>

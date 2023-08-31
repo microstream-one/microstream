@@ -37,16 +37,14 @@ import one.microstream.math.XMath;
 
 
 /**
- * Very primitive, but very fast open adressing hash {@link XSet} implementation.
+ * Very primitive, but very fast open addressing hash {@link XSet} implementation.
  * It is considerable faster than general purpose hash collections like {@link HashEnum}, which use
- * chains instead of open adressing for resolving hash collisions. It also scales much better with higher element count.
+ * chains instead of open addressing for resolving hash collisions. It also scales much better with higher element count.
  * <br>
  * Drawbacks:<br>
  * - only add() implemented so far
  * - even if fully implemented, the implementation would have no order and is technically restricted to a maximum
  *   element count equal to the maximum array length. Chain-based implementations do not have such a restriction.
- *
- * 
  *
  * @param <E> type of contained elements
  */
@@ -416,18 +414,6 @@ public final class OpenAdressingMiniSet<E> implements XSet<E>
 	{
 		throw new one.microstream.meta.NotImplementedYetError();
 	}
-
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError();
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError();
-//	}
 
 	@Override
 	public E search(final Predicate<? super E> predicate)

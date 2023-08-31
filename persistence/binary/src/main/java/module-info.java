@@ -38,7 +38,9 @@ module microstream.persistence.binary
 	exports one.microstream.persistence.binary.one.microstream.persistence.types;
 	exports one.microstream.persistence.binary.util;
 	exports one.microstream.persistence.binary.one.microstream.collections;
+	exports one.microstream.persistence.binary.one.microstream.collections.lazy;
 	
 	requires transitive microstream.persistence;
-	requires java.sql; // for type handlers
+	requires java.sql;
+	requires microstream.base; // for type handlers
 }

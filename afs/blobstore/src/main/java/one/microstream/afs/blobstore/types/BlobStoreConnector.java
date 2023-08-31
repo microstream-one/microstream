@@ -48,9 +48,6 @@ import one.microstream.reference.Reference;
  * Connector for blob stores which handles the concrete IO operations on a specific connection.
  * <p>
  * All operations must be implemented thread-safe.
- *
- * 
- *
  */
 public interface BlobStoreConnector extends AutoCloseable
 {

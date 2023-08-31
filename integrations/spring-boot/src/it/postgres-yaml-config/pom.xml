@@ -5,11 +5,12 @@
     <groupId>one.microstream</groupId>
     <artifactId>postgres-yaml-config-test</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <url>https://microstream.one</url>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.0</version>
+        <version>2.7.13</version>
     </parent>
 
     <properties>
@@ -28,16 +29,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>one.microstream</groupId>
-            <artifactId>microstream-storage-embedded</artifactId>
-            <version>@project.version@</version>
-        </dependency>
-        <dependency>
-            <groupId>one.microstream</groupId>
-            <artifactId>microstream-storage-embedded-configuration</artifactId>
-            <version>@project.version@</version>
-        </dependency>
+
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-afs-sql</artifactId>
@@ -46,7 +38,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.4.1</version>
+            <version>42.4.3</version>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>

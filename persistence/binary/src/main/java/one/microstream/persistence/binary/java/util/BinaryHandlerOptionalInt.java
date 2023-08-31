@@ -105,20 +105,7 @@ extends AbstractBinaryHandlerCustomValueFixedLength<OptionalInt, Integer>
 			BINARY_OFFSET_IS_PRESENT,
 			instance.isPresent()
 		);
-		
-		/*
-		 * of course no JDK implementation without at least some idiocy:
-		 * "orElse" must be the dumbest name on earth for a getter method with that logic
-		 * Totally inconsistent to the (also not very bright) "getAsInt", not a verb, not a pseudo-property.
-		 * So many errors in such a short and simple method.
-		 * What about just "get(int)"? or "getDefaulted(int)"? Or at least "getOrElse(int)"?
-		 * Or "value(int)", "valueDefaulted(int)", "valueOrElse(int)"
-		 * Or "coalesce(int)" or something like "yield(int)" or "peek(int)" or such.
-		 * No, "orElse" was the best they could come up with.
-		 * And that is not even the shortest, in case that was their short-sighted priority.
-		 * "Finish the implementation now, OR ELSE ...!"
-		 * Interns, interns everywhere.
-		 */
+
 		data.store_int(
 			BINARY_OFFSET_VALUE,
 			instanceState(instance)

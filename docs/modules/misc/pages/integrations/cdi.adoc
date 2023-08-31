@@ -15,8 +15,26 @@ It is available within this artifact:
 </dependencies>
 ----
 
-The integration requires the _javax_ namespace and requires a https://jakarta.ee/specifications/cdi/[CDI] 2.0 implementation or higher
-and an https://github.com/eclipse/microprofile-config[Eclipse MicroProfile Config] 2.0 implementation or higher.
+The integration requires the _javax_ namespace and requires a https://jakarta.ee/specifications/cdi/[CDI] 2.0 implementation
+and an https://github.com/eclipse/microprofile-config[Eclipse MicroProfile Config] 2.0 implementation.
+
+When you like to use in a Jakarta EE 9+ runtie, you can make use of the following artifact
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+   <dependency>
+      <groupId>one.microstream</groupId>
+      <artifactId>microstream-integrations-cdi3</artifactId>
+      <version>{maven-version}</version>
+   </dependency>
+</dependencies>
+----
+
+This version requires the _jakarta_ namespace and requires a https://jakarta.ee/specifications/cdi/[CDI] 3.0 implementation or higher
+and an https://github.com/eclipse/microprofile-config[Eclipse MicroProfile Config] 3.0 implementation or higher.
+
+This CDI extension makes use of the `Extension` interface and the `BeanManager` functionality, so it might not work in a strict Jakarta EE 10 Core Profile product that only supports the CDI Lite functionality.
 
 == Configuration
 

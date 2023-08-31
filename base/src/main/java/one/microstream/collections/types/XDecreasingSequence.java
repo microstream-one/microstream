@@ -29,7 +29,6 @@ import java.util.Comparator;
  * This type is primarily used for the values list of a map, which can offer all functionality except adding
  * values (without mapping it to a key).
  *
- * 
  */
 public interface XDecreasingSequence<E> extends XProcessingSequence<E>, XSettingSequence<E>
 {

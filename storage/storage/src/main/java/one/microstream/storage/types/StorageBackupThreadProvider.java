@@ -24,7 +24,7 @@ package one.microstream.storage.types;
 public interface StorageBackupThreadProvider extends StorageThreadProviding
 {
 	/**
-	 * Provides a newly created, yet unstarted {@link Thread} instance wrapping the passed
+	 * Provides a newly created, yet un-started {@link Thread} instance wrapping the passed
 	 * {@link StorageBackupHandler} instance.
 	 * The thread will be used as an exclusive, permanent backup worker thread until the storage
 	 * is shut down.

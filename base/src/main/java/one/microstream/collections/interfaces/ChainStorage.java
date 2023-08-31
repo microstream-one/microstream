@@ -35,8 +35,6 @@ import one.microstream.reference.ReferenceType;
 import one.microstream.typing.Composition;
 
 
-
-// (21.09.2013 TM)FIXME: why are the entries no interfaces on the interface level?
 public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN>> extends Iterable<E>, Composition
 {
 	public interface Entry<E, K, V, EN extends Entry<E, K, V, EN>> extends Composition
@@ -312,7 +310,7 @@ public interface ChainStorage<E, K, V, EN extends ChainStorage.Entry<E, K, V, EN
 	public void retainRange(long offset, long length);
 
 	/**
-	 * Removes all entries at the indices (offsets) given in the passed {@code int} array.
+	 * Removes all entries at the indices (offsets) given in the provided {@code int} array.
 	 * <p>
 	 * Note that the indices array gets presorted to increase algorithm performance. If the original {@code int} array
 	 * shall be unchanged, a clone must be passed.

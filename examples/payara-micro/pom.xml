@@ -9,40 +9,48 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-examples-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-examples-payara-micro</artifactId>
+	<url>https://microstream.one</url>
 	
 	<packaging>war</packaging>
 	<properties>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
 		<failOnMissingWebXml>false</failOnMissingWebXml>
-		<payaraVersion>5.2021.10</payaraVersion>
+		<payaraVersion>5.2022.2</payaraVersion>
 		<final.name>payara-example</final.name>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.eclipse.microprofile</groupId>
 			<artifactId>microprofile</artifactId>
-			<version>4.0.1</version>
+			<version>4.1</version>
 			<type>pom</type>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-integrations-cdi</artifactId>
-			<version>08.00.00-MS-GA-SNAPSHOT</version>
+			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>
 		<finalName>payara-example</finalName>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>3.3.2</version>
+				<version>3.4.0</version>
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
@@ -60,7 +68,7 @@
 					<plugin>
 						<groupId>fish.payara.maven.plugins</groupId>
 						<artifactId>payara-micro-maven-plugin</artifactId>
-						<version>1.0.5</version>
+						<version>1.4.0</version>
 						<executions>
 							<execution>
 								<phase>package</phase>

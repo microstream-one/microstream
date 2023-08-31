@@ -29,9 +29,6 @@ import java.util.Map.Entry;
 /**
  * The term "serializer" is already taken (conversion to a byte sequence), as is "sequencer",
  * so this thing will be a "flattener" (order references in a non-trivial data structure in a trivial, flat, sequence).
- * 
- * 
- * 
  *
  */
 public class JavaUtilMapEntrySetFlattener<T, K extends T, V extends T> implements Iterator<T>

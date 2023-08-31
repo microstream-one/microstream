@@ -33,8 +33,7 @@ import one.microstream.util.logging.Logging;
 /**
  * Logic to greet/authenticate the client, exchange metadata, create a {@link ComChannel} instance.
  * Potentially in another, maybe even dedicated thread.
- * 
- * 
+ *
  * @param <C> the communication layer type
  */
 public interface ComConnectionAcceptor<C>

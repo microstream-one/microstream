@@ -24,8 +24,6 @@ package one.microstream.communication.types;
 /**
  * Meta type to allow wrapping of connection handling logic types with additional aspects like
  * authentication, encryption and the like.
- * 
- * 
  *
  * @param <C> the communication layer type
  */

@@ -22,8 +22,8 @@ package one.microstream.exceptions;
 
 
 /**
- * Checked exceptions are a badly designed concept that ruin functional programming and seduce to swallow exceptions
- * with a foolish print instead of handling them properly and ignore unchecked exceptions altogether.
+ * Checked exceptions are a badly designed concept that ruin functional programming and favors to swallow exceptions
+ * with a print instead of handling them properly and ignore unchecked exceptions altogether.
  */
 public class WrapperRuntimeException extends RuntimeException
 {
@@ -43,8 +43,6 @@ public class WrapperRuntimeException extends RuntimeException
 	{
 		super(actual);
 		this.actual = actual;
-		// can't use fillInStackTrace() because of diletantic constructor-intrinsic call in Throwable
-//		this.setStackTrace(this.actual.getStackTrace());
 	}
 
 
@@ -57,35 +55,5 @@ public class WrapperRuntimeException extends RuntimeException
 	{
 		return this.actual;
 	}
-
-
-
-	///////////////////////////////////////////////////////////////////////////
-	// override methods //
-	/////////////////////
-
-//	@Override
-//	public synchronized Throwable getCause()
-//	{
-//		return this.actual.getCause();
-//	}
-//
-//	@Override
-//	public StackTraceElement[] getStackTrace()
-//	{
-//		return this.actual.getStackTrace();
-//	}
-//
-//	@Override
-//	public String getMessage()
-//	{
-//		return this.actual.getMessage();
-//	}
-//
-//	@Override
-//	public synchronized Throwable fillInStackTrace()
-//	{
-//		return this;
-//	}
 
 }

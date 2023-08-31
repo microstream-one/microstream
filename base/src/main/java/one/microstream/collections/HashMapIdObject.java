@@ -33,8 +33,6 @@ import one.microstream.typing.KeyValue;
 /**
  * Primitive (read: fast) synchronized pseudo map implementation that maps long id values to weakly referenced objects.
  *
- * 
- *
  */
 public final class HashMapIdObject<E> implements OptimizableCollection, Composition
 {

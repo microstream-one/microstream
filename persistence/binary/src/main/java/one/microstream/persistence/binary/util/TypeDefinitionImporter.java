@@ -35,7 +35,7 @@ import one.microstream.util.logging.Logging;
 
 /**
  * Import {@link PersistenceTypeDefinition} into the supplied
- * {@link PersistenceTypeHandlerManager}
+ * {@link PersistenceTypeHandlerManager}.
  *
  */
 public interface TypeDefinitionImporter

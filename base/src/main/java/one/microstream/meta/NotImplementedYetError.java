@@ -25,9 +25,9 @@ package one.microstream.meta;
  * yet.
  * <p>
  * This error has to be seen as a kind of "meta construct", because it should never appear or even be necessary to
- * exist in completed programs. Nevertheless, a construct like that is needed (and badly missing in JDK), because
+ * exist in completed programs. Nevertheless, a construct like that is needed, because
  * software, even perfectly planned ones, are growing work pieces and as such need a way to indicate currently
- * existing construction sites. Even if it's only for testing and not for employing unfinsihed work-in-process software.
+ * existing construction sites. Even if it's only for testing and not for employing unfinished work-in-process software.
  * <p>
  * The current strategies of IDEs (or their default templates), to just return 0 / false / null and add a TO DO marker
  * is fine for the developer, but nothing than a serious, hardly runtime-traceable bug for testing / wip-software.<br>
@@ -36,9 +36,7 @@ package one.microstream.meta;
  * requested procedure is not supported in a completed software).<br>
  * To resolve this workaround and do it properly, a not implemented exception has to exist.
  * <p>
- * Still, the goal of every (completed) software has to be to never use this class (which is kind of funny, of course).
- *
- * 
+ * Still, the goal of every (completed) software has to be to never use this class.
  *
  */
 public class NotImplementedYetError extends Error

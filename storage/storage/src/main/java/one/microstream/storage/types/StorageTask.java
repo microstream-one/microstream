@@ -83,13 +83,8 @@ public interface StorageTask
 			// if no immediate next task is available, wait for it a little, but then switch back to do housekeeping
 			while(this.next == null && (waitTime = targetTime - System.currentTimeMillis()) > 0)
 			{
-//				XDebug.debugln(
-//					Thread.currentThread().getName() + " waiting for next task " + waitTime
-//					+ " @" + System.currentTimeMillis()
-//				);
 				this.wait(waitTime);
 			}
-//			XDebug.debugln(Thread.currentThread().getName() + " done waiting");
 			return this.next;
 		}
 

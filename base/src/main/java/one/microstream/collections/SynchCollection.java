@@ -39,8 +39,6 @@ import one.microstream.util.iterables.SynchronizedIterator;
 /**
  * Synchronization wrapper class that wraps an {@link XCollection} instance in public synchronized delegate methods.
  *
- * 
- *
  */
 public final class SynchCollection<E> implements XCollection<E>, Synchronized
 {
@@ -305,18 +303,6 @@ public final class SynchCollection<E> implements XCollection<E>, Synchronized
 		return this.subject.hashCode();
 	}
 
-//	@Override
-//	public final synchronized boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return this.subject.hasDistinctValues(equalator);
-//	}
-//
-//	@Override
-//	public final synchronized boolean hasDistinctValues()
-//	{
-//		return this.subject.hasDistinctValues();
-//	}
-
 	@Override
 	public final synchronized boolean hasVolatileElements()
 	{
@@ -405,17 +391,6 @@ public final class SynchCollection<E> implements XCollection<E>, Synchronized
 		return this.subject.removeOne(element);
 	}
 
-//	@Override
-//	public final synchronized boolean removeOne(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.removeOne(sample, equalator);
-//	}
-
-//	@Override
-//	public final synchronized int remove(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.remove(sample, equalator);
-//	}
 
 	@Override
 	public final synchronized long remove(final E element)
@@ -423,11 +398,6 @@ public final class SynchCollection<E> implements XCollection<E>, Synchronized
 		return this.subject.remove(element);
 	}
 
-//	@Override
-//	public final synchronized int removeAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.removeAll(this.subject, equalator);
-//	}
 
 	@Override
 	public final synchronized long removeAll(final XGettingCollection<? extends E> samples)
@@ -447,23 +417,12 @@ public final class SynchCollection<E> implements XCollection<E>, Synchronized
 		return this.subject.removeDuplicates();
 	}
 
-//	@Override
-//	public final synchronized int retainAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.retainAll(this.subject, equalator);
-//	}
-
 	@Override
 	public final synchronized long retainAll(final XGettingCollection<? extends E> samples)
 	{
 		return this.subject.retainAll(this.subject);
 	}
 
-//	@Override
-//	public final synchronized E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return this.subject.search(sample, equalator);
-//	}
 
 	@Override
 	public final synchronized E seek(final E sample)

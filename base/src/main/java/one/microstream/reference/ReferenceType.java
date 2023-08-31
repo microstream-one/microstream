@@ -20,10 +20,6 @@ package one.microstream.reference;
  * #L%
  */
 
-/**
- * 
- *
- */
 public enum ReferenceType
 {
 	STRONG,

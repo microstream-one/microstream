@@ -22,10 +22,6 @@ package one.microstream.collections.types;
 
 
 
-/**
- * 
- *
- */
 public interface XInsertingEnum<E> extends XInsertingSequence<E>, XExtendingEnum<E>
 {
 	public interface Creator<E> extends XExtendingSequence.Creator<E>

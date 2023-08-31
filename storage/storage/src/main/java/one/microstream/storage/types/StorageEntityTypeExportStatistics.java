@@ -24,7 +24,9 @@ import one.microstream.afs.types.AFile;
 import one.microstream.chars.VarString;
 import one.microstream.chars.XChars;
 import one.microstream.collections.EqConstHashTable;
+import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.EqHashTable;
+import one.microstream.collections.types.XGettingEnum;
 import one.microstream.collections.types.XGettingTable;
 import one.microstream.collections.types.XImmutableTable;
 import one.microstream.typing.KeyValue;
@@ -43,6 +45,14 @@ public interface StorageEntityTypeExportStatistics
 	public XGettingTable<Long, ? extends TypeStatistic> typeStatistics();
 	
 	public XGettingTable<Integer, ? extends ChannelStatistic> channelStatistics();
+	
+	/**
+	 * Collects and returns all exported files.
+	 * 
+	 * @return all export files
+	 * @since 08.00.00
+	 */
+	public XGettingEnum<AFile> files();
 	
 	
 	
@@ -136,6 +146,16 @@ public interface StorageEntityTypeExportStatistics
 		public final XGettingTable<Integer, ? extends ChannelStatistic> channelStatistics()
 		{
 			return this.viewChannelStatistics;
+		}
+		
+		@Override
+		public XGettingEnum<AFile> files()
+		{
+			final EqHashEnum<AFile> files = EqHashEnum.New();
+			this.viewTypeStatistics.values().forEach(s ->
+				files.add(s.file())
+			);
+			return files.immure();
 		}
 		
 		final void assembleTableRecord(final VarString vs)

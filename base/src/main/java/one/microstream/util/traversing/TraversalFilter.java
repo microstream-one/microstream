@@ -196,7 +196,6 @@ public interface TraversalFilter<P extends TraversalPredicate>
 			{
 				return this.instances.isEmpty() && this.types.isEmpty() && this.typesPolymorphic.isEmpty()
 					&& this.customPredicate == null
-//					&& this.predicate == null // not this, because it replaces the others
 				;
 			}
 		}

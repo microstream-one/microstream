@@ -99,6 +99,9 @@ public interface SqlProvider
 	 * select count(*)
 	 * from [tableName]
 	 * </pre>
+	 *
+	 * @param tableName the table to query
+	 * @return the native query string
 	 */
 	public String countFilesQuery(String tableName);
 

@@ -130,10 +130,6 @@ public interface BinaryLegacyTypeHandlerCreator extends PersistenceLegacyTypeHan
 			{
 				memberOffsets.add(member, offsets[i++]);
 
-				// (11.11.2019 TM)NOTE: old logic without class context
-//				final Field field = notNull(member.field());
-//				final long fieldOffset = XMemory.objectFieldOffset(field);
-//				memberOffsets.add(member, fieldOffset);
 			}
 
 			return memberOffsets;

@@ -39,7 +39,6 @@ import one.microstream.memory.sun.JdkMemoryAccessor;
  * Util class for low-level VM memory operations and information that makes the call site independent of
  * a certain JVM implementation (e.g. java.misc.Unsafe).
  *
- * 
  */
 public final class XMemory
 {
@@ -419,7 +418,7 @@ public final class XMemory
 	// memory size querying logic //
 
 	/**
-	 * Arbitrary value that coincidently matches most hardware's standard page
+	 * Arbitrary value that coincidentally matches most hardware's standard page
 	 * sizes without being hard-tied to an actual pageSize system value.
 	 * So this value is an educated guess and almost always a "good" value when
 	 * paged-sized-ish buffer sizes are needed, while still not being at the
@@ -505,7 +504,7 @@ public final class XMemory
 
 	public static final int byteSizePrimitive(final Class<?> type)
 	{
-		// once again missing JDK functionality. Roughly ordered by probability.
+		// Missing JDK functionality. Roughly ordered by probability.
 		if(type == int.class)
 		{
 			return byteSize_int();
@@ -555,7 +554,7 @@ public final class XMemory
 
 	public static final int byteSize_boolean()
 	{
-		return Byte.BYTES; // because JDK Pros can't figure out the length of a boolean value, obviously.
+		return Byte.BYTES;
 	}
 
 	public static final int byteSize_short()
@@ -1035,7 +1034,7 @@ public final class XMemory
 
 	/**
 	 * Parses a {@link String} instance to a {@link ByteOrder} instance according to {@code ByteOrder#toString()}
-	 * or throws an {@link IllegalArgumentException} if the passed string does not match exactely one of the
+	 * or throws an {@link IllegalArgumentException} if the passed string does not match exactly one of the
 	 * {@link ByteOrder} constant instances' string representation.
 	 *
 	 * @param name the string representing the {@link ByteOrder} instance to be parsed.
@@ -1143,6 +1142,14 @@ public final class XMemory
 		}
 		return bytes;
 	}
+	
+	public static final ByteBuffer toDirectByteBuffer(final byte[] bytes)
+	{
+		final ByteBuffer buffer = allocateDirectNative(bytes.length);
+		buffer.put(bytes);
+		buffer.flip();
+		return buffer;
+	}
 
 	public static final long getPositionLimit(final ByteBuffer buffer)
 	{
@@ -1181,6 +1188,12 @@ public final class XMemory
 		return buffer;
 	}
 
+	public static final ByteBuffer slice(final ByteBuffer source, final long position, final long limit)
+	{
+		final ByteBuffer tmp = source.duplicate();
+		tmp.limit((int)(position + limit)).position((int)position);
+		return tmp.slice();
+	}
 
 
 	///////////////////////////////////////////////////////////////////////////

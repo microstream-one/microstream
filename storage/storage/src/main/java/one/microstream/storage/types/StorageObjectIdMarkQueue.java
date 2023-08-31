@@ -132,10 +132,8 @@ public interface StorageObjectIdMarkQueue
 		@Override
 		public final synchronized void enqueue(final long objectId)
 		{
-//			debugln("enqueue " + objectId + " (" + this.head.lowIndex+" / " + this.head.highIndex + ")");
 			if(this.head.enqueue(objectId))
 			{
-//				debugln("segment full");
 
 				/* (14.07.2016 TM)TODO: prevent size excess
 				 * if the queue exceeds a certain size, a consolidation action should be taken
@@ -191,7 +189,6 @@ public interface StorageObjectIdMarkQueue
 			 * Only marking channels ever notify on a mark queue instance
 			 * (including the owner channel itself, but then it is not waiting in the first place).
 			 */
-//			DEBUGStorage.println("notify " + size);
 			this.notifyAll();
 		}
 
@@ -217,7 +214,6 @@ public interface StorageObjectIdMarkQueue
 				super();
 				this.objectIds = new long[this.length = XMath.positive(length)];
 				this.next = next;
-//				debugln("new segment");
 			}
 
 			final Segment advanceTail()
@@ -260,8 +256,6 @@ public interface StorageObjectIdMarkQueue
 				final int copyLength = Math.min(this.highIndex - this.lowIndex, buffer.length);
 				System.arraycopy(this.objectIds, this.lowIndex, buffer, 0, copyLength);
 
-//				debugln("get next " + copyLength);
-				
 				/* (02.02.2020 TM)NOTE:
 				 * lowIndex is not advanced here, but at a later point by another method with the actual amount
 				 * of processed objectIds in the buffer.
@@ -311,33 +305,6 @@ public interface StorageObjectIdMarkQueue
 
 		}
 
-
-//		public static void main(final String[] args)
-//		{
-//			final Default q = new Default(10);
-	//
-//			final long[] buffer = new long[20];
-//			final int amount = 999;
-//			int i = 0;
-//			while(true)
-//			{
-//				if(i >= amount && !q.hasElements())
-//				{
-//					break;
-//				}
-	//
-//				if(i < amount && Math.random() < 0.9)
-//				{
-//					q.enqueue(i++);
-//				}
-//				else
-//				{
-//					final int bufferSize = q.getNext(buffer);
-//					q.advanceTail(bufferSize);
-//				}
-//			}
-//			debugln(q.toString());
-//		}
 
 	}
 

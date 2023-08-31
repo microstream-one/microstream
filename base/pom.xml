@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -17,6 +17,7 @@
 	
 	<name>MicroStream Base</name>
 	<description>Commons Module of the MicroStream Framework</description>
+	<url>https://microstream.one</url>
 
 	<properties>
 		<maven.compiler.compilerId>eclipse</maven.compiler.compilerId>
@@ -34,7 +35,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.10.1</version>
 				<executions>
 					<execution>
 						<id>default-compile</id>

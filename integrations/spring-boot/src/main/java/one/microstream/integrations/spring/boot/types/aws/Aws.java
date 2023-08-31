@@ -2,9 +2,9 @@ package one.microstream.integrations.spring.boot.types.aws;
 
 /*-
  * #%L
- * microstream-spring
+ * microstream-integrations-spring-boot
  * %%
- * Copyright (C) 2019 - 2022 MicroStream Software
+ * Copyright (C) 2019 - 2023 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -28,13 +28,26 @@ public class Aws
     @NestedConfigurationProperty
     private Dynamodb dynamodb;
 
+    @NestedConfigurationProperty
+    private S3 s3;
+
     public Dynamodb getDynamodb()
     {
-        return dynamodb;
+        return this.dynamodb;
     }
 
-    public void setDynamodb(Dynamodb dynamodb)
+    public void setDynamodb(final Dynamodb dynamodb)
     {
         this.dynamodb = dynamodb;
+    }
+
+    public S3 getS3()
+    {
+        return this.s3;
+    }
+
+    public void setS3(final S3 s3)
+    {
+        this.s3 = s3;
     }
 }

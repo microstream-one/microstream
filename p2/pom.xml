@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -18,6 +18,8 @@
 	
 	<name>MicroStream P2 Repository</name>
 	<description>MicroStream P2 Repository</description>
+
+	<url>https://microstream.one</url>
 
 	<properties>
 		<osgi.version>${pv.majorVersion}.${pv.minorVersion}.${pv.incrementalVersion}.qualifier</osgi.version>
@@ -30,7 +32,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.2.0</version>
+ 				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<phase>validate</phase>

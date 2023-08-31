@@ -2,9 +2,9 @@ package one.microstream.storage.embedded.types;
 
 /*-
  * #%L
- * microstream-storage-embedded
+ * MicroStream Embedded Storage
  * %%
- * Copyright (C) 2019 - 2022 MicroStream Software
+ * Copyright (C) 2019 - 2023 MicroStream Software
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,7 +20,6 @@ package one.microstream.storage.embedded.types;
  * #L%
  */
 
-import java.io.File;
 import java.nio.file.Path;
 
 import one.microstream.afs.nio.types.NioFileSystem;
@@ -38,13 +37,12 @@ import one.microstream.storage.types.StorageLiveFileProvider;
 
 /**
  * Static utility class containing static pseudo-constructor methods (indicated by a capital first letter)
- * and various utility methods to setup and start a database.
+ * and various utility methods to set up and start a database.
  * <p>
- * In the simplest case, the following call is enough to setup and start an embedded object graph database:<br>
+ * In the simplest case, the following call is enough to set up and start an embedded object graph database:<br>
  * {@code EmbeddedStorageManager storage = EmbeddedStorage.start();}<br>
  * Anything beyond that is optimization and customization. As it should be.
  *
- * 
  */
 public final class EmbeddedStorage
 {
@@ -169,20 +167,6 @@ public final class EmbeddedStorage
 	public static final EmbeddedStorageFoundation<?> Foundation()
 	{
 		return Foundation(Storage.defaultStorageDirectory());
-	}
-
-	/**
-	 * @param directory the storage directory
-	 * @return a new storage foundation
-	 * 
-	 * @deprecated replaced by {@link #Foundation(Path)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static final EmbeddedStorageFoundation<?> Foundation(
-		final File directory
-	)
-	{
-		return Foundation(directory.toPath());
 	}
 	
 	public static final EmbeddedStorageFoundation<?> Foundation(
@@ -321,23 +305,8 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @param directory the directory where the storage will be located.
-	 *
-	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
-	 * 
-	 * @deprecated replaced by {@link #start(Path)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static final EmbeddedStorageManager start(
-		final File directory
-	)
-	{
-		return start(directory.toPath());
-	}
-
-	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
-	 * the passed {@literal directory} as its storage location and defaults for the remainings values.
+	 * the passed {@literal directory} as its storage location and defaults for the remaining values.
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
@@ -359,7 +328,7 @@ public final class EmbeddedStorage
 	
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
-	 * the passed {@literal directory} as its storage location and defaults for the remainings values.
+	 * the passed {@literal directory} as its storage location and defaults for the remaining values.
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
@@ -454,11 +423,11 @@ public final class EmbeddedStorage
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
 	 * the passed {@literal root} as the persistent entity graph's root instance
-	 * and defaults for the remainings values.
+	 * and defaults for the remaining values.
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root the explicitely defined root instance of the persistent entity graph.
+	 * @param root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
 	 *
@@ -478,31 +447,13 @@ public final class EmbeddedStorage
 	}
 
 	/**
-	 * @param root      root the explicitely defined root instance of the persistent entity graph.
-	 *
-	 * @param directory the directory where the storage will be located.
-	 *
-	 * @return an {@link EmbeddedStorageManager} instance connected to an actively running database.
-	 * 
-	 * @deprecated replaced by {@link #start(Object, Path)} and {@link #start(Object, ADirectory)}, will be removed in version 8
-	 */
-	@Deprecated
-	public static final EmbeddedStorageManager start(
-		final Object root     ,
-		final File   directory
-	)
-	{
-		return start(root, directory.toPath());
-	}
-
-	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
 	 * the passed {@literal root} as the persistent entity graph's root instance,
-	 * the passed {@literal directory} as its storage location and defaults for the remainings values.
+	 * the passed {@literal directory} as its storage location and defaults for the remaining values.
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root      root the explicitely defined root instance of the persistent entity graph.
+	 * @param root      root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @param directory the directory where the storage will be located.
 	 *
@@ -527,11 +478,11 @@ public final class EmbeddedStorage
 	/**
 	 * Convenience method to configure, create and start a {@link EmbeddedStorageManager} using
 	 * the passed {@literal root} as the persistent entity graph's root instance,
-	 * the passed {@literal directory} as its storage location and defaults for the remainings values.
+	 * the passed {@literal directory} as its storage location and defaults for the remaining values.
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root      root the explicitely defined root instance of the persistent entity graph.
+	 * @param root      root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @param directory the directory where the storage will be located.
 	 *
@@ -560,7 +511,7 @@ public final class EmbeddedStorage
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root          root the explicitely defined root instance of the persistent entity graph.
+	 * @param root          root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @param configuration the {@link StorageConfiguration} to be used.
 	 *
@@ -589,7 +540,7 @@ public final class EmbeddedStorage
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root          root the explicitely defined root instance of the persistent entity graph.
+	 * @param root          root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @param configuration the {@link StorageConfiguration.Builder} to be used.
 	 *
@@ -618,7 +569,7 @@ public final class EmbeddedStorage
 	 * <p>
 	 * See {@link #Foundation()} variants for more practical/configurable alternatives.
 	 *
-	 * @param root                 root the explicitely defined root instance of the persistent entity graph.
+	 * @param root                 root the explicitly defined root instance of the persistent entity graph.
 	 *
 	 * @param configuration        the {@link StorageConfiguration} to be used.
 	 *
@@ -649,7 +600,7 @@ public final class EmbeddedStorage
 	 *
 	 * @param foundation the {@link EmbeddedStorageFoundation} to be used.
 	 *
-	 * @param root       the persistent entiy graph's root instance, potentially null.
+	 * @param root       the persistent entity graph's root instance, potentially null.
 	 *
 	 * @return a newly created and started {@link EmbeddedStorageManager} instance.
 	 */

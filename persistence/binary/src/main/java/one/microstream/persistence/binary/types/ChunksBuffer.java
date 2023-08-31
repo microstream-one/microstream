@@ -134,7 +134,7 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 
 	private void enlargeBufferCapacity(final int bufferCapacity)
 	{
-		// if current buffer is still empty, replace it instead of enqueing a new one to avoid storing "dummy" chunks
+		// if current buffer is still empty, replace it instead of enqueuing a new one to avoid storing "dummy" chunks
 		if(this.isEmptyCurrentBuffer())
 		{
 			XMemory.deallocateDirectByteBuffer(this.currentBuffer);
@@ -219,7 +219,6 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 		final long entityObjectId
 	)
 	{
-//		debugln("Storing\t" + entityObjectId + "\t" + entityTypeId + "\t" + BinaryPersistence.entityTotalLength(entityContentLength));
 
 		if(entityContentLength < 0)
 		{
@@ -342,6 +341,24 @@ public class ChunksBuffer extends Binary implements MemoryRangeReader
 	)
 	{
 		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void mark()
+	{
+		for(int i = 0; i <= this.currentBuffersIndex; i++)
+		{
+			this.buffers[i].mark();
+		}
+	}
+	
+	@Override
+	public void reset()
+	{
+		for(int i = 0; i <= this.currentBuffersIndex; i++)
+		{
+			this.buffers[i].reset();
+		}
 	}
 				
 }

@@ -76,7 +76,6 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 			{
 				this.checkAllTransactionsFilesMissing();
 				this.consistentStoreTimestamp = this.determineConsistentStoreTimestamp();
-//				DEBUGStorage.println("Initialization last file consistent timestamp: " + this.consistentStoreTimestamp);
 			}
 			return this.consistentStoreTimestamp;
 		}
@@ -85,7 +84,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		{
 			if(this.commonTaskHeadFileTimestamp == null)
 			{
-				// the max size offset is moreless just for aesthetical reasons (yes indeed).
+				// the max size offset is more or less just for aesthetically reasons.
 				long maxResultFileCount = 0;
 				for(final StorageInventory si : this.result)
 				{
@@ -191,7 +190,6 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		@Override
 		protected final StorageInventory[] internalProcessBy(final StorageChannel channel)
 		{
-//			DEBUGStorage.println("initializing storage");
 			this.result[channel.channelIndex()] = channel.readStorage();
 			return this.result;
 		}
@@ -199,19 +197,16 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		@Override
 		protected final void succeed(final StorageChannel channel, final StorageInventory[] result)
 		{
-//			DEBUGStorage.println("Channel " + channel.hashIndex() + " successfully completed initialization task, initialization storage");
 
 			final StorageIdAnalysis idAnalysis = channel.initializeStorage(
 				this.getCommonTaskHeadFileTimestamp(),
 				this.getConsistentStoreTimestamp()   ,
 				result[channel.channelIndex()]
 			);
-//			DEBUGStorage.println("Channel " + channel.hashIndex() + " initialized storage, activating controller");
 
 			this.updateIdAnalysis(idAnalysis);
 
 			this.operationController.activate();
-//			DEBUGStorage.println("Channel " + channel.hashIndex() + " completed initialization");
 		}
 
 		@Override

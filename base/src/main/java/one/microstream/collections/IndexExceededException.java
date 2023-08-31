@@ -22,13 +22,6 @@ package one.microstream.collections;
 
 import one.microstream.chars.VarString;
 
-/**
- * Why is it that one has to write every piece of the JDK in "proper" oneself?
- * Providing the essential describing values of a problem in a structed form is essential
- * for both programmatic and manual processing, not a personal flavor.
- *
- * 
- */
 public class IndexExceededException extends IndexOutOfBoundsException
 {
 	///////////////////////////////////////////////////////////////////////////
@@ -65,7 +58,7 @@ public class IndexExceededException extends IndexOutOfBoundsException
 
 	public IndexExceededException(final String message)
 	{
-		this(0, 0, message); // it's MESSAGE. Not just "s". FFS! That "Yellin" guy has the right name.
+		this(0, 0, message);
 	}
 
 

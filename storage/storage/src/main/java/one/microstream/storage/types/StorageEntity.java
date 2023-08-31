@@ -29,11 +29,10 @@ import one.microstream.persistence.types.PersistenceObjectIdAcceptor;
 
 
 /**
- * Public API level type of a storage entity. Used for custom evaluators, filters, etc.
+ * Public API level type of storage entity. Used for custom evaluators, filters, etc.
  * Does intentionally not provide any means to load/access the entity's data or change any if its state.
  * This is purely a querying interface, not a means to manipulate data via bypassing normal channels to do so.
  *
- * 
  */
 public interface StorageEntity
 {
@@ -62,9 +61,9 @@ public interface StorageEntity
 	public boolean hasReferences();
 
 	/**
-	 * The length this entity occupies in the cache. This might be vary, even for fixed length typed, from the values
+	 * The length this entity occupies in the cache. This might vary, even for fixed length typed, from the values
 	 * returned by {@link #dataLength()} as only parts of an entity (e.g. only references) might be loaded into cache
-	 * and because the cache might hold the header/meta data of an entity as well.
+	 * and because the cache might hold the header/meta-data of an entity as well.
 	 *
 	 *  @return The length this entity occupies in the cache.
 	 */
@@ -99,18 +98,6 @@ public interface StorageEntity
 		// constants //
 		//////////////
 
-		// Quite a lot, concept for minimizing overhead and pushing the data off-heap already exists.
-//		private static final int MEMORY_CONSUMPTION_BYTES = // 84/120 bytes (+/-coops).
-//			XMemory.byteSizeInstance(StorageEntity.Default.class)
-//			+ XMemory.byteSizeReference() // take into account oid hash table slot in entity cache
-//		;
-		
-		// currently not used, but might come in handy for other/future intentions
-//		public static final int memoryConsumptionBytes()
-//		{
-//			return MEMORY_CONSUMPTION_BYTES;
-//		}
-
 		// enough for ~17 years since class initialization with 256ms resolution.
 		private static final long TOUCHED_SHIFT_COUNT  = 8;
 		private static final long TOUCHED_START_OFFSET = System.currentTimeMillis();
@@ -119,7 +106,7 @@ public interface StorageEntity
 		 * GC state meaning:
 		 *
 		 * black: reachable from root and no references to white nodes (already processed)
-		 * gray : reachable from root (marked by procssing) but still to be processed
+		 * gray : reachable from root (marked by processing) but still to be processed
 		 * white: not yet marked, potentially unreachable/"condemned"
 		 *
 		 * For garbage collection algorithm, see http://en.wikipedia.org/wiki/Garbage_collection_(computer_science)
@@ -188,7 +175,7 @@ public interface StorageEntity
 		boolean    onlyRefsCached ;
 		byte       referenceCount ; // could be combined with hasReferences to a short with ~10 bits free for ref count
 
-		// reference to the type meta data instance and the parent channel file
+		// reference to the type meta-data instance and the parent channel file
 		TypeInFile typeInFile     ;
 
 
@@ -257,19 +244,19 @@ public interface StorageEntity
 		 * initialized (JVM default value or value determined in the constructor)
 		 */
 		private Default(
-			final long                         objectId      ,
-			final TypeInFile                   type          ,
+			final long                  objectId      ,
+			final TypeInFile            type          ,
 			final StorageEntity.Default hashNext      ,
-			final byte                         referenceCount
+			final byte                  referenceCount
 		)
 		{
 			super();
-			this.objectId       = objectId      ;
-			this.hashNext       = hashNext      ;
+			this.objectId       = objectId         ;
+			this.hashNext       = hashNext         ;
 			this.lastTouched    = Integer.MAX_VALUE; // initially "touched in eternity", especially for dummy entities.
-			this.typeInFile     = type          ;
-			this.referenceCount = referenceCount;
-			this.gcState        = GC_INITIAL    ;
+			this.typeInFile     = type             ;
+			this.referenceCount = referenceCount   ;
+			this.gcState        = GC_INITIAL       ;
 		}
 
 		private static byte calculateReferenceCount(final boolean hasReferences, final long simpleReferenceCount)
@@ -404,19 +391,6 @@ public interface StorageEntity
 			}
 			// already fully loaded, nothing to do
 
-			// (05.04.2016 TM)NOTE: suboptimal order and unnecessary double loading
-//			if(this.isLive() && !this.onlyRefsCached)
-//			{
-//				// already fully loaded, abort
-//				return;
-//			}
-//			else if(this.hasSimpleReferencesLoaded())
-//			{
-//				// if simple refs have been loaded, clear the cache, load complete length and account for cache increase
-//				this.internalLoadData(this.length, this.length - this.clearCache());
-//			}
-//			// if no cached data is present, just load all entity data completely
-//			this.internalLoadFullEntityData();
 		}
 
 		private void loadData(final long length)
@@ -453,7 +427,7 @@ public interface StorageEntity
 		)
 		{
 			this.storagePosition = storagePosition;
-			this.length = length;
+			this.length          = length         ;
 		}
 
 		final boolean isProper()
@@ -588,11 +562,6 @@ public interface StorageEntity
 		@Override
 		public final long clearCache()
 		{
-//			if(this.cacheAddress != 0)
-//			{
-//				DEBUGStorage.println("Clearing cache of " + this.objectId + " @" + this.cacheAddress);
-//				System.out.flush();
-//			}
 			final long currentDataLength = this.cachedDataLength();
 			XMemory.free(this.cacheAddress());
 			this.cacheAddress = 0;
@@ -671,10 +640,5 @@ public interface StorageEntity
 
 	}
 
-
-//	public static void main(final String[] args)
-//	{
-//		System.out.println(Memory.byteSizeInstance(StorageEntity.Default.class));
-//	}
 
 }

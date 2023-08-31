@@ -10,17 +10,18 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-examples-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-examples-eager-storing</artifactId>
+	<url>https://microstream.one</url>
 
 	<dependencies>
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage-embedded</artifactId>
-			<version>08.00.00-MS-GA-SNAPSHOT</version>
+			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

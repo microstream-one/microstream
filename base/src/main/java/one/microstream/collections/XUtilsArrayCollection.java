@@ -92,20 +92,6 @@ public final class XUtilsArrayCollection
 		);
 	}
 
-//	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
-//	boolean rngContainsAll(
-//		final A a,
-//		final int offset,
-//		final int length,
-//		final XGettingCollection<? extends E> samples,
-//		final Equalator<? super E> equalator
-//	)
-//	{
-//		return AbstractArrayStorage.rangedContainsAll(
-//			a.internalGetStorageArray(), a.size(), offset, length, a, equalator
-//		);
-//	}
-
 	public static final <E, A extends AbstractSimpleArrayCollection<E> & XGettingSequence<E>>
 	boolean rngContainsAll(
 		final A a,

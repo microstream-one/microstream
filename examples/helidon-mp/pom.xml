@@ -7,16 +7,17 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-examples-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>microstream-examples-helidon-mp</artifactId>
+	<url>https://microstream.one</url>
 
 	<properties>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.source>11</maven.compiler.source>
-		<helidon.version>2.3.2</helidon.version>
+		<helidon.version>2.5.3</helidon.version>
 		<mainClass>io.helidon.microprofile.cdi.Main</mainClass>
 	</properties>
 
@@ -28,6 +29,30 @@
 				<version>${helidon.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+
+			<!-- required as of Helidon 2.4.0 -->
+			<!-- As it has its own integration with older version of MicroStream -->
+			<!-- we need to force the newer version -->
+			<dependency>
+				<groupId>one.microstream</groupId>
+				<artifactId>microstream-storage-embedded</artifactId>
+				<version>09.00.00-MS-GA-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>one.microstream</groupId>
+				<artifactId>microstream-storage-embedded-configuration</artifactId>
+				<version>09.00.00-MS-GA-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>one.microstream</groupId>
+				<artifactId>microstream-configuration</artifactId>
+				<version>09.00.00-MS-GA-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>one.microstream</groupId>
+				<artifactId>microstream-cache</artifactId>
+				<version>09.00.00-MS-GA-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -47,7 +72,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-integrations-cdi</artifactId>
-			<version>08.00.00-MS-GA-SNAPSHOT</version>
+			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -83,16 +108,6 @@
 						</configuration>
 					</plugin>
 					<plugin>
-						<groupId>io.helidon.build-tools</groupId>
-						<artifactId>helidon-maven-plugin</artifactId>
-						<version>${helidon.version}</version>
-					</plugin>
-					<plugin>
-						<groupId>io.helidon.build-tools</groupId>
-						<artifactId>helidon-cli-maven-plugin</artifactId>
-						<version>${helidon.version}</version>
-					</plugin>
-					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-dependency-plugin</artifactId>
 						<executions>
@@ -109,7 +124,7 @@
 									<overWriteIfNewer>true</overWriteIfNewer>
 									<overWriteIfNewer>true</overWriteIfNewer>
 									<includeScope>runtime</includeScope>
-									<excludeScope>test</excludeScope>
+									<excludeScope>compile</excludeScope>
 								</configuration>
 							</execution>
 						</executions>

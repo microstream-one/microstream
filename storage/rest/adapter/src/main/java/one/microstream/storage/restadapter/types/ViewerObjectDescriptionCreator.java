@@ -25,9 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- *
- *	Create a ViewerObjectDescription from the complex ObjectDescription type
- *
+ *	Create a ViewerObjectDescription from the complex ObjectDescription type.
  *
  */
 public class ViewerObjectDescriptionCreator
@@ -82,7 +80,7 @@ public class ViewerObjectDescriptionCreator
 
 	/**
 	 *
-	 * Collect all MemberValues and add them to the new ViewerObjectDescription
+	 * Collect all MemberValues and add them to the new ViewerObjectDescription.
 	 *
 	 */
 	private void gatherMemberValues()
@@ -102,7 +100,7 @@ public class ViewerObjectDescriptionCreator
 	}
 
 	/**
-	 * Collect and add all "fixed sized" elements
+	 * Collect and add all "fixed sized" elements.
 	 *
 	 * @param members input ObjectDescription values
 	 * @param data append collected elements to this list
@@ -125,7 +123,7 @@ public class ViewerObjectDescriptionCreator
 	}
 
 	/**
-	 *	Collect and append "variable size" elements
+	 *	Collect and append "variable size" elements.
 	 *
 	 * @param members input ObjectDescription values
 	 * @param data append collected elements to this list
@@ -146,7 +144,7 @@ public class ViewerObjectDescriptionCreator
 	}
 
 	/**
-	 * Collect "variable sized" elements
+	 * Collect "variable sized" elements.
 	 *
 	 * @param values ObjectDescription values
 	 */
@@ -157,8 +155,8 @@ public class ViewerObjectDescriptionCreator
 	}
 
 	/**
-	 * traverse input ObjectDescription values and collect them
-	 * only elements within [startIndex and endIndex[ are taken into account
+	 * Traverse input ObjectDescription values and collect them.
+	 * Only elements within [startIndex and endIndex[ are taken into account.
 	 *
 	 * @param values input ObjectDescription values
 	 */
@@ -188,7 +186,7 @@ public class ViewerObjectDescriptionCreator
 	}
 
 	/**
-	 * Set the header values for the new ViewerObjectDescription
+	 * Set the header values for the new ViewerObjectDescription.
 	 */
 	private void setObjectHeader()
 	{
@@ -207,7 +205,7 @@ public class ViewerObjectDescriptionCreator
 	}
 
 	/**
-	 * Collect and create Reference entries for the ViewerObjectDescription object to be crated
+	 * Collect and create Reference entries for the ViewerObjectDescription object to be created.
 	 *
 	 */
 	private void setReferences()
@@ -246,7 +244,7 @@ public class ViewerObjectDescriptionCreator
 	///////////////////////////
 
 	/**
-	 * Set the primitive value of the new ViewerObjectDescription object
+	 * Set the primitive value of the new ViewerObjectDescription object.
 	 */
 	private static void setPrimitiveValue(
 		final ObjectDescription description,
@@ -262,8 +260,8 @@ public class ViewerObjectDescriptionCreator
 	}
 
 	/**
-	 * calculate an valid end index for an array of "arrayLength" length
-	 * considering a start index and element count
+	 * Calculate a valid end index for an array of "arrayLength" length
+	 * considering a start index and element count.
 	 *
 	 * @param arrayLength length of the array
 	 * @param startIndex index to start
@@ -276,8 +274,8 @@ public class ViewerObjectDescriptionCreator
 	}
 
 	/**
-	 * return a substring starting at index 0 with a max length of "valueLength"
-	 * if valueLength exceeds the strings length it will be limited to the strings length,
+	 * Return a substring starting at index 0 with a max length of "valueLength".
+	 * if valueLength exceeds the strings length it will be limited to the Strings length,
 	 * no exceptions are thrown.
 	 */
 	private static String limitsPrimitiveType(final String data, final long valueLength)

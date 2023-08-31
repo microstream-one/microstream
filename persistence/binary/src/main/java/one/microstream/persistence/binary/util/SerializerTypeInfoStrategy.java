@@ -56,8 +56,7 @@ public interface SerializerTypeInfoStrategy extends PersistenceTypeDefinitionReg
 	
 	/**
 	 * Returns true if the type information should be included only once after it has been updated.
-	 * 
-	 * 
+	 *
 	 * @return true if type info has not to be included repeatedly
 	 */
 	public boolean includeOnce();
@@ -66,7 +65,7 @@ public interface SerializerTypeInfoStrategy extends PersistenceTypeDefinitionReg
 	 * 
 	 * This implementation includes only type information for types added to the
 	 * serializers type registry in the current serialization.
-	 *
+	 * <p>
 	 * Types that are registered during the serializers setup are never included.
 	 */
 	public static class IncrementalDiff implements SerializerTypeInfoStrategy

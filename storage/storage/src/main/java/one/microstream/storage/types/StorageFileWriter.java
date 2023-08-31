@@ -33,7 +33,6 @@ import one.microstream.storage.exceptions.StorageExceptionIoWriting;
  * Function type that encapsulates handling of all writing accesses to persistent data, including copying,
  * truncation, deletion.
  *
- * 
  */
 public interface StorageFileWriter
 {
@@ -66,20 +65,20 @@ public interface StorageFileWriter
 	/**
 	 * Logically the same as a store, but technically the same as a transfer with an external source file.
 	 * 
-	 * @param sourceFile the source file
+	 * @param source the import source
 	 * @param sourceOffset the source offset
 	 * @param copyLength the copy length
 	 * @param targetFile the target file
 	 * @return the amount of bytes written
 	 */
 	public default long writeImport(
-		final StorageFile         sourceFile  ,
+		final StorageImportSource source      ,
 		final long                sourceOffset,
 		final long                copyLength  ,
 		final StorageLiveDataFile targetFile
 	)
 	{
-		return sourceFile.copyTo(targetFile, sourceOffset, copyLength);
+		return source.copyTo(targetFile, sourceOffset, copyLength);
 	}
 	
 	public default long writeTransfer(
@@ -157,7 +156,6 @@ public interface StorageFileWriter
 		final StorageFileProvider           fileProvider
 	)
 	{
-//		DEBUGStorage.println("storage file truncation");
 		final AFile truncationTargetFile = fileProvider.provideTruncationTargetFile(
 			file,
 			newLength
@@ -192,8 +190,7 @@ public interface StorageFileWriter
 		final StorageFileProvider    fileProvider
 	)
 	{
-//		DEBUGStorage.println("storage file deletion");
-		
+
 		// validate BEFORE moving the file away. Deletion means removing the file.
 		writeController.validateIsFileDeletionEnabled();
 
@@ -263,7 +260,7 @@ public interface StorageFileWriter
 			AFS.executeWriting(deletionTargetFile, wf ->
 			{
 				/*
-				 * Target file explicitely may NOT be ensured to exist since
+				 * Target file explicitly may NOT be ensured to exist since
 				 * moving does not implicitly replace an existing file.
 				 */
 				file.moveTo(wf);
@@ -279,7 +276,7 @@ public interface StorageFileWriter
 	
 	public final class Default implements StorageFileWriter
 	{
-		// since default methods, interfaces should be directly instantiable :(
+		// since default methods, interfaces should be directly instantiable
 	}
 	
 	

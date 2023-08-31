@@ -20,7 +20,6 @@
 module microstream.cache
 {
 	exports one.microstream.cache.types;
-	exports one.microstream.cache.exceptions;
 	
 	provides javax.cache.spi.CachingProvider
 	    with one.microstream.cache.types.CachingProvider

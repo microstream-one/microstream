@@ -20,6 +20,21 @@ Official Spring Boot site: https://spring.io/projects/spring-boot[]
 
 The integration requires Spring Boot 2.x (with version 2.1.0.RELEASE being the minimal supported one).
 
+If you are running Spring Boot 3, use the following dependency in your project:
+
+[source, xml, title="pom.xml", subs=attributes+]
+----
+<dependencies>
+   <dependency>
+      <groupId>one.microstream</groupId>
+      <artifactId>microstream-integrations-spring-boot3</artifactId>
+      <version>{maven-version}</version>
+   </dependency>
+</dependencies>
+----
+
+The migration from version 2 to 3 doesn't require any code changes related to the MicroStream integration classes. Internally, the integration makes now use of the _AutoConfiguration_ option (where the Spring Boot 2 integration code makes use of the Spring Factories config file)
+
 == Breaking changes
 
 Since version 8.0.0, the _StorageManager_ that is instantiated by the integration is also started where the previous version of the integration did not start the manager.  You can have the old behaviour of a _StorageManager_ that is not started by specifying the config value `one.microstream.auto-start=false`.
@@ -62,6 +77,73 @@ The integration also defines the instance of the class that is created as the ro
 You can only annotate 1 class with the `@Storage`  annotation, if you have marked multiple, the creation of the Storage Spring bean will fail with a _BeansException_.
 
 When using the `@Storage` functionality, you as a developer should not change the root object of the _StorageManager_ yourself anymore as that will lead to conflicts and mismatches between the Spring bean created for the Root object and your newly set instance on the _StorageManager_.
+
+WARNING: When using @Storage, the Root initialization when there is no data in the data storage yet, happens asynchronously from the `StorageManager` initialization. This means that your code that uses the `StorageManager` bean can retrieve/operate on a null root when initialization is still in progress.
+
+== Multiple Managers
+
+As of version 8.0.0, the integration support multiple _StorageManagers_.  Within Spring (Boot) you can define multiple beans that implement the same interface by assigning it a certain label with the `@Qualifier` annotation. Using the same principle, you can define multiple _StorageManagers_. And in this case, also the Root object (through the `@Storage` annotation) and `StorageManagerInitializer` and `EmbeddedStorageFoundationCustomizer` concepts are supported.
+
+Since we cannot know which qualifier (label) you want to use for your different _StorageManager_s, the Spring Boot integration cannot create the beans without a little help/configuration from the developer.
+
+You can define the _StorageManager_ you need and assign through the following Configuration Bean.
+
+[source]
+----
+@Configuration
+public class DefineStorageManagers {
+
+    private final StorageManagerProvider provider;
+
+    public DefineStorageManagers(StorageManagerProvider provider) {
+        this.provider = provider;
+    }
+
+    @Bean
+    @Qualifier("green")
+    public EmbeddedStorageManager getGreenManager() {
+        return provider.get(DatabaseColor.GREEN.getName());
+    }
+    @Bean
+    @Qualifier("red")
+    public EmbeddedStorageManager getRedManager() {
+        return provider.get(DatabaseColor.RED.getName());
+    }
+}
+----
+
+The `StorageManagerProvider` is a helper bean from the Spring Boot integration that can fully initialise the _StorageManager_ and the root by providing a qualifier label.
+
+The qualifier label is used as prefix to look for the appropriate configuration values.
+
+[source]
+----
+one.microstream.red.storage-directory=red-db
+one.microstream.red.channel-count=2
+
+one.microstream.green.storage-directory=green-db
+one.microstream.green.channel-count=1
+----
+
+A `StorageManagerInitializer`and `EmbeddedStorageFoundationCustomizer` implementation can check which _instance_ it received by looking at the _database name_ property which reflects the Qualifier label that you used.
+
+[source]
+----
+    @Override
+    public void initialize(final StorageManager storageManager) {
+        if (!"red".equals(storageManager.databaseName())) {
+            // This customizer operates on the Red database only
+            return;
+        }
+        /// Perform the required initialization.
+    }
+----
+
+Another option is that you annotate the class with `@Qualifier` and the _Initializer_ or _Customizer_ is only called for items with matching qualifier label in that case.
+
+Instead of 2 _named_ `StorageManager` s through a Qualifier, you can also use one _default_ (since we define a `@Primary` annotated _StorageManager_ within the integration) and one that you define yourself as we have done above.
+
+In that case, the configuration keys that you need to use are `one.microstream.` and `one.microstream.<name>` and the database name for the default one is `Primary`.
 
 == Late initialization
 
@@ -110,13 +192,3 @@ to obtain all MicroStream configuration keys:
 ----
 
 Key values containing "password" are replaced by "xxxxx".
-
-== Classloader configuration
-
-If you use another class loader, such as hot replace, you may get an exception:
-`one.microstream.exceptions.TypeCastException`<br>
-In this case, it is possible to force the use of the current thread's class loader for MicroStream.<br>
-`one.microstream.use-current-thread-class-loader=false` <br>
-This value is not passed to the MicroStream framework but is set directly in this module.
-
-This configuration is only applied to the _StorageManager_ Spring bean and not to the _EmbeddedStorageFoundation_ Spring bean.

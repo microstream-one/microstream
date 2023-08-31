@@ -22,6 +22,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import java.nio.ByteBuffer;
 import java.util.function.Predicate;
 
 import one.microstream.afs.types.AFile;
@@ -71,6 +72,9 @@ public interface StorageTaskBroker
 		throws InterruptedException;
 
 	public StorageRequestTask enqueueImportFromFilesTask(XGettingEnum<AFile> importFiles)
+		throws InterruptedException;
+
+	public StorageRequestTask enqueueImportFromByteBuffersTask(XGettingEnum<ByteBuffer> importData)
 		throws InterruptedException;
 
 	public StorageRequestTaskCreateStatistics enqueueCreateRawFileStatisticsTask()
@@ -175,10 +179,9 @@ public interface StorageTaskBroker
 			 */
 			final StorageTask currentHead = this.enqueueTask(firstTask, secondTask);
 
-			// notifiy waiting threads via current head
+			// notify waiting threads via current head
 			synchronized(currentHead)
 			{
-//				XDebug.debugln(Thread.currentThread() + " notifying all");
 				currentHead.notifyAll();
 			}
 		}
@@ -188,7 +191,6 @@ public interface StorageTaskBroker
 			final StorageTask currentHead = this.enqueueTask(task);
 			synchronized(currentHead)
 			{
-//				XDebug.debugln(Thread.currentThread() + " notifying all");
 				currentHead.notifyAll();
 			}
 		}
@@ -196,10 +198,6 @@ public interface StorageTaskBroker
 		private StorageTask enqueueTask(final StorageTask task)
 		{
 			return this.enqueueTask(task, task);
-//			final StorageTask currentHead;
-//			(currentHead = this.currentHead).setNext(task);
-//			this.currentHead = task;
-//			return currentHead;
 		}
 
 		private StorageTask enqueueTask(final StorageTask nextTask, final StorageTask newHeadTask)
@@ -295,11 +293,11 @@ public interface StorageTaskBroker
 
 			/*
 			 * If the data shall "just" be exported as fast as possible and potential unreachable entities
-			 * are not a problem, then not performing the GC is perferable.
+			 * are not a problem, then not performing the GC is preferable.
 			 * If the exported data shall represent a definite minimum of all reachable entities and the
 			 * required time for a full GC is not an issue (e.g. nightly chronjob), then performing the GC
 			 * is preferable.
-			 * Both cases are equally viable depending on the situation. Hence the required flag.
+			 * Both cases are equally viable depending on the situation. Hence, the required flag.
 			 */
 			if(performGarbageCollection)
 			{
@@ -325,11 +323,27 @@ public interface StorageTaskBroker
 			throws InterruptedException
 		{
 			// always use the internal evaluator to match live operation
-			final StorageRequestTaskImportData task = this.taskCreator.createImportFromFilesTask(
+			final StorageRequestTaskImportDataFiles task = this.taskCreator.createImportFromFilesTask(
 				this.channelCount          ,
 				this.fileEvaluator         ,
 				this.objectIdRangeEvaluator,
-				importFiles,
+				importFiles                ,
+				this.operationController
+			);
+			this.enqueueTaskAndNotifyAll(task);
+			return task;
+		}
+
+		@Override
+		public StorageRequestTask enqueueImportFromByteBuffersTask(final XGettingEnum<ByteBuffer> importData)
+			throws InterruptedException
+		{
+			// always use the internal evaluator to match live operation
+			final StorageRequestTaskImportDataByteBuffers task = this.taskCreator.createImportFromByteBuffersTask(
+				this.channelCount          ,
+				this.fileEvaluator         ,
+				this.objectIdRangeEvaluator,
+				importData                 ,
 				this.operationController
 			);
 			this.enqueueTaskAndNotifyAll(task);
@@ -363,8 +377,6 @@ public interface StorageTaskBroker
 
 			// must let GC complete to get viable results
 			this.enqueueTaskPrependingFullGc(task, Long.MAX_VALUE);
-//			DEBUGStorage.println("disabled type export prepended Gc!");
-//			this.enqueueTaskAndNotifyAll(task);
 
 			// return actual task
 			return task;
@@ -394,8 +406,6 @@ public interface StorageTaskBroker
 			
 			// task creation must be called AFTER acquiring the lock to ensure temporal consistency in the task chain
 			final StorageRequestTaskStoreEntities task = this.taskCreator.createSaveTask(data, this.operationController);
-			
-//			((StorageRequestTaskSaveEntities.Default)task).DEBUG_Print(null);
 			
 			this.enqueueTaskAndNotifyAll(task);
 			return task;

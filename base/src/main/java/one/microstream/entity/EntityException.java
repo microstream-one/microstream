@@ -24,10 +24,6 @@ package one.microstream.entity;
 import one.microstream.exceptions.BaseException;
 
 
-/**
- * 
- * 
- */
 public class EntityException extends BaseException
 {
 	///////////////////////////////////////////////////////////////////////////

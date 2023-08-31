@@ -67,16 +67,11 @@ import one.microstream.util.iterables.GenericListIterator;
  * 2.) The common modCount-concurrency exception behavior ("failfast") has buggy and inconsistent behavior by
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
  * and removing more than one element of it without using the iterator's method.<br>
- * <br>
- * Current conclusion is that the JDK's failfast implementations buy unneeded (and even unreliable as stated by
- * official guides) concurrency modification recognition at the cost of performance loss and even a bug when already
- * used in a thread-safe manner.
  * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
- * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * to maximize internal iteration potential, eliminating the need to use the external iteration
  * {@link Iterator} paradigm.
  *
- * 
  * @version 0.9, 2011-02-06
  */
 public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> implements XList<E>
@@ -479,15 +474,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		return procedure;
 	}
 
-	// aggregating //
-
-//	@Override
-//	public <R> R aggregate(final Aggregator<? super E, R> aggregate)
-//	{
-//		AbstractArrayStorage.iterate(this.data, this.size, aggregate);
-//		return aggregate.yield();
-//	}
-
 	// count querying //
 
 	@Override
@@ -495,12 +481,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	{
 		return AbstractArrayStorage.forwardCount(this.data, 0, this.size, element);
 	}
-
-//	@Override
-//	public int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.forwardCount(this.data, 0, this.size, sample, equalator);
-//	}
 
 	@Override
 	public long countBy(final Predicate<? super E> predicate)
@@ -515,12 +495,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	{
 		return AbstractArrayStorage.forwardIndexOf(this.data, 0, this.size, element);
 	}
-
-//	@Override
-//	public int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.forwardIndexOf(this.data, this.size, sample, equalator);
-//	}
 
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
@@ -633,18 +607,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	{
 		return AbstractArrayStorage.isSorted(this.data, this.size, comparator);
 	}
-
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
-//	}
 
 	// boolean querying - applies //
 
@@ -1012,12 +974,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		return AbstractArrayStorage.replaceOne(this.data, this.size, element, replacement);
 	}
 
-//	@Override
-//	public boolean replaceOne(final E sample, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		return AbstractArrayStorage.replaceOne(this.data, this.size, sample, replacement, equalator);
-//	}
-
 	@Override
 	public boolean replaceOne(final Predicate<? super E> predicate, final E substitute)
 	{
@@ -1031,18 +987,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	{
 		return AbstractArrayStorage.replace(this.data, this.size, element, replacement);
 	}
-
-//	@Override
-//	public int replace(final CtrlPredicate<? super E> predicate, final E substitute)
-//	{
-//		return AbstractArrayStorage.replace(this.data, this.size, predicate, substitute);
-//	}
-
-//	@Override
-//	public int replace(final E sample, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		return AbstractArrayStorage.replace(this.data, this.size, sample, replacement, equalator);
-//	}
 
 	@Override
 	public long replace(final Predicate<? super E> predicate, final E substitute)
@@ -1058,16 +1002,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		return AbstractArrayStorage.replaceAll(this.data, this.size, elements, replacement, MARKER);
 	}
 
-//	@Override
-//	public int replaceAll(
-//		final XGettingCollection<? extends E> samples,
-//		final Equalator<? super E> equalator,
-//		final E newElement
-//	)
-//	{
-//		return AbstractArrayStorage.replaceAll(this.data, this.size, samples, newElement, equalator);
-//	}
-
 	@Override
 	public long substitute(final Function<? super E, ? extends E> mapper)
 	{
@@ -1079,12 +1013,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	{
 		return AbstractArrayStorage.substitute(this.data, this.size, predicate, mapper);
 	}
-
-//	@Override
-//	public int modify(final CtrlPredicate<? super E> predicate, final Function<E, E> mapper)
-//	{
-//		return AbstractArrayStorage.modify(this.data, this.size, predicate, mapper);
-//	}
 
 
 
@@ -1285,25 +1213,25 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public final ArrayCollector<E> prependAll(final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public ArrayCollector<E> prependAll(final E[] elements, final int srcStartIndex, final int srcLength)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public ArrayCollector<E> prependAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public boolean nullPrepend()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 
@@ -1343,19 +1271,19 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public ArrayCollector<E> preputAll(final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public ArrayCollector<E> preputAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public boolean nullPreput()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 
@@ -1442,7 +1370,7 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 	@Override
 	public boolean nullInsert(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 
@@ -1590,17 +1518,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		return false;
 	}
 
-//	@Override
-//	public boolean removeOne(final E sample, final Equalator<? super E> equalator)
-//	{
-//		if(AbstractArrayStorage.removeOne(this.data, this.size, sample, equalator))
-//		{
-//			this.size--;
-//			return true;
-//		}
-//		return false;
-//	}
-
 	// removing - multiple //
 
 	@Override
@@ -1610,17 +1527,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		this.size -= removeCount = removeAllFromArray(this.data, 0, this.size, element);
 		return removeCount;
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int remove(final E sample, final Equalator<? super E> equalator)
-//	{
-//		final int removeCount;
-//		this.size -= removeCount = removeAllFromArray(
-//			sample, this.data, 0, this.size, this.data, 0, this.size, (Equalator<Object>)equalator
-//		);
-//		return removeCount;
-//	}
 
 	@Override
 	public long nullRemove()
@@ -1691,17 +1597,6 @@ public final class ArrayCollector<E> extends AbstractSimpleArrayCollection<E> im
 		this.size -= removed;
 		return removed;
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public int removeAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		final int removed;
-//		this.size -= removed = removeAllFromArray(
-//			(XGettingCollection<E>)samples, this.data, 0, this.size, this.data, 0, this.size, false, equalator
-//		);
-//		return removed;
-//	}
 
 	// removing - duplicates //
 

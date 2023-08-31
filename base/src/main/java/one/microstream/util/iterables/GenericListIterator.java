@@ -30,15 +30,13 @@ import one.microstream.exceptions.IndexBoundsException;
 import one.microstream.typing.XTypes;
 
 /**
- * Generic (and potentially imperformant!) implementation of a {@link ListIterator}.<br>
+ * Generic (and potentially not performant!) implementation of a {@link ListIterator}.<br>
  * Routes all modifying procedures ({@link #add(Object)}, {@link #remove()}, {@link #set(Object)}) to the wrapped
  * {@link List} which may throw an {@link UnsupportedOperationException} if it does not support the procedure.
  * <p>
  * If the use of an Iterator is not mandatory (e.g. through an API), it is strongly recommended to instead use
  * Higher Order Programming concepts from "Collection 2.0" types like {@link XGettingList}, {@link XList}, etc.
  * and their functional procedures etc.
- *
- * 
  *
  */
 public class GenericListIterator<E> implements ListIterator<E>
@@ -74,17 +72,7 @@ public class GenericListIterator<E> implements ListIterator<E>
 		 *
 		 * The exception definition says:
 		 * throws IndexOutOfBoundsException if the index is out of range ({@code index < 0 || index > size()})
-		 *
-		 * JDK developers don't seem to understand that size() is not a valid value for a 0-based index.
-		 * Passing such an invalid value must cause an exception, otherwise it is a carried off bug.
-		 * That their implemented logic aborts safely for that invalid index doesn't make the flawed interface
-		 * definition correct. Some other implementation might let the invalid index value pass and create
-		 * wrong behavior, despite fulfilling the defined contract.
-		 * There is a huge difference between some hacky, but accidentally working implementation and a correct
-		 * interface contract definition. They did the former, but not the latter. Their interface is flawed and
-		 * should not be used.
-		 * Not to mention their fail fast bug and their plain string exception data instead of proper structures.
-		 *
+		 *		 *
 		 * The extended collection's backward-compatibility #listIterator(int) throws the correct exception in this
 		 * case, deliberately breaking the flawed contract.
 		 */

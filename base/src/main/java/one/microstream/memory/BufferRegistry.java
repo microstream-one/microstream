@@ -34,7 +34,7 @@ public class BufferRegistry
 	// instance fields //
 	////////////////////
 
-	// crucial since address packing occupies some bits, so the maximum capacity is lower then technically possible.
+	// crucial since address packing occupies some bits, so the maximum capacity is lower than technically possible.
 	private final int maximumCapacityBound;
 	
 	// "increaseBound" is capacity + 1. "shrinkBound" accordingly.
@@ -206,9 +206,7 @@ public class BufferRegistry
 			 * but that would cause considerable code complication for a case that will probably never occur.
 			 * If it does, it can be somewhat fixed by implementing that extension.
 			 * Of course that only bushes the limit to the int max but does not remove the int limit itself.
-			 * It's simply a shame that arrays can't be adressed with longs.
-			 * But what can you say: Java 1.0 was a 1990ies technology and since then, they didn't manage to
-			 * change the limit
+			 * It's simply a shame that arrays can't be addressed with longs.
 			 */
 		}
 
@@ -256,7 +254,7 @@ public class BufferRegistry
 
 		this.updateLowestFreeIndex();
 		
-		// store to heap (always funny)
+		// store to heap
 		this.size = size;
 		
 		// since all hollow entries have been kicked out, the counter must be reset

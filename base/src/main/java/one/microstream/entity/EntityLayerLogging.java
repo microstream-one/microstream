@@ -23,10 +23,6 @@ package one.microstream.entity;
 
 import static one.microstream.X.notNull;
 
-/**
- * 
- * 
- */
 public final class EntityLayerLogging extends EntityLayer
 {
 	private final EntityLogger logger;

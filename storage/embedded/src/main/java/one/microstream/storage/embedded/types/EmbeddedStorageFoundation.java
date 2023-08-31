@@ -64,7 +64,7 @@ import one.microstream.util.logging.Logging;
  * A kind of factory type that holds and creates on demand all the parts that form an {@link EmbeddedStorageManager}
  * instance, i.e. a functional database handling logic embedded in the same process as the application using it.
  * <p>
- * Additionally to the services of a mere factory type, a foundation type also keeps references to all parts
+ * Additionally, to the services of a mere factory type, a foundation type also keeps references to all parts
  * after a {@link EmbeddedStorageManager} instance has been created. This is useful if some internal logic parts
  * shall be accessed while the {@link EmbeddedStorageManager} logic is already running. Therefore, this type can
  * best be thought of as a {@literal foundation} on which the running database handling logic stands.
@@ -73,8 +73,6 @@ import one.microstream.util.logging.Logging;
  * All {@literal set~} methods return {@literal this} to allow for easy method chaining to improve readability.<br>
  * All {@literal get~} methods return a logic part instance, if present or otherwise creates and sets one beforehand
  * via a default creation logic.
- *
- * 
  *
  * @param <F> the "self-type" of the  {@link EmbeddedStorageManager} implementation.
  */
@@ -91,7 +89,7 @@ extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary
 	 * Returns the currently set {@link StorageConfiguration} instance.
 	 * <p>
 	 * If no instance is set and the implementation deems an instance of this type mandatory for the successful
-	 * executon of {@link #createEmbeddedStorageManager()}, a suitable instance is created via an internal default
+	 * execution of {@link #createEmbeddedStorageManager()}, a suitable instance is created via an internal default
 	 * creation logic and then set as the current. If the implementation has not sufficient logic and/or data
 	 * to create a default instance, a {@link MissingFoundationPartException} is thrown.
 	 *
@@ -183,9 +181,6 @@ extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary
 	/**
 	 * Creates and returns a new {@link EmbeddedStorageManager} instance by using the current state of all registered
 	 * logic part instances and by on-demand creating missing ones via a default logic.
-	 * <p>
-	 * If the passed {@literal explicitRoot} is {@literal null}, a default root instance will be created, see
-	 * {@link EmbeddedStorageManager#defaultRoot()}.
 	 * <p>
 	 * The returned {@link EmbeddedStorageManager} instance will NOT yet be started.
 	 *
@@ -548,16 +543,16 @@ extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary
 		}
 
 		/* (02.03.2014 TM)TODO: Storage Configuration more dynamic
-		 *  The configuration must be provided in the creation process, not set idependantly.
+		 *  The configuration must be provided in the creation process, not set independently.
 		 *  Example: cache evaluator might have to know all the channel caches.
 		 *  To avoid initializer loops (configuration must exist for the channels to be created),
 		 *  an initialize(...) pattern must be used.
 		 *
 		 *  Speaking of which:
 		 *  It may generally be a good idea to retrofit numerous types with initialize(...) methods
-		 *  (mostly for backreferencing channels). If an implementation doesn't need the backreference,
+		 *  (mostly for back-referencing channels). If an implementation doesn't need the backreference,
 		 *  the initialize method(s) can simply be no-op.
-		 *  An initialization tree diagram should be created to asses the initialization dependancies.
+		 *  An initialization tree diagram should be created to asses the initialization dependencies.
 		 */
 		@Override
 		public F setConfiguration(final StorageConfiguration configuration)
@@ -695,7 +690,7 @@ extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary
 		{
 			super.setWriteController(writeController);
 			
-			// tricky: must synch writeController referenc in connection foundation, if present.
+			// tricky: must synch writeController reference in connection foundation, if present.
 			if(this.connectionFoundation != null)
 			{
 				this.connectionFoundation.setWriteController(writeController);
@@ -800,7 +795,7 @@ extends StorageFoundation<F>, PersistenceTypeHandlerRegistration.Executor<Binary
 				ecf.getRootResolverProvider().setRoot(root);
 			}
 
-			// must be created BEFORE the type handler manager is initilized to register its custom type handler
+			// must be created BEFORE the type handler manager is initialized to register its custom type handler
 			final PersistenceRootsProvider<Binary> prp = ecf.getRootsProvider();
 
 			// initialize persistence (=binary) type handler manager (validate and ensure type handlers)

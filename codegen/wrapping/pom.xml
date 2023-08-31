@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>one.microstream</groupId>
+        <artifactId>microstream-codegen-parent</artifactId>
+        <version>09.00.00-MS-GA-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>microstream-codegen-wrapping</artifactId>
+
+    <name>MicroStream Codegen Wrapping</name>
+    <description>MicroStream Codegen Wrapping Project</description>
+    <url>https://microstream.one</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>one.microstream</groupId>
+            <artifactId>microstream-base</artifactId>
+            <version>09.00.00-MS-GA-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <proc>none</proc>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

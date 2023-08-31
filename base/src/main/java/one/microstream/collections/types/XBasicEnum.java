@@ -29,8 +29,6 @@ import one.microstream.collections.sorting.XLadder;
  * the otherwise typical list concerns like inserting, ordering, setting due to the limitations of the characteristic
  * of being always sorted.
  *
- * 
- *
  * @param <E> type of contained elements
  */
 public interface XBasicEnum<E> extends XSet<E>, XBasicSequence<E>, XPutGetEnum<E>, XProcessingEnum<E>

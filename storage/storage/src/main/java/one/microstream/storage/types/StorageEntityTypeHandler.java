@@ -161,8 +161,6 @@ public interface StorageEntityTypeHandler extends PersistenceTypeDefinition
 			final PersistenceObjectIdAcceptor acceptor
 		)
 		{
-//			DEBUGStorage.println(Thread.currentThread().getName() + " iterating type " + this.typeName());
-//			System.out.flush();
 
 			if(this.simpleReferenceRange != 0)
 			{

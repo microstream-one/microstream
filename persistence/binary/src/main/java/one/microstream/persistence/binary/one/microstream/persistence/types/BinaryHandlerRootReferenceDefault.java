@@ -38,9 +38,9 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 	////////////////////
 
 	/**
-	 * The handler instance directly knowing the global registry might suprise at first and seem like a shortcut hack.
+	 * The handler instance directly knowing the global registry might surprise at first and seem like a shortcut hack.
 	 * However, when taking a closer look at the task of this handler: (globally) resolving global root instances,
-	 * it becomes clear that a direct access for registering resolved global instances at the global registry is
+	 * it becomes clear that direct access for registering resolved global instances at the global registry is
 	 * indeed part of this handler's task.
 	 */
 	final PersistenceRootReference.Default rootReference ;
@@ -127,7 +127,7 @@ public final class BinaryHandlerRootReferenceDefault extends AbstractBinaryHandl
 			 * has to be recognized and reported in the corresponding type handler, but the defined root instance
 			 * must have the persisted root object id associated in any case. Otherwise, there would be an
 			 * inconsistency: a generic instance would be created for the persisted record and be generically
-			 * registered with the persistetd object id, thus leaving no object id for the actually defined root
+			 * registered with the persisted object id, thus leaving no object id for the actually defined root
 			 * instance to be registered/associated with.
 			 * If no rootInstance is defined, there is no such conflict. The generic instance of whatever type
 			 * gets created and registered and can be queried by the application logic after initialization is

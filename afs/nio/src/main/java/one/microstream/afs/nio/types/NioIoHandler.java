@@ -582,55 +582,6 @@ public interface NioIoHandler extends AIoHandler
 				throw new IORuntimeException(e);
 			}
 		}
-
-//		@Override
-//		protected long specificCopyTo(
-//			final NioReadableFile sourceSubject ,
-//			final AWritableFile   target        ,
-//			final long            targetPosition
-//		)
-//		{
-//			final NioWritableFile handlableTarget = this.castWritableFile(target);
-//
-//			try
-//			{
-//				return XIO.copyFile(
-//					sourceSubject.ensureOpenChannel(),
-//					handlableTarget.ensureOpenChannel(),
-//					targetPosition
-//				);
-//			}
-//			catch(final IOException e)
-//			{
-//				throw new IORuntimeException(e);
-//			}
-//		}
-
-//		@Override
-//		protected long specificCopyTo(
-//			final NioReadableFile sourceSubject ,
-//			final AWritableFile   target        ,
-//			final long            targetPosition,
-//			final long            length
-//		)
-//		{
-//			final NioWritableFile handlableTarget = this.castWritableFile(target);
-//
-//			try
-//			{
-//				return XIO.copyFile(
-//					sourceSubject.ensureOpenChannel(),
-//					handlableTarget.ensureOpenChannel(),
-//					targetPosition,
-//					length
-//				);
-//			}
-//			catch(final IOException e)
-//			{
-//				throw new IORuntimeException(e);
-//			}
-//		}
-		
 		
 		@Override
 		protected long specificCopyFrom(
@@ -700,54 +651,6 @@ public interface NioIoHandler extends AIoHandler
 				throw new IORuntimeException(e);
 			}
 		}
-
-//		@Override
-//		protected long specificCopyFrom(
-//			final AReadableFile   source        ,
-//			final NioWritableFile targetSubject ,
-//			final long            targetPosition
-//		)
-//		{
-//			final NioReadableFile handlableSource = this.castReadableFile(source);
-//
-//			try
-//			{
-//				return XIO.copyFile(
-//					handlableSource.ensureOpenChannel(),
-//					targetSubject.ensureOpenChannel(),
-//					targetPosition
-//				);
-//			}
-//			catch(final IOException e)
-//			{
-//				throw new IORuntimeException(e);
-//			}
-//		}
-
-//		@Override
-//		protected long specificCopyFrom(
-//			final AReadableFile   source        ,
-//			final NioWritableFile targetSubject ,
-//			final long            targetPosition,
-//			final long            length
-//		)
-//		{
-//			final NioReadableFile handlableSource = this.castReadableFile(source);
-//
-//			try
-//			{
-//				return XIO.copyFile(
-//					handlableSource.ensureOpenChannel(),
-//					targetSubject.ensureOpenChannel(),
-//					targetPosition,
-//					length
-//				);
-//			}
-//			catch(final IOException e)
-//			{
-//				throw new IORuntimeException(e);
-//			}
-//		}
 
 		@Override
 		protected long specificWriteBytes(

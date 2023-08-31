@@ -23,8 +23,6 @@ package one.microstream.util;
 
 /**
  * A wrapper for a mutable boolean type and convenience setting and getting methods.
- * 
- * 
  */
 public interface Flag
 {

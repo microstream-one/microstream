@@ -203,10 +203,10 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 	
 	/**
 	 * Calls {@link ComPersistenceAdaptorBinary#Creator(BinaryPersistenceFoundation)} with the Com-specific
-	 * modfications set:<br>
+	 * modifications set:<br>
 	 * PersistenceContextDispatcher.LocalObjectRegistration()<br>
 	 * PersistenceSizedArrayLengthController.Fitting()<br>
-	 * based on the followig rationale:<br>
+	 * based on the following rationale:<br>
 	 * <p>
 	 * PersistenceContextDispatcher.LocalObjectRegistration:<br>
 	 * Communication normally doesn't update a central/global object registry (= object graph) directly,
@@ -214,7 +214,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 	 * In case this shall change, a custom-configured foundation can be passed instead.
 	 * <p>
 	 * PersistenceSizedArrayLengthController.Fitting:<br>
-	 * Sized arrays shouldn't be unrestricted in length for use in comm. in order to prevent array bombs.
+	 * Sized arrays shouldn't be unrestricted for use in comm. in order to prevent array bombs.
 	 * <p>
 	 * These aspects should be considered to be replicated when calling
 	 * {@link ComPersistenceAdaptorBinary#Creator(BinaryPersistenceFoundation)} directly to pass an externally defined
@@ -229,7 +229,7 @@ public interface ComPersistenceAdaptorBinary<C> extends ComPersistenceAdaptor<C>
 		 * but uses a local one that is discarded after every message.
 		 * In case this shall change, a custom-configured foundation can be passed instead.
 		 * 
-		 * Also, sized arrays shouldn't be unrestricted in length for use in comm. in order to prevent array bombs.
+		 * Also, sized arrays shouldn't be unrestricted for use in comm. in order to prevent array bombs.
 		 */
 		return Creator(
 			BinaryPersistenceFoundation.New()

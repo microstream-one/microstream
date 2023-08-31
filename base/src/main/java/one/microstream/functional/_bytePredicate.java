@@ -20,10 +20,6 @@ package one.microstream.functional;
  * #L%
  */
 
-/**
- * 
- *
- */
 public interface _bytePredicate
 {
 	public boolean test(byte b);

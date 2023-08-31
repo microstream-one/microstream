@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-storage-rest-parent</artifactId>
-		<version>08.00.00-MS-GA-SNAPSHOT</version>
+		<version>09.00.00-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -17,6 +17,7 @@
 	
 	<name>MicroStream Storage REST Service Sparkjava</name>
 	<description>Sparkjava REST Service Implementation</description>
+	<url>https://microstream.one</url>
 	
 	<properties>
 		<sparkjava.version>2.9.3</sparkjava.version>
@@ -28,7 +29,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage-restservice</artifactId>
-			<version>08.00.00-MS-GA-SNAPSHOT</version>
+			<version>09.00.00-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sparkjava</groupId>

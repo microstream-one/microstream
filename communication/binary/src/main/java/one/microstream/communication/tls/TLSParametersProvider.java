@@ -48,9 +48,9 @@ public interface TLSParametersProvider
 	/**
 	 * 
 	 * Provides a nearly empty SSLParameters object.
-	 * 
+	 * <p>
 	 * all configuration values are null except
-	 *
+	 * <p>
 	 * needClientAuth = true
 	 *
 	 */

@@ -26,9 +26,6 @@ package one.microstream.collections.interfaces;
  * in the current state before an internal rebuild becomes necessary. The capacity can be, but does not have to be,
  * the size of the internal storage (e.g. an array) itself. It can also be a meta value derived from the actual
  * storage size, like "threshold" in hash collections.
- *
- * 
- *
  */
 public interface CapacityExtendable extends CapacityCarrying
 {

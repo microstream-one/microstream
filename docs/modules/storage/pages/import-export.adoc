@@ -13,41 +13,21 @@ NOTE: The created binary type data files contain only records of the according t
 
 [source, java, title="Export"]
 ----
+// Setup file system and storage, used in all examples below
 NioFileSystem          fileSystem = NioFileSystem.New();
-	
 EmbeddedStorageManager storage    = EmbeddedStorage.start(
 	fileSystem.ensureDirectoryPath("storage")
 );
 
-String                            fileSuffix      = "bin";
-StorageConnection                 connection      = storage.createConnection();
-StorageEntityTypeExportStatistics exportResult    = connection.exportTypes(
-	new StorageEntityTypeExportFileProvider.Default(
-		fileSystem.ensureDirectoryPath("export-dir"),
-		fileSuffix
-	),
-	typeHandler -> true // export all, customize if necessary
+StorageConnection                 connection   = storage.createConnection();
+StorageEntityTypeExportStatistics exportResult = connection.exportTypes(
+	fileSystem.ensureDirectoryPath("export-dir")
 );
-XSequence<Path> exportFiles = CQL
-	.from(exportResult.typeStatistics().values())
-	.project(s -> Paths.get(s.file().identifier()))
-	.execute()
-;
 ----
 
 [source, java, title="Import"]
 ----
-NioFileSystem          fileSystem = NioFileSystem.New();
-	
-EmbeddedStorageManager storage    = EmbeddedStorage.start(
-	fileSystem.ensureDirectoryPath("storage")
-);
-
-StorageConnection      connection = storage.createConnection();
-connection.importFiles(X.Enum(
-	fileSystem.ensureFilePath("type1.bin"),
-	fileSystem.ensureFilePath("type2.bin")
-));
+connection.importFiles(exportResult.files());
 ----
 
 == Data Conversion
@@ -65,51 +45,19 @@ The file's size is at the possible minimum and the performance of the converter 
 
 [source, java, title="Binary to CSV"]
 ----
-NioFileSystem          fileSystem = NioFileSystem.New();
-	
-EmbeddedStorageManager storage    = EmbeddedStorage.start(
-	fileSystem.ensureDirectoryPath("storage")
+StorageDataConverterTypeBinaryToCsv converter = StorageDataConverterTypeBinaryToCsv.New(
+    fileSystem.ensureDirectoryPath("csv-dir"),
+    storage.typeDictionary()
 );
-
-StorageDataConverterTypeBinaryToCsv converter =
-	new StorageDataConverterTypeBinaryToCsv.UTF8(
-		StorageDataConverterCsvConfiguration.defaultConfiguration(),
-		new StorageEntityTypeConversionFileProvider.Default(
-			fileSystem.ensureDirectoryPath("csv-dir"),
-			"csv"
-		),
-		storage.typeDictionary(),
-		null, // no type name mapping
-		4096, // read buffer size
-		4096  // write buffer size
-);
-AReadableFile dataFile = fileSystem.ensureFilePath("type1.bin").useReading();
-try
-{
-	converter.convertDataFile(dataFile);
-}
-finally
-{
-	dataFile.close();
-}
+converter.convertDataFiles(exportResult.files());
 ----
 
 [source, java, title="CSV to Binary"]
 ----
-NioFileSystem          fileSystem = NioFileSystem.New();
-	
-EmbeddedStorageManager storage    = EmbeddedStorage.start(
-	fileSystem.ensureDirectoryPath("storage")
-);
-
 StorageDataConverterTypeCsvToBinary<AFile> converter =
-	StorageDataConverterTypeCsvToBinary.New(
-		StorageDataConverterCsvConfiguration.defaultConfiguration(),
-		storage.typeDictionary(),
-		new StorageEntityTypeConversionFileProvider.Default(
-			fileSystem.ensureDirectoryPath("bin-dir"),
-			"dat"
-		)
+    StorageDataConverterTypeCsvToBinary.New(
+        storage.typeDictionary(),
+        fileSystem.ensureDirectoryPath("csv-dir")
 );
 converter.convertCsv(fileSystem.ensureFilePath("type1.csv"));
 ----

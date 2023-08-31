@@ -433,13 +433,13 @@ implements XImmutableEnum<E>, HashCollection<E>, Composition, IdentityEqualityLo
 	@Override
 	public final XImmutableEnum<E> range(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#range()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#range()
 	}
 
 	@Override
 	public final XGettingEnum<E> view(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME EqHashTable.Entries#view()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME EqHashTable.Entries#view()
 	}
 
 	@Override

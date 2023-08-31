@@ -48,7 +48,6 @@ import one.microstream.typing.XTypes;
 public final class ChainStrongStrongStorage<K, V, EN extends AbstractChainEntry<KeyValue<K, V>, K, V, EN>>
 extends AbstractChainKeyValueStorage<K, V, EN>
 {
-	// CHECKSTYLE.OFF: FinalParameter: A LOT of methods use that pattern in this class
 
 	///////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -4625,5 +4624,4 @@ extends AbstractChainKeyValueStorage<K, V, EN>
 		throw new one.microstream.meta.NotImplementedYetError(); // FIXME ChainKeyValueStorage<K,V,EN>#valuesRemoveOne()
 	}
 
-	// CHECKSTYLE.ON: FinalParameter
 }

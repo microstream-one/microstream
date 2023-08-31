@@ -234,13 +234,13 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	@Override
 	public XReferencing<E> view()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingBag<E>#view()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingBag<E>#view()
 	}
 
 	@Override
 	public XReferencing<E> view(final long lowIndex, final long highIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#view()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#view()
 	}
 
 	@Override
@@ -252,43 +252,43 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	@Override
 	public Iterator<E> iterator()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#iterator()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#iterator()
 	}
 
 	@Override
 	public Object[] toArray()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#toArray()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#toArray()
 	}
 
 	@Override
 	public OldSingle old()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#old()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#old()
 	}
 
 	@Override
 	public Equalator<? super E> equality()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#equality()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#equality()
 	}
 
 	@Override
 	public E[] toArray(final Class<E> type)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#toArray()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#toArray()
 	}
 
 	@Override
 	public boolean equals(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#equals()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#equals()
 	}
 
 	@Override
 	public boolean equalsContent(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#equalsContent()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#equalsContent()
 	}
 
 	@Override
@@ -300,97 +300,97 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 //	@Override
 //	public <R> R aggregate(final Aggregator<? super E, R> aggregate)
 //	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#aggregate()
+//		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#aggregate()
 //	}
 
 	@Override
 	public boolean containsId(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#containsId()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#containsId()
 	}
 
 	@Override
 	public boolean contains(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#contains()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#contains()
 	}
 
 	@Override
 	public boolean containsSearched(final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#contains()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#contains()
 	}
 
 	@Override
 	public boolean containsAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#containsAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#containsAll()
 	}
 
 	@Override
 	public boolean applies(final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#applies()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#applies()
 	}
 
 	@Override
 	public long count(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#count()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#count()
 	}
 
 	@Override
 	public long countBy(final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#count()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#count()
 	}
 
 	@Override
 	public E search(final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#search()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#search()
 	}
 
 	@Override
 	public E seek(final E sample)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#seek()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#seek()
 	}
 
 	@Override
 	public E max(final Comparator<? super E> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#max()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#max()
 	}
 
 	@Override
 	public E min(final Comparator<? super E> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#min()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#min()
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T distinct(final T target)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#distinct()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#distinct()
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T distinct(final T target, final Equalator<? super E> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#distinct()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#distinct()
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T copyTo(final T target)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#copyTo()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#copyTo()
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T filterTo(final T target, final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#copyTo()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#copyTo()
 	}
 
 	@Override
@@ -400,7 +400,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#union()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#union()
 	}
 
 	@Override
@@ -410,7 +410,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#intersect()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#intersect()
 	}
 
 	@Override
@@ -420,103 +420,91 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		final T                               target
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingCollection<E>#except()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingCollection<E>#except()
 	}
 
 	@Override
 	public void clear()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XRemovingCollection<E>#clear()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#clear()
 	}
 
 	@Override
 	public void truncate()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XRemovingCollection<E>#truncate()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#truncate()
 	}
 
 	@Override
 	public long consolidate()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XRemovingCollection<E>#consolidate()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#consolidate()
 	}
 
 	@Override
 	public long nullRemove()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XRemovingCollection<E>#nullRemove()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#nullRemove()
 	}
 
 	@Override
 	public boolean removeOne(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XRemovingCollection<E>#removeOne()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#removeOne()
 	}
 
 	@Override
 	public long remove(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XRemovingCollection<E>#remove()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#remove()
 	}
 
 	@Override
 	public long removeAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XRemovingCollection<E>#removeAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#removeAll()
 	}
 
 	@Override
 	public long retainAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XRemovingCollection<E>#retainAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#retainAll()
 	}
 
 	@Override
 	public long removeDuplicates()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XRemovingCollection<E>#removeDuplicates()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XRemovingCollection<E>#removeDuplicates()
 	}
 
 	@Override
 	public E retrieve(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingCollection<E>#retrieve()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingCollection<E>#retrieve()
 	}
 
 	@Override
 	public E retrieveBy(final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingCollection<E>#retrieve()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingCollection<E>#retrieve()
 	}
-
-//	@Override
-//	public int removeAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingCollection<E>#removeAll()
-//	}
-
-//	@Override
-//	public int retainAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingCollection<E>#retainAll()
-//	}
 
 	@Override
 	public long removeDuplicates(final Equalator<? super E> equalator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingCollection<E>#removeDuplicates()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingCollection<E>#removeDuplicates()
 	}
 
 	@Override
 	public long removeBy(final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingCollection<E>#remove()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingCollection<E>#remove()
 	}
 
 	@Override
 	public <C extends Consumer<? super E>> C moveTo(final C target, final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingCollection<E>#moveTo()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingCollection<E>#moveTo()
 	}
 
 	@Override
@@ -571,152 +559,152 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	@Override
 	public long maxIndex(final Comparator<? super E> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#maxIndex()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#maxIndex()
 	}
 
 	@Override
 	public long minIndex(final Comparator<? super E> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#minIndex()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#minIndex()
 	}
 
 	@Override
 	public long indexOf(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#indexOf()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#indexOf()
 	}
 
 	@Override
 	public long indexBy(final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#indexOf()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#indexOf()
 	}
 
 	@Override
 	public long lastIndexOf(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#lastIndexOf()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#lastIndexOf()
 	}
 
 	@Override
 	public long lastIndexBy(final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#lastIndexOf()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#lastIndexOf()
 	}
 
 	@Override
 	public long scan(final Predicate<? super E> predicate)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#scan()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#scan()
 	}
 
 	@Override
 	public boolean isSorted(final Comparator<? super E> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#isSorted()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#isSorted()
 	}
 
 	@Override
 	public <T extends Consumer<? super E>> T copySelection(final T target, final long... indices)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingSequence<E>#copySelection()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingSequence<E>#copySelection()
 	}
 
 	@Override
 	public E removeAt(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingSequence<E>#remove()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingSequence<E>#remove()
 	}
 
 	@Override
 	public E fetch()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingSequence<E>#fetch()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingSequence<E>#fetch()
 	}
 
 	@Override
 	public E pop()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingSequence<E>#pop()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingSequence<E>#pop()
 	}
 
 	@Override
 	public E pinch()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingSequence<E>#pinch()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingSequence<E>#pinch()
 	}
 
 	@Override
 	public E pick()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingSequence<E>#pick()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingSequence<E>#pick()
 	}
 
 	@Override
 	public Single<E> removeRange(final long offset, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingSequence<E>#removeRange()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingSequence<E>#removeRange()
 	}
 
 	@Override
 	public Single<E> retainRange(final long offset, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingSequence<E>#removeRange()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingSequence<E>#removeRange()
 	}
 
 	@Override
 	public long removeSelection(final long[] indices)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingSequence<E>#removeSelection()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingSequence<E>#removeSelection()
 	}
 
 	@Override
 	public <C extends Consumer<? super E>> C moveSelection(final C target, final long... indices)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XProcessingSequence<E>#moveSelection()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XProcessingSequence<E>#moveSelection()
 	}
 
 	@Override
 	public ListIterator<E> listIterator()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#listIterator()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#listIterator()
 	}
 
 	@Override
 	public ListIterator<E> listIterator(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XGettingList<E>#listIterator()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XGettingList<E>#listIterator()
 	}
 
 	@Override
 	public boolean input(final long index, final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XInputtingSequence<E>#input()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XInputtingSequence<E>#input()
 	}
 
 	@Override
 	public boolean nullInput(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XInputtingSequence<E>#nullInput()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XInputtingSequence<E>#nullInput()
 	}
 
 	@SafeVarargs
 	@Override
 	public final long inputAll(final long index, final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XInputtingSequence<E>#input()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XInputtingSequence<E>#input()
 	}
 
 	@Override
 	public long inputAll(final long index, final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XInputtingSequence<E>#inputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XInputtingSequence<E>#inputAll()
 	}
 
 	@Override
 	public long inputAll(final long index, final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XInputtingSequence<E>#inputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XInputtingSequence<E>#inputAll()
 	}
 
 	@Override
@@ -786,192 +774,186 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	@Override
 	public boolean replaceOne(final E element, final E replacement)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XReplacingCollection<E>#replaceOne()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XReplacingCollection<E>#replaceOne()
 	}
 
 	@Override
 	public long replace(final E element, final E replacement)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XReplacingCollection<E>#replace()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XReplacingCollection<E>#replace()
 	}
 
 	@Override
 	public long replaceAll(final XGettingCollection<? extends E> elements, final E replacement)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XReplacingCollection<E>#replaceAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XReplacingCollection<E>#replaceAll()
 	}
 
 	@Override
 	public boolean replaceOne(final Predicate<? super E> predicate, final E substitute)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XReplacingCollection<E>#replaceOne()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XReplacingCollection<E>#replaceOne()
 	}
 
 	@Override
 	public long replace(final Predicate<? super E> predicate, final E substitute)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XReplacingCollection<E>#replace()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XReplacingCollection<E>#replace()
 	}
 
 //	@Override
 //	public int replace(final CtrlPredicate<? super E> predicate, final E substitute)
 //	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XReplacingCollection<E>#replace()
+//		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XReplacingCollection<E>#replace()
 //	}
 
 	@Override
 	public long substitute(final Function<? super E, ? extends E> mapper)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XReplacingCollection<E>#modify()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XReplacingCollection<E>#modify()
 	}
 
 	@Override
 	public long substitute(final Predicate<? super E> predicate, final Function<E, E> mapper)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XReplacingCollection<E>#modify()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XReplacingCollection<E>#modify()
 	}
-
-//	@Override
-//	public int modify(final CtrlPredicate<? super E> predicate, final Function<E, E> mapper)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XReplacingCollection<E>#modify()
-//	}
 
 	@Override
 	public boolean set(final long index, final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XSettingSequence<E>#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XSettingSequence<E>#set()
 	}
 
 	@Override
 	public E setGet(final long index, final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XSettingSequence<E>#setGet()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XSettingSequence<E>#setGet()
 	}
 
 	@Override
 	public void setFirst(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XSettingSequence<E>#setFirst()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XSettingSequence<E>#setFirst()
 	}
 
 	@Override
 	public void setLast(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XSettingSequence<E>#setLast()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XSettingSequence<E>#setLast()
 	}
 
 	@Override
 	public E addGet(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Single#addGet()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Single#addGet()
 	}
 
 	@Override
 	public E deduplicate(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Single#substitute()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Single#substitute()
 	}
 
 	@Override
 	public E putGet(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XPutGetSet<E>#putGet()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XPutGetSet<E>#putGet()
 	}
 
 	@Override
 	public E replace(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Single#replace()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Single#replace()
 	}
 
 	@SafeVarargs
 	@Override
 	public final Single<E> addAll(final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#add()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#add()
 	}
 
 	@Override
 	public Single<E> addAll(final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#addAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#addAll()
 	}
 
 	@Override
 	public Single<E> addAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#addAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#addAll()
 	}
 
 	@SafeVarargs
 	@Override
 	public final Single<E> putAll(final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#put()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#put()
 	}
 
 	@Override
 	public Single<E> putAll(final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#putAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#putAll()
 	}
 
 	@Override
 	public Single<E> putAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#putAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#putAll()
 	}
 
 	@SafeVarargs
 	@Override
 	public final Single<E> prependAll(final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#prepend()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#prepend()
 	}
 
 	@Override
 	public Single<E> prependAll(final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#prependAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#prependAll()
 	}
 
 	@Override
 	public Single<E> prependAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#prependAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#prependAll()
 	}
 
 	@SafeVarargs
 	@Override
 	public final Single<E> preputAll(final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#preput()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#preput()
 	}
 
 	@Override
 	public Single<E> preputAll(final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#preputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#preputAll()
 	}
 
 	@Override
 	public Single<E> preputAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#preputAll()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#preputAll()
 	}
 
 	@SafeVarargs
 	@Override
 	public final Single<E> setAll(final long index, final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#set()
 	}
 
 	@Override
 	public Single<E> set(final long index, final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#set()
 	}
 
 	@Override
@@ -982,19 +964,19 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		final long                           length
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#set()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#set()
 	}
 
 	@Override
 	public Single<E> swap(final long indexA, final long indexB)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#swap()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#swap()
 	}
 
 	@Override
 	public Single<E> swap(final long indexA, final long indexB, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#swap()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#swap()
 	}
 
 	@Override
@@ -1014,73 +996,73 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 	@Override
 	public final <P extends IndexedAcceptor<? super E>> P iterateIndexed(final P procedure)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#iterate()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#iterate()
 	}
 
 	@Override
 	public final <P extends Consumer<? super E>> P process(final P procedure)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#process()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#process()
 	}
 
 	@Override
 	public Single<E> copy()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#copy()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#copy()
 	}
 
 	@Override
 	public Single<E> toReversed()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#toReversed()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#toReversed()
 	}
 
 	@Override
 	public Single<E> reverse()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#reverse()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#reverse()
 	}
 
 	@Override
 	public Single<E> range(final long fromIndex, final long toIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#range()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#range()
 	}
 
 	@Override
 	public Single<E> fill(final long offset, final long length, final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#fill()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#fill()
 	}
 
 	@Override
 	public Single<E> sort(final Comparator<? super E> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#sort()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#sort()
 	}
 
 	@Override
 	public Single<E> shiftTo(final long sourceIndex, final long targetIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#shiftTo()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#shiftTo()
 	}
 
 	@Override
 	public Single<E> shiftTo(final long sourceIndex, final long targetIndex, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#shiftTo()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#shiftTo()
 	}
 
 	@Override
 	public Single<E> shiftBy(final long sourceIndex, final long distance)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#shiftBy()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#shiftBy()
 	}
 
 	@Override
 	public Single<E> shiftBy(final long sourceIndex, final long distance, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME XList<E>#shiftBy()
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME XList<E>#shiftBy()
 	}
 
 
@@ -1101,7 +1083,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		@Override
 		public boolean contains(final Object o)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME OldSingle<E>#contains()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME OldSingle<E>#contains()
 		}
 
 		@Override
@@ -1119,7 +1101,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		@Override
 		public <T> T[] toArray(final T[] a)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME OldSingle<E>#toArray()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME OldSingle<E>#toArray()
 		}
 
 		@Override
@@ -1131,37 +1113,37 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		@Override
 		public boolean remove(final Object o)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME OldSingle<E>#remove()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME OldSingle<E>#remove()
 		}
 
 		@Override
 		public boolean containsAll(final Collection<?> c)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME OldSingle<E>#containsAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME OldSingle<E>#containsAll()
 		}
 
 		@Override
 		public boolean addAll(final Collection<? extends E> c)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME OldSingle<E>#addAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME OldSingle<E>#addAll()
 		}
 
 		@Override
 		public boolean addAll(final int index, final Collection<? extends E> c)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME OldSingle<E>#addAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME OldSingle<E>#addAll()
 		}
 
 		@Override
 		public boolean removeAll(final Collection<?> c)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME OldSingle<E>#removeAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME OldSingle<E>#removeAll()
 		}
 
 		@Override
 		public boolean retainAll(final Collection<?> c)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME OldSingle<E>#retainAll()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME OldSingle<E>#retainAll()
 		}
 
 		@Override
@@ -1197,13 +1179,13 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		@Override
 		public int indexOf(final Object o)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME OldSingle<E>#indexOf()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME OldSingle<E>#indexOf()
 		}
 
 		@Override
 		public int lastIndexOf(final Object o)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME OldSingle<E>#lastIndexOf()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME OldSingle<E>#lastIndexOf()
 		}
 
 		@Override
@@ -1221,7 +1203,7 @@ public class Single<E> implements XList<E>, XEnum<E>, XReference<E>
 		@Override
 		public List<E> subList(final int fromIndex, final int toIndex)
 		{
-			throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME OldSingle<E>#subList()
+			throw new one.microstream.meta.NotImplementedYetError(); // FIXME OldSingle<E>#subList()
 		}
 
 		@Override

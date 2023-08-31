@@ -8,7 +8,7 @@
 
 	<groupId>one.microstream</groupId>
 	<artifactId>microstream-parent</artifactId>
-	<version>08.00.00-MS-GA-SNAPSHOT</version>
+	<version>09.00.00-MS-GA-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>MicroStream</name>
@@ -41,13 +41,14 @@
 		<maven.compiler.compilerId>javac</maven.compiler.compilerId>
 		<maven.version.minimum>3.8.1</maven.version.minimum>
 		<maven.java.version.minimum>11</maven.java.version.minimum>
-		<org.owasp.depencency.check.version>6.1.6</org.owasp.depencency.check.version>
 		<org.eclipse.jdt.ecj.version>3.29.0</org.eclipse.jdt.ecj.version>
 		<license.inceptionYear>2019</license.inceptionYear>
 		<license.licenseName>epl_v2</license.licenseName>
 		<license.licenceFile>${basedir}/LICENSE</license.licenceFile>
 		<api.version>8.0</api.version>
 		<javadoc.failed.on.error>false</javadoc.failed.on.error>
+		<failsafe.rerunFailingTestsCount>2</failsafe.rerunFailingTestsCount>
+		<surefire.rerunFailingTestsCount>2</surefire.rerunFailingTestsCount>
 	</properties>
 
 	<modules>
@@ -60,6 +61,7 @@
 		<module>storage</module>
 		<module>integrations</module>
 		<module>examples</module>
+		<module>codegen</module>
 	</modules>
 
 	<distributionManagement>
@@ -80,7 +82,7 @@
 		<url>https://github.com/microstream-one/microstream</url>
 		<tag>HEAD</tag>
 	</scm>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -92,21 +94,25 @@
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-engine</artifactId>
 				<version>5.8.2</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-params</artifactId>
 				<version>5.8.2</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
 				<version>4.3.1</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-junit-jupiter</artifactId>
 				<version>4.3.1</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -136,25 +142,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>enforce-env</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-						<configuration>
-							<rules>
-								<requireMavenVersion>
-									<version>${maven.version.minimum}</version>
-								</requireMavenVersion>
-								<requireJavaVersion>
-									<version>${maven.java.version.minimum}</version>
-								</requireJavaVersion>
-							</rules>
-							<fail>true</fail>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -162,12 +149,17 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.10.1</version>
+					<version>3.11.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.6.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
-					<version>5.1.1</version>
+					<version>5.1.9</version>
 					<extensions>true</extensions>
 					<executions>
 						<execution>
@@ -189,7 +181,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.3.0</version>
 					<configuration>
 						<archive>
 							<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -202,7 +194,7 @@
 				<plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.3.0</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -223,7 +215,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.3.0</version>
+					<version>3.5.0</version>
 					<configuration>
 						<doclint>none</doclint>
 						<failOnError>false</failOnError>
@@ -250,7 +242,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>license-maven-plugin</artifactId>
-					<version>2.0.0</version>
+					<version>2.1.0</version>
 					<configuration>
 						<overrideFile>false</overrideFile>
 						<includes>
@@ -260,7 +252,7 @@
 					</configuration>
 					<executions>
 						<execution>
-							<id>add-licence</id>
+							<id>add-license</id>
 							<phase>process-sources</phase>
 							<goals>
 								<goal>update-file-header</goal>
@@ -272,7 +264,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
-					<version>1.6</version>
+					<version>3.1.0</version>
 					<executions>
 						<execution>
 							<id>sign-artifacts</id>
@@ -293,44 +285,159 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.8.2</version>
+					<version>3.1.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>3.0.0</version>	
+					<version>3.4.0</version>
+					<executions>
+						<execution>
+							<id>enforce-env</id>
+							<goals>
+								<goal>enforce</goal>
+							</goals>
+							<configuration>
+								<rules>
+									<requireMavenVersion>
+										<version>${maven.version.minimum}</version>
+									</requireMavenVersion>
+									<requireJavaVersion>
+										<version>${maven.java.version.minimum}</version>
+									</requireJavaVersion>
+								</rules>
+								<fail>true</fail>
+							</configuration>
+						</execution>
+					</executions>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.3.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>3.3.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
-					<version>2.5.2</version>
-				</plugin>
-				
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-resources-plugin</artifactId>
-					<version>3.0.2</version>
+					<version>3.1.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.6</version>
+					<version>4.0.0-M9</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.22.2</version>
+					<version>3.1.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.cyclonedx</groupId>
+					<artifactId>cyclonedx-maven-plugin</artifactId>
+					<version>2.7.9</version>
+					<executions>
+						<execution>
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>makeAggregateBom</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<projectType>library</projectType>
+						<schemaVersion>1.4</schemaVersion>
+						<includeBomSerialNumber>true</includeBomSerialNumber>
+						<includeCompileScope>true</includeCompileScope>
+						<includeProvidedScope>true</includeProvidedScope>
+						<includeRuntimeScope>true</includeRuntimeScope>
+						<includeSystemScope>true</includeSystemScope>
+						<includeTestScope>false</includeTestScope>
+						<includeLicenseText>false</includeLicenseText>
+						<outputReactorProjects>true</outputReactorProjects>
+						<outputFormat>all</outputFormat>
+						<outputName>Microstream-Sbom</outputName>
+						<outputDirectory>${project.build.directory}/sbom</outputDirectory>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.gradle</groupId>
+					<artifactId>gradle-enterprise-maven-extension</artifactId>
+					<version>1.18.1</version>
+					<configuration>
+						<gradleEnterprise>
+							<normalization>
+								<runtimeClassPath>
+									<metaInf>
+										<ignoredAttributes>
+											<ignore>Bnd-LastModified</ignore>
+											<ignore>Bundle-Version</ignore>
+											<ignore>Class-Path</ignore>
+										</ignoredAttributes>
+									</metaInf>
+									<ignoredFiles>
+										<ignoredFile>META-INF/Microstream-Sbom.json</ignoredFile>
+										<ignoredFile>META-INF/Microstream-Sbom.xml</ignoredFile>
+										<ignoredFile>META-INF/maven/one.microstream/*/pom.xml</ignoredFile>
+									</ignoredFiles>
+									<propertiesNormalizations>
+										<propetiesNormalization>
+											<path>one/microstream/**/pom.properties</path>
+											<ignoredProperties>
+												<ignore>version</ignore>
+											</ignoredProperties>
+										</propetiesNormalization>
+									</propertiesNormalizations>
+								</runtimeClassPath>
+							</normalization>
+						</gradleEnterprise>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
 
 	<profiles>
+		<profile>
+			<id>production</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.cyclonedx</groupId>
+						<artifactId>cyclonedx-maven-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-resources-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-meta-inf-resources</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${project.build.directory}/sbom/</directory>
+											<includes>
+												<include>*.json</include>
+												<include>*.xml</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>deploy</id>
 			<build>
@@ -415,7 +522,7 @@
 								</configuration>
 							</execution>
 						</executions>
-					</plugin> 
+					</plugin>
 				</plugins>
 			</build>
 		</profile>

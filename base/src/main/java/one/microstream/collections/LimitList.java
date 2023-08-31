@@ -70,15 +70,10 @@ import one.microstream.util.iterables.GenericListIterator;
  * throwing {@link ConcurrentModificationException} even in single thread use, i.e. when iterating over a collection
  * and removing more than one element of it without using the iterator's method.<br>
  * <br>
- * Current conclusion is that the JDK's failfast implementations buy unneeded (and even unreliable as stated by
- * official guides) concurrency modification recognition at the cost of performance loss and even a bug when already
- * used in a thread-safe manner.
- * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
- * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * to maximize internal iteration potential, eliminating the need to use the external iteration
  * {@link Iterator} paradigm.
  *
- * 
  * @version 0.9, 2011-02-06
  */
 public final class LimitList<E> extends AbstractSimpleArrayCollection<E>
@@ -374,29 +369,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		throws UnsupportedOperationException
 	{
 		// (28.06.2011)XXX: internalCountingAddAll
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
-//		if(length >= 0)
-//		{
-//			this.ensureFreeCapacity(length); // increaseCapacity
-//			System.arraycopy(elements, offset, this.data, this.size, length); // automatic bounds checks
-//			this.size += length;
-//			return length;
-//		}
-//
-//		final int bound;
-//		if((bound = offset + length) < -1)
-//		{
-//			throw new ArrayIndexOutOfBoundsException(bound + 1);
-//		}
-//		this.ensureFreeCapacity(-length); // increaseCapacity
-//		final Object[] data = this.data;
-//		int size = this.size;
-//		for(int i = offset; i > bound; i--)
-//		{
-//			data[size++] = elements[i];
-//		}
-//		this.size = size;
-//		return -length;
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -439,29 +412,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		throws UnsupportedOperationException
 	{
 		// (30.06.2011 TM)XXX: internalCountingPutAll
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
-//		if(length >= 0)
-//		{
-//			this.ensureFreeCapacity(length); // increaseCapacity
-//			System.arraycopy(elements, offset, this.data, this.size, length); // automatic bounds checks
-//			this.size += length;
-//			return length;
-//		}
-//
-//		final int bound;
-//		if((bound = offset + length) < -1)
-//		{
-//			throw new ArrayIndexOutOfBoundsException(bound + 1);
-//		}
-//		this.ensureFreeCapacity(-length); // increaseCapacity
-//		final Object[] data = this.data;
-//		int size = this.size;
-//		for(int i = offset; i > bound; i--)
-//		{
-//			data[size++] = elements[i];
-//		}
-//		this.size = size;
-//		return -length;
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -549,13 +500,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return AbstractArrayStorage.forwardCount(this.data, 0, this.size, element);
 	}
 
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public final int count(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.forwardCount((E[])this.data, 0, this.size, sample, equalator);
-//	}
-
 	@Override
 	public final long countBy(final Predicate<? super E> predicate)
 	{
@@ -569,13 +513,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	{
 		return AbstractArrayStorage.forwardIndexOf(this.data, 0, this.size, element);
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public final int indexOf(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.forwardIndexOf((E[])this.data, this.size, sample, equalator);
-//	}
 
 	@Override
 	public final long indexBy(final Predicate<? super E> predicate)
@@ -645,13 +582,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return this.size == 0 ? null : (E)this.data[this.size - 1];
 	}
 
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public final E search(final E sample, final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.find((E[])this.data, this.size, sample, equalator);
-//	}
-
 	@Override
 	public final E seek(final E sample)
 	{
@@ -695,18 +625,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	{
 		return AbstractArrayStorage.isSorted(this.data, this.size, comparator);
 	}
-
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
-//	}
 
 	// boolean querying - applies //
 
@@ -1521,18 +1439,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return false;
 	}
 
-//	@Override
-//	@SuppressWarnings("unchecked")
-//	public final boolean removeOne(final E sample, final Equalator<? super E> equalator)
-//	{
-//		if(AbstractArrayStorage.removeOne((E[])this.data, this.size, sample, equalator))
-//		{
-//			this.size--;
-//			return true;
-//		}
-//		return false;
-//	}
-
 	// removing - multiple //
 
 	@Override
@@ -1542,17 +1448,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		this.size -= removeCount = removeAllFromArray(this.data, 0, this.size, element);
 		return removeCount;
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public final int remove(final E sample, final Equalator<? super E> equalator)
-//	{
-//		final int removeCount;
-//		this.size -= removeCount = removeAllFromArray(
-//			sample, this.data, 0, this.size, this.data, 0, this.size, (Equalator<Object>)equalator
-//		);
-//		return removeCount;
-//	}
 
 	@Override
 	public final long nullRemove()
@@ -1619,17 +1514,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		this.size -= removed;
 		return removed;
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public final int removeAll(final XGettingCollection<? extends E> samples, final Equalator<? super E> equalator)
-//	{
-//		final int removed;
-//		this.size -= removed = removeAllFromArray(
-//			(XGettingCollection<E>)samples, (E[])this.data, 0, this.size, (E[])this.data, 0, this.size, false, equalator
-//		);
-//		return removed;
-//	}
 
 	// removing - duplicates //
 
@@ -1934,63 +1818,63 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean nullInput(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final boolean nullInsert(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final boolean nullPrepend()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SafeVarargs
 	@Override
 	public final LimitList<E> prependAll(final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final LimitList<E> prependAll(final E[] elements, final int srcStartIndex, final int srcLength)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final LimitList<E> prependAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final boolean nullPreput()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SafeVarargs
 	@Override
 	public final LimitList<E> preputAll(final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final LimitList<E> preputAll(final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final LimitList<E> preputAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIXME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 }

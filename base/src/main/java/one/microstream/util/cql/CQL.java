@@ -57,7 +57,6 @@ import one.microstream.typing.XTypes;
  * <p>
  * API for fluent query syntax and query instance definition.
  *
- * 
  */
 public final class CQL
 {
@@ -152,17 +151,6 @@ public final class CQL
 		return CqlSelection.New(source, null, null, null, null);
 	}
 	
-//	public static <I> CqlSelection<I> from(final Iterable<? extends I> source)
-//	{
-//		return CQL.from(BulkList.New(source));
-//	}
-	
-	// (14.10.2019 TM)NOTE: there's still too much unclean typing mess in the API for this to work...
-//	public static <O, R extends Consumer<O> & XIterable<O>> CqlResulting<O, R> into(final R target)
-//	{
-//		return CqlResulting.New(target);
-//	}
-
 	public static <I, O> CqlProjection<I, O> project(final Function<? super I, O> projector)
 	{
 		return CqlProjection.New(null, null, null, null, projector, null);

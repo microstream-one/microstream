@@ -93,8 +93,6 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		this.enqueueSegment = this.head = createIterationSegment();
 		this.lastHead = createIterationSegment();
 		setNextSegment(this.enqueueSegment, this.lastHead);
-//		XDebug.debugln("terminating segment is " + XChars.systemString(this.lastHead));
-//		XDebug.debugln("first enqueue segment is " + XChars.systemString(this.enqueueSegment));
 		this.enqueueIndex = -1;
 		this.dequeueIndex = SEGMENT_SIZE;
 	}
@@ -142,7 +140,6 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		{
 			this.addEnqueuingSegment();
 		}
-//		XDebug.debugln("enqueuing to " + XChars.systemString(this.enqueueSegment) + "[" + this.enqueueIndex + "] = " + instance);
 		this.enqueueSegment[this.enqueueIndex] = instance;
 	}
 	
@@ -155,18 +152,12 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 			this.lastHead     = this.head   ;
 			this.head         = newSegment  ;
 			this.dequeueIndex = SEGMENT_SIZE; // must be SIZE because of the pre-check preincrement!
-//			XDebug.debugln("switch to enqueue mode. enqueueIndex = " + 0);
 		}
 		else
 		{
 			setNextSegment(this.enqueueSegment, newSegment);
 		}
 		setNextSegment(newSegment, this.lastHead);
-//		XDebug.debugln(
-//			"(" + Integer.toHexString(System.identityHashCode(this.enqueueSegment)) + ") - " +
-//			"(" + Integer.toHexString(System.identityHashCode(newSegment)) + ") - " +
-//			"(" + Integer.toHexString(System.identityHashCode(this.lastHead)) + ")"
-//		);
 		this.enqueueSegment = newSegment;
 		this.enqueueIndex   = 0;
 	}
@@ -201,9 +192,6 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 		final Object next = this.head[this.dequeueIndex];
 		this.head[this.dequeueIndex] = null;
 		
-//		XDebug.debugln(
-//			"dequeuing from " + XChars.systemString(this.head) + "[" + this.dequeueIndex + "] = " + XChars.systemString(next)
-//		);
 		return next;
 	}
 	
@@ -216,13 +204,11 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 			this.lastHead       =         null; // reset mode helper reference (effectively dequeue mode)
 			this.enqueueIndex   = SEGMENT_SIZE; // hint to enqueuing logic. SIZE because of the pre-check preincrement!
 			this.enqueueSegment =         null;
-//			XDebug.debugln("switch to dequeue mode. dequeueIndex = " + this.dequeueIndex);
 		}
 		else
 		{
 			// already in dequeuing mode, hence simply advance to the next linked segment
 			this.advanceHeadSegment(getNextSegment(this.head));
-//			XDebug.debugln("next dequeue segment. dequeueIndex = " + this.dequeueIndex);
 		}
 	}
 	
@@ -246,7 +232,7 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 				break outer;
 			}
 
-			// scan current segument for next item
+			// scan current segment for next item
 			int i = 0;
 			while(++i < SEGMENT_SIZE)
 			{
@@ -394,7 +380,6 @@ public abstract class AbstractReferenceHandler implements TraversalReferenceHand
 	
 	final <T> void handleNode(final T instance, final TypeTraverser<T> traverser)
 	{
-//		XDebug.debugln("Traversing NODE " + XChars.systemString(instance) + " via " + XChars.systemString(traverser));
 		traverser.traverseReferences(instance, this);
 	}
 	

@@ -29,10 +29,6 @@ import java.util.Comparator;
 
 import one.microstream.collections.types.XTable;
 
-/**
- * 
- * 
- */
 @FunctionalInterface
 public interface EntityVersionCleaner<K>
 {

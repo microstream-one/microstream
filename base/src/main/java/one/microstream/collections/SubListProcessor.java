@@ -33,14 +33,10 @@ import one.microstream.collections.types.XSortableSequence;
 import one.microstream.equality.Equalator;
 import one.microstream.typing.XTypes;
 
-/**
- * 
- *
- */
 public class SubListProcessor<E> extends SubListView<E> implements XDecreasingList<E>
 {
 	/* (12.07.2012 TM)FIXME: complete SubListProcessor implementation
-	 * See all "FIX-ME"s
+	 * See all "FIXME"s
 	 */
 
 	///////////////////////////////////////////////////////////////////////////
@@ -94,7 +90,6 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	public final <P extends Consumer<? super E>> P process(final P procedure)
 	{
 		final long oldListSize = ((XProcessingList<E>)this.list).size();
-//		((XRemovingList<E>)this.list).rngProcess(this.startIndex, this.length, procedure);
 		this.decrement(oldListSize - ((XProcessingList<E>)this.list).size());
 		return procedure;
 	}
@@ -209,7 +204,6 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	public final <C extends Consumer<? super E>> C moveTo(final C target, final Predicate<? super E> predicate)
 	{
 		final long oldListSize = ((XProcessingList<E>)this.list).size();
-//		((XRemovingList<E>)this.list).rngMoveTo(this.startIndex, this.length, target, predicate, 0, null);
 		this.decrement(oldListSize - ((XProcessingList<E>)this.list).size());
 		return target;
 	}
@@ -307,7 +301,6 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	public final long nullRemove()
 	{
 		final long removeCount, oldListSize = ((XProcessingList<E>)this.list).size();
-//		((XRemovingList<E>)this.list).rngRemoveNull(this.startIndex, this.length);
 
 		this.decrement(removeCount = oldListSize - ((XProcessingList<E>)this.list).size());
 		return XTypes.to_int(removeCount);
@@ -345,55 +338,44 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	@Override
 	public final boolean replaceOne(final E element, final E replacement)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
-//	@Override
-//	public final boolean replaceOne(final E sample, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
 
 	@Override
 	public final long replace(final E element, final E replacement)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
-
-//	@Override
-//	public final int replace(final E sample, final Equalator<? super E> equalator, final E replacement)
-//	{
-//		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
-//	}
 
 	@Override
 	public final long replaceAll(final XGettingCollection<? extends E> elements, final E replacement)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final boolean replaceOne(final Predicate<? super E> predicate, final E substitute)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final long replace(final Predicate<? super E> predicate, final E substitute)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final long substitute(final Function<? super E, ? extends E> mapper)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final long substitute(final Predicate<? super E> predicate, final Function<E, E> mapper)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 
@@ -401,62 +383,62 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 	public final boolean set(final long index, final E element)
 		throws IndexOutOfBoundsException, ArrayIndexOutOfBoundsException
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final E setGet(final long index, final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final void setFirst(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final void setLast(final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final XSortableSequence<E> shiftTo(final long sourceIndex, final long targetIndex)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final XSortableSequence<E> shiftTo(final long sourceIndex, final long targetIndex, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final XSortableSequence<E> shiftBy(final long sourceIndex, final long distance)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final XSortableSequence<E> shiftBy(final long sourceIndex, final long distance, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@SafeVarargs
 	@Override
 	public final XDecreasingList<E> setAll(final long index, final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final XDecreasingList<E> set(final long index, final E[] elements, final int offset, final int length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -467,37 +449,37 @@ public class SubListProcessor<E> extends SubListView<E> implements XDecreasingLi
 		final long                           length
 	)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final XDecreasingList<E> swap(final long indexA, final long indexB)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final XDecreasingList<E> swap(final long indexA, final long indexB, final long length)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final XDecreasingList<E> reverse()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final XDecreasingList<E> fill(final long offset, final long length, final E element)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final XDecreasingList<E> sort(final Comparator<? super E> comparator)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 }

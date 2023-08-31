@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 
 
 /**
- * The Storage class in Microstream indicates a class as a root instance.
+ * The Storage class in MicroStream indicates a class as a root instance.
  * Object instances can be stored as simple records.
  * One value after another as a trivial byte stream.
  * References between objects are mapped with unique numbers, called ObjectId, or short OID. + With both combined,

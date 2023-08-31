@@ -37,7 +37,7 @@ import one.microstream.typing.XTypes;
 public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 {
 	/* (12.07.2012 TM)FIXME: complete SubList implementation
-	 * See all "FIX-ME"s
+	 * See all "FIXME"s
 	 * remove redundant method implementations
 	 */
 
@@ -234,25 +234,25 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	@Override
 	public final SubList<E> prependAll(final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final SubList<E> prependAll(final E[] elements, final int srcStartIndex, final int srcLength)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final SubList<E> prependAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final boolean nullPrepend()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 
@@ -283,25 +283,25 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	@Override
 	public final SubList<E> preputAll(final E... elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final SubList<E> preputAll(final E[] elements, final int srcStartIndex, final int srcLength)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final SubList<E> preputAll(final XGettingCollection<? extends E> elements)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
 	public final boolean nullPreput()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 
@@ -369,7 +369,7 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	@Override
 	public final boolean nullInsert(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 
@@ -437,7 +437,7 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	@Override
 	public final boolean nullInput(final long index)
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override
@@ -797,7 +797,7 @@ public final class SubList<E> extends SubListAccessor<E> implements XList<E>
 	@Override
 	public final SubList<E> reverse()
 	{
-		throw new one.microstream.meta.NotImplementedYetError(); // FIX-ME Auto-generated method stub, not implemented yet
+		throw new one.microstream.meta.NotImplementedYetError(); // FIXME not implemented yet
 	}
 
 	@Override

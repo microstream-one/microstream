@@ -53,7 +53,7 @@ import one.microstream.util.iterables.GenericListIterator;
 
 /**
  * Collection that is ordered and allows duplicates. Aims to be more efficient, logically structured
- * and with more built in features than {@link java.util.List}.
+ * and with more built-in features than {@link java.util.List}.
  * Full scale general purpose implementation of extended collection type {@link XList}.
  * <p>
  * In contrast to {@link EqBulkList} this implementation uses the default isSame-Equalator({@link Equalator#identity()}
@@ -78,7 +78,7 @@ import one.microstream.util.iterables.GenericListIterator;
  * and removing more than one element of it without using the iterator's method.
  * <p>
  * Also note that by being an extended collection, this implementation offers various functional and batch procedures
- * to maximize internal iteration potential, eliminating the need to use the ill-conceived external iteration
+ * to maximize internal iteration potential, eliminating the need to use the external iteration
  * {@link Iterator} paradigm.
  *
  * @param <E> type of contained elements
@@ -392,8 +392,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	{
 		if(this.size >= Integer.MAX_VALUE)
 		{
-			// (26.10.2013 TM)XXX: replace all noobish IndexOutOfBoundsException throughout all projects
-//			throw new IndexOutOfBoundsException();
 			throw new ArrayCapacityException();
 		}
 	}
@@ -401,12 +399,12 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	/* this method is highly optimized for performance, yielding up to around 300% the speed of
 	 * java.util.ArrayList.add() when adding elements to an already big enough storage.
 	 * Moving the storage increase part to a private increaseStorage() would make it faster when
-	 * regular increasing is needed, but puzzlingly then the alreay-big-enough performance
+	 * regular increasing is needed, but puzzlingly then the already-big-enough performance
 	 * advantage drops to around 110% faster instead of 300% faster (even though the single not called
 	 * increase method should be removed by HotSpot compiling. Seems there is a bug or at least
 	 * some heavy confusion going on there.
 	 * As a consequence, storage increasing has NOT been moved to a private method, thus maintaining
-	 * the huge alreay-big-enough performance advantage, but making it slower in regular-growth-cases
+	 * the huge already-big-enough performance advantage, but making it slower in regular-growth-cases
 	 * (also very strange).
 	 * Maybe one of the two HotSpot compiling problems improves in the future, so that both cases
 	 * of advanced performance are reachable by optimization.
@@ -437,7 +435,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		if(this.data.length - this.size >= elementsSize)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + elementsSize, elementsSize);
+			System.arraycopy(this.data, index, this.data, index + elementsSize, this.size - index);
 			System.arraycopy(elements ,     0, this.data, index               , elementsSize);
 			this.size += elementsSize;
 			return elementsSize;
@@ -475,13 +473,13 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
 		final E[] data;
 		System.arraycopy(this.data,     0, data = newArray(newCapacity), 0, index);
-		System.arraycopy(this.data, index, data, index + elementsSize, elementsSize);
+		System.arraycopy(this.data, index, data, index + elementsSize, this.size - index);
 		System.arraycopy(elements ,     0, this.data = data,    index, elementsSize);
 		this.size = newSize;
 		return elementsSize;
@@ -498,7 +496,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		if(this.data.length - this.size >= length)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + length, length);
+			System.arraycopy(this.data, index, this.data, index + length, this.size - index);
 			System.arraycopy(elements, offset, this.data, index         , length);
 			this.size += length;
 			return length;
@@ -536,13 +534,13 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
 		final E[] data;
 		System.arraycopy(this.data,     0, data = newArray(newCapacity), 0, index);
-		System.arraycopy(this.data, index, data, index + length, length);
+		System.arraycopy(this.data, index, data, index + length, this.size - index);
 		System.arraycopy(elements, offset, this.data = data,    index, length);
 		this.size = newSize;
 		return length;
@@ -554,7 +552,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		if(this.data.length - this.size >= length)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + length, length);
+			System.arraycopy(this.data, index, this.data, index + length, this.size - index);
 			XArrays.reverseArraycopy(elements, offset, this.data, index, length);
 			this.size += length;
 			return length;
@@ -592,14 +590,14 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
 		final E[] data;
 		System.arraycopy(this.data,     0, data = newArray(newCapacity), 0, index);
-		System.arraycopy(this.data, index, data, index + length, length);
-		XArrays.reverseArraycopy(elements, 0, this.data, index, -length);
+		System.arraycopy(this.data, index, data, index + length, this.size - index);
+		XArrays.reverseArraycopy(elements, offset, this.data = data, index, length);
 		this.size = newSize;
 		return length;
 	}
@@ -977,18 +975,6 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		return AbstractArrayStorage.isSorted(this.data, this.size, comparator);
 	}
 
-//	@Override
-//	public final boolean hasDistinctValues()
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size);
-//	}
-//
-//	@Override
-//	public final boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		return AbstractArrayStorage.hasDistinctValues(this.data, this.size, equalator);
-//	}
-
 	// boolean querying - applies //
 
 	@Override
@@ -1283,7 +1269,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	public final BulkList<E> setAll(final long offset, final E... elements)
 	{
 		validateIndex(this.size, offset);
-		validateIndex(this.size, offset + elements.length);
+		validateIndex(this.size, offset + elements.length - 1);
 		System.arraycopy(elements, 0, this.data, X.checkArrayRange(offset), elements.length);
 
 		return this;
@@ -1513,14 +1499,14 @@ implements XList<E>, Composition, IdentityEqualityLogic
 		else
 		{
 			final int bound;
-			if((bound = length + length) < -1)
+			if((bound = offset + length) < -1)
 			{
 				throw new ArrayIndexOutOfBoundsException(bound + 1);
 			}
 			this.ensureFreeCapacity(-length); // increaseCapacity
 			final Object[] data = this.data;
 			int size = this.size;
-			for(int i = length; i > bound; i--)
+			for(int i = offset; i > bound; i--)
 			{
 				data[size++] = elements[i];
 			}
@@ -1652,21 +1638,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 	@Override
 	public final boolean nullPrepend()
 	{
-		if(this.size >= this.data.length)
-		{
-			if(this.size >= Integer.MAX_VALUE)
-			{
-				throw new CapacityExceededException();
-			}
-			System.arraycopy(this.data, 0, this.data = newArray((int)(this.data.length * 2.0f)), 0, this.size);
-		}
-		else
-		{
-			System.arraycopy(this.data, 0, this.data, 1, this.size); // ignore size == 0 corner case
-		}
-		this.data[0] = null;
-		this.size++;
-		return true;
+		return prepend(null);
 	}
 
 
@@ -1684,7 +1656,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			{
 				throw new CapacityExceededException();
 			}
-			System.arraycopy(this.data, 0, this.data = newArray((int)(this.data.length * 2.0f)), 0, this.size);
+			System.arraycopy(this.data, 0, this.data = newArray((int)(this.data.length * 2.0f)), 1, this.size);
 		}
 		else
 		{
@@ -1726,7 +1698,7 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			{
 				throw new CapacityExceededException();
 			}
-			System.arraycopy(this.data, 0, this.data = newArray((int)(this.data.length * 2.0f)), 0, this.size);
+			System.arraycopy(this.data, 0, this.data = newArray((int)(this.data.length * 2.0f)), 1, this.size);
 		}
 		else
 		{
@@ -1828,13 +1800,13 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			: elements.toArray() // anything else is probably not worth the hassle
 		;
 
-		return this.internalInputArray((int)index, elementsToAdd, elementsToAdd.length);
+		return this.internalInputArray((int)index, elementsToAdd, elements.intSize());
 	}
 
 	@Override
 	public final boolean nullInsert(final long index)
 	{
-		return this.insert(0, (E)null);
+		return this.insert(index, (E)null);
 	}
 
 
@@ -1921,13 +1893,13 @@ implements XList<E>, Composition, IdentityEqualityLogic
 			? ((AbstractSimpleArrayCollection<?>)elements).internalGetStorageArray()
 			: elements.toArray() // anything else is probably not worth the hassle
 		;
-		return this.internalInputArray((int)index, elementsToAdd, elementsToAdd.length);
+		return this.internalInputArray((int)index, elementsToAdd, elements.intSize());
 	}
 
 	@Override
 	public final boolean nullInput(final long index)
 	{
-		return this.input(0, (E)null);
+		return this.input(index, (E)null);
 	}
 
 

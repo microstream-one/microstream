@@ -139,7 +139,7 @@ public class BridgeXCollection<E> implements OldCollection<E>
 		int removeCount = 0;
 		final XSet<E> list = (XSet<E>)this.subject;
 
-		// even xcollections have to be handled that way because of the missing type info (argh)
+		// even xcollections have to be handled that way because of the missing type info.
 		for(final Object o : c)
 		{
 			removeCount += list.removeBy(XFunc.isEqualTo((E)o));

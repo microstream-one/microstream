@@ -34,8 +34,6 @@ import one.microstream.collections.types.XTable;
  * <p>
  * This definition does NOT apply to pure set or bag implementations, like {@link java.util.HashSet}, where elements
  * do have an internal order as well, but one that can dramatically change with potentionally any newly added element.
- *
- * 
  */
 public interface ExtendedSequence<E> extends ExtendedCollection<E>
 {

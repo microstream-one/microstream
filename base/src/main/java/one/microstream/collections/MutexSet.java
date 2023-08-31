@@ -462,24 +462,6 @@ public final class MutexSet<E> implements XSet<E>, Synchronized
 		}
 	}
 
-//	@Override
-//	public boolean hasDistinctValues(final Equalator<? super E> equalator)
-//	{
-//		synchronized(this.mutex)
-//		{
-//			return this.subject.hasDistinctValues(equalator);
-//		}
-//	}
-//
-//	@Override
-//	public boolean hasDistinctValues()
-//	{
-//		synchronized(this.mutex)
-//		{
-//			return this.subject.hasDistinctValues();
-//		}
-//	}
-
 	@Override
 	public boolean hasVolatileElements()
 	{

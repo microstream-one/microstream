@@ -146,7 +146,7 @@ public final class _intList implements _intCollecting, Composition
 	 * The specified initial elements array range is copied via {@link System#arraycopy}.
 	 *
 	 * @param initialCapacity the desired initial capacity for the new instance.
-	 * @param src the source array containg the desired range of initial elements.
+	 * @param src the source array containing the desired range of initial elements.
 	 * @param srcStart the start index of the desired range of initial elements in the source array.
 	 * @param srcLength the length of the desired range of initial elements in the source array.
 	 */
@@ -166,7 +166,7 @@ public final class _intList implements _intCollecting, Composition
 	 * Internal constructor to directly supply the storage array instance and size.
 	 * <p>
 	 * The passed storage array must comply to the power of two aligned size rules as specified in
-	 * {@link #BulkList(int)} and the size must be consistent to the storage array.<br>
+	 * {@link #_intList(int)} and the size must be consistent to the storage array.<br>
 	 * Calling this constructor without complying to these rules will result in a broken instance.
 	 * <p>
 	 * It is recommended to NOT use this constructor outside collections-framework-internal implementations.
@@ -190,12 +190,12 @@ public final class _intList implements _intCollecting, Composition
 	/* this method is highly optimized for performance, yielding up to around 300% the speed of
 	 * java.util.ArrayList.add() when adding elements to an already big enough storage.
 	 * Moving the storage increase part to a private increaseStorage() would make it faster when
-	 * regular increasing is needed, but puzzlingly then the alreay-big-enough performance
+	 * regular increasing is needed, but puzzlingly then the already-big-enough performance
 	 * advantage drops to around 110% faster instead of 300% faster (even though the single not called
 	 * increase method should be removed by HotSpot compiling. Seems there is a bug or at least
 	 * some heavy confusion going on there.
 	 * As a consequence, storage increasing has NOT been moved to a private method, thus maintaining
-	 * the huge alreay-big-enough performance advantage, but making it slower in regular-growth-cases
+	 * the huge already-big-enough performance advantage, but making it slower in regular-growth-cases
 	 * (also very strange).
 	 * Maybe one of the two HotSpot compiling problems improves in the future, so that both cases
 	 * of advanced performance are reachable by optimization.
@@ -227,7 +227,7 @@ public final class _intList implements _intCollecting, Composition
 		if(this.data.length - this.size >= elementsSize)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + elementsSize, elementsSize);
+			System.arraycopy(this.data, index, this.data, index + elementsSize, this.size - index);
 			System.arraycopy(elements ,     0, this.data, index               , elementsSize);
 			this.size += elementsSize;
 			return elementsSize;
@@ -265,13 +265,13 @@ public final class _intList implements _intCollecting, Composition
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
 		final int[] data;
 		System.arraycopy(this.data,     0, data = new int[newCapacity], 0, index);
-		System.arraycopy(this.data, index, data, index + elementsSize, elementsSize);
+		System.arraycopy(this.data, index, data, index + elementsSize, this.size - index);
 		System.arraycopy(elements ,     0, this.data = data,    index, elementsSize);
 		this.size = newSize;
 		return elementsSize;
@@ -288,7 +288,7 @@ public final class _intList implements _intCollecting, Composition
 		if(this.data.length - this.size >= length)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + length, length);
+			System.arraycopy(this.data, index, this.data, index + length, this.size - index);
 			System.arraycopy(elements, offset, this.data, index         , length);
 			this.size += length;
 			return length;
@@ -326,13 +326,13 @@ public final class _intList implements _intCollecting, Composition
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
 		final int[] data;
 		System.arraycopy(this.data,     0, data = new int[newCapacity], 0, index);
-		System.arraycopy(this.data, index, data, index + length, length);
+		System.arraycopy(this.data, index, data, index + length, this.size - index);
 		System.arraycopy(elements, offset, this.data = data,    index, length);
 		this.size = newSize;
 		return length;
@@ -344,7 +344,7 @@ public final class _intList implements _intCollecting, Composition
 		if(this.data.length - this.size >= length)
 		{
 			// simply free up enough space at index and slide in new elements
-			System.arraycopy(this.data, index, this.data, index + length, length);
+			System.arraycopy(this.data, index, this.data, index + length, this.size - index);
 			XArrays.reverseArraycopy(elements, offset, this.data, index, length);
 			this.size += length;
 			return length;
@@ -382,14 +382,14 @@ public final class _intList implements _intCollecting, Composition
 		 * So it looks like this:
 		 * --- - 1.)----       ----2.)----
 		 * |||||||||||_______|||||||||||
-		 * where this ^^^^^^^ is exactely enough space (the gap) for inserting "elements"
+		 * where this ^^^^^^^ is exactly enough space (the gap) for inserting "elements"
 		 *
 		 * this way, all elements are only copied once
 		 */
 		final int[] data;
 		System.arraycopy(this.data,     0, data = new int[newCapacity], 0, index);
-		System.arraycopy(this.data, index, data, index + length, length);
-		XArrays.reverseArraycopy(elements, 0, this.data, index, -length);
+		System.arraycopy(this.data, index, data, index + length, this.size - index);
+		XArrays.reverseArraycopy(elements, offset, this.data = data, index, length);
 		this.size = newSize;
 		return length;
 	}
@@ -510,11 +510,6 @@ public final class _intList implements _intCollecting, Composition
 		return new _intList(this);
 	}
 
-	// (30.03.2012 TM)TODO _intConsList
-//	public ConstList immure()
-//	{
-//		return new ConstList(this);
-//	}
 
 	public _intList toReversed()
 	{
@@ -622,7 +617,7 @@ public final class _intList implements _intCollecting, Composition
 
 	public boolean nullAllowed()
 	{
-		return true;
+		return false;
 	}
 
 	public boolean isSorted(final boolean ascending)
@@ -688,16 +683,6 @@ public final class _intList implements _intCollecting, Composition
 	// setting methods //
 	////////////////////
 
-	// (30.03.2012 TM)TODO _intViewList
-//	public ListView view()
-//	{
-//		return new ListView(this);
-//	}
-
-//	public SubListView view(final int fromIndex, final int toIndex)
-//	{
-//		return new SubListView(this, fromIndex, toIndex); // range check is done in constructor
-//	}
 
 	public _intList shiftTo(final int sourceIndex, final int targetIndex)
 	{
@@ -1012,14 +997,14 @@ public final class _intList implements _intCollecting, Composition
 		else
 		{
 			final int bound;
-			if((bound = length + length) < -1)
+			if((bound = offset + length) < -1)
 			{
 				throw new ArrayIndexOutOfBoundsException(bound + 1);
 			}
 			this.ensureFreeCapacity(-length); // increaseCapacity
 			final int[] data = this.data;
 			int size = this.size;
-			for(int i = length; i > bound; i--)
+			for(int i = offset; i > bound; i--)
 			{
 				data[size++] = elements[i];
 			}
@@ -1043,7 +1028,8 @@ public final class _intList implements _intCollecting, Composition
 			}
 			System.arraycopy(this.data, 0, this.data = new int[(int)(this.data.length * 2.0f)], 0, this.size);
 		}
-		this.size++; // as overhang array elements are guaranteed to be null, the array setting can be spared
+		this.data[size] = 0;  // It has to be here. For example, operation 'remove' changes the removed value to Integer.MIN_VALUE.
+		this.size++;
 		return true;
 	}
 
@@ -1136,7 +1122,7 @@ public final class _intList implements _intCollecting, Composition
 			{
 				throw new IndexOutOfBoundsException();
 			}
-			System.arraycopy(this.data, 0, this.data = new int[(int)(this.data.length * 2.0f)], 0, this.size);
+			System.arraycopy(this.data, 0, this.data = new int[(int)(this.data.length * 2.0f)], 1, this.size);
 		}
 		else
 		{
@@ -1262,84 +1248,22 @@ public final class _intList implements _intCollecting, Composition
 
 	public boolean input(final int index, final int element)
 	{
-		if(this.size >= Integer.MAX_VALUE)
-		{
-			throw new ArrayCapacityException();
-		}
-		if(index >= this.size || index < 0)
-		{
-			if(index == this.size)
-			{
-				if(this.size >= this.data.length)
-				{
-					if(this.size >= Integer.MAX_VALUE)
-					{
-						throw new IndexOutOfBoundsException();
-					}
-					System.arraycopy(this.data, 0, this.data = new int[(int)(this.data.length * 2.0f)], 0, this.size);
-				}
-				this.data[this.size++] = element;
-				return true;
-			}
-			throw new IndexBoundsException(this.size, index);
-		}
-
-		if(this.size >= this.data.length)
-		{
-			if(this.size >= Integer.MAX_VALUE)
-			{
-				throw new IndexOutOfBoundsException();
-			}
-			final int[] oldData = this.data;
-			System.arraycopy(this.data, 0, this.data = new int[(int)(this.data.length * 2.0f)], 0, index);
-			System.arraycopy(oldData, index, this.data, index + 1, this.size - index);
-		}
-		else
-		{
-			System.arraycopy(this.data, index, this.data, index + 1, this.size - index);
-		}
-		this.data[index] = element;
-		this.size++;
-		return true;
+		return insert(index, element);
 	}
 
 	public int input(final int index, final int... elements) throws IndexOutOfBoundsException
 	{
-		if(index >= this.size || index < 0)
-		{
-			if(index == this.size)
-			{
-				return this.internalCountingPutAll(elements);
-			}
-			throw new IndexBoundsException(this.size, index);
-		}
-		return this.internalInputArray(index, elements, elements.length);
+		return insert(index, elements);
 	}
 
 	public int inputAll(final int index, final int[] elements, final int offset, final int length)
 	{
-		if(index >= this.size || index < 0)
-		{
-			if(index == this.size)
-			{
-				return this.internalCountingPutAll(elements, offset, length);
-			}
-			throw new IndexBoundsException(this.size, index);
-		}
-		return this.internalInputArray(index, elements, offset, length);
+		return insertAll(index, elements, offset, length);
 	}
 
 	public int inputAll(final int index, final _intList elements)
 	{
-		if(index >= this.size || index < 0)
-		{
-			if(index == this.size)
-			{
-				return this.internalCountingPutAll(elements);
-			}
-			throw new IndexBoundsException(this.size, index);
-		}
-		return this.internalInputArray(index, elements.data, elements.size);
+		return insertAll(index, elements);
 	}
 
 
@@ -1375,7 +1299,7 @@ public final class _intList implements _intCollecting, Composition
 	public int retrieve(final int element)
 	{
 		final int removedElement;
-		if((removedElement = Abstract_intArrayStorage.retrieve(this.data, this.size, element, Integer.MIN_VALUE)) != 0)
+		if((removedElement = Abstract_intArrayStorage.retrieve(this.data, this.size, element, Integer.MIN_VALUE)) != Integer.MIN_VALUE)
 		{
 			this.size--;
 			return removedElement;
@@ -1386,7 +1310,7 @@ public final class _intList implements _intCollecting, Composition
 	public int retrieve(final _intPredicate predicate)
 	{
 		final int e;
-		if((e = Abstract_intArrayStorage.retrieve(this.data, this.size, predicate, Integer.MIN_VALUE)) != 0)
+		if((e = Abstract_intArrayStorage.retrieve(this.data, this.size, predicate, Integer.MIN_VALUE)) != Integer.MIN_VALUE)
 		{
 			this.size--;
 			return e;
@@ -1457,11 +1381,7 @@ public final class _intList implements _intCollecting, Composition
 	public int removeAll(final _intList elements)
 	{
 		throw new one.microstream.meta.NotImplementedYetError(); // FIXME _intList#removeAll()
-//		final int removed;
-//		this.size -= removed = removeAllFromArray(
-//			elements, this.data, 0, this.size, this.data, 0, this.size, false
-//		);
-//		return removed;
+
 	}
 
 	// removing - duplicates //
@@ -1525,15 +1445,6 @@ public final class _intList implements _intCollecting, Composition
 		this.size -= Abstract_intArrayStorage.removeRange(this.data, this.size, startIndex, length);
 		return this;
 	}
-
-	// (30.03.2012 TM)TODO _intSubList
-//	public SubList range(final int fromIndex, final int toIndex)
-//	{
-//		// range check is done in constructor
-//		return new SubList(this, fromIndex, toIndex);
-//	}
-
-
 
 
 	public boolean isEmpty()

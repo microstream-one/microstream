@@ -135,12 +135,6 @@ public interface StorageEntityType<E extends StorageEntity>
 
 		final void remove(final StorageEntity.Default entry, final StorageEntity.Default previousInType)
 		{
-			// better check if already removed, should never happen in correct code, but you never know and it's cheap.
-//			if(entry.typePrev == null)
-//			{
-//				return;
-//			}
-
 			// tail reference requires special handling logic
 			if(entry == this.tail)
 			{
@@ -151,20 +145,9 @@ public interface StorageEntityType<E extends StorageEntity>
 				previousInType.typeNext = entry.typeNext;
 			}
 
-			// mark as removed
-//			entry.typePrev = null;
-
 			// decrement entity count (strictly only once per remove as guaranteed by check above)
 			this.entityCount--;
 		}
-
-//		final void reset(final StorageEntityType.Default typeHead)
-//		{
-//			this.entityCount = 0;
-//			(this.tail = this.head).typeNext = null;
-//			this.hashNext = null;
-//			this.next = typeHead;
-//		}
 
 		@Override
 		public <T extends Throwable, P extends ThrowingProcedure<? super StorageEntity.Default, T>>
@@ -190,24 +173,6 @@ public interface StorageEntityType<E extends StorageEntity>
 			}
 			return deleter;
 		}
-
-//		@Override
-//		public void processEntities(final Predicate<? super StorageEntity> predicate)
-//		{
-//			for(StorageEntity last = this.head, entity; (entity = last.typeNext) != null; )
-//			{
-//				if(predicate.test(entity))
-//				{
-//					// devour entity, last remains the same
-//					(last.typeNext = entity.typeNext).typePrev = last;
-//				}
-//				else
-//				{
-//					// advance last by one
-//					last = entity;
-//				}
-//			}
-//		}
 
 		@Override
 		public final StorageEntityTypeHandler typeHandler()
@@ -271,18 +236,6 @@ public interface StorageEntityType<E extends StorageEntity>
 						maxConstantId = objectId;
 					}
 				}
-				// (28.02.2019 TM)NOTE: this is no longer true since Legacy Type Mapping
-//				else if(Persistence.IdType.TID.isInRange(oid))
-//				{
-//					/*
-//					 * note that a (storage) type describing a (Java) type (e.g. Class) has TIDs
-//					 * as the entities' identifying object ID. Hence encountering a TID here is valid.
-//					 */
-//					if(oid >= maxTid)
-//					{
-//						maxTid = oid;
-//					}
-//				}
 				else
 				{
 					throw new StorageException("Invalid OID: " + objectId);

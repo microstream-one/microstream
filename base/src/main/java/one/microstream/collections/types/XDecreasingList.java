@@ -28,8 +28,6 @@ import java.util.Comparator;
  * <p>
  * This type is primarily used for the values list of a map, which can offer all functionality except adding
  * values (without mapping it to a key).
- *
- * 
  */
 public interface XDecreasingList<E> extends XProcessingList<E>, XSettingList<E>, XDecreasingSequence<E>
 {

@@ -28,12 +28,11 @@ import one.microstream.equality.Equalator;
 import one.microstream.functional.Processable;
 
 /**
- * Curiously, a removing collection has to be a getting collection as well, because some removal procedures
+ * A removing collection has to be a getting collection as well, because some removal procedures
  * could be abused to read the contained elements (e.g. {@link #retrieveBy(Predicate)}).
  * Splitting it up into a (pure) RemovingCollection and a RemGetCollection would cause
  * more structural clutter than it's worth.
  *
- * 
  */
 public interface XProcessingCollection<E>
 extends
@@ -46,15 +45,33 @@ XGettingCollection<E>
 		@Override
 		public XProcessingCollection<E> newInstance();
 	}
-	
 
-	public E fetch(); // remove and retrieve first or throw IndexOutOfBoundsException if empty (fetch ~= first)
 
-	public E pinch(); // remove and retrieve first or null if empty (like forcefull extraction from collection's base)
+	/**
+	 * Remove and retrieve first or throw IndexOutOfBoundsException if empty (fetch ~= first).
+	 * @return First item
+	 */
+	public E fetch();
 
-	public E retrieve(E element); // remove and retrieve first occurance
+	/**
+	 * Remove and retrieve first or null if empty (like forceful extraction from collection's base)
+	 * @return First item or null when empty
+	 */
+	public E pinch();
 
-	public E retrieveBy(Predicate<? super E> predicate); // remove and retrieve first equal
+	/**
+	 * Remove and retrieve first occurrence.
+	 * @param element The element to retrieve
+	 * @return The item.
+	 */
+	public E retrieve(E element);
+
+	/**
+	 * Remove and retrieve first item that match the predicate.
+	 * @param predicate The Predicate for the search.
+	 * @return The item matched (and is also removed)
+	 */
+	public E retrieveBy(Predicate<? super E> predicate);
 
 	public long removeDuplicates(Equalator<? super E> equalator);
 
@@ -71,7 +88,6 @@ XGettingCollection<E>
 	 * Required for "anything but bring in new element".
 	 * E.g. if all kinds of adding/inserting etc. require a hook-in logic to be called but for everything else
 	 * the collection (or its wrapper) can be used directly without having to delegate everything.
-	 * Problem: What about cases where processing + ordering is desired? :-/
-	 *
+	 * Problem: What about cases where processing + ordering is desired?
 	 */
 }

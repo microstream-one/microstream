@@ -43,7 +43,7 @@ import java.util.Set;
 
 /**
  * Storage Discovery Bean to CDI extension to register an entity with {@link one.microstream.integrations.cdi.types.Storage}
- * annotation
+ * annotation.
  */
 class StorageBean<T> extends AbstractBean<T>
 {
