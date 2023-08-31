@@ -1363,6 +1363,8 @@ public interface StorageEntityCache<E extends StorageEntity> extends StorageChan
 			{
 				return true;
 			}
+			
+			this.markMonitor.resetCompletion();
 
 			// check time budget first for explicitly issued calls.
 			performGC:
