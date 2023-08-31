@@ -101,17 +101,19 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 		
 		private EmbeddedStorageFoundation<?> internalCreateEmbeddedStorageFoundation()
 		{
+			final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation();
+			
 			final AFileSystem fileSystem = this.createFileSystem(
 				STORAGE_FILESYSTEM,
 				NioFileSystem::New
 			);
 			
 			final StorageConfiguration.Builder<?> configBuilder = Storage.ConfigurationBuilder()
-				.setStorageFileProvider   (this.createFileProvider(fileSystem))
-				.setChannelCountProvider  (this.createChannelCountProvider()  )
-				.setHousekeepingController(this.createHousekeepingController())
-				.setDataFileEvaluator     (this.createDataFileEvaluator()     )
-				.setEntityCacheEvaluator  (this.createEntityCacheEvaluator()  )
+				.setStorageFileProvider   (this.createFileProvider(fileSystem)          )
+				.setChannelCountProvider  (this.createChannelCountProvider()            )
+				.setHousekeepingController(this.createHousekeepingController(foundation))
+				.setDataFileEvaluator     (this.createDataFileEvaluator()               )
+				.setEntityCacheEvaluator  (this.createEntityCacheEvaluator()            )
 			;
 
 			this.configuration.opt(BACKUP_DIRECTORY)
@@ -129,9 +131,9 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 				})
 			;
 
-			return EmbeddedStorage.Foundation(
-				configBuilder.createConfiguration()
-			);
+			foundation.setConfiguration(configBuilder.createConfiguration());
+			
+			return foundation;
 		}
 		
 		private AFileSystem createFileSystem(
@@ -214,9 +216,9 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 			);
 		}
 
-		private StorageHousekeepingController createHousekeepingController()
+		private StorageHousekeepingController createHousekeepingController(final EmbeddedStorageFoundation<?> foundation)
 		{
-			return Storage.HousekeepingController(
+			StorageHousekeepingController controller = Storage.HousekeepingController(
 				this.configuration.opt(HOUSEKEEPING_INTERVAL, Duration.class)
 					.map(Duration::toMillis)
 					.orElse(StorageHousekeepingController.Defaults.defaultHousekeepingIntervalMs()),
@@ -224,6 +226,25 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 					.map(Duration::toNanos)
 					.orElse(StorageHousekeepingController.Defaults.defaultHousekeepingTimeBudgetNs())
 			);
+			
+			if(this.configuration.optBoolean(HOUSEKEEPING_ADAPTIVE).orElse(false))
+			{
+				controller = StorageHousekeepingController.Adaptive(
+					controller,
+					this.configuration.opt(HOUSEKEEPING_INCREASE_THRESHOLD, Duration.class)
+						.map(Duration::toMillis)
+						.orElse(StorageHousekeepingController.Adaptive.Defaults.defaultAdaptiveHousekeepingIncreaseThresholdMs()),
+					this.configuration.opt(HOUSEKEEPING_INCREASE_AMOUNT, Duration.class)
+						.map(Duration::toNanos)
+						.orElse(StorageHousekeepingController.Adaptive.Defaults.defaultAdaptiveHousekeepingIncreaseAmountNs()),
+					this.configuration.opt(HOUSEKEEPING_MAXIMUM_TIME_BUDGET, Duration.class)
+						.map(Duration::toNanos)
+						.orElse(StorageHousekeepingController.Adaptive.Defaults.defaultAdaptiveHousekeepingMaximumTimeBudgetNs()),
+					foundation
+				);
+			}
+			
+			return controller;
 		}
 
 		private StorageDataFileEvaluator createDataFileEvaluator()
