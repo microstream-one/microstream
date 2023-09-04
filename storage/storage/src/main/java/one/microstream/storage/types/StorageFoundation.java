@@ -1030,7 +1030,7 @@ public interface StorageFoundation<F extends StorageFoundation<?>> extends Insta
 
 		protected StorageTimestampProvider ensureTimestampProvider()
 		{
-			return new StorageTimestampProvider.Default();
+			return new StorageTimestampProvider.MonotonicCounter();
 		}
 
 		protected StorageObjectIdRangeEvaluator ensureObjectIdRangeEvaluator()
