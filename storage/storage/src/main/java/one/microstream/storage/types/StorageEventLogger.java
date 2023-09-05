@@ -306,4 +306,97 @@ public interface StorageEventLogger
 		
 	}
 	
+	
+	public static StorageEventLogger Chain(
+		final StorageEventLogger first ,
+		final StorageEventLogger second
+	)
+	{
+		return new StorageEventLogger.Chaining(
+			notNull(first ),
+			notNull(second)
+		);
+	}
+	
+	
+	public final class Chaining implements StorageEventLogger
+	{
+		private final StorageEventLogger first ;
+		private final StorageEventLogger second;
+		
+		Chaining(
+			final StorageEventLogger first ,
+			final StorageEventLogger second
+		)
+		{
+			super();
+			this.first  = first ;
+			this.second = second;
+		}
+		
+		@Override
+		public void logChannelProcessingDisabled(final StorageChannel channel)
+		{
+			this.first.logChannelProcessingDisabled(channel);
+			this.second.logChannelProcessingDisabled(channel);
+		}
+		
+		@Override
+		public void logChannelStoppedWorking(final StorageChannel channel)
+		{
+			this.first.logChannelStoppedWorking(channel);
+			this.second.logChannelStoppedWorking(channel);
+		}
+		
+		@Override
+		public void logDisruption(final StorageChannel channel, final Throwable t)
+		{
+			this.first.logDisruption(channel, t);
+			this.second.logDisruption(channel, t);
+		}
+		
+		@Override
+		public void logLiveCheckComplete(final StorageEntityCache<?> entityCache)
+		{
+			this.first.logLiveCheckComplete(entityCache);
+			this.second.logLiveCheckComplete(entityCache);
+		}
+		
+		@Override
+		public void logGarbageCollectorSweepingComplete(final StorageEntityCache<?> entityCache)
+		{
+			this.first.logGarbageCollectorSweepingComplete(entityCache);
+			this.second.logGarbageCollectorSweepingComplete(entityCache);
+		}
+		
+		@Override
+		public void logGarbageCollectorNotNeeded()
+		{
+			this.first.logGarbageCollectorNotNeeded();
+			this.second.logGarbageCollectorNotNeeded();
+		}
+		
+		@Override
+		public void logGarbageCollectorCompletedHotPhase(final long gcHotGeneration, final long lastGcHotCompletion)
+		{
+			this.first.logGarbageCollectorCompletedHotPhase(gcHotGeneration, lastGcHotCompletion);
+			this.second.logGarbageCollectorCompletedHotPhase(gcHotGeneration, lastGcHotCompletion);
+		}
+		
+		@Override
+		public void logGarbageCollectorCompleted(final long gcColdGeneration, final long lastGcColdCompletion)
+		{
+			this.first.logGarbageCollectorCompleted(gcColdGeneration, lastGcColdCompletion);
+			this.second.logGarbageCollectorCompleted(gcColdGeneration, lastGcColdCompletion);
+		}
+
+		@Override
+		public void logGarbageCollectorEncounteredZombieObjectId(final long objectId)
+		{
+			this.first.logGarbageCollectorEncounteredZombieObjectId(objectId);
+			this.second.logGarbageCollectorEncounteredZombieObjectId(objectId);
+		}
+		
+	}
+	
 }
