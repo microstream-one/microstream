@@ -1252,7 +1252,6 @@ public final class DefaultObjectRegistry implements PersistenceObjectRegistry
 			
 			for (Reference<? extends Object> e; (e = this.queue.poll()) != null; )
 			{
-				//System.out.println(e);
 				this.synchRemoveEntry((Entry)e);
 				counter++;
 			}
