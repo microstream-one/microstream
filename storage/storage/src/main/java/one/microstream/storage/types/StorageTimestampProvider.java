@@ -78,7 +78,7 @@ public interface StorageTimestampProvider
 	}
 	
 	/**
-	 * An implementation of {@link #StorageTimestampProvider()} that provides an strictly monotonic increasing
+	 * An implementation of {@link StorageTimestampProvider} that provides an strictly monotonic increasing
 	 * long value instead of a time value. This implementation does not relay on any time based value
 	 * that might be affected by changes of the system clock.
 	 * 
