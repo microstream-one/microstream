@@ -67,6 +67,7 @@ public class MainUtilTransactionFileConverter
 		System.out.println("Converted String length: " + result.length());
 		
 		final AFile outputFile = file.parent().ensureFile(file.name(), "txt");
+		outputFile.ensureExists();
 		System.out.println("Writing File " + outputFile);
 		
 		try

@@ -16,15 +16,48 @@ Available properties are:
 
 |xref:configuration/properties.adoc#housekeeping-time-budget[housekeeping-time-budget]
 |Time budget for housekeeping in nanoseconds, default is 0.01 seconds
+
+|housekeeping-adaptive
+|Usage of an adaptive housekeeping controller, which will increase the time budgets on demand, if the garbage collector needs more time to reach the sweeping phase.
+
+|housekeeping-increase-threshold
+|The threshold of the adaption cycle to calculate new budgets for the housekeeping process. Default is 5 seconds.
+
+|housekeeping-increase-amount
+|The amount the housekeeping budgets will be increased each cycle. Default is 50 ms.
+
+|housekeeping-maximum-time-budget
+|The upper limit of the housekeeping time budgets. Default is 0.5 seconds.
 |===
 
 [source, java]
 ----
-EmbeddedStorageManager storage = EmbeddedStorage.Foundation(
-	Storage.ConfigurationBuilder()
-		.setHousekeepingController(Storage.HousekeepingController(1000, 10_000_000))
-		.createConfiguration())
-	.start();
+// New foundation
+final EmbeddedStorageFoundation<?> foundation = EmbeddedStorage.Foundation();
+
+// Housekeeping controller with fixed time budget
+final StorageHousekeepingController fixedController = Storage.HousekeepingController(
+	1000, // interval in ms
+	10_000_000 // time budget in ns
+);
+
+// Wrap in adaptive controller
+final StorageHousekeepingController adaptiveController = StorageHousekeepingController
+	.AdaptiveBuilder(fixedController)
+	.increaseThresholdMs(100)
+	.increaseAmountNs(Duration.ofMillis(1).toNanos())
+	.maximumTimeBudgetNs(Duration.ofMillis(100).toNanos())
+	.buildFor(foundation)
+;
+
+// Use controller in foundation
+foundation.setConfiguration(Storage.ConfigurationBuilder()
+	.setHousekeepingController(adaptiveController)
+	.createConfiguration()
+);
+
+// Start storage
+final EmbeddedStorageManager storage = foundation.start();
 ----
 
 [#storage-data-file-evaluator]
