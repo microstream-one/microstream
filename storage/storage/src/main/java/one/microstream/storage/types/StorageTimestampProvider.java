@@ -78,6 +78,48 @@ public interface StorageTimestampProvider
 	}
 	
 	/**
+	 * Returns a timestamp based upon the current system time.
+	 * If the current system time is less or equal to the last returned value
+	 * the last returned timestamp plus 1 nanosecond will be returned to archive
+	 * a strictly monotone behavior.
+	 */
+	public final class MonotonicTime implements StorageTimestampProvider
+	{
+		private long lastTimeNanos;
+		
+		/**
+		 * Returns a timestamp based upon the current system time.
+		 * If the current system time is less or equal to the last returned value
+		 * the last returned timestamp plus 1 nanosecond will be returned to archive
+		 * a strictly monotone behavior.
+		 */
+		@Override
+		public synchronized long currentNanoTimestamp()
+		{
+			final long currentTimeNanos = Storage.millisecondsToNanoseconds(System.currentTimeMillis());
+			
+			if(currentTimeNanos <= this.lastTimeNanos)
+			{
+				return ++this.lastTimeNanos;
+			}
+			return this.lastTimeNanos = currentTimeNanos;
+		}
+		
+		/**
+		 * Set to new base value only if the new value is lager then the current one.
+		 */
+		@Override
+		public synchronized long set(final long timeNs)
+		{
+			if(timeNs > this.lastTimeNanos)
+			{
+				this.lastTimeNanos = timeNs;
+			}
+			return this.lastTimeNanos;
+		}
+	}
+	
+	/**
 	 * An implementation of {@link StorageTimestampProvider} that provides an strictly monotonic increasing
 	 * long value instead of a time value. This implementation does not relay on any time based value
 	 * that might be affected by changes of the system clock.
@@ -97,7 +139,6 @@ public interface StorageTimestampProvider
 		public long currentNanoTimestamp()
 		{
 			return this.lastValue.incrementAndGet();
-			//return this.lastValue.addAndGet(1_000_000L);
 		}
 
 		/**

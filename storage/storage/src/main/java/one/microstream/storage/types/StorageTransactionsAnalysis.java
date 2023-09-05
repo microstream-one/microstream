@@ -473,7 +473,6 @@ public interface StorageTransactionsAnalysis
 				"Timestamp"        ,
 				"Time Delta (ms)"  ,
 				"Timestamp(long)"  ,
-				"Time Delta (long)",
 				"Resulting Length" ,
 				"Length Change"    ,
 				"Current Head File",
@@ -551,7 +550,6 @@ public interface StorageTransactionsAnalysis
 			.add(formateTimeStamp(new Date(Storage.millisecondsToSeconds(timestamp)))).tab()
 			.add(Storage.millisecondsToSeconds(timestamp - this.lastTimestamp)).tab()
 			.add(timestamp).tab()
-			.add(timestamp - this.lastTimestamp).tab()
 			;
 
 			this.lastTimestamp = timestamp;
