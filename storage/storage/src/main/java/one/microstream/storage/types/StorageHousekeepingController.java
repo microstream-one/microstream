@@ -20,7 +20,13 @@ package one.microstream.storage.types;
  * #L%
  */
 
+import static one.microstream.X.notNull;
+import static one.microstream.math.XMath.positive;
+
+import org.slf4j.Logger;
+
 import one.microstream.chars.VarString;
+import one.microstream.util.logging.Logging;
 
 public interface StorageHousekeepingController
 {
@@ -242,6 +248,330 @@ public interface StorageHousekeepingController
 			;
 		}
 
+	}
+
+	
+	/**
+	 * Pseudo-constructor method to create a new adaptive {@link StorageHousekeepingController} instance
+	 * using the passed values.
+	 * <p>
+	 * It will wrap a {@link StorageHousekeepingController} with default values and increase the time budgets on demand,
+	 * if the garbage collector needs more time to reach the sweeping phase.
+	 * 
+	 * @see #New()
+	 * 
+	 * @param increaseThresholdMs the threshold in milliseconds of the adaption cycle to calculate new budgets for the housekeeping process
+	 * @param increaseAmountNs the amount in nanoseconds the budgets will be increased each cycle
+	 * @param maximumTimeBudgetNs the upper limit of the time budgets in nanoseconds
+	 * @param foundation the {@link StorageFoundation} the controller is created for
+	 * @return a new {@link StorageHousekeepingController} instance.
+	 */
+	public static StorageHousekeepingController Adaptive(
+		final long                 increaseThresholdMs,
+		final long                 increaseAmountNs   ,
+		final long                 maximumTimeBudgetNs,
+		final StorageFoundation<?> foundation
+	)
+	{
+		return Adaptive(
+			StorageHousekeepingController.New(),
+			increaseThresholdMs                ,
+			increaseAmountNs                   ,
+			maximumTimeBudgetNs                ,
+			foundation
+		);
+	}
+	
+	/**
+	 * Pseudo-constructor method to create a new adaptive {@link StorageHousekeepingController} instance
+	 * using the passed values.
+	 * <p>
+	 * It will wrap the given {@link StorageHousekeepingController} and increase the time budgets on demand,
+	 * if the garbage collector needs more time to reach the sweeping phase.
+	 * 
+	 * @see #New(long, long)
+	 * 
+	 * @param delegate the wrapped controller delivering the original budget values
+	 * @param increaseThresholdMs the threshold in milliseconds of the adaption cycle to calculate new budgets for the housekeeping process
+	 * @param increaseAmountNs the amount in nanoseconds the budgets will be increased each cycle
+	 * @param maximumTimeBudgetNs the upper limit of the time budgets in nanoseconds
+	 * @param foundation the {@link StorageFoundation} the controller is created for
+	 * @return a new {@link StorageHousekeepingController} instance.
+	 */
+	public static StorageHousekeepingController Adaptive(
+		final StorageHousekeepingController delegate           ,
+		final long                          increaseThresholdMs,
+		final long                          increaseAmountNs   ,
+		final long                          maximumTimeBudgetNs,
+		final StorageFoundation<?>          foundation
+	)
+	{
+		final StorageHousekeepingController.Adaptive controller = new StorageHousekeepingController.Adaptive(
+			notNull (delegate           ),
+			positive(increaseThresholdMs),
+			positive(increaseAmountNs   ),
+			positive(maximumTimeBudgetNs)
+		);
+		foundation.addEventLogger(controller);
+		return controller;
+	}
+	
+	/**
+	 * Pseudo-constructor method to create a new adaptive {@link StorageHousekeepingController} builder.
+	 * It will wrap a {@link StorageHousekeepingController} with default values.
+	 * 
+	 * @return a new {@link AdaptiveBuilder} instance
+	 */
+	public static AdaptiveBuilder AdaptiveBuilder()
+	{
+		return AdaptiveBuilder(StorageHousekeepingController.New());
+	}
+	
+	/**
+	 * Pseudo-constructor method to create a new adaptive {@link StorageHousekeepingController} builder.
+	 * It will wrap the given {@link StorageHousekeepingController}.
+	 * 
+	 * @param delegate the wrapped controller delivering the original budget values
+	 * @return a new {@link AdaptiveBuilder} instance
+	 */
+	public static AdaptiveBuilder AdaptiveBuilder(final StorageHousekeepingController delegate)
+	{
+		return new AdaptiveBuilder.Default(
+			notNull(delegate)
+		);
+	}
+	
+	/**
+	 * Builder type for an adaptive {@link StorageHousekeepingController}
+	 *
+	 */
+	public interface AdaptiveBuilder
+	{
+		/**
+		 * @param increaseThresholdMs the threshold in milliseconds of the adaption cycle to calculate new budgets for the housekeeping process
+		 * @return this builder instance
+		 */
+		public AdaptiveBuilder increaseThresholdMs(long increaseThresholdMs);
+		
+		/**
+		 * 
+		 * @param increaseAmountNs the amount in nanoseconds the budgets will be increased each cycle
+		 * @return this builder instance
+		 */
+		public AdaptiveBuilder increaseAmountNs(long increaseAmountNs);
+		
+		/**
+		 * 
+		 * @param maximumTimeBudgetNs the upper limit of the time budgets in nanoseconds
+		 * @return this builder instance
+		 */
+		public AdaptiveBuilder maximumTimeBudgetNs(long maximumTimeBudgetNs);
+		
+		/**
+		 * Builds the {@link StorageHousekeepingController} instance given the provided values.
+		 * 
+		 * @param foundation the {@link StorageFoundation} the controller should be created for
+		 * @return a new {@link StorageHousekeepingController} instance
+		 */
+		public StorageHousekeepingController buildFor(final StorageFoundation<?> foundation);
+		
+		
+		public static class Default implements AdaptiveBuilder
+		{
+			private final StorageHousekeepingController delegate            ;
+			private long                                increaseThresholdMs = Adaptive.Defaults.defaultAdaptiveHousekeepingIncreaseThresholdMs();
+			private long                                increaseAmountNs    = Adaptive.Defaults.defaultAdaptiveHousekeepingIncreaseAmountNs   ();
+			private long                                maximumTimeBudgetNs = Adaptive.Defaults.defaultAdaptiveHousekeepingMaximumTimeBudgetNs();
+			
+			Default(final StorageHousekeepingController delegate)
+			{
+				super();
+				this.delegate = delegate;
+			}
+		
+			@Override
+			public AdaptiveBuilder increaseThresholdMs(final long increaseThresholdMs)
+			{
+				this.increaseThresholdMs = increaseThresholdMs;
+				return this;
+			}
+			
+			@Override
+			public AdaptiveBuilder increaseAmountNs(final long increaseAmountNs)
+			{
+				this.increaseAmountNs = increaseAmountNs;
+				return this;
+			}
+			
+			@Override
+			public AdaptiveBuilder maximumTimeBudgetNs(final long maximumTimeBudgetNs)
+			{
+				this.maximumTimeBudgetNs = maximumTimeBudgetNs;
+				return this;
+			}
+			
+			@Override
+			public StorageHousekeepingController buildFor(final StorageFoundation<?> foundation)
+			{
+				final StorageHousekeepingController.Adaptive controller = new StorageHousekeepingController.Adaptive(
+					this.delegate           ,
+					this.increaseThresholdMs,
+					this.increaseAmountNs   ,
+					this.maximumTimeBudgetNs
+				);
+				foundation.addEventLogger(controller);
+				return controller;
+			}
+			
+		}
+		
+	}
+	
+	
+	public final class Adaptive implements StorageHousekeepingController, StorageEventLogger
+	{
+		public interface Defaults
+		{
+			public static long defaultAdaptiveHousekeepingIncreaseThresholdMs()
+			{
+				return 5000; // 5 seconds
+			}
+			
+			public static long defaultAdaptiveHousekeepingIncreaseAmountNs()
+			{
+				return 50_000_000; // 50 ms
+			}
+			
+			public static long defaultAdaptiveHousekeepingMaximumTimeBudgetNs()
+			{
+				return 500_000_000; // half second
+			}
+		}
+		
+
+		private final static Logger logger = Logging.getLogger(Adaptive.class);
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// instance fields //
+		////////////////////
+		
+		private final StorageHousekeepingController delegate           ;
+		private final long                          increaseThresholdMs;
+		private final long                          increaseAmountNs   ;
+		private final long                          maximumTimeBudgetNs;
+				
+		// mutable adaptive state
+		
+		private long                                lastFinishedGCCycle = 0;
+		private long                                lastIncrease        = 0;
+		private long                                currentIncreaseNs   = 0;
+		
+		///////////////////////////////////////////////////////////////////////////
+		// constructors //
+		/////////////////
+
+		Adaptive(
+			final StorageHousekeepingController delegate           ,
+			final long                          increaseThresholdMs,
+			final long                          increaseAmountNs   ,
+			final long                          maximumNsTimeBudget
+		)
+		{
+			super();
+			this.delegate            = delegate           ;
+			this.increaseThresholdMs = increaseThresholdMs;
+			this.increaseAmountNs    = increaseAmountNs   ;
+			this.maximumTimeBudgetNs = maximumNsTimeBudget;
+		}
+		
+		
+		///////////////////////////////////////////////////////////////////////////
+		// methods //
+		////////////
+		
+		private synchronized void reset()
+		{
+			this.lastFinishedGCCycle = this.lastIncrease = System.currentTimeMillis();
+			this.internalSetIncrease(0);
+		}
+		
+		private synchronized long increaseNs()
+		{
+			final long now = System.currentTimeMillis();
+			if( now - this.increaseThresholdMs > this.lastFinishedGCCycle
+			&& (this.lastIncrease <= 0 || now - this.lastIncrease > this.increaseThresholdMs)
+			)
+			{
+				this.lastIncrease = now;
+				this.internalSetIncrease(this.currentIncreaseNs + this.increaseAmountNs);
+			}
+			return this.currentIncreaseNs;
+		}
+		
+		private void internalSetIncrease(final long increaseNs)
+		{
+			this.currentIncreaseNs = Math.min(
+				this.maximumTimeBudgetNs,
+				increaseNs
+			);
+			logger.debug("Housekeeping time budgets increased by {} ns", String.format("%,d", this.currentIncreaseNs));
+		}
+
+		@Override
+		public long housekeepingIntervalMs()
+		{
+			return this.delegate.housekeepingIntervalMs();
+		}
+
+		@Override
+		public long housekeepingTimeBudgetNs()
+		{
+			return Math.min(
+				this.maximumTimeBudgetNs,
+				this.delegate.housekeepingTimeBudgetNs() + this.increaseNs()
+			);
+		}
+
+		@Override
+		public long garbageCollectionTimeBudgetNs()
+		{
+			return Math.min(
+				this.maximumTimeBudgetNs,
+				this.delegate.garbageCollectionTimeBudgetNs() + this.increaseNs()
+			);
+		}
+
+		@Override
+		public long liveCheckTimeBudgetNs()
+		{
+			return Math.min(
+				this.maximumTimeBudgetNs,
+				this.delegate.liveCheckTimeBudgetNs() + this.increaseNs()
+			);
+		}
+
+		@Override
+		public long fileCheckTimeBudgetNs()
+		{
+			return Math.min(
+				this.maximumTimeBudgetNs,
+				this.delegate.fileCheckTimeBudgetNs() + this.increaseNs()
+			);
+		}
+		
+		@Override
+		public void logGarbageCollectorNotNeeded()
+		{
+			this.reset();
+		}
+		
+		@Override
+		public void logGarbageCollectorSweepingComplete(final StorageEntityCache<?> entityCache)
+		{
+			this.reset();
+		}
+		
 	}
 
 }
