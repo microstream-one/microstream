@@ -22,6 +22,9 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 import one.microstream.collections.EqHashEnum;
 import one.microstream.collections.XSort;
 import one.microstream.persistence.types.Persistence;
@@ -31,6 +34,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 {
 	public StorageIdAnalysis idAnalysis();
 
+	public long latestTimestamp();
 
 
 	public final class Default
@@ -46,12 +50,15 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 
 		private Long consistentStoreTimestamp   ;
 		private Long commonTaskHeadFileTimestamp;
-
+		private Long latestTimestamp               ;
+		
 		private long maxEntityObjectOid  ;
 		private long maxEntityConstantOid;
 		private long maxEntityTypeOid    ; // this is NOT the highest TID, but the highest TID used as an entity ID
 		
 		private final EqHashEnum<Long> occuringTypeIds = EqHashEnum.New();
+
+		
 
 
 
@@ -172,7 +179,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		}
 
 		private static boolean isCompatibleTimestamp(
-			final long                            candidatetimestamp,
+			final long                        candidatetimestamp,
 			final StorageTransactionsAnalysis transactionsFile
 		)
 		{
@@ -203,9 +210,18 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 				this.getConsistentStoreTimestamp()   ,
 				result[channel.channelIndex()]
 			);
-
+			
 			this.updateIdAnalysis(idAnalysis);
-
+			
+			//Some storage targets like SQL will create "files" only if there is some data written.
+			//The transactionsFileAnalysis may be null if a new storage has been created
+			//and the transactions log is empty.
+			this.latestTimestamp = Stream.of(result)
+				.filter( r -> Objects.nonNull(r.transactionsFileAnalysis()))
+				.mapToLong( r -> r.transactionsFileAnalysis().maxTimestamp())
+				.max()
+				.orElse(0L);
+			
 			this.operationController.activate();
 		}
 
@@ -225,6 +241,12 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 				this.maxEntityConstantOid,
 				this.occuringTypeIds
 			);
+		}
+
+		@Override
+		public long latestTimestamp()
+		{
+			return this.latestTimestamp;
 		}
 
 	}
