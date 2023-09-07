@@ -22,6 +22,7 @@ package one.microstream.storage.types;
 
 import static one.microstream.X.notNull;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import one.microstream.collections.EqHashEnum;
@@ -213,8 +214,9 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 			this.updateIdAnalysis(idAnalysis);
 			
 			this.maxTimeStamp = Stream.of(result)
-				.map( i -> {return i.transactionsFileAnalysis().maxTimestamp();})
-				.max(Long::compare)
+				.filter( r -> Objects.nonNull(r.transactionsFileAnalysis()))
+				.mapToLong( r -> r.transactionsFileAnalysis().maxTimestamp())
+				.max()
 				.orElse(0L);
 			
 			this.operationController.activate();
