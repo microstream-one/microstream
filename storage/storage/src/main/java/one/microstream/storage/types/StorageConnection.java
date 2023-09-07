@@ -250,7 +250,7 @@ public interface StorageConnection extends Persister
 	 * 
 	 * To shrink the file size all store, transfer, and truncation entries are combined into one single store entry
 	 * for each storage files. FileCreation entries are kept, FileDeletion entries are kept
-	 * if the storage data file still exists on the file system. Otherwise all entries related
+	 * if the storage data file still exists on the file system. Otherwise, all entries related
 	 * to deleted files are removed if the storage data file does no more exist.
 	 */
 	public void issueTransactionsLogCleanup();

@@ -39,7 +39,7 @@ public interface StorageTransactionsFileCleaner
 	 * <br>
 	 * To shrink the file size all store, transfer, and truncation entries are combined into one single store entry
 	 * for each storage files. FileCreation entries are kept, FileDeletion entries are kept
-	 * if the storage data file still exists on the file system. Otherwise all entries related
+	 * if the storage data file still exists on the file system. Otherwise, all entries related
 	 * to deleted files are removed if the storage data file does no more exist.
 	 * 
 	 * @param checkSize if false the file is compacted regardless of its current size.
@@ -287,7 +287,7 @@ public interface StorageTransactionsFileCleaner
 				logger.info("Transaction file {} size exceeds limit of {} bytes", this.storageLiveTransactionsFile.identifier(), this.transactionFileSizeLimit);
 				this.compactTransactionsFileInternal();
 			}
-			else if(checkSize == false)
+			else if(!checkSize)
 			{
 				this.compactTransactionsFileInternal();
 			}

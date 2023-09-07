@@ -71,7 +71,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			Defaults.defaultFileMaximumSize()          ,
 			Defaults.defaultMinimumUseRatio()          ,
 			Defaults.defaultResolveHeadfile()          ,
-			Defaults.defaultTransactionFileMaxiumSize()
+			Defaults.defaultTransactionFileMaximumSize()
 		);
 	}
 
@@ -102,7 +102,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			Defaults.defaultFileMaximumSize()          ,
 			minimumUseRatio                            ,
 			Defaults.defaultResolveHeadfile()          ,
-			Defaults.defaultTransactionFileMaxiumSize()
+			Defaults.defaultTransactionFileMaximumSize()
 		);
 	}
 
@@ -138,7 +138,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			fileMaximumSize                            ,
 			Defaults.defaultMinimumUseRatio()          ,
 			Defaults.defaultResolveHeadfile()          ,
-			Defaults.defaultTransactionFileMaxiumSize()
+			Defaults.defaultTransactionFileMaximumSize()
 		);
 	}
 
@@ -191,7 +191,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			fileMaximumSize                            ,
 			minimumUseRatio                            ,
 			Defaults.defaultResolveHeadfile()          ,
-			Defaults.defaultTransactionFileMaxiumSize()
+			Defaults.defaultTransactionFileMaximumSize()
 		);
 	}
 	
@@ -217,7 +217,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
 	 *        file dissolving (data transfers to new files) is required and vice versa.
 	 * 
-	 * @param cleanUpHeadFile a flag defining wether the current head file (the only file actively written to)
+	 * @param cleanUpHeadFile a flag defining whether the current head file (the only file actively written to)
 	 *        shall be subjected to file cleanups as well.
 	 * 
 	 * @return a new {@link StorageDataFileEvaluator} instance.
@@ -240,7 +240,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			fileMaximumSize                            ,
 			minimumUseRatio                            ,
 			cleanUpHeadFile                            ,
-			Defaults.defaultTransactionFileMaxiumSize()
+			Defaults.defaultTransactionFileMaximumSize()
 			);
 	}
 
@@ -267,7 +267,7 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
 	 *        file dissolving (data transfers to new files) is required and vice versa.
 	 * 
-	 * @param cleanUpHeadFile a flag defining wether the current head file (the only file actively written to)
+	 * @param cleanUpHeadFile a flag defining whether the current head file (the only file actively written to)
 	 *        shall be subjected to file cleanups as well.
 	 * 
 	 * @param transactionFileMaximumSize the maximum file size for transaction files. Lager files will
@@ -407,7 +407,11 @@ public interface StorageDataFileEvaluator extends StorageDataFileDissolvingEvalu
 			return 1 * 1024 * 1024;
 		}
 
-		public static int defaultTransactionFileMaxiumSize()
+		/**
+		 * 
+		 * @return {@code 100 * 1024 * 1024} (meaning 100 MB maximum transaction log file size).
+		 */
+		public static int defaultTransactionFileMaximumSize()
 		{
 			// 100 MB as default
 			return 1024 * 1024 * 100;

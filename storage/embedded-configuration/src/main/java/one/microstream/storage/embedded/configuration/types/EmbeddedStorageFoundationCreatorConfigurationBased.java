@@ -262,7 +262,7 @@ public interface EmbeddedStorageFoundationCreatorConfigurationBased extends Embe
 					.orElse(StorageDataFileEvaluator.Defaults.defaultResolveHeadfile()),
 				this.configuration.opt(TRANSACTION_FILE_MAXIMUM_SIZE, ByteSize.class)
 					.map(byteSize -> (int)byteSize.bytes())
-					.orElse(StorageDataFileEvaluator.Defaults.defaultTransactionFileMaxiumSize())
+					.orElse(StorageDataFileEvaluator.Defaults.defaultTransactionFileMaximumSize())
 			);
 		}
 

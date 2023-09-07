@@ -473,7 +473,7 @@ public final class Storage
 	 *
 	 * @param minimumUseRatio the ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to prevent
 	 *        the file from being dissolved. "Gap" data is anything that is not the latest version of an entity's data,
-	 *        inluding older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
+	 *        Including older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length
 	 *        as a negative value length header).<br>
 	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
 	 *        file dissolving (data transfers to new files) is required and vice versa.
@@ -514,7 +514,7 @@ public final class Storage
 	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
 	 *        file dissolving (data transfers to new files) is required and vice versa.
 	 * 
-	 * @param cleanUpHeadFile a flag defining wether the current head file (the only file actively written to)
+	 * @param cleanUpHeadFile a flag defining whether the current head file (the only file actively written to)
 	 *        shall be subjected to file cleanups as well.
 	 *
 	 * @return a new {@link StorageDataFileEvaluator} instance.
@@ -555,7 +555,7 @@ public final class Storage
 	 *        The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more
 	 *        file dissolving (data transfers to new files) is required and vice versa.
 	 * 
-	 * @param cleanUpHeadFile a flag defining wether the current head file (the only file actively written to)
+	 * @param cleanUpHeadFile a flag defining whether the current head file (the only file actively written to)
 	 *        shall be subjected to file cleanups as well.
 	 * 
 	 * @param transactionFileMaximumSize the maximum file size for transaction files. Lager files will

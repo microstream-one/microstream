@@ -1267,7 +1267,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 		 * The deleteBuffers method is used to allow an early deallocation
 		 * of the used DirectByteBuffers in order to reduce the off-heap
 		 * memory footprint without the need to relay on the GC.
-		 * after calling this method the StorageManager is left in a inoperable state.
+		 * after calling this method the StorageManager is left in an inoperable state.
 		 */
 		public final void deleteBuffers()
 		{
@@ -1526,7 +1526,7 @@ public interface StorageFileManager extends StorageChannelResetablePart, Disposa
 			 * The registration logic must be inverted in this case:
 			 * First register the file to be deleted (no longer needed), then, after that entry is ensured,
 			 * the file can be physically deleted (or left alive because of a killed process).
-			 * This way, the next startup validation know that the file is no longer needed and can react accrodingly
+			 * This way, the next startup validation know that the file is no longer needed and can react accordingly
 			 * (keep it alive to re-evaluate it or delete it, etc.)
 			 */
 			this.writeTransactionsEntryFileDeletion(file, this.timestampProvider.currentNanoTimestamp());
