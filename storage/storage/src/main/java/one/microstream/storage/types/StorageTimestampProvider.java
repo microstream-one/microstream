@@ -36,7 +36,7 @@ public interface StorageTimestampProvider
 	 * Set the base value used to create the timestamps
 	 * Implementations are allowed to ignore it.
 	 * 
-	 * @param base base value for times stamp creation;
+	 * @param base base value for timestamp creation;
 	 * @return base value for timestamp creation;
 	 */
 	public long set(long base);
