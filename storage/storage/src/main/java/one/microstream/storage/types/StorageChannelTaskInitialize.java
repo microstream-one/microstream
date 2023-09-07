@@ -213,6 +213,9 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 			
 			this.updateIdAnalysis(idAnalysis);
 			
+			//Some storage targets like SQL will create "files" only if there is some data written.
+			//The transactionsFileAnalysis may be null if a new storage has been created
+			//and the transactions log is empty.
 			this.latestTimestamp = Stream.of(result)
 				.filter( r -> Objects.nonNull(r.transactionsFileAnalysis()))
 				.mapToLong( r -> r.transactionsFileAnalysis().maxTimestamp())
