@@ -6,7 +6,7 @@ name: Java Converter Fat Jar build
 on:
   push:
     branches: 
-      - '*'
+      - '**'
   pull_request:
     branches: [ master ]
 

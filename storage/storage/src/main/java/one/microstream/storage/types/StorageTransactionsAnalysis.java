@@ -50,6 +50,8 @@ public interface StorageTransactionsAnalysis
 	public long headFileLatestLength();
 
 	public long headFileLatestTimestamp();
+	
+	public long maxTimestamp();
 
 	public StorageLiveTransactionsFile transactionsFile();
 
@@ -470,6 +472,7 @@ public interface StorageTransactionsAnalysis
 				"Type"             ,
 				"Timestamp"        ,
 				"Time Delta (ms)"  ,
+				"Timestamp(long)"  ,
 				"Resulting Length" ,
 				"Length Change"    ,
 				"Current Head File",
@@ -546,6 +549,7 @@ public interface StorageTransactionsAnalysis
 			this.vs
 			.add(formateTimeStamp(new Date(Storage.millisecondsToSeconds(timestamp)))).tab()
 			.add(Storage.millisecondsToSeconds(timestamp - this.lastTimestamp)).tab()
+			.add(timestamp).tab()
 			;
 
 			this.lastTimestamp = timestamp;
@@ -675,7 +679,8 @@ public interface StorageTransactionsAnalysis
 		private long lastConsistentStoreTimestamp;
 		private long currentStoreLength          ;
 		private long currentStoreTimestamp       ;
-
+		private long maxTimeStamp;
+		
 		private long currentFileNumber            = -1;
 
 
@@ -734,6 +739,7 @@ public interface StorageTransactionsAnalysis
 			}
 
 			// timestamp is intentionally ignored as file creation happens AFTER a store has been issued.
+			this.updateMaxTimestamp(Logic.getEntryTimestamp(address));
 
 			// entry is consistent, register completed file and reset values for new file.
 			this.registerCurrentFile();
@@ -778,6 +784,7 @@ public interface StorageTransactionsAnalysis
 			}
 
 			final long timestamp = Logic.getEntryTimestamp(address);
+			this.updateMaxTimestamp(timestamp);
 			if(timestamp <= this.currentStoreTimestamp)
 			{
 				throw new StorageExceptionConsistency(
@@ -809,6 +816,8 @@ public interface StorageTransactionsAnalysis
 				);
 			}
 
+			this.updateMaxTimestamp(Logic.getEntryTimestamp(address));
+			
 			/* lastConsistentStoreTimestamp is not updated to associate the new file length with the old timestamp
 			 * i.e. when an inter-channel rollback has to occur, the transfer part is not rolled back, as it is
 			 * channel-local
@@ -853,6 +862,7 @@ public interface StorageTransactionsAnalysis
 				);
 			}
 
+			this.updateMaxTimestamp(Logic.getEntryTimestamp(address));
 			this.lastConsistentStoreLength = this.currentStoreLength = newLength;
 
 			return true;
@@ -873,6 +883,8 @@ public interface StorageTransactionsAnalysis
 			}
 			file.isDeleted = true;
 
+			this.updateMaxTimestamp(Logic.getEntryTimestamp(address));
+			
 			return true;
 		}
 
@@ -887,8 +899,14 @@ public interface StorageTransactionsAnalysis
 				this.lastConsistentStoreLength   ,
 				this.lastConsistentStoreTimestamp,
 				this.currentStoreLength          ,
-				this.currentStoreTimestamp
+				this.currentStoreTimestamp       ,
+				this.maxTimeStamp
 			);
+		}
+		
+		private void updateMaxTimestamp(final long timestamp)
+		{
+			this.maxTimeStamp = Math.max(this.maxTimeStamp, timestamp);
 		}
 
 	}
@@ -907,6 +925,7 @@ public interface StorageTransactionsAnalysis
 		private final long                                                   headFileLastConsistentStoreTimestamp;
 		private final long                                                   headFileLatestLength                ;
 		private final long                                                   headFileLatestTimestamp             ;
+		private final long                                                   maxTimestamp                        ;
 
 
 		
@@ -920,7 +939,8 @@ public interface StorageTransactionsAnalysis
 			final long                                                   headFileLastConsistentStoreLength   ,
 			final long                                                   headFileLastConsistentStoreTimestamp,
 			final long                                                   headFileLatestLength                ,
-			final long                                                   headFileLatestTimestamp
+			final long                                                   headFileLatestTimestamp             ,
+			final long                                                   maxTimestamp
 		)
 		{
 			super();
@@ -930,6 +950,7 @@ public interface StorageTransactionsAnalysis
 			this.headFileLastConsistentStoreTimestamp = headFileLastConsistentStoreTimestamp;
 			this.headFileLatestLength                 = headFileLatestLength                ;
 			this.headFileLatestTimestamp              = headFileLatestTimestamp             ;
+			this.maxTimestamp                         = maxTimestamp                        ;
 		}
 
 
@@ -972,6 +993,12 @@ public interface StorageTransactionsAnalysis
 		public final long headFileLatestTimestamp()
 		{
 			return this.headFileLatestTimestamp;
+		}
+		
+		@Override
+		public final long maxTimestamp()
+		{
+			return this.maxTimestamp;
 		}
 
 	}

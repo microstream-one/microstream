@@ -208,6 +208,48 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	 */
 	public EmbeddedStorageConfigurationBuilder setHousekeepingTimeBudget(Duration housekeepingTimeBudget);
 
+	/**
+	 * Usage of an adaptive housekeeping controller, which will increase the time budgets on demand,
+	 * if the garbage collector needs more time to reach the sweeping phase.
+	 * 
+	 * @param adaptive <code>true</code> if an adaptive controller should be used
+	 * @return this
+	 * 
+	 * @see #setHousekeepingIncreaseThreshold(Duration)
+	 * @see #setHousekeepingIncreaseAmount(Duration)
+	 * @see #setHousekeepingMaximumTimeBudget(Duration)
+	 */
+	public EmbeddedStorageConfigurationBuilder setHousekeepingAdaptive(boolean adaptive);
+
+	/**
+	 * The threshold of the adaption cycle to calculate new budgets for the housekeeping process.
+	 * <p>
+	 * Only used when {@link #setHousekeepingAdaptive(boolean)} is <code>true</code>.
+	 * 
+	 * @param housekeepingIncreaseThreshold the new increase threshold
+	 * @return this
+	 */
+	public EmbeddedStorageConfigurationBuilder setHousekeepingIncreaseThreshold(Duration housekeepingIncreaseThreshold);
+
+	/**
+	 * The amount the housekeeping budgets will be increased each cycle.
+	 * <p>
+	 * Only used when {@link #setHousekeepingAdaptive(boolean)} is <code>true</code>.
+	 * 
+	 * @param housekeepingIncreaseAmount the new increase amount
+	 * @return this
+	 */
+	public EmbeddedStorageConfigurationBuilder setHousekeepingIncreaseAmount(Duration housekeepingIncreaseAmount);
+
+	/**
+	 * The upper limit of the housekeeping time budgets.
+	 * <p>
+	 * Only used when {@link #setHousekeepingAdaptive(boolean)} is <code>true</code>.
+	 * 
+	 * @param housekeepingMaximumTimeBudget the new maximum time budget
+	 * @return this
+	 */
+	public EmbeddedStorageConfigurationBuilder setHousekeepingMaximumTimeBudget(Duration housekeepingMaximumTimeBudget);
 
 	/**
 	 * Abstract threshold value for the lifetime of entities in the cache. See
@@ -524,6 +566,38 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 			return this.set(HOUSEKEEPING_TIME_BUDGET, housekeepingTimeBudget.toString());
 		}
 
+		@Override
+		public EmbeddedStorageConfigurationBuilder setHousekeepingAdaptive(
+			final boolean adaptive
+		)
+		{
+			return this.set(HOUSEKEEPING_ADAPTIVE, Boolean.toString(adaptive));
+		}
+		
+		@Override
+		public EmbeddedStorageConfigurationBuilder setHousekeepingIncreaseThreshold(
+			final Duration housekeepingIncreaseThreshold
+		)
+		{
+			return this.set(HOUSEKEEPING_INCREASE_THRESHOLD, housekeepingIncreaseThreshold.toString());
+		}
+		
+		@Override
+		public EmbeddedStorageConfigurationBuilder setHousekeepingIncreaseAmount(
+			final Duration housekeepingIncreaseAmount
+		)
+		{
+			return this.set(HOUSEKEEPING_INCREASE_AMOUNT, housekeepingIncreaseAmount.toString());
+		}
+		
+		@Override
+		public EmbeddedStorageConfigurationBuilder setHousekeepingMaximumTimeBudget(
+			final Duration housekeepingMaximumTimeBudget
+		)
+		{
+			return this.set(HOUSEKEEPING_MAXIMUM_TIME_BUDGET, housekeepingMaximumTimeBudget.toString());
+		}
+		
 		@Override
 		public EmbeddedStorageConfigurationBuilder setEntityCacheThreshold(
 			final long entityCacheThreshold

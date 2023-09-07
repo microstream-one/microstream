@@ -389,6 +389,7 @@ extends PersistenceSwizzlingLookup, PersistenceObjectIdHolder, Cloneable<Persist
 							this.localRegistries = X.consolidateWeakReferences(this.localRegistries);
 						}
 						
+						this.objectRegistry.cleanUp();
 						// local registry cannot be removed here as it might be reused. Must be weakly-managed.
 						return;
 					}

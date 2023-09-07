@@ -522,6 +522,7 @@ public interface StorageConnection extends Persister
 			try
 			{
 				// a time budget <= 0 will effectively be a cheap query for the completion state.
+				this.persistenceManager().objectRegistry().consolidate();
 				return this.connectionRequestAcceptor.issueGarbageCollection(nanoTimeBudget);
 			}
 			catch(final InterruptedException e)

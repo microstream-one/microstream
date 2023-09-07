@@ -59,6 +59,18 @@ They can be found as constants in `EmbeddedStorageConfigurationPropertyNames`.
 |xref:#housekeeping-time-budget[housekeeping-time-budget]
 |Number of nanoseconds used for each housekeeping cycle. Default is 10 milliseconds = 0.01 seconds.
 
+|housekeeping-adaptive
+|Usage of an adaptive housekeeping controller, which will increase the time budgets on demand, if the garbage collector needs more time to reach the sweeping phase.
+
+|housekeeping-increase-threshold
+|The threshold of the adaption cycle to calculate new budgets for the housekeeping process. Default is 5 seconds.
+
+|housekeeping-increase-amount
+|The amount the housekeeping budgets will be increased each cycle. Default is 50 ms.
+
+|housekeeping-maximum-time-budget
+|The upper limit of the housekeeping time budgets. Default is 0.5 seconds.
+
 |entity-cache-threshold
 |Abstract threshold value for the lifetime of entities in the cache. Default is `1000000000`.
 
