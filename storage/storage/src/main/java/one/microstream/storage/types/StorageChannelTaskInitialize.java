@@ -50,7 +50,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 
 		private Long consistentStoreTimestamp   ;
 		private Long commonTaskHeadFileTimestamp;
-		private Long maxTimeStamp               ;
+		private Long latestTimestamp               ;
 		
 		private long maxEntityObjectOid  ;
 		private long maxEntityConstantOid;
@@ -179,7 +179,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		}
 
 		private static boolean isCompatibleTimestamp(
-			final long                            candidatetimestamp,
+			final long                        candidatetimestamp,
 			final StorageTransactionsAnalysis transactionsFile
 		)
 		{
@@ -213,7 +213,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 			
 			this.updateIdAnalysis(idAnalysis);
 			
-			this.maxTimeStamp = Stream.of(result)
+			this.latestTimestamp = Stream.of(result)
 				.filter( r -> Objects.nonNull(r.transactionsFileAnalysis()))
 				.mapToLong( r -> r.transactionsFileAnalysis().maxTimestamp())
 				.max()
@@ -243,7 +243,7 @@ public interface StorageChannelTaskInitialize extends StorageChannelTask
 		@Override
 		public long latestTimestamp()
 		{
-			return this.maxTimeStamp;
+			return this.latestTimestamp;
 		}
 
 	}

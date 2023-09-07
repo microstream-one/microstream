@@ -33,11 +33,11 @@ public interface StorageTimestampProvider
 	public long currentNanoTimestamp();
 	
 	/**
-	 * Set the base value used to create the time stamps
+	 * Set the base value used to create the timestamps
 	 * Implementations are allowed to ignore it.
 	 * 
 	 * @param base base value for times stamp creation;
-	 * @return base value for time stamp creation;
+	 * @return base value for timestamp creation;
 	 */
 	public long set(long base);
 	
@@ -106,7 +106,7 @@ public interface StorageTimestampProvider
 		}
 		
 		/**
-		 * Set to new base value only if the new value is lager then the current one.
+		 * Set to new base value only if the new value is larger then the current one.
 		 */
 		@Override
 		public synchronized long set(final long timeNs)
@@ -121,7 +121,7 @@ public interface StorageTimestampProvider
 	
 	/**
 	 * An implementation of {@link StorageTimestampProvider} that provides an strictly monotonic increasing
-	 * long value instead of a time value. This implementation does not relay on any time based value
+	 * long value instead of a time value. This implementation does not rely on any time based value
 	 * that might be affected by changes of the system clock.
 	 * 
 	 */
@@ -142,7 +142,7 @@ public interface StorageTimestampProvider
 		}
 
 		/**
-		 * Set to new base value only if the new value is lager then the current one.
+		 * Set to new base value only if the new value is larger then the current one.
 		 */
 		@Override
 		public long set(final long base)
