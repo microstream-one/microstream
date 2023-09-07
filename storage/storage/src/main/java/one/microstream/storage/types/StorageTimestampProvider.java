@@ -36,8 +36,8 @@ public interface StorageTimestampProvider
 	 * Set the base value used to create the timestamps
 	 * Implementations are allowed to ignore it.
 	 * 
-	 * @param base base value for timestamp creation;
-	 * @return base value for timestamp creation;
+	 * @param base base value for timestamp creation.
+	 * @return base value for timestamp creation.
 	 */
 	public long set(long base);
 	
@@ -67,7 +67,7 @@ public interface StorageTimestampProvider
 		 * This implementation ignores the offset.
 		 * 
 		 * @param offset ignored by this implementation.
-		 * @return always zero;
+		 * @return always zero.
 		 */
 		@Override
 		public long set(final long offset)
