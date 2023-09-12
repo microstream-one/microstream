@@ -40,7 +40,6 @@
 						<id>default-compile</id>
 						<configuration>
 							<compilerArgument>-proc:none</compilerArgument>
-							<compilerArgument>-warn:-serial,-unusedImport</compilerArgument>
 						</configuration>
 					</execution>
 				</executions>
@@ -59,5 +58,33 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>eclipse</id>
+			<activation>
+				<property>
+					<name>maven.compiler.compilerId</name>
+					<value>eclipse</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>default-compile</id>
+								<configuration>
+									<compilerArgument>-warn:-serial,-unusedImport</compilerArgument>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
