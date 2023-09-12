@@ -65,7 +65,7 @@
 			<activation>
 				<property>
 					<name>maven.compiler.compilerId</name>
-					<value>eclipse</value>
+					<value>!javac</value>
 				</property>
 			</activation>
 			<build>
