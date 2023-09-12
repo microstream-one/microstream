@@ -40,7 +40,6 @@
 						<id>default-compile</id>
 						<configuration>
 							<compilerArgument>-proc:none</compilerArgument>
-							<compilerArgument>-warn:-serial,-unusedImport</compilerArgument>
 						</configuration>
 					</execution>
 				</executions>
