@@ -35,20 +35,20 @@ public class Coherence
 
     public String getCacheName()
     {
-        return cacheName;
+        return this.cacheName;
     }
 
-    public void setCacheName(String cacheName)
+    public void setCacheName(final String cacheName)
     {
         this.cacheName = cacheName;
     }
 
     public String getCacheConfig()
     {
-        return cacheConfig;
+        return this.cacheConfig;
     }
 
-    public void setCacheConfig(String cacheConfig)
+    public void setCacheConfig(final String cacheConfig)
     {
         this.cacheConfig = cacheConfig;
     }

@@ -20,14 +20,16 @@ package one.microstream.integrations.spring.boot.types;
  * #L%
  */
 
-import one.microstream.integrations.spring.boot.types.config.MicrostreamConfigurationProperties;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
+
+import one.microstream.integrations.spring.boot.types.config.MicrostreamConfigurationProperties;
 
 @AutoConfiguration
 @ComponentScan(basePackages = "one.microstream.integrations.spring.boot.types")
 @EnableConfigurationProperties(MicrostreamConfigurationProperties.class)
 public class MicroStreamConfiguration
 {
+	// no members
 }

@@ -47,30 +47,30 @@ public abstract class AbstractAwsProperties
 
     public Credentials getCredentials()
     {
-        return credentials;
+        return this.credentials;
     }
 
-    public void setCredentials(Credentials credentials)
+    public void setCredentials(final Credentials credentials)
     {
         this.credentials = credentials;
     }
 
     public String getEndpointOverride()
     {
-        return endpointOverride;
+        return this.endpointOverride;
     }
 
-    public void setEndpointOverride(String endpointOverride)
+    public void setEndpointOverride(final String endpointOverride)
     {
         this.endpointOverride = endpointOverride;
     }
 
     public String getRegion()
     {
-        return region;
+        return this.region;
     }
 
-    public void setRegion(String region)
+    public void setRegion(final String region)
     {
         this.region = region;
     }

@@ -22,5 +22,5 @@ package one.microstream.integrations.spring.boot.types.sql;
 
 public class Mariadb extends AbstractSqlConfiguration
 {
-
+	// inherits all properties from supertype
 }

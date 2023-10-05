@@ -20,9 +20,10 @@ package one.microstream.integrations.spring.boot.types.config;
  * #L%
  */
 
-import one.microstream.integrations.spring.boot.types.StorageFilesystem;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
+
+import one.microstream.integrations.spring.boot.types.StorageFilesystem;
 
 @ConfigurationProperties(prefix = "one.microstream")
 public class MicrostreamConfigurationProperties
@@ -155,227 +156,227 @@ public class MicrostreamConfigurationProperties
 
     public String getStorageDirectory()
     {
-        return storageDirectory;
+        return this.storageDirectory;
     }
 
-    public void setStorageDirectory(String storageDirectory)
+    public void setStorageDirectory(final String storageDirectory)
     {
         this.storageDirectory = storageDirectory;
     }
 
     public StorageFilesystem getStorageFilesystem()
     {
-        return storageFilesystem;
+        return this.storageFilesystem;
     }
 
-    public void setStorageFilesystem(StorageFilesystem storageFilesystem)
+    public void setStorageFilesystem(final StorageFilesystem storageFilesystem)
     {
         this.storageFilesystem = storageFilesystem;
     }
 
     public String getDeletionDirectory()
     {
-        return deletionDirectory;
+        return this.deletionDirectory;
     }
 
-    public void setDeletionDirectory(String deletionDirectory)
+    public void setDeletionDirectory(final String deletionDirectory)
     {
         this.deletionDirectory = deletionDirectory;
     }
 
     public String getTruncationDirectory()
     {
-        return truncationDirectory;
+        return this.truncationDirectory;
     }
 
-    public void setTruncationDirectory(String truncationDirectory)
+    public void setTruncationDirectory(final String truncationDirectory)
     {
         this.truncationDirectory = truncationDirectory;
     }
 
     public String getBackupDirectory()
     {
-        return backupDirectory;
+        return this.backupDirectory;
     }
 
-    public void setBackupDirectory(String backupDirectory)
+    public void setBackupDirectory(final String backupDirectory)
     {
         this.backupDirectory = backupDirectory;
     }
 
     public StorageFilesystem getBackupFilesystem()
     {
-        return backupFilesystem;
+        return this.backupFilesystem;
     }
 
-    public void setBackupFilesystem(StorageFilesystem backupFilesystem)
+    public void setBackupFilesystem(final StorageFilesystem backupFilesystem)
     {
         this.backupFilesystem = backupFilesystem;
     }
 
     public String getChannelCount()
     {
-        return channelCount;
+        return this.channelCount;
     }
 
-    public void setChannelCount(String channelCount)
+    public void setChannelCount(final String channelCount)
     {
         this.channelCount = channelCount;
     }
 
     public String getChannelDirectoryPrefix()
     {
-        return channelDirectoryPrefix;
+        return this.channelDirectoryPrefix;
     }
 
-    public void setChannelDirectoryPrefix(String channelDirectoryPrefix)
+    public void setChannelDirectoryPrefix(final String channelDirectoryPrefix)
     {
         this.channelDirectoryPrefix = channelDirectoryPrefix;
     }
 
     public String getDataFilePrefix()
     {
-        return dataFilePrefix;
+        return this.dataFilePrefix;
     }
 
-    public void setDataFilePrefix(String dataFilePrefix)
+    public void setDataFilePrefix(final String dataFilePrefix)
     {
         this.dataFilePrefix = dataFilePrefix;
     }
 
     public String getDataFileSuffix()
     {
-        return dataFileSuffix;
+        return this.dataFileSuffix;
     }
 
-    public void setDataFileSuffix(String dataFileSuffix)
+    public void setDataFileSuffix(final String dataFileSuffix)
     {
         this.dataFileSuffix = dataFileSuffix;
     }
 
     public String getTransactionFilePrefix()
     {
-        return transactionFilePrefix;
+        return this.transactionFilePrefix;
     }
 
-    public void setTransactionFilePrefix(String transactionFilePrefix)
+    public void setTransactionFilePrefix(final String transactionFilePrefix)
     {
         this.transactionFilePrefix = transactionFilePrefix;
     }
 
     public String getTransactionFileSuffix()
     {
-        return transactionFileSuffix;
+        return this.transactionFileSuffix;
     }
 
-    public void setTransactionFileSuffix(String transactionFileSuffix)
+    public void setTransactionFileSuffix(final String transactionFileSuffix)
     {
         this.transactionFileSuffix = transactionFileSuffix;
     }
 
     public String getTypeDictionaryFileName()
     {
-        return typeDictionaryFileName;
+        return this.typeDictionaryFileName;
     }
 
-    public void setTypeDictionaryFileName(String typeDictionaryFileName)
+    public void setTypeDictionaryFileName(final String typeDictionaryFileName)
     {
         this.typeDictionaryFileName = typeDictionaryFileName;
     }
 
     public String getRescuedFileSuffix()
     {
-        return rescuedFileSuffix;
+        return this.rescuedFileSuffix;
     }
 
-    public void setRescuedFileSuffix(String rescuedFileSuffix)
+    public void setRescuedFileSuffix(final String rescuedFileSuffix)
     {
         this.rescuedFileSuffix = rescuedFileSuffix;
     }
 
     public String getLockFileName()
     {
-        return lockFileName;
+        return this.lockFileName;
     }
 
-    public void setLockFileName(String lockFileName)
+    public void setLockFileName(final String lockFileName)
     {
         this.lockFileName = lockFileName;
     }
 
     public String getHousekeepingInterval()
     {
-        return housekeepingInterval;
+        return this.housekeepingInterval;
     }
 
-    public void setHousekeepingInterval(String housekeepingInterval)
+    public void setHousekeepingInterval(final String housekeepingInterval)
     {
         this.housekeepingInterval = housekeepingInterval;
     }
 
     public String getHousekeepingTimeBudget()
     {
-        return housekeepingTimeBudget;
+        return this.housekeepingTimeBudget;
     }
 
-    public void setHousekeepingTimeBudget(String housekeepingTimeBudget)
+    public void setHousekeepingTimeBudget(final String housekeepingTimeBudget)
     {
         this.housekeepingTimeBudget = housekeepingTimeBudget;
     }
 
     public String getEntityCacheTimeout()
     {
-        return entityCacheTimeout;
+        return this.entityCacheTimeout;
     }
 
-    public void setEntityCacheTimeout(String entityCacheTimeout)
+    public void setEntityCacheTimeout(final String entityCacheTimeout)
     {
         this.entityCacheTimeout = entityCacheTimeout;
     }
 
     public String getDataFileMinimumSize()
     {
-        return dataFileMinimumSize;
+        return this.dataFileMinimumSize;
     }
 
-    public void setDataFileMinimumSize(String dataFileMinimumSize)
+    public void setDataFileMinimumSize(final String dataFileMinimumSize)
     {
         this.dataFileMinimumSize = dataFileMinimumSize;
     }
 
     public String getDataFileMaximumSize()
     {
-        return dataFileMaximumSize;
+        return this.dataFileMaximumSize;
     }
 
-    public void setDataFileMaximumSize(String dataFileMaximumSize)
+    public void setDataFileMaximumSize(final String dataFileMaximumSize)
     {
         this.dataFileMaximumSize = dataFileMaximumSize;
     }
 
     public String getDataFileMinimumUseRatio()
     {
-        return dataFileMinimumUseRatio;
+        return this.dataFileMinimumUseRatio;
     }
 
-    public void setDataFileMinimumUseRatio(String dataFileMinimumUseRatio)
+    public void setDataFileMinimumUseRatio(final String dataFileMinimumUseRatio)
     {
         this.dataFileMinimumUseRatio = dataFileMinimumUseRatio;
     }
 
     public String getDataFileCleanupHeadFile()
     {
-        return dataFileCleanupHeadFile;
+        return this.dataFileCleanupHeadFile;
     }
 
-    public void setDataFileCleanupHeadFile(String dataFileCleanupHeadFile)
+    public void setDataFileCleanupHeadFile(final String dataFileCleanupHeadFile)
     {
         this.dataFileCleanupHeadFile = dataFileCleanupHeadFile;
     }
 
     public Boolean getAutoStart()
     {
-        return autoStart;
+        return this.autoStart;
     }
 
     public void setAutoStart(final Boolean autoStart)

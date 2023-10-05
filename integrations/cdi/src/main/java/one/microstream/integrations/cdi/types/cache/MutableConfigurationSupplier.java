@@ -33,9 +33,9 @@ import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheWriter;
 import javax.enterprise.inject.Instance;
 
-import one.microstream.cache.types.CacheStore;
 import org.eclipse.microprofile.config.Config;
 
+import one.microstream.cache.types.CacheStore;
 import one.microstream.storage.types.StorageManager;
 
 
@@ -145,8 +145,8 @@ class MutableConfigurationSupplier<K, V> implements Supplier<MutableConfiguratio
 		if(this.storage)
 		{
 			LOGGER.log(Level.FINE, "Using the storage option to this cache, so it will enable write and read through");
-			StorageManager storageManager = this.storageManager.get();
-			CacheStore<K, V> cacheStore = CacheStore.New(cacheProperty.getName(),storageManager);
+			final StorageManager storageManager = this.storageManager.get();
+			final CacheStore<K, V> cacheStore = CacheStore.New(this.cacheProperty.getName(),storageManager);
 			configuration.setCacheLoaderFactory(() -> cacheStore);
 			configuration.setCacheWriterFactory(() -> cacheStore);
 			configuration.setWriteThrough(true);

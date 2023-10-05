@@ -20,9 +20,10 @@ package one.microstream.integrations.spring.boot.types.oracle;
  * #L%
  */
 
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+
 import one.microstream.integrations.spring.boot.types.oracle.coherence.Coherence;
 import one.microstream.integrations.spring.boot.types.oracle.nosql.Nosql;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 public class Oracle
 {
@@ -35,20 +36,20 @@ public class Oracle
 
     public Coherence getCoherence()
     {
-        return coherence;
+        return this.coherence;
     }
 
-    public void setCoherence(Coherence coherence)
+    public void setCoherence(final Coherence coherence)
     {
         this.coherence = coherence;
     }
 
     public Nosql getNosql()
     {
-        return nosql;
+        return this.nosql;
     }
 
-    public void setNosql(Nosql nosql)
+    public void setNosql(final Nosql nosql)
     {
         this.nosql = nosql;
     }

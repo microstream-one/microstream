@@ -22,5 +22,5 @@ package one.microstream.integrations.spring.boot.types.aws;
 
 public class S3 extends AbstractAwsProperties
 {
-
+	// inherits all properties from supertype
 }

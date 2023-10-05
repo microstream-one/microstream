@@ -32,60 +32,60 @@ public class AbstractSqlConfiguration
 
     public String getDataSourceProvider()
     {
-        return dataSourceProvider;
+        return this.dataSourceProvider;
     }
 
-    public void setDataSourceProvider(String dataSourceProvider)
+    public void setDataSourceProvider(final String dataSourceProvider)
     {
         this.dataSourceProvider = dataSourceProvider;
     }
 
     public String getCatalog()
     {
-        return catalog;
+        return this.catalog;
     }
 
-    public void setCatalog(String catalog)
+    public void setCatalog(final String catalog)
     {
         this.catalog = catalog;
     }
 
     public String getSchema()
     {
-        return schema;
+        return this.schema;
     }
 
-    public void setSchema(String schema)
+    public void setSchema(final String schema)
     {
         this.schema = schema;
     }
 
     public String getUrl()
     {
-        return url;
+        return this.url;
     }
 
-    public void setUrl(String url)
+    public void setUrl(final String url)
     {
         this.url = url;
     }
 
     public String getUser()
     {
-        return user;
+        return this.user;
     }
 
-    public void setUser(String user)
+    public void setUser(final String user)
     {
         this.user = user;
     }
 
     public String getPassword()
     {
-        return password;
+        return this.password;
     }
 
-    public void setPassword(String password)
+    public void setPassword(final String password)
     {
         this.password = password;
     }

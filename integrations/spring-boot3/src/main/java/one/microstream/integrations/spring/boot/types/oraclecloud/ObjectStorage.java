@@ -43,40 +43,40 @@ public class ObjectStorage
 
     public ConfigFile getConfigFile()
     {
-        return configFile;
+        return this.configFile;
     }
 
-    public void setConfigFile(ConfigFile configFile)
+    public void setConfigFile(final ConfigFile configFile)
     {
         this.configFile = configFile;
     }
 
     public Client getClient()
     {
-        return client;
+        return this.client;
     }
 
-    public void setClient(Client client)
+    public void setClient(final Client client)
     {
         this.client = client;
     }
 
     public String getRegion()
     {
-        return region;
+        return this.region;
     }
 
-    public void setRegion(String region)
+    public void setRegion(final String region)
     {
         this.region = region;
     }
 
     public String getEndpoint()
     {
-        return endpoint;
+        return this.endpoint;
     }
 
-    public void setEndpoint(String endpoint)
+    public void setEndpoint(final String endpoint)
     {
         this.endpoint = endpoint;
     }

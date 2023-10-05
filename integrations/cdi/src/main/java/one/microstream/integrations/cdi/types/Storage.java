@@ -21,12 +21,13 @@ package one.microstream.integrations.cdi.types;
  * #L%
  */
 
-import javax.enterprise.inject.Alternative;
-import javax.enterprise.inject.Stereotype;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.Stereotype;
 
 
 /**
@@ -47,4 +48,5 @@ import java.lang.annotation.Target;
 @Alternative
 public @interface Storage
 {
+	// marker annotation
 }

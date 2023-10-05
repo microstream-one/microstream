@@ -55,30 +55,30 @@ public class Credentials
 
     public String getType()
     {
-        return type;
+        return this.type;
     }
 
-    public void setType(String type)
+    public void setType(final String type)
     {
         this.type = type;
     }
 
     public String getAccessKeyId()
     {
-        return accessKeyId;
+        return this.accessKeyId;
     }
 
-    public void setAccessKeyId(String accessKeyId)
+    public void setAccessKeyId(final String accessKeyId)
     {
         this.accessKeyId = accessKeyId;
     }
 
     public String getSecretAccessKey()
     {
-        return secretAccessKey;
+        return this.secretAccessKey;
     }
 
-    public void setSecretAccessKey(String secretAccessKey)
+    public void setSecretAccessKey(final String secretAccessKey)
     {
         this.secretAccessKey = secretAccessKey;
     }

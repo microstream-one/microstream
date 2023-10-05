@@ -20,12 +20,13 @@ package one.microstream.integrations.spring.boot.types.config;
  * #L%
  */
 
-import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
-import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
+
+import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
+import one.microstream.storage.embedded.types.EmbeddedStorageManager;
 
 
 @Configuration
@@ -34,9 +35,7 @@ public class StorageManagerFactory
 
     private final StorageManagerProvider storageManagerProvider;
 
-    public StorageManagerFactory(
-            StorageManagerProvider storageManagerProvider
-    )
+    public StorageManagerFactory(final StorageManagerProvider storageManagerProvider)
     {
         this.storageManagerProvider = storageManagerProvider;
     }
@@ -47,7 +46,7 @@ public class StorageManagerFactory
     @Primary
     public EmbeddedStorageFoundation<?> embeddedStorageFoundation()
     {
-        return storageManagerProvider.embeddedStorageFoundation();
+        return this.storageManagerProvider.embeddedStorageFoundation();
     }
 
     @Bean(destroyMethod = "shutdown")
@@ -55,8 +54,7 @@ public class StorageManagerFactory
     @Primary
     public EmbeddedStorageManager embeddedStorageManager()
     {
-        return storageManagerProvider.get(StorageManagerProvider.PRIMARY_QUALIFIER);
-
+        return this.storageManagerProvider.get(StorageManagerProvider.PRIMARY_QUALIFIER);
     }
 
 }

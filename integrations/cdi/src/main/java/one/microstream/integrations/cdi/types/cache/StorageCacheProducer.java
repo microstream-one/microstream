@@ -82,6 +82,7 @@ class StorageCacheProducer
 		return this.cacheManager;
 	}
 	
+	@SuppressWarnings("resource")
 	@Produces
 	@StorageCache
 	public <K, V> Cache<K, V> producer(final InjectionPoint injectionPoint)

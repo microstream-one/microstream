@@ -21,11 +21,12 @@ package one.microstream.integrations.cdi.types.extension;
  * #L%
  */
 
-import one.microstream.integrations.cdi.exceptions.CDIExceptionStorage;
-import one.microstream.integrations.cdi.types.Storage;
-import one.microstream.integrations.cdi.types.config.StorageManagerInitializer;
-import one.microstream.reflect.XReflect;
-import one.microstream.storage.types.StorageManager;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.enterprise.inject.Any;
@@ -33,12 +34,11 @@ import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.InjectionPoint;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import one.microstream.integrations.cdi.exceptions.CDIExceptionStorage;
+import one.microstream.integrations.cdi.types.Storage;
+import one.microstream.integrations.cdi.types.config.StorageManagerInitializer;
+import one.microstream.reflect.XReflect;
+import one.microstream.storage.types.StorageManager;
 
 
 /**
@@ -99,7 +99,7 @@ class StorageBean<T> extends AbstractBean<T>
 		final Set<Bean<?>> initializerBeans = this.beanManager.getBeans(StorageManagerInitializer.class);
 		for (final Bean<?> initializerBean : initializerBeans)
 		{
-			StorageManagerInitializer initializer = (StorageManagerInitializer) beanManager.getReference(initializerBean
+			final StorageManagerInitializer initializer = (StorageManagerInitializer) this.beanManager.getReference(initializerBean
 					, initializerBean.getBeanClass()
 					, this.beanManager.createCreationalContext(initializerBean));
 

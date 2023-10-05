@@ -20,6 +20,10 @@ package one.microstream.integrations.spring.boot.types;
  * #L%
  */
 
+import java.util.Map;
+
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+
 import one.microstream.integrations.spring.boot.types.aws.Aws;
 import one.microstream.integrations.spring.boot.types.hazelcast.Hazelcast;
 import one.microstream.integrations.spring.boot.types.mongodb.Mongodb;
@@ -27,9 +31,6 @@ import one.microstream.integrations.spring.boot.types.oracle.Oracle;
 import one.microstream.integrations.spring.boot.types.oraclecloud.Oraclecloud;
 import one.microstream.integrations.spring.boot.types.redis.Redis;
 import one.microstream.integrations.spring.boot.types.sql.Sql;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
-
-import java.util.Map;
 
 public class StorageFilesystem
 {
@@ -63,80 +64,80 @@ public class StorageFilesystem
 
     public Sql getSql()
     {
-        return sql;
+        return this.sql;
     }
 
-    public void setSql(Sql sql)
+    public void setSql(final Sql sql)
     {
         this.sql = sql;
     }
 
     public Aws getAws()
     {
-        return aws;
+        return this.aws;
     }
 
-    public void setAws(Aws aws)
+    public void setAws(final Aws aws)
     {
         this.aws = aws;
     }
 
     public Hazelcast getHazelcast()
     {
-        return hazelcast;
+        return this.hazelcast;
     }
 
-    public void setHazelcast(Hazelcast hazelcast)
+    public void setHazelcast(final Hazelcast hazelcast)
     {
         this.hazelcast = hazelcast;
     }
 
     public Map<String, String> getKafkaProperties()
     {
-        return kafkaProperties;
+        return this.kafkaProperties;
     }
 
-    public void setKafkaProperties(Map<String, String> kafkaProperties)
+    public void setKafkaProperties(final Map<String, String> kafkaProperties)
     {
         this.kafkaProperties = kafkaProperties;
     }
 
     public Mongodb getMongodb()
     {
-        return mongodb;
+        return this.mongodb;
     }
 
-    public void setMongodb(Mongodb mongodb)
+    public void setMongodb(final Mongodb mongodb)
     {
         this.mongodb = mongodb;
     }
 
     public Oraclecloud getOraclecloud()
     {
-        return oraclecloud;
+        return this.oraclecloud;
     }
 
-    public void setOraclecloud(Oraclecloud oraclecloud)
+    public void setOraclecloud(final Oraclecloud oraclecloud)
     {
         this.oraclecloud = oraclecloud;
     }
 
     public Oracle getOracle()
     {
-        return oracle;
+        return this.oracle;
     }
 
-    public void setOracle(Oracle oracle)
+    public void setOracle(final Oracle oracle)
     {
         this.oracle = oracle;
     }
 
     public Redis getRedis()
     {
-        return redis;
+        return this.redis;
     }
 
-    public void setRedis(Redis redis)
+    public void setRedis(final Redis redis)
     {
         this.redis = redis;
     }

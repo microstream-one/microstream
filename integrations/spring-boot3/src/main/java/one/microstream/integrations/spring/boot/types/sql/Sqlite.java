@@ -22,4 +22,5 @@ package one.microstream.integrations.spring.boot.types.sql;
 
 public class Sqlite extends AbstractSqlConfiguration
 {
+	// inherits all properties from supertype
 }

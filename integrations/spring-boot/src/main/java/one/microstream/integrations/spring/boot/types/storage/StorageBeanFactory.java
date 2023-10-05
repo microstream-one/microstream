@@ -1,5 +1,25 @@
 package one.microstream.integrations.spring.boot.types.storage;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
+
 /*-
  * #%L
  * microstream-integrations-spring-boot
@@ -27,25 +47,6 @@ import one.microstream.integrations.spring.boot.types.config.StorageManagerProvi
 import one.microstream.integrations.spring.boot.types.util.ByQualifier;
 import one.microstream.reflect.XReflect;
 import one.microstream.storage.types.StorageManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 @Component
@@ -58,7 +59,8 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
 
     private final List<StorageClassData<?>> storageClasses = new ArrayList<>();
 
-    public <T> T createRootObject(final StorageClassData<T> storageClass)
+    @SuppressWarnings({"unchecked", "resource"})
+	public <T> T createRootObject(final StorageClassData<T> storageClass)
     {
         LOGGER.debug("Creating Spring bean for @Storage annotated class");
 
@@ -83,7 +85,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
 
         if (Objects.isNull(root))
         {
-            root = XReflect.defaultInstantiate(findRootClass(qualifier));
+            root = XReflect.defaultInstantiate(this.findRootClass(qualifier));
             LOGGER.debug(String.format("Created Root object from class %s", root.getClass()
                     .getName()));
             storageManager.setRoot(root);
@@ -106,7 +108,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
 
     private Class<?> findRootClass(final String qualifier)
     {
-        return storageClasses.stream()
+        return this.storageClasses.stream()
                 .filter(scd -> scd.getQualifier()
                         .equals(qualifier))
                 .findAny()
@@ -122,9 +124,9 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
 
     private void processInitializers(final StorageManager storageManager, final String qualifier)
     {
-        final String[] namesForType = applicationContext.getBeanNamesForType(StorageManagerInitializer.class);
+        final String[] namesForType = this.applicationContext.getBeanNamesForType(StorageManagerInitializer.class);
         Arrays.stream(namesForType)
-                .map(name -> applicationContext.getBean(name))
+                .map(name -> this.applicationContext.getBean(name))
                 .map(StorageManagerInitializer.class::cast)
                 .filter(it -> ByQualifier.hasQualifierValue(it, qualifier))
                 .forEach(initializer -> initializer.initialize(storageManager));
@@ -141,7 +143,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
     public void postProcessBeanDefinitionRegistry(final BeanDefinitionRegistry beanDefinitionRegistry) throws
             BeansException
     {
-        for (String definitionName : beanDefinitionRegistry.getBeanDefinitionNames())
+        for (final String definitionName : beanDefinitionRegistry.getBeanDefinitionNames())
         {
 
             final BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(definitionName);
@@ -150,7 +152,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
                 try
                 {
                     // Try to get an appropriate ClassLoader from the Spring context
-                    ClassLoader classLoader = applicationContext.getClassLoader();
+                    ClassLoader classLoader = this.applicationContext.getClassLoader();
                     // Fall back to the current ClassLoader if null
                     if (classLoader == null)
                         classLoader = this.getClass().getClassLoader();
@@ -166,14 +168,14 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
                         beanDefinitionRegistry.removeBeanDefinition(definitionName);
 
                     }
-                } catch (ClassNotFoundException e)
+                } catch (final ClassNotFoundException e)
                 {
                     throw new RuntimeException(e);
                 }
             }
 
         }
-        final Map<String, ? extends List<? extends Class<?>>> storageClassByQualifier = storageClasses.stream()
+        final Map<String, ? extends List<? extends Class<?>>> storageClassByQualifier = this.storageClasses.stream()
                 .collect(
                         Collectors.groupingBy(StorageClassData::getQualifier,
                                 Collectors.mapping(StorageClassData::getClazz,
@@ -194,7 +196,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
         if (!this.storageClasses.isEmpty())
         {
             // This is a marker bean used in the StorageManagerFactory
-            beanDefinitionRegistry.registerBeanDefinition("storageMetaData", createStorageMetaDataDefinition());
+            beanDefinitionRegistry.registerBeanDefinition("storageMetaData", this.createStorageMetaDataDefinition());
 
             // Add a definition for each class annotated with @Storage
             // Add a new definition based on the createRootObject 'factory method'
@@ -203,14 +205,14 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
 
                 beanDefinitionRegistry
                         .registerBeanDefinition(defineBeanName(storageClass),
-                                                createBeanDefinition(storageClass)
+                                                this.createBeanDefinition(storageClass)
                         );
             }
         }
 
     }
 
-    private static String defineBeanName(StorageClassData<?> storageClass)
+    private static String defineBeanName(final StorageClassData<?> storageClass)
     {
 
         // Bean name must be the qualifier name!
@@ -227,7 +229,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
     private <T> BeanDefinition createBeanDefinition(final StorageClassData<T> storageClass)
     {
         return BeanDefinitionBuilder.genericBeanDefinition(storageClass.getClazz(),
-                                                           () -> createRootObject(storageClass))
+                                                           () -> this.createRootObject(storageClass))
                 //.addConstructorArgValue(storageClass.getQualifier())
                 .getBeanDefinition();
     }
@@ -235,7 +237,7 @@ public class StorageBeanFactory implements ApplicationContextAware, BeanDefiniti
     private BeanDefinition createStorageMetaDataDefinition()
     {
         return BeanDefinitionBuilder.genericBeanDefinition(StorageMetaData.class,
-                                                           () -> new StorageMetaData(storageClasses))
+                                                           () -> new StorageMetaData(this.storageClasses))
                 .getBeanDefinition();
     }
 

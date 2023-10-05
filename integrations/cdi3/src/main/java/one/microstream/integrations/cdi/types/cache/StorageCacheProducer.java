@@ -24,21 +24,21 @@ package one.microstream.integrations.cdi.types.cache;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-import jakarta.annotation.PostConstruct;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.spi.CachingProvider;
+
+import org.eclipse.microprofile.config.Config;
+
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Disposes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.inject.Inject;
-
-import org.eclipse.microprofile.config.Config;
-
 import one.microstream.storage.types.StorageManager;
 
 
@@ -82,6 +82,7 @@ class StorageCacheProducer
 		return this.cacheManager;
 	}
 	
+	@SuppressWarnings("resource")
 	@Produces
 	@StorageCache
 	public <K, V> Cache<K, V> producer(final InjectionPoint injectionPoint)

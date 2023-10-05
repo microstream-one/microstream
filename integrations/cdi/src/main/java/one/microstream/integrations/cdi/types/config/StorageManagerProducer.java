@@ -21,22 +21,24 @@ package one.microstream.integrations.cdi.types.config;
  * #L%
  */
 
-import one.microstream.integrations.cdi.types.ConfigurationCoreProperties;
-import one.microstream.integrations.cdi.types.extension.StorageExtension;
-import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
-import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
-import one.microstream.storage.embedded.types.EmbeddedStorageManager;
-import one.microstream.storage.types.StorageManager;
-import org.eclipse.microprofile.config.Config;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import java.util.Map;
+
+import org.eclipse.microprofile.config.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import one.microstream.integrations.cdi.types.ConfigurationCoreProperties;
+import one.microstream.integrations.cdi.types.extension.StorageExtension;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
+import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
+import one.microstream.storage.embedded.types.EmbeddedStorageManager;
+import one.microstream.storage.types.StorageManager;
 
 
 @ApplicationScoped
@@ -64,22 +66,20 @@ public class StorageManagerProducer
 		if (this.storageExtension.getStorageManagerConfigInjectionNames()
 				.isEmpty())
 		{
-			return storageManagerFromProperties();
+			return this.storageManagerFromProperties();
 		}
-		else
-		{
-			// StorageManager through StorageManagerConverter
-			String configName = storageExtension.getStorageManagerConfigInjectionNames()
-					.iterator()
-					.next();
-			LOGGER.info(
-					"Loading StorageManager from file indicated by MicroProfile Config key : "
-							+ configName
-			);
 
-			// This will succeed since it is already validated during deployment of the application.
-			return config.getValue(configName, StorageManager.class);
-		}
+		// StorageManager through StorageManagerConverter
+		final String configName = this.storageExtension.getStorageManagerConfigInjectionNames()
+				.iterator()
+				.next();
+		LOGGER.info(
+				"Loading StorageManager from file indicated by MicroProfile Config key : "
+						+ configName
+		);
+
+		// This will succeed since it is already validated during deployment of the application.
+		return this.config.getValue(configName, StorageManager.class);
 	}
 
 	private EmbeddedStorageManager storageManagerFromProperties()
@@ -95,32 +95,32 @@ public class StorageManagerProducer
 		{
 			builder.set(entry.getKey(), entry.getValue());
 		}
-		EmbeddedStorageFoundation<?> foundation = builder.createEmbeddedStorageFoundation();
+		final EmbeddedStorageFoundation<?> foundation = builder.createEmbeddedStorageFoundation();
 		foundation.setDataBaseName("Generic");
 
-		customizers.stream()
+		this.customizers.stream()
 				.forEach(customizer -> customizer.customize(foundation));
 
-		EmbeddedStorageManager storageManager = foundation
+		final EmbeddedStorageManager storageManager = foundation
 				.createEmbeddedStorageManager();
 
-		if (isAutoStart(properties))
+		if (this.isAutoStart(properties))
 		{
 			storageManager.start();
 		}
 
-		if (!storageExtension.hasStorageRoot())
+		if (!this.storageExtension.hasStorageRoot())
 		{
 			// Only execute at this point when no storage root bean has defined with @Storage
 			// Initializers are called from StorageBean.create if user has defined @Storage and root is read.
-			initializers.stream()
+			this.initializers.stream()
 					.forEach(initializer -> initializer.initialize(storageManager));
 		}
 
 		return storageManager;
 	}
 
-	private boolean isAutoStart(Map<String, String> properties)
+	private boolean isAutoStart(final Map<String, String> properties)
 	{
 		return Boolean.parseBoolean(properties.getOrDefault("autoStart", "true"));
 
