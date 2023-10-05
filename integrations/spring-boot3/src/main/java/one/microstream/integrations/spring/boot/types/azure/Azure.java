@@ -30,10 +30,10 @@ public class Azure
 
     public Storage getStorage()
     {
-        return storage;
+        return this.storage;
     }
 
-    public void setStorage(Storage storage)
+    public void setStorage(final Storage storage)
     {
         this.storage = storage;
     }

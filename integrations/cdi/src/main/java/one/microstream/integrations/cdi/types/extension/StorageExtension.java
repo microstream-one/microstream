@@ -21,9 +21,13 @@ package one.microstream.integrations.cdi.types.extension;
  * #L%
  */
 
-import one.microstream.integrations.cdi.types.Storage;
-import one.microstream.storage.types.StorageManager;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -35,13 +39,11 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.enterprise.inject.spi.ProcessInjectionPoint;
 import javax.enterprise.inject.spi.WithAnnotations;
-import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import one.microstream.integrations.cdi.types.Storage;
+import one.microstream.storage.types.StorageManager;
 
 
 /**
@@ -85,9 +87,9 @@ public class StorageExtension implements Extension
 					.add(ip);
 		}
 		// Is @Inject @ConfigProperty on StorageManager?
-		if (isStorageManagerFromConfig(ip))
+		if (this.isStorageManagerFromConfig(ip))
 		{
-			this.storageManagerConfigInjectionNames.add(getConfigPropertyValueOf(ip));
+			this.storageManagerConfigInjectionNames.add(this.getConfigPropertyValueOf(ip));
 
 		}
 	}
@@ -146,7 +148,7 @@ public class StorageExtension implements Extension
 
 	public boolean hasStorageRoot()
 	{
-		return !storageRoot.isEmpty();
+		return !this.storageRoot.isEmpty();
 	}
 
 	@Override

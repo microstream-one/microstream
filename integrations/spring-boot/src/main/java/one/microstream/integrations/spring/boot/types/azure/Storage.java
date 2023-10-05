@@ -45,40 +45,40 @@ public class Storage
 
     public Credentials getCredentials()
     {
-        return credentials;
+        return this.credentials;
     }
 
-    public void setCredentials(Credentials credentials)
+    public void setCredentials(final Credentials credentials)
     {
         this.credentials = credentials;
     }
 
     public String getEndpoint()
     {
-        return endpoint;
+        return this.endpoint;
     }
 
-    public void setEndpoint(String endpoint)
+    public void setEndpoint(final String endpoint)
     {
         this.endpoint = endpoint;
     }
 
     public String getConnectionString()
     {
-        return connectionString;
+        return this.connectionString;
     }
 
-    public void setConnectionString(String connectionString)
+    public void setConnectionString(final String connectionString)
     {
         this.connectionString = connectionString;
     }
 
     public String getEncryptionScope()
     {
-        return encryptionScope;
+        return this.encryptionScope;
     }
 
-    public void setEncryptionScope(String encryptionScope)
+    public void setEncryptionScope(final String encryptionScope)
     {
         this.encryptionScope = encryptionScope;
     }

@@ -22,6 +22,5 @@ package one.microstream.integrations.spring.boot.types.aws;
 
 public class Dynamodb extends AbstractAwsProperties
 {
-
-
+	// inherits all properties from supertype
 }

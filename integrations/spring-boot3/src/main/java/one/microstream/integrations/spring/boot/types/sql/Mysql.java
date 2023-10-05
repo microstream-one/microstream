@@ -20,10 +20,7 @@ package one.microstream.integrations.spring.boot.types.sql;
  * #L%
  */
 
-/**
- * Enterprise version
- */
 public class Mysql extends AbstractSqlConfiguration
 {
-
+	// inherits all properties from supertype
 }

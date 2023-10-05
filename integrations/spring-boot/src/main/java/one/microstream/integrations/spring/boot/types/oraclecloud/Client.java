@@ -40,30 +40,30 @@ public class Client
 
     public String getConnectionTimeoutMillis()
     {
-        return connectionTimeoutMillis;
+        return this.connectionTimeoutMillis;
     }
 
-    public void setConnectionTimeoutMillis(String connectionTimeoutMillis)
+    public void setConnectionTimeoutMillis(final String connectionTimeoutMillis)
     {
         this.connectionTimeoutMillis = connectionTimeoutMillis;
     }
 
     public String getReadTimeoutMillis()
     {
-        return readTimeoutMillis;
+        return this.readTimeoutMillis;
     }
 
-    public void setReadTimeoutMillis(String readTimeoutMillis)
+    public void setReadTimeoutMillis(final String readTimeoutMillis)
     {
         this.readTimeoutMillis = readTimeoutMillis;
     }
 
     public String getMaxAsyncThreads()
     {
-        return maxAsyncThreads;
+        return this.maxAsyncThreads;
     }
 
-    public void setMaxAsyncThreads(String maxAsyncThreads)
+    public void setMaxAsyncThreads(final String maxAsyncThreads)
     {
         this.maxAsyncThreads = maxAsyncThreads;
     }

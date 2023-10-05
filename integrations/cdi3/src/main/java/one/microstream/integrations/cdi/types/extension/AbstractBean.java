@@ -21,6 +21,10 @@ package one.microstream.integrations.cdi.types.extension;
  * #L%
  */
 
+import java.lang.annotation.Annotation;
+import java.util.Collections;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.enterprise.inject.spi.AnnotatedType;
@@ -29,9 +33,6 @@ import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.enterprise.inject.spi.PassivationCapable;
-import java.lang.annotation.Annotation;
-import java.util.Collections;
-import java.util.Set;
 
 
 /**
@@ -55,6 +56,7 @@ public abstract class AbstractBean<T> implements Bean<T>, PassivationCapable
 		return CDI.current().select(clazz).get();
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void injectDependencies(final T root)
 	{
 		final AnnotatedType<T> type = (AnnotatedType<T>) this.beanManager.createAnnotatedType(root.getClass());

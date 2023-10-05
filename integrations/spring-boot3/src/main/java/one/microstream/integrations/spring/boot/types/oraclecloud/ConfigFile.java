@@ -40,30 +40,30 @@ public class ConfigFile
 
     public String getPath()
     {
-        return path;
+        return this.path;
     }
 
-    public void setPath(String path)
+    public void setPath(final String path)
     {
         this.path = path;
     }
 
     public String getProfile()
     {
-        return profile;
+        return this.profile;
     }
 
-    public void setProfile(String profile)
+    public void setProfile(final String profile)
     {
         this.profile = profile;
     }
 
     public String getCharset()
     {
-        return charset;
+        return this.charset;
     }
 
-    public void setCharset(String charset)
+    public void setCharset(final String charset)
     {
         this.charset = charset;
     }

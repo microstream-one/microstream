@@ -57,50 +57,50 @@ public class Credentials
 
     public String getType()
     {
-        return type;
+        return this.type;
     }
 
-    public void setType(String type)
+    public void setType(final String type)
     {
         this.type = type;
     }
 
     public String getUsername()
     {
-        return username;
+        return this.username;
     }
 
-    public void setUsername(String username)
+    public void setUsername(final String username)
     {
         this.username = username;
     }
 
     public String getPassword()
     {
-        return password;
+        return this.password;
     }
 
-    public void setPassword(String password)
+    public void setPassword(final String password)
     {
         this.password = password;
     }
 
     public String getAccountMame()
     {
-        return accountMame;
+        return this.accountMame;
     }
 
-    public void setAccountMame(String accountMame)
+    public void setAccountMame(final String accountMame)
     {
         this.accountMame = accountMame;
     }
 
     public String getAccountKey()
     {
-        return accountKey;
+        return this.accountKey;
     }
 
-    public void setAccountKey(String accountKey)
+    public void setAccountKey(final String accountKey)
     {
         this.accountKey = accountKey;
     }

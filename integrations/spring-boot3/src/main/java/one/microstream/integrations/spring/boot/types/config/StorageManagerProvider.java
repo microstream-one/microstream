@@ -20,14 +20,13 @@ package one.microstream.integrations.spring.boot.types.config;
  * #L%
  */
 
-import one.microstream.integrations.spring.boot.types.storage.StorageClassData;
-import one.microstream.integrations.spring.boot.types.storage.StorageMetaData;
-import one.microstream.integrations.spring.boot.types.util.ByQualifier;
-import one.microstream.integrations.spring.boot.types.util.EnvironmentFromMap;
-import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
-import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
-import one.microstream.storage.embedded.types.EmbeddedStorageManager;
-import one.microstream.util.logging.Logging;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.springframework.boot.context.properties.bind.Bindable;
 import org.springframework.boot.context.properties.bind.Binder;
@@ -39,12 +38,14 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import one.microstream.integrations.spring.boot.types.storage.StorageClassData;
+import one.microstream.integrations.spring.boot.types.storage.StorageMetaData;
+import one.microstream.integrations.spring.boot.types.util.ByQualifier;
+import one.microstream.integrations.spring.boot.types.util.EnvironmentFromMap;
+import one.microstream.storage.embedded.configuration.types.EmbeddedStorageConfigurationBuilder;
+import one.microstream.storage.embedded.types.EmbeddedStorageFoundation;
+import one.microstream.storage.embedded.types.EmbeddedStorageManager;
+import one.microstream.util.logging.Logging;
 
 /**
  * Bean that can provide initialized instances of the MicroStream StorageManager.
@@ -88,7 +89,7 @@ public class StorageManagerProvider
 
     private Map<String, String> readProperties(final String qualifier)
     {
-        final MutablePropertySources sources = ((AbstractEnvironment) env).getPropertySources();
+        final MutablePropertySources sources = ((AbstractEnvironment) this.env).getPropertySources();
 
         final String qualifierPrefix = PREFIX + (PRIMARY_QUALIFIER.equalsIgnoreCase(qualifier) ? "" : qualifier + '.');
 
@@ -97,8 +98,8 @@ public class StorageManagerProvider
                 .map(ps -> ((EnumerablePropertySource<?>) ps).getPropertyNames())
                 .flatMap(Arrays::stream)
                 .distinct()
-                .filter(prop -> (prop.startsWith(qualifierPrefix) && env.getProperty(prop) != null))
-                .collect(Collectors.toMap(prop -> prop.replaceFirst(qualifierPrefix, ""), env::getProperty));
+                .filter(prop -> (prop.startsWith(qualifierPrefix) && this.env.getProperty(prop) != null))
+                .collect(Collectors.toMap(prop -> prop.replaceFirst(qualifierPrefix, ""), this.env::getProperty));
     }
 
     private Map<String, String> normalizeProperties(final Map<String, String> properties)
@@ -114,7 +115,7 @@ public class StorageManagerProvider
 
     public EmbeddedStorageManager get(final String qualifier)
     {
-        return storageManagers.computeIfAbsent(qualifier, this::create);
+        return this.storageManagers.computeIfAbsent(qualifier, this::create);
     }
 
     private EmbeddedStorageManager create(final String qualifier)
@@ -131,12 +132,12 @@ public class StorageManagerProvider
                 .bind("", Bindable.ofInstance(configuration));
 
         embeddedStorageFoundation.getConnectionFoundation()
-                .setClassLoaderProvider(typeName -> applicationContext.getClassLoader());
+                .setClassLoaderProvider(typeName -> this.applicationContext.getClassLoader());
 
         ByQualifier.filter(this.customizers, qualifier)
                 .forEach(c -> c.customize(embeddedStorageFoundation));
 
-        EmbeddedStorageManager storageManager = embeddedStorageFoundation.createEmbeddedStorageManager();
+        final EmbeddedStorageManager storageManager = embeddedStorageFoundation.createEmbeddedStorageManager();
 
         if (configuration.getAutoStart() != null && configuration.getAutoStart())
         {
@@ -144,7 +145,7 @@ public class StorageManagerProvider
         }
 
 
-        if (!hasRootDefined(qualifier))
+        if (!this.hasRootDefined(qualifier))
         {
             // No @Storage,so we need to execute initializers now.
             // Otherwise the StorageBeanFactory.createRootObject is responsible for calling the
@@ -157,13 +158,13 @@ public class StorageManagerProvider
 
     private boolean hasRootDefined(final String qualifier)
     {
-        if (storageMetaData.isEmpty())
+        if (this.storageMetaData.isEmpty())
         {
             // No @Storage at all -> so no root
             return false;
         }
 
-        Optional<StorageClassData<?>> storageClassData = this.storageMetaData.get()
+        final Optional<StorageClassData<?>> storageClassData = this.storageMetaData.get()
                 .getStorageClassData()
                 .stream()
                 .filter(scd -> scd.getQualifier()
@@ -175,32 +176,32 @@ public class StorageManagerProvider
     public EmbeddedStorageFoundation<?> embeddedStorageFoundation()
     {
         final Map<String, String> values = this.normalizeProperties(this.readProperties(PRIMARY_QUALIFIER));
-        return embeddedStorageFoundation(PRIMARY_QUALIFIER, values);
+        return this.embeddedStorageFoundation(PRIMARY_QUALIFIER, values);
     }
 
     private EmbeddedStorageFoundation<?> embeddedStorageFoundation(final String qualifier, final Map<String, String> values)
     {
         final EmbeddedStorageConfigurationBuilder builder = EmbeddedStorageConfigurationBuilder.New();
 
-        logger.debug("MicroStream configuration items: ");
+        this.logger.debug("MicroStream configuration items: ");
         values.forEach((key, value) ->
                        {
                            if (value != null)
                            {
                                if (key.contains("password"))
                                {
-                                   logger.debug(key + " : xxxxxx");
+                                   this.logger.debug(key + " : xxxxxx");
                                }
                                else
                                {
-                                   logger.debug(key + " : " + value);
+                                   this.logger.debug(key + " : " + value);
                                }
                                builder.set(key, value);
                            }
                        });
 
 
-        EmbeddedStorageFoundation<?> storageFoundation = builder.createEmbeddedStorageFoundation();
+        final EmbeddedStorageFoundation<?> storageFoundation = builder.createEmbeddedStorageFoundation();
         storageFoundation.setDataBaseName(qualifier);
         return storageFoundation;
 

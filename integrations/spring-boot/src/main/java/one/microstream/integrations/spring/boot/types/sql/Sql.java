@@ -42,50 +42,50 @@ public class Sql
 
     public Mariadb getMariadb()
     {
-        return mariadb;
+        return this.mariadb;
     }
 
-    public void setMariadb(Mariadb mariadb)
+    public void setMariadb(final Mariadb mariadb)
     {
         this.mariadb = mariadb;
     }
 
     public Mysql getMysql()
     {
-        return mysql;
+        return this.mysql;
     }
 
-    public void setMysql(Mysql mysql)
+    public void setMysql(final Mysql mysql)
     {
         this.mysql = mysql;
     }
 
     public Oracle getOracle()
     {
-        return oracle;
+        return this.oracle;
     }
 
-    public void setOracle(Oracle oracle)
+    public void setOracle(final Oracle oracle)
     {
         this.oracle = oracle;
     }
 
     public Postgres getPostgres()
     {
-        return postgres;
+        return this.postgres;
     }
 
-    public void setPostgres(Postgres postgres)
+    public void setPostgres(final Postgres postgres)
     {
         this.postgres = postgres;
     }
 
     public Sqlite getSqlite()
     {
-        return sqlite;
+        return this.sqlite;
     }
 
-    public void setSqlite(Sqlite sqlite)
+    public void setSqlite(final Sqlite sqlite)
     {
         this.sqlite = sqlite;
     }
