@@ -25,6 +25,7 @@ import java.util.Map;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 import one.microstream.integrations.spring.boot.types.aws.Aws;
+import one.microstream.integrations.spring.boot.types.azure.Azure;
 import one.microstream.integrations.spring.boot.types.hazelcast.Hazelcast;
 import one.microstream.integrations.spring.boot.types.mongodb.Mongodb;
 import one.microstream.integrations.spring.boot.types.oracle.Oracle;
@@ -40,6 +41,9 @@ public class StorageFilesystem
 
     @NestedConfigurationProperty
     private Aws aws;
+    
+    @NestedConfigurationProperty
+    private Azure azure;
 
     @NestedConfigurationProperty
     private Hazelcast hazelcast;
@@ -81,6 +85,16 @@ public class StorageFilesystem
     {
         this.aws = aws;
     }
+    
+    public Azure getAzure()
+	{
+		return this.azure;
+	}
+    
+    public void setAzure(final Azure azure)
+	{
+		this.azure = azure;
+	}
 
     public Hazelcast getHazelcast()
     {
