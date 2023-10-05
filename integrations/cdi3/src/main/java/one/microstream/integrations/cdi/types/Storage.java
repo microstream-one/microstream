@@ -1,12 +1,7 @@
 
 package one.microstream.integrations.cdi.types;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-/*-
+/*-w
  * #%L
  * microstream-integrations-cdi3
  * %%
@@ -25,6 +20,11 @@ import java.lang.annotation.Target;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Stereotype;
