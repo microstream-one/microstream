@@ -244,6 +244,16 @@ public interface StorageConnection extends Persister
 		StorageLiveFileProvider           targetFileProvider    ,
 		PersistenceTypeDictionaryExporter typeDictionaryExporter
 	);
+	
+	/**
+	 * Issue a cleanup of the transaction log to reduce size regardless of its current size.
+	 * 
+	 * To shrink the file size all store, transfer, and truncation entries are combined into one single store entry
+	 * for each storage files. FileCreation entries are kept, FileDeletion entries are kept
+	 * if the storage data file still exists on the file system. Otherwise, all entries related
+	 * to deleted files are removed if the storage data file does no more exist.
+	 */
+	public void issueTransactionsLogCleanup();
 
 	/**
 	 * Creates a {@link StorageRawFileStatistics} instance, (obviously) containing raw file statistics about
@@ -563,6 +573,20 @@ public interface StorageConnection extends Persister
 		{
 			this.exportChannels(targetFileProvider);
 			typeDictionaryExporter.exportTypeDictionary(this.persistenceManager().typeDictionary());
+		}
+		
+		@Override
+		public void issueTransactionsLogCleanup()
+		{
+			try
+			{
+				this.connectionRequestAcceptor.issueTransactionsLogCleanup();
+			}
+			catch(final InterruptedException e)
+			{
+				// thread interrupted, task aborted, return
+				return;
+			}
 		}
 
 		@Override

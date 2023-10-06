@@ -151,6 +151,11 @@ public interface EmbeddedStorageConfigurationPropertyNames
 	 * @see EmbeddedStorageConfigurationBuilder#setDataFileMinimumUseRatio(double)
 	 */
 	public final static String DATA_FILE_MINIMUM_USE_RATIO   = "data-file-minimum-use-ratio";
+	
+	/**
+	 * @see EmbeddedStorageConfigurationBuilder#setTransactionFileMaximumSize(one.microstream.configuration.types.ByteSize)
+	 */
+	public final static String TRANSACTION_FILE_MAXIMUM_SIZE = "transaction-file-maximum-size";
 
 	/**
 	 * @see EmbeddedStorageConfigurationBuilder#setDataFileCleanupHeadFile(boolean)

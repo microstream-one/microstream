@@ -333,7 +333,7 @@ public interface EmbeddedStorageManager extends StorageManager
 		
 		private void ensureRequiredTypeHandlers()
 		{
-			// make sure a functional type handler is present for every occuring type id or throw an exception.
+			// make sure a functional type handler is present for every occurring type id or throw an exception.
 			final StorageIdAnalysis  idAnalysis      = this.storageSystem.initializationIdAnalysis();
 			final XGettingEnum<Long> occuringTypeIds = idAnalysis.occuringTypeIds();
 			this.connectionFoundation.getTypeHandlerManager().ensureTypeHandlersByTypeIds(occuringTypeIds);
@@ -522,6 +522,12 @@ public interface EmbeddedStorageManager extends StorageManager
 		)
 		{
 			this.singletonConnection().issueFullBackup(targetFileProvider, typeDictionaryExporter);
+		}
+		
+		@Override
+		public void issueTransactionsLogCleanup()
+		{
+			this.singletonConnection().issueTransactionsLogCleanup();
 		}
 		
 		@Override

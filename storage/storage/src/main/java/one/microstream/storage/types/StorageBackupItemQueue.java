@@ -37,7 +37,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 		// instance fields //
 		////////////////////
 		
-		private final Item head = new Item(null, 0, 0);
+		private final Item head = new Item(null);
 		private       Item tail = this.head;
 		
 		
@@ -70,7 +70,7 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			final long               length
 		)
 		{
-			this.internalEnqueueItem(sourceFile, sourcePosition, length);
+			this.internalEnqueueItem(new CopyItem(sourceFile, sourcePosition, length));
 		}
 
 		@Override
@@ -79,8 +79,8 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			final long               newLength
 		)
 		{
-			// signalling with a null sourceFile is a hack to avoid the complexity of multiple Item classes
-			this.internalEnqueueItem(file, newLength, -1);
+			// Signaling with a null sourceFile is a hack to avoid the complexity of multiple Item classes
+			this.internalEnqueueItem(new TruncationItem(file, newLength));
 		}
 		
 		@Override
@@ -88,22 +88,20 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			final StorageLiveChannelFile<?> file
 		)
 		{
-			// signalling with a negative length is a hack to avoid the complexity of multiple Item classes
-			this.internalEnqueueItem(file, 0, -1);
+			// Signaling with a negative length is a hack to avoid the complexity of multiple Item classes
+			this.internalEnqueueItem(new DeletionItem(file));
 		}
 		
 		private void internalEnqueueItem(
-			final StorageLiveChannelFile<?> sourceFile    ,
-			final long                      sourcePosition,
-			final long                      length
+			final Item item
 		)
 		{
-			sourceFile.registerUsage(this);
+			item.sourceFile.registerUsage(this);
 			
 			// no try-catch with unregisterUsage required since the following code is too simple to fail.
 			synchronized(this.head)
 			{
-				this.tail = this.tail.next = new Item(sourceFile, sourcePosition, length);
+				this.tail = this.tail.next = item;
 				this.head.notifyAll();
 			}
 		}
@@ -152,37 +150,20 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			}
 		}
 		
-		static final class Item
+		static class Item
 		{
 			///////////////////////////////////////////////////////////////////////////
 			// instance fields //
 			////////////////////
 			
-			final StorageLiveChannelFile<?> sourceFile    ;
-			final long                      sourcePosition;
-			final long                      length        ;
-
+			final StorageLiveChannelFile<?> sourceFile;
 			Item next;
-
 			
-			
-			///////////////////////////////////////////////////////////////////////////
-			// constructors //
-			/////////////////
-			
-			Item(
-				final StorageLiveChannelFile<?> sourceFile    ,
-				final long                      sourcePosition,
-				final long                      length
-			)
+			public Item(final StorageLiveChannelFile<?> sourceFile)
 			{
 				super();
-				this.sourceFile     = sourceFile    ;
-				this.sourcePosition = sourcePosition;
-				this.length         = length        ;
+				this.sourceFile = sourceFile;
 			}
-			
-			
 			
 			///////////////////////////////////////////////////////////////////////////
 			// methods //
@@ -190,26 +171,91 @@ public interface StorageBackupItemQueue extends StorageBackupItemEnqueuer, Stora
 			
 			public void processBy(final StorageBackupHandler handler)
 			{
-				// negative length used as a hack ("reduce file") to avoid the complexity of multiple Item classes
-				if(this.length < 0)
-				{
-					if(this.sourcePosition == 0)
-					{
-						// reduce to 0 means deleting the file.
-						handler.deleteFile(this.sourceFile);
-					}
-					else
-					{
-						// reduce to a non-zero position means truncation.
-						handler.truncateFile(this.sourceFile, this.sourcePosition);
-					}
-				}
-				else
-				{
-					handler.copyFilePart(this.sourceFile, this.sourcePosition, this.length);
-				}
+				//no-op
+				return;
 			}
 			
+		}
+		
+		static final class CopyItem extends Item
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			final long sourcePosition;
+			final long length        ;
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			CopyItem(
+				final StorageLiveChannelFile<?> sourceFile    ,
+				final long                      sourcePosition,
+				final long                      length
+			)
+			{
+				super(sourceFile);
+				this.sourcePosition = sourcePosition;
+				this.length         = length        ;
+			}
+
+			@Override
+			public void processBy(final StorageBackupHandler handler)
+			{
+				handler.copyFilePart(this.sourceFile, this.sourcePosition, this.length);
+			}
+		}
+		
+		static final class TruncationItem extends Item
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// instance fields //
+			////////////////////
+			
+			final long length;
+			
+			
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			TruncationItem(
+				final StorageLiveChannelFile<?> sourceFile,
+				final long                      length
+			)
+			{
+				super(sourceFile);
+				this.length = length;
+			}
+
+			@Override
+			public void processBy(final StorageBackupHandler handler)
+			{
+				handler.truncateFile(this.sourceFile, this.length);
+			}
+		}
+		
+		static final class DeletionItem extends Item
+		{
+			///////////////////////////////////////////////////////////////////////////
+			// constructors //
+			/////////////////
+			
+			DeletionItem(
+				final StorageLiveChannelFile<?> sourceFile
+			)
+			{
+				super(sourceFile);
+			}
+
+			@Override
+			public void processBy(final StorageBackupHandler handler)
+			{
+				handler.deleteFile(this.sourceFile);
+			}
 		}
 		
 	}

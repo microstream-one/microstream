@@ -88,6 +88,10 @@ They can be found as constants in `EmbeddedStorageConfigurationPropertyNames`.
 
 |data-file-cleanup-head-file
 |A flag defining whether the current head file (the only file actively written to) shall be subjected to file cleanups as well.
+
+|xref:#transaction-file-maximum-size[transaction-file-maximum-size]
+Maximum file size for each channels transactions log file. If this limit is exceeded the file wile be cleaned up during housekeeping. Default is 100 MiB. 
+Maximum value is 1 GiB.
 |===
 
 
@@ -165,6 +169,18 @@ The ratio (value in ]0.0;1.0]) of non-gap data contained in a storage file to pr
 "Gap" data is anything that is not the latest version of an entity's data, including older versions of an entity and "comment" bytes (a sequence of bytes beginning with its length as a negative value length header).
 The closer this value is to 1.0 (100%), the less disk space is occupied by storage files, but the more file dissolving (data transfers to new files) is required and vice versa.
 
+[#transaction-file-maximum-size]
+=== transaction-file-maximum-size
+Maximum file size for each channels transactions log file. If this limit is exceeded the file wile be cleaned up during housekeeping.
+
+To shrink the file size all store, transfer, and truncation entries are combined into one single store entry
+for each storage files. FileCreation entries are kept, FileDeletion entries are kept
+if the storage data file still exists on the file system. Otherwise all entries related
+to deleted files are removed if the storage data file does no more exist.
+
+Default is 100 MB. 
+Maximum value is 1 GB.
+
 == Involved Types
 
 This list shows which property configures which type, used by the foundation types, to create the storage manager.
@@ -241,5 +257,8 @@ This list shows which property configures which type, used by the foundation typ
 | `StorageDataFileEvaluator`
 
 | data-file-cleanup-head-file
+| `StorageDataFileEvaluator`
+
+| transaction-file-maximum-size
 | `StorageDataFileEvaluator`
 |===

@@ -246,6 +246,12 @@ public class StorageManagerProxy implements StorageManager
         this.getStorageManager().issueFullBackup(targetFileProvider, typeDictionaryExporter);
     }
 
+	@Override
+	public void issueTransactionsLogCleanup()
+	{
+		this.getStorageManager().issueTransactionsLogCleanup();
+	}
+	
     @Override
     public StorageRawFileStatistics createStorageStatistics()
     {

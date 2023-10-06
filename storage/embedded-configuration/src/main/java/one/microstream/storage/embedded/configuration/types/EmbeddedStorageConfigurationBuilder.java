@@ -319,6 +319,16 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 	public EmbeddedStorageConfigurationBuilder setDataFileCleanupHeadFile(boolean dataFileCleanupHeadFile);
 
 	/**
+	 * Maximum file size for a transaction file to avoid cleaning it up. Default is 1 GiB.
+	 *
+	 * @param transactionFileMaximumSize the new maximum file size
+	 * @return this
+	 *
+	 * @see #setDataFileMinimumUseRatio(double)
+	 */
+	public EmbeddedStorageConfigurationBuilder setTransactionFileMaximumSize(ByteSize transactionFileMaximumSize);
+	
+	/**
 	 * Creates an {@link EmbeddedStorageFoundation} based on the settings of this builder.
 	 *
 	 * @return an {@link EmbeddedStorageFoundation}
@@ -634,6 +644,14 @@ public interface EmbeddedStorageConfigurationBuilder extends Configuration.Build
 		)
 		{
 			return this.set(DATA_FILE_CLEANUP_HEAD_FILE, Boolean.toString(dataFileCleanupHeadFile));
+		}
+
+		@Override
+		public EmbeddedStorageConfigurationBuilder setTransactionFileMaximumSize(
+			final ByteSize transactionFileMaximumSize
+		)
+		{
+			return this.set(TRANSACTION_FILE_MAXIMUM_SIZE, transactionFileMaximumSize.toString());
 		}
 
 	}
