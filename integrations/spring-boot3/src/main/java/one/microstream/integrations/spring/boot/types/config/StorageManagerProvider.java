@@ -210,13 +210,13 @@ public class StorageManagerProvider
 
         this.logger.debug("MicroStream configuration items: ");
         values.forEach((key, value) ->
-                       {
+        {
             if (value != null) {
                 String logValue = key.contains("password") ? "xxxxxx" : value;
                 this.logger.debug(key + " : " + logValue);
-                               builder.set(key, value);
-                           }
-                       });
+                builder.set(key, value);
+            }
+        });
 
 
         final EmbeddedStorageFoundation<?> storageFoundation = builder.createEmbeddedStorageFoundation();
