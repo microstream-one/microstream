@@ -133,11 +133,13 @@ public class StorageManagerProvider
         return new StorageManagerConfiguration(this.normalizeProperties(this.readProperties(PRIMARY_QUALIFIER)));
     }
 
-    public EmbeddedStorageManager create(Map<String, String> values) {
+    public EmbeddedStorageManager create(Map<String, String> values)
+    {
         return create(PRIMARY_QUALIFIER, values);
     }
 
-    public EmbeddedStorageManager create(final String qualifier, Map<String, String> values) {
+    public EmbeddedStorageManager create(final String qualifier, Map<String, String> values)
+    {
         final EmbeddedStorageFoundation<?> embeddedStorageFoundation = this.embeddedStorageFoundation(qualifier, values);
 
         final MicrostreamConfigurationProperties configuration = new MicrostreamConfigurationProperties();
@@ -200,7 +202,8 @@ public class StorageManagerProvider
         return this.embeddedStorageFoundation(PRIMARY_QUALIFIER, values);
     }
 
-    public EmbeddedStorageFoundation<?> embeddedStorageFoundation(final Map<String, String> values) {
+    public EmbeddedStorageFoundation<?> embeddedStorageFoundation(final Map<String, String> values)
+    {
         return this.embeddedStorageFoundation(PRIMARY_QUALIFIER, values);
     }
 
