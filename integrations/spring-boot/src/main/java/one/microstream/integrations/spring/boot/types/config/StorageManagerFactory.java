@@ -40,6 +40,13 @@ public class StorageManagerFactory
         this.storageManagerProvider = storageManagerProvider;
     }
 
+    @Bean
+    @Lazy
+    @Primary
+    public StorageManagerConfiguration storageManagerConfiguration ()
+    {
+        return this.storageManagerProvider.prepareConfiguration();
+    }
 
     @Bean
     @Lazy

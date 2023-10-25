@@ -87,7 +87,7 @@ public class StorageManagerProvider
         this.applicationContext = applicationContext;
     }
 
-    private Map<String, String> readProperties(final String qualifier)
+    protected Map<String, String> readProperties(final String qualifier)
     {
         final MutablePropertySources sources = ((AbstractEnvironment) this.env).getPropertySources();
 
@@ -118,11 +118,26 @@ public class StorageManagerProvider
         return this.storageManagers.computeIfAbsent(qualifier, this::create);
     }
 
-    private EmbeddedStorageManager create(final String qualifier)
+    public EmbeddedStorageManager get(final String qualifier, Map<String, String> values)
     {
+        return this.storageManagers.computeIfAbsent(qualifier, this::create);
+    }
 
-        final Map<String, String> values = this.normalizeProperties(this.readProperties(qualifier));
+    protected StorageManagerConfiguration prepareConfiguration(final String qualifier)
+    {
+        return new StorageManagerConfiguration(this.normalizeProperties(this.readProperties(qualifier)));
+    }
 
+    protected StorageManagerConfiguration prepareConfiguration()
+    {
+        return new StorageManagerConfiguration(this.normalizeProperties(this.readProperties(PRIMARY_QUALIFIER)));
+    }
+
+    public EmbeddedStorageManager create(Map<String, String> values) {
+        return create(PRIMARY_QUALIFIER, values);
+    }
+
+    public EmbeddedStorageManager create(final String qualifier, Map<String, String> values) {
         final EmbeddedStorageFoundation<?> embeddedStorageFoundation = this.embeddedStorageFoundation(qualifier, values);
 
         final MicrostreamConfigurationProperties configuration = new MicrostreamConfigurationProperties();
@@ -131,8 +146,6 @@ public class StorageManagerProvider
         Binder.get(new EnvironmentFromMap(values))
                 .bind("", Bindable.ofInstance(configuration));
 
-        embeddedStorageFoundation.getConnectionFoundation()
-                .setClassLoaderProvider(typeName -> this.applicationContext.getClassLoader());
 
         ByQualifier.filter(this.customizers, qualifier)
                 .forEach(c -> c.customize(embeddedStorageFoundation));
@@ -148,12 +161,20 @@ public class StorageManagerProvider
         if (!this.hasRootDefined(qualifier))
         {
             // No @Storage,so we need to execute initializers now.
-            // Otherwise the StorageBeanFactory.createRootObject is responsible for calling the
+            // Otherwise, the StorageBeanFactory.createRootObject is responsible for calling the
             ByQualifier.filter(this.initializers, qualifier)
                     .forEach(i -> i.initialize(storageManager));
         }
 
         return storageManager;
+
+    }
+
+    private EmbeddedStorageManager create(final String qualifier)
+    {
+        final Map<String, String> values = prepareConfiguration(qualifier).getValues();
+
+        return create(qualifier, values);
     }
 
     private boolean hasRootDefined(final String qualifier)
@@ -175,33 +196,31 @@ public class StorageManagerProvider
 
     public EmbeddedStorageFoundation<?> embeddedStorageFoundation()
     {
-        final Map<String, String> values = this.normalizeProperties(this.readProperties(PRIMARY_QUALIFIER));
+        final Map<String, String> values = prepareConfiguration(PRIMARY_QUALIFIER).getValues();
         return this.embeddedStorageFoundation(PRIMARY_QUALIFIER, values);
     }
 
-    private EmbeddedStorageFoundation<?> embeddedStorageFoundation(final String qualifier, final Map<String, String> values)
+    public EmbeddedStorageFoundation<?> embeddedStorageFoundation(final Map<String, String> values) {
+        return this.embeddedStorageFoundation(PRIMARY_QUALIFIER, values);
+    }
+
+    public EmbeddedStorageFoundation<?> embeddedStorageFoundation(final String qualifier, final Map<String, String> values)
     {
         final EmbeddedStorageConfigurationBuilder builder = EmbeddedStorageConfigurationBuilder.New();
 
         this.logger.debug("MicroStream configuration items: ");
-        values.forEach((key, value) ->
-                       {
-                           if (value != null)
-                           {
-                               if (key.contains("password"))
-                               {
-                                   this.logger.debug(key + " : xxxxxx");
-                               }
-                               else
-                               {
-                                   this.logger.debug(key + " : " + value);
-                               }
-                               builder.set(key, value);
-                           }
-                       });
 
+        values.forEach((key, value) -> {
+            if (value != null) {
+                String logValue = key.contains("password") ? "xxxxxx" : value;
+                this.logger.debug(key + " : " + logValue);
+                builder.set(key, value);
+            }
+        });
 
         final EmbeddedStorageFoundation<?> storageFoundation = builder.createEmbeddedStorageFoundation();
+        storageFoundation.getConnectionFoundation()
+                .setClassLoaderProvider(typeName -> this.applicationContext.getClassLoader());
         storageFoundation.setDataBaseName(qualifier);
         return storageFoundation;
 
