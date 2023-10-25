@@ -66,7 +66,7 @@ You have the opportunity to perform actions on the _StorageManager_ or root obje
 - The _StorageManager_ is already started unless you specified the configuration value `one.microstream.auto-start=false`.
 - If you have used the `@Storage` annotation on a class, the _StorageManager_ is already associated with an instance of that class as the Root object.
 
-It is also possible to get the entire configuration in the `StorageManagerConfiguration` Bean, which allows you to directly create a foundation and storage manager. This can be useful if you need to stop storage at runtime and restart storage.
+It is also possible to obtain the entire configuration within the `StorageManagerConfiguration` Bean, enabling you to directly create a foundation and storage manager. This can be helpful if you need to stop storage at runtime and then restart it.
 
 [source]
 ----
