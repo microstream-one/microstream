@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-examples-parent</artifactId>
-		<version>08.01.02-MS-GA-SNAPSHOT</version>
+		<version>08.01.03-MS-SDMI-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-storage-embedded-configuration</artifactId>
-			<version>08.01.02-MS-GA-SNAPSHOT</version>
+			<version>08.01.03-MS-SDMI-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

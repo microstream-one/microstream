@@ -5,12 +5,12 @@
     <parent>
         <groupId>one.microstream</groupId>
         <artifactId>microstream-integrations-parent</artifactId>
-        <version>08.01.02-MS-GA-SNAPSHOT</version>
+        <version>08.01.03-MS-SDMI-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>microstream-integrations-quarkus-parent</artifactId>
-    <version>08.01.02-MS-GA-SNAPSHOT</version>
+    <version>08.01.03-MS-SDMI-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>MicroStream Integrations Quarkus</name>
