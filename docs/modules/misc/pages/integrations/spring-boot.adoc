@@ -66,6 +66,31 @@ You have the opportunity to perform actions on the _StorageManager_ or root obje
 - The _StorageManager_ is already started unless you specified the configuration value `one.microstream.auto-start=false`.
 - If you have used the `@Storage` annotation on a class, the _StorageManager_ is already associated with an instance of that class as the Root object.
 
+It is also possible to obtain the entire configuration within the `StorageManagerConfiguration` Bean, enabling you to directly create a foundation and storage manager. This can be helpful if you need to stop storage at runtime and then restart it.
+
+[source]
+----
+@Component
+public class ConfigurationBeanInject
+{
+    @Autowired
+    StorageManagerConfiguration configuration;
+
+    @Autowired
+    StorageManagerProvider provider;
+
+    Root root = new Root();
+
+    void startStorage()
+    {
+
+        EmbeddedStorageFoundation<?> embeddedStorageFoundation = provider.embeddedStorageFoundation(configuration.getValues());
+        EmbeddedStorageManager storage = embeddedStorageFoundation.start(root));
+        ...
+
+    }
+----
+
 == Root object
 
 The root object can be indicated by using the `@Storage` annotation on the class. This annotation converts the POJO into a Spring bean (The annotation is a Spring Qualifier that makes the class also a _Component_).
