@@ -26,6 +26,12 @@ public interface PersistenceLoader extends PersistenceRetrieving
 
 	public void registerSkip(long objectId);
 
+	/**
+	 * Iterate over all known objects of the current Loader
+	 * 
+	 * @param iterator PersistenceAcceptor
+	 */
+	void iterateEntries(final PersistenceAcceptor iterator);
 
 
 	public interface Creator<D>

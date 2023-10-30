@@ -34,6 +34,7 @@ import one.microstream.memory.XMemory;
 import one.microstream.persistence.binary.exceptions.BinaryPersistenceException;
 import one.microstream.persistence.binary.one.microstream.collections.BinaryHandlerSingleton;
 import one.microstream.persistence.exceptions.PersistenceExceptionTypeHandlerConsistencyUnhandledTypeId;
+import one.microstream.persistence.types.PersistenceAcceptor;
 import one.microstream.persistence.types.PersistenceLoadHandler;
 import one.microstream.persistence.types.PersistenceLoader;
 import one.microstream.persistence.types.PersistenceObjectRegistry;
@@ -65,7 +66,7 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		return new BinaryLoader.CreatorSimple(switchByteOrder);
 	}
 
-	public static BinaryLoader.Default New(
+	public static BinaryLoader New(
 		final PersistenceTypeHandlerLookup<Binary> typeLookup     ,
 		final PersistenceObjectRegistry            registry       ,
 		final Persister                            persister      ,
@@ -917,6 +918,15 @@ public interface BinaryLoader extends PersistenceLoader, PersistenceLoadHandler
 		{
 			// add-logic: only put if not contained yet (single lookup)
 			this.loadItems.addLoadItem(objectId);
+		}
+		
+		@Override
+		public void iterateEntries(final PersistenceAcceptor iterator)
+		{
+			synchronized(this.objectRegistry)
+			{
+				this.objectRegistry.iterateEntries(iterator);
+			}
 		}
 		
 	}
