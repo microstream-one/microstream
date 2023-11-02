@@ -4,7 +4,7 @@
 ![GitHub issues](https://img.shields.io/github/issues/microstream-one/microstream?style=for-the-badge)
 ![Maven Central](https://img.shields.io/maven-central/v/one.microstream/microstream-base?style=for-the-badge&versionSuffix=-MS-GA)
 ![Twitter Follow](https://img.shields.io/twitter/follow/microstreamOne?style=for-the-badge)
-[![Gradle Enterprise](https://img.shields.io/badge/Revved%20up%20by-Gradle%20Enterprise-06A0CE?style=for-the-badge&logo=gradle)](https://ge.microstream.one/scans)
+[![Develocity](https://img.shields.io/badge/Revved%20up%20by-Develocity-06A0CE?style=for-the-badge&logo=gradle)](https://ge.microstream.one/scans)
 
 # High-Performance Java-Native-Persistence
 
