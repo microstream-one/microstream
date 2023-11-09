@@ -89,10 +89,10 @@ When using external configuration the specific target configuration must be appl
 
 [source,text,title="external configuration:"]
 ----
-storage-filesystem.sql.sqlite.data-source-provider=com.sample.MyDataSourceProvider
-storage-filesystem.sql.sqlite.catalog=mycatalog
-storage-filesystem.sql.sqlite.schema=myschema
-storage-filesystem.sql.sqlite.url=jdbc:sqlite:microstreamdb
+storage-filesystem.aws.s3.credentials.type=static
+storage-filesystem.aws.s3.credentials.access-key-id=my-access-key-id
+storage-filesystem.aws.s3.credentials.secret-acces-key=my-secret-access-key
+storage-filesystem.aws.s3.credentials.region=us-east-1
 
 storage-directory=storageDir
 
