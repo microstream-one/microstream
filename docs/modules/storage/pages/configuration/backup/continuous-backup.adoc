@@ -58,7 +58,7 @@ The continuous backup can be written to all supported xref:storage-targets/index
 [source,java,title="foundation classes:"]
 ----
 SQLiteDataSource dataSource = new SQLiteDataSource();
-dataSource.setUrl("jdbc:sqlite:microstreamdb");
+dataSource.setUrl("jdbc:sqlite:microstream_bkup_db");
 
 SqlFileSystem fileSystem = SqlFileSystem.New(
 	SqlConnector.Caching(
@@ -99,7 +99,7 @@ storage-directory=storageDir
 backup-filesystem.sql.sqlite.data-source-provider=com.sample.MyDataSourceProvider
 backup-filesystem.sql.sqlite.catalog=mycatalog
 backup-filesystem.sql.sqlite.schema=myschema
-backup-filesystem.sql.sqlite.url=jdbc:sqlite:microstreamdb
+backup-filesystem.sql.sqlite.url=jdbc:sqlite:microstream_bkup_db
 
 backup-directory=backupDir
 ----
