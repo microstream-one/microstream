@@ -52,3 +52,55 @@ StorageConfiguration configuration = StorageConfiguration.Builder()
 ;
 ----
 
+== Storage Targets
+The continuous backup can be written to all supported xref:storage-targets/index.adoc[storage targets].
+
+[source,java,title="foundation classes:"]
+----
+SQLiteDataSource dataSource = new SQLiteDataSource();
+dataSource.setUrl("jdbc:sqlite:microstream_bkup_db");
+
+SqlFileSystem fileSystem = SqlFileSystem.New(
+	SqlConnector.Caching(
+		SqlProviderSqlite.New(dataSource)
+	)
+);
+
+StorageBackupSetup backupSetup = StorageBackupSetup.New(
+	Sorage.BackupFileProviderBuilder(fileSystem)
+		.setDirectory(fileSystem.ensureDirectoryPath(BACKUPDIR))						
+		.setTruncationDirectory(fileSystem.ensureDirectoryPath(TRUNCATIONDIR))
+		.setDeletionDirectory(fileSystem.ensureDirectoryPath(DELETIONDIR))
+		.createFileProvider()
+);	
+				
+StorageConfiguration configuration = StorageConfiguration.Builder()
+	.setBackupSetup(backupSetup)
+	.setStorageFileProvider(StorageLiveFileProvider.New(
+		fileSystem.ensureDirectoryPath(WORKINGDIR)
+	))
+	.createConfiguration()
+;
+
+
+----
+
+When using external configuration the specific target configuration must be applied to the `backup-filesystem` property:
+
+[source,text,title="external configuration:"]
+----
+storage-filesystem.aws.s3.credentials.type=static
+storage-filesystem.aws.s3.credentials.access-key-id=my-access-key-id
+storage-filesystem.aws.s3.credentials.secret-acces-key=my-secret-access-key
+storage-filesystem.aws.s3.credentials.region=us-east-1
+
+storage-directory=storageDir
+
+backup-filesystem.sql.sqlite.data-source-provider=com.sample.MyDataSourceProvider
+backup-filesystem.sql.sqlite.catalog=mycatalog
+backup-filesystem.sql.sqlite.schema=myschema
+backup-filesystem.sql.sqlite.url=jdbc:sqlite:microstream_bkup_db
+
+backup-directory=backupDir
+----
+
