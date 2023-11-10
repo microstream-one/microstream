@@ -967,9 +967,10 @@ public interface PersistenceTypeHandlerManager<D> extends PersistenceTypeManager
 			final HashEnum<PersistenceTypeHandler<D, ?>> newTypeHandlers            = HashEnum.New();
 			final HashEnum<PersistenceTypeHandler<D, ?>> typeRegisteredTypeHandlers = HashEnum.New();
 			
-			// either fill/initialize an empty type dictionary or initalize from a non-empty dictionary.
+			// either fill/initialize an empty type dictionary or initialize from a non-empty dictionary.
 			if(typeDictionary.isEmpty())
 			{
+				logger.info("Type dictionary is empty or not existing. Initializing type handler manager with a new default type dictionary");
 				this.synchInitializeBlank(newTypeHandlers);
 			}
 			else
