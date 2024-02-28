@@ -1,5 +1,11 @@
 = Changelog
 
+== 8.1.2
+
+=== *Bugfixes*
+
+* Fix memory cleanup https://github.com/microstream-one/microstream/pull/694[[694]]
+
 == 8.1.1
 
 === *Bugfixes*
