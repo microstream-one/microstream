@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>one.microstream</groupId>
 		<artifactId>microstream-afs-aws-parent</artifactId>
-		<version>08.01.02-MS-GA</version>
+		<version>08.01.03-MS-GA-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>one.microstream</groupId>
 			<artifactId>microstream-afs-aws</artifactId>
-			<version>08.01.02-MS-GA</version>
+			<version>08.01.03-MS-GA-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>
