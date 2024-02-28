@@ -7,7 +7,7 @@
   <parent>
         <groupId>one.microstream</groupId>
         <artifactId>microstream-integrations-quarkus3-parent</artifactId>
-        <version>08.01.02-MS-GA-SNAPSHOT</version>
+        <version>08.01.02-MS-GA</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>one.microstream</groupId>
             <artifactId>microstream-quarkus3-extension</artifactId>
-            <version>08.01.02-MS-GA-SNAPSHOT</version>
+            <version>08.01.02-MS-GA</version>
         </dependency>
 
         <!-- test dependencies -->
