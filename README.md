@@ -1,3 +1,19 @@
+> ---
+> ## MicroStream is now EclipseStore
+> 
+> <img src="https://github.com/eclipse-store/store/blob/main/etc/images/logo.svg" width="50%">
+> 
+> #### The MicroStream project has been moved to the Eclipse Foundation. 
+> #### Active development will continue there.
+> #### It has been split into two projects:
+> ### [Eclipse Serializer](https://github.com/eclipse-serializer/serializer)
+> ### [EclipseStore](https://github.com/eclipse-store/store)
+> #### MicroStream will receive security patches until the end of 2024.
+> #### However, we recommend [migrating to EclipseStore](https://docs.eclipsestore.io/manual/intro/changelog.html#_migration) to take advantage of the new features and support for newer JDKs.
+> ---
+
+<br/><br/>
+
 <img src="./etc/images/logo.svg" width="500px">
 
 ![GitHub](https://img.shields.io/github/license/microstream-one/microstream?style=for-the-badge)
