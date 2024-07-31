@@ -371,10 +371,10 @@
 				</plugin>
 				<plugin>
 					<groupId>com.gradle</groupId>
-					<artifactId>gradle-enterprise-maven-extension</artifactId>
-					<version>1.20.1</version>
+					<artifactId>develocity-maven-extension</artifactId>
+					<version>1.21.4</version>
 					<configuration>
-						<gradleEnterprise>
+						<develocity>
 							<normalization>
 								<runtimeClassPath>
 									<metaInf>
@@ -399,7 +399,7 @@
 									</propertiesNormalizations>
 								</runtimeClassPath>
 							</normalization>
-						</gradleEnterprise>
+						</develocity>
 					</configuration>
 				</plugin>
 			</plugins>
